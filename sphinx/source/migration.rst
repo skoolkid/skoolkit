@@ -49,3 +49,7 @@ Z80 snapshot file. In SkoolKit 9, this option has been removed; instead the
 output filename may be specified after the input filename. For example::
 
   $ trace.py --stop 32768 in.z80 out.z80
+
+In SkoolKit 8, if the input filename was '.', a blank 48K snapshot was
+substituted. In SkoolKit 9, this no longer works; instead, use '48' for a
+blank 48K snapshot, or '128' for a blank 128K snapshot.

@@ -10,10 +10,10 @@ SYNOPSIS
 
 DESCRIPTION
 ===========
-``trace.py`` simulates the execution of machine code in a 48K binary (raw
-memory) file or a SNA, SZX or Z80 snapshot. If FILE is '.', no snapshot is
-loaded, and the RAM is left blank (all zeroes). If 'file.z80' is given, a Z80
-snapshot is written after execution has completed.
+``trace.py`` simulates the execution of machine code in a 48K or 128K binary
+(raw memory) file or a SNA, SZX or Z80 snapshot. If FILE is '48' or '128', no
+snapshot is loaded, and the RAM is left blank (all zeroes). If 'file.z80' is
+given, a Z80 snapshot is written after execution has completed.
 
 OPTIONS
 =======
@@ -58,8 +58,7 @@ OPTIONS
   be used multiple times.
 
 --rom `FILE`
-  Patch in a ROM at address 0 from this file. By default the 48K ZX Spectrum
-  ROM is used.
+  Patch in a ROM at address 0 from this file.
 
 -s, --start `ADDR`
   Start execution at this address. `ADDR` must be a decimal number, or a

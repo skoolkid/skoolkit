@@ -16,9 +16,9 @@
 
 from skoolkit.snapshot import BANKS_128K
 
-class PagingTracer: # pragma: no cover
+class PagingTracer:
     def write_port(self, registers, port, value):
-        if port % 2 == 0:
+        if port % 2 == 0: # pragma: no cover
             self.border = value % 8
         elif port & 0x8002 == 0:
             mem = self.simulator.memory

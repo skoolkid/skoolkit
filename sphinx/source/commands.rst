@@ -1699,8 +1699,8 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 
 trace.py
 --------
-`trace.py` simulates the execution of machine code in a 48K memory snapshot.
-For example::
+`trace.py` simulates the execution of machine code in a 48K or 128K memory
+snapshot. For example::
 
   $ trace.py --start 32768 --stop 49152 game.z80
 
@@ -1709,8 +1709,8 @@ To list the options supported by `trace.py`, run it with no arguments::
   usage: trace.py [options] FILE [file.z80]
 
   Trace Z80 machine code execution. FILE may be a binary (raw memory) file, a
-  SNA, SZX or Z80 snapshot, or '.' for no snapshot. If 'file.z80' is given, a
-  Z80 snapshot is written after execution has completed.
+  SNA, SZX or Z80 snapshot, or '48' or '128' for no snapshot. If 'file.z80' is
+  given, a Z80 snapshot is written after execution has completed.
 
   Options:
     --audio               Show audio delays.
@@ -1729,8 +1729,7 @@ To list the options supported by `trace.py`, run it with no arguments::
     -r name=value, --reg name=value
                           Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
-    --rom FILE            Patch in a ROM at address 0 from this file. By default
-                          the 48K ZX Spectrum ROM is used.
+    --rom FILE            Patch in a ROM at address 0 from this file.
     -s ADDR, --start ADDR
                           Start execution at this address.
     -S ADDR, --stop ADDR  Stop execution at this address.
@@ -1756,6 +1755,8 @@ running on a real ZX Spectrum.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.0     | Added support for 128K snapshots                                  |
++---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``--interrupts`` option; reads and writes the T-states  |
 |         | counter in Z80 snapshots and reads the T-states counter in SZX    |
 |         | snapshots                                                         |

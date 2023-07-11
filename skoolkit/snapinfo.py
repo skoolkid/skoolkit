@@ -145,6 +145,7 @@ def _parse_z80(z80file):
         reg.pc = get_word(header, 6)
     else:
         reg.pc = get_word(header, 32)
+        reg.out7ffd = header[35]
     reg.sp = get_word(header, 8)
     reg.i = header[10]
     reg.r = 128 * (header[12] & 1) + (header[11] & 127)
@@ -202,7 +203,7 @@ def _analyse_z80(z80file, header, reg, ram_blocks):
         print(f'T-states: {reg.tstates}')
     print('Border: {}'.format((header[12] // 2) & 7))
     if bank is not None:
-        print('Port $7FFD: {} - bank {} (block {}) paged into 49152-65535 C000-FFFF'.format(header[35], bank, bank + 3))
+        print('Port $7FFD: {} - bank {} (block {}) paged into 49152-65535 C000-FFFF'.format(reg.out7ffd, bank, bank + 3))
 
     # Print register contents
     print('Registers:')
@@ -288,50 +289,48 @@ def _parse_szx(szxfile):
             reg.tstates = get_dword(block, 29)
         elif block_id == 'SPCR':
             reg.border = block[0]
+            reg.out7ffd = block[1]
 
     return header, reg, blocks
 
 def _get_block_id(data, index):
     return ''.join([chr(b) for b in data[index:index+ 4]])
 
-def _print_keyb(block, variables):
+def _print_keyb(block, reg):
     issue2 = get_dword(block, 0) & 1
     return ['Issue 2 emulation: {}abled'.format('en' if issue2 else 'dis')]
 
-def _print_ramp(block, variables):
-    lines = []
+def _print_ramp(block, reg):
     flags = get_word(block, 0)
     compressed = 'compressed' if flags & 1 else 'uncompressed'
     page = block[2]
     ram = block[3:]
-    lines.append("Page: {}".format(page))
-    machine_id = variables['chMachineId']
     addresses = ''
     if page == 5:
         addresses = '16384-32767 4000-7FFF'
     elif page == 2:
         addresses = '32768-49151 8000-BFFF'
-    elif machine_id > 1 and page == variables['ch7ffd'] & 7:
+    elif reg.machine_id > 1 and page == reg.out7ffd & 7:
         addresses = '49152-65535 C000-FFFF'
     if addresses:
         addresses += ': '
-    lines.append("RAM: {}{} bytes, {}".format(addresses, len(ram), compressed))
-    return lines
+    return (
+        f'Page: {page}',
+        f'RAM: {addresses}{len(ram)} bytes, {compressed}'
+    )
 
-def _print_spcr(block, variables):
-    lines = []
-    lines.append('Border: {}'.format(block[0]))
-    ch7ffd = block[1]
-    variables['ch7ffd'] = ch7ffd
-    bank = ch7ffd & 7
-    lines.append('Port $7FFD: {} (bank {} paged into 49152-65535 C000-FFFF)'.format(ch7ffd, bank))
-    return lines
+def _print_spcr(block, reg):
+    return (
+        f'Border: {reg.border}',
+        f'Port $7FFD: {reg.out7ffd} (bank {reg.out7ffd & 7} paged into 49152-65535 C000-FFFF)'
+    )
 
-def _print_z80r(reg):
-    lines = []
-    lines.append('Interrupts: {}abled'.format('en' if reg.iff2 else 'dis'))
-    lines.append('Interrupt mode: {}'.format(reg.im))
-    lines.append(f'T-states: {reg.tstates}')
+def _print_z80r(block, reg):
+    lines = [
+        'Interrupts: {}abled'.format('en' if reg.iff2 else 'dis'),
+        f'Interrupt mode: {reg.im}',
+        f'T-states: {reg.tstates}'
+    ]
     return lines + reg.get_lines()
 
 SZX_BLOCK_PRINTERS = {
@@ -343,19 +342,14 @@ SZX_BLOCK_PRINTERS = {
 
 def _analyse_szx(header, reg, blocks):
     print('Version: {}.{}'.format(header[4], header[5]))
-    machine_id = header[6]
-    print('Machine: {}'.format(SZX_MACHINES.get(machine_id, 'Unknown')))
-    variables = {'chMachineId': machine_id}
+    reg.machine_id = header[6]
+    print('Machine: {}'.format(SZX_MACHINES.get(reg.machine_id, 'Unknown')))
 
     for block_id, block in blocks:
         print('{}: {} bytes'.format(block_id, len(block)))
         printer = SZX_BLOCK_PRINTERS.get(block_id)
         if printer:
-            if block_id == 'Z80R':
-                lines = printer(reg)
-            else:
-                lines = printer(block, variables)
-            for line in lines:
+            for line in printer(block, reg):
                 print("  " + line)
 
 ###############################################################################
@@ -385,8 +379,10 @@ def _parse_sna(snafile):
     reg.sp = get_word(sna, 23)
     if len(sna) > 49179:
         reg.pc = get_word(sna, 49179)
+        reg.out7ffd = sna[49181]
     else:
         reg.pc = get_word(sna, reg.sp - 16357)
+        reg.out7ffd = 0
     reg.border = sna[26]
     reg.iff2 = (sna[19] & 4) // 4
     reg.im = sna[25]

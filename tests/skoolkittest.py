@@ -287,8 +287,10 @@ class SkoolKitTestCase(TestCase):
             header[32] = pc % 256
             header[33] = pc // 256
             if version == 3:
-                t = 69887 - (registers.get('tstates', 0) % 69888)
-                t1, t2 = t % 17472, t // 17472
+                frame_duration = 69888 if header[34] < 4 else 70908
+                qframe_duration = frame_duration // 4
+                t = frame_duration - 1 - (registers.get('tstates', 0) % frame_duration)
+                t1, t2 = t % qframe_duration, t // qframe_duration
                 header[55:58] = (t1 % 256, t1 // 256, (2 - t2) % 4)
         sp = registers.get('SP', 0)
         header[8] = sp % 256

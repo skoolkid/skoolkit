@@ -248,7 +248,7 @@ man_pages = [
     ('man/tapinfo.py', 'tapinfo.py',
      'show the blocks in a TAP or TZX file', _authors, 1),
     ('man/trace.py', 'trace.py',
-     'simulate code execution in a 48K memory snapshot', _authors, 1)
+     'simulate code execution in a 48K or 128K memory snapshot', _authors, 1)
 ]
 
 # If true, show URL addresses after external links.

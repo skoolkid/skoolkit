@@ -17,8 +17,9 @@
 import argparse
 import time
 
-from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
-from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_z80v3
+from skoolkit import ROM48, ROM128, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
+from skoolkit.pagingtracer import PagingTracer
+from skoolkit.snapshot import BANKS_128K, make_snapshot, poke, print_reg_help, write_z80v3
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 from skoolkit.snapinfo import parse_snapshot
@@ -35,14 +36,17 @@ TRACE2D = """
                                 A'={^A:<3} F'={^F:08b} BC'={BC':<5} DE'={DE':<5} HL'={HL':<5} SP={SP:<5}
 """.strip()
 
-class Tracer:
-    def __init__(self, border):
-        self.operations = 0
+class Tracer(PagingTracer):
+    def __init__(self, simulator, border, out7ffd):
+        self.simulator = simulator
         self.border = border
+        self.out7ffd = out7ffd
+        self.operations = 0
         self.spkr = None
         self.out_times = []
 
-    def run(self, simulator, start, stop, verbose, max_operations, max_tstates, decimal, interrupts):
+    def run(self, start, stop, verbose, max_operations, max_tstates, decimal, interrupts):
+        simulator = self.simulator
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
@@ -130,6 +134,8 @@ class Tracer:
             if self.spkr != value & 0x10:
                 self.spkr = value & 0x10
                 self.out_times.append(registers[T])
+        elif port & 0x8002 == 0:
+            super().write_port(registers, port, value)
 
 def get_registers(sna_reg, specs):
     if sna_reg:
@@ -197,15 +203,26 @@ def simplify(delays, depth):
     return ', '.join(s0)
 
 def run(snafile, options):
-    if snafile == '.':
-        memory = [0] * 65536
+    if snafile in ('48', '128'):
+        if snafile == '48':
+            memory = [0] * 0x10000
+        else:
+            memory = [0] * 0x28000
         reg = None
         org = 0
     else:
-        memory, org = make_snapshot(snafile, options.org)[0:2]
+        memory, org = make_snapshot(snafile, options.org, page=-1)[:2]
         reg = parse_snapshot(snafile)[1]
         if snafile.lower()[-4:] == '.sna':
             reg.sp = (reg.sp + 2) % 65536
+    if reg:
+        state = {'im': reg.im, 'iff': reg.iff2, 'tstates': reg.tstates}
+        border = reg.border
+        out7ffd = reg.out7ffd
+    else:
+        state = {'im': 1, 'iff': 1, 'tstates': 0}
+        border = 7
+        out7ffd = 0
     start = options.start
     if start is None:
         if reg:
@@ -216,34 +233,30 @@ def run(snafile, options):
             start = org
     if options.rom:
         rom = read_bin_file(options.rom)
+        memory[:len(rom)] = rom
+    elif len(memory) == 65536:
+        memory[:0x4000] = read_bin_file(ROM48)
     else:
-        rom = read_bin_file(ROM48)
-    memory[:len(rom)] = rom
+        rom = (out7ffd & 16) // 16
+        memory[:0x4000] = read_bin_file(ROM128[rom])
+        memory[0x24000:] = read_bin_file(ROM128[1 - rom])
+        page = out7ffd & 7
+        if page:
+            n = BANKS_128K[page]
+            memory[n:n + 0x4000], memory[0xC000:0x10000] = memory[0xC000:0x10000], memory[n:n + 0x4000]
     for spec in options.pokes:
         poke(memory, spec)
-    if reg:
-        im = reg.im
-        iff = reg.iff2
-        border = reg.border
-        tstates = reg.tstates
-    else:
-        im = 1
-        iff = 1
-        border = 7
-        tstates = 0
-    state = {'im': im, 'iff': iff, 'tstates': tstates}
     fast = options.verbose == 0 and not options.interrupts
     config = {'fast_djnz': fast, 'fast_ldir': fast}
     simulator = Simulator(memory, get_registers(reg, options.reg), state, config)
-    tracer = Tracer(border)
+    tracer = Tracer(simulator, border, out7ffd)
     simulator.set_tracer(tracer)
     begin = time.time()
-    tracer.run(simulator, start, options.stop, options.verbose,
-               options.max_operations, options.max_tstates, options.decimal,
-               options.interrupts)
+    tracer.run(start, options.stop, options.verbose, options.max_operations,
+               options.max_tstates, options.decimal, options.interrupts)
     rt = time.time() - begin
     if options.stats:
-        z80t = simulator.registers[T] - tstates
+        z80t = simulator.registers[T] - state['tstates']
         z80s = z80t / 3500000
         speed = z80s / (rt or 0.001) # Avoid division by zero
         print(f'Z80 execution time: {z80t} T-states ({z80s:.03f}s)')
@@ -257,7 +270,7 @@ def run(snafile, options):
         print('Sound duration: {} T-states ({:.03f}s)'.format(duration, duration / 3500000))
         print('Delays: {}'.format(simplify(delays, options.depth)))
     if options.dump:
-        ram = simulator.memory[16384:]
+        ram = simulator.memory[0x4000:0x24000]
         r = simulator.registers
         registers = (
             f'a={r[A]}',
@@ -279,6 +292,7 @@ def run(snafile, options):
         )
         state = (
             f'border={tracer.border}',
+            f'7ffd={tracer.out7ffd}',
             f'iff={simulator.iff}',
             f'im={simulator.imode}',
             f'tstates={r[T]}'
@@ -290,7 +304,7 @@ def main(args):
     parser = argparse.ArgumentParser(
         usage='trace.py [options] FILE [file.z80]',
         description="Trace Z80 machine code execution. "
-                    "FILE may be a binary (raw memory) file, a SNA, SZX or Z80 snapshot, or '.' for no snapshot. "
+                    "FILE may be a binary (raw memory) file, a SNA, SZX or Z80 snapshot, or '48' or '128' for no snapshot. "
                     "If 'file.z80' is given, a Z80 snapshot is written after execution has completed.",
         add_help=False
     )
@@ -319,8 +333,7 @@ def main(args):
                        help="Set the value of a register. Do '--reg help' for more information. "
                             "This option may be used multiple times.")
     group.add_argument('--rom', metavar='FILE',
-                       help='Patch in a ROM at address 0 from this file. '
-                            'By default the 48K ZX Spectrum ROM is used.')
+                       help='Patch in a ROM at address 0 from this file.')
     group.add_argument('-s', '--start', metavar='ADDR', type=integer,
                        help='Start execution at this address.')
     group.add_argument('-S', '--stop', metavar='ADDR', type=integer,
