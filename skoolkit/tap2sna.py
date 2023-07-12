@@ -25,11 +25,12 @@ from urllib.parse import urlparse
 
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       get_word, get_word3, integer, open_file, parse_int,
-                      read_bin_file, warn, write_line, ROM48, ROM128, VERSION)
+                      read_bin_file, warn, write_line, ROM48, VERSION)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.kbtracer import KeyboardTracer
 from skoolkit.loadsample import ACCELERATORS
 from skoolkit.loadtracer import LoadTracer, get_edges
+from skoolkit.pagingtracer import Memory
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC)
 from skoolkit.snapshot import FRAME_DURATIONS, move, poke, print_reg_help, print_state_help, write_z80v3
@@ -340,21 +341,19 @@ def sim_load(blocks, options, config):
         if not options.load:
             options.load = 'ENTER'
         sim_cfg = {'frame_duration': FRAME_DURATIONS[1]}
-        snapshot = [0] * 163840
-        snapshot[:0x4000] = read_bin_file(ROM128[0], 16384)
-        snapshot[0x24000:] = read_bin_file(ROM128[1], 16384)
+        memory = Memory()
         stop = 0x13BE
     else:
         sim_cfg = {}
-        snapshot = [0] * 65536
-        snapshot[:0x4000] = read_bin_file(ROM48, 16384)
+        memory = [0] * 65536
+        memory[:0x4000] = read_bin_file(ROM48, 16384)
         stop = 0x0605 # SAVE-ETC
 
     if options.load: # pragma: no cover
         load = options.load.split()
         if load[-1] != 'ENTER':
             load.append('ENTER')
-        simulator = Simulator(snapshot, config=sim_cfg)
+        simulator = Simulator(memory, config=sim_cfg)
         tracer = KeyboardTracer(simulator, load)
         simulator.set_tracer(tracer)
         try:
@@ -365,20 +364,20 @@ def sim_load(blocks, options, config):
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
             interrupted = True
     else:
-        snapshot[0x5800:0x5B00] = [56] * 768 # PAPER 7: INK 0
-        snapshot[0x5C00:0x5C00 + len(SYSVARS)] = SYSVARS
+        memory[0x5800:0x5B00] = [56] * 768 # PAPER 7: INK 0
+        memory[0x5C00:0x5C00 + len(SYSVARS)] = SYSVARS
         for a, b in SIM_LOAD_PATCH.items():
-            snapshot[a] = b % 256
+            memory[a] = b % 256
             if b > 0xFF:
-                snapshot[a + 1] = b // 256
+                memory[a + 1] = b // 256
         block1_data = blocks[0][1]
         if len(block1_data) >= 19 and tuple(block1_data[0:2]) == (0, 3):
             for a, b in SIM_LOAD_CODE_PATCH.items():
-                snapshot[a] = b % 256
+                memory[a] = b % 256
                 if b > 0xFF:
-                    snapshot[a + 1] = b // 256
-        snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
-        simulator = Simulator(snapshot, {'PC': 0x0605, 'SP': 0xFF50})
+                    memory[a + 1] = b // 256
+        memory[0xFF58:] = memory[0x3E08:0x3EB0] # UDGs
+        simulator = Simulator(memory, {'PC': 0x0605, 'SP': 0xFF50})
         border = 7
         out7ffd = 0
 
@@ -396,7 +395,7 @@ def sim_load(blocks, options, config):
         try:
             tracer.run(options.start, options.fast_load, options.timeout * 3500000,
                        options.trace, config['TraceLine'] + '\n', prefix, byte_fmt, word_fmt)
-            _ram_operations(snapshot, options.ram_ops)
+            _ram_operations(memory, options.ram_ops)
         except KeyboardInterrupt: # pragma: no cover
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
         if list_accelerators: # pragma: no cover
@@ -436,7 +435,9 @@ def sim_load(blocks, options, config):
         f'7ffd={tracer.out7ffd}'
     ]
     options.state = state + options.state
-    return simulator.memory[0x4000:0x24000]
+    if isinstance(memory, Memory):
+        return memory.banks # pragma: no cover
+    return memory[0x4000:]
 
 def _get_load_params(param_str):
     params = []

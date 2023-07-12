@@ -14,9 +14,20 @@ def mock_run(*args):
     run_args = args
 
 def mock_write_z80v3(fname, ram, registers, state):
-    global z80fname, snapshot, z80reg, z80state
+    global z80fname, snapshot, banks, z80reg, z80state
     z80fname = fname
-    snapshot = [0] * 16384 + ram
+    snapshot = [0] * 16384
+    if len(ram) == 8:
+        banks = ram
+        page = 0
+        for spec in state:
+            if spec.startswith('7ffd='):
+                page = int(spec[5:]) % 8
+                break
+        snapshot += ram[5] + ram[2] + ram[page]
+    else:
+        banks = None
+        snapshot = [0] * 16384 + ram
     z80reg = registers
     z80state = state
 
@@ -130,7 +141,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(simulator.iff, 1)
         self.assertEqual(simulator.imode, 2)
         self.assertTrue(all(b == 1 for b in simulator.memory[0xC000:0x10000]))
-        self.assertEqual(hashlib.md5(bytes(simulator.memory[:0x4000])).hexdigest(), ROM1_MD5)
+        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM1_MD5)
 
     @patch.object(trace, 'Simulator', TestSimulator)
     def test_z80_48k(self):
@@ -222,7 +233,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(simulator.imode, 2)
         self.assertEqual(simulator.registers[25], 20012)
         self.assertTrue(all(b == 1 for b in simulator.memory[0xC000:0x10000]))
-        self.assertEqual(hashlib.md5(bytes(simulator.memory[:0x4000])).hexdigest(), ROM0_MD5)
+        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM0_MD5)
 
     @patch.object(trace, 'Simulator', TestSimulator)
     def test_szx_48k(self):
@@ -294,7 +305,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(simulator.imode, 0)
         self.assertEqual(simulator.registers[25], 269)
         self.assertTrue(all(b == 3 for b in simulator.memory[0xC000:0x10000]))
-        self.assertEqual(hashlib.md5(bytes(simulator.memory[:0x4000])).hexdigest(), ROM1_MD5)
+        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM1_MD5)
 
     def test_no_snapshot_48k(self):
         output, error = self.run_trace(f'-v -S 2 48')
@@ -1079,6 +1090,60 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $8008
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    def test_128k_bank_5(self):
+        sna = [0] * 131103
+        start = 32768
+        sna[49179:49181] = (start % 256, start // 256) # PC
+        code = [
+            0x01, 0xFD, 0x7F,       # $8000 LD BC,$7FFD
+            0x3E, 0x05,             # $8003 LD A,$05
+            0xED, 0x79,             # $8005 OUT (C),A
+            0x32, 0x00, 0xC0,       # $8007 LD ($C000),A
+        ]
+        sna[start - 16357:start - 16357 + len(code)] = code
+        snafile = self.write_bin_file(sna, suffix='.sna')
+        outfile = os.path.join(self.make_directory(), 'out.z80')
+        stop = start + len(code)
+        output, error = self.run_trace(f'-S {stop} {snafile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(z80fname, outfile)
+        self.assertEqual(snapshot[0x4000], 5)
+        self.assertEqual(banks[5][0], 5)
+        self.assertEqual(snapshot[0xC000], 5)
+        self.assertEqual(banks[0][0], 0)
+
+    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    def test_128k_bank_2(self):
+        sna = [0] * 131103
+        start = 32768
+        sna[49179:49181] = (start % 256, start // 256) # PC
+        code = [
+            0x01, 0xFD, 0x7F,       # $8000 LD BC,$7FFD
+            0x3E, 0x02,             # $8003 LD A,$02
+            0xED, 0x79,             # $8005 OUT (C),A
+            0x32, 0x00, 0xC0,       # $8007 LD ($C000),A
+        ]
+        sna[start - 16357:start - 16357 + len(code)] = code
+        snafile = self.write_bin_file(sna, suffix='.sna')
+        outfile = os.path.join(self.make_directory(), 'out.z80')
+        stop = start + len(code)
+        output, error = self.run_trace(f'-S {stop} {snafile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(z80fname, outfile)
+        self.assertEqual(snapshot[0x8000], 2)
+        self.assertEqual(banks[2][0], 2)
+        self.assertEqual(snapshot[0xC000], 2)
+        self.assertEqual(banks[0][0], 0)
 
     def test_invalid_register_value(self):
         binfile = self.write_bin_file([201], suffix='.bin')

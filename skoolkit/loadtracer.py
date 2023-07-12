@@ -22,7 +22,6 @@ from skoolkit.basic import TextReader
 from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R,
                                 xA, xF, xB, xC, xD, xE, xH, xL, PC, T, R1)
-from skoolkit.snapshot import BANKS_128K
 from skoolkit.traceutils import disassemble
 
 DEC = tuple(tuple((

@@ -22,12 +22,14 @@ class SnapshotTest(SkoolKitTestCase):
                 self.assertEqual(ram[32768:], pages.get(page, exp_ram[32768:]))
             else:
                 self.assertEqual(len(ram), 0x20000)
-                self.assertEqual(ram[0x00000:0x0C000], exp_ram)
-                self.assertEqual(ram[0x0C000:0x10000], pages[1])
-                self.assertEqual(ram[0x10000:0x14000], pages[3])
-                self.assertEqual(ram[0x14000:0x18000], pages[4])
-                self.assertEqual(ram[0x18000:0x1C000], pages[6])
-                self.assertEqual(ram[0x1C000:0x20000], pages[7])
+                self.assertEqual(exp_ram[0x8000:0xC000], ram[0x00000:0x04000]) # Bank 0
+                self.assertEqual(pages[1], ram[0x04000:0x08000])               # Bank 1
+                self.assertEqual(exp_ram[0x4000:0x8000], ram[0x08000:0x0C000]) # Bank 2
+                self.assertEqual(pages[3], ram[0x0C000:0x10000])               # Bank 3
+                self.assertEqual(pages[4], ram[0x10000:0x14000])               # Bank 4
+                self.assertEqual(exp_ram[:0x4000], ram[0x14000:0x18000])       # Bank 5
+                self.assertEqual(pages[6], ram[0x18000:0x1C000])               # Bank 6
+                self.assertEqual(pages[7], ram[0x1C000:0x20000])               # Bank 7
 
 class ErrorTest(SnapshotTest):
     def test_unknown_file_type(self):

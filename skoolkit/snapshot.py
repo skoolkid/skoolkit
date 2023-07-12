@@ -54,17 +54,6 @@ Z80_REGISTERS = {
     'pc': 32
 }
 
-BANKS_128K = {
-    5: 0x4000,
-    2: 0x8000,
-    0: 0xC000,
-    1: 0x10000,
-    3: 0x14000,
-    4: 0x18000,
-    6: 0x1C000,
-    7: 0x20000
-}
-
 # Component API
 def can_read(fname):
     """
@@ -246,15 +235,11 @@ def make_z80_ram_block(data, page):
     length = len(block)
     return [length % 256, length // 256, page] + block
 
-def make_z80v3_ram_blocks(ram, page=0):
+def make_z80v3_ram_blocks(ram):
     blocks = []
-    if len(ram) == 131072: # pragma: no cover
-        if page:
-            # Restore bank 0 to its original location
-            addr = BANKS_128K[page]
-            ram[0x8000:0xC000], ram[addr - 0x4000:addr] = ram[addr - 0x4000:addr], ram[0x8000:0xC000]
-        for bank, addr in BANKS_128K.items():
-            blocks.extend(make_z80_ram_block(ram[addr - 0x4000:addr], bank + 3))
+    if len(ram) == 8: # pragma: no cover
+        for n, bank in enumerate(ram, 3):
+            blocks.extend(make_z80_ram_block(bank, n))
     else:
         for bank, data in ((5, ram[:0x4000]), (1, ram[0x4000:0x8000]), (2, ram[0x8000:0xC000])):
             blocks.extend(make_z80_ram_block(data, bank + 3))
@@ -263,12 +248,12 @@ def make_z80v3_ram_blocks(ram, page=0):
 def write_z80v3(fname, ram, registers, state):
     z80 = [0] * 86
     z80[30] = 54 # Indicate a v3 Z80 snapshot
-    if len(ram) == 131072: # pragma: no cover
+    if len(ram) == 8: # pragma: no cover
         z80[34] = 4 # 128K
     set_z80_registers(z80, 'i=63', 'iy=23610', *registers)
     set_z80_state(z80, 'iff=1', 'im=1', *state)
     with open(fname, 'wb') as f:
-        f.write(bytes(z80 + make_z80v3_ram_blocks(ram, z80[35] & 7)))
+        f.write(bytes(z80 + make_z80v3_ram_blocks(ram)))
 
 def move(snapshot, param_str):
     params = param_str.split(',', 2)
@@ -317,7 +302,7 @@ def _read_sna(data, page=None):
             offset += 16384
     if page >= 0:
         return pages[5] + pages[2] + pages[page]
-    return pages[5] + pages[2] + pages[0] + pages[1] + pages[3] + pages[4] + pages[6] + pages[7]
+    return pages[0] + pages[1] + pages[2] + pages[3] + pages[4] + pages[5] + pages[6] + pages[7]
 
 def _read_z80(data, page=None):
     if sum(data[6:8]) > 0:
@@ -345,7 +330,7 @@ def _read_z80(data, page=None):
         if page is None:
             banks = (5, 2, data[35] & 7)
         elif page < 0:
-            banks = (5, 2, 0, 1, 3, 4, 6, 7)
+            banks = (0, 1, 2, 3, 4, 5, 6, 7)
         else:
             banks = (5, 2, page)
     return _decompress(data[header_size:], banks, extension)
@@ -365,7 +350,7 @@ def _read_szx(data, page=None):
                 raise SnapshotError("SPECREGS (SPCR) block not found")
             banks = (5, 2, specregs[1] & 7)
         elif page < 0:
-            banks = (5, 2, 0, 1, 3, 4, 6, 7)
+            banks = (0, 1, 2, 3, 4, 5, 6, 7)
         else:
             banks = (5, 2, page)
     pages = {}

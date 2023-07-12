@@ -14,23 +14,33 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from skoolkit.snapshot import BANKS_128K
+from skoolkit import ROM128, read_bin_file
+
+class Memory:
+    def __init__(self, banks=None, out7ffd=0):
+        self.banks = banks or tuple([0] * 16384 for b in range(8))
+        self.roms = tuple(read_bin_file(r) for r in ROM128)
+        self.memory = [None, self.banks[5], self.banks[2], None]
+        self.out7ffd(out7ffd)
+
+    def __getitem__(self, index):
+        if isinstance(index, int):
+            return self.memory[index // 0x4000][index % 0x4000]
+        return [self.memory[a // 0x4000][a % 0x4000] for a in range(index.start, index.stop)]
+
+    def __setitem__(self, index, value):
+        self.memory[index // 0x4000][index % 0x4000] = value
+
+    def out7ffd(self, value):
+        self.memory[0] = self.roms[(value % 32) // 16]
+        self.memory[3] = self.banks[value % 8]
 
 class PagingTracer:
     def write_port(self, registers, port, value):
-        if port % 2 == 0: # pragma: no cover
+        if port % 2 == 0:
             self.border = value % 8
         elif port & 0x8002 == 0:
-            mem = self.simulator.memory
-            if len(mem) == 0x28000:
-                cur_bank = self.out7ffd & 7
-                new_bank = value & 7
-                if cur_bank != new_bank:
-                    c = BANKS_128K[cur_bank]
-                    mem[c:c + 0x4000], mem[0xC000:0x10000] = mem[0xC000:0x10000], mem[c:c + 0x4000]
-                    if new_bank:
-                        n = BANKS_128K[new_bank]
-                        mem[n:n + 0x4000], mem[0xC000:0x10000] = mem[0xC000:0x10000], mem[n:n + 0x4000]
-                if (self.out7ffd ^ value) & 16:
-                    mem[0x0000:0x4000], mem[0x24000:] = mem[0x24000:], mem[0x0000:0x4000]
+            memory = self.simulator.memory
+            if isinstance(memory, Memory):
+                memory.out7ffd(value)
                 self.out7ffd = value

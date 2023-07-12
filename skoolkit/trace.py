@@ -17,9 +17,9 @@
 import argparse
 import time
 
-from skoolkit import ROM48, ROM128, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
-from skoolkit.pagingtracer import PagingTracer
-from skoolkit.snapshot import BANKS_128K, make_snapshot, poke, print_reg_help, write_z80v3
+from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
+from skoolkit.pagingtracer import Memory, PagingTracer
+from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_z80v3
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 from skoolkit.snapinfo import parse_snapshot
@@ -237,13 +237,8 @@ def run(snafile, options):
     elif len(memory) == 65536:
         memory[:0x4000] = read_bin_file(ROM48)
     else:
-        rom = (out7ffd & 16) // 16
-        memory[:0x4000] = read_bin_file(ROM128[rom])
-        memory[0x24000:] = read_bin_file(ROM128[1 - rom])
-        page = out7ffd & 7
-        if page:
-            n = BANKS_128K[page]
-            memory[n:n + 0x4000], memory[0xC000:0x10000] = memory[0xC000:0x10000], memory[n:n + 0x4000]
+        banks = [memory[a:a + 0x4000] for a in range(0x4000, 0x24000, 0x4000)]
+        memory = Memory(banks, out7ffd)
     for spec in options.pokes:
         poke(memory, spec)
     fast = options.verbose == 0 and not options.interrupts
@@ -270,7 +265,10 @@ def run(snafile, options):
         print('Sound duration: {} T-states ({:.03f}s)'.format(duration, duration / 3500000))
         print('Delays: {}'.format(simplify(delays, options.depth)))
     if options.dump:
-        ram = simulator.memory[0x4000:0x24000]
+        if isinstance(memory, Memory):
+            ram = memory.banks
+        else:
+            ram = memory[0x4000:]
         r = simulator.registers
         registers = (
             f'a={r[A]}',
