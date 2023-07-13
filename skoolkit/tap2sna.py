@@ -343,18 +343,26 @@ def sim_load(blocks, options, config):
         sim_cfg = {'frame_duration': FRAME_DURATIONS[1]}
         memory = Memory()
         stop = 0x13BE
+        kb_delay = 13
     else:
         sim_cfg = {}
         memory = [0] * 65536
         memory[:0x4000] = read_bin_file(ROM48, 16384)
         stop = 0x0605 # SAVE-ETC
+        kb_delay = 4
 
     if options.load: # pragma: no cover
         load = options.load.split()
+        if load[-1].startswith('PC='):
+            pc = load.pop()
+            try:
+                stop = get_int_param(pc[3:], True)
+            except ValueError:
+                raise SkoolKitError(f"Invalid integer in 'load' parameter: {pc}")
         if load[-1] != 'ENTER':
             load.append('ENTER')
         simulator = Simulator(memory, config=sim_cfg)
-        tracer = KeyboardTracer(simulator, load)
+        tracer = KeyboardTracer(simulator, load, kb_delay)
         simulator.set_tracer(tracer)
         try:
             tracer.run(stop)

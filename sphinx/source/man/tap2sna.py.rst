@@ -229,22 +229,28 @@ loop accelerators are:
 The ``load`` parameter may be used to specify an alternative command line to
 load the tape in cases where neither 'LOAD ""' nor 'LOAD ""CODE' works. Its
 value is a space-separated list of keys to press to build the command line.
-Each alphanumeric key is denoted by its digit or upper case letter. Multiple
-simultaneous keypresses are denoted by separating them with '+'. All BASIC
-tokens except those that contain a space are translated into their
-corresponding digit, letter, special key or combination thereof. The following
-special tokens are also recognised:
+Each alphanumeric key is denoted by its digit or letter. Multiple simultaneous
+keypresses are denoted by separating them with '+'. All BASIC tokens except
+those that contain a space are translated into their corresponding digit,
+letter, special key or combination thereof. The following special tokens are
+also recognised:
 
 |
 |  ``CS`` - CAPS SHIFT
 |  ``SS`` - SYMBOL SHIFT
 |  ``SPACE`` - SPACE
 |  ``ENTER`` - ENTER
-|  ``GOTO`` - GO TO ('G')
-|  ``GOSUB`` - GO SUB ('H')
+|  ``DOWN`` - Cursor down ('CS+6')
+|  ``GOTO`` - GO TO ('g')
+|  ``GOSUB`` - GO SUB ('h')
 |  ``DEFFN`` - DEF FN ('CS+SS SS+1')
 |  ``OPEN#`` - OPEN # ('CS+SS SS+4')
 |  ``CLOSE#`` - CLOSE # ('CS+SS SS+5')
+|  ``PC=address`` - Stop the keyboard input simulation at this address
+
+The ``PC=address`` token, if present, must appear last. The default address is
+either 0x0605 (when a 48K Spectrum is being simulated) or 0x13BE (on a 128K
+Spectrum). The simulated LOAD begins at this address.
 
 ``ENTER`` is automatically appended to the command line if not already present.
 
