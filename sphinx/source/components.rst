@@ -64,6 +64,7 @@ must supply the following API functions, in common with skoolkit.z80.Assembler:
 
 .. autoclass:: skoolkit.z80.Assembler
    :members: assemble, get_size
+   :noindex:
 
 .. _ctlComposer:
 
@@ -76,11 +77,13 @@ API methods, in common with skoolkit.skoolctl.ControlDirectiveComposer:
 
 .. autoclass:: skoolkit.skoolctl.ControlDirectiveComposer
    :members: compose
+   :noindex:
 
 If **compose()** encounters an error while parsing an operation and cannot
 recover, it should raise a SkoolParsingError:
 
 .. autoclass:: skoolkit.SkoolParsingError
+   :noindex:
 
 .. _ctlGenerator:
 
@@ -94,6 +97,7 @@ skoolkit.snactl:
 
 .. automodule:: skoolkit.snactl
    :members: generate_ctls
+   :noindex:
 
 .. _disassembler:
 
@@ -105,6 +109,7 @@ API methods, in common with skoolkit.disassembler.Disassembler:
 
 .. autoclass:: skoolkit.disassembler.Disassembler
    :members: disassemble, defb_range, defm_range, defs_range, defw_range
+   :noindex:
 
 The 3-element tuples returned by these methods should have the form
 ``(address, operation, bytes)``, where:
@@ -145,6 +150,7 @@ following API methods, in common with skoolkit.skoolhtml.TemplateFormatter:
 
 .. autoclass:: skoolkit.skoolhtml.TemplateFormatter
    :members: format_template
+   :noindex:
 
 .. _imageWriter:
 
@@ -156,6 +162,7 @@ skoolkit.image.ImageWriter:
 
 .. autoclass:: skoolkit.image.ImageWriter
    :members: image_fname, write_image
+   :noindex:
 
 .. _instructionUtility:
 
@@ -182,6 +189,7 @@ skoolkit.skoolparser.InstructionUtility:
 
 .. autoclass:: skoolkit.skoolparser.InstructionUtility
    :members: calculate_references, convert, set_byte_values, substitute_labels
+   :noindex:
 
 Memory map entries and remote entries have the following attributes:
 
@@ -258,6 +266,7 @@ skoolkit.disassembler.OperandFormatter:
 
 .. autoclass:: skoolkit.disassembler.OperandFormatter
    :members: format_byte, format_word, is_char
+   :noindex:
 
 .. _snapshotReader:
 
@@ -269,11 +278,13 @@ with skoolkit.snapshot:
 
 .. automodule:: skoolkit.snapshot
    :members: can_read, get_snapshot
+   :noindex:
 
 If **get_snapshot()** encounters an error while reading a snapshot file, it
 should raise a SnapshotError:
 
 .. autoclass:: skoolkit.snapshot.SnapshotError
+   :noindex:
 
 .. _snapshotRefCalc:
 
@@ -291,6 +302,7 @@ common with skoolkit.snaskool:
 
 .. automodule:: skoolkit.snaskool
    :members: calculate_references
+   :noindex:
 
 The value of the *operations* argument is derived from the
 ``SnapshotReferenceOperations`` parameter in the ``[skoolkit]`` section of
@@ -344,3 +356,4 @@ other values declared in the ``[skoolkit]`` section of `skoolkit.ini`.
 
 .. automodule:: skoolkit.components
    :members: get_component, get_value
+   :noindex:
