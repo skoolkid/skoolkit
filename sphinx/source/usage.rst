@@ -12,45 +12,17 @@ Installation
 There are various ways to install the latest stable release of SkoolKit:
 
 * from the zip archive or tarball available at `skoolkit.ca`_
+* from the zip archive or tarball available at `GitHub`_
 * from `PyPI`_ by using `pip`_
-* from the `PPA`_ for Ubuntu
-* from the `copr repo`_ for Fedora
 
 If you choose the zip archive or tarball, note that SkoolKit can be used
 wherever it is unpacked: it does not need to be installed in any particular
-location. However, if you would like to install SkoolKit as a Python package,
-you can do so by following the instructions below.
+location.
 
 .. _skoolkit.ca: https://skoolkit.ca/skoolkit/
+.. _GitHub: https://github.com/skoolkid/skoolkit/releases
 .. _PyPI: https://pypi.org/project/skoolkit/
 .. _pip: https://pip.pypa.io/
-.. _PPA: https://launchpad.net/~rjdymond/+archive/ppa
-.. _copr repo: https://copr.fedorainfracloud.org/coprs/rjdymond/SkoolKit/
-
-Windows
-^^^^^^^
-To install SkoolKit as a Python package on Windows, open a command prompt,
-change to the directory where SkoolKit was unpacked, and run the following
-command::
-
-  > python3 -m pip install .
-
-This will install the SkoolKit command scripts in `C:\\Python39\\Scripts`
-(assuming you have installed Python in `C:\\Python39`), which means you can
-run them from anywhere (assuming you have added `C:\\Python39\\Scripts` to the
-``Path`` environment variable).
-
-Linux/\*BSD
-^^^^^^^^^^^
-To install SkoolKit as a Python package on Linux/\*BSD, open a terminal window,
-change to the directory where SkoolKit was unpacked, and run the following
-command as root::
-
-  # python3 -m pip install .
-
-This will install the SkoolKit command scripts in `/usr/local/bin` (or some
-other suitable location in your ``PATH``), which means you can run them from
-anywhere.
 
 Linux/\*BSD v. Windows command line
 -----------------------------------
@@ -61,6 +33,6 @@ dollar sign (``$``), like this::
   $ some-script.py some arguments
 
 On Windows, and on Linux/\*BSD if SkoolKit has been installed as a Python
-package (see above), the commands may be entered exactly as they are shown. On
-Linux/\*BSD, use a dot-slash prefix (e.g. ``./some-script.py``) if the script
-is being run from the current working directory.
+package (using 'pip'), the commands may be entered exactly as they are shown.
+On Linux/\*BSD, use a dot-slash prefix (e.g. ``./some-script.py``) if the
+script is being run from the current working directory.
