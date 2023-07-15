@@ -1,2 +1,2 @@
-Sphinx==3.4.3
-docutils==0.16
+Sphinx==5.3.0
+docutils==0.19
