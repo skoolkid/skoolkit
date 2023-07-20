@@ -91,7 +91,9 @@ Recognised attribute names and their default values are:
 
 |
 |  ``7ffd``    - last OUT to port 0x7ffd (128K only)
+|  ``ay[N]``   - contents of AY register N (N=0-15; 128K only)
 |  ``border``  - border colour (default=0)
+|  ``fffd``    - last OUT to port 0xfffd (128K only)
 |  ``iff``     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
 |  ``im``      - interrupt mode (default=1)
 |  ``issue2``  - issue 2 emulation: 0=disabled, 1=enabled (default=0)

@@ -177,6 +177,11 @@ def set_z80_state(z80, *specs):
                 z80[55:58] = (t1 % 256, t1 // 256, (2 - t2) % 4)
             elif name == '7ffd': # pragma: no cover
                 z80[35] = get_int_param(val) & 255
+            elif name == 'fffd': # pragma: no cover
+                z80[38] = get_int_param(val) & 255
+            elif name.startswith('ay[') and name.endswith(']'): # pragma: no cover
+                r = get_int_param(name[3:-1]) & 15
+                z80[39 + r] = get_int_param(val) & 255
             else:
                 raise SkoolKitError("Invalid parameter: {}".format(spec))
         except ValueError:
@@ -200,7 +205,9 @@ Usage: {opts}
 Set a hardware state attribute. Recognised names {infix}are:
 
   7ffd    - last OUT to port 0x7ffd (128K only)
+  ay[N]   - contents of AY register N (N=0-15; 128K only)
   border  - border colour{border}
+  fffd    - last OUT to port 0xfffd (128K only)
   iff     - interrupt flip-flop: 0=disabled, 1=enabled{iff}
   im      - interrupt mode{im}
   issue2  - issue 2 emulation: 0=disabled, 1=enabled{issue2}

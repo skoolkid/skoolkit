@@ -256,6 +256,8 @@ class KeyboardTracer(PagingTracer): # pragma: no cover
         self.keys = get_keys(keys, delay)
         self.border = 7
         self.out7ffd = 0
+        self.outfffd = 0
+        self.ay = [0] * 16
 
     def run(self, stop):
         simulator = self.simulator

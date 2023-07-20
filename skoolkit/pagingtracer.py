@@ -44,3 +44,7 @@ class PagingTracer:
             if isinstance(memory, Memory):
                 memory.out7ffd(value)
                 self.out7ffd = value
+        elif port == 0xFFFD: # pragma: no cover
+            self.outfffd = value
+        elif port == 0xBFFD: # pragma: no cover
+            self.ay[self.outfffd % 16] = value

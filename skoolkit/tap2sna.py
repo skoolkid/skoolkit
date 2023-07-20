@@ -368,6 +368,8 @@ def sim_load(blocks, options, config):
             tracer.run(stop)
             border = tracer.border
             out7ffd = tracer.out7ffd
+            outfffd = tracer.outfffd
+            ay = tracer.ay
         except KeyboardInterrupt:
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
             interrupted = True
@@ -388,6 +390,8 @@ def sim_load(blocks, options, config):
         simulator = Simulator(memory, {'PC': 0x0605, 'SP': 0xFF50})
         border = 7
         out7ffd = 0
+        outfffd = 0
+        ay = [0] * 16
 
     if not interrupted:
         if options.contended_in: # pragma: no cover
@@ -396,7 +400,7 @@ def sim_load(blocks, options, config):
             in_min_addr = 0x8000
         tracer = LoadTracer(simulator, blocks, accelerators, options.pause, options.first_edge,
                             options.finish_tape, in_min_addr, options.accelerate_dec_a, list_accelerators,
-                            border, out7ffd)
+                            border, out7ffd, outfffd, ay)
         simulator.set_tracer(tracer, False, False)
         op_fmt = config['TraceOperand']
         prefix, byte_fmt, word_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
@@ -440,8 +444,10 @@ def sim_load(blocks, options, config):
         f'im={simulator.imode}',
         f'iff={simulator.iff}',
         f'border={tracer.border}',
-        f'7ffd={tracer.out7ffd}'
+        f'7ffd={tracer.out7ffd}',
+        f'fffd={tracer.outfffd}'
     ]
+    state.extend(f'ay[{r}]={v}' for r, v in enumerate(tracer.ay))
     options.state = state + options.state
     if isinstance(memory, Memory):
         return memory.banks # pragma: no cover
