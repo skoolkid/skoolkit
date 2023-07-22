@@ -62,34 +62,36 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], 'Unrecognised tape type')
 
     def test_tap_file(self):
+        tap_data = create_tap_header_block('program_01', 100, 200, 0)
         data = [1, 2, 4]
-        tap_data = create_tap_header_block('test_tap01', 32768, len(data))
+        tap_data.extend(create_tap_header_block('test_tap01', 32768, len(data)))
         tap_data.extend(create_tap_data_block(data))
-        tap_data.extend(create_tap_header_block('numbers_01', data_type=1))
-        tap_data.extend(create_tap_data_block([8, 16, 32]))
+        tap_data.extend(create_tap_header_block('numbers_01', length=5, data_type=1))
         tapfile = self.write_bin_file(tap_data, suffix='.tap')
         output, error = self.run_tapinfo(tapfile)
         self.assertEqual(error, '')
         exp_output = """
             1:
               Type: Header block
+              Program: program_01
+              LINE: 100
+              Length: 19
+              Data: 0, 0, 112, 114, 111, 103, 114 ... 200, 0, 100, 0, 200, 0, 78
+            2:
+              Type: Header block
               Bytes: test_tap01
               CODE: 32768,3
               Length: 19
               Data: 0, 3, 116, 101, 115, 116, 95 ... 3, 0, 0, 128, 0, 0, 173
-            2:
+            3:
               Type: Data block
               Length: 5
               Data: 255, 1, 2, 4, 248
-            3:
+            4:
               Type: Header block
               Number array: numbers_01
               Length: 19
-              Data: 0, 1, 110, 117, 109, 98, 101 ... 0, 0, 0, 0, 0, 0, 47
-            4:
-              Type: Data block
-              Length: 5
-              Data: 255, 8, 16, 32, 199
+              Data: 0, 1, 110, 117, 109, 98, 101 ... 5, 0, 0, 0, 0, 0, 42
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -124,7 +126,7 @@ class TapinfoTest(SkoolKitTestCase):
 
     def test_tzx_file(self):
         blocks = []
-        blocks.append(create_tzx_header_block('<TEST_tzx>', data_type=0, pause=1000))
+        blocks.append(create_tzx_header_block('<TEST_tzx>', start=10, data_type=0, pause=1000))
         blocks.append(create_tzx_data_block([1, 4, 16], pause=500))
         blocks.append(create_tzx_header_block('characters', data_type=2))
         blocks.append(create_tzx_data_block([64, 0]))
@@ -138,8 +140,9 @@ class TapinfoTest(SkoolKitTestCase):
               Pause: 1000ms
               Type: Header block
               Program: <TEST_tzx>
+              LINE: 10
               Length: 19
-              Data: 0, 0, 60, 84, 69, 83, 84 ... 0, 0, 0, 0, 0, 0, 61
+              Data: 0, 0, 60, 84, 69, 83, 84 ... 0, 0, 10, 0, 0, 0, 55
             2: Standard speed data (0x10)
               Pause: 500ms
               Type: Data block
@@ -724,6 +727,7 @@ class TapinfoTest(SkoolKitTestCase):
               Pause: 0ms
               Type: Header block
               Program: test_tzx02
+              LINE: 0
               Length: 19
               0000  00 00 74 65 73 74 5F 74 7A 78 30 32 00 00 00 00  ..test_tzx02....
               0010  00 00 3D                                         ..=

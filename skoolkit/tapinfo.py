@@ -419,11 +419,13 @@ def _print_block(index, data, show_data, info=(), block_id=None, header=None):
     if data and block_id in (None, 16):
         data_type = "Unknown"
         name_str = None
+        line = 0xC000
         start = None
         if len(data) == 19 and data[0] == 0:
             block_type = data[1]
             if block_type == 0:
                 name_str = 'Program'
+                line = get_word(data, 14)
             elif block_type == 1:
                 name_str = 'Number array'
             elif block_type == 2:
@@ -440,6 +442,8 @@ def _print_block(index, data, show_data, info=(), block_id=None, header=None):
         _print_info("Type: {}".format(data_type))
         if name_str:
             _print_info("{}: {}".format(name_str, name))
+        if line < 0xC000:
+            _print_info(f'LINE: {line}')
         if start is not None:
             _print_info("CODE: {},{}".format(start, size))
     if data:

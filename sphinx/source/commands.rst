@@ -1685,6 +1685,8 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.0     | Shows the LINE number (if present) for 'Program:' header blocks   |
++---------+-------------------------------------------------------------------+
 | 8.9     | Shows full info for TZX block types 0x10 and 0x11                 |
 +---------+-------------------------------------------------------------------+
 | 8.3     | Added the ``--data`` option                                       |

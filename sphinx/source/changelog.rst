@@ -15,6 +15,8 @@ Changelog
 * Added support to :ref:`trace.py` for executing machine code in 128K snapshots
 * Added support to :ref:`control directive loops <ctlLoops>` for avoiding
   repetition of an ``N`` directive at the start of a loop
+* :ref:`tapinfo.py` now shows the LINE number (if present) for 'Program:'
+  header blocks
 
 8.10 (2023-06-17)
 -----------------
