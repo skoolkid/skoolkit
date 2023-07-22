@@ -68,6 +68,49 @@ KEYS = {
 }
 
 TOKENS = {
+    '1': '1',
+    '2': '2',
+    '3': '3',
+    '4': '4',
+    '5': '5',
+    '6': '6',
+    '7': '7',
+    '8': '8',
+    '9': '9',
+    '0': '0',
+
+    'a': 'a',
+    'b': 'b',
+    'c': 'c',
+    'd': 'd',
+    'e': 'e',
+    'f': 'f',
+    'g': 'g',
+    'h': 'h',
+    'i': 'i',
+    'j': 'j',
+    'k': 'k',
+    'l': 'l',
+    'm': 'm',
+    'n': 'n',
+    'o': 'o',
+    'p': 'p',
+    'q': 'q',
+    'r': 'r',
+    's': 's',
+    't': 't',
+    'u': 'u',
+    'v': 'v',
+    'w': 'w',
+    'x': 'x',
+    'y': 'y',
+    'z': 'z',
+
+    'CS': 'CS', # CAPS SHIFT
+    'SS': 'SS', # SYMBOL SHIFT
+    'SPACE': 'SPACE',
+    'ENTER': 'ENTER',
+
     'DOWN': 'CS+6', # Cursor down
 
     'A': 'CS+a',
@@ -213,7 +256,7 @@ TOKENS = {
     'INVERSE': 'CS+SS SS+m',
     'OVER': 'CS+SS SS+n',
     'OUT': 'CS+SS SS+o',
-    '(C)': 'CS+SS SS+p',   # ©
+    '©': 'CS+SS SS+p',
     'ASN': 'CS+SS SS+q',
     'VERIFY': 'CS+SS SS+r',
     '|': 'CS+SS SS+s',
@@ -233,7 +276,16 @@ def get_keys(keyspecs, delay): # pragma: no cover
 
     specs = []
     for spec in keyspecs:
-        specs.extend(TOKENS.get(spec, spec).split())
+        if '+' in spec:
+            specs.append(spec)
+        elif spec in TOKENS:
+            specs.extend(TOKENS[spec].split())
+        else:
+            try:
+                for k in spec:
+                    specs.extend(TOKENS[k].split())
+            except KeyError as ke:
+                raise SkoolKitError(f'Unrecognised token: {ke.args[0]}')
 
     for spec in specs:
         kb = {}

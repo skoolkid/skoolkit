@@ -228,12 +228,15 @@ loop accelerators are:
 
 The ``load`` parameter may be used to specify an alternative command line to
 load the tape in cases where neither 'LOAD ""' nor 'LOAD ""CODE' works. Its
-value is a space-separated list of keys to press to build the command line.
-Each alphanumeric key is denoted by its digit or letter. Multiple simultaneous
-keypresses are denoted by separating them with '+'. All BASIC tokens except
-those that contain a space are translated into their corresponding digit,
-letter, special key or combination thereof. The following special tokens are
-also recognised:
+value is a space-separated list of 'words' (a 'word' being a sequence of any
+characters other than space), each of which is broken down into a sequence of
+one or more keypresses. If a word contains the '+' symbol, the tokens it
+separates are converted into keypresses made simultaneously. If a word matches
+a BASIC token, the corresponding sequence of keypresses to produce that token
+are substituted. Otherwise, each character in the word is converted
+individually into the appropriate keypresses.
+
+The following special tokens are also recognised:
 
 |
 |  ``CS`` - CAPS SHIFT
@@ -254,15 +257,13 @@ Spectrum). The simulated LOAD begins at this address.
 
 ``ENTER`` is automatically appended to the command line if not already present.
 
-For example:
+For example, the ``load`` parameter may be set to:
 
 |
-|  CLEAR 3 5 0 0 0 : LOAD " "
+|  CLEAR 34999: LOAD "" CODE : RANDOMIZE USR 35000
 
-With this value, the ``load`` parameter sets the command line to:
-
-|
-|  CLEAR 35000: LOAD ""
+Note that the spaces around ``CLEAR``, ``LOAD``, ``CODE``, ``RANDOMIZE`` and
+``USR`` are required in order for them to be recognised as BASIC tokens.
 
 CALL OPERATIONS
 ===============

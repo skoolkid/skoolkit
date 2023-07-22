@@ -902,11 +902,15 @@ Configure various properties of a simulated LOAD.
   By default, the simulated LOAD begins by executing either 'LOAD ""' or
   'LOAD ""CODE' (depending on whether the tape begins with a Bytes block). If
   an alternative command line is required to load the tape, it can be specified
-  by this parameter, where KEYS is a space-separated list of keys to press.
-  Each alphanumeric key is denoted by its digit or letter. Multiple
-  simultaneous keypresses are denoted by separating them with '+'. All BASIC
-  tokens except those that contain a space are recognised. The following
-  special tokens are also recognised:
+  by this parameter. KEYS is a space-separated list of 'words' (a 'word' being
+  a sequence of any characters other than space), each of which is broken down
+  into a sequence of one or more keypresses. If a word contains the '+' symbol,
+  the tokens it separates are converted into keypresses made simultaneously. If
+  a word matches a BASIC token, the corresponding sequence of keypresses to
+  produce that token are substituted. Otherwise, each character in the word is
+  converted individually into the appropriate keypresses.
+
+  The following special tokens are also recognised:
 
     CS         - CAPS SHIFT
     SS         - SYMBOL SHIFT
