@@ -42,6 +42,23 @@ unless the ``--force`` option was given. In SkoolKit 9, `tap2sna.py` will
 overwrite an existing snapshot by default, and the ``--force`` option is no
 longer supported.
 
+The following tape-sampling loop accelerator names are not available in
+SkoolKit 9:
+
+* ``cyberlode`` (use ``bleepload`` instead)
+* ``edge`` (use ``rom`` instead)
+* ``elite-uni-loader`` (use ``speedlock`` instead)
+* ``excelerator`` (use ``bleepload`` instead)
+* ``flash-loader`` (use ``rom`` instead)
+* ``ftl`` (use ``speedlock`` instead)
+* ``gargoyle`` (use ``speedlock`` instead)
+* ``hewson-slowload`` (use ``rom`` instead)
+* ``injectaload`` (use ``bleepload`` instead)
+* ``poliload`` (use ``dinaload`` instead)
+* ``power-load`` (use ``bleepload`` instead)
+* ``softlock`` (use ``rom`` instead)
+* ``zydroload`` (use ``speedlock`` instead)
+
 trace.py
 --------
 In SkoolKit 8, :ref:`trace.py` had a ``--dump`` option for specifying an output

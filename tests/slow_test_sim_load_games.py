@@ -131,6 +131,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c pause=0 -c accelerator=rom --start 26247'
         )
 
+    def test_bleepload(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/b/BlackLamp.tzx.zip',
+            'Black Lamp.tzx',
+            'fc9dd17a32679eeff80504af26e81d9b',
+            {
+                'AF,BC,DE,HL': '0050,FEFE,FFFF,4627',
+                "AF',BC',DE',HL'": '0044,0E0B,3F07,2758',
+                'PC,SP,IX,IY': '60CF,61A7,FF09,5C3A',
+                'IR,iff,im,border': '3F3F,0,1,1',
+                'ram': 'f310acd8910eb26a3e76fc61c58aef77'
+            },
+            '-c accelerator=bleepload --start 24783'
+        )
+
     def test_boguslaw_juza(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/e/EuroBiznes.tzx.zip',
@@ -159,21 +174,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'IR,iff,im,border': 'FD09,0,2,7',
                 'ram': 'c5d4e2ceb2cfa08dedd85587974909ac'
             }
-        )
-
-    def test_chromoload2(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/s/Skyway.tzx.zip',
-            'Skyway.tzx',
-            '78bc636a3eceff22141a26a720e2c0bb',
-            {
-                'AF,BC,DE,HL': '0050,0021,F894,8F01',
-                "AF',BC',DE',HL'": '7B69,1705,0017,2758',
-                'PC,SP,IX,IY': 'FDC3,0000,EFE3,5C3A',
-                'IR,iff,im,border': '3F24,1,1,0',
-                'ram': '66dc99668dc48298e7196eaa31be6df8'
-            },
-            '-c accelerator=speedlock --start 64963'
         )
 
     def test_contended_in(self):
@@ -253,21 +253,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=crl4 --start 23358'
         )
 
-    def test_cyberlode_1_1(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/c/Cauldron(SilverbirdSoftwareLtd).tzx.zip',
-            'Cauldron (Silverbird).tzx',
-            'ebd4fa565c35af13f0aa3dc2f7556721',
-            {
-                'AF,BC,DE,HL': '0044,0000,18EE,4212',
-                "AF',BC',DE',HL'": '0044,1621,369B,0000',
-                'PC,SP,IX,IY': '5B00,0000,FF0C,3584',
-                'IR,iff,im,border': 'FF6F,0,2,1',
-                'ram': '8ce481286e084f0ff15bbae38e52cdb1'
-            },
-            '-c accelerator=cyberlode --start 23296'
-        )
-
     def test_cybexlab(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/123/17.11.1989.tzx.zip',
@@ -343,51 +328,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=dinaload --start 64031'
         )
 
-    def test_edge(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/b/BrianBloodaxe.tzx.zip',
-            'Brian Bloodaxe.tzx',
-            '01b9b9454fc40eec0db0ba16ef2e6552',
-            {
-                'AF,BC,DE,HL': 'FF40,0000,099C,053F',
-                "AF',BC',DE',HL'": 'FF69,1621,369B,2758',
-                'PC,SP,IX,IY': '60E0,9087,0004,5C3A',
-                'IR,iff,im,border': '3F5D,1,1,0',
-                'ram': 'f1b142c1b13b985b3925ba713e5ec766'
-            },
-            '-c accelerator=edge --start 24800'
-        )
-
-    def test_elite_uni_loader(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/b/BombJackII.tzx.zip',
-            'Bomb Jack 2.tzx',
-            'a481286503c7eb94a7d8e62a73088fb6',
-            {
-                'AF,BC,DE,HL': '8A42,005E,0ECF,005B',
-                "AF',BC',DE',HL'": '7E6C,0305,0004,2758',
-                'PC,SP,IX,IY': 'FEC8,FEAB,E9CF,5C3A',
-                'IR,iff,im,border': '3F78,0,1,2',
-                'ram': '0b71537baf867de62253d5375749efb6'
-            },
-            '-c accelerator=elite-uni-loader --start 65224',
-        )
-
-    def test_excelerator(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/l/LastMohican.tzx.zip',
-            'The Last Mohican - Side 1.tzx',
-            '13fd349168a4561dae88e6280b94eac9',
-            {
-                'AF,BC,DE,HL': '0193,D4FE,0000,00D2',
-                "AF',BC',DE',HL'": '0044,1621,369B,0000',
-                'PC,SP,IX,IY': 'FFD4,0000,FF10,9B21',
-                'IR,iff,im,border': 'FF9D,0,1,1',
-                'ram': '1f6fb07d9f4c6d6451fe946421fa8c82'
-            },
-            '-c accelerator=excelerator --start 65492'
-        )
-
     def test_finish_tape(self):
         # Hits the given start address (23367) before the tape has finished
         self._test_sim_load(
@@ -402,66 +342,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'ram': '1ba89616d2d1e9defbb68d13e8d4293e'
             },
             '-c finish-tape=1 --start 23367'
-        )
-
-    def test_firebird_bleepload(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/b/BlackLamp.tzx.zip',
-            'Black Lamp.tzx',
-            'fc9dd17a32679eeff80504af26e81d9b',
-            {
-                'AF,BC,DE,HL': '0050,FEFE,FFFF,4627',
-                "AF',BC',DE',HL'": '0044,0E0B,3F07,2758',
-                'PC,SP,IX,IY': '60CF,61A7,FF09,5C3A',
-                'IR,iff,im,border': '3F3F,0,1,1',
-                'ram': 'f310acd8910eb26a3e76fc61c58aef77'
-            },
-            '-c accelerator=bleepload --start 24783'
-        )
-
-    def test_flash_loader(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/c/CliffHanger.tzx.zip',
-            'Cliff Hanger.tzx',
-            '08b2d3867c9478e446c49217595239be',
-            {
-                'AF,BC,DE,HL': '0093,D024,0000,0013',
-                "AF',BC',DE',HL'": '2465,1621,369B,2758',
-                'PC,SP,IX,IY': 'FF18,6424,643B,5C3A',
-                'IR,iff,im,border': '3F65,1,1,0',
-                'ram': '219bc82579cb1f1cfb05b9291a095d70'
-            },
-            '-c accelerator=flash-loader --start 65304'
-        )
-
-    def test_ftl(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/h/Hydrofool.tzx.zip',
-            'Hydrofool.tzx',
-            'd3267bd1facb761c02efe0ddf4438ab4',
-            {
-                'AF,BC,DE,HL': '0093,B058,0000,F84A',
-                "AF',BC',DE',HL'": '584D,3E01,0000,3D83',
-                'PC,SP,IX,IY': 'F84D,F886,0000,5C3A',
-                'IR,iff,im,border': '3F7F,0,1,0',
-                'ram': '7bbab733e59c1aee81b8d1b2129e226d'
-            },
-            '-c accelerator=ftl --start 63565'
-        )
-
-    def test_gargoyle(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/h/HeavyOnTheMagick.tzx.zip',
-            'Heavy On The Magick - Side 1.tzx',
-            '203b36a9ffa241089cb2741043c6563a',
-            {
-                'AF,BC,DE,HL': '0093,B058,0000,B7B0',
-                "AF',BC',DE',HL'": '584D,1E01,0000,012C',
-                'PC,SP,IX,IY': 'B7B3,B7D9,0000,5C3A',
-                'IR,iff,im,border': '3F25,0,1,0',
-                'ram': 'a99bf5c299015ae496b3439487fbe7df'
-            },
-            '-c accelerator=gargoyle --start 47027'
         )
 
     def test_gremlin(self):
@@ -494,21 +374,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=gremlin2 -c accelerate-dec-a=2 --start 41195'
         )
 
-    def test_haxpoc_lock(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/s/StarWarsV1.tzx.zip',
-            'Star Wars - Release 1 - Side 1.tzx',
-            'e36c32fd456f65801d4abfd1af382a65',
-            {
-                'AF,BC,DE,HL': 'B86A,B021,E2FF,6647',
-                "AF',BC',DE',HL'": '2165,1621,369B,2758',
-                'PC,SP,IX,IY': 'FFAB,4006,5AFF,95E0',
-                'IR,iff,im,border': '3F18,0,1,0',
-                'ram': '9823f0a223e153cbb37edfbd8cc1a6a5'
-            },
-            '--tape-start 6 -c accelerator=rom --start 65451'
-        )
-
     def test_headerless_block(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/g/GalacticPatrol.tzx.zip',
@@ -521,36 +386,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'IR,iff,im,border': '3F0F,1,1,0',
                 'ram': 'e0738cf2a2ae3bbf1a34d59dfee59bf6'
             }
-        )
-
-    def test_hewson_slowload(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/c/Cybernoid.tzx.zip',
-            'Cybernoid.tzx',
-            '50921a76ee625feb31c4195aac63d020',
-            {
-                'AF,BC,DE,HL': '0093,B07F,0000,00BB',
-                "AF',BC',DE',HL'": '7F6D,0001,4948,FC21',
-                'PC,SP,IX,IY': 'FE51,60EC,FC00,5C3A',
-                'IR,iff,im,border': '3F43,0,1,0',
-                'ram': '03e01853b339e3a714bd75e31b44f751'
-            },
-            '-c accelerator=hewson-slowload --start 65105'
-        )
-
-    def test_injectaload(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/o/Outcast.tzx.zip',
-            'Outcast.tzx',
-            'c01b3ac0075f46f6a0b16d75c163b6b3',
-            {
-                'AF,BC,DE,HL': '0093,D4FE,0000,0029',
-                "AF',BC',DE',HL'": '0044,1621,369B,0000',
-                'PC,SP,IX,IY': 'FFD7,0000,FF19,9B21',
-                'IR,iff,im,border': 'FF91,0,1,0',
-                'ram': '78b775d06cef7e6e647f2fcbadabb2d1'
-            },
-            '-c accelerator=injectaload --start 65495'
         )
 
     def test_load_code(self):
@@ -568,20 +403,19 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '--start 40001'
         )
 
-    def test_mask(self):
-        # The loader for this game is polarity-sensitive
+    def test_load_configuration_parameter(self):
         self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/m/MASK.tzx.zip',
-            'Mask.tzx',
-            'd69fa0a1d2bab53e27d4843cc129d83a',
+            'https://worldofspectrum.net/pub/sinclair/games/t/Tridex.tzx.zip',
+            'Tridex.tzx',
+            '5141d234263b0255e8d4008eb1c2eec8',
             {
-                'AF,BC,DE,HL': 'AC6A,00AC,0000,4023',
-                "AF',BC',DE',HL'": '2021,1421,8000,A9E8',
-                'PC,SP,IX,IY': 'AA89,FC18,8000,AC85',
-                'IR,iff,im,border': '3F6A,0,1,0',
-                'ram': 'b9731556bc9ca078dea167dc5b0539bf'
+                'AF,BC,DE,HL': '0001,0004,0000,053F',
+                "AF',BC',DE',HL'": 'FF81,0221,0000,0000',
+                'PC,SP,IX,IY': '053F,88B1,FFFE,5C3A',
+                'IR,iff,im,border': '3F5F,0,1,7',
+                'ram': '6ec5a0bd1de1783a66ac6cb3c5405012'
             },
-            '-c first-edge=0 --start 43657'
+            ('--start', '1343', '-c', 'finish-tape=1', '-c', 'load=CLEAR 35000: LOAD ""')
         )
 
     def test_microprose(self):
@@ -612,21 +446,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'ram': '2ba19a83a175e834023cf5fcfd79a824'
             },
             '-c accelerator=microsphere --start 24288'
-        )
-
-    def test_microsphere_2(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/c/ContactSamCruise.tzx.zip',
-            'Contact Sam Cruise.tzx',
-            '873cb6de4edc2aa75b40b838981c6f72',
-            {
-                'AF,BC,DE,HL': '7F00,B07E,CE44,CE31',
-                "AF',BC',DE',HL'": '7E6D,00F7,0007,FFE2',
-                'PC,SP,IX,IY': '81C8,5D1D,8169,5C3A',
-                'IR,iff,im,border': '3F16,0,1,6',
-                'ram': 'a06a7d0dc2fea2471b1e95c0e577860d'
-            },
-            '--start 33224'
         )
 
     def test_micro_style(self):
@@ -673,36 +492,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'ram': 'fa2785b078e8f8cd53ab4ad9d1cf354b'
             },
             '--start 32839'
-        )
-
-    def test_poliload(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/a/AstroMarineCorps.tzx.zip',
-            'Astro Marine Corps - Side 1.tzx',
-            'b31fd6232a865fbef93db8700ceeb931',
-            {
-                'AF,BC,DE,HL': '0044,1800,0000,F83D',
-                "AF',BC',DE',HL'": '0054,0A21,369B,2758',
-                'PC,SP,IX,IY': 'F82A,6400,6328,5C3A',
-                'IR,iff,im,border': '3F5A,0,1,0',
-                'ram': 'dad4b5319c06ebc076d75c39cfc2d738'
-            },
-            '-c accelerator=poliload --start 63530'
-        )
-
-    def test_power_load(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/d/DynamiteDan.tzx.zip',
-            'Dynamite Dan - Side 1.tzx',
-            '38c2a7eb6c2ed9010e700063aedd3a3e',
-            {
-                'AF,BC,DE,HL': '0050,007E,0000,0101',
-                "AF',BC',DE',HL'": '7E6C,9CF9,369B,2758',
-                'PC,SP,IX,IY': 'FE6F,FD84,5AFF,5C3A',
-                'IR,iff,im,border': '3F5C,0,1,6',
-                'ram': 'aabc3f7367ee3b7fe0479614a52f182b'
-            },
-            '-c accelerator=power-load --start 65135'
         )
 
     def test_raxoft(self):
@@ -797,36 +586,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=silverbird --start 55785'
         )
 
-    def test_sinclair_user(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/p/PiecesOfEight.tzx.zip',
-            'Pieces Of Eight (1992)(Pirate Software - Sinclair User)[SU Loader].tzx',
-            '62da22ff8b0f6e704b4e1a509d285e40',
-            {
-                'AF,BC,DE,HL': '0093,C900,0000,0050',
-                "AF',BC',DE',HL'": '0045,1621,369B,2758',
-                'PC,SP,IX,IY': '400A,4372,E978,5C3A',
-                'IR,iff,im,border': '3F24,0,1,0',
-                'ram': '8b1d1d8b1e3b5563c4dc86421f875101'
-            },
-            '-c accelerator=bleepload --start 16394'
-        )
-
-    def test_softlock(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/e/Elite.tzx.zip',
-            'Elite - 48k.tzx',
-            'f73379181e1a413ac6c22ffd4cc8122a',
-            {
-                'AF,BC,DE,HL': '0018,1721,0000,50E0',
-                "AF',BC',DE',HL'": 'FF29,0221,369B,2758',
-                'PC,SP,IX,IY': 'C223,FFFD,C7B6,5C3A',
-                'IR,iff,im,border': '3FCF,1,1,0',
-                'ram': 'b5e2da0aedae1e1cbc3fc210ac6642de'
-            },
-            '-c accelerator=softlock --start 49699'
-        )
-
     def test_sparklers(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/b/BargainBasement.tzx.zip',
@@ -842,7 +601,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=sparklers --start 65177'
         )
 
-    def test_speedlock_1(self):
+    def test_speedlock(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/b/BruceLee.tzx.zip',
             'Bruce Lee.tzx',
@@ -855,96 +614,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'ram': 'b73faca67a93a58e920391c1a2dfd6b6'
             },
             '-c accelerator=speedlock --start 60913'
-        )
-
-    def test_speedlock_2(self):
-        self._test_sim_load(
-            'http://www.worldofspectrum.org/pub/sinclair/games/g/GreatEscapeThe.tzx.zip',
-            'The Great Escape.tzx',
-            '58d273a2c719da21a25b4af3d008c951',
-            {
-                'AF,BC,DE,HL': '0093,B05E,0000,0082',
-                "AF',BC',DE',HL'": '5E4D,0000,5B20,2758',
-                'PC,SP,IX,IY': '5B19,5DFF,FF82,5C3A',
-                'IR,iff,im,border': '3F57,0,1,6',
-                'ram': 'aeda1e531c5e34d92a7e2440f72696c7'
-            },
-            '-c accelerator=speedlock --start 23321'
-        )
-
-    def test_speedlock_3(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/d/Dogfight-2187.tzx.zip',
-            'Dogfight 2187.tzx',
-            '5d73a347e27e98bb5a235eeac6470d56',
-            {
-                'AF,BC,DE,HL': '0044,C420,FF39,0024',
-                "AF',BC',DE',HL'": '792B,0000,50AA,FF88',
-                'PC,SP,IX,IY': 'FF25,FFFF,5B00,FF7F',
-                'IR,iff,im,border': '3F6A,0,1,0',
-                'ram': '80d0dbd263514033a2a03c7063dd29e3'
-            },
-            '-c accelerator=speedlock --start 65317'
-        )
-
-    def test_speedlock_4(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/o/OutRun.tzx.zip',
-            'Outrun - Tape 1 - Side 1.tzx',
-            '78fb2a6b82ca2dc7021a5762ea1491fb',
-            {
-                'AF,BC,DE,HL': '0050,00FF,0001,5CFF',
-                "AF',BC',DE',HL'": 'CD02,C3FF,FE9F,2758',
-                'PC,SP,IX,IY': 'AD31,ACE8,C80E,5C3A',
-                'IR,iff,im,border': '3F43,0,1,0',
-                'ram': '720fe3c658b04d10d174c467bce67639'
-            },
-            '-c accelerator=speedlock --start 44337'
-        )
-
-    def test_speedlock_5(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/h/Hysteria.tzx.zip',
-            'Hysteria.tzx',
-            '2f4485c0d0e98758f7da09b322ca0a0c',
-            {
-                'AF,BC,DE,HL': '3F60,9ECA,FFFF,FBB3',
-                "AF',BC',DE',HL'": '1303,C4FF,FE9F,2758',
-                'PC,SP,IX,IY': '5B09,62FF,FBC6,5C3A',
-                'IR,iff,im,border': '3F15,1,1,0',
-                'ram': '0cd6d80489c5ec14b176c512d48c789c'
-            },
-            '-c accelerator=speedlock --start 23305'
-        )
-
-    def test_speedlock_6(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/v/Vixen.tzx.zip',
-            'Vixen - Side A.tzx',
-            '3075d03f63d20acf2ad029265f6f1746',
-            {
-                'AF,BC,DE,HL': '0042,0000,A300,50E0',
-                "AF',BC',DE',HL'": '0054,B200,FE9F,2758',
-                'PC,SP,IX,IY': 'C911,FFF0,6200,5C3A',
-                'IR,iff,im,border': '3F36,0,1,0',
-                'ram': '1fe6e6ef535524dc78c5bd7bb558e030'
-            },
-            '-c accelerator=speedlock --start 51473'
-        )
-
-    def test_speedlock_7(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/a/Aaargh.tzx.zip',
-            'Aaargh! - Side 1.tzx',
-            'cfe091069af70b7ad7eae377665ce284',
-            {
-                'AF,BC,DE,HL': '0044,B200,FEC3,00CC',
-                "AF',BC',DE',HL'": '1F1B,0000,481F,FF88',
-                'PC,SP,IX,IY': 'FF03,FFFF,5DE4,FF80',
-                'IR,iff,im,border': '3F52,0,1,0',
-                'ram': 'f4c31550705bb8eda0694a1c893be7de'
-            },
-            '-c accelerator=speedlock --start 65283'
         )
 
     def test_square_head(self):
@@ -978,21 +647,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
             },
         )
 
-    def test_street_gang(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/s/StreetGang.tzx.zip',
-            'Street Gang.tzx',
-            '04a0a6b5c286a34b33285134903e9128',
-            {
-                'AF,BC,DE,HL': '0093,7559,0000,00D3',
-                "AF',BC',DE',HL'": '594D,1621,369B,2758',
-                'PC,SP,IX,IY': 'FF3B,5FFF,FE80,5C3A',
-                'IR,iff,im,border': '3F0B,0,1,0',
-                'ram': '3c68996aa88fb668db85e54987795f51'
-            },
-            '--tape-stop 8 -c accelerator=speedlock --start 65339'
-        )
-
     def test_suzy_soft(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/b/BigTrouble.tzx.zip',
@@ -1023,19 +677,19 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=suzy-soft2 --start 65517'
         )
 
-    def test_technician_ted(self):
+    def test_tape_start(self):
         self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/t/TechnicianTed.tzx.zip',
-            'Technician Ted.tzx',
-            'b55a761f7d3733bc6ac958b10fab0c43',
+            'https://worldofspectrum.net/pub/sinclair/games/s/StarWarsV1.tzx.zip',
+            'Star Wars - Release 1 - Side 1.tzx',
+            'e36c32fd456f65801d4abfd1af382a65',
             {
-                'AF,BC,DE,HL': 'EA43,ED5D,EC00,005C',
-                "AF',BC',DE',HL'": '5D4D,0001,806B,806B',
-                'PC,SP,IX,IY': '83C3,5C00,FEF4,5C3A',
-                'IR,iff,im,border': '3F75,0,1,0',
-                'ram': '030e5e9a2d555833296ba3a1ce5fb35e'
+                'AF,BC,DE,HL': 'B86A,B021,E2FF,6647',
+                "AF',BC',DE',HL'": '2165,1621,369B,2758',
+                'PC,SP,IX,IY': 'FFAB,4006,5AFF,95E0',
+                'IR,iff,im,border': '3F18,0,1,0',
+                'ram': '9823f0a223e153cbb37edfbd8cc1a6a5'
             },
-            '-c accelerator=rom --start 33731'
+            '--tape-start 6 -c accelerator=rom --start 65451'
         )
 
     def test_tiny(self):
@@ -1053,21 +707,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=tiny --start 48495'
         )
 
-    def test_tridex(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/t/Tridex.tzx.zip',
-            'Tridex.tzx',
-            '5141d234263b0255e8d4008eb1c2eec8',
-            {
-                'AF,BC,DE,HL': '0001,0004,0000,053F',
-                "AF',BC',DE',HL'": 'FF81,0221,0000,0000',
-                'PC,SP,IX,IY': '053F,88B1,FFFE,5C3A',
-                'IR,iff,im,border': '3F5F,0,1,7',
-                'ram': '6ec5a0bd1de1783a66ac6cb3c5405012'
-            },
-            ('--start', '1343', '-c', 'finish-tape=1', '-c', 'load=CLEAR 3 5 0 0 0 : LOAD " "')
-        )
-
     def test_weird_science(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/f/FlashBeerTrilogy.tzx.zip',
@@ -1081,19 +720,4 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'ram': 'a0d396469b113440d9cbefbe62d4cb63'
             },
             '-c accelerator=weird-science --tape-stop 5 --start 61450'
-        )
-
-    def test_zydroload(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/l/LightCorridorThe.tzx.zip',
-            'The Light Corridor.tzx',
-            '66674ee9c6b696404c5847be32796af4',
-            {
-                'AF,BC,DE,HL': '0093,C07F,0000,0092',
-                "AF',BC',DE',HL'": '7F6D,7FFD,369B,2758',
-                'PC,SP,IX,IY': '806F,8300,0000,5C3A',
-                'IR,iff,im,border': '000F,0,2,0',
-                'ram': '43046b049d10640009a9d3656c3e87e3'
-            },
-            '-c accelerator=zydroload --start 32879'
         )

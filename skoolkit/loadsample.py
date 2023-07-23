@@ -925,17 +925,3 @@ ACCELERATORS = {
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 }
-
-ACCELERATORS['cyberlode'] = ACCELERATORS['bleepload']
-ACCELERATORS['edge'] = ACCELERATORS['rom']
-ACCELERATORS['elite-uni-loader'] = ACCELERATORS['speedlock']
-ACCELERATORS['excelerator'] = ACCELERATORS['bleepload']
-ACCELERATORS['flash-loader'] = ACCELERATORS['rom']
-ACCELERATORS['ftl'] = ACCELERATORS['speedlock']
-ACCELERATORS['gargoyle'] = ACCELERATORS['speedlock']
-ACCELERATORS['hewson-slowload'] = ACCELERATORS['rom']
-ACCELERATORS['injectaload'] = ACCELERATORS['bleepload']
-ACCELERATORS['poliload'] = ACCELERATORS['dinaload']
-ACCELERATORS['power-load'] = ACCELERATORS['bleepload']
-ACCELERATORS['softlock'] = ACCELERATORS['rom']
-ACCELERATORS['zydroload'] = ACCELERATORS['speedlock']
