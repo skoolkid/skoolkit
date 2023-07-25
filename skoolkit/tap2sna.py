@@ -320,7 +320,6 @@ def _set_sim_load_config(options):
                 raise SkoolKitError(f'Invalid sim-load configuration parameter: {name}')
 
 def sim_load(blocks, options, config):
-    _set_sim_load_config(options)
     if options.tape_analysis:
         get_edges(blocks, options.first_edge, True)
         sys.exit(0)
@@ -648,7 +647,7 @@ def _get_tzx_block(data, i, sim):
         raise TapeError('Unknown TZX block ID: 0x{:X}'.format(block_id))
     return i, block_id, timings, tape_data
 
-def _get_tzx_blocks(data, sim, start, stop):
+def _get_tzx_blocks(data, sim, start, stop, is48):
     signature = ''.join(chr(b) for b in data[:7])
     if signature != 'ZXTape!':
         raise TapeError("Not a TZX file")
@@ -668,7 +667,7 @@ def _get_tzx_blocks(data, sim, start, stop):
                 elif block_id == 0x24:
                     loop = []
                     repetitions = get_word(data, i - 2)
-                elif block_id == 0x2A and stop == 0:
+                elif block_id == 0x2A and stop == 0 and is48:
                     # Stop the tape if in 48K mode
                     break
             if loop is None:
@@ -699,9 +698,9 @@ def get_tap_blocks(tap, start=1, stop=0):
         block_num += 1
     return blocks
 
-def _get_tape_blocks(tape_type, tape, sim, start, stop):
+def _get_tape_blocks(tape_type, tape, sim, start, stop, is48):
     if tape_type.lower() == 'tzx':
-        return _get_tzx_blocks(tape, sim, start, stop)
+        return _get_tzx_blocks(tape, sim, start, stop, is48)
     return get_tap_blocks(tape, start, stop)
 
 def _get_tape(urlstring, user_agent, member):
@@ -959,7 +958,12 @@ def make_z80(url, options, z80, config):
         if md5sum != options.tape_sum:
             raise TapeError(f'Checksum mismatch: Expected {options.tape_sum}, actually {md5sum}')
     options.sim_load = not any(s.startswith('load=') for s in options.ram_ops)
-    tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load, options.tape_start, options.tape_stop)
+    if options.sim_load:
+        _set_sim_load_config(options)
+        is48 = options.machine == '48'
+    else:
+        is48 = True
+    tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load, options.tape_start, options.tape_stop, is48)
     if options.sim_load:
         blocks = [b for b in tape_blocks if b[0]]
         ram = sim_load(blocks, options, config)
