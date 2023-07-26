@@ -82,28 +82,34 @@ class Registers:
         return self.registers[REGISTERS[key]]
 
 def get_edges(blocks, first_edge, analyse=False):
-    edges = [first_edge]
+    edges = []
+    if first_edge >= 0:
+        edges.append(first_edge)
     indexes = []
     data_blocks = []
     tstates = first_edge
 
     if analyse:
-        print('T-states    Description')
+        print('T-states    EAR  Description')
 
     for i, (timings, data) in enumerate(blocks):
         # Pilot tone
         if analyse and timings.pilot_len:
-            print(f'{tstates:>10}  Tone ({timings.pilot_len} x {timings.pilot} T-states)')
+            ear = (len(edges) - 1) % 2 if edges else '-'
+            print(f'{tstates:>10}  {ear:>3}  Tone ({timings.pilot_len} x {timings.pilot} T-states)')
         for n in range(timings.pilot_len):
             tstates += timings.pilot
-            edges.append(tstates)
+            if tstates >= 0:
+                edges.append(tstates)
 
         # Sync pulses
         for s in timings.sync:
             if analyse:
-                print(f'{tstates:>10}  Pulse ({s} T-states)')
+                ear = (len(edges) - 1) % 2 if edges else '-'
+                print(f'{tstates:>10}  {ear:>3}  Pulse ({s} T-states)')
             tstates += s
-            edges.append(tstates)
+            if tstates >= 0:
+                edges.append(tstates)
 
         # Data
         if data:
@@ -114,9 +120,8 @@ def get_edges(blocks, first_edge, analyse=False):
                 else:
                     bits = ''
                     data_len = len(data)
-                print(f'{tstates:>10}  Data ({data_len} bytes{bits}; {timings.zero}/{timings.one} T-states)')
-            while edges[0] < 0:
-                edges.pop(0)
+                ear = (len(edges) - 1) % 2 if edges else '-'
+                print(f'{tstates:>10}  {ear:>3}  Data ({data_len} bytes{bits}; {timings.zero}/{timings.one} T-states)')
             start = len(edges) - 1
             for k, b in enumerate(data, 1):
                 if k < len(data):
@@ -130,7 +135,8 @@ def get_edges(blocks, first_edge, analyse=False):
                         duration = timings.zero
                     for k in range(2):
                         tstates += duration
-                        edges.append(tstates)
+                        if tstates >= 0:
+                            edges.append(tstates)
                     b *= 2
             indexes.append((start, len(edges) - 1))
             data_blocks.append(data)
@@ -143,7 +149,8 @@ def get_edges(blocks, first_edge, analyse=False):
         # Pause
         if i + 1 < len(blocks) and timings.pause:
             if analyse:
-                print(f'{tstates:>10}  Pause ({timings.pause} T-states)')
+                ear = (len(edges) - 1) % 2 if edges else '-'
+                print(f'{tstates:>10}  {ear:>3}  Pause ({timings.pause} T-states)')
             tstates += timings.pause
 
     return edges, indexes, data_blocks

@@ -301,16 +301,16 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--tape-analysis {tapfile}', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
-            T-states    Description
-                 -2168  Tone (8063 x 2168 T-states)
-              17478416  Pulse (667 T-states)
-              17479083  Pulse (735 T-states)
-              17479818  Data (19 bytes; 855/1710 T-states)
-              17763678  Pause (3500000 T-states)
-              21263678  Tone (3223 x 2168 T-states)
-              28251142  Pulse (667 T-states)
-              28251809  Pulse (735 T-states)
-              28252544  Data (5 bytes; 855/1710 T-states)
+            T-states    EAR  Description
+                 -2168    -  Tone (8063 x 2168 T-states)
+              17478416    0  Pulse (667 T-states)
+              17479083    1  Pulse (735 T-states)
+              17479818    0  Data (19 bytes; 855/1710 T-states)
+              17763678    0  Pause (3500000 T-states)
+              21263678    0  Tone (3223 x 2168 T-states)
+              28251142    1  Pulse (667 T-states)
+              28251809    0  Pulse (735 T-states)
+              28252544    1  Data (5 bytes; 855/1710 T-states)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -323,11 +323,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--tape-analysis --tape-start 2 {tapfile}', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
-            T-states    Description
-                 -2168  Tone (3223 x 2168 T-states)
-               6985296  Pulse (667 T-states)
-               6985963  Pulse (735 T-states)
-               6986698  Data (5 bytes; 855/1710 T-states)
+            T-states    EAR  Description
+                 -2168    -  Tone (3223 x 2168 T-states)
+               6985296    0  Pulse (667 T-states)
+               6985963    1  Pulse (735 T-states)
+               6986698    0  Data (5 bytes; 855/1710 T-states)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -340,11 +340,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--tape-analysis --tape-stop 2 {tapfile}', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
-            T-states    Description
-                 -2168  Tone (8063 x 2168 T-states)
-              17478416  Pulse (667 T-states)
-              17479083  Pulse (735 T-states)
-              17479818  Data (19 bytes; 855/1710 T-states)
+            T-states    EAR  Description
+                 -2168    -  Tone (8063 x 2168 T-states)
+              17478416    0  Pulse (667 T-states)
+              17479083    1  Pulse (735 T-states)
+              17479818    0  Data (19 bytes; 855/1710 T-states)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -357,16 +357,16 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--tape-analysis -c first-edge=0 {tapfile}', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
-            T-states    Description
-                     0  Tone (8063 x 2168 T-states)
-              17480584  Pulse (667 T-states)
-              17481251  Pulse (735 T-states)
-              17481986  Data (19 bytes; 855/1710 T-states)
-              17765846  Pause (3500000 T-states)
-              21265846  Tone (3223 x 2168 T-states)
-              28253310  Pulse (667 T-states)
-              28253977  Pulse (735 T-states)
-              28254712  Data (5 bytes; 855/1710 T-states)
+            T-states    EAR  Description
+                     0    0  Tone (8063 x 2168 T-states)
+              17480584    1  Pulse (667 T-states)
+              17481251    0  Pulse (735 T-states)
+              17481986    1  Data (19 bytes; 855/1710 T-states)
+              17765846    1  Pause (3500000 T-states)
+              21265846    1  Tone (3223 x 2168 T-states)
+              28253310    0  Pulse (667 T-states)
+              28253977    1  Pulse (735 T-states)
+              28254712    0  Data (5 bytes; 855/1710 T-states)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -377,11 +377,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--tape-analysis {tapfile}', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
-            T-states    Description
-                 -2168  Tone (3223 x 2168 T-states)
-               6985296  Pulse (667 T-states)
-               6985963  Pulse (735 T-states)
-               6986698  Data (5 bytes + 4 bits; 855/1710 T-states)
+            T-states    EAR  Description
+                 -2168    -  Tone (3223 x 2168 T-states)
+               6985296    0  Pulse (667 T-states)
+               6985963    1  Pulse (735 T-states)
+               6986698    0  Data (5 bytes + 4 bits; 855/1710 T-states)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -395,12 +395,12 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--tape-analysis {tapfile}', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
-            T-states    Description
-                 -2168  Tone (2000 x 1100 T-states)
-               2197832  Pause (3500 T-states)
-               2201332  Pulse (256 T-states)
-               2201588  Pulse (512 T-states)
-               2202100  Data (4 bytes; 500/1000 T-states)
+            T-states    EAR  Description
+                 -2168    -  Tone (2000 x 1100 T-states)
+               2197832    0  Pause (3500 T-states)
+               2201332    0  Pulse (256 T-states)
+               2201588    1  Pulse (512 T-states)
+               2202100    0  Data (4 bytes; 500/1000 T-states)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 

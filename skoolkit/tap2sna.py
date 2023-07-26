@@ -893,8 +893,11 @@ Configure various properties of a simulated LOAD.
 
   Set the time (in T-states) from the start of the tape at which to place the
   leading edge of the first pulse (default: -2168). The default value places
-  the trailing edge of the first pulse at time 0, but some loaders (e.g.
-  polarity-sensitive loaders) require first-edge=0.
+  the edge between the first and second pulses on the tape at time 0. Any
+  pulses that occur before time 0 are discarded. The EAR bit reading yielded by
+  a pulse is 0 if the 0-based index of the pulse is even (i.e. first, third,
+  fifth pulses etc.), or 1 otherwise. Some loaders require first-edge=0, which
+  effectively reverses the polarity of every pulse on the tape.
 
 --sim-load-config load=KEYS
 
