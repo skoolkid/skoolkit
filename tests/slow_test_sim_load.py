@@ -858,6 +858,30 @@ class SimLoadTest(SkoolKitTestCase):
         self._test_sim_load(f'-c timeout=6 {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_simulation_timed_out_with_start_address(self):
+        basic_data = [
+            0, 10,            # Line 10
+            2, 0,             # Line length
+            247,              # RUN
+            13                # ENTER
+        ]
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+            create_tap_data_block([0]),
+        ]
+        tapfile = self._write_tap(blocks)
+
+        exp_data = [(basic_data, 23755)]
+        exp_reg = set(('IX=23761', 'IY=23610', 'PC=1343'))
+        exp_output = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,6',
+            'Simulation stopped (timed out): PC=1343',
+        ]
+        self._test_sim_load(f'-c timeout=6 --start 32768 {tapfile} out.z80', exp_data, exp_reg, exp_output)
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_tzx_pause(self):
         code2 = [1, 2, 4, 8]
         code3 = [16, 32, 64, 128]

@@ -255,7 +255,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         start = 30000
         exp_reg = ['pc={}'.format(start)]
         for option in ('-s', '--start'):
-            output, error = self.run_tap2sna('{} {} in.tap {}/out.z80'.format(option, start, self.make_directory()))
+            output, error = self.run_tap2sna('{} {} --ram load=1,32768 in.tap {}/out.z80'.format(option, start, self.make_directory()))
             self.assertEqual(output, '')
             self.assertEqual(error, '')
             options = make_z80_args[1]
@@ -266,7 +266,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         start = 30000
         exp_reg = ['pc={}'.format(start)]
         for option in ('-s', '--start'):
-            output, error = self.run_tap2sna('{} 0x{:04X} in.tap {}/out.z80'.format(option, start, self.make_directory()))
+            output, error = self.run_tap2sna('{} 0x{:04X} --ram load=1,32768 in.tap {}/out.z80'.format(option, start, self.make_directory()))
             self.assertEqual(output, '')
             self.assertEqual(error, '')
             options = make_z80_args[1]

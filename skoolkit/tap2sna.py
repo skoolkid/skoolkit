@@ -960,7 +960,6 @@ def make_z80(url, options, z80, config):
         md5sum = hashlib.md5(tape).hexdigest()
         if md5sum != options.tape_sum:
             raise TapeError(f'Checksum mismatch: Expected {options.tape_sum}, actually {md5sum}')
-    options.sim_load = not any(s.startswith('load=') for s in options.ram_ops)
     if options.sim_load:
         _set_sim_load_config(options)
         is48 = options.machine == '48'
@@ -1050,7 +1049,8 @@ def main(args):
         z80 = os.path.join(namespace.output_dir, z80)
     if namespace.stack is not None:
         namespace.reg.append('sp={}'.format(namespace.stack))
-    if namespace.start is not None:
+    namespace.sim_load = not any(s.startswith('load=') for s in namespace.ram_ops)
+    if not namespace.sim_load and namespace.start is not None:
         namespace.reg.append('pc={}'.format(namespace.start))
     update_options('tap2sna', namespace, namespace.params, config)
     try:
