@@ -302,15 +302,15 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             T-states    EAR  Description
-                 -2168    -  Tone (8063 x 2168 T-states)
-              17478416    0  Pulse (667 T-states)
-              17479083    1  Pulse (735 T-states)
-              17479818    0  Data (19 bytes; 855/1710 T-states)
-              17763678    0  Pause (3500000 T-states)
-              21263678    0  Tone (3223 x 2168 T-states)
-              28251142    1  Pulse (667 T-states)
-              28251809    0  Pulse (735 T-states)
-              28252544    1  Data (5 bytes; 855/1710 T-states)
+                     0    0  Tone (8063 x 2168 T-states)
+              17480584    1  Pulse (667 T-states)
+              17481251    0  Pulse (735 T-states)
+              17481986    1  Data (19 bytes; 855/1710 T-states)
+              17765846    1  Pause (3500000 T-states)
+              21265846    1  Tone (3223 x 2168 T-states)
+              28253310    0  Pulse (667 T-states)
+              28253977    1  Pulse (735 T-states)
+              28254712    0  Data (5 bytes; 855/1710 T-states)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -324,10 +324,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             T-states    EAR  Description
-                 -2168    -  Tone (3223 x 2168 T-states)
-               6985296    0  Pulse (667 T-states)
-               6985963    1  Pulse (735 T-states)
-               6986698    0  Data (5 bytes; 855/1710 T-states)
+                     0    0  Tone (3223 x 2168 T-states)
+               6987464    1  Pulse (667 T-states)
+               6988131    0  Pulse (735 T-states)
+               6988866    1  Data (5 bytes; 855/1710 T-states)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -341,10 +341,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             T-states    EAR  Description
-                 -2168    -  Tone (8063 x 2168 T-states)
-              17478416    0  Pulse (667 T-states)
-              17479083    1  Pulse (735 T-states)
-              17479818    0  Data (19 bytes; 855/1710 T-states)
+                     0    0  Tone (8063 x 2168 T-states)
+              17480584    1  Pulse (667 T-states)
+              17481251    0  Pulse (735 T-states)
+              17481986    1  Data (19 bytes; 855/1710 T-states)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -378,10 +378,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             T-states    EAR  Description
-                 -2168    -  Tone (3223 x 2168 T-states)
-               6985296    0  Pulse (667 T-states)
-               6985963    1  Pulse (735 T-states)
-               6986698    0  Data (5 bytes + 4 bits; 855/1710 T-states)
+                     0    0  Tone (3223 x 2168 T-states)
+               6987464    1  Pulse (667 T-states)
+               6988131    0  Pulse (735 T-states)
+               6988866    1  Data (5 bytes + 4 bits; 855/1710 T-states)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -396,11 +396,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             T-states    EAR  Description
-                 -2168    -  Tone (2000 x 1100 T-states)
-               2197832    0  Pause (3500 T-states)
-               2201332    0  Pulse (256 T-states)
-               2201588    1  Pulse (512 T-states)
-               2202100    0  Data (4 bytes; 500/1000 T-states)
+                     0    0  Tone (2000 x 1100 T-states)
+               2200000    0  Pause (3500 T-states)
+               2203500    0  Pulse (256 T-states)
+               2203756    1  Pulse (512 T-states)
+               2204268    0  Data (4 bytes; 500/1000 T-states)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 

@@ -285,7 +285,7 @@ def _set_sim_load_config(options):
     options.contended_in = False
     options.fast_load = True
     options.finish_tape = False
-    options.first_edge = -2168
+    options.first_edge = 0
     options.load = None
     options.machine = '48'
     options.pause = True
@@ -892,12 +892,10 @@ Configure various properties of a simulated LOAD.
 --sim-load-config first-edge=N
 
   Set the time (in T-states) from the start of the tape at which to place the
-  leading edge of the first pulse (default: -2168). The default value places
-  the edge between the first and second pulses on the tape at time 0. Any
-  pulses that occur before time 0 are discarded. The EAR bit reading yielded by
-  a pulse is 0 if the 0-based index of the pulse is even (i.e. first, third,
-  fifth pulses etc.), or 1 otherwise. Some loaders require first-edge=0, which
-  effectively reverses the polarity of every pulse on the tape.
+  leading edge of the first pulse (default: 0). Any pulses that occur before
+  time 0 are discarded. The EAR bit reading yielded by a pulse is 0 if the
+  0-based index of the pulse is even (i.e. first, third, fifth pulses etc.), or
+  1 otherwise.
 
 --sim-load-config load=KEYS
 

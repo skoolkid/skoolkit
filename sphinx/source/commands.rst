@@ -1398,7 +1398,7 @@ parameters are:
   simulation as soon as that address is reached, regardless of whether the tape
   has finished (``0``, the default)
 * ``first-edge`` - the time (in T-states) from the start of the tape at which
-  to place the leading edge of the first pulse (default: ``-2168``)
+  to place the leading edge of the first pulse (default: ``0``)
 * ``load`` - a space-separated list of keys to press to build an alternative
   command line to load the tape (see below)
 * ``machine`` - the type of machine to simulate: a 48K Spectrum (``48``, the
@@ -1412,14 +1412,11 @@ parameters are:
 * ``trace`` - the file to which to log all instructions executed during the
   simulated LOAD (default: none)
 
-The default value of the ``first-edge`` parameter (-2168) places the edge
-between the first and second pulses on the tape at time 0. Any pulses that
-occur before time 0 are discarded. The EAR bit reading yielded by a pulse is 0
-if the 0-based index of the pulse is even (i.e. first, third, fifth pulses
-etc.), or 1 otherwise. Some loaders require ``first-edge=0``, which effectively
-reverses the polarity of every pulse on the tape. Run *tap2sna.py* with the
-``--tape-analysis`` option to see the timings and EAR bit readings of the
-pulses on a tape.
+If ``first-edge`` is set to a negative number, any pulses that occur before
+time 0 are discarded. The EAR bit reading yielded by a pulse is 0 if the
+0-based index of the pulse is even (i.e. first, third, fifth pulses etc.), or 1
+otherwise. Run *tap2sna.py* with the ``--tape-analysis`` option to see the
+timings and EAR bit readings of the pulses on a tape.
 
 The ``accelerator`` parameter must be either a comma-separated list of specific
 accelerator names or one of the following special values:
