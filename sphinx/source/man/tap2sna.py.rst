@@ -138,16 +138,19 @@ parameters are:
   is read (``1``, the default), or run the tape continuously (``0``); pausing
   can help with tapes that require (but do not actually contain) long pauses
   between blocks, but can cause some loaders to fail
+* ``polarity`` - the EAR bit reading produced by the first pulse on the tape:
+  ``0`` (the default) or ``1``; subsequent pulses give readings that alternate
+  between 0 and 1
 * ``timeout`` - the number of seconds of Z80 CPU time after which to abort the
   simulated LOAD if it's still in progress (default: 900)
 * ``trace`` - the file to which to log all instructions executed during the
   simulated LOAD (default: none)
 
-If ``first-edge`` is set to a negative number, any pulses that occur before
-time 0 are discarded. The EAR bit reading yielded by a pulse is 0 if the
-0-based index of the pulse is even (i.e. first, third, fifth pulses etc.), or 1
-otherwise. Run ``tap2sna.py`` with the ``--tape-analysis`` option to see the
-timings and EAR bit readings of the pulses on a tape.
+By default, the EAR bit reading produced by a pulse is 0 if the 0-based index
+of the pulse is even (i.e. first, third, fifth pulses etc.), or 1 otherwise.
+This can be reversed by setting ``polarity=1``. Run ``tap2sna.py`` with the
+``--tape-analysis`` option to see the timings and EAR bit readings of the
+pulses on a tape.
 
 The ``accelerator`` parameter must be either a comma-separated list of specific
 accelerator names or one of the following special values:

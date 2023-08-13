@@ -42,6 +42,9 @@ unless the ``--force`` option was given. In SkoolKit 9, `tap2sna.py` will
 overwrite an existing snapshot by default, and the ``--force`` option is no
 longer supported.
 
+In SkoolKit 8, the default value of the ``first-edge`` simulated LOAD
+configuration parameter was -2168. In SkoolKit 9, the default value is 0.
+
 The following tape-sampling loop accelerator names are not available in
 SkoolKit 9:
 

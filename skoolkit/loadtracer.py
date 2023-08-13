@@ -81,9 +81,9 @@ class Registers:
     def __getitem__(self, key):
         return self.registers[REGISTERS[key]]
 
-def get_edges(blocks, first_edge, analyse=False):
-    edges = []
-    if first_edge >= 0:
+def get_edges(blocks, first_edge, polarity, analyse=False):
+    edges = [first_edge]
+    if polarity % 2:
         edges.append(first_edge)
     indexes = []
     data_blocks = []
@@ -95,21 +95,19 @@ def get_edges(blocks, first_edge, analyse=False):
     for i, (timings, data) in enumerate(blocks):
         # Pilot tone
         if analyse and timings.pilot_len:
-            ear = (len(edges) - 1) % 2 if edges else '-'
+            ear = (len(edges) - 1) % 2
             print(f'{tstates:>10}  {ear:>3}  Tone ({timings.pilot_len} x {timings.pilot} T-states)')
         for n in range(timings.pilot_len):
             tstates += timings.pilot
-            if tstates >= 0:
-                edges.append(tstates)
+            edges.append(tstates)
 
         # Sync pulses
         for s in timings.sync:
             if analyse:
-                ear = (len(edges) - 1) % 2 if edges else '-'
+                ear = (len(edges) - 1) % 2
                 print(f'{tstates:>10}  {ear:>3}  Pulse ({s} T-states)')
             tstates += s
-            if tstates >= 0:
-                edges.append(tstates)
+            edges.append(tstates)
 
         # Data
         if data:
@@ -120,7 +118,7 @@ def get_edges(blocks, first_edge, analyse=False):
                 else:
                     bits = ''
                     data_len = len(data)
-                ear = (len(edges) - 1) % 2 if edges else '-'
+                ear = (len(edges) - 1) % 2
                 print(f'{tstates:>10}  {ear:>3}  Data ({data_len} bytes{bits}; {timings.zero}/{timings.one} T-states)')
             start = len(edges) - 1
             for k, b in enumerate(data, 1):
@@ -135,8 +133,7 @@ def get_edges(blocks, first_edge, analyse=False):
                         duration = timings.zero
                     for k in range(2):
                         tstates += duration
-                        if tstates >= 0:
-                            edges.append(tstates)
+                        edges.append(tstates)
                     b *= 2
             indexes.append((start, len(edges) - 1))
             data_blocks.append(data)
@@ -149,20 +146,20 @@ def get_edges(blocks, first_edge, analyse=False):
         # Pause
         if i + 1 < len(blocks) and timings.pause:
             if analyse:
-                ear = (len(edges) - 1) % 2 if edges else '-'
+                ear = (len(edges) - 1) % 2
                 print(f'{tstates:>10}  {ear:>3}  Pause ({timings.pause} T-states)')
             tstates += timings.pause
 
     return edges, indexes, data_blocks
 
 class LoadTracer(PagingTracer):
-    def __init__(self, simulator, blocks, accelerators, pause, first_edge, finish_tape,
+    def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity, finish_tape,
                  in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay):
         self.accelerators = defaultdict(int)
         self.inc_b_misses = 0
         self.dec_b_misses = 0
         self.simulator = simulator
-        self.edges, self.indexes, self.blocks = get_edges(blocks, first_edge)
+        self.edges, self.indexes, self.blocks = get_edges(blocks, first_edge, polarity)
         self.pause = pause
         self.finish_tape = finish_tape
         self.in_min_addr = in_min_addr

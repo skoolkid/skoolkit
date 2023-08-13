@@ -289,6 +289,7 @@ def _set_sim_load_config(options):
     options.load = None
     options.machine = '48'
     options.pause = True
+    options.polarity = 0
     options.timeout = 900
     options.trace = None
     for spec in options.sim_load_config:
@@ -312,6 +313,8 @@ def _set_sim_load_config(options):
                 options.machine = value
             elif name == 'pause': # pragma: no cover
                 options.pause = parse_int(value, options.pause)
+            elif name == 'polarity': # pragma: no cover
+                options.polarity = parse_int(value, options.polarity)
             elif name == 'timeout': # pragma: no cover
                 options.timeout = parse_int(value, options.timeout)
             elif name == 'trace':
@@ -321,7 +324,7 @@ def _set_sim_load_config(options):
 
 def sim_load(blocks, options, config):
     if options.tape_analysis:
-        get_edges(blocks, options.first_edge, True)
+        get_edges(blocks, options.first_edge, options.polarity, True)
         sys.exit(0)
 
     list_accelerators = options.accelerator == 'list'
@@ -398,8 +401,8 @@ def sim_load(blocks, options, config):
         else:
             in_min_addr = 0x8000
         tracer = LoadTracer(simulator, blocks, accelerators, options.pause, options.first_edge,
-                            options.finish_tape, in_min_addr, options.accelerate_dec_a, list_accelerators,
-                            border, out7ffd, outfffd, ay)
+                            options.polarity, options.finish_tape, in_min_addr, options.accelerate_dec_a,
+                            list_accelerators, border, out7ffd, outfffd, ay)
         simulator.set_tracer(tracer, False, False)
         op_fmt = config['TraceOperand']
         prefix, byte_fmt, word_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
@@ -848,6 +851,7 @@ Usage: --sim-load-config accelerate-dec-a=0/1/2
        --sim-load-config load=KEYS
        --sim-load-config machine=48/128
        --sim-load-config pause=0/1
+       --sim-load-config polarity=0/1
        --sim-load-config timeout=N
        --sim-load-config trace=FILE
 
@@ -941,6 +945,12 @@ Configure various properties of a simulated LOAD.
   is read. While this can help with tapes that require (but do not actually
   contain) long pauses between blocks, it can cause some loaders to fail. Set
   pause=0 to disable this behaviour and run the tape continuously.
+
+--sim-load-config polarity=0/1
+
+  By default, the first pulse on the tape produces an EAR bit reading of 0
+  (polarity=0), and subsequent pulses give readings that alternate between 1
+  and 0. This works for most loaders, but some require polarity=1.
 
 --sim-load-config timeout=N
 
