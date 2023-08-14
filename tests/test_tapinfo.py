@@ -541,6 +541,20 @@ class TapinfoTest(SkoolKitTestCase):
         exp_output = '1: "Glue" block (0x5A)'
         self._test_tzx_block(block, exp_output)
 
+    def test_basic_line_number_over_32767(self):
+        tap_data = create_tap_header_block('LINE-32768', 32768, 200, 0)
+        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        output, error = self.run_tapinfo(tapfile)
+        self.assertEqual(error, '')
+        exp_output = """
+            1:
+              Type: Header block
+              Program: LINE-32768
+              Length: 19
+              Data: 0, 0, 76, 73, 78, 69, 45 ... 200, 0, 0, 128, 200, 0, 155
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
     def test_option_b(self):
         blocks = []
 

@@ -442,7 +442,7 @@ def _print_block(index, data, show_data, info=(), block_id=None, header=None):
         _print_info("Type: {}".format(data_type))
         if name_str:
             _print_info("{}: {}".format(name_str, name))
-        if line < 0xC000:
+        if line < 0x8000:
             _print_info(f'LINE: {line}')
         if start is not None:
             _print_info("CODE: {},{}".format(start, size))
