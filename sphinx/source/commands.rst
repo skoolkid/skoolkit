@@ -1272,8 +1272,7 @@ into a Z80 snapshot. For example::
 To list the options supported by `tap2sna.py`, run it with no arguments::
 
   usage:
-    tap2sna.py [options] INPUT snapshot.z80
-    tap2sna.py --tape-analysis [options] INPUT
+    tap2sna.py [options] INPUT [snapshot.z80]
     tap2sna.py @FILE
 
   Convert a TAP or TZX file (which may be inside a zip archive) into a Z80
@@ -1598,7 +1597,8 @@ Configuration parameters may also be set on the command line by using the
 +=========+===================================================================+
 | 9.0     | A simulated LOAD is performed by default; an existing snapshot    |
 |         | will be overwritten by default; added the ``load``, ``machine``   |
-|         | and ``polarity`` simulated LOAD configuration parameters          |
+|         | and ``polarity`` simulated LOAD configuration parameters; the     |
+|         | output snapshot argument is optional                              |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |

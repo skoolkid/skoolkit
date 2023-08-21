@@ -6,8 +6,7 @@ tap2sna.py
 
 SYNOPSIS
 ========
-| ``tap2sna.py`` [options] INPUT snapshot.z80
-| ``tap2sna.py`` --tape-analysis [options] INPUT
+| ``tap2sna.py`` [options] INPUT [snapshot.z80]
 | ``tap2sna.py`` @FILE [args]
 
 DESCRIPTION

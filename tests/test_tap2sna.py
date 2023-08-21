@@ -27,6 +27,14 @@ def mock_write_z80(ram, namespace, z80):
     options = namespace
 
 class Tap2SnaTest(SkoolKitTestCase):
+    def setUp(self):
+        super().setUp()
+        self.cwd = os.getcwd()
+
+    def tearDown(self):
+        os.chdir(self.cwd)
+        super().tearDown()
+
     def _write_tap(self, blocks, zip_archive=False, tap_name=None):
         tap_data = []
         for block in blocks:
@@ -84,12 +92,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         return get_snapshot(z80file)
 
     def _test_bad_spec(self, option, exp_error):
-        odir = self.make_directory()
         tapfile = self._write_tap([create_tap_data_block([1])])
-        z80fname = 'test.z80'
+        z80fname = '{}/test.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna('--ram load=1,16384 {} -d {} {} {}'.format(option, odir, tapfile, z80fname))
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: {}'.format(z80fname, exp_error))
+            self.run_tap2sna(f'--ram load=1,16384 {option} {tapfile} {z80fname}')
+        self.assertEqual(cm.exception.args[0], f'Error while getting snapshot test.z80: {exp_error}')
 
     @patch.object(tap2sna, 'make_z80', mock_make_z80)
     def test_default_option_values(self):
@@ -138,11 +145,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage:'))
 
-    def test_one_argument(self):
-        output, error = self.run_tap2sna('in.tap', catch_exit=2)
-        self.assertEqual(output, '')
-        self.assertTrue(error.startswith('usage:'))
-
     def test_invalid_arguments(self):
         for args in ('--foo', '-k test.zip'):
             output, error = self.run_tap2sna(args, catch_exit=2)
@@ -166,6 +168,47 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.run_tap2sna(f'-c foo=bar {tapfile} {z80file}')
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: Invalid sim-load configuration parameter: foo')
         self.assertEqual(self.err.getvalue(), '')
+
+    def test_no_snapshot_argument_with_tap_file(self):
+        os.chdir(self.make_directory())
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        exp_z80_fname = tapfile[:-4] + '.z80'
+        output, error = self.run_tap2sna(f'--ram load=1,16384 {tapfile}')
+        self.assertEqual(len(error), 0)
+        self.assertTrue(os.path.isfile(exp_z80_fname))
+
+    def test_no_snapshot_argument_with_tzx_file(self):
+        os.chdir(self.make_directory())
+        tzxfile = self._write_tzx([create_tzx_data_block([0])])
+        exp_z80_fname = tzxfile[:-4] + '.z80'
+        output, error = self.run_tap2sna(f'--ram load=1,16384 {tzxfile}')
+        self.assertEqual(len(error), 0)
+        self.assertTrue(os.path.isfile(exp_z80_fname))
+
+    def test_no_snapshot_argument_with_zip_file(self):
+        os.chdir(self.make_directory())
+        zipfile = self._write_tap([create_tap_data_block([0])], True, 'great_game.tap')
+        exp_z80_fname = 'great_game.z80'
+        output, error = self.run_tap2sna(f'--ram load=1,16384 {zipfile}')
+        self.assertEqual(len(error), 0)
+        self.assertTrue(os.path.isfile(exp_z80_fname))
+
+    def test_no_snapshot_argument_with_unconventionally_named_tap_file(self):
+        os.chdir(self.make_directory())
+        tapfile = self.write_bin_file(create_tap_data_block([0]), suffix='.tape')
+        exp_z80_fname = tapfile + '.z80'
+        output, error = self.run_tap2sna(f'--ram load=1,16384 {tapfile}')
+        self.assertEqual(len(error), 0)
+        self.assertTrue(os.path.isfile(exp_z80_fname))
+
+    @patch.object(tap2sna, 'urlopen', Mock(return_value=BytesIO(bytearray(create_tap_data_block([0])))))
+    def test_no_snapshot_argument_with_remote_download(self):
+        os.chdir(self.make_directory())
+        url = 'http://example.com/test.tap'
+        exp_z80_fname = 'test.z80'
+        output, error = self.run_tap2sna(f'--ram load=1,16384 {url}')
+        self.assertEqual(error, '')
+        self.assertTrue(os.path.isfile(exp_z80_fname))
 
     def test_option_d(self):
         odir = '{}/tap2sna'.format(self.make_directory())
@@ -284,11 +327,6 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     def test_option_tape_analysis_with_no_tape(self):
         output, error = self.run_tap2sna('--tape-analysis', catch_exit=2)
-        self.assertEqual(output, '')
-        self.assertTrue(error.startswith('usage:'))
-
-    def test_option_tape_analysis_with_tape_and_snapshot(self):
-        output, error = self.run_tap2sna('--tape-analysis in.tap out.z80', catch_exit=2)
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage:'))
 
@@ -899,24 +937,22 @@ class Tap2SnaTest(SkoolKitTestCase):
                     self.assertEqual(z80_header[12] & 1, 1)
 
     def test_reg_hex_value(self):
-        odir = self.make_directory()
         tapfile = self._write_tap([create_tap_data_block([1])])
-        z80fname = 'test.z80'
+        z80fname = '{}/test.z80'.format(self.make_directory())
         reg_value = 35487
-        output, error = self.run_tap2sna('--ram load=1,16384 --reg bc=${:x} -d {} {} {}'.format(reg_value, odir, tapfile, z80fname))
+        output, error = self.run_tap2sna(f'--ram load=1,16384 --reg bc=${reg_value:x} {tapfile} {z80fname}')
         self.assertEqual(error, '')
-        with open(os.path.join(odir, z80fname), 'rb') as f:
+        with open(z80fname, 'rb') as f:
             z80_header = f.read(4)
         self.assertEqual(z80_header[2] + 256 * z80_header[3], reg_value)
 
     def test_reg_0x_hex_value(self):
-        odir = self.make_directory()
         tapfile = self._write_tap([create_tap_data_block([1])])
-        z80fname = 'test.z80'
+        z80fname = '{}/test.z80'.format(self.make_directory())
         reg_value = 54873
-        output, error = self.run_tap2sna('--ram load=1,16384 --reg hl=0x{:x} -d {} {} {}'.format(reg_value, odir, tapfile, z80fname))
+        output, error = self.run_tap2sna(f'--ram load=1,16384 --reg hl=0x{reg_value:x} {tapfile} {z80fname}')
         self.assertEqual(error, '')
-        with open(os.path.join(odir, z80fname), 'rb') as f:
+        with open(z80fname, 'rb') as f:
             z80_header = f.read(6)
         self.assertEqual(z80_header[4] + 256 * z80_header[5], reg_value)
 

@@ -737,14 +737,14 @@ def _get_tape(urlstring, user_agent, member):
         except KeyError:
             raise TapeError(f'No file named "{member}" in the archive')
         data = bytearray(tape.read())
-        tape_type = member[-3:]
     else:
-        tape_type = urlstring[-3:]
+        member = os.path.basename(urlstring)
         f.seek(0)
         data = bytearray(f.read())
 
     f.close()
-    return tape_type, data
+    tape_type = member[-3:]
+    return member, tape_type, data
 
 def _print_ram_help():
     sys.stdout.write("""
@@ -963,7 +963,7 @@ Configure various properties of a simulated LOAD.
 """.strip())
 
 def make_z80(url, options, z80, config):
-    tape_type, tape = _get_tape(url, options.user_agent, options.tape_name)
+    tape_name, tape_type, tape = _get_tape(url, options.user_agent, options.tape_name)
     if options.tape_sum:
         md5sum = hashlib.md5(tape).hexdigest()
         if md5sum != options.tape_sum:
@@ -980,19 +980,26 @@ def make_z80(url, options, z80, config):
     else:
         blocks = [b[1] for b in tape_blocks]
         ram = _get_ram(blocks, options)
+    if z80 is None:
+        if tape_name.lower().endswith(('.tap', '.tzx')):
+            tape_name = tape_name[:-4]
+        z80 = tape_name + '.z80'
+    if options.output_dir:
+        z80 = os.path.join(options.output_dir, z80)
     _write_z80(ram, options, z80)
 
 def main(args):
     config = get_config('tap2sna')
     parser = SkoolKitArgumentParser(
-        usage='\n  tap2sna.py [options] INPUT snapshot.z80\n  tap2sna.py --tape-analysis [options] INPUT\n  tap2sna.py @FILE [args]',
+        usage='\n  tap2sna.py [options] INPUT [snapshot.z80]\n  tap2sna.py @FILE [args]',
         description="Convert a TAP or TZX file (which may be inside a zip archive) into a Z80 snapshot. "
                     "INPUT may be the full URL to a remote zip archive or TAP/TZX file, or the path to a local file. "
                     "Arguments may be read from FILE instead of (or as well as) being given on the command line.",
         fromfile_prefix_chars='@',
         add_help=False
     )
-    parser.add_argument('args', help=argparse.SUPPRESS, nargs='*')
+    parser.add_argument('url', help=argparse.SUPPRESS, nargs='?')
+    parser.add_argument('z80', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--sim-load-config', metavar='name=value', action='append', default=[],
                        help="Set the value of a simulated LOAD configuration parameter. "
@@ -1046,15 +1053,8 @@ def main(args):
     if 'help' in namespace.state:
         print_state_help()
         return
-    if namespace.tape_analysis:
-        if unknown_args or len(namespace.args) != 1:
-            parser.exit(2, parser.format_help())
-        namespace.args.append(None)
-    if unknown_args or len(namespace.args) != 2:
+    if unknown_args or namespace.url is None:
         parser.exit(2, parser.format_help())
-    url, z80 = namespace.args
-    if namespace.output_dir:
-        z80 = os.path.join(namespace.output_dir, z80)
     if namespace.stack is not None:
         namespace.reg.append('sp={}'.format(namespace.stack))
     namespace.sim_load = not any(s.startswith('load=') for s in namespace.ram_ops)
@@ -1062,6 +1062,6 @@ def main(args):
         namespace.reg.append('pc={}'.format(namespace.start))
     update_options('tap2sna', namespace, namespace.params, config)
     try:
-        make_z80(url, namespace, z80, config)
+        make_z80(namespace.url, namespace, namespace.z80, config)
     except Exception as e:
-        raise SkoolKitError("Error while getting snapshot {}: {}".format(os.path.basename(z80), e.args[0] if e.args else e))
+        raise SkoolKitError("Error while getting snapshot {}: {}".format(os.path.basename(namespace.z80), e.args[0] if e.args else e))

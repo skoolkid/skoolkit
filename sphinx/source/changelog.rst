@@ -15,6 +15,7 @@ Changelog
 * Added the ``polarity`` simulated LOAD configuration parameter to
   :ref:`tap2sna.py <tap2sna-sim-load>` (to specify the EAR bit reading produced
   by the first pulse on the tape)
+* The output snapshot argument of :ref:`tap2sna.py` is now optional
 * Added support to :ref:`trace.py` for executing machine code in 128K snapshots
 * Added support to :ref:`control directive loops <ctlLoops>` for avoiding
   repetition of an ``N`` directive at the start of a loop
