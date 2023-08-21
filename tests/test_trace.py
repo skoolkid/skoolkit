@@ -53,7 +53,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertFalse(options.audio)
         self.assertEqual(options.depth, 2)
         self.assertIsNone(options.dump)
-        self.assertFalse(options.interrupts)
+        self.assertTrue(options.interrupts)
         self.assertEqual(options.max_operations, 0)
         self.assertEqual(options.max_tstates, 0)
         self.assertIsNone(options.org)
@@ -338,6 +338,306 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_interrupt_mode_0(self):
+        data = [
+            0xED, 0x46, # $8000 IM 0
+            0x76,       # $8002 HALT
+            0xAF,       # $8003 XOR A
+        ]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 0x8000
+        stop = 0x8004
+        output, error = self.run_trace(f'-o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 ED46     IM 0')
+        self.assertEqual(output_lines[1:17471], ['$8002 76       HALT'] * 17470)
+        self.assertEqual(output_lines[17471], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[17579], '$0052 C9       RET')
+        self.assertEqual(output_lines[17580], '$8003 AF       XOR A')
+        self.assertEqual(output_lines[17581], 'Stopped at $8004')
+
+    def test_interrupt_mode_1(self):
+        data = [
+            0xED, 0x56, # $8000 IM 1
+            0x76,       # $8002 HALT
+            0xAF,       # $8003 XOR A
+        ]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 0x8000
+        stop = 0x8004
+        output, error = self.run_trace(f'-o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 ED56     IM 1')
+        self.assertEqual(output_lines[1:17471], ['$8002 76       HALT'] * 17470)
+        self.assertEqual(output_lines[17471], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[17579], '$0052 C9       RET')
+        self.assertEqual(output_lines[17580], '$8003 AF       XOR A')
+        self.assertEqual(output_lines[17581], 'Stopped at $8004')
+
+    def test_interrupt_mode_2(self):
+        data = [
+            0x76,       # $7FFB HALT
+            0xAF,       # $7FFC XOR A
+            0x00,       # $7FFD NOP
+            0xC9,       # $7FFE RET
+            0xFE, 0x7F, # $7FFF DEFW $7FFE
+        ]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 0x7ffb
+        stop = 0x7ffd
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'I': 127, 'iff2': 1, 'im': 2, 'tstates': 69882}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$7FFB 76       HALT')
+        self.assertEqual(output_lines[1], '$7FFB 76       HALT')
+        self.assertEqual(output_lines[2], '$7FFE C9       RET')
+        self.assertEqual(output_lines[3], '$7FFC AF       XOR A')
+        self.assertEqual(output_lines[4], 'Stopped at $7FFD')
+
+    def test_interrupt_without_halt(self):
+        data = [
+            0x00, # $8000 NOP ; t=69882
+            0x00, # $8001 NOP ; t=69886 (interrupt follows)
+            0x00, # $8002 NOP
+        ]
+        start = 0x8000
+        stop = 0x8003
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69882}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 00       NOP')
+        self.assertEqual(output_lines[1], '$8001 00       NOP')
+        self.assertEqual(output_lines[2], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[110], '$0052 C9       RET')
+        self.assertEqual(output_lines[111], '$8002 00       NOP')
+        self.assertEqual(output_lines[112], 'Stopped at $8003')
+
+    def test_interrupt_with_ei(self):
+        data = [
+            0x00, # $8000 NOP ; t=69882
+            0xFB, # $8001 EI  ; t=69886 (no interrupt accepted after EI)
+            0x00, # $8002 NOP ; t=69890 (interrupt follows)
+            0x00, # $8003 NOP
+        ]
+        start = 0x8000
+        stop = 0x8004
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69882}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 00       NOP')
+        self.assertEqual(output_lines[1], '$8001 FB       EI')
+        self.assertEqual(output_lines[2], '$8002 00       NOP')
+        self.assertEqual(output_lines[3], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[111], '$0052 C9       RET')
+        self.assertEqual(output_lines[112], '$8003 00       NOP')
+        self.assertEqual(output_lines[113], 'Stopped at $8004')
+
+    def test_interrupt_with_di(self):
+        data = [
+            0x00, # $8000 NOP ; t=69882
+            0xF3, # $8001 DI  ; t=69886 (no interrupt accepted after DI)
+            0x00, # $8002 NOP ; t=69890
+            0x00, # $8003 NOP ; t=69894
+        ]
+        start = 0x8000
+        stop = 0x8004
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69882}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 00       NOP')
+        self.assertEqual(output_lines[1], '$8001 F3       DI')
+        self.assertEqual(output_lines[2], '$8002 00       NOP')
+        self.assertEqual(output_lines[3], '$8003 00       NOP')
+        self.assertEqual(output_lines[4], 'Stopped at $8004')
+
+    def test_interrupt_with_dd_prefix(self):
+        data = [
+            0xDD, # $8000 DEFB $DD ; t=69886 (no interrupt accepted after DD)
+            0x00, # $8001 NOP      ; t=69890 (interrupt follows)
+            0x00, # $8002 NOP
+        ]
+        start = 0x8000
+        stop = 0x8003
+        ram = [0] * 49152
+        ram[0x1C00] = ram[0x1C04] = 0xFF # KSTATE0/4
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69886}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 DD       DEFB $DD')
+        self.assertEqual(output_lines[1], '$8001 00       NOP')
+        self.assertEqual(output_lines[2], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[102], '$0052 C9       RET')
+        self.assertEqual(output_lines[103], '$8002 00       NOP')
+        self.assertEqual(output_lines[104], 'Stopped at $8003')
+
+    def test_interrupt_with_fd_prefix(self):
+        data = [
+            0xFD, # $8000 DEFB $FD ; t=69886 (no interrupt accepted after FD)
+            0x00, # $8001 NOP      ; t=69890 (interrupt follows)
+            0x00, # $8002 NOP
+        ]
+        start = 0x8000
+        stop = 0x8003
+        ram = [0] * 49152
+        ram[0x1C00] = ram[0x1C04] = 0xFF # KSTATE0/4
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69886}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 FD       DEFB $FD')
+        self.assertEqual(output_lines[1], '$8001 00       NOP')
+        self.assertEqual(output_lines[2], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[102], '$0052 C9       RET')
+        self.assertEqual(output_lines[103], '$8002 00       NOP')
+        self.assertEqual(output_lines[104], 'Stopped at $8003')
+
+    def test_interrupt_with_ddfd_chain(self):
+        data = [
+            0xDD, # $8000 DEFB $DD ; t=69886 (no interrupt accepted after DD)
+            0xFD, # $8001 DEFB $FD ; t=69890 (no interrupt accepted after FD)
+            0xDD, # $8002 DEFB $DD ; t=69894 (no interrupt accepted after DD)
+            0xFD, # $8003 DEFB $FD ; t=69898 (no interrupt accepted after FD)
+            0x00, # $8004 NOP      ; t=69902 (interrupt follows)
+            0x00, # $8005 NOP
+        ]
+        start = 0x8000
+        stop = 0x8006
+        ram = [0] * 49152
+        ram[0x1C00] = ram[0x1C04] = 0xFF # KSTATE0/4
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69886}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 DD       DEFB $DD')
+        self.assertEqual(output_lines[1], '$8001 FD       DEFB $FD')
+        self.assertEqual(output_lines[2], '$8002 DD       DEFB $DD')
+        self.assertEqual(output_lines[3], '$8003 FD       DEFB $FD')
+        self.assertEqual(output_lines[4], '$8004 00       NOP')
+        self.assertEqual(output_lines[5], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[105], '$0052 C9       RET')
+        self.assertEqual(output_lines[106], '$8005 00       NOP')
+        self.assertEqual(output_lines[107], 'Stopped at $8006')
+
+    def test_interrupt_at_exact_frame_boundary(self):
+        data = [
+            0x78, # $8000 LD A,B ; t=69884 (+4=69888: frame boundary)
+            0x78, # $8001 LD A,B
+        ]
+        start = 0x8000
+        stop = 0x8002
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69884}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 78       LD A,B')
+        self.assertEqual(output_lines[1], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[109], '$0052 C9       RET')
+        self.assertEqual(output_lines[110], '$8001 78       LD A,B')
+        self.assertEqual(output_lines[111], 'Stopped at $8002')
+
+    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    def test_interrupt_with_djnz(self):
+        data = [
+            0x21, 0x00, 0x80,       # $7FEF LD HL,$8000   ; t=69805 T-states
+            0x22, 0xFF, 0xFE,       # $7FF2 LD ($FEFF),HL ; t=69815
+            0x3E, 0xFE,             # $7FF5 LD A,$FE      ; t=69831
+            0xED, 0x47,             # $7FF7 LD I,A        ; t=69838
+            0xED, 0x5E,             # $7FF9 IM 2          ; t=69847
+            0x06, 0x04,             # $7FFB LD B,$04      ; t=69855
+            0x10, 0xFE,             # $7FFD DJNZ $7FFD    ; t=69862/69875/interrupted
+            0x00,                   # $7FFF NOP
+            0xED, 0x43, 0x00, 0xC0, # $8000 LD ($C000),BC
+            0xC9,                   # $8004 RET
+        ]
+        outfile = os.path.join(self.make_directory(), 'dump.z80')
+        start = 0x7fef
+        stop = 0x7fff
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69805}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file} {outfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(snapshot[0xc001], 2) # DJNZ interrupted when B=2
+
+    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    def test_interrupt_with_ldir(self):
+        data = [
+            0x21, 0x00, 0x80,       # $7FEE LD HL,$8000   ; t=69805 T-states
+            0x22, 0xFF, 0xFE,       # $7FF1 LD ($FEFF),HL ; t=69815
+            0x3E, 0xFE,             # $7FF4 LD A,$FE      ; t=69831
+            0xED, 0x47,             # $7FF6 LD I,A        ; t=69838
+            0xED, 0x5E,             # $7FF8 IM 2          ; t=69847
+            0x01, 0x04, 0x00,       # $7FFA LD BC,$0004   ; t=69855
+            0xED, 0xB0,             # $7FFD LDIR          ; t=69865/69886/interrupted
+            0x00,                   # $7FFF NOP
+            0xED, 0x43, 0x00, 0xC0, # $8000 LD ($C000),BC
+            0xC9,                   # $8004 RET
+        ]
+        outfile = os.path.join(self.make_directory(), 'dump.z80')
+        start = 0x7fee
+        stop = 0x7fff
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69805}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file} {outfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(snapshot[0xc000], 2) # LDIR interrupted when BC=2
+
+    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    def test_interrupt_with_lddr(self):
+        data = [
+            0x21, 0x00, 0x80,       # $7FEE LD HL,$8000   ; t=69805 T-states
+            0x22, 0xFF, 0xFE,       # $7FF1 LD ($FEFF),HL ; t=69815
+            0x3E, 0xFE,             # $7FF4 LD A,$FE      ; t=69831
+            0xED, 0x47,             # $7FF6 LD I,A        ; t=69838
+            0xED, 0x5E,             # $7FF8 IM 2          ; t=69847
+            0x01, 0x04, 0x00,       # $7FFA LD BC,$0004   ; t=69855
+            0xED, 0xB8,             # $7FFD LDDR          ; t=69865/69886/interrupted
+            0x00,                   # $7FFF NOP
+            0xED, 0x43, 0x00, 0xC0, # $8000 LD ($C000),BC
+            0xC9,                   # $8004 RET
+        ]
+        outfile = os.path.join(self.make_directory(), 'dump.z80')
+        start = 0x7fee
+        stop = 0x7fff
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69805}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file} {outfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(snapshot[0xc000], 2) # LDDR interrupted when BC=2
+
     def test_option_audio(self):
         data = [
             6, 3,     # 32768 LD B,3
@@ -402,17 +702,17 @@ class TraceTest(SkoolKitTestCase):
         )
         binfile = self.write_bin_file(data, suffix='.bin')
         exp_output = """
-            65499 013930   LD BC,12345      A=0   F=00000000 BC=12345 DE=0     HL=0     IX=0     IY=23610 I=63  R=1  
+            65499 013930   LD BC,12345      A=0   F=00000000 BC=12345 DE=0     HL=0     IX=0     IY=23610 I=63  R=100
                                             A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
-            65502 11A05B   LD DE,23456      A=0   F=00000000 BC=12345 DE=23456 HL=0     IX=0     IY=23610 I=63  R=2  
+            65502 11A05B   LD DE,23456      A=0   F=00000000 BC=12345 DE=23456 HL=0     IX=0     IY=23610 I=63  R=101
                                             A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
-            65505 210787   LD HL,34567      A=0   F=00000000 BC=12345 DE=23456 HL=34567 IX=0     IY=23610 I=63  R=3  
+            65505 210787   LD HL,34567      A=0   F=00000000 BC=12345 DE=23456 HL=34567 IX=0     IY=23610 I=63  R=102
                                             A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
-            65508 DD216EB2 LD IX,45678      A=0   F=00000000 BC=12345 DE=23456 HL=34567 IX=45678 IY=23610 I=63  R=5  
+            65508 DD216EB2 LD IX,45678      A=0   F=00000000 BC=12345 DE=23456 HL=34567 IX=45678 IY=23610 I=63  R=104
                                             A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
-            65512 FD21D5DD LD IY,56789      A=0   F=00000000 BC=12345 DE=23456 HL=34567 IX=45678 IY=56789 I=63  R=7  
+            65512 FD21D5DD LD IY,56789      A=0   F=00000000 BC=12345 DE=23456 HL=34567 IX=45678 IY=56789 I=63  R=106
                                             A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
-            65516 90       SUB B            A=208 F=10000011 BC=12345 DE=23456 HL=34567 IX=45678 IY=56789 I=63  R=8  
+            65516 90       SUB B            A=208 F=10000011 BC=12345 DE=23456 HL=34567 IX=45678 IY=56789 I=63  R=107
                                             A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
             65517 ED4F     LD R,A           A=208 F=10000011 BC=12345 DE=23456 HL=34567 IX=45678 IY=56789 I=63  R=208
                                             A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
@@ -435,7 +735,7 @@ class TraceTest(SkoolKitTestCase):
             Stopped at 0
         """
         for option in ('-D', '--decimal'):
-            output, error = self.run_trace(f'-vv -S 0 {option} {binfile}')
+            output, error = self.run_trace(f'-vv -r r=99 -S 0 {option} {binfile}')
             self.assertEqual(error, '')
             self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -517,306 +817,6 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
-    def test_option_interrupts_mode_0(self):
-        data = [
-            0xED, 0x46, # $8000 IM 0
-            0x76,       # $8002 HALT
-            0xAF,       # $8003 XOR A
-        ]
-        binfile = self.write_bin_file(data, suffix='.bin')
-        start = 0x8000
-        stop = 0x8004
-        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} -v {binfile}')
-        self.assertEqual(error, '')
-        output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 ED46     IM 0')
-        self.assertEqual(output_lines[1:17471], ['$8002 76       HALT'] * 17470)
-        self.assertEqual(output_lines[17471], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[17579], '$0052 C9       RET')
-        self.assertEqual(output_lines[17580], '$8003 AF       XOR A')
-        self.assertEqual(output_lines[17581], 'Stopped at $8004')
-
-    def test_option_interrupts_mode_1(self):
-        data = [
-            0xED, 0x56, # $8000 IM 1
-            0x76,       # $8002 HALT
-            0xAF,       # $8003 XOR A
-        ]
-        binfile = self.write_bin_file(data, suffix='.bin')
-        start = 0x8000
-        stop = 0x8004
-        output, error = self.run_trace(f'-i -o {start} -S {stop} -v {binfile}')
-        self.assertEqual(error, '')
-        output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 ED56     IM 1')
-        self.assertEqual(output_lines[1:17471], ['$8002 76       HALT'] * 17470)
-        self.assertEqual(output_lines[17471], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[17579], '$0052 C9       RET')
-        self.assertEqual(output_lines[17580], '$8003 AF       XOR A')
-        self.assertEqual(output_lines[17581], 'Stopped at $8004')
-
-    def test_option_interrupts_mode_2(self):
-        data = [
-            0x76,       # $7FFB HALT
-            0xAF,       # $7FFC XOR A
-            0x00,       # $7FFD NOP
-            0xC9,       # $7FFE RET
-            0xFE, 0x7F, # $7FFF DEFW $7FFE
-        ]
-        binfile = self.write_bin_file(data, suffix='.bin')
-        start = 0x7ffb
-        stop = 0x7ffd
-        ram = [0] * 49152
-        ram[start - 0x4000:start - 0x4000 + len(data)] = data
-        registers = {'PC': start, 'I': 127, 'iff2': 1, 'im': 2, 'tstates': 69882}
-        z80file = self.write_z80_file(None, ram, registers=registers)
-        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
-        self.assertEqual(error, '')
-        output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$7FFB 76       HALT')
-        self.assertEqual(output_lines[1], '$7FFB 76       HALT')
-        self.assertEqual(output_lines[2], '$7FFE C9       RET')
-        self.assertEqual(output_lines[3], '$7FFC AF       XOR A')
-        self.assertEqual(output_lines[4], 'Stopped at $7FFD')
-
-    def test_option_interrupts_without_halt(self):
-        data = [
-            0x00, # $8000 NOP ; t=69882
-            0x00, # $8001 NOP ; t=69886 (interrupt follows)
-            0x00, # $8002 NOP
-        ]
-        start = 0x8000
-        stop = 0x8003
-        ram = [0] * 49152
-        ram[start - 0x4000:start - 0x4000 + len(data)] = data
-        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69882}
-        z80file = self.write_z80_file(None, ram, registers=registers)
-        output, error = self.run_trace(f'-i -S {stop} -v {z80file}')
-        self.assertEqual(error, '')
-        output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 00       NOP')
-        self.assertEqual(output_lines[1], '$8001 00       NOP')
-        self.assertEqual(output_lines[2], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[110], '$0052 C9       RET')
-        self.assertEqual(output_lines[111], '$8002 00       NOP')
-        self.assertEqual(output_lines[112], 'Stopped at $8003')
-
-    def test_option_interrupts_with_ei(self):
-        data = [
-            0x00, # $8000 NOP ; t=69882
-            0xFB, # $8001 EI  ; t=69886 (no interrupt accepted after EI)
-            0x00, # $8002 NOP ; t=69890 (interrupt follows)
-            0x00, # $8003 NOP
-        ]
-        start = 0x8000
-        stop = 0x8004
-        ram = [0] * 49152
-        ram[start - 0x4000:start - 0x4000 + len(data)] = data
-        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69882}
-        z80file = self.write_z80_file(None, ram, registers=registers)
-        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
-        self.assertEqual(error, '')
-        output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 00       NOP')
-        self.assertEqual(output_lines[1], '$8001 FB       EI')
-        self.assertEqual(output_lines[2], '$8002 00       NOP')
-        self.assertEqual(output_lines[3], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[111], '$0052 C9       RET')
-        self.assertEqual(output_lines[112], '$8003 00       NOP')
-        self.assertEqual(output_lines[113], 'Stopped at $8004')
-
-    def test_option_interrupts_with_di(self):
-        data = [
-            0x00, # $8000 NOP ; t=69882
-            0xF3, # $8001 DI  ; t=69886 (no interrupt accepted after DI)
-            0x00, # $8002 NOP ; t=69890
-            0x00, # $8003 NOP ; t=69894
-        ]
-        start = 0x8000
-        stop = 0x8004
-        ram = [0] * 49152
-        ram[start - 0x4000:start - 0x4000 + len(data)] = data
-        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69882}
-        z80file = self.write_z80_file(None, ram, registers=registers)
-        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
-        self.assertEqual(error, '')
-        output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 00       NOP')
-        self.assertEqual(output_lines[1], '$8001 F3       DI')
-        self.assertEqual(output_lines[2], '$8002 00       NOP')
-        self.assertEqual(output_lines[3], '$8003 00       NOP')
-        self.assertEqual(output_lines[4], 'Stopped at $8004')
-
-    def test_option_interrupts_with_dd_prefix(self):
-        data = [
-            0xDD, # $8000 DEFB $DD ; t=69886 (no interrupt accepted after DD)
-            0x00, # $8001 NOP      ; t=69890 (interrupt follows)
-            0x00, # $8002 NOP
-        ]
-        start = 0x8000
-        stop = 0x8003
-        ram = [0] * 49152
-        ram[0x1C00] = ram[0x1C04] = 0xFF # KSTATE0/4
-        ram[start - 0x4000:start - 0x4000 + len(data)] = data
-        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69886}
-        z80file = self.write_z80_file(None, ram, registers=registers)
-        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
-        self.assertEqual(error, '')
-        output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 DD       DEFB $DD')
-        self.assertEqual(output_lines[1], '$8001 00       NOP')
-        self.assertEqual(output_lines[2], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[102], '$0052 C9       RET')
-        self.assertEqual(output_lines[103], '$8002 00       NOP')
-        self.assertEqual(output_lines[104], 'Stopped at $8003')
-
-    def test_option_interrupts_with_fd_prefix(self):
-        data = [
-            0xFD, # $8000 DEFB $FD ; t=69886 (no interrupt accepted after FD)
-            0x00, # $8001 NOP      ; t=69890 (interrupt follows)
-            0x00, # $8002 NOP
-        ]
-        start = 0x8000
-        stop = 0x8003
-        ram = [0] * 49152
-        ram[0x1C00] = ram[0x1C04] = 0xFF # KSTATE0/4
-        ram[start - 0x4000:start - 0x4000 + len(data)] = data
-        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69886}
-        z80file = self.write_z80_file(None, ram, registers=registers)
-        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
-        self.assertEqual(error, '')
-        output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 FD       DEFB $FD')
-        self.assertEqual(output_lines[1], '$8001 00       NOP')
-        self.assertEqual(output_lines[2], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[102], '$0052 C9       RET')
-        self.assertEqual(output_lines[103], '$8002 00       NOP')
-        self.assertEqual(output_lines[104], 'Stopped at $8003')
-
-    def test_option_interrupts_with_ddfd_chain(self):
-        data = [
-            0xDD, # $8000 DEFB $DD ; t=69886 (no interrupt accepted after DD)
-            0xFD, # $8001 DEFB $FD ; t=69890 (no interrupt accepted after FD)
-            0xDD, # $8002 DEFB $DD ; t=69894 (no interrupt accepted after DD)
-            0xFD, # $8003 DEFB $FD ; t=69898 (no interrupt accepted after FD)
-            0x00, # $8004 NOP      ; t=69902 (interrupt follows)
-            0x00, # $8005 NOP
-        ]
-        start = 0x8000
-        stop = 0x8006
-        ram = [0] * 49152
-        ram[0x1C00] = ram[0x1C04] = 0xFF # KSTATE0/4
-        ram[start - 0x4000:start - 0x4000 + len(data)] = data
-        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69886}
-        z80file = self.write_z80_file(None, ram, registers=registers)
-        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
-        self.assertEqual(error, '')
-        output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 DD       DEFB $DD')
-        self.assertEqual(output_lines[1], '$8001 FD       DEFB $FD')
-        self.assertEqual(output_lines[2], '$8002 DD       DEFB $DD')
-        self.assertEqual(output_lines[3], '$8003 FD       DEFB $FD')
-        self.assertEqual(output_lines[4], '$8004 00       NOP')
-        self.assertEqual(output_lines[5], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[105], '$0052 C9       RET')
-        self.assertEqual(output_lines[106], '$8005 00       NOP')
-        self.assertEqual(output_lines[107], 'Stopped at $8006')
-
-    def test_option_interrupts_at_exact_frame_boundary(self):
-        data = [
-            0x78, # $8000 LD A,B ; t=69884 (+4=69888: frame boundary)
-            0x78, # $8001 LD A,B
-        ]
-        start = 0x8000
-        stop = 0x8002
-        ram = [0] * 49152
-        ram[start - 0x4000:start - 0x4000 + len(data)] = data
-        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69884}
-        z80file = self.write_z80_file(None, ram, registers=registers)
-        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
-        self.assertEqual(error, '')
-        output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 78       LD A,B')
-        self.assertEqual(output_lines[1], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[109], '$0052 C9       RET')
-        self.assertEqual(output_lines[110], '$8001 78       LD A,B')
-        self.assertEqual(output_lines[111], 'Stopped at $8002')
-
-    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
-    def test_option_interrupts_with_djnz(self):
-        data = [
-            0x21, 0x00, 0x80,       # $7FEF LD HL,$8000   ; t=69805 T-states
-            0x22, 0xFF, 0xFE,       # $7FF2 LD ($FEFF),HL ; t=69815
-            0x3E, 0xFE,             # $7FF5 LD A,$FE      ; t=69831
-            0xED, 0x47,             # $7FF7 LD I,A        ; t=69838
-            0xED, 0x5E,             # $7FF9 IM 2          ; t=69847
-            0x06, 0x04,             # $7FFB LD B,$04      ; t=69855
-            0x10, 0xFE,             # $7FFD DJNZ $7FFD    ; t=69862/69875/interrupted
-            0x00,                   # $7FFF NOP
-            0xED, 0x43, 0x00, 0xC0, # $8000 LD ($C000),BC
-            0xC9,                   # $8004 RET
-        ]
-        outfile = os.path.join(self.make_directory(), 'dump.z80')
-        start = 0x7fef
-        stop = 0x7fff
-        ram = [0] * 49152
-        ram[start - 0x4000:start - 0x4000 + len(data)] = data
-        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69805}
-        z80file = self.write_z80_file(None, ram, registers=registers)
-        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file} {outfile}')
-        self.assertEqual(error, '')
-        self.assertEqual(snapshot[0xc001], 2) # DJNZ interrupted when B=2
-
-    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
-    def test_option_interrupts_with_ldir(self):
-        data = [
-            0x21, 0x00, 0x80,       # $7FEE LD HL,$8000   ; t=69805 T-states
-            0x22, 0xFF, 0xFE,       # $7FF1 LD ($FEFF),HL ; t=69815
-            0x3E, 0xFE,             # $7FF4 LD A,$FE      ; t=69831
-            0xED, 0x47,             # $7FF6 LD I,A        ; t=69838
-            0xED, 0x5E,             # $7FF8 IM 2          ; t=69847
-            0x01, 0x04, 0x00,       # $7FFA LD BC,$0004   ; t=69855
-            0xED, 0xB0,             # $7FFD LDIR          ; t=69865/69886/interrupted
-            0x00,                   # $7FFF NOP
-            0xED, 0x43, 0x00, 0xC0, # $8000 LD ($C000),BC
-            0xC9,                   # $8004 RET
-        ]
-        outfile = os.path.join(self.make_directory(), 'dump.z80')
-        start = 0x7fee
-        stop = 0x7fff
-        ram = [0] * 49152
-        ram[start - 0x4000:start - 0x4000 + len(data)] = data
-        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69805}
-        z80file = self.write_z80_file(None, ram, registers=registers)
-        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file} {outfile}')
-        self.assertEqual(error, '')
-        self.assertEqual(snapshot[0xc000], 2) # LDIR interrupted when BC=2
-
-    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
-    def test_option_interrupts_with_lddr(self):
-        data = [
-            0x21, 0x00, 0x80,       # $7FEE LD HL,$8000   ; t=69805 T-states
-            0x22, 0xFF, 0xFE,       # $7FF1 LD ($FEFF),HL ; t=69815
-            0x3E, 0xFE,             # $7FF4 LD A,$FE      ; t=69831
-            0xED, 0x47,             # $7FF6 LD I,A        ; t=69838
-            0xED, 0x5E,             # $7FF8 IM 2          ; t=69847
-            0x01, 0x04, 0x00,       # $7FFA LD BC,$0004   ; t=69855
-            0xED, 0xB8,             # $7FFD LDDR          ; t=69865/69886/interrupted
-            0x00,                   # $7FFF NOP
-            0xED, 0x43, 0x00, 0xC0, # $8000 LD ($C000),BC
-            0xC9,                   # $8004 RET
-        ]
-        outfile = os.path.join(self.make_directory(), 'dump.z80')
-        start = 0x7fee
-        stop = 0x7fff
-        ram = [0] * 49152
-        ram[start - 0x4000:start - 0x4000 + len(data)] = data
-        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69805}
-        z80file = self.write_z80_file(None, ram, registers=registers)
-        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file} {outfile}')
-        self.assertEqual(error, '')
-        self.assertEqual(snapshot[0xc000], 2) # LDDR interrupted when BC=2
-
     def test_option_max_operations(self):
         data = [
             0xAF, # XOR A
@@ -848,6 +848,27 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $8002: 8 T-states
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_no_interrupts(self):
+        data = [
+            0x00, # $8000 NOP ; t=69886 (interrupt would normally follow)
+            0x00, # $8001 NOP
+        ]
+        start = 0x8000
+        stop = 0x8002
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69886}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        exp_output = dedent("""
+            $8000 00       NOP
+            $8001 00       NOP
+            Stopped at $8002
+        """).strip()
+        for option in ('-n', '--no-interrupts'):
+            output, error = self.run_trace(f'{option} -S {stop} -v {z80file}')
+            self.assertEqual(error, '')
+            self.assertEqual(exp_output, output.rstrip())
 
     def test_option_poke(self):
         data = [

@@ -315,12 +315,12 @@ def main(args):
                        help="Show decimal values in verbose mode.")
     group.add_argument('--depth', type=int, default=2,
                        help='Simplify audio delays to this depth (default: 2).')
-    group.add_argument('-i', '--interrupts', action='store_true',
-                       help='Execute interrupt routines.')
     group.add_argument('--max-operations', metavar='MAX', type=int, default=0,
                        help='Maximum number of instructions to execute.')
     group.add_argument('--max-tstates', metavar='MAX', type=int, default=0,
                        help='Maximum number of T-states to run for.')
+    group.add_argument('-n', '--no-interrupts', dest='interrupts', action='store_false',
+                       help="Don't execute interrupt routines.")
     group.add_argument('-o', '--org', metavar='ADDR', type=integer,
                        help='Specify the origin address of a binary (raw memory) file (default: 65536 - length).')
     group.add_argument('-p', '--poke', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append', default=[],

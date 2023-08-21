@@ -70,6 +70,11 @@ output filename may be specified after the input filename. For example::
 
   $ trace.py --stop 32768 in.z80 out.z80
 
+In SkoolKit 8, the ``--interrupts`` option enabled the execution of interrupt
+routines. In SkoolKit 9, interrupt routines are executed by default, and the
+``--interrupts`` option has been removed. Use the ``--no-interrupts`` option to
+prevent the execution of interrupt routines.
+
 In SkoolKit 8, if the input filename was '.', a blank 48K snapshot was
 substituted. In SkoolKit 9, this no longer works; instead, use '48' for a
 blank 48K snapshot, or '128' for a blank 128K snapshot.

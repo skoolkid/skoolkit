@@ -30,9 +30,6 @@ OPTIONS
 -D, --decimal
   Show decimal values in verbose (``-v``, ``-vv``) mode.
 
--i, --interrupts
-  Execute interrupt routines.
-
 --max-operations `MAX`
   Maximum number of instructions to execute. Overrides the `STOP` address (if
   given).
@@ -40,6 +37,9 @@ OPTIONS
 --max-tstates `MAX`
   Maximum number of (simulated) T-states to run for. Overrides the `STOP`
   address (if given).
+
+-n, --no-interrupts
+  Don't execute interrupt routines.
 
 -o, --org `ORG`
   Specify the origin address of a binary (raw memory) file. The default origin

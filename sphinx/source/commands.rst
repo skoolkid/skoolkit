@@ -1720,9 +1720,9 @@ To list the options supported by `trace.py`, run it with no arguments::
     --audio               Show audio delays.
     --depth DEPTH         Simplify audio delays to this depth (default: 2).
     -D, --decimal         Show decimal values in verbose mode.
-    -i, --interrupts      Execute interrupt routines.
     --max-operations MAX  Maximum number of instructions to execute.
     --max-tstates MAX     Maximum number of T-states to run for.
+    -n, --no-interrupts   Don't execute interrupt routines.
     -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
                           file (default: 65536 - length).
     -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
@@ -1745,10 +1745,9 @@ To list the options supported by `trace.py`, run it with no arguments::
 By default, `trace.py` silently simulates code execution beginning with the
 instruction at the address specified by the ``--start`` option (or the program
 counter in the snapshot) and ending when the instruction at the address
-specified by ``--stop`` (if any) is reached, and does not execute interrupt
-routines. Use the ``--verbose`` option to show each instruction executed.
-Repeat the ``--verbose`` option (``-vv``) to show register values too. Use the
-``--interrupts`` option to enable the execution of interrupt routines.
+specified by ``--stop`` (if any) is reached. Use the ``--verbose`` option to
+show each instruction executed. Repeat the ``--verbose`` option (``-vv``) to
+show register values too.
 
 When the ``--audio`` option is given, `trace.py` tracks changes in the state
 of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)
@@ -1759,11 +1758,11 @@ running on a real ZX Spectrum.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.0     | Added support for 128K snapshots                                  |
+| 9.0     | Added support for 128K snapshots; added the ``--no-interrupts``   |
+|         | option; interrupt routines are executed by default                |
 +---------+-------------------------------------------------------------------+
-| 8.9     | Added the ``--interrupts`` option; reads and writes the T-states  |
-|         | counter in Z80 snapshots and reads the T-states counter in SZX    |
-|         | snapshots                                                         |
+| 8.9     | Reads and writes the T-states counter in Z80 snapshots and reads  |
+|         | the T-states counter in SZX snapshots                             |
 +---------+-------------------------------------------------------------------+
 | 8.8     | New                                                               |
 +---------+-------------------------------------------------------------------+
