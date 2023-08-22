@@ -1,4 +1,4 @@
-# Copyright 2008-2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -807,7 +807,7 @@ class Mode:
         self.html = html
         self.asm_mode = asm_mode
         self.warn = warnings
-        self.assemble = int(html)
+        self.assemble = 2
         self.fix_mode = fix_mode
         self.labels = []
         self.create_labels = create_labels

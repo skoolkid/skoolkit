@@ -721,13 +721,6 @@ For example::
 This instance of the ``#PEEK`` macro expands to the contents of the address
 33879 in the internal memory snapshot.
 
-Note that, by default, the internal memory snapshot constructed by
-:ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
-constructed by :ref:`skool2html.py` is populated only by ``DEFB``, ``DEFM``,
-``DEFS`` and ``DEFW`` statements, and by :ref:`defb`, :ref:`defs` and
-:ref:`defw` directives. To change this behaviour, use the :ref:`assemble`
-directive.
-
 See also :ref:`POKES`.
 
 +---------+-------------------------------------------------------------------+
@@ -900,7 +893,6 @@ code to execute via the ``start`` and ``stop`` address parameters. For
 example::
 
   ; #AUDIO4(beep.wav)(32768,32782)
-  @assemble=2
   c32768 LD L,0
   *32771 OUT (254),A
    32773 XOR 16
@@ -914,14 +906,6 @@ example::
    The simulator does not simulate memory contention, I/O contention, or
    interrupts. Use bits 0 and 1 of ``flags`` to approximate memory contention
    effects and interrupt delays if desired.
-
-Note also that, by default, the internal memory snapshot constructed by
-:ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
-constructed by :ref:`skool2html.py` is populated only by ``DEFB``, ``DEFM``,
-``DEFS`` and ``DEFW`` statements, and by :ref:`defb`, :ref:`defs` and
-:ref:`defw` directives. To make sure that the internal memory snapshot actually
-contains the code to be executed, use the :ref:`assemble` directive (as shown
-in the example above).
 
 If ``delays`` or ``start`` and ``stop`` parameters are specified, but ``fname``
 does not end with '.wav', no audio file is written. This enables the parameters
@@ -1528,7 +1512,6 @@ the following names:
 
 For example::
 
-  @assemble=2,2
   ; #SIM(start=32768,stop=32772,bc=13256,de=672)
    32768 LD HL,443
    32771 ADD HL,BC
@@ -1554,16 +1537,8 @@ now HL=14371'.
    being simulated runs in or accesses contended memory, or performs I/O
    operations, or runs while interrupts are enabled.
 
-Note that, by default, the internal memory snapshot constructed by
-:ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
-constructed by :ref:`skool2html.py` is populated only by ``DEFB``, ``DEFM``,
-``DEFS`` and ``DEFW`` statements, and by :ref:`defb`, :ref:`defs` and
-:ref:`defw` directives. To make sure that the internal memory snapshot actually
-contains the code to be executed, use the :ref:`assemble` directive (as shown
-in the example above).
-
-Note also that code executed by the ``#SIM`` macro operates directly on the
-internal memory snapshot, and therefore can modify it. To avoid that, use the
+Note that code executed by the ``#SIM`` macro operates directly on the internal
+memory snapshot, and therefore can modify it. To avoid that, use the
 :ref:`PUSHS` and :ref:`POPS` macros to operate on a copy of the snapshot.
 
 +---------+---------+
@@ -1760,9 +1735,7 @@ parameter::
 This instance of the ``#TSTATES`` macro expands to ``#EVAL(99*13+8)``, which in
 turn expands to '1295'.
 
-Note that an instruction's timing can be determined only if it has been
-assembled. To make sure that it is assembled, use the :ref:`assemble`
-directive. In addition, unless bit 2 of ``flags`` is set, only true
+Note that unless bit 2 of ``flags`` is set, only true assembly language
 instructions (i.e. not ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements)
 can be timed.
 
@@ -2783,9 +2756,7 @@ For example::
   ; #ASMUDG30000
    30000 DEFB 48,72,136,144,104,4,10,4
 
-If conversion of DEFB statements has been switched on in ASM mode by the
-:ref:`assemble` directive (e.g. ``@assemble=,1``), this ``#ASMUDG`` macro
-produces the following output::
+This ``#ASMUDG`` macro produces the following output::
 
   ; |  **    |
   ; | *  *   |

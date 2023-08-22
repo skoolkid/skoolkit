@@ -1767,6 +1767,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_addressless_defb_directives(self):
         skool = """
+            @assemble=1
             @defb=1,$0A,%10101010
             @defb="01",32768/256 ; Done
             ; Start
@@ -1777,6 +1778,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_mixed_defb_directives(self):
         skool = """
+            @assemble=1
             @defb=1,2
             @defb=40004:5,6
             @defb=7,8
@@ -1788,6 +1790,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_defb_directives_in_non_entry_block(self):
         skool = """
+            @assemble=1
             @defb=1,2
             @defb=40004:5,6
 
@@ -1810,6 +1813,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_addressless_defs_directives(self):
         skool = """
+            @assemble=1
             @defs=2,$10
             @defs=4,"1" ; "1111"
             ; Start
@@ -1820,6 +1824,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_mixed_defs_directives(self):
         skool = """
+            @assemble=1
             @defs=2,1
             @defs=50004:2,2
             @defs=2,3
@@ -1831,6 +1836,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_defs_directives_in_non_entry_block(self):
         skool = """
+            @assemble=1
             @defs=2,1
             @defs=50004:2,2
 
@@ -1853,6 +1859,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_addressless_defw_directives(self):
         skool = """
+            @assemble=1
             @defw=32769,$8002
             @defw=%100000000,"0" ; Finished
             ; Start
@@ -1863,6 +1870,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_mixed_defw_directives(self):
         skool = """
+            @assemble=1
             @defw=1
             @defw=60004:2
             @defw=3
@@ -1874,6 +1882,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_defw_directives_in_non_entry_block(self):
         skool = """
+            @assemble=1
             @defw=1
             @defw=60004:2
 
@@ -1885,6 +1894,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_mixture_of_addressless_data_definition_directives(self):
         skool = """
+            @assemble=1
             @defb=1,1
             @defs=2,2
             @defw=771
@@ -1896,6 +1906,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_data_definition_directives_with_invalid_addresses(self):
         skool = """
+            @assemble=1
             @defb=x:1,1
             @defs=?:2,2
             @defw=:771
@@ -5021,12 +5032,12 @@ class SkoolParserTest(SkoolKitTestCase):
             @assemble=,1
              24002 XOR B
              24003 DEFB 2
-            @assemble=,2
+            @assemble=,0
              24004 XOR C
              24005 DEFB 3
         """
         snapshot = self._get_parser(skool, asm_mode=1).snapshot
-        self.assertEqual([0, 0, 0, 2, 169, 3], snapshot[24000:24006])
+        self.assertEqual([175, 1, 0, 2, 0, 0], snapshot[24000:24006])
 
     def test_asm_mode_assemble_missing_or_bad_value(self):
         skool = """
@@ -5047,7 +5058,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             c30000 XOR A
              30001 DEFB 1
-            @assemble=2
+            @assemble=1
              30002 XOR B
              30003 DEFB 2
             @assemble=0
@@ -5055,7 +5066,7 @@ class SkoolParserTest(SkoolKitTestCase):
              30005 DEFB 3
         """
         snapshot = self._get_parser(skool, html=True).snapshot
-        self.assertEqual([0, 1, 168, 2, 0, 0], snapshot[30000:30006])
+        self.assertEqual([175, 1, 0, 2, 0, 0], snapshot[30000:30006])
 
     def test_html_mode_assemble_missing_or_bad_value(self):
         skool = """

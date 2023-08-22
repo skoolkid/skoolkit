@@ -438,7 +438,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
              30002 RET   ; Final instruction at #PC.
             ; End comment after the instruction at #PC.
 
-            @assemble=,1
             ; Data at #PC
             b30003 DEFB 0 ; A byte (#PEEK(#PC)) at #PC.
              30004 DEFB 1 ; Another byte (#PEEK(#PC)) at #PC.

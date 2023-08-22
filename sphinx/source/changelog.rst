@@ -23,6 +23,8 @@ Changelog
   repetition of an ``N`` directive at the start of a loop
 * :ref:`tapinfo.py` now shows the LINE number (if present) for 'Program:'
   header blocks
+* Changed the default value of ``H`` and ``A`` for the :ref:`assemble`
+  directive to 2
 
 8.10 (2023-06-17)
 -----------------

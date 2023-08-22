@@ -1563,7 +1563,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_audio_with_code_simulation(self):
         skool = """
-            @assemble=2,2
             ; Beep
             c32768 LD L,64
             *32771 OUT (254),A
@@ -5554,7 +5553,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_parameter_Bytes_blank_with_assembled_code(self):
         skool = """
-            @assemble=2
             ; Routine at 32768
             c32768 RET
         """
@@ -5587,10 +5585,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
 
     def test_parameter_Bytes_blank_with_assembled_code_produces_blank_output(self):
-        skool = """
-            @assemble=2
-            c32768 RET
-        """
+        skool = "c32768 RET"
         ref = """
             [Template:Asm]
             <# foreach($i,entry[instructions]) #>
@@ -5607,7 +5602,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             Bytes=02X
         """
         skool = """
-            @assemble=2
             ; Routine at 32768
             c32768 LD BC,(0)
              32772 LD BC,0
@@ -5695,7 +5689,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             Bytes=02X
         """
         skool = """
-            @assemble=1
             ; Data at 32768
             b32768 DEFB 0
              32769 DEFM "0"
@@ -5792,10 +5785,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             {$i[address]} {$i[bytes]:{Game[Bytes]}} {$i[operation]}
             <# endfor #>
         """
-        skool = """
-            @assemble=2
-            c32768 RET
-        """
+        skool = "c32768 RET"
         writer = self._get_writer(ref=ref, skool=skool, case=CASE_LOWER)
         writer.write_asm_entries()
         self._assert_content_equal('32768 c9 ret', 'asm/32768.html')
@@ -11578,7 +11568,6 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_bytes_field_in_Asm_template(self):
         skool = """
-            @assemble=2
             ; Routine at 32768
             c32768 XOR A    ; One byte
              32769 LD A,0   ; Two bytes
@@ -11614,7 +11603,6 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_bytes_field_with_separator_in_Asm_template(self):
         skool = """
-            @assemble=2
             ; Routine at 32768
             c32768 XOR A   ; One byte
              32769 LD A,0  ; Two bytes
@@ -11642,7 +11630,6 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_bytes_field_with_specifier_for_entire_string_in_Asm_template(self):
         skool = """
-            @assemble=2
             ; Routine at 32768
             c32768 XOR A   ; One byte
              32769 LD A,1  ; Two bytes
