@@ -54,13 +54,13 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual('Z80 file: {}{}'.format(z80file, dedent(exp_output)), output)
 
-    def _test_szx(self, exp_output, registers=None, border=0, keyb=False, issue2=0, ram=None, compress=False, machine_id=1, ch7ffd=0, pages=None):
+    def _test_szx(self, exp_output, registers=None, border=0, keyb=False, issue2=0, ram=None, compress=False, machine_id=1, ch7ffd=0, pages=None, ay=None):
         if ram is None:
             ram = [0] * 49152
         if machine_id > 1 and pages is None:
             bank = (0,) * 16384
             pages = {p: bank for p in (1, 3, 4, 6, 7)}
-        szxfile = self.write_szx(ram, compress, machine_id, ch7ffd, pages, registers, border, keyb, issue2)
+        szxfile = self.write_szx(ram, compress, machine_id, ch7ffd, pages, registers, border, keyb, issue2, ay)
         output, error = self.run_snapinfo(szxfile)
         self.assertEqual(error, '')
         self.assertEqual(dedent(exp_output).lstrip(), output)
@@ -464,6 +464,7 @@ class SnapinfoTest(SkoolKitTestCase):
         header.append(4) # 128K
         header.append(3) # Port 0x7ffd
         header += [0] * (header[-6] - 4)
+        header[38] = 2 # Port 0xfffd
         pages = {bank: [0] * 16384 for bank in (1, 3, 4, 6, 7)}
         exp_output = """
             Version: 3
@@ -473,6 +474,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Issue 2 emulation: disabled
             T-states: 35453
             Border: 4
+            Port $FFFD: 2
             Port $7FFD: 3 - bank 3 (block 6) paged into 49152-65535 C000-FFFF
             Registers:
               PC  25883 651B    SP  10536 2928
@@ -511,6 +513,7 @@ class SnapinfoTest(SkoolKitTestCase):
         header.append(4) # 128K
         header.append(3) # Port 0x7ffd
         header += [0] * (header[-6] - 4)
+        header[38] = 7 # Port 0xfffd
         header[55:58] = [62, 69, 3] # T-states
         pages = {bank: [0] * 16384 for bank in (1, 3, 4, 6, 7)}
         exp_output = """
@@ -521,6 +524,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Issue 2 emulation: enabled
             T-states: 0
             Border: 7
+            Port $FFFD: 7
             Port $7FFD: 3 - bank 3 (block 6) paged into 49152-65535 C000-FFFF
             Registers:
               PC  65261 FEED    SP  10536 2928
@@ -727,6 +731,8 @@ class SnapinfoTest(SkoolKitTestCase):
               Port $7FFD: 1 (bank 1 paged into 49152-65535 C000-FFFF)
             KEYB: 5 bytes
               Issue 2 emulation: disabled
+            AY: 18 bytes
+              Current AY register: 5
             Z80R: 37 bytes
               Interrupts: disabled
               Interrupt mode: 1
@@ -771,7 +777,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Page: 7
               RAM: 16384 bytes, uncompressed
         """
-        self._test_szx(exp_output, registers, border=6, keyb=True, issue2=0, compress=False, machine_id=2, ch7ffd=1, pages=None)
+        self._test_szx(exp_output, registers, border=6, keyb=True, issue2=0, compress=False, machine_id=2, ch7ffd=1, pages=None, ay=[5])
 
     def test_szx_128k_compressed(self):
         registers = list(range(16, 42)) # Registers
@@ -785,6 +791,8 @@ class SnapinfoTest(SkoolKitTestCase):
             SPCR: 8 bytes
               Border: 7
               Port $7FFD: 1 (bank 1 paged into 49152-65535 C000-FFFF)
+            AY: 18 bytes
+              Current AY register: 13
             Z80R: 37 bytes
               Interrupts: disabled
               Interrupt mode: 1
@@ -829,7 +837,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Page: 7
               RAM: 39 bytes, compressed
         """
-        self._test_szx(exp_output, registers, border=7, compress=True, machine_id=2, ch7ffd=1, pages=None)
+        self._test_szx(exp_output, registers, border=7, compress=True, machine_id=2, ch7ffd=1, pages=None, ay=[13])
 
     def test_szx_without_magic_number(self):
         non_szx = self.write_bin_file((1, 2, 3), suffix='.szx')

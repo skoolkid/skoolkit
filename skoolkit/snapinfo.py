@@ -146,6 +146,8 @@ def _parse_z80(z80file):
     else:
         reg.pc = get_word(header, 32)
         reg.out7ffd = header[35]
+        reg.outfffd = header[38]
+        reg.ay = tuple(header[39:55])
     reg.sp = get_word(header, 8)
     reg.i = header[10]
     reg.r = 128 * (header[12] & 1) + (header[11] & 127)
@@ -180,7 +182,7 @@ def _analyse_z80(z80file, header, reg, ram_blocks):
     # Print file name, version, machine, interrupt status, border, port $7FFD
     print('Z80 file: {}'.format(z80file))
     print('Version: {}'.format(version))
-    bank = None
+    is128 = False
     if version == 1:
         machine = '48K Spectrum'
         block_dict = BLOCK_ADDRESSES_48K
@@ -193,8 +195,8 @@ def _analyse_z80(z80file, header, reg, ram_blocks):
         if machine_spec[2]:
             block_dict = BLOCK_ADDRESSES_48K
         else:
+            is128 = True
             block_dict = BLOCK_ADDRESSES_128K
-            bank = header[35] & 7
     print('Machine: {}'.format(machine))
     print('Interrupts: {}abled'.format('en' if reg.iff2 else 'dis'))
     print('Interrupt mode: {}'.format(reg.im))
@@ -202,7 +204,9 @@ def _analyse_z80(z80file, header, reg, ram_blocks):
     if version == 3:
         print(f'T-states: {reg.tstates}')
     print('Border: {}'.format((header[12] // 2) & 7))
-    if bank is not None:
+    if is128:
+        print(f'Port $FFFD: {reg.outfffd}')
+        bank = header[35] & 7
         print('Port $7FFD: {} - bank {} (block {}) paged into 49152-65535 C000-FFFF'.format(reg.out7ffd, bank, bank + 3))
 
     # Print register contents
@@ -290,11 +294,17 @@ def _parse_szx(szxfile):
         elif block_id == 'SPCR':
             reg.border = block[0]
             reg.out7ffd = block[1]
+        elif block_id == 'AY':
+            reg.outfffd = block[1]
+            reg.ay = tuple(block[2:18])
 
     return header, reg, blocks
 
 def _get_block_id(data, index):
-    return ''.join([chr(b) for b in data[index:index+ 4]])
+    return ''.join(chr(b) for b in data[index:index+ 4] if b)
+
+def _print_ay(block, reg):
+    return [f'Current AY register: {reg.outfffd}']
 
 def _print_keyb(block, reg):
     issue2 = get_dword(block, 0) & 1
@@ -334,6 +344,7 @@ def _print_z80r(block, reg):
     return lines + reg.get_lines()
 
 SZX_BLOCK_PRINTERS = {
+    'AY': _print_ay,
     'KEYB': _print_keyb,
     'RAMP': _print_ramp,
     'SPCR': _print_spcr,
@@ -380,6 +391,8 @@ def _parse_sna(snafile):
     if len(sna) > 49179:
         reg.pc = get_word(sna, 49179)
         reg.out7ffd = sna[49181]
+        reg.outfffd = 0
+        reg.ay = (0,) * 16
     else:
         reg.pc = get_word(sna, reg.sp - 16357)
         reg.out7ffd = 0

@@ -23,6 +23,8 @@ Changelog
   repetition of an ``N`` directive at the start of a loop
 * :ref:`tapinfo.py` now shows the LINE number (if present) for 'Program:'
   header blocks, and renders BASIC tokens in header block names
+* :ref:`snapinfo.py` now shows the current AY register in 128K SZX and Z80
+  snapshots
 * Changed the default value of ``H`` and ``A`` for the :ref:`assemble`
   directive to 2
 

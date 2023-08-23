@@ -1098,10 +1098,10 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
                           may be used multiple times.
 
 With no options, `snapinfo.py` displays register values, the interrupt mode,
-and the border colour. By using one of the options shown above, it can list
-the BASIC program and variables (if present), show the contents of a range of
-addresses, search the RAM for a sequence of byte values or a text string, or
-generate a call graph.
+the border colour, and various other attributes. By using one of the options
+shown above, it can list the BASIC program and variables (if present), show the
+contents of a range of addresses, search the RAM for a sequence of byte values
+or a text string, or generate a call graph.
 
 .. _snapinfo-call-graph:
 
@@ -1188,6 +1188,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.0     | Shows the current AY register in 128K SZX and Z80 snapshots       |
++---------+-------------------------------------------------------------------+
 | 8.10    | Shows the value of the T-states counter and the issue 2 emulation |
 |         | flag in SZX and Z80 snapshots                                     |
 +---------+-------------------------------------------------------------------+
