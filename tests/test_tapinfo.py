@@ -555,6 +555,27 @@ class TapinfoTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
+    def test_names_containing_basic_tokens(self):
+        tap_data = create_tap_header_block('\xef\xcb\xf7\xebFUN...', 32768, data_type=0)
+        tap_data.extend(create_tap_header_block('\xaf\xc6\xe4\xcc\xe3.....', 32768, 200))
+        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        output, error = self.run_tapinfo(tapfile)
+        self.assertEqual(error, '')
+        exp_output = """
+            1:
+              Type: Header block
+              Program:  LOAD THEN RUN FOR FUN...
+              Length: 19
+              Data: 0, 0, 239, 203, 247, 235, 70 ... 0, 0, 0, 128, 0, 0, 203
+            2:
+              Type: Header block
+              Bytes: CODE AND DATA TO READ .....
+              CODE: 32768,200
+              Length: 19
+              Data: 0, 3, 175, 198, 228, 204, 227 ... 200, 0, 0, 128, 0, 0, 199
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
     def test_option_b(self):
         blocks = []
 

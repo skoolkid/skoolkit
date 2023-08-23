@@ -548,7 +548,7 @@ class LoadTracer(PagingTracer):
         else:
             skipped = ' [skipped]'
         if block[0] == 0 and data_len >= 17 and block[1] <= 3:
-            name = ''.join(self.text.get_chars(b) for b in block[2:12])
+            name = self.text.get_text(block[2:12])
             if block[1] == 3:
                 write_line(f'Bytes: {name}{skipped}')
             elif block[1] == 2:

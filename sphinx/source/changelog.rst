@@ -22,7 +22,7 @@ Changelog
 * Added support to :ref:`control directive loops <ctlLoops>` for avoiding
   repetition of an ``N`` directive at the start of a loop
 * :ref:`tapinfo.py` now shows the LINE number (if present) for 'Program:'
-  header blocks
+  header blocks, and renders BASIC tokens in header block names
 * Changed the default value of ``H`` and ``A`` for the :ref:`assemble`
   directive to 2
 

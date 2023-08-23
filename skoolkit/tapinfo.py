@@ -1,4 +1,5 @@
-# Copyright 2013, 2015, 2017, 2020, 2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015, 2017, 2020, 2022, 2023
+# Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -17,7 +18,7 @@
 import argparse
 
 from skoolkit import SkoolKitError, get_word, get_word3, get_dword, get_int_param, warn, VERSION
-from skoolkit.basic import BasicLister, get_char
+from skoolkit.basic import BasicLister, TextReader, get_char
 
 ARCHIVE_INFO = {
     0: "Full title",
@@ -221,6 +222,8 @@ HARDWARE_INFO = {
 }
 
 CHARS = {9: '\t', 13: '\n'}
+
+TEXT_READER = TextReader()
 
 def _bytes_to_str(data):
     return ', '.join(str(b) for b in data)
@@ -436,7 +439,7 @@ def _print_block(index, data, show_data, info=(), block_id=None, header=None):
                 start = get_word(data, 14)
             if name_str:
                 data_type = "Header block"
-                name = _get_str(data[2:12])
+                name = TEXT_READER.get_text(data[2:12])
         elif data[0] == 255:
             data_type = "Data block"
         _print_info("Type: {}".format(data_type))

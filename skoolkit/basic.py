@@ -167,6 +167,9 @@ class TextReader:
             return get_char(code)
         return self._get_token(code)
 
+    def get_text(self, codes):
+        return ''.join(self.get_chars(c) for c in codes)
+
     def _get_token(self, code):
         token = TOKENS[code]
         if self.lspace and code >= 197 and token[0] >= 'A':
@@ -294,7 +297,7 @@ class VariableLister:
 
     def _get_string_var(self, name, i):
         end = i + 3 + get_word(self.snapshot, i + 1)
-        value = ''.join([self.text.get_chars(c) for c in self.snapshot[i + 3:end]])
+        value = self.text.get_text(self.snapshot[i + 3:end])
         line = '{}$="{}"'.format(name, value)
         return end, line
 
@@ -321,7 +324,7 @@ class VariableLister:
         dims = [get_word(self.snapshot, c) for c in range(i + 4, v_start, 2)]
         dims_str = ','.join([str(d) for d in dims])
         str_len = dims[-1]
-        strings = [''.join([self.text.get_chars(self.snapshot[k]) for k in range(j, j + str_len)]) for j in range(v_start, v_end, str_len)]
+        strings = [self.text.get_text(self.snapshot[j:j + str_len]) for j in range(v_start, v_end, str_len)]
         if len(dims) > 1:
             values = _unflatten(strings, dims[:-1])
         else:
