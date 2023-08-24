@@ -37,10 +37,12 @@ TRACE2D = """
 """.strip()
 
 class Tracer(PagingTracer):
-    def __init__(self, simulator, border, out7ffd):
+    def __init__(self, simulator, border, out7ffd, outfffd, ay):
         self.simulator = simulator
         self.border = border
         self.out7ffd = out7ffd
+        self.outfffd = outfffd
+        self.ay = ay
         self.operations = 0
         self.spkr = None
         self.out_times = []
@@ -128,14 +130,17 @@ class Tracer(PagingTracer):
 
         self.operations = operations
 
+    def read_port(self, registers, port):
+        if port == 0xFFFD:
+            return self.ay[self.outfffd % 16]
+        return 0xFF
+
     def write_port(self, registers, port, value):
+        super().write_port(registers, port, value)
         if port % 2 == 0:
-            self.border = value % 8
             if self.spkr != value & 0x10:
                 self.spkr = value & 0x10
                 self.out_times.append(registers[T])
-        elif port & 0x8002 == 0:
-            super().write_port(registers, port, value)
 
 def get_registers(sna_reg, specs):
     if sna_reg:
@@ -219,10 +224,14 @@ def run(snafile, options):
         state = {'im': reg.im, 'iff': reg.iff2, 'tstates': reg.tstates}
         border = reg.border
         out7ffd = reg.out7ffd
+        outfffd = reg.outfffd
+        ay = list(reg.ay)
     else:
         state = {'im': 1, 'iff': 1, 'tstates': 0}
         border = 7
         out7ffd = 0
+        outfffd = 0
+        ay = [0] * 16
     start = options.start
     if start is None:
         if reg:
@@ -244,7 +253,7 @@ def run(snafile, options):
     fast = options.verbose == 0 and not options.interrupts
     config = {'fast_djnz': fast, 'fast_ldir': fast}
     simulator = Simulator(memory, get_registers(reg, options.reg), state, config)
-    tracer = Tracer(simulator, border, out7ffd)
+    tracer = Tracer(simulator, border, out7ffd, outfffd, ay)
     simulator.set_tracer(tracer)
     begin = time.time()
     tracer.run(start, options.stop, options.verbose, options.max_operations,
@@ -265,8 +274,11 @@ def run(snafile, options):
         print('Sound duration: {} T-states ({:.03f}s)'.format(duration, duration / 3500000))
         print('Delays: {}'.format(simplify(delays, options.depth)))
     if options.dump:
+        state = []
         if isinstance(memory, Memory):
             ram = memory.banks
+            state.extend(f'ay[{n}]={v}' for n, v in enumerate(tracer.ay))
+            state.extend((f'7ffd={tracer.out7ffd}', f'fffd={tracer.outfffd}'))
         else:
             ram = memory[0x4000:]
         r = simulator.registers
@@ -288,13 +300,12 @@ def run(snafile, options):
             f'^hl={r[xL] + 256 * r[xH]}',
             f'pc={r[PC]}'
         )
-        state = (
+        state.extend((
             f'border={tracer.border}',
-            f'7ffd={tracer.out7ffd}',
             f'iff={simulator.iff}',
             f'im={simulator.imode}',
             f'tstates={r[T]}'
-        )
+        ))
         write_z80v3(options.dump, ram, registers, state)
         print(f'Wrote {options.dump}')
 

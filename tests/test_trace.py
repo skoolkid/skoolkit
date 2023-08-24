@@ -1224,7 +1224,7 @@ class TraceTest(SkoolKitTestCase):
             '^hl=25431',
             f'pc={stop}'
         )
-        exp_state = ('border=1', '7ffd=0', 'iff=0', 'im=2', 'tstates=166')
+        exp_state = ['border=1', 'iff=0', 'im=2', 'tstates=166']
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         self.assertEqual(z80fname, outfile)
         self.assertEqual(data, snapshot[start:stop])
@@ -1287,10 +1287,73 @@ class TraceTest(SkoolKitTestCase):
             '^hl=25431',
             f'pc={stop}'
         )
-        exp_state = ('border=1', '7ffd=1', 'iff=0', 'im=2', 'tstates=178')
+        exp_state = [f'ay[{n}]=0' for n in range(16)]
+        exp_state.extend(('7ffd=1', 'fffd=0', 'border=1', 'iff=0', 'im=2', 'tstates=178'))
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         self.assertEqual(z80fname, outfile)
         self.assertEqual(code, snapshot[start:stop])
         self.assertTrue(all(b == 1 for b in snapshot[0xC000:0x10000]))
         self.assertEqual(exp_reg, z80reg)
         self.assertEqual(exp_state, z80state)
+
+    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    def test_ay_tracing_from_z80(self):
+        code = [
+            0x21, 0x10, 0xFF,       # $8000 LD HL,$FF10
+            0x01, 0xFD, 0xFF,       # $8003 LD BC,$FFFD
+            0xED, 0x78,             # $8006 IN A,(C)    ; Store value of
+            0x77,                   # $8008 LD (HL),A   ; current AY register.
+            0x2D,                   # $8009 DEC L
+            0xED, 0x69,             # $800A OUT (C),L   ; Switch AY register.
+            0xED, 0x78,             # $800C IN A,(C)    ; Store value of this
+            0x77,                   # $800E LD (HL),A   ; AY register.
+            0x06, 0xBF,             # $800F LD B,$BF    ; BC=$BFFD.
+            0x3C,                   # $8011 INC A       ; Increment value of
+            0xED, 0x79,             # $8012 OUT (C),A   ; this AY register.
+            0x44,                   # $8014 LD B,H      ; BC=$FFFD.
+            0x2D,                   # $8015 DEC L       ; Next AY register.
+            0xF2, 0x0A, 0x80,       # $8016 JP P,$800A
+        ]
+        ram = [0] * 49152
+        start = 32768
+        ram[start - 0x4000:start - 0x4000 + len(code)] = code
+        stop = start + len(code)
+        ay = [5] + [128 + n for n in range(16)]
+        z80file = self.write_z80(ram, machine_id=4, ay=ay)[1]
+        output, error = self.run_trace(f'-s {start} -S {stop} {z80file} out.z80')
+        exp_state = [f'ay[{n}]={v + 1}' for n, v in enumerate(ay[1:])]
+        exp_state.append('fffd=0')
+        self.assertEqual(snapshot[0xff10], ay[1 + ay[0]])   # Input: current AY register value
+        self.assertEqual(ay[1:], snapshot[0xff00:0xff10])   # Input: all AY register values
+        self.assertLessEqual(set(exp_state), set(z80state)) # Output: AY state
+
+    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    def test_ay_tracing_from_szx(self):
+        code = [
+            0x21, 0x10, 0xFF,       # $8000 LD HL,$FF10
+            0x01, 0xFD, 0xFF,       # $8003 LD BC,$FFFD
+            0xED, 0x78,             # $8006 IN A,(C)    ; Store value of
+            0x77,                   # $8008 LD (HL),A   ; current AY register.
+            0x2D,                   # $8009 DEC L
+            0xED, 0x69,             # $800A OUT (C),L   ; Switch AY register.
+            0xED, 0x78,             # $800C IN A,(C)    ; Store value of this
+            0x77,                   # $800E LD (HL),A   ; AY register.
+            0x06, 0xBF,             # $800F LD B,$BF    ; BC=$BFFD.
+            0x3C,                   # $8011 INC A       ; Increment value of
+            0xED, 0x79,             # $8012 OUT (C),A   ; this AY register.
+            0x44,                   # $8014 LD B,H      ; BC=$FFFD.
+            0x2D,                   # $8015 DEC L       ; Next AY register.
+            0xF2, 0x0A, 0x80,       # $8016 JP P,$800A
+        ]
+        ram = [0] * 49152
+        start = 32768
+        ram[start - 0x4000:start - 0x4000 + len(code)] = code
+        stop = start + len(code)
+        ay = [7] + [192 + n for n in range(16)]
+        szxfile = self.write_szx(ram, machine_id=2, ay=ay)
+        output, error = self.run_trace(f'-s {start} -S {stop} {szxfile} out.z80')
+        exp_state = [f'ay[{n}]={v + 1}' for n, v in enumerate(ay[1:])]
+        exp_state.append('fffd=0')
+        self.assertEqual(snapshot[0xff10], ay[1 + ay[0]])   # Input: current AY register value
+        self.assertEqual(ay[1:], snapshot[0xff00:0xff10])   # Input: all AY register values
+        self.assertLessEqual(set(exp_state), set(z80state)) # Output: AY state

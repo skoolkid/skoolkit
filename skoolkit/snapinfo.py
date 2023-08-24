@@ -25,11 +25,37 @@ from skoolkit.sna2skool import get_ctl_parser
 from skoolkit.snaskool import Disassembly
 
 class Registers:
-    reg_map = {
-        'b': 'bc', 'c': 'bc', 'b2': 'bc2', 'c2': 'bc2',
-        'd': 'de', 'e': 'de', 'd2': 'de2', 'e2': 'de2',
-        'h': 'hl', 'l': 'hl', 'h2': 'hl2', 'l2': 'hl2'
-    }
+    def __init__(self, a=0, f=0, bc=0, de=0, hl=0, a2=0, f2=0, bc2=0, de2=0, hl2=0,
+                 ix=0, iy=0, sp=0, i=0, r=0, pc=0, border=0, iff2=0, im=0,
+                 tstates=0, out7ffd=0, outfffd=0, ay=(0,) * 16):
+        self.a = a
+        self.f = f
+        self.bc = bc
+        self.de = de
+        self.hl = hl
+        self.a2 = a2
+        self.f2 = f2
+        self.bc2 = bc2
+        self.de2 = de2
+        self.hl2 = hl2
+        self.ix = ix
+        self.iy = iy
+        self.sp = sp
+        self.i = i
+        self.r = r
+        self.pc = pc
+        self.border = border
+        self.iff2 = iff2
+        self.im = im
+        self.tstates = tstates
+        self.out7ffd = out7ffd
+        self.outfffd = outfffd
+        self.ay = ay
+        self.reg_map = {
+            'b': 'bc', 'c': 'bc', 'b2': 'bc2', 'c2': 'bc2',
+            'd': 'de', 'e': 'de', 'd2': 'de2', 'e2': 'de2',
+            'h': 'hl', 'l': 'hl', 'h2': 'hl2', 'l2': 'hl2'
+        }
 
     def get_lines(self):
         lines = []
@@ -136,11 +162,27 @@ def _parse_z80(z80file):
         ram_blocks = data[header_len:]
         version = 2 if header_len == 55 else 3
 
-    reg = Registers()
-    reg.a = header[0]
-    reg.f = header[1]
-    reg.bc = get_word(header, 2)
-    reg.hl = get_word(header, 4)
+    reg = Registers(
+        a=header[0],
+        f=header[1],
+        bc=get_word(header, 2),
+        hl=get_word(header, 4),
+        sp=get_word(header, 8),
+        i=header[10],
+        r=128 * (header[12] & 1) + (header[11] & 127),
+        de=get_word(header, 13),
+        bc2=get_word(header, 15),
+        de2=get_word(header, 17),
+        hl2=get_word(header, 19),
+        a2=header[21],
+        f2=header[22],
+        iy=get_word(header, 23),
+        ix=get_word(header, 25),
+        border=(header[12] // 2) % 8,
+        iff2=header[28],
+        im=header[29] & 3
+    )
+
     if version == 1:
         reg.pc = get_word(header, 6)
     else:
@@ -148,28 +190,13 @@ def _parse_z80(z80file):
         reg.out7ffd = header[35]
         reg.outfffd = header[38]
         reg.ay = tuple(header[39:55])
-    reg.sp = get_word(header, 8)
-    reg.i = header[10]
-    reg.r = 128 * (header[12] & 1) + (header[11] & 127)
-    reg.de = get_word(header, 13)
-    reg.bc2 = get_word(header, 15)
-    reg.de2 = get_word(header, 17)
-    reg.hl2 = get_word(header, 19)
-    reg.a2 = header[21]
-    reg.f2 = header[22]
-    reg.iy = get_word(header, 23)
-    reg.ix = get_word(header, 25)
-    reg.border = (header[12] // 2) % 8
-    reg.iff2 = header[28]
-    reg.im = header[29] & 3
+
     if version == 3:
         frame_duration = FRAME_DURATIONS[header[34] > 3]
         qframe_duration = frame_duration // 4
         t1 = (header[55] + 256 * header[56]) % qframe_duration
         t2 = (2 - header[57]) % 4
         reg.tstates = frame_duration - 1 - t2 * qframe_duration - t1
-    else:
-        reg.tstates = 0
 
     return header, reg, ram_blocks
 
@@ -372,34 +399,32 @@ def _parse_sna(snafile):
     if len(sna) not in (49179, 131103, 147487):
         raise SkoolKitError('{}: not a SNA file'.format(snafile))
 
-    reg = Registers()
-    reg.i = sna[0]
-    reg.hl2 = get_word(sna, 1)
-    reg.de2 = get_word(sna, 3)
-    reg.bc2 = get_word(sna, 5)
-    reg.f2 = sna[7]
-    reg.a2 = sna[8]
-    reg.hl = get_word(sna, 9)
-    reg.de = get_word(sna, 11)
-    reg.bc = get_word(sna, 13)
-    reg.iy = get_word(sna, 15)
-    reg.ix = get_word(sna, 17)
-    reg.r = sna[20]
-    reg.f = sna[21]
-    reg.a = sna[22]
-    reg.sp = get_word(sna, 23)
+    reg = Registers(
+        i=sna[0],
+        hl2=get_word(sna, 1),
+        de2=get_word(sna, 3),
+        bc2=get_word(sna, 5),
+        f2=sna[7],
+        a2=sna[8],
+        hl=get_word(sna, 9),
+        de=get_word(sna, 11),
+        bc=get_word(sna, 13),
+        iy=get_word(sna, 15),
+        ix=get_word(sna, 17),
+        r=sna[20],
+        f=sna[21],
+        a=sna[22],
+        sp=get_word(sna, 23),
+        border=sna[26],
+        iff2=(sna[19] & 4) // 4,
+        im=sna[25]
+    )
+
     if len(sna) > 49179:
         reg.pc = get_word(sna, 49179)
         reg.out7ffd = sna[49181]
-        reg.outfffd = 0
-        reg.ay = (0,) * 16
     else:
         reg.pc = get_word(sna, reg.sp - 16357)
-        reg.out7ffd = 0
-    reg.border = sna[26]
-    reg.iff2 = (sna[19] & 4) // 4
-    reg.im = sna[25]
-    reg.tstates = 0
 
     return sna[:27], reg, sna[27:]
 

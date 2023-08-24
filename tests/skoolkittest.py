@@ -317,7 +317,7 @@ class SkoolKitTestCase(TestCase):
         header[28] = registers.get('iff2', 0)
         header[29] = (header[29] & 0xFC) | registers.get('im', 0)
 
-    def write_z80(self, ram, version=3, compress=False, machine_id=0, modify=False, out_7ffd=0, pages={}, header=None, registers=None):
+    def write_z80(self, ram, version=3, compress=False, machine_id=0, modify=False, out_7ffd=0, pages={}, header=None, registers=None, ay=None):
         model = 1
         if version == 1:
             if header is None:
@@ -353,6 +353,8 @@ class SkoolKitTestCase(TestCase):
                 banks.update(pages)
                 for bank in set(range(8)) - set(banks.keys()):
                     banks[bank] = [0] * 16384
+                if ay:
+                    header[38:38 + len(ay)] = ay
             z80 = header[:]
             if registers:
                 self._set_z80_registers(z80, version, registers)
@@ -360,8 +362,8 @@ class SkoolKitTestCase(TestCase):
                 z80 += self._get_z80_ram_block(banks[bank], compress, bank + 3)
         return model, self.write_bin_file(z80, suffix='.z80')
 
-    def write_z80_file(self, header, ram, version=3, compress=False, machine_id=0, pages={}, registers=None):
-        return self.write_z80(ram, version, compress, machine_id, pages=pages, header=header, registers=registers)[1]
+    def write_z80_file(self, header, ram, version=3, compress=False, machine_id=0, pages={}, registers=None, ay=None):
+        return self.write_z80(ram, version, compress, machine_id, pages=pages, header=header, registers=registers, ay=ay)[1]
 
     def _get_szx_header(self, machine_id=1, ch7ffd=0, specregs=True, border=0):
         header = [90, 88, 83, 84] # ZXST
@@ -396,7 +398,7 @@ class SkoolKitTestCase(TestCase):
         ramp.extend(ram)
         return ramp
 
-    def write_szx(self, exp_ram, compress=True, machine_id=1, ch7ffd=0, pages={}, registers=None, border=0, keyb=False, issue2=0, ay=None):
+    def write_szx(self, ram, compress=True, machine_id=1, ch7ffd=0, pages={}, registers=(), border=0, keyb=False, issue2=0, ay=None):
         szx = self._get_szx_header(machine_id, ch7ffd, border=border)
         if keyb:
             szx.extend((75, 69, 89, 66)) # KEYB
@@ -412,16 +414,16 @@ class SkoolKitTestCase(TestCase):
             szx.extend([0] * (17 - len(ay))) # Remaining chAyRegs
         if registers:
             szx.extend(self._get_zxstz80regs(registers))
-        rampages = {5: self._get_zxstrampage(5, compress, exp_ram[:16384])}
+        rampages = {5: self._get_zxstrampage(5, compress, ram[:16384])}
         if machine_id >= 1:
             # 48K and 128K
-            rampages[2] = self._get_zxstrampage(2, compress, exp_ram[16384:32768])
+            rampages[2] = self._get_zxstrampage(2, compress, ram[16384:32768])
             if machine_id == 1:
                 # 48K
-                rampages[0] = self._get_zxstrampage(0, compress, exp_ram[32768:])
+                rampages[0] = self._get_zxstrampage(0, compress, ram[32768:])
             else:
                 # 128K
-                rampages[ch7ffd & 7] = self._get_zxstrampage(ch7ffd & 7, compress, exp_ram[32768:])
+                rampages[ch7ffd & 7] = self._get_zxstrampage(ch7ffd & 7, compress, ram[32768:])
                 for bank, data in pages.items():
                     rampages[bank] = self._get_zxstrampage(bank, compress, data)
                 for bank in set(range(8)) - set(rampages):
