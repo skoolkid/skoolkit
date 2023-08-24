@@ -6,14 +6,14 @@ tap2sna.py
 
 SYNOPSIS
 ========
-| ``tap2sna.py`` [options] INPUT [snapshot.z80]
+| ``tap2sna.py`` [options] INPUT [OUTFILE]
 | ``tap2sna.py`` @FILE [args]
 
 DESCRIPTION
 ===========
 ``tap2sna.py`` converts a TAP or TZX file (which may be inside a zip archive)
-into a Z80 snapshot. INPUT may be the full URL to a remote zip archive or
-TAP/TZX file, or the path to a local file. Arguments may be read from FILE
+into an SZX or Z80 snapshot. INPUT may be the full URL to a remote zip archive
+or TAP/TZX file, or the path to a local file. Arguments may be read from FILE
 instead of (or as well as) being given on the command line.
 
 OPTIONS
@@ -107,7 +107,7 @@ one of the following conditions is satisfied:
 
 A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
 has completed or been aborted, the values of the registers (including the
-program counter) in the simulator are used to populate the Z80 snapshot.
+program counter) in the simulator are used to populate the snapshot.
 
 A simulated LOAD can be configured via parameters that are set by the
 by the ``--sim-load-config`` (or ``-c``) option. The recognised configuration
@@ -518,11 +518,11 @@ EXAMPLES
    |
    |   ``tap2sna.py ftp://example.com/game.zip game.z80``
 
-2. Extract the TAP or TZX file from a zip archive, and convert it into a Z80
+2. Extract the TAP or TZX file from a zip archive, and convert it into an SZX
    snapshot with the program counter set to 32768:
 
    |
-   |   ``tap2sna.py --start 32768 game.zip game.z80``
+   |   ``tap2sna.py --start 32768 game.zip game.szx``
 
 3. Convert a TZX file into a Z80 snapshot by loading the third block on the
    tape at 25000:
@@ -530,8 +530,8 @@ EXAMPLES
    |
    |   ``tap2sna.py --ram load=3,25000 game.tzx game.z80``
 
-4. Convert a TZX file into a Z80 snapshot using options read from the file
+4. Convert a TZX file into an SZX snapshot using options read from the file
    ``game.t2s``:
 
    |
-   |   ``tap2sna.py @game.t2s game.tzx game.z80``
+   |   ``tap2sna.py @game.t2s game.tzx game.szx``

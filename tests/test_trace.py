@@ -13,7 +13,7 @@ def mock_run(*args):
     global run_args
     run_args = args
 
-def mock_write_z80v3(fname, ram, registers, state):
+def mock_write_snapshot(fname, ram, registers, state):
     global z80fname, snapshot, banks, z80reg, z80state
     z80fname = fname
     snapshot = [0] * 16384
@@ -563,7 +563,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(output_lines[110], '$8001 78       LD A,B')
         self.assertEqual(output_lines[111], 'Stopped at $8002')
 
-    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_interrupt_with_djnz(self):
         data = [
             0x21, 0x00, 0x80,       # $7FEF LD HL,$8000   ; t=69805 T-states
@@ -588,7 +588,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(snapshot[0xc001], 2) # DJNZ interrupted when B=2
 
-    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_interrupt_with_ldir(self):
         data = [
             0x21, 0x00, 0x80,       # $7FEE LD HL,$8000   ; t=69805 T-states
@@ -613,7 +613,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(snapshot[0xc000], 2) # LDIR interrupted when BC=2
 
-    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_interrupt_with_lddr(self):
         data = [
             0x21, 0x00, 0x80,       # $7FEE LD HL,$8000   ; t=69805 T-states
@@ -1112,7 +1112,7 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
-    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_128k_bank_5(self):
         sna = [0] * 131103
         start = 32768
@@ -1139,7 +1139,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(snapshot[0xC000], 5)
         self.assertEqual(banks[0][0], 0)
 
-    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_128k_bank_2(self):
         sna = [0] * 131103
         start = 32768
@@ -1173,7 +1173,7 @@ class TraceTest(SkoolKitTestCase):
             self.run_trace(f'-o {addr} --reg A=x {binfile}')
         self.assertEqual(cm.exception.args[0], 'Cannot parse register value: A=x')
 
-    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_write_z80_48k(self):
         data = [
             0x37,                   # $8000 SCF
@@ -1231,7 +1231,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(exp_reg, z80reg)
         self.assertEqual(exp_state, z80state)
 
-    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_write_z80_128k(self):
         sna = [0] * 131103
         start = 32768
@@ -1296,7 +1296,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(exp_reg, z80reg)
         self.assertEqual(exp_state, z80state)
 
-    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_ay_tracing_from_z80(self):
         code = [
             0x21, 0x10, 0xFF,       # $8000 LD HL,$FF10
@@ -1327,7 +1327,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(ay[1:], snapshot[0xff00:0xff10])   # Input: all AY register values
         self.assertLessEqual(set(exp_state), set(z80state)) # Output: AY state
 
-    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_ay_tracing_from_szx(self):
         code = [
             0x21, 0x10, 0xFF,       # $8000 LD HL,$FF10

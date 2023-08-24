@@ -7,8 +7,8 @@ Commands
 
 bin2sna.py
 ----------
-`bin2sna.py` converts a binary (raw memory) file into a Z80 snapshot. For
-example::
+`bin2sna.py` converts a binary (raw memory) file into an SZX or Z80 snapshot.
+For example::
 
   $ bin2sna.py game.bin
 
@@ -18,10 +18,10 @@ of code to run) and the stack pointer are set to 65536 minus the length of
 `game.bin`. These values can be changed by passing options to `bin2sna.py`. Run
 it with no arguments to see the list of available options::
 
-  usage: bin2sna.py [options] file.bin [file.z80]
+  usage: bin2sna.py [options] file.bin [OUTFILE]
 
-  Convert a binary (raw memory) file into a Z80 snapshot. 'file.bin' may be a
-  regular file, or '-' for standard input. If 'file.z80' is not given, it
+  Convert a binary (raw memory) file into an SZX or Z80 snapshot. 'file.bin' may
+  be a regular file, or '-' for standard input. If 'OUTFILE' is not given, it
   defaults to the name of the input file with '.bin' replaced by '.z80', or
   'program.z80' if reading from standard input.
 
@@ -52,6 +52,8 @@ it with no arguments to see the list of available options::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.0     | Added support for writing SZX snapshots                           |
++---------+-------------------------------------------------------------------+
 | 8.10    | Added the ``issue2`` hardware state attribute                     |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``tstates`` hardware state attribute                    |
@@ -1267,20 +1269,20 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 tap2sna.py
 ----------
 `tap2sna.py` converts a TAP or TZX file (which may be inside a zip archive)
-into a Z80 snapshot. For example::
+into an SZX or Z80 snapshot. For example::
 
   $ tap2sna.py game.tap game.z80
 
 To list the options supported by `tap2sna.py`, run it with no arguments::
 
   usage:
-    tap2sna.py [options] INPUT [snapshot.z80]
+    tap2sna.py [options] INPUT [OUTFILE]
     tap2sna.py @FILE
 
-  Convert a TAP or TZX file (which may be inside a zip archive) into a Z80
-  snapshot. INPUT may be the full URL to a remote zip archive or TAP/TZX file,
-  or the path to a local file. Arguments may be read from FILE instead of (or as
-  well as) being given on the command line.
+  Convert a TAP or TZX file (which may be inside a zip archive) into an SZX or
+  Z80 snapshot. INPUT may be the full URL to a remote zip archive or TAP/TZX
+  file, or the path to a local file. Arguments may be read from FILE instead of
+  (or as well as) being given on the command line.
 
   Options:
     -c name=value, --sim-load-config name=value
@@ -1378,7 +1380,7 @@ one of the following conditions is satisfied:
 
 A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
 has completed or been aborted, the values of the registers (including the
-program counter) in the simulator are used to populate the Z80 snapshot.
+program counter) in the simulator are used to populate the snapshot.
 
 A simulated LOAD can be configured via parameters that are set by the
 ``--sim-load-config`` (or ``-c``) option. The recognised configuration
@@ -1600,7 +1602,8 @@ Configuration parameters may also be set on the command line by using the
 | 9.0     | A simulated LOAD is performed by default; an existing snapshot    |
 |         | will be overwritten by default; added the ``load``, ``machine``   |
 |         | and ``polarity`` simulated LOAD configuration parameters; the     |
-|         | output snapshot argument is optional                              |
+|         | output snapshot argument is optional; added support for writing   |
+|         | SZX snapshots                                                     |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |
@@ -1713,11 +1716,11 @@ snapshot. For example::
 
 To list the options supported by `trace.py`, run it with no arguments::
 
-  usage: trace.py [options] FILE [file.z80]
+  usage: trace.py [options] FILE [OUTFILE]
 
   Trace Z80 machine code execution. FILE may be a binary (raw memory) file, a
-  SNA, SZX or Z80 snapshot, or '48' or '128' for no snapshot. If 'file.z80' is
-  given, a Z80 snapshot is written after execution has completed.
+  SNA, SZX or Z80 snapshot, or '48' or '128' for no snapshot. If 'OUTFILE' is
+  given, an SZX or Z80 snapshot is written after execution has completed.
 
   Options:
     --audio               Show audio delays.
@@ -1762,7 +1765,8 @@ running on a real ZX Spectrum.
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.0     | Added support for 128K snapshots; added the ``--no-interrupts``   |
-|         | option; interrupt routines are executed by default                |
+|         | option; interrupt routines are executed by default; added support |
+|         | for writing SZX snapshots                                         |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Reads and writes the T-states counter in Z80 snapshots and reads  |
 |         | the T-states counter in SZX snapshots                             |

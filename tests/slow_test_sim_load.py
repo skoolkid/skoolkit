@@ -6,7 +6,7 @@ from skoolkittest import (SkoolKitTestCase, create_data_block,
                           create_tzx_turbo_data_block, create_tzx_pure_data_block)
 from skoolkit import tap2sna, loadtracer, ROM48, read_bin_file
 
-def mock_write_z80(ram, namespace, z80):
+def mock_write_snapshot(ram, namespace, z80):
     global snapshot, options
     snapshot = [0] * 16384 + ram
     options = namespace
@@ -84,7 +84,7 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(exp_output, out_lines)
         self.assertEqual(error, '')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_custom_standard_speed_loader(self):
         code2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         code2_start = 49152
@@ -125,7 +125,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'{tapfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_custom_standard_speed_loader_with_accelerator(self):
         code2 = list(range(256))
         code2_start = 49152
@@ -166,7 +166,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'-c accelerator=rom {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_turbo_loader(self):
         code2 = [1, 2, 4, 8, 16, 32, 64, 128, 0, 255]
         code2_start = 49152
@@ -207,7 +207,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'{tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_tzx_block_types_0x12_0x13_0x14(self):
         code2 = [1, 2, 4, 8, 16, 32, 64, 128, 0, 255]
         pdata = create_data_block(code2)
@@ -262,7 +262,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'{tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_tzx_loop(self):
         code2 = [1, 2, 4, 8, 16]
         code2_start = 49152
@@ -348,7 +348,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_tape_stop_option_overrides_stop_the_tape_command(self):
         code = [
             221, 33, 0, 192,  # LD IX,49152 ; Simulation should stop here
@@ -385,7 +385,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'--tape-stop 6 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_tape_stop_option_overrides_stop_the_tape_if_in_48K_mode(self):
         code = [
             221, 33, 0, 192,  # LD IX,49152 ; Simulation should stop here
@@ -422,7 +422,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'--tape-stop 6 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_no_gap_between_data_blocks(self):
         code2 = [1, 2, 4, 8, 16, 32, 64, 128, 0, 255]
         code3 = [128, 64, 32, 16, 8, 4, 2, 1, 0, 255]
@@ -490,7 +490,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_required_gap_between_data_blocks(self):
         # Some loaders (e.g. Bruce Lee - Speedlock 1) require a period of
         # silence between two blocks
@@ -546,7 +546,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_unread_data_in_middle_of_tape(self):
         code = [
             221, 33, 0, 192,   # 32757 LD IX,49152
@@ -611,7 +611,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'--start 65535 {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_unread_data_at_end_of_tape(self):
         code2 = [
             # This loop runs while the tape continues playing
@@ -667,7 +667,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'{tapfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_port_read_after_tape_end(self):
         code2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         code2_start = 49152
@@ -709,7 +709,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'--start 49152 {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_no_ram_execution(self):
         usr_str = [ord(c) for c in '10355'] # 10355 JR Z,10355
         basic_data = [
@@ -737,7 +737,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'{tapfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_tape_is_paused_between_blocks(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
@@ -776,7 +776,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'{tapfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_skip_data_before_fast_loading_next_block(self):
         code2 = [1, 2, 4, 8]
         code2_start = 49152
@@ -833,7 +833,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_simulation_timed_out(self):
         basic_data = [
             0, 10,            # Line 10
@@ -857,7 +857,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'-c timeout=6 {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_simulation_timed_out_with_start_address(self):
         basic_data = [
             0, 10,            # Line 10
@@ -881,7 +881,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'-c timeout=6 --start 32768 {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_tzx_pause(self):
         code2 = [1, 2, 4, 8]
         code3 = [16, 32, 64, 128]
@@ -942,7 +942,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_unused_bits_in_last_byte_of_tzx_block_0x11(self):
         code2 = [1, 2, 3, 4]
         code2_start = 49152
@@ -988,7 +988,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_unused_bits_in_last_byte_of_tzx_block_0x14(self):
         code2 = [1, 2, 3, 4]
         pdata = create_data_block(code2)

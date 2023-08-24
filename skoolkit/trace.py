@@ -19,7 +19,7 @@ import time
 
 from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
 from skoolkit.pagingtracer import Memory, PagingTracer
-from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_z80v3
+from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_snapshot
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 from skoolkit.snapinfo import parse_snapshot
@@ -306,15 +306,15 @@ def run(snafile, options):
             f'im={simulator.imode}',
             f'tstates={r[T]}'
         ))
-        write_z80v3(options.dump, ram, registers, state)
+        write_snapshot(options.dump, ram, registers, state)
         print(f'Wrote {options.dump}')
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='trace.py [options] FILE [file.z80]',
+        usage='trace.py [options] FILE [OUTFILE]',
         description="Trace Z80 machine code execution. "
                     "FILE may be a binary (raw memory) file, a SNA, SZX or Z80 snapshot, or '48' or '128' for no snapshot. "
-                    "If 'file.z80' is given, a Z80 snapshot is written after execution has completed.",
+                    "If 'OUTFILE' is given, an SZX or Z80 snapshot is written after execution has completed.",
         add_help=False
     )
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')

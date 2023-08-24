@@ -54,6 +54,38 @@ Z80_REGISTERS = {
     'pc': 32
 }
 
+# https://spectaculator.com/docs/zx-state/z80regs.shtml
+SZX_REGISTERS = {
+    'a': 1,
+    'f': 0,
+    'bc': 2,
+    'c': 2,
+    'b': 3,
+    'de': 4,
+    'e': 4,
+    'd': 5,
+    'hl': 6,
+    'l': 6,
+    'h': 7,
+    '^a': 9,
+    '^f': 8,
+    '^bc': 10,
+    '^c': 10,
+    '^b': 11,
+    '^de': 12,
+    '^e': 12,
+    '^d': 13,
+    '^hl': 14,
+    '^l': 14,
+    '^h': 15,
+    'ix': 16,
+    'iy': 18,
+    'sp': 20,
+    'pc': 22,
+    'i': 24,
+    'r': 25
+}
+
 # Component API
 def can_read(fname):
     """
@@ -101,6 +133,15 @@ def make_snapshot(fname, org, start=None, end=65536, page=None):
     mem = [0] * 65536
     mem[org:org + len(ram)] = ram
     return mem, max(org, start), min(end, org + len(ram))
+
+def write_snapshot(fname, ram, registers, state):
+    snapshot_type = fname[-4:].lower()
+    if snapshot_type == '.z80':
+        _write_z80v3(fname, ram, registers, state)
+    elif snapshot_type == '.szx': # pragma: no cover
+        _write_szx(fname, ram, registers, state)
+    else: # pragma: no cover
+        raise SnapshotError(f'{fname}: Unsupported snapshot type')
 
 def set_z80_registers(z80, *specs):
     for spec in specs:
@@ -252,7 +293,7 @@ def make_z80v3_ram_blocks(ram):
             blocks.extend(make_z80_ram_block(data, bank + 3))
     return blocks
 
-def write_z80v3(fname, ram, registers, state):
+def _write_z80v3(fname, ram, registers, state):
     z80 = [0] * 86
     z80[30] = 54 # Indicate a v3 Z80 snapshot
     if len(ram) == 8: # pragma: no cover
@@ -261,6 +302,126 @@ def write_z80v3(fname, ram, registers, state):
     set_z80_state(z80, 'iff=1', 'im=1', *state)
     with open(fname, 'wb') as f:
         f.write(bytes(z80 + make_z80v3_ram_blocks(ram)))
+
+def _add_zxstspecregs(szx, state): # pragma: no cover
+    values = [0] * 8
+    for spec in state:
+        name, sep, val = spec.lower().partition('=')
+        try:
+            if name == 'border':
+                values[0] = get_int_param(val) % 8
+            elif name == '7ffd':
+                values[1] = get_int_param(val) % 256
+        except ValueError:
+            raise SkoolKitError(f'Cannot parse integer: {spec}')
+    szx.extend((83, 80, 67, 82)) # SPCR
+    szx.extend((8, 0, 0, 0))     # Block size
+    szx.extend(values)
+
+def _add_zxstkeyboard(szx, state): # pragma: no cover
+    values = [0] * 5
+    for spec in state:
+        name, sep, val = spec.lower().partition('=')
+        try:
+            if name == 'issue2':
+                values[0] = get_int_param(val) % 2
+        except ValueError:
+            raise SkoolKitError(f'Cannot parse integer: {spec}')
+    szx.extend((75, 69, 89, 66)) # KEYB
+    szx.extend((5, 0, 0, 0))     # Block size
+    szx.extend(values)
+
+def _add_zxstayblock(szx, state): # pragma: no cover
+    values = [0] * 17
+    for spec in state:
+        name, sep, val = spec.lower().partition('=')
+        try:
+            if name == 'fffd':
+                values[0] = get_int_param(val) % 256
+            elif name.startswith('ay[') and name.endswith(']'):
+                r = get_int_param(name[3:-1]) % 16
+                values[1 + r] = get_int_param(val) % 256
+        except ValueError:
+            raise SkoolKitError(f'Cannot parse integer: {spec}')
+    szx.extend((65, 89, 0, 0)) # AY
+    szx.extend((18, 0, 0, 0))  # Block size
+    szx.append(0)              # chFlags
+    szx.extend(values)
+
+def _add_zxstz80regs(szx, registers, state): # pragma: no cover
+    reg_values = [0] * 26
+    for spec in registers:
+        reg, sep, val = spec.lower().partition('=')
+        if sep:
+            if reg.startswith('^'):
+                size = len(reg) - 1
+            else:
+                size = len(reg)
+            offset = SZX_REGISTERS.get(reg)
+            if offset is None:
+                raise SkoolKitError(f'Invalid register: {spec}')
+            try:
+                value = get_int_param(val, True)
+            except ValueError:
+                raise SkoolKitError(f'Cannot parse register value: {spec}')
+            reg_values[offset] = value % 256
+            if size == 2:
+                reg_values[offset + 1] = (value // 256) % 256
+
+    state_values = [0] * 11
+    for spec in state:
+        name, sep, val = spec.lower().partition('=')
+        try:
+            if name == 'iff':
+                state_values[0] = state_values[1] = get_int_param(val) & 255
+            elif name == 'im':
+                state_values[2] = get_int_param(val) & 3
+            elif name == 'tstates':
+                tstates = get_int_param(val)
+                state_values[3:6] = (tstates % 256, (tstates // 256) % 256, (tstates // 65536) % 256)
+        except ValueError:
+            raise SkoolKitError(f'Cannot parse integer: {spec}')
+
+    szx.extend((90, 56, 48, 82)) # Z80R
+    szx.extend((37, 0, 0, 0))    # Block size
+    szx.extend(reg_values)
+    szx.extend(state_values)
+
+def _get_zxstrampage(page, data): # pragma: no cover
+    ram = zlib.compress(bytes(data), 9)
+    size = len(ram) + 3
+    ramp = [82, 65, 77, 80]                      # RAMP
+    ramp.extend((size % 256, size // 256, 0, 0)) # Block size
+    ramp.extend((1, 0, page))
+    ramp.extend(ram)
+    return ramp
+
+def _write_szx(fname, ram, registers, state): # pragma: no cover
+    szx = [90, 88, 83, 84] # ZXST
+    szx.extend((1, 4)) # Version 1.4
+    if len(ram) == 8:
+        szx.append(2) # 128K
+    else:
+        szx.append(1) # 48K
+    szx.append(0) # Flags
+
+    _add_zxstspecregs(szx, state)
+    _add_zxstz80regs(szx, registers, state)
+    if len(ram) == 8:
+        _add_zxstayblock(szx, state)
+        rampages = [_get_zxstrampage(n, bank) for n, bank in enumerate(ram)]
+    else:
+        _add_zxstkeyboard(szx, state)
+        rampages = (
+            _get_zxstrampage(0, ram[32768:]),
+            _get_zxstrampage(2, ram[16384:32768]),
+            _get_zxstrampage(5, ram[:16384])
+        )
+    for bank in rampages:
+        szx.extend(bank)
+
+    with open(fname, 'wb') as f:
+        f.write(bytes(szx))
 
 def move(snapshot, param_str):
     params = param_str.split(',', 2)

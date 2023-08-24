@@ -6,14 +6,14 @@ trace.py
 
 SYNOPSIS
 ========
-``trace.py`` [options] FILE [file.z80]
+``trace.py`` [options] FILE [OUTFILE]
 
 DESCRIPTION
 ===========
 ``trace.py`` simulates the execution of machine code in a 48K or 128K binary
 (raw memory) file or a SNA, SZX or Z80 snapshot. If FILE is '48' or '128', no
-snapshot is loaded, and the RAM is left blank (all zeroes). If 'file.z80' is
-given, a Z80 snapshot is written after execution has completed.
+snapshot is loaded, and the RAM is left blank (all zeroes). If 'OUTFILE' is
+given, an SZX or Z80 snapshot is written after execution has completed.
 
 OPTIONS
 =======

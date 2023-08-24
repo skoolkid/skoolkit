@@ -14,14 +14,14 @@ from skoolkit import tap2sna, VERSION, SkoolKitError
 from skoolkit.config import COMMANDS
 from skoolkit.snapshot import get_snapshot
 
-def mock_make_z80(*args):
-    global make_z80_args
-    make_z80_args = args
+def mock_make_snapshot(*args):
+    global make_snapshot_args
+    make_snapshot_args = args
 
 def mock_config(name):
     return {k: v[0] for k, v in COMMANDS[name].items()}
 
-def mock_write_z80(ram, namespace, z80):
+def mock_write_snapshot(ram, namespace, z80):
     global snapshot, options
     snapshot = [0] * 16384 + ram
     options = namespace
@@ -98,10 +98,10 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.run_tap2sna(f'--ram load=1,16384 {option} {tapfile} {z80fname}')
         self.assertEqual(cm.exception.args[0], f'Error while getting snapshot test.z80: {exp_error}')
 
-    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     def test_default_option_values(self):
         self.run_tap2sna('in.tap {}/out.z80'.format(self.make_directory()))
-        options = make_z80_args[1]
+        options = make_snapshot_args[1]
         self.assertIsNone(options.output_dir)
         self.assertIsNone(options.stack)
         self.assertEqual([], options.ram_ops)
@@ -116,7 +116,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(options.user_agent, '')
         self.assertEqual([], options.params)
 
-    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     def test_config_read_from_file(self):
         ini = """
             [tap2sna]
@@ -124,7 +124,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         self.run_tap2sna('in.tap out.z80')
-        options, z80, config = make_z80_args[1:4]
+        options, z80, config = make_snapshot_args[1:4]
         self.assertIsNone(options.output_dir)
         self.assertIsNone(options.stack)
         self.assertEqual([], options.ram_ops)
@@ -219,15 +219,15 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(len(error), 0)
             self.assertTrue(os.path.isfile(os.path.join(odir, z80_fname)))
 
-    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     @patch.object(tap2sna, 'get_config', mock_config)
     def test_option_I(self):
         self.run_tap2sna('-I TraceLine=Hello in.tap out.z80')
-        options, z80, config = make_z80_args[1:4]
+        options, z80, config = make_snapshot_args[1:4]
         self.assertEqual(['TraceLine=Hello'], options.params)
         self.assertEqual(config['TraceLine'], 'Hello')
 
-    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     def test_option_I_overrides_config_read_from_file(self):
         ini = """
             [tap2sna]
@@ -235,26 +235,26 @@ class Tap2SnaTest(SkoolKitTestCase):
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         self.run_tap2sna('--ini TraceLine=Goodbye in.tap out.z80')
-        options, z80, config = make_z80_args[1:4]
+        options, z80, config = make_snapshot_args[1:4]
         self.assertEqual(['TraceLine=Goodbye'], options.params)
         self.assertEqual(config['TraceLine'], 'Goodbye')
 
-    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     def test_options_p_stack(self):
         for option, stack in (('-p', 24576), ('--stack', 49152)):
             output, error = self.run_tap2sna('{} {} in.tap {}/out.z80'.format(option, stack, self.make_directory()))
             self.assertEqual(output, '')
             self.assertEqual(error, '')
-            options = make_z80_args[1]
+            options = make_snapshot_args[1]
             self.assertEqual(['sp={}'.format(stack)], options.reg)
 
-    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     def test_options_p_stack_with_hex_address(self):
         for option, stack in (('-p', '0x6ff0'), ('--stack', '0x9ABC')):
             output, error = self.run_tap2sna('{} {} in.tap {}/out.z80'.format(option, stack, self.make_directory()))
             self.assertEqual(output, '')
             self.assertEqual(error, '')
-            options = make_z80_args[1]
+            options = make_snapshot_args[1]
             self.assertEqual(['sp={}'.format(int(stack[2:], 16))], options.reg)
 
     def test_option_p(self):
@@ -293,7 +293,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
-    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     def test_options_s_start(self):
         start = 30000
         exp_reg = ['pc={}'.format(start)]
@@ -301,10 +301,10 @@ class Tap2SnaTest(SkoolKitTestCase):
             output, error = self.run_tap2sna('{} {} --ram load=1,32768 in.tap {}/out.z80'.format(option, start, self.make_directory()))
             self.assertEqual(output, '')
             self.assertEqual(error, '')
-            options = make_z80_args[1]
+            options = make_snapshot_args[1]
             self.assertEqual(exp_reg, options.reg)
 
-    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     def test_options_s_start_with_hex_address(self):
         start = 30000
         exp_reg = ['pc={}'.format(start)]
@@ -312,7 +312,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             output, error = self.run_tap2sna('{} 0x{:04X} --ram load=1,32768 in.tap {}/out.z80'.format(option, start, self.make_directory()))
             self.assertEqual(output, '')
             self.assertEqual(error, '')
-            options = make_z80_args[1]
+            options = make_snapshot_args[1]
             self.assertEqual(exp_reg, options.reg)
 
     def test_option_s(self):
@@ -464,7 +464,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_option_tape_name(self):
         code1 = [1, 2, 3, 4, 5]
         code1_start = 24576
@@ -492,7 +492,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: No file named "code.tap" in the archive')
         self.assertEqual(self.err.getvalue(), '')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_option_tape_sum(self):
         code = [1, 2, 3]
         code_start = 49152
@@ -519,7 +519,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], f'Error while getting snapshot out.z80: Checksum mismatch: Expected {wrongsum}, actually {md5sum}')
         self.assertEqual(self.err.getvalue(), '')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     @patch.object(tap2sna, 'urlopen')
     def test_option_u(self, mock_urlopen):
         mock_urlopen.return_value = BytesIO(bytes(create_tap_data_block([1])))
@@ -967,7 +967,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertTrue(output.startswith('Usage: --reg name=value\n'))
         self.assertEqual(error, '')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load(self):
         code_start = 32768
         code = [4, 5]
@@ -990,7 +990,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_initial_code_block(self):
         code_start = 65360 # Overwrite return address on stack with...
         code = [128, 128]  # ...32896
@@ -1014,7 +1014,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=129', 'SP=65362', 'IX=65362', 'IY=23610', 'PC=32896'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_given_start_address(self):
         code_start = 32768
         start = 32769
@@ -1038,7 +1038,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32769'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_character_array(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
@@ -1089,7 +1089,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_number_array(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
@@ -1140,7 +1140,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_headerless_block(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
@@ -1192,7 +1192,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=187', 'SP=65344', 'IX=49154', 'IY=23610', 'PC=49152'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_overlong_blocks(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
@@ -1245,7 +1245,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_undersize_block(self):
         code2 = [201]
         code2_start = 49152
@@ -1303,7 +1303,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_skips_blocks_with_wrong_flag_byte(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
@@ -1360,7 +1360,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=187', 'SP=65344', 'IX=49154', 'IY=23610', 'PC=32780', 'F=1'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_ignores_extra_byte_at_end_of_tape(self):
         code_start = 32768
         code = [4, 5]
@@ -1384,7 +1384,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_preserves_border_colour(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
@@ -1425,7 +1425,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertIn('border=3', options.state)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_preserves_interrupt_mode_and_flip_flop(self):
         code_start = 32768
         code = [
@@ -1451,7 +1451,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertIn('im=2', options.state)
         self.assertIn('iff=0', options.state)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_fast_load_does_not_overwrite_rom(self):
         start_str = [ord(c) for c in "16384"]
         basic_data = [
@@ -1499,7 +1499,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=129', 'SP=65344', 'IX=16396', 'IY=23610', 'PC=16395'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_fast_load_checks_parity(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
@@ -1555,7 +1555,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=187', 'D=0', 'SP=65344', 'IX=49154', 'IY=23610', 'PC=32784'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_ram_call(self):
         ram_module = """
             def fix(snapshot):
@@ -1585,7 +1585,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_ram_move(self):
         code_start = 32768
         code = [4, 5]
@@ -1607,7 +1607,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_ram_poke(self):
         code_start = 32768
         code = [4, 5]
@@ -1629,7 +1629,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_ram_sysvars(self):
         code_start = 32768
         code = [4, 5]
@@ -1655,7 +1655,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_unexpected_end_of_tape(self):
         basic_data = [
             0, 10,       # Line 10
@@ -1681,7 +1681,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: Failed to fast load block: unexpected end of tape')
         self.assertEqual(self.err.getvalue(), '')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x15(self):
         block = [
             21,          # Block ID
@@ -1699,7 +1699,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x18(self):
         block = [
             24,          # Block ID
@@ -1718,7 +1718,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x19(self):
         block = [
             25,          # Block ID
@@ -1739,7 +1739,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_trace(self):
         basic_data = [
             0, 10,               # Line 10
@@ -1774,7 +1774,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[0], '$0605 POP AF')
         self.assertEqual(trace_lines[8100], '$34BB RET')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_trace_and_self_modifying_code(self):
         code = [
             33, 55, 128,  # 32820 LD HL,32823
@@ -1908,7 +1908,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_config_TraceLine_read_from_file(self):
         ini = """
             [tap2sna]
@@ -1936,7 +1936,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[0], '01541: POP AF')
         self.assertEqual(trace_lines[7280], '01506: RET')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_config_TraceLine_set_on_command_line(self):
         basic_data = [
             0, 10,               # Line 10
@@ -1961,7 +1961,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[0], ' 1541:POP AF')
         self.assertEqual(trace_lines[7280], ' 1506:RET')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_config_TraceLine_with_register_values(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
@@ -1982,7 +1982,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[29], "$250C LD C,(HL)     AFBCDEHL=2261001C00002597 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1E T=281")
         self.assertEqual(trace_lines[30], "$250D ADD HL,BC     AFBCDEHL=2260001C000025B3 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1F T=292")
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_config_TraceOperand(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
@@ -1997,7 +1997,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[2], '$0609 SUB &e0')
         self.assertEqual(trace_lines[2264], '$05E2 RET')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_config_TraceOperand_with_no_commas(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 1, 1, 0)])
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
@@ -2011,7 +2011,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[1], '$0606 LD A,(#23668)')
         self.assertEqual(trace_lines[2], '$0609 SUB #224')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_config_TraceOperand_with_one_comma(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 1, 1, 0)])
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
@@ -2025,7 +2025,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[1], '$0606 LD A,(+23668)')
         self.assertEqual(trace_lines[2], '$0609 SUB +e0')
 
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_config_TraceOperand_with_three_commas(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 1, 1, 0)])
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
@@ -2074,7 +2074,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(snapshot[32768], 255)
 
     @patch.object(tap2sna, 'urlopen', Mock(return_value=BytesIO(bytearray(create_tap_data_block([2, 3])))))
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_remote_download(self):
         data = [2, 3]
         start = 17000
