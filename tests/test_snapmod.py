@@ -386,7 +386,6 @@ class SnapmodTest(SkoolKitTestCase):
         self._test_bad_spec('-s iff=$', infile, 'Cannot parse integer: iff=$')
         self._test_bad_spec('-s im=?', infile, 'Cannot parse integer: im=?')
         self._test_bad_spec('-s issue2=*', infile, 'Cannot parse integer: issue2=*')
-        self._test_bad_spec('-s bar=1', infile, 'Invalid parameter: bar=1')
 
     def test_state_help(self):
         output, error = self.run_snapmod('--state help')
@@ -399,6 +398,7 @@ class SnapmodTest(SkoolKitTestCase):
               7ffd    - last OUT to port 0x7ffd (128K only)
               ay[N]   - contents of AY register N (N=0-15; 128K only)
               border  - border colour
+              fe      - last OUT to port 0xfe (SZX only)
               fffd    - last OUT to port 0xfffd (128K only)
               iff     - interrupt flip-flop: 0=disabled, 1=enabled
               im      - interrupt mode

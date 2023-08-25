@@ -52,7 +52,8 @@ it with no arguments to see the list of available options::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.0     | Added support for writing SZX snapshots                           |
+| 9.0     | Added support for writing SZX snapshots; added the ``fe``         |
+|         | hardware state attribute                                          |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Added the ``issue2`` hardware state attribute                     |
 +---------+-------------------------------------------------------------------+
@@ -1603,7 +1604,7 @@ Configuration parameters may also be set on the command line by using the
 |         | will be overwritten by default; added the ``load``, ``machine``   |
 |         | and ``polarity`` simulated LOAD configuration parameters; the     |
 |         | output snapshot argument is optional; added support for writing   |
-|         | SZX snapshots                                                     |
+|         | SZX snapshots; added the ``fe`` hardware state attribute          |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |

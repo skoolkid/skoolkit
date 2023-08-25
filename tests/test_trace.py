@@ -1224,7 +1224,7 @@ class TraceTest(SkoolKitTestCase):
             '^hl=25431',
             f'pc={stop}'
         )
-        exp_state = ['border=1', 'iff=0', 'im=2', 'tstates=166']
+        exp_state = ['border=1', 'fe=1', 'iff=0', 'im=2', 'tstates=166']
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         self.assertEqual(z80fname, outfile)
         self.assertEqual(data, snapshot[start:stop])
@@ -1288,7 +1288,7 @@ class TraceTest(SkoolKitTestCase):
             f'pc={stop}'
         )
         exp_state = [f'ay[{n}]=0' for n in range(16)]
-        exp_state.extend(('7ffd=1', 'fffd=0', 'border=1', 'iff=0', 'im=2', 'tstates=178'))
+        exp_state.extend(('7ffd=1', 'fffd=0', 'border=1', 'fe=1', 'iff=0', 'im=2', 'tstates=178'))
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         self.assertEqual(z80fname, outfile)
         self.assertEqual(code, snapshot[start:stop])

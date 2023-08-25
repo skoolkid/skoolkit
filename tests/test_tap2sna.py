@@ -1886,9 +1886,6 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_state_issue2_bad_value(self):
         self._test_bad_spec('--state issue2=*', 'Cannot parse integer: issue2=*')
 
-    def test_state_invalid_parameter(self):
-        self._test_bad_spec('--state baz=2', 'Invalid parameter: baz=2')
-
     def test_state_help(self):
         output, error = self.run_tap2sna('--state help')
         self.assertEqual(error, '')
@@ -1900,6 +1897,7 @@ class Tap2SnaTest(SkoolKitTestCase):
               7ffd    - last OUT to port 0x7ffd (128K only)
               ay[N]   - contents of AY register N (N=0-15; 128K only)
               border  - border colour (default=0)
+              fe      - last OUT to port 0xfe (SZX only)
               fffd    - last OUT to port 0xfffd (128K only)
               iff     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
               im      - interrupt mode (default=1)

@@ -154,7 +154,7 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
 
 class LoadTracer(PagingTracer):
     def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity, finish_tape,
-                 in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay):
+                 in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe):
         self.accelerators = defaultdict(int)
         self.inc_b_misses = 0
         self.dec_b_misses = 0
@@ -208,6 +208,7 @@ class LoadTracer(PagingTracer):
         self.out7ffd = out7ffd
         self.outfffd = outfffd
         self.ay = ay
+        self.outfe = outfe
         self.text = TextReader()
 
     def run(self, stop, fast_load, timeout, trace, trace_line, prefix, byte_fmt, word_fmt):

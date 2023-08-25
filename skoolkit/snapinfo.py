@@ -27,7 +27,7 @@ from skoolkit.snaskool import Disassembly
 class Registers:
     def __init__(self, a=0, f=0, bc=0, de=0, hl=0, a2=0, f2=0, bc2=0, de2=0, hl2=0,
                  ix=0, iy=0, sp=0, i=0, r=0, pc=0, border=0, iff2=0, im=0,
-                 tstates=0, out7ffd=0, outfffd=0, ay=(0,) * 16):
+                 tstates=0, out7ffd=0, outfffd=0, ay=(0,) * 16, outfe=0):
         self.a = a
         self.f = f
         self.bc = bc
@@ -51,6 +51,7 @@ class Registers:
         self.out7ffd = out7ffd
         self.outfffd = outfffd
         self.ay = ay
+        self.outfe = outfe
         self.reg_map = {
             'b': 'bc', 'c': 'bc', 'b2': 'bc2', 'c2': 'bc2',
             'd': 'de', 'e': 'de', 'd2': 'de2', 'e2': 'de2',
@@ -321,6 +322,7 @@ def _parse_szx(szxfile):
         elif block_id == 'SPCR':
             reg.border = block[0]
             reg.out7ffd = block[1]
+            reg.outfe = block[3]
         elif block_id == 'AY':
             reg.outfffd = block[1]
             reg.ay = tuple(block[2:18])

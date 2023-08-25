@@ -37,12 +37,13 @@ TRACE2D = """
 """.strip()
 
 class Tracer(PagingTracer):
-    def __init__(self, simulator, border, out7ffd, outfffd, ay):
+    def __init__(self, simulator, border, out7ffd, outfffd, ay, outfe):
         self.simulator = simulator
         self.border = border
         self.out7ffd = out7ffd
         self.outfffd = outfffd
         self.ay = ay
+        self.outfe = outfe
         self.operations = 0
         self.spkr = None
         self.out_times = []
@@ -226,12 +227,14 @@ def run(snafile, options):
         out7ffd = reg.out7ffd
         outfffd = reg.outfffd
         ay = list(reg.ay)
+        outfe = reg.outfe
     else:
         state = {'im': 1, 'iff': 1, 'tstates': 0}
         border = 7
         out7ffd = 0
         outfffd = 0
         ay = [0] * 16
+        outfe = 0
     start = options.start
     if start is None:
         if reg:
@@ -253,7 +256,7 @@ def run(snafile, options):
     fast = options.verbose == 0 and not options.interrupts
     config = {'fast_djnz': fast, 'fast_ldir': fast}
     simulator = Simulator(memory, get_registers(reg, options.reg), state, config)
-    tracer = Tracer(simulator, border, out7ffd, outfffd, ay)
+    tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe)
     simulator.set_tracer(tracer)
     begin = time.time()
     tracer.run(start, options.stop, options.verbose, options.max_operations,
@@ -302,6 +305,7 @@ def run(snafile, options):
         )
         state.extend((
             f'border={tracer.border}',
+            f'fe={tracer.outfe}',
             f'iff={simulator.iff}',
             f'im={simulator.imode}',
             f'tstates={r[T]}'

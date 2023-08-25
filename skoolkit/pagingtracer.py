@@ -39,6 +39,7 @@ class PagingTracer:
     def write_port(self, registers, port, value):
         if port % 2 == 0:
             self.border = value % 8
+            self.outfe = value
         elif port & 0x8002 == 0:
             memory = self.simulator.memory
             if isinstance(memory, Memory):

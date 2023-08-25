@@ -367,7 +367,6 @@ class Bin2SnaTest(SkoolKitTestCase):
         self._test_bad_spec('-S border=k', 'Cannot parse integer: border=k')
         self._test_bad_spec('--state iff=$', 'Cannot parse integer: iff=$')
         self._test_bad_spec('-S im=?', 'Cannot parse integer: im=?')
-        self._test_bad_spec('--state bar=1', 'Invalid parameter: bar=1')
 
     def test_option_state_help(self):
         output, error = self.run_bin2sna('--state help')
@@ -380,6 +379,7 @@ class Bin2SnaTest(SkoolKitTestCase):
               7ffd    - last OUT to port 0x7ffd (128K only)
               ay[N]   - contents of AY register N (N=0-15; 128K only)
               border  - border colour (default=0)
+              fe      - last OUT to port 0xfe (SZX only)
               fffd    - last OUT to port 0xfffd (128K only)
               iff     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
               im      - interrupt mode (default=1)

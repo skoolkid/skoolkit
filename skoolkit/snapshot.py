@@ -223,8 +223,6 @@ def set_z80_state(z80, *specs):
             elif name.startswith('ay[') and name.endswith(']'): # pragma: no cover
                 r = get_int_param(name[3:-1]) & 15
                 z80[39 + r] = get_int_param(val) & 255
-            else:
-                raise SkoolKitError("Invalid parameter: {}".format(spec))
         except ValueError:
             raise SkoolKitError("Cannot parse integer: {}".format(spec))
 
@@ -248,6 +246,7 @@ Set a hardware state attribute. Recognised names {infix}are:
   7ffd    - last OUT to port 0x7ffd (128K only)
   ay[N]   - contents of AY register N (N=0-15; 128K only)
   border  - border colour{border}
+  fe      - last OUT to port 0xfe (SZX only)
   fffd    - last OUT to port 0xfffd (128K only)
   iff     - interrupt flip-flop: 0=disabled, 1=enabled{iff}
   im      - interrupt mode{im}
@@ -312,6 +311,8 @@ def _add_zxstspecregs(szx, state): # pragma: no cover
                 values[0] = get_int_param(val) % 8
             elif name == '7ffd':
                 values[1] = get_int_param(val) % 256
+            elif name == 'fe':
+                values[3] = get_int_param(val) % 256
         except ValueError:
             raise SkoolKitError(f'Cannot parse integer: {spec}')
     szx.extend((83, 80, 67, 82)) # SPCR
@@ -369,6 +370,7 @@ def _add_zxstz80regs(szx, registers, state): # pragma: no cover
                 reg_values[offset + 1] = (value // 256) % 256
 
     state_values = [0] * 11
+    state_values[3:5] = (127, 136) # dwCyclesStart=34943
     for spec in state:
         name, sep, val = spec.lower().partition('=')
         try:
