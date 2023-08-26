@@ -18,23 +18,55 @@ import argparse
 import time
 
 from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
+from skoolkit.config import get_config
 from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_snapshot
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
+                                SP, SP2, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 from skoolkit.snapinfo import parse_snapshot
 from skoolkit.traceutils import disassemble
 
-TRACE1H = "${address:04X} {data:<8} {i}"
-TRACE1D = "{address:05} {data:<8} {i}"
-TRACE2H = """
-${address:04X} {data:<8} {i:<15}  A={A:02X} F={F:08b} BC={BC:04X} DE={DE:04X} HL={HL:04X} IX={IX:04X} IY={IY:04X} IR={IR:04X}
-                                A'={^A:02X} F'={^F:08b} BC'={BC':04X} DE'={DE':04X} HL'={HL':04X} SP={SP:04X}
-""".strip()
-TRACE2D = """
-{address:05} {data:<8} {i:<15}  A={A:<3} F={F:08b} BC={BC:<5} DE={DE:<5} HL={HL:<5} IX={IX:<5} IY={IY:<5} I={I:<3} R={R:<3}
-                                A'={^A:<3} F'={^F:08b} BC'={BC':<5} DE'={DE':<5} HL'={HL':<5} SP={SP:<5}
-""".strip()
+REGISTERS = {
+    'a': (A, SP2),
+    'f': (F, SP2),
+    'bc': (C, B),
+    'b': (B, SP2),
+    'c': (C, SP2),
+    'de': (E, D),
+    'd': (D, SP2),
+    'e': (E, SP2),
+    'hl': (L, H),
+    'h': (H, SP2),
+    'l': (L, SP2),
+    'ix': (IXl, IXh),
+    'ixh': (IXh, SP2),
+    'ixl': (IXl, SP2),
+    'iy': (IYl, IYh),
+    'iyh': (IYh, SP2),
+    'iyl': (IYl, SP2),
+    'sp': (SP, SP2),
+    'i': (I, SP2),
+    'r': (R, SP2),
+    '^a': (xA, SP2),
+    '^f': (xF, SP2),
+    '^bc': (xC, xB),
+    '^b': (xB, SP2),
+    '^c': (xC, SP2),
+    '^de': (xE, xD),
+    '^d': (xD, SP2),
+    '^e': (xE, SP2),
+    '^hl': (xL, xH),
+    '^h': (xH, SP2),
+    '^l': (xL, SP2)
+}
+
+class Registers:
+    def __init__(self, registers):
+        self.registers = registers
+
+    def __getitem__(self, key):
+        lo, hi = REGISTERS[key]
+        return self.registers[lo] + 256 * self.registers[hi]
 
 class Tracer(PagingTracer):
     def __init__(self, simulator, border, out7ffd, outfffd, ay, outfe):
@@ -48,7 +80,7 @@ class Tracer(PagingTracer):
         self.spkr = None
         self.out_times = []
 
-    def run(self, start, stop, verbose, max_operations, max_tstates, decimal, interrupts):
+    def run(self, start, stop, max_operations, max_tstates, interrupts, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
         opcodes = simulator.opcodes
         memory = simulator.memory
@@ -56,32 +88,19 @@ class Tracer(PagingTracer):
         frame_duration = simulator.frame_duration
         pc = registers[PC] = start
         operations = 0
-        tstates = 0
+        tstates = registers[25]
         accept_int = False
-
-        if decimal:
-            p = b = w = ''
-            if verbose > 1:
-                fmt = TRACE2D
-            else:
-                fmt = TRACE1D
-        else:
-            p, b, w = '$', '02X', '04X'
-            if verbose > 1:
-                fmt = TRACE2H
-            else:
-                fmt = TRACE1H
-        if verbose:
-            instruction, size = disassemble(memory, pc, p, b, w)
-            values = {
-                'address': pc,
-                'data': ''.join(f'{memory[a % 65536]:02X}' for a in range(pc, pc + size)),
-                'i': instruction
-            }
+        r = Registers(registers)
 
         while True:
             t0 = tstates
-            opcodes[memory[pc]]()
+            if trace_line:
+                i, size = disassemble(memory, pc, prefix, byte_fmt, word_fmt)
+                data = ''.join(f'{memory[a % 65536]:02X}' for a in range(pc, pc + size))
+                opcodes[memory[pc]]()
+                print(trace_line.format(pc=pc, data=data, i=i, r=r, t=t0))
+            else:
+                opcodes[memory[pc]]()
             tstates = registers[25]
 
             if interrupts and simulator.iff:
@@ -91,42 +110,16 @@ class Tracer(PagingTracer):
                     accept_int = simulator.accept_interrupt(registers, memory, pc)
 
             pc = registers[24]
-
-            if verbose:
-                values.update({
-                    "A": registers[A],
-                    "F": registers[F],
-                    "BC": registers[C] + 256 * registers[B],
-                    "DE": registers[E] + 256 * registers[D],
-                    "HL": registers[L] + 256 * registers[H],
-                    "IX": registers[IXl] + 256 * registers[IXh],
-                    "IY": registers[IYl] + 256 * registers[IYh],
-                    "I": registers[I],
-                    "R": registers[R],
-                    "IR": registers[R] + 256 * registers[I],
-                    "SP": registers[SP],
-                    "^A": registers[xA],
-                    "^F": registers[xF],
-                    "BC'": registers[xC] + 256 * registers[xB],
-                    "DE'": registers[xE] + 256 * registers[xD],
-                    "HL'": registers[xL] + 256 * registers[xH]
-                })
-                print(fmt.format(**values))
-                instruction, size = disassemble(memory, pc, p, b, w)
-                values['address'] = pc
-                values['data'] = ''.join(f'{memory[a % 65536]:02X}' for a in range(pc, pc + size))
-                values['i'] = instruction
-
             operations += 1
 
             if operations >= max_operations > 0:
-                print(f'Stopped at {p}{pc:{w}}: {operations} operations')
+                print(f'Stopped at {prefix}{pc:{word_fmt}}: {operations} operations')
                 break
             if registers[T] >= max_tstates > 0:
-                print(f'Stopped at {p}{pc:{w}}: {registers[T]} T-states')
+                print(f'Stopped at {prefix}{pc:{word_fmt}}: {registers[T]} T-states')
                 break
             if pc == stop:
-                print(f'Stopped at {p}{pc:{w}}')
+                print(f'Stopped at {prefix}{pc:{word_fmt}}')
                 break
 
         self.operations = operations
@@ -208,7 +201,7 @@ def simplify(delays, depth):
             length += 1
     return ', '.join(s0)
 
-def run(snafile, options):
+def run(snafile, options, config):
     if snafile in ('48', '128'):
         if snafile == '48':
             memory = [0] * 0x10000
@@ -254,13 +247,20 @@ def run(snafile, options):
     for spec in options.pokes:
         poke(memory, spec)
     fast = options.verbose == 0 and not options.interrupts
-    config = {'fast_djnz': fast, 'fast_ldir': fast}
-    simulator = Simulator(memory, get_registers(reg, options.reg), state, config)
+    sim_config = {'fast_djnz': fast, 'fast_ldir': fast}
+    simulator = Simulator(memory, get_registers(reg, options.reg), state, sim_config)
     tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe)
     simulator.set_tracer(tracer)
+    if options.verbose:
+        s = (('', '2'), ('Decimal', 'Decimal2'))[options.decimal][min(options.verbose - 1, 1)]
+        trace_line = config['TraceLine' + s].replace(r'\n', '\n')
+    else:
+        trace_line = None
+    trace_operand = config['TraceOperand' + ('', 'Decimal')[options.decimal]]
+    prefix, byte_fmt, word_fmt = (trace_operand + ',' * (2 - trace_operand.count(','))).split(',')[:3]
     begin = time.time()
-    tracer.run(start, options.stop, options.verbose, options.max_operations,
-               options.max_tstates, options.decimal, options.interrupts)
+    tracer.run(start, options.stop, options.max_operations, options.max_tstates,
+               options.interrupts, trace_line, prefix, byte_fmt, word_fmt)
     rt = time.time() - begin
     if options.stats:
         z80t = simulator.registers[T] - state['tstates']
@@ -314,6 +314,7 @@ def run(snafile, options):
         print(f'Wrote {options.dump}')
 
 def main(args):
+    config = get_config('trace')
     parser = argparse.ArgumentParser(
         usage='trace.py [options] FILE [OUTFILE]',
         description="Trace Z80 machine code execution. "
@@ -363,4 +364,4 @@ def main(args):
         return
     if unknown_args or namespace.snafile is None:
         parser.exit(2, parser.format_help())
-    run(namespace.snafile, namespace)
+    run(namespace.snafile, namespace, config)

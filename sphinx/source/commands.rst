@@ -1762,12 +1762,65 @@ between those changes. This list can be supplied to the :ref:`AUDIO` macro to
 produce a WAV file for the sound effect that would be produced by the same code
 running on a real ZX Spectrum.
 
+.. _trace-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`trace.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``TraceLine`` - the format of each instruction line when ``-v`` is used
+  (default: ``${pc:04X} {data:<8} {i}``)
+* ``TraceLine2`` - the format of each instruction line when ``-vv`` is used
+* ``TraceLineDecimal`` - the format of each instruction line when ``-Dv`` is
+  used (default: ``{pc:05} {data:<8} {i}``)
+* ``TraceLineDecimal2`` - the format of each instruction line when ``-Dvv`` is
+  used
+* ``TraceOperand`` - the prefix, byte format, and word format for the numeric
+  operands of instructions, separated by commas (default: ``$,02X,04X``); the
+  byte and word formats are standard Python format specifiers for numeric
+  values, and default to empty strings if not supplied
+* ``TraceOperandDecimal`` - as ``TraceOperand`` when ``-D`` is used (default:
+  ``,,``)
+
+The ``TraceLine*`` parameters are standard Python format strings that recognise
+the following replacement fields:
+
+* ``i`` - the current instruction
+* ``data`` - the hexadecimal byte values of the current instruction
+* ``pc`` - the address of the current instruction (program counter)
+* ``r[X]`` - the 'X' register (see below)
+* ``t`` - the current timestamp (in T-states)
+
+The register name ``X`` in ``r[X]`` must be one of the following::
+
+  a b c d e f h l
+  ^a ^b ^c ^d ^e ^f ^h ^l
+  bc de hl
+  ^bc ^de ^hl
+  ix iy ixh iyh ixl iyl
+  i r sp
+
+The names that begin with ``^`` denote the shadow registers.
+
+Wherever ``\n`` appears in a ``TraceLine*`` parameter value, it is replaced by
+a newline character.
+
+Configuration parameters must appear in a ``[trace]`` section. For example,
+to make `trace.py` write a timestamp for each instruction when ``-v`` is used,
+add the following section to `skoolkit.ini`::
+
+  [trace]
+  TraceLine={t:>10} ${pc:04X} {data:<8} {i}
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.0     | Added support for 128K snapshots; added the ``--no-interrupts``   |
-|         | option; interrupt routines are executed by default; added support |
-|         | for writing SZX snapshots                                         |
+| 9.0     | Configuration is read from `skoolkit.ini` if present; added       |
+|         | support for 128K snapshots; added the ``--no-interrupts`` option; |
+|         | interrupt routines are executed by default; added support for     |
+|         | writing SZX snapshots                                             |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Reads and writes the T-states counter in Z80 snapshots and reads  |
 |         | the T-states counter in SZX snapshots                             |
