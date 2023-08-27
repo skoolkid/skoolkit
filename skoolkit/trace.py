@@ -18,7 +18,7 @@ import argparse
 import time
 
 from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
-from skoolkit.config import get_config
+from skoolkit.config import get_config, update_options
 from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_snapshot
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
@@ -331,6 +331,8 @@ def main(args):
                        help="Show decimal values in verbose mode.")
     group.add_argument('--depth', type=int, default=2,
                        help='Simplify audio delays to this depth (default: 2).')
+    group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
+                       help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
     group.add_argument('--max-operations', metavar='MAX', type=int, default=0,
                        help='Maximum number of instructions to execute.')
     group.add_argument('--max-tstates', metavar='MAX', type=int, default=0,
@@ -364,4 +366,5 @@ def main(args):
         return
     if unknown_args or namespace.snafile is None:
         parser.exit(2, parser.format_help())
+    update_options('trace', namespace, namespace.params, config)
     run(namespace.snafile, namespace, config)

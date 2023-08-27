@@ -1727,6 +1727,8 @@ To list the options supported by `trace.py`, run it with no arguments::
     --audio               Show audio delays.
     --depth DEPTH         Simplify audio delays to this depth (default: 2).
     -D, --decimal         Show decimal values in verbose mode.
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'. This option may be used multiple times.
     --max-operations MAX  Maximum number of instructions to execute.
     --max-tstates MAX     Maximum number of T-states to run for.
     -n, --no-interrupts   Don't execute interrupt routines.
@@ -1795,11 +1797,9 @@ the following replacement fields:
 
 The register name ``X`` in ``r[X]`` must be one of the following::
 
-  a b c d e f h l
-  ^a ^b ^c ^d ^e ^f ^h ^l
-  bc de hl
-  ^bc ^de ^hl
-  ix iy ixh iyh ixl iyl
+  a b c d e f h l bc de hl
+  ^a ^b ^c ^d ^e ^f ^h ^l ^bc ^de ^hl
+  ix ixh ixl iy iyh iyl
   i r sp
 
 The names that begin with ``^`` denote the shadow registers.
@@ -1814,13 +1814,17 @@ add the following section to `skoolkit.ini`::
   [trace]
   TraceLine={t:>10} ${pc:04X} {data:<8} {i}
 
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.0     | Configuration is read from `skoolkit.ini` if present; added       |
-|         | support for 128K snapshots; added the ``--no-interrupts`` option; |
-|         | interrupt routines are executed by default; added support for     |
-|         | writing SZX snapshots                                             |
+| 9.0     | Configuration is read from `skoolkit.ini` if present; added the   |
+|         | ``--ini`` option; added support for 128K snapshots; added the     |
+|         | ``--no-interrupts`` option; interrupt routines are executed by    |
+|         | default; added support for writing SZX snapshots                  |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Reads and writes the T-states counter in Z80 snapshots and reads  |
 |         | the T-states counter in SZX snapshots                             |

@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import simulator, trace, SkoolKitError, VERSION
+from skoolkit.config import COMMANDS
 
 ROM0_MD5 = 'b4d2692115a9f2924df92a3cbfb358fb'
 ROM1_MD5 = '6e09e5d3c4aef166601669feaaadc01c'
@@ -12,6 +13,9 @@ ROM1_MD5 = '6e09e5d3c4aef166601669feaaadc01c'
 def mock_run(*args):
     global run_args
     run_args = args
+
+def mock_config(name):
+    return {k: v[0] for k, v in COMMANDS[name].items()}
 
 def mock_write_snapshot(fname, ram, registers, state):
     global z80fname, snapshot, banks, z80reg, z80state
@@ -57,6 +61,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(options.max_operations, 0)
         self.assertEqual(options.max_tstates, 0)
         self.assertIsNone(options.org)
+        self.assertEqual(options.params, [])
         self.assertEqual(options.pokes, [])
         self.assertEqual(options.reg, [])
         self.assertIsNone(options.rom)
@@ -105,6 +110,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(options.max_operations, 0)
         self.assertEqual(options.max_tstates, 0)
         self.assertIsNone(options.org)
+        self.assertEqual(options.params, [])
         self.assertEqual(options.pokes, [])
         self.assertEqual(options.reg, [])
         self.assertIsNone(options.rom)
@@ -871,6 +877,26 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    @patch.object(trace, 'get_config', mock_config)
+    @patch.object(trace, 'run', mock_run)
+    def test_option_I(self):
+        self.run_trace('-I TraceLine=Hello in.z80')
+        z80file, options, config = run_args
+        self.assertEqual(['TraceLine=Hello'], options.params)
+        self.assertEqual(config['TraceLine'], 'Hello')
+
+    @patch.object(trace, 'run', mock_run)
+    def test_option_I_overrides_config_read_from_file(self):
+        ini = """
+            [trace]
+            TraceLine=0x{pc:04x} {i}
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        self.run_trace('--ini TraceLine=Goodbye in.z80')
+        z80file, options, config = run_args
+        self.assertEqual(['TraceLine=Goodbye'], options.params)
+        self.assertEqual(config['TraceLine'], 'Goodbye')
+
     def test_option_max_operations(self):
         data = [
             0xAF, # XOR A
@@ -1165,6 +1191,24 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_config_TraceLine_set_on_command_line(self):
+        code = (
+            0x06, 0x02, # $8000 LD B,$02
+            0x0E, 0x03, # $8002 LD C,$03
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        trace_line = '{pc}:{i}'
+        output, error = self.run_trace(f'-I TraceLine={trace_line} -o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            32768:LD B,$02
+            32770:LD C,$03
+            Stopped at $8004
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     def test_config_TraceLine2_read_from_file(self):
         ini = """
             [trace]
@@ -1189,6 +1233,24 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_config_TraceLine2_set_on_command_line(self):
+        code = (
+            0x06, 0x02, # $8000 LD B,$02
+            0x0E, 0x03, # $8002 LD C,$03
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        trace_line = '{pc:<6}{i:<12}BC={r[b]}{r[c]}'
+        output, error = self.run_trace(f'-I TraceLine2={trace_line} -o {start} -S {stop} -vv {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            32768 LD B,$02    BC=20
+            32770 LD C,$03    BC=23
+            Stopped at $8004
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     def test_config_TraceLineDecimal_read_from_file(self):
         ini = """
             [trace]
@@ -1207,6 +1269,24 @@ class TraceTest(SkoolKitTestCase):
         exp_output = """
             000000 32768 LD D,2
             000007 32770 LD E,3
+            Stopped at 32772
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceLineDecimal_set_on_command_line(self):
+        code = (
+            0x06, 0x02, # $8000 LD B,$02
+            0x0E, 0x03, # $8002 LD C,$03
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        trace_line = '{pc}:{i}'
+        output, error = self.run_trace(f'-I TraceLineDecimal={trace_line} -o {start} -S {stop} -Dv {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            32768:LD B,2
+            32770:LD C,3
             Stopped at 32772
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1241,6 +1321,24 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_config_TraceLineDecimal2_set_on_command_line(self):
+        code = (
+            0x06, 0x02, # $8000 LD B,$02
+            0x0E, 0x03, # $8002 LD C,$03
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        trace_line = '{pc:<6}{i:<12}BC={r[b]},{r[c]}'
+        output, error = self.run_trace(f'-I TraceLineDecimal2={trace_line} -o {start} -S {stop} -Dvv {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            32768 LD B,2      BC=2,0
+            32770 LD C,3      BC=2,3
+            Stopped at 32772
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     def test_config_TraceOperand_read_from_file(self):
         ini = """
             [trace]
@@ -1263,6 +1361,74 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_config_TraceOperand_set_on_command_line(self):
+        code = (
+            0x06, 0x1A,       # $8000 LD B,$1A
+            0x11, 0xFA, 0x0B, # $8002 LD DE,$0BFA
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        output, error = self.run_trace(f'-I TraceOperand=#,02x,04x -o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            $8000 061A     LD B,#1a
+            $8002 11FA0B   LD DE,#0bfa
+            Stopped at #8005
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceOperand_with_no_commas(self):
+        code = (
+            0x06, 0x1A,       # $8000 LD B,$1A
+            0x11, 0xFA, 0x0B, # $8002 LD DE,$0BFA
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        output, error = self.run_trace(f'--ini TraceOperand=# -o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            $8000 061A     LD B,#26
+            $8002 11FA0B   LD DE,#3066
+            Stopped at #32773
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceOperand_with_one_comma(self):
+        code = (
+            0x06, 0x1A,       # $8000 LD B,$1A
+            0x11, 0xFA, 0x0B, # $8002 LD DE,$0BFA
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        output, error = self.run_trace(f'-I TraceOperand=#,02x -o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            $8000 061A     LD B,#1a
+            $8002 11FA0B   LD DE,#3066
+            Stopped at #32773
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceOperand_with_three_commas(self):
+        code = (
+            0x06, 0x1A,       # $8000 LD B,$1A
+            0x11, 0xFA, 0x0B, # $8002 LD DE,$0BFA
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        output, error = self.run_trace(f'--ini TraceOperand=#,02x,04x,??? -o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            $8000 061A     LD B,#1a
+            $8002 11FA0B   LD DE,#0bfa
+            Stopped at #8005
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     def test_config_TraceOperandDecimal_read_from_file(self):
         ini = """
             [trace]
@@ -1282,6 +1448,74 @@ class TraceTest(SkoolKitTestCase):
             32768 061A     LD B,d026
             32770 11FA0B   LD DE,d03066
             Stopped at d32773
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceOperandDecimal_set_on_command_line(self):
+        code = (
+            0x06, 0x1A,       # $8000 LD B,$1A
+            0x11, 0xFA, 0x0B, # $8002 LD DE,$0BFA
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        output, error = self.run_trace(f'-I TraceOperandDecimal=0d,03,05 -o {start} -S {stop} -Dv {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            32768 061A     LD B,0d026
+            32770 11FA0B   LD DE,0d03066
+            Stopped at 0d32773
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceOperandDecimal_with_no_commas(self):
+        code = (
+            0x06, 0x1A,       # $8000 LD B,$1A
+            0x11, 0xFA, 0x0B, # $8002 LD DE,$0BFA
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        output, error = self.run_trace(f'--ini TraceOperandDecimal=0d -o {start} -S {stop} -Dv {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            32768 061A     LD B,0d26
+            32770 11FA0B   LD DE,0d3066
+            Stopped at 0d32773
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceOperandDecimal_with_one_comma(self):
+        code = (
+            0x06, 0x1A,       # $8000 LD B,$1A
+            0x11, 0xFA, 0x0B, # $8002 LD DE,$0BFA
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        output, error = self.run_trace(f'-I TraceOperandDecimal=0d,03 -o {start} -S {stop} -Dv {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            32768 061A     LD B,0d026
+            32770 11FA0B   LD DE,0d3066
+            Stopped at 0d32773
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceOperandDecimal_with_three_commas(self):
+        code = (
+            0x06, 0x1A,       # $8000 LD B,$1A
+            0x11, 0xFA, 0x0B, # $8002 LD DE,$0BFA
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        output, error = self.run_trace(f'--ini TraceOperandDecimal=0d,03,05,??? -o {start} -S {stop} -Dv {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            32768 061A     LD B,0d026
+            32770 11FA0B   LD DE,0d03066
+            Stopped at 0d32773
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 

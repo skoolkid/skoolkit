@@ -30,6 +30,11 @@ OPTIONS
 -D, --decimal
   Show decimal values in verbose (``-v``, ``-vv``) mode.
 
+-I, --ini `param=value`
+  Set the value of a configuration parameter (see ``CONFIGURATION``),
+  overriding any value found in ``skoolkit.ini``. This option may be used
+  multiple times.
+
 --max-operations `MAX`
   Maximum number of instructions to execute. Overrides the `STOP` address (if
   given).
@@ -155,6 +160,10 @@ used, add the following section to ``skoolkit.ini``::
 
   [trace]
   TraceLine={t:>10} ${pc:04X} {data:<8} {i}
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+``skoolkit.ini``.
 
 EXAMPLES
 ========

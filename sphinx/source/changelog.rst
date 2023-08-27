@@ -17,14 +17,16 @@ Changelog
   by the first pulse on the tape)
 * The output snapshot argument of :ref:`tap2sna.py` is now optional
 * Added support to :ref:`trace.py` for executing machine code in 128K snapshots
-* Added the ``--no-interrupts`` option to :ref:`trace.py` (to prevent the
-  execution of interrupt routines, which are now executed by default)
 * Added support to :ref:`trace.py <trace-conf>` for reading configuration
   from `skoolkit.ini`
+* Added the ``--ini`` option to :ref:`trace.py` (for setting the value of a
+  configuration parameter)
+* Added the ``--no-interrupts`` option to :ref:`trace.py` (to prevent the
+  execution of interrupt routines, which are now executed by default)
 * Added support to :ref:`bin2sna.py`, :ref:`tap2sna.py` and :ref:`trace.py` for
   writing SZX snapshots
 * Added support to :ref:`bin2sna.py` and :ref:`tap2sna.py` for setting the
-  ``fe`` hardware state attribute (i.e. the last value written to port 0xfe in
+  ``fe`` hardware state attribute (i.e. the last value written to port 0xFE in
   SZX snapshots)
 * Added support to :ref:`control directive loops <ctlLoops>` for avoiding
   repetition of an ``N`` directive at the start of a loop
