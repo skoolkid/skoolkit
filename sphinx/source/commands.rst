@@ -1743,6 +1743,7 @@ To list the options supported by `trace.py`, run it with no arguments::
                           Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
     --rom FILE            Patch in a ROM at address 0 from this file.
+    --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
                           Start execution at this address.
     -S ADDR, --stop ADDR  Stop execution at this address.
@@ -1775,10 +1776,11 @@ configuration parameters are:
 * ``TraceLine`` - the format of each instruction line when ``-v`` is used
   (default: ``${pc:04X} {data:<8} {i}``)
 * ``TraceLine2`` - the format of each instruction line when ``-vv`` is used
+  (use ``--show-config`` to see the default value)
 * ``TraceLineDecimal`` - the format of each instruction line when ``-Dv`` is
   used (default: ``{pc:05} {data:<8} {i}``)
 * ``TraceLineDecimal2`` - the format of each instruction line when ``-Dvv`` is
-  used
+  used (use ``--show-config`` to see the default value)
 * ``TraceOperand`` - the prefix, byte format, and word format for the numeric
   operands of instructions, separated by commas (default: ``$,02X,04X``); the
   byte and word formats are standard Python format specifiers for numeric
@@ -1822,9 +1824,10 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.0     | Configuration is read from `skoolkit.ini` if present; added the   |
-|         | ``--ini`` option; added support for 128K snapshots; added the     |
-|         | ``--no-interrupts`` option; interrupt routines are executed by    |
-|         | default; added support for writing SZX snapshots                  |
+|         | ``--ini`` and ``--show-config`` options; added support for 128K   |
+|         | snapshots; added the ``--no-interrupts`` option; interrupt        |
+|         | routines are executed by default; added support for writing SZX   |
+|         | snapshots                                                         |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Reads and writes the T-states counter in Z80 snapshots and reads  |
 |         | the T-states counter in SZX snapshots                             |

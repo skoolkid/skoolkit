@@ -72,7 +72,7 @@ class TraceTest(SkoolKitTestCase):
             config['TraceLine2'],
             "${pc:04X} {data:<8} {i:<15}  "
             "A={r[a]:02X} F={r[f]:08b} BC={r[bc]:04X} DE={r[de]:04X} HL={r[hl]:04X} "
-            "IX={r[ix]:04X} IY={r[iy]:04X} IR={r[i]:02X}{r[r]:02X}\n                                "
+            "IX={r[ix]:04X} IY={r[iy]:04X} IR={r[i]:02X}{r[r]:02X}\\n                                "
             "A'={r[^a]:02X} F'={r[^f]:08b} BC'={r[^bc]:04X} DE'={r[^de]:04X} HL'={r[^hl]:04X} SP={r[sp]:04X}"
         )
         self.assertEqual(config['TraceLineDecimal'], '{pc:05} {data:<8} {i}')
@@ -80,7 +80,7 @@ class TraceTest(SkoolKitTestCase):
             config['TraceLineDecimal2'],
             "{pc:05} {data:<8} {i:<15}  "
             "A={r[a]:<3} F={r[f]:08b} BC={r[bc]:<5} DE={r[de]:<5} HL={r[hl]:<5} "
-            "IX={r[ix]:<5} IY={r[iy]:<5} I={r[i]:<3} R={r[r]:<3}\n                                "
+            "IX={r[ix]:<5} IY={r[iy]:<5} I={r[i]:<3} R={r[r]:<3}\\n                                "
             "A'={r[^a]:<3} F'={r[^f]:08b} BC'={r[^bc]:<5} DE'={r[^de]:<5} HL'={r[^hl]:<5} SP={r[sp]:<5}"
         )
         self.assertEqual(config['TraceOperand'], '$,02X,04X')
@@ -1016,6 +1016,47 @@ class TraceTest(SkoolKitTestCase):
             $8000 C30000   JP $0000
             $0000 AF       XOR A
             Stopped at $0001
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    @patch.object(trace, 'get_config', mock_config)
+    def test_option_show_config(self):
+        output, error = self.run_trace('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = (
+            "[trace]\n"
+            "TraceLine=${pc:04X} {data:<8} {i}\n"
+            "TraceLine2=${pc:04X} {data:<8} {i:<15}  "
+            "A={r[a]:02X} F={r[f]:08b} BC={r[bc]:04X} DE={r[de]:04X} HL={r[hl]:04X} "
+            "IX={r[ix]:04X} IY={r[iy]:04X} IR={r[i]:02X}{r[r]:02X}\\n                                "
+            "A'={r[^a]:02X} F'={r[^f]:08b} BC'={r[^bc]:04X} DE'={r[^de]:04X} HL'={r[^hl]:04X} SP={r[sp]:04X}\n"
+            "TraceLineDecimal={pc:05} {data:<8} {i}\n"
+            "TraceLineDecimal2={pc:05} {data:<8} {i:<15}  "
+            "A={r[a]:<3} F={r[f]:08b} BC={r[bc]:<5} DE={r[de]:<5} HL={r[hl]:<5} "
+            "IX={r[ix]:<5} IY={r[iy]:<5} I={r[i]:<3} R={r[r]:<3}\\n                                "
+            "A'={r[^a]:<3} F'={r[^f]:08b} BC'={r[^bc]:<5} DE'={r[^de]:<5} HL'={r[^hl]:<5} SP={r[sp]:<5}\n"
+            "TraceOperand=$,02X,04X\n"
+            "TraceOperandDecimal=,,"
+        )
+        self.assertEqual(exp_output, output.rstrip())
+
+    def test_option_show_config_read_from_file(self):
+        ini = """
+            [trace]
+            TraceLine2=${pc:04x} {i:<15} A={r[a]:02X}
+            TraceLineDecimal2={pc:05} {i:<15} A={r[a]}
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        output, error = self.run_trace('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            [trace]
+            TraceLine=${pc:04X} {data:<8} {i}
+            TraceLine2=${pc:04x} {i:<15} A={r[a]:02X}
+            TraceLineDecimal={pc:05} {data:<8} {i}
+            TraceLineDecimal2={pc:05} {i:<15} A={r[a]}
+            TraceOperand=$,02X,04X
+            TraceOperandDecimal=,,
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 

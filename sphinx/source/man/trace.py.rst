@@ -65,6 +65,9 @@ OPTIONS
 --rom `FILE`
   Patch in a ROM at address 0 from this file.
 
+--show-config
+  Show configuration parameter values.
+
 -s, --start `ADDR`
   Start execution at this address. `ADDR` must be a decimal number, or a
   hexadecimal number prefixed by '0x'. If this option is omitted, execution
@@ -118,11 +121,12 @@ configuration parameters are:
 
   :TraceLine: The format of each instruction line when ``-v`` is used
     (default: ``${pc:04X} {data:<8} {i}``).
-  :TraceLine2: The format of each instruction line when ``-vv`` is used.
+  :TraceLine2: The format of each instruction line when ``-vv`` is used. Use
+    ``--show-config`` to see the default value.
   :TraceLineDecimal: The format of each instruction line when ``-Dv`` is used
     (default: ``{pc:05} {data:<8} {i}``).
   :TraceLineDecimal2: The format of each instruction line when ``-Dvv`` is
-    used.
+    used. Use ``--show-config`` to see the default value.
   :TraceOperand: The prefix, byte format, and word format for the numeric
     operands of instructions, separated by commas (default: ``$,02X,04X``); the
     byte and word formats are standard Python format specifiers for numeric

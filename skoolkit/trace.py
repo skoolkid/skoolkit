@@ -18,7 +18,7 @@ import argparse
 import time
 
 from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
-from skoolkit.config import get_config, update_options
+from skoolkit.config import get_config, show_config, update_options
 from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_snapshot
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
@@ -350,6 +350,8 @@ def main(args):
                             "This option may be used multiple times.")
     group.add_argument('--rom', metavar='FILE',
                        help='Patch in a ROM at address 0 from this file.')
+    group.add_argument('--show-config', dest='show_config', action='store_true',
+                       help="Show configuration parameter values.")
     group.add_argument('-s', '--start', metavar='ADDR', type=integer,
                        help='Start execution at this address.')
     group.add_argument('-S', '--stop', metavar='ADDR', type=integer,
@@ -361,6 +363,8 @@ def main(args):
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
+    if namespace.show_config:
+        show_config('trace', config)
     if 'help' in namespace.reg:
         print_reg_help()
         return

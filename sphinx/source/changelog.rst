@@ -19,8 +19,9 @@ Changelog
 * Added support to :ref:`trace.py` for executing machine code in 128K snapshots
 * Added support to :ref:`trace.py <trace-conf>` for reading configuration
   from `skoolkit.ini`
-* Added the ``--ini`` option to :ref:`trace.py` (for setting the value of a
-  configuration parameter)
+* Added the ``--ini`` and ``--show-config`` options to :ref:`trace.py` (for
+  setting the value of a configuration parameter and for showing all
+  configuration parameter values)
 * Added the ``--no-interrupts`` option to :ref:`trace.py` (to prevent the
   execution of interrupt routines, which are now executed by default)
 * Added support to :ref:`bin2sna.py`, :ref:`tap2sna.py` and :ref:`trace.py` for

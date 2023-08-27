@@ -122,7 +122,7 @@ COMMANDS = {
         'TraceLine2': (
             "${pc:04X} {data:<8} {i:<15}  "
             "A={r[a]:02X} F={r[f]:08b} BC={r[bc]:04X} DE={r[de]:04X} HL={r[hl]:04X} "
-            "IX={r[ix]:04X} IY={r[iy]:04X} IR={r[i]:02X}{r[r]:02X}\n                                "
+            "IX={r[ix]:04X} IY={r[iy]:04X} IR={r[i]:02X}{r[r]:02X}\\n                                "
             "A'={r[^a]:02X} F'={r[^f]:08b} BC'={r[^bc]:04X} DE'={r[^de]:04X} HL'={r[^hl]:04X} SP={r[sp]:04X}",
             ''
         ),
@@ -130,7 +130,7 @@ COMMANDS = {
         'TraceLineDecimal2': (
             "{pc:05} {data:<8} {i:<15}  "
             "A={r[a]:<3} F={r[f]:08b} BC={r[bc]:<5} DE={r[de]:<5} HL={r[hl]:<5} "
-            "IX={r[ix]:<5} IY={r[iy]:<5} I={r[i]:<3} R={r[r]:<3}\n                                "
+            "IX={r[ix]:<5} IY={r[iy]:<5} I={r[i]:<3} R={r[r]:<3}\\n                                "
             "A'={r[^a]:<3} F'={r[^f]:08b} BC'={r[^bc]:<5} DE'={r[^de]:<5} HL'={r[^hl]:<5} SP={r[sp]:<5}",
             ''
         ),
