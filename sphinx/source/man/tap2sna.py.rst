@@ -464,39 +464,25 @@ replacement fields:
 |
 |  ``i``  - the current instruction
 |  ``pc`` - the address of the current instruction (program counter)
-|  ``r[a]`` - the A register (accumulator)
-|  ``r[f]`` - the F (flags) register
-|  ``r[b]`` - the B register
-|  ``r[c]`` - the C register
-|  ``r[d]`` - the D register
-|  ``r[e]`` - the E register
-|  ``r[h]`` - the H register
-|  ``r[l]`` - the L register
-|  ``r[^a]`` - the A' register (shadow accumulator)
-|  ``r[^f]`` - the F' (shadow flags) register
-|  ``r[^b]`` - the shadow B register
-|  ``r[^c]`` - the shadow C register
-|  ``r[^d]`` - the shadow D register
-|  ``r[^e]`` - the shadow E register
-|  ``r[^h]`` - the shadow H register
-|  ``r[^l]`` - the shadow L register
-|  ``r[ixh]`` - the high byte of the IX register pair
-|  ``r[ixl]`` - the low byte of the IX register pair
-|  ``r[iyh]`` - the high byte of the IY register pair
-|  ``r[iyl]`` - the low byte of the IY register pair
-|  ``r[i]`` - the I register
-|  ``r[r]`` - the R register
-|  ``r[sp]`` - the stack pointer
-|  ``r[t]`` - the current timestamp
+|  ``r[X]`` - the X register (see below)
+|  ``t`` - the current timestamp
 
-The current timestamp (``r[t]``) is the number of T-states that have elapsed
-since the start of the simulation, according to the simulator's internal clock.
-In order to maintain synchronisation with the tape being loaded, the
-simulator's clock is adjusted to match the timestamp of the first pulse in each
-block (as shown by the ``--tape-analysis`` option) when that block is reached.
-(The simulator's clock may at times become desynchronised with the tape
-because, by default, the tape is paused between blocks, and resumed when port
-254 is read.)
+The register name ``X`` in ``r[X]`` must be one of the following::
+
+  a b c d e f h l
+  ^a ^b ^c ^d ^e ^f ^h ^l
+  ixh ixl iyh iyl
+  i r sp
+
+The names that begin with ``^`` denote the shadow registers.
+
+The current timestamp (``t``) is the number of T-states that have elapsed since
+the start of the simulation, according to the simulator's internal clock. In
+order to maintain synchronisation with the tape being loaded, the simulator's
+clock is adjusted to match the timestamp of the first pulse in each block (as
+shown by the ``--tape-analysis`` option) when that block is reached. (The
+simulator's clock may at times become desynchronised with the tape because, by
+default, the tape is paused between blocks, and resumed when port 254 is read.)
 
 Configuration parameters must appear in a ``[tap2sna]`` section. For example,
 to make ``tap2sna.py`` write instruction addresses and operands in a trace log

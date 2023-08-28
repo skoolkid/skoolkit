@@ -71,7 +71,6 @@ REGISTERS = {
     '^e': xE,
     '^h': xH,
     '^l': xL,
-    't': T
 }
 
 class Registers:
@@ -233,7 +232,7 @@ class LoadTracer(PagingTracer):
             if trace:
                 i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                 opcodes[memory[pc]]()
-                tracefile.write(trace_line.format(pc=pc, i=i, r=r))
+                tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
             else:
                 opcodes[memory[pc]]()
             tstates = registers[25]

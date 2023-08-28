@@ -1963,9 +1963,9 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_config_TraceLine_with_register_values(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
-        trace_line = "${pc:04X} {i:<13} AFBCDEHL={r[a]:02X}{r[f]:02X}{r[b]:02X}{r[c]:02X}{r[d]:02X}{r[e]:02X}{r[h]:02X}{r[l]:02X}"
+        trace_line = "{t:>3} ${pc:04X} {i:<13} AFBCDEHL={r[a]:02X}{r[f]:02X}{r[b]:02X}{r[c]:02X}{r[d]:02X}{r[e]:02X}{r[h]:02X}{r[l]:02X}"
         trace_line += " AFBCDEHL'={r[^a]:02X}{r[^f]:02X}{r[^b]:02X}{r[^c]:02X}{r[^d]:02X}{r[^e]:02X}{r[^h]:02X}{r[^l]:02X}"
-        trace_line += " IX={r[ixh]:02X}{r[ixl]:02X} IY={r[iyh]:02X}{r[iyl]:02X} SP={r[sp]:04X} IR={r[i]:02X}{r[r]:02X} T={r[t]}"
+        trace_line += " IX={r[ixh]:02X}{r[ixl]:02X} IY={r[iyh]:02X}{r[iyl]:02X} SP={r[sp]:04X} IR={r[i]:02X}{r[r]:02X}"
         args = ('-I', f'TraceLine={trace_line}', '-c', f'trace={tracefile}', '--start', '0x250E', tapfile, 'out.z80')
         tap2sna.main(args)
         self.assertEqual(self.err.getvalue(), '')
@@ -1973,12 +1973,12 @@ class Tap2SnaTest(SkoolKitTestCase):
         with open(tracefile, 'r') as f:
             trace_lines = f.read().rstrip().split('\n')
         self.assertEqual(len(trace_lines), 31)
-        self.assertEqual(trace_lines[0], "$0605 POP AF        AFBCDEHL=1B52000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF52 IR=3F01 T=10")
-        self.assertEqual(trace_lines[1], "$0606 LD A,($5C74)  AFBCDEHL=E152000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF52 IR=3F02 T=23")
-        self.assertEqual(trace_lines[2], "$0609 SUB $E0       AFBCDEHL=0102000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF52 IR=3F03 T=30")
-        self.assertEqual(trace_lines[28], "$250A LD B,$00      AFBCDEHL=2261002200002597 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1D T=274")
-        self.assertEqual(trace_lines[29], "$250C LD C,(HL)     AFBCDEHL=2261001C00002597 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1E T=281")
-        self.assertEqual(trace_lines[30], "$250D ADD HL,BC     AFBCDEHL=2260001C000025B3 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1F T=292")
+        self.assertEqual(trace_lines[0], "  0 $0605 POP AF        AFBCDEHL=1B52000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF52 IR=3F01")
+        self.assertEqual(trace_lines[1], " 10 $0606 LD A,($5C74)  AFBCDEHL=E152000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF52 IR=3F02")
+        self.assertEqual(trace_lines[2], " 23 $0609 SUB $E0       AFBCDEHL=0102000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF52 IR=3F03")
+        self.assertEqual(trace_lines[28], "267 $250A LD B,$00      AFBCDEHL=2261002200002597 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1D")
+        self.assertEqual(trace_lines[29], "274 $250C LD C,(HL)     AFBCDEHL=2261001C00002597 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1E")
+        self.assertEqual(trace_lines[30], "281 $250D ADD HL,BC     AFBCDEHL=2260001C000025B3 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1F")
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_config_TraceOperand(self):

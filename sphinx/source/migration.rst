@@ -62,6 +62,10 @@ SkoolKit 9:
 * ``softlock`` (use ``rom`` instead)
 * ``zydroload`` (use ``speedlock`` instead)
 
+The ``r[t]`` replacement field (for use in the ``TraceLine`` configuration
+parameter) is no longer supported in SkoolKit 9. Use the ``t`` replacement
+field instead.
+
 trace.py
 --------
 In SkoolKit 8, :ref:`trace.py` had a ``--dump`` option for specifying an output
