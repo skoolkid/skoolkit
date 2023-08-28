@@ -95,10 +95,9 @@ class Tracer(PagingTracer):
         while True:
             t0 = tstates
             if trace_line:
-                i, size = disassemble(memory, pc, prefix, byte_fmt, word_fmt)
-                data = ''.join(f'{memory[a % 65536]:02X}' for a in range(pc, pc + size))
+                i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                 opcodes[memory[pc]]()
-                print(trace_line.format(pc=pc, data=data, i=i, r=r, t=t0))
+                print(trace_line.format(pc=pc, i=i, r=r, t=t0))
             else:
                 opcodes[memory[pc]]()
             tstates = registers[25]
@@ -115,8 +114,8 @@ class Tracer(PagingTracer):
             if operations >= max_operations > 0:
                 print(f'Stopped at {prefix}{pc:{word_fmt}}: {operations} operations')
                 break
-            if registers[T] >= max_tstates > 0:
-                print(f'Stopped at {prefix}{pc:{word_fmt}}: {registers[T]} T-states')
+            if tstates >= max_tstates > 0:
+                print(f'Stopped at {prefix}{pc:{word_fmt}}: {tstates} T-states')
                 break
             if pc == stop:
                 print(f'Stopped at {prefix}{pc:{word_fmt}}')

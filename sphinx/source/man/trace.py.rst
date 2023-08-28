@@ -120,11 +120,11 @@ current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
   :TraceLine: The format of each instruction line when ``-v`` is used
-    (default: ``${pc:04X} {data:<8} {i}``).
+    (default: ``${pc:04X} {i}``).
   :TraceLine2: The format of each instruction line when ``-vv`` is used. Use
     ``--show-config`` to see the default value.
   :TraceLineDecimal: The format of each instruction line when ``-Dv`` is used
-    (default: ``{pc:05} {data:<8} {i}``).
+    (default: ``{pc:05} {i}``).
   :TraceLineDecimal2: The format of each instruction line when ``-Dvv`` is
     used. Use ``--show-config`` to see the default value.
   :TraceOperand: The prefix, byte format, and word format for the numeric
@@ -139,17 +139,14 @@ the following replacement fields:
 
 |
 |  ``i`` - the current instruction
-|  ``data`` - the hexadecimal byte values of the current instruction
 |  ``pc`` - the address of the current instruction (program counter)
 |  ``r[X]`` - the 'X' register (see below)
 |  ``t`` - the current timestamp (in T-states)
 
 The register name ``X`` in ``r[X]`` must be one of the following::
 
-  a b c d e f h l
-  ^a ^b ^c ^d ^e ^f ^h ^l
-  bc de hl
-  ^bc ^de ^hl
+  a b c d e f h l bc de hl
+  ^a ^b ^c ^d ^e ^f ^h ^l ^bc ^de ^hl
   ix iy ixh iyh ixl iyl
   i r sp
 
@@ -163,7 +160,7 @@ to make ``trace.py`` write a timestamp for each instruction when ``-v`` is
 used, add the following section to ``skoolkit.ini``::
 
   [trace]
-  TraceLine={t:>10} ${pc:04X} {data:<8} {i}
+  TraceLine={t:>10} ${pc:04X} {i}
 
 Configuration parameters may also be set on the command line by using the
 ``--ini`` option. Parameter values set this way will override any found in

@@ -67,21 +67,19 @@ class TraceTest(SkoolKitTestCase):
         self.assertIsNone(options.rom)
         self.assertFalse(options.stats)
         self.assertEqual(options.verbose, 0)
-        self.assertEqual(config['TraceLine'], '${pc:04X} {data:<8} {i}')
+        self.assertEqual(config['TraceLine'], '${pc:04X} {i}')
         self.assertEqual(
             config['TraceLine2'],
-            "${pc:04X} {data:<8} {i:<15}  "
-            "A={r[a]:02X} F={r[f]:08b} BC={r[bc]:04X} DE={r[de]:04X} HL={r[hl]:04X} "
-            "IX={r[ix]:04X} IY={r[iy]:04X} IR={r[i]:02X}{r[r]:02X}\\n                                "
-            "A'={r[^a]:02X} F'={r[^f]:08b} BC'={r[^bc]:04X} DE'={r[^de]:04X} HL'={r[^hl]:04X} SP={r[sp]:04X}"
+            "${pc:04X} {i:<15}  "
+            "A={r[a]:02X}  F={r[f]:08b}  BC={r[bc]:04X}  DE={r[de]:04X}  HL={r[hl]:04X}  IX={r[ix]:04X} IY={r[iy]:04X}\\n                       "
+            "A'={r[^a]:02X} F'={r[^f]:08b} BC'={r[^bc]:04X} DE'={r[^de]:04X} HL'={r[^hl]:04X} SP={r[sp]:04X} IR={r[i]:02X}{r[r]:02X}"
         )
-        self.assertEqual(config['TraceLineDecimal'], '{pc:05} {data:<8} {i}')
+        self.assertEqual(config['TraceLineDecimal'], '{pc:05} {i}')
         self.assertEqual(
             config['TraceLineDecimal2'],
-            "{pc:05} {data:<8} {i:<15}  "
-            "A={r[a]:<3} F={r[f]:08b} BC={r[bc]:<5} DE={r[de]:<5} HL={r[hl]:<5} "
-            "IX={r[ix]:<5} IY={r[iy]:<5} I={r[i]:<3} R={r[r]:<3}\\n                                "
-            "A'={r[^a]:<3} F'={r[^f]:08b} BC'={r[^bc]:<5} DE'={r[^de]:<5} HL'={r[^hl]:<5} SP={r[sp]:<5}"
+            "{pc:05} {i:<15}  "
+            "A={r[a]:<3}  F={r[f]:08b}  BC={r[bc]:<5}  DE={r[de]:<5}  HL={r[hl]:<5}  IX={r[ix]:<5} IY={r[iy]:<5}\\n                       "
+            "A'={r[^a]:<3} F'={r[^f]:08b} BC'={r[^bc]:<5} DE'={r[^de]:<5} HL'={r[^hl]:<5} SP={r[sp]:<5} I={r[i]:<3} R={r[r]:<3}"
         )
         self.assertEqual(config['TraceOperand'], '$,02X,04X')
         self.assertEqual(config['TraceOperandDecimal'], ',,')
@@ -152,8 +150,8 @@ class TraceTest(SkoolKitTestCase):
         ram[:2] = (0, 96) # 16384 DEFW 24576 ; stack
         snafile = self.write_bin_file(header + ram, suffix='.sna')
         exp_output = """
-            $6000 00       NOP              A=16 F=00010101 BC=0F0E DE=0D0C HL=0B0A IX=1312 IY=1110 IR=0115
-                                            A'=09 F'=00001000 BC'=0706 DE'=0504 HL'=0302 SP=4002
+            $6000 NOP              A=16  F=00010101  BC=0F0E  DE=0D0C  HL=0B0A  IX=1312 IY=1110
+                                   A'=09 F'=00001000 BC'=0706 DE'=0504 HL'=0302 SP=4002 IR=0115
             Stopped at $6001
         """
         self._test_trace(f'-vv -S 24577 {snafile}', exp_output)
@@ -193,8 +191,8 @@ class TraceTest(SkoolKitTestCase):
         sna[49183:65567] = [1] * 16384 # Bank 1
         snafile = self.write_bin_file(sna, suffix='.sna')
         exp_output = """
-            $6000 ED79     OUT (C),A        A=11 F=00010110 BC=7FFD DE=0D0C HL=0B0A IX=1312 IY=1110 IR=0116
-                                            A'=09 F'=00001000 BC'=0706 DE'=0504 HL'=0302 SP=4002
+            $6000 OUT (C),A        A=11  F=00010110  BC=7FFD  DE=0D0C  HL=0B0A  IX=1312 IY=1110
+                                   A'=09 F'=00001000 BC'=0706 DE'=0504 HL'=0302 SP=4002 IR=0116
             Stopped at $6002
         """
         self._test_trace(f'-vv -S 24578 {snafile}', exp_output)
@@ -238,8 +236,8 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         z80file = self.write_z80_file(None, ram, registers=registers)
         exp_output = """
-            $8000 00       NOP              A=01 F=00000010 BC=0304 DE=0506 HL=0708 IX=0B0C IY=090A IR=0D0F
-                                            A'=0F F'=00010000 BC'=1112 DE'=1314 HL'=1516 SP=FFFF
+            $8000 NOP              A=01  F=00000010  BC=0304  DE=0506  HL=0708  IX=0B0C IY=090A
+                                   A'=0F F'=00010000 BC'=1112 DE'=1314 HL'=1516 SP=FFFF IR=0D0F
             Stopped at $8001
         """
         self._test_trace(f'-vv -S 32769 {z80file}', exp_output)
@@ -284,8 +282,8 @@ class TraceTest(SkoolKitTestCase):
         }
         z80file = self.write_z80(ram, machine_id=4, out_7ffd=18, pages=pages, registers=registers)[1]
         exp_output = """
-            $6000 ED79     OUT (C),A        A=01 F=00000010 BC=7FFD DE=0506 HL=0708 IX=0B0C IY=090A IR=0D10
-                                            A'=0F F'=00010000 BC'=1112 DE'=1314 HL'=1516 SP=FFFF
+            $6000 OUT (C),A        A=01  F=00000010  BC=7FFD  DE=0506  HL=0708  IX=0B0C IY=090A
+                                   A'=0F F'=00010000 BC'=1112 DE'=1314 HL'=1516 SP=FFFF IR=0D10
             Stopped at $6002
         """
         self._test_trace(f'-vv -S 24578 {z80file}', exp_output)
@@ -319,8 +317,8 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         szxfile = self.write_szx(ram, registers=registers)
         exp_output = """
-            $C000 00       NOP              A=02 F=00000001 BC=0403 DE=0605 HL=0807 IX=1211 IY=1413 IR=1517
-                                            A'=0A F'=00001001 BC'=0C0B DE'=0E0D HL'=100F SP=8000
+            $C000 NOP              A=02  F=00000001  BC=0403  DE=0605  HL=0807  IX=1211 IY=1413
+                                   A'=0A F'=00001001 BC'=0C0B DE'=0E0D HL'=100F SP=8000 IR=1517
             Stopped at $C001
         """
         self._test_trace(f'-vv -S 49153 {szxfile}', exp_output)
@@ -356,8 +354,8 @@ class TraceTest(SkoolKitTestCase):
         )
         szxfile = self.write_szx(ram, machine_id=2, ch7ffd=4, pages=pages, registers=registers)
         exp_output = """
-            $6000 ED79     OUT (C),A        A=13 F=00000001 BC=7FFD DE=0605 HL=0807 IX=1211 IY=1413 IR=1518
-                                            A'=0A F'=00001001 BC'=0C0B DE'=0E0D HL'=100F SP=8000
+            $6000 OUT (C),A        A=13  F=00000001  BC=7FFD  DE=0605  HL=0807  IX=1211 IY=1413
+                                   A'=0A F'=00001001 BC'=0C0B DE'=0E0D HL'=100F SP=8000 IR=1518
             Stopped at $6002
         """
         self._test_trace(f'-vv -S 24578 {szxfile}', exp_output)
@@ -371,8 +369,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-v -S 2 48')
         self.assertEqual(error, '')
         exp_output = """
-            $0000 F3       DI
-            $0001 AF       XOR A
+            $0000 DI
+            $0001 XOR A
             Stopped at $0002
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -381,8 +379,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-v -S 4 128')
         self.assertEqual(error, '')
         exp_output = """
-            $0000 F3       DI
-            $0001 012B69   LD BC,$692B
+            $0000 DI
+            $0001 LD BC,$692B
             Stopped at $0004
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -393,7 +391,7 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-v -S 0 {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $FFFF AF       XOR A
+            $FFFF XOR A
             Stopped at $0000
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -410,11 +408,11 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 ED46     IM 0')
-        self.assertEqual(output_lines[1:17471], ['$8002 76       HALT'] * 17470)
-        self.assertEqual(output_lines[17471], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[17579], '$0052 C9       RET')
-        self.assertEqual(output_lines[17580], '$8003 AF       XOR A')
+        self.assertEqual(output_lines[0], '$8000 IM 0')
+        self.assertEqual(output_lines[1:17471], ['$8002 HALT'] * 17470)
+        self.assertEqual(output_lines[17471], '$0038 PUSH AF')
+        self.assertEqual(output_lines[17579], '$0052 RET')
+        self.assertEqual(output_lines[17580], '$8003 XOR A')
         self.assertEqual(output_lines[17581], 'Stopped at $8004')
 
     def test_interrupt_mode_1(self):
@@ -429,11 +427,11 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 ED56     IM 1')
-        self.assertEqual(output_lines[1:17471], ['$8002 76       HALT'] * 17470)
-        self.assertEqual(output_lines[17471], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[17579], '$0052 C9       RET')
-        self.assertEqual(output_lines[17580], '$8003 AF       XOR A')
+        self.assertEqual(output_lines[0], '$8000 IM 1')
+        self.assertEqual(output_lines[1:17471], ['$8002 HALT'] * 17470)
+        self.assertEqual(output_lines[17471], '$0038 PUSH AF')
+        self.assertEqual(output_lines[17579], '$0052 RET')
+        self.assertEqual(output_lines[17580], '$8003 XOR A')
         self.assertEqual(output_lines[17581], 'Stopped at $8004')
 
     def test_interrupt_mode_2(self):
@@ -454,10 +452,10 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$7FFB 76       HALT')
-        self.assertEqual(output_lines[1], '$7FFB 76       HALT')
-        self.assertEqual(output_lines[2], '$7FFE C9       RET')
-        self.assertEqual(output_lines[3], '$7FFC AF       XOR A')
+        self.assertEqual(output_lines[0], '$7FFB HALT')
+        self.assertEqual(output_lines[1], '$7FFB HALT')
+        self.assertEqual(output_lines[2], '$7FFE RET')
+        self.assertEqual(output_lines[3], '$7FFC XOR A')
         self.assertEqual(output_lines[4], 'Stopped at $7FFD')
 
     def test_interrupt_without_halt(self):
@@ -475,11 +473,11 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 00       NOP')
-        self.assertEqual(output_lines[1], '$8001 00       NOP')
-        self.assertEqual(output_lines[2], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[110], '$0052 C9       RET')
-        self.assertEqual(output_lines[111], '$8002 00       NOP')
+        self.assertEqual(output_lines[0], '$8000 NOP')
+        self.assertEqual(output_lines[1], '$8001 NOP')
+        self.assertEqual(output_lines[2], '$0038 PUSH AF')
+        self.assertEqual(output_lines[110], '$0052 RET')
+        self.assertEqual(output_lines[111], '$8002 NOP')
         self.assertEqual(output_lines[112], 'Stopped at $8003')
 
     def test_interrupt_with_ei(self):
@@ -498,12 +496,12 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 00       NOP')
-        self.assertEqual(output_lines[1], '$8001 FB       EI')
-        self.assertEqual(output_lines[2], '$8002 00       NOP')
-        self.assertEqual(output_lines[3], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[111], '$0052 C9       RET')
-        self.assertEqual(output_lines[112], '$8003 00       NOP')
+        self.assertEqual(output_lines[0], '$8000 NOP')
+        self.assertEqual(output_lines[1], '$8001 EI')
+        self.assertEqual(output_lines[2], '$8002 NOP')
+        self.assertEqual(output_lines[3], '$0038 PUSH AF')
+        self.assertEqual(output_lines[111], '$0052 RET')
+        self.assertEqual(output_lines[112], '$8003 NOP')
         self.assertEqual(output_lines[113], 'Stopped at $8004')
 
     def test_interrupt_with_di(self):
@@ -522,10 +520,10 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 00       NOP')
-        self.assertEqual(output_lines[1], '$8001 F3       DI')
-        self.assertEqual(output_lines[2], '$8002 00       NOP')
-        self.assertEqual(output_lines[3], '$8003 00       NOP')
+        self.assertEqual(output_lines[0], '$8000 NOP')
+        self.assertEqual(output_lines[1], '$8001 DI')
+        self.assertEqual(output_lines[2], '$8002 NOP')
+        self.assertEqual(output_lines[3], '$8003 NOP')
         self.assertEqual(output_lines[4], 'Stopped at $8004')
 
     def test_interrupt_with_dd_prefix(self):
@@ -544,11 +542,11 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 DD       DEFB $DD')
-        self.assertEqual(output_lines[1], '$8001 00       NOP')
-        self.assertEqual(output_lines[2], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[102], '$0052 C9       RET')
-        self.assertEqual(output_lines[103], '$8002 00       NOP')
+        self.assertEqual(output_lines[0], '$8000 DEFB $DD')
+        self.assertEqual(output_lines[1], '$8001 NOP')
+        self.assertEqual(output_lines[2], '$0038 PUSH AF')
+        self.assertEqual(output_lines[102], '$0052 RET')
+        self.assertEqual(output_lines[103], '$8002 NOP')
         self.assertEqual(output_lines[104], 'Stopped at $8003')
 
     def test_interrupt_with_fd_prefix(self):
@@ -567,11 +565,11 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 FD       DEFB $FD')
-        self.assertEqual(output_lines[1], '$8001 00       NOP')
-        self.assertEqual(output_lines[2], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[102], '$0052 C9       RET')
-        self.assertEqual(output_lines[103], '$8002 00       NOP')
+        self.assertEqual(output_lines[0], '$8000 DEFB $FD')
+        self.assertEqual(output_lines[1], '$8001 NOP')
+        self.assertEqual(output_lines[2], '$0038 PUSH AF')
+        self.assertEqual(output_lines[102], '$0052 RET')
+        self.assertEqual(output_lines[103], '$8002 NOP')
         self.assertEqual(output_lines[104], 'Stopped at $8003')
 
     def test_interrupt_with_ddfd_chain(self):
@@ -593,14 +591,14 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 DD       DEFB $DD')
-        self.assertEqual(output_lines[1], '$8001 FD       DEFB $FD')
-        self.assertEqual(output_lines[2], '$8002 DD       DEFB $DD')
-        self.assertEqual(output_lines[3], '$8003 FD       DEFB $FD')
-        self.assertEqual(output_lines[4], '$8004 00       NOP')
-        self.assertEqual(output_lines[5], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[105], '$0052 C9       RET')
-        self.assertEqual(output_lines[106], '$8005 00       NOP')
+        self.assertEqual(output_lines[0], '$8000 DEFB $DD')
+        self.assertEqual(output_lines[1], '$8001 DEFB $FD')
+        self.assertEqual(output_lines[2], '$8002 DEFB $DD')
+        self.assertEqual(output_lines[3], '$8003 DEFB $FD')
+        self.assertEqual(output_lines[4], '$8004 NOP')
+        self.assertEqual(output_lines[5], '$0038 PUSH AF')
+        self.assertEqual(output_lines[105], '$0052 RET')
+        self.assertEqual(output_lines[106], '$8005 NOP')
         self.assertEqual(output_lines[107], 'Stopped at $8006')
 
     def test_interrupt_at_exact_frame_boundary(self):
@@ -617,10 +615,10 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 78       LD A,B')
-        self.assertEqual(output_lines[1], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[109], '$0052 C9       RET')
-        self.assertEqual(output_lines[110], '$8001 78       LD A,B')
+        self.assertEqual(output_lines[0], '$8000 LD A,B')
+        self.assertEqual(output_lines[1], '$0038 PUSH AF')
+        self.assertEqual(output_lines[109], '$0052 RET')
+        self.assertEqual(output_lines[110], '$8001 LD A,B')
         self.assertEqual(output_lines[111], 'Stopped at $8002')
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
@@ -728,13 +726,13 @@ class TraceTest(SkoolKitTestCase):
         )
         binfile = self.write_bin_file(data, suffix='.bin')
         exp_output = """
-            65519 210787   LD HL,34567
-            65522 0601     LD B,1
-            65524 10FE     DJNZ 65524
-            65526 DD7517   LD (IX+23),L
-            65529 FD36C864 LD (IY-56),100
-            65533 ED00     DEFB 237,0
-            65535 C7       RST 0
+            65519 LD HL,34567
+            65522 LD B,1
+            65524 DJNZ 65524
+            65526 LD (IX+23),L
+            65529 LD (IY-56),100
+            65533 DEFB 237,0
+            65535 RST 0
             Stopped at 0
         """
         for option in ('-D', '--decimal'):
@@ -762,36 +760,36 @@ class TraceTest(SkoolKitTestCase):
         )
         binfile = self.write_bin_file(data, suffix='.bin')
         exp_output = """
-            65499 013930   LD BC,12345      A=0   F=00000000 BC=12345 DE=0     HL=0     IX=0     IY=23610 I=63  R=100
-                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
-            65502 11A05B   LD DE,23456      A=0   F=00000000 BC=12345 DE=23456 HL=0     IX=0     IY=23610 I=63  R=101
-                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
-            65505 210787   LD HL,34567      A=0   F=00000000 BC=12345 DE=23456 HL=34567 IX=0     IY=23610 I=63  R=102
-                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
-            65508 DD216EB2 LD IX,45678      A=0   F=00000000 BC=12345 DE=23456 HL=34567 IX=45678 IY=23610 I=63  R=104
-                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
-            65512 FD21D5DD LD IY,56789      A=0   F=00000000 BC=12345 DE=23456 HL=34567 IX=45678 IY=56789 I=63  R=106
-                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
-            65516 90       SUB B            A=208 F=10000011 BC=12345 DE=23456 HL=34567 IX=45678 IY=56789 I=63  R=107
-                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
-            65517 ED4F     LD R,A           A=208 F=10000011 BC=12345 DE=23456 HL=34567 IX=45678 IY=56789 I=63  R=208
-                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
-            65519 ED47     LD I,A           A=208 F=10000011 BC=12345 DE=23456 HL=34567 IX=45678 IY=56789 I=208 R=210
-                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
-            65521 D9       EXX              A=208 F=10000011 BC=0     DE=0     HL=0     IX=45678 IY=56789 I=208 R=211
-                                            A'=0   F'=00000000 BC'=12345 DE'=23456 HL'=34567 SP=23552
-            65522 0198FF   LD BC,65432      A=208 F=10000011 BC=65432 DE=0     HL=0     IX=45678 IY=56789 I=208 R=212
-                                            A'=0   F'=00000000 BC'=12345 DE'=23456 HL'=34567 SP=23552
-            65525 1131D4   LD DE,54321      A=208 F=10000011 BC=65432 DE=54321 HL=0     IX=45678 IY=56789 I=208 R=213
-                                            A'=0   F'=00000000 BC'=12345 DE'=23456 HL'=34567 SP=23552
-            65528 21CAA8   LD HL,43210      A=208 F=10000011 BC=65432 DE=54321 HL=43210 IX=45678 IY=56789 I=208 R=214
-                                            A'=0   F'=00000000 BC'=12345 DE'=23456 HL'=34567 SP=23552
-            65531 08       EX AF,AF'        A=0   F=00000000 BC=65432 DE=54321 HL=43210 IX=45678 IY=56789 I=208 R=215
-                                            A'=208 F'=10000011 BC'=12345 DE'=23456 HL'=34567 SP=23552
-            65532 90       SUB B            A=1   F=00010011 BC=65432 DE=54321 HL=43210 IX=45678 IY=56789 I=208 R=216
-                                            A'=208 F'=10000011 BC'=12345 DE'=23456 HL'=34567 SP=23552
-            65533 316D7D   LD SP,32109      A=1   F=00010011 BC=65432 DE=54321 HL=43210 IX=45678 IY=56789 I=208 R=217
-                                            A'=208 F'=10000011 BC'=12345 DE'=23456 HL'=34567 SP=32109
+            65499 LD BC,12345      A=0    F=00000000  BC=12345  DE=0      HL=0      IX=0     IY=23610
+                                   A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552 I=63  R=100
+            65502 LD DE,23456      A=0    F=00000000  BC=12345  DE=23456  HL=0      IX=0     IY=23610
+                                   A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552 I=63  R=101
+            65505 LD HL,34567      A=0    F=00000000  BC=12345  DE=23456  HL=34567  IX=0     IY=23610
+                                   A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552 I=63  R=102
+            65508 LD IX,45678      A=0    F=00000000  BC=12345  DE=23456  HL=34567  IX=45678 IY=23610
+                                   A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552 I=63  R=104
+            65512 LD IY,56789      A=0    F=00000000  BC=12345  DE=23456  HL=34567  IX=45678 IY=56789
+                                   A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552 I=63  R=106
+            65516 SUB B            A=208  F=10000011  BC=12345  DE=23456  HL=34567  IX=45678 IY=56789
+                                   A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552 I=63  R=107
+            65517 LD R,A           A=208  F=10000011  BC=12345  DE=23456  HL=34567  IX=45678 IY=56789
+                                   A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552 I=63  R=208
+            65519 LD I,A           A=208  F=10000011  BC=12345  DE=23456  HL=34567  IX=45678 IY=56789
+                                   A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552 I=208 R=210
+            65521 EXX              A=208  F=10000011  BC=0      DE=0      HL=0      IX=45678 IY=56789
+                                   A'=0   F'=00000000 BC'=12345 DE'=23456 HL'=34567 SP=23552 I=208 R=211
+            65522 LD BC,65432      A=208  F=10000011  BC=65432  DE=0      HL=0      IX=45678 IY=56789
+                                   A'=0   F'=00000000 BC'=12345 DE'=23456 HL'=34567 SP=23552 I=208 R=212
+            65525 LD DE,54321      A=208  F=10000011  BC=65432  DE=54321  HL=0      IX=45678 IY=56789
+                                   A'=0   F'=00000000 BC'=12345 DE'=23456 HL'=34567 SP=23552 I=208 R=213
+            65528 LD HL,43210      A=208  F=10000011  BC=65432  DE=54321  HL=43210  IX=45678 IY=56789
+                                   A'=0   F'=00000000 BC'=12345 DE'=23456 HL'=34567 SP=23552 I=208 R=214
+            65531 EX AF,AF'        A=0    F=00000000  BC=65432  DE=54321  HL=43210  IX=45678 IY=56789
+                                   A'=208 F'=10000011 BC'=12345 DE'=23456 HL'=34567 SP=23552 I=208 R=215
+            65532 SUB B            A=1    F=00010011  BC=65432  DE=54321  HL=43210  IX=45678 IY=56789
+                                   A'=208 F'=10000011 BC'=12345 DE'=23456 HL'=34567 SP=23552 I=208 R=216
+            65533 LD SP,32109      A=1    F=00010011  BC=65432  DE=54321  HL=43210  IX=45678 IY=56789
+                                   A'=208 F'=10000011 BC'=12345 DE'=23456 HL'=34567 SP=32109 I=208 R=217
             Stopped at 0
         """
         for option in ('-D', '--decimal'):
@@ -907,8 +905,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o {start} -v --max-operations 2 {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 AF       XOR A
-            $8001 3C       INC A
+            $8000 XOR A
+            $8001 INC A
             Stopped at $8002: 2 operations
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -923,8 +921,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o {start} -v --max-tstates 8 {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 AF       XOR A
-            $8001 3C       INC A
+            $8000 XOR A
+            $8001 INC A
             Stopped at $8002: 8 T-states
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -941,8 +939,8 @@ class TraceTest(SkoolKitTestCase):
         registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69886}
         z80file = self.write_z80_file(None, ram, registers=registers)
         exp_output = dedent("""
-            $8000 00       NOP
-            $8001 00       NOP
+            $8000 NOP
+            $8001 NOP
             Stopped at $8002
         """).strip()
         for option in ('-n', '--no-interrupts'):
@@ -960,10 +958,10 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o {start} -S {stop} -vv --poke 49152,1 {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 2100C0   LD HL,$C000      A=00 F=00000000 BC=0000 DE=0000 HL=C000 IX=0000 IY=5C3A IR=3F01
-                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
-            $8003 7E       LD A,(HL)        A=01 F=00000000 BC=0000 DE=0000 HL=C000 IX=0000 IY=5C3A IR=3F02
-                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
+            $8000 LD HL,$C000      A=00  F=00000000  BC=0000  DE=0000  HL=C000  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F01
+            $8003 LD A,(HL)        A=01  F=00000000  BC=0000  DE=0000  HL=C000  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F02
             Stopped at $8004
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -995,8 +993,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o {start} -S {stop} -vv {reg_options} {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 3C       INC A            A=51 F=00000001 BC=1234 DE=2345 HL=3456 IX=4567 IY=5678 IR=678A
-                                            A'=98 F'=10101010 BC'=8765 DE'=7654 HL'=6543 SP=5432
+            $8000 INC A            A=51  F=00000001  BC=1234  DE=2345  HL=3456  IX=4567 IY=5678
+                                   A'=98 F'=10101010 BC'=8765 DE'=7654 HL'=6543 SP=5432 IR=678A
             Stopped at $8001
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1013,8 +1011,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o {start} -S {stop} --rom {romfile} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 C30000   JP $0000
-            $0000 AF       XOR A
+            $8000 JP $0000
+            $0000 XOR A
             Stopped at $0001
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1025,16 +1023,14 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = (
             "[trace]\n"
-            "TraceLine=${pc:04X} {data:<8} {i}\n"
-            "TraceLine2=${pc:04X} {data:<8} {i:<15}  "
-            "A={r[a]:02X} F={r[f]:08b} BC={r[bc]:04X} DE={r[de]:04X} HL={r[hl]:04X} "
-            "IX={r[ix]:04X} IY={r[iy]:04X} IR={r[i]:02X}{r[r]:02X}\\n                                "
-            "A'={r[^a]:02X} F'={r[^f]:08b} BC'={r[^bc]:04X} DE'={r[^de]:04X} HL'={r[^hl]:04X} SP={r[sp]:04X}\n"
-            "TraceLineDecimal={pc:05} {data:<8} {i}\n"
-            "TraceLineDecimal2={pc:05} {data:<8} {i:<15}  "
-            "A={r[a]:<3} F={r[f]:08b} BC={r[bc]:<5} DE={r[de]:<5} HL={r[hl]:<5} "
-            "IX={r[ix]:<5} IY={r[iy]:<5} I={r[i]:<3} R={r[r]:<3}\\n                                "
-            "A'={r[^a]:<3} F'={r[^f]:08b} BC'={r[^bc]:<5} DE'={r[^de]:<5} HL'={r[^hl]:<5} SP={r[sp]:<5}\n"
+            "TraceLine=${pc:04X} {i}\n"
+            "TraceLine2=${pc:04X} {i:<15}  "
+            "A={r[a]:02X}  F={r[f]:08b}  BC={r[bc]:04X}  DE={r[de]:04X}  HL={r[hl]:04X}  IX={r[ix]:04X} IY={r[iy]:04X}\\n                       "
+            "A'={r[^a]:02X} F'={r[^f]:08b} BC'={r[^bc]:04X} DE'={r[^de]:04X} HL'={r[^hl]:04X} SP={r[sp]:04X} IR={r[i]:02X}{r[r]:02X}\n"
+            "TraceLineDecimal={pc:05} {i}\n"
+            "TraceLineDecimal2={pc:05} {i:<15}  "
+            "A={r[a]:<3}  F={r[f]:08b}  BC={r[bc]:<5}  DE={r[de]:<5}  HL={r[hl]:<5}  IX={r[ix]:<5} IY={r[iy]:<5}\\n                       "
+            "A'={r[^a]:<3} F'={r[^f]:08b} BC'={r[^bc]:<5} DE'={r[^de]:<5} HL'={r[^hl]:<5} SP={r[sp]:<5} I={r[i]:<3} R={r[r]:<3}\n"
             "TraceOperand=$,02X,04X\n"
             "TraceOperandDecimal=,,"
         )
@@ -1051,9 +1047,9 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [trace]
-            TraceLine=${pc:04X} {data:<8} {i}
+            TraceLine=${pc:04X} {i}
             TraceLine2=${pc:04x} {i:<15} A={r[a]:02X}
-            TraceLineDecimal={pc:05} {data:<8} {i}
+            TraceLineDecimal={pc:05} {i}
             TraceLineDecimal2={pc:05} {i:<15} A={r[a]}
             TraceOperand=$,02X,04X
             TraceOperandDecimal=,,
@@ -1067,7 +1063,7 @@ class TraceTest(SkoolKitTestCase):
             output, error = self.run_trace(f'-v {option} -S 32769 {z80file}')
             self.assertEqual(error, '')
             exp_output = """
-                $8000 00       NOP
+                $8000 NOP
                 Stopped at $8001
             """
             self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1110,7 +1106,7 @@ class TraceTest(SkoolKitTestCase):
             output, error = self.run_trace(f'-v -s 56 {option} 48')
             self.assertEqual(error, '')
             exp_output = """
-                $0038 F5       PUSH AF
+                $0038 PUSH AF
                 Stopped at $0039
             """
             self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1124,7 +1120,7 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o {start} -S {stop} --verbose {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 AF       XOR A
+            $8000 XOR A
             Stopped at $8001
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1139,10 +1135,10 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o {start} -S {stop} -vv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 AF       XOR A            A=00 F=01000100 BC=0000 DE=0000 HL=0000 IX=0000 IY=5C3A IR=3F01
-                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
-            $8001 3C       INC A            A=01 F=00000000 BC=0000 DE=0000 HL=0000 IX=0000 IY=5C3A IR=3F02
-                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
+            $8000 XOR A            A=00  F=01000100  BC=0000  DE=0000  HL=0000  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F01
+            $8001 INC A            A=01  F=00000000  BC=0000  DE=0000  HL=0000  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F02
             Stopped at $8002
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1160,14 +1156,14 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o 0x8000 -S 0x800E -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 0602     LD B,$02
-            $8002 10FE     DJNZ $8002
-            $8002 10FE     DJNZ $8002
-            $8004 2100C0   LD HL,$C000
-            $8007 110060   LD DE,$6000
-            $800A 0E02     LD C,$02
-            $800C EDB0     LDIR
-            $800C EDB0     LDIR
+            $8000 LD B,$02
+            $8002 DJNZ $8002
+            $8002 DJNZ $8002
+            $8004 LD HL,$C000
+            $8007 LD DE,$6000
+            $800A LD C,$02
+            $800C LDIR
+            $800C LDIR
             Stopped at $800E
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1185,22 +1181,22 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o 0xff00 -S 0xff0E -vv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $FF00 0602     LD B,$02         A=00 F=00000000 BC=0200 DE=0000 HL=0000 IX=0000 IY=5C3A IR=3F01
-                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
-            $FF02 10FE     DJNZ $FF02       A=00 F=00000000 BC=0100 DE=0000 HL=0000 IX=0000 IY=5C3A IR=3F02
-                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
-            $FF02 10FE     DJNZ $FF02       A=00 F=00000000 BC=0000 DE=0000 HL=0000 IX=0000 IY=5C3A IR=3F03
-                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
-            $FF04 2100C0   LD HL,$C000      A=00 F=00000000 BC=0000 DE=0000 HL=C000 IX=0000 IY=5C3A IR=3F04
-                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
-            $FF07 110060   LD DE,$6000      A=00 F=00000000 BC=0000 DE=6000 HL=C000 IX=0000 IY=5C3A IR=3F05
-                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
-            $FF0A 0E02     LD C,$02         A=00 F=00000000 BC=0002 DE=6000 HL=C000 IX=0000 IY=5C3A IR=3F06
-                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
-            $FF0C EDB0     LDIR             A=00 F=00101100 BC=0001 DE=6001 HL=C001 IX=0000 IY=5C3A IR=3F08
-                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
-            $FF0C EDB0     LDIR             A=00 F=00000000 BC=0000 DE=6002 HL=C002 IX=0000 IY=5C3A IR=3F0A
-                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
+            $FF00 LD B,$02         A=00  F=00000000  BC=0200  DE=0000  HL=0000  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F01
+            $FF02 DJNZ $FF02       A=00  F=00000000  BC=0100  DE=0000  HL=0000  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F02
+            $FF02 DJNZ $FF02       A=00  F=00000000  BC=0000  DE=0000  HL=0000  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F03
+            $FF04 LD HL,$C000      A=00  F=00000000  BC=0000  DE=0000  HL=C000  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F04
+            $FF07 LD DE,$6000      A=00  F=00000000  BC=0000  DE=6000  HL=C000  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F05
+            $FF0A LD C,$02         A=00  F=00000000  BC=0002  DE=6000  HL=C000  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F06
+            $FF0C LDIR             A=00  F=00101100  BC=0001  DE=6001  HL=C001  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F08
+            $FF0C LDIR             A=00  F=00000000  BC=0000  DE=6002  HL=C002  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F0A
             Stopped at $FF0E
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1396,8 +1392,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 061A     LD B,&1a
-            $8002 11FA0B   LD DE,&0bfa
+            $8000 LD B,&1a
+            $8002 LD DE,&0bfa
             Stopped at &8005
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1413,8 +1409,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-I TraceOperand=#,02x,04x -o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 061A     LD B,#1a
-            $8002 11FA0B   LD DE,#0bfa
+            $8000 LD B,#1a
+            $8002 LD DE,#0bfa
             Stopped at #8005
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1430,8 +1426,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'--ini TraceOperand=# -o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 061A     LD B,#26
-            $8002 11FA0B   LD DE,#3066
+            $8000 LD B,#26
+            $8002 LD DE,#3066
             Stopped at #32773
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1447,8 +1443,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-I TraceOperand=#,02x -o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 061A     LD B,#1a
-            $8002 11FA0B   LD DE,#3066
+            $8000 LD B,#1a
+            $8002 LD DE,#3066
             Stopped at #32773
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1464,8 +1460,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'--ini TraceOperand=#,02x,04x,??? -o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 061A     LD B,#1a
-            $8002 11FA0B   LD DE,#0bfa
+            $8000 LD B,#1a
+            $8002 LD DE,#0bfa
             Stopped at #8005
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1486,8 +1482,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o {start} -S {stop} -Dv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            32768 061A     LD B,d026
-            32770 11FA0B   LD DE,d03066
+            32768 LD B,d026
+            32770 LD DE,d03066
             Stopped at d32773
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1503,8 +1499,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-I TraceOperandDecimal=0d,03,05 -o {start} -S {stop} -Dv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            32768 061A     LD B,0d026
-            32770 11FA0B   LD DE,0d03066
+            32768 LD B,0d026
+            32770 LD DE,0d03066
             Stopped at 0d32773
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1520,8 +1516,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'--ini TraceOperandDecimal=0d -o {start} -S {stop} -Dv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            32768 061A     LD B,0d26
-            32770 11FA0B   LD DE,0d3066
+            32768 LD B,0d26
+            32770 LD DE,0d3066
             Stopped at 0d32773
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1537,8 +1533,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-I TraceOperandDecimal=0d,03 -o {start} -S {stop} -Dv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            32768 061A     LD B,0d026
-            32770 11FA0B   LD DE,0d3066
+            32768 LD B,0d026
+            32770 LD DE,0d3066
             Stopped at 0d32773
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1554,8 +1550,8 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'--ini TraceOperandDecimal=0d,03,05,??? -o {start} -S {stop} -Dv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            32768 061A     LD B,0d026
-            32770 11FA0B   LD DE,0d03066
+            32768 LD B,0d026
+            32770 LD DE,0d03066
             Stopped at 0d32773
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1572,13 +1568,13 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
-            $8000 0602     LD B,$02
-            $8002 210380   LD HL,$8003
-            $8005 70       LD (HL),B
-            $8006 10FA     DJNZ $8002
-            $8002 210280   LD HL,$8002
-            $8005 70       LD (HL),B
-            $8006 10FA     DJNZ $8002
+            $8000 LD B,$02
+            $8002 LD HL,$8003
+            $8005 LD (HL),B
+            $8006 DJNZ $8002
+            $8002 LD HL,$8002
+            $8005 LD (HL),B
+            $8006 DJNZ $8002
             Stopped at $8008
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
