@@ -19,7 +19,7 @@ from functools import partial
 
 from skoolkit import SkoolKitError, open_file, write, write_line
 from skoolkit.basic import TextReader
-from skoolkit.pagingtracer import PagingTracer
+from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.simulator import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R,
                                 xA, xF, xB, xC, xD, xE, xH, xL, PC, T, R1)
 from skoolkit.traceutils import disassemble
@@ -204,7 +204,10 @@ class LoadTracer(PagingTracer):
         self.tape_end_time = 0
         self.custom_loader = False
         self.border = border
-        self.out7ffd = out7ffd
+        if isinstance(simulator.memory, Memory): # pragma: no cover
+            self.out7ffd = out7ffd # 128K ROM 0/1
+        else:
+            self.out7ffd = 0x10 # Signal: 48K ROM always
         self.outfffd = outfffd
         self.ay = ay
         self.outfe = outfe
@@ -270,7 +273,7 @@ class LoadTracer(PagingTracer):
                 write_line(f'Simulation stopped (PC at start address): PC={pc}')
                 break
 
-            if pc == 0x0556 and fast_load:
+            if pc == 0x0556 and self.out7ffd & 0x10 and fast_load:
                 self.fast_load(simulator)
                 self.index = self.block_max_index
                 if self.index == max_index:
@@ -485,7 +488,7 @@ class LoadTracer(PagingTracer):
     def read_port(self, registers, port):
         if port % 256 == 0xFE:
             pc = registers[24]
-            if pc >= self.in_min_addr or 0x0562 <= pc <= 0x05F1: # pragma: no cover
+            if pc >= self.in_min_addr or (0x0562 <= pc <= 0x05F1 and self.out7ffd & 0x10): # pragma: no cover
                 self.custom_loader = True
                 index = self.index
                 if self.announce_data and not self.end_of_tape:
