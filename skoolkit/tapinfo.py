@@ -487,21 +487,13 @@ def _analyse_tzx(tzx, basic_block, options):
     except IndexError:
         raise SkoolKitError('TZX version number not found')
 
-    block_ids = set()
-    if options.block_ids:
-        for block_id in options.block_ids.split(','):
-            try:
-                block_ids.add(int(block_id, 16))
-            except ValueError:
-                block_ids.add(-1)
-
     block_num = 1
     i = 10
     while i < len(tzx):
         i, block_id, header, info, tape_data = _get_block_info(tzx, i, block_num)
         if basic_block:
             _list_basic(block_num, tape_data, *basic_block)
-        elif not block_ids or block_id in block_ids:
+        else:
             _print_block(block_num, tape_data, options.data, info, block_id, header)
         block_num += 1
 
@@ -531,10 +523,7 @@ def main(args):
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-b', '--tzx-blocks', dest='block_ids', metavar='IDs',
-                       help="Show TZX blocks with these IDs only. "
-                            "'IDs' is a comma-separated list of hexadecimal block IDs, e.g. 10,11,2a.")
-    group.add_argument('-B', '--basic', metavar='N[,A]',
+    group.add_argument('-b', '--basic', metavar='N[,A]',
                        help='List the BASIC program in block N loaded at address A (default 23755).')
     group.add_argument('-d', '--data', action='store_true',
                        help='Show the entire contents of header and data blocks.')

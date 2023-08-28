@@ -29,6 +29,12 @@ unless the ``--force`` option was given. In SkoolKit 9, `snapmod.py` will
 overwrite an existing snapshot by default, and the ``--force`` option is no
 longer supported.
 
+tapinfo.py
+----------
+The ``--tzx-blocks`` option is no longer supported in SkoolKit 9. In addition,
+the short option name for ``--basic`` has changed from ``-B`` to ``-b`` (for
+consistency with the ``-b`` option of :ref:`snapinfo.py`).
+
 tap2sna.py
 ----------
 In SkoolKit 8, :ref:`tap2sna.py` performed a

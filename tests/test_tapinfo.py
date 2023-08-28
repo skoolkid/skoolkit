@@ -576,82 +576,13 @@ class TapinfoTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
-    def test_option_b(self):
-        blocks = []
-
-        blocks.append(create_tzx_data_block([0, 1]))
-
-        block2 = [17] # Block ID (0x11)
-        block2.extend([0] * 15)
-        data = [2, 3]
-        data_block = create_data_block(data)
-        block2.extend((len(data_block), 0, 0))
-        block2.extend(data_block)
-        blocks.append(block2)
-
-        block3 = [42] # Block ID (0x2A)
-        block3.extend((0, 0, 0, 0))
-        blocks.append(block3)
-
-        tzxfile = self._write_tzx(blocks)
-        exp_output = """
-            Version: 1.20
-            1: Standard speed data (0x10)
-              Pause: 0ms
-              Type: Data block
-              Length: 4
-              Data: 255, 0, 1, 254
-            3: Stop the tape if in 48K mode (0x2A)
-        """
-
-        for option in ('-b', '--tzx-blocks'):
-            output, error = self.run_tapinfo('{} 10,2a {}'.format(option, tzxfile))
-            self.assertEqual(error, '')
-            self.assertEqual(dedent(exp_output).lstrip(), output)
-
-    def test_option_b_with_invalid_block_id(self):
-        blocks = []
-
-        blocks.append(create_tzx_data_block([0, 1]))
-
-        block2 = [42] # Block ID (0x2A)
-        block2.extend((0, 0, 0, 0))
-        blocks.append(block2)
-
-        tzxfile = self._write_tzx(blocks)
-        exp_output = """
-            Version: 1.20
-            1: Standard speed data (0x10)
-              Pause: 0ms
-              Type: Data block
-              Length: 4
-              Data: 255, 0, 1, 254
-        """
-
-        output, error = self.run_tapinfo('-b 10,2z {}'.format(tzxfile))
-        self.assertEqual(error, '')
-        self.assertEqual(dedent(exp_output).lstrip(), output)
-
-    def test_option_b_with_single_invalid_block_id(self):
-        blocks = []
-
-        block1 = [42] # Block ID (0x2A)
-        block1.extend((0, 0, 0, 0))
-        blocks.append(block1)
-
-        tzxfile = self._write_tzx(blocks)
-
-        output, error = self.run_tapinfo('-b 2z {}'.format(tzxfile))
-        self.assertEqual(error, '')
-        self.assertEqual(output, 'Version: 1.20\n')
-
     @patch.object(tapinfo, 'BasicLister', MockBasicLister)
-    def test_option_B_tap(self):
+    def test_option_b_tap(self):
         prog = [10] * 10
         tap_data = create_tap_data_block(prog)
         tapfile = self.write_bin_file(tap_data, suffix='.tap')
         exp_snapshot = [0] * 23755 + prog
-        output, error = self.run_tapinfo('-B 1 {}'.format(tapfile))
+        output, error = self.run_tapinfo('-b 1 {}'.format(tapfile))
         self.assertEqual(error, '')
         self.assertEqual(output, 'BASIC DONE!\n')
         self.assertEqual(exp_snapshot, mock_basic_lister.snapshot)
@@ -671,7 +602,7 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(exp_snapshot, mock_basic_lister.snapshot)
 
     @patch.object(tapinfo, 'BasicLister', MockBasicLister)
-    def test_option_B_tap_with_hex_address(self):
+    def test_option_b_tap_with_hex_address(self):
         prefix = [4] * 4
         address = 23755 - len(prefix)
         prog = [9] * 9
@@ -679,16 +610,16 @@ class TapinfoTest(SkoolKitTestCase):
         tap_data = create_tap_data_block(data)
         tapfile = self.write_bin_file(tap_data, suffix='.tap')
         exp_snapshot = [0] * address + data
-        output, error = self.run_tapinfo('-B 1,0x{:04x} {}'.format(address, tapfile))
+        output, error = self.run_tapinfo('-b 1,0x{:04x} {}'.format(address, tapfile))
         self.assertEqual(error, '')
         self.assertEqual(output, 'BASIC DONE!\n')
         self.assertEqual(exp_snapshot, mock_basic_lister.snapshot)
 
-    def test_option_B_with_invalid_block_spec(self):
+    def test_option_b_with_invalid_block_spec(self):
         exp_error = 'Invalid block specification'
-        self._test_bad_spec('-B', 'q', exp_error)
+        self._test_bad_spec('-b', 'q', exp_error)
         self._test_bad_spec('--basic', '1,z', exp_error)
-        self._test_bad_spec('-B', '1,2,3', exp_error)
+        self._test_bad_spec('-b', '1,2,3', exp_error)
         self._test_bad_spec('--basic', '?,+', exp_error)
 
     def test_option_d_with_tap_file(self):

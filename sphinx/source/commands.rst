@@ -1658,11 +1658,7 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
   Show the blocks in a TAP or TZX file.
 
   Options:
-    -b IDs, --tzx-blocks IDs
-                          Show TZX blocks with these IDs only. 'IDs' is a comma-
-                          separated list of hexadecimal block IDs, e.g.
-                          10,11,2a.
-    -B N[,A], --basic N[,A]
+    -b N[,A], --basic N[,A]
                           List the BASIC program in block N loaded at address A
                           (default 23755).
     -d, --data            Show the entire contents of header and data blocks.
