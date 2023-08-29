@@ -503,6 +503,8 @@ class LoadTracer(PagingTracer):
                     self.stop_tape(registers[T])
                 if index % 2 == 0:
                     return 191
+        elif port == 0xFFFD: # pragma: no cover
+            return self.ay[self.outfffd % 16]
         return 255
 
     def next_block(self, tstates):
