@@ -138,9 +138,9 @@ def write_snapshot(fname, ram, registers, state):
     snapshot_type = fname[-4:].lower()
     if snapshot_type == '.z80':
         _write_z80v3(fname, ram, registers, state)
-    elif snapshot_type == '.szx': # pragma: no cover
+    elif snapshot_type == '.szx':
         _write_szx(fname, ram, registers, state)
-    else: # pragma: no cover
+    else:
         raise SnapshotError(f'{fname}: Unsupported snapshot type')
 
 def set_z80_registers(z80, *specs):
@@ -216,11 +216,11 @@ def set_z80_state(z80, *specs):
                 t = frame_duration - 1 - (get_int_param(val) % frame_duration)
                 t1, t2 = t % qframe_duration, t // qframe_duration
                 z80[55:58] = (t1 % 256, t1 // 256, (2 - t2) % 4)
-            elif name == '7ffd': # pragma: no cover
+            elif name == '7ffd':
                 z80[35] = get_int_param(val) & 255
-            elif name == 'fffd': # pragma: no cover
+            elif name == 'fffd':
                 z80[38] = get_int_param(val) & 255
-            elif name.startswith('ay[') and name.endswith(']'): # pragma: no cover
+            elif name.startswith('ay[') and name.endswith(']'):
                 r = get_int_param(name[3:-1]) & 15
                 z80[39 + r] = get_int_param(val) & 255
         except ValueError:
@@ -284,7 +284,7 @@ def make_z80_ram_block(data, page):
 
 def make_z80v3_ram_blocks(ram):
     blocks = []
-    if len(ram) == 8: # pragma: no cover
+    if len(ram) == 8:
         for n, bank in enumerate(ram, 3):
             blocks.extend(make_z80_ram_block(bank, n))
     else:
@@ -295,14 +295,14 @@ def make_z80v3_ram_blocks(ram):
 def _write_z80v3(fname, ram, registers, state):
     z80 = [0] * 86
     z80[30] = 54 # Indicate a v3 Z80 snapshot
-    if len(ram) == 8: # pragma: no cover
+    if len(ram) == 8:
         z80[34] = 4 # 128K
     set_z80_registers(z80, 'i=63', 'iy=23610', *registers)
     set_z80_state(z80, 'iff=1', 'im=1', *state)
     with open(fname, 'wb') as f:
         f.write(bytes(z80 + make_z80v3_ram_blocks(ram)))
 
-def _add_zxstspecregs(szx, state): # pragma: no cover
+def _add_zxstspecregs(szx, state):
     values = [0] * 8
     for spec in state:
         name, sep, val = spec.lower().partition('=')
@@ -319,7 +319,7 @@ def _add_zxstspecregs(szx, state): # pragma: no cover
     szx.extend((8, 0, 0, 0))     # Block size
     szx.extend(values)
 
-def _add_zxstkeyboard(szx, state): # pragma: no cover
+def _add_zxstkeyboard(szx, state):
     values = [0] * 5
     for spec in state:
         name, sep, val = spec.lower().partition('=')
@@ -332,7 +332,7 @@ def _add_zxstkeyboard(szx, state): # pragma: no cover
     szx.extend((5, 0, 0, 0))     # Block size
     szx.extend(values)
 
-def _add_zxstayblock(szx, state): # pragma: no cover
+def _add_zxstayblock(szx, state):
     values = [0] * 17
     for spec in state:
         name, sep, val = spec.lower().partition('=')
@@ -349,7 +349,7 @@ def _add_zxstayblock(szx, state): # pragma: no cover
     szx.append(0)              # chFlags
     szx.extend(values)
 
-def _add_zxstz80regs(szx, registers, state): # pragma: no cover
+def _add_zxstz80regs(szx, registers, state):
     reg_values = [0] * 26
     for spec in registers:
         reg, sep, val = spec.lower().partition('=')
@@ -369,8 +369,13 @@ def _add_zxstz80regs(szx, registers, state): # pragma: no cover
             if size == 2:
                 reg_values[offset + 1] = (value // 256) % 256
 
-    state_values = [0] * 11
-    state_values[3:5] = (127, 136) # dwCyclesStart=34943
+    state_values = [
+        1,              # IFF1
+        1,              # IFF2
+        1,              # IM
+        127, 136, 0, 0, # dwCyclesStart=34943
+        0, 0, 0, 0
+    ]
     for spec in state:
         name, sep, val = spec.lower().partition('=')
         try:
@@ -389,7 +394,7 @@ def _add_zxstz80regs(szx, registers, state): # pragma: no cover
     szx.extend(reg_values)
     szx.extend(state_values)
 
-def _get_zxstrampage(page, data): # pragma: no cover
+def _get_zxstrampage(page, data):
     ram = zlib.compress(bytes(data), 9)
     size = len(ram) + 3
     ramp = [82, 65, 77, 80]                      # RAMP
@@ -398,7 +403,7 @@ def _get_zxstrampage(page, data): # pragma: no cover
     ramp.extend(ram)
     return ramp
 
-def _write_szx(fname, ram, registers, state): # pragma: no cover
+def _write_szx(fname, ram, registers, state):
     szx = [90, 88, 83, 84] # ZXST
     szx.extend((1, 4)) # Version 1.4
     if len(ram) == 8:
