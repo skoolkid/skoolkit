@@ -24,8 +24,19 @@ class Options:
     ram_ops = ()
     reg = []
     state = []
-    sim_load_config = []
     tape_analysis = False
+    accelerator = None
+    machine = None
+    load = None
+    contended_in = 0
+    pause = 1
+    first_edge = 0
+    polarity = 0
+    finish_tape = 0
+    accelerate_dec_a = 1
+    fast_load = 1
+    timeout = 60
+    trace = None
 
 class Tracer:
     def __init__(self):
