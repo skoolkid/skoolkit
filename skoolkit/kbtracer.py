@@ -231,7 +231,6 @@ TOKENS = {
     'STR$': 'CS+SS y',
     'LN': 'CS+SS z',
 
-    'FORMAT': 'CS+SS SS+0',
     'DEFFN': 'CS+SS SS+1',  # DEF FN
     'FN': 'CS+SS SS+2',
     'LINE': 'CS+SS SS+3',
@@ -241,6 +240,7 @@ TOKENS = {
     'ERASE': 'CS+SS SS+7',
     'POINT': 'CS+SS SS+8',
     'CAT': 'CS+SS SS+9',
+    'FORMAT': 'CS+SS SS+0',
     '~': 'CS+SS SS+a',
     'BRIGHT': 'CS+SS SS+b',
     'PAPER': 'CS+SS SS+c',
@@ -271,12 +271,12 @@ TOKENS = {
 
 NO_KEY = {}
 
-def get_keys(keyspecs, delay): # pragma: no cover
+def get_keys(keyspecs, delay):
     keys = [NO_KEY] * 4 # Delay before first keypress
 
     specs = []
     for spec in keyspecs:
-        if '+' in spec:
+        if '+' in spec and spec != '+':
             specs.append(spec)
         elif spec in TOKENS:
             specs.extend(TOKENS[spec].split())
@@ -293,8 +293,8 @@ def get_keys(keyspecs, delay): # pragma: no cover
             try:
                 port, a = KEYS[p]
                 kb[port] = kb.get(port, 0xFF) & a
-            except KeyError:
-                raise SkoolKitError(f'Unrecognised token: {p}')
+            except KeyError as ke:
+                raise SkoolKitError(f'Unrecognised key: {ke.args[0]}')
         if kb:
             keys.append(kb)
             # Allow enough time between keypresses for each one to register
@@ -302,7 +302,7 @@ def get_keys(keyspecs, delay): # pragma: no cover
 
     return keys
 
-class KeyboardTracer(PagingTracer): # pragma: no cover
+class KeyboardTracer(PagingTracer):
     def __init__(self, simulator, keys, delay):
         self.simulator = simulator
         self.keys = get_keys(keys, delay)
