@@ -1711,8 +1711,10 @@ To list the options supported by `trace.py`, run it with no arguments::
     -D, --decimal         Show decimal values in verbose mode.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
-    --max-operations MAX  Maximum number of instructions to execute.
-    --max-tstates MAX     Maximum number of T-states to run for.
+    -m MAX, --max-operations MAX
+                          Maximum number of instructions to execute.
+    -M MAX, --max-tstates MAX
+                          Maximum number of T-states to run for.
     -n, --no-interrupts   Don't execute interrupt routines.
     -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
                           file (default: 65536 - length).
@@ -1805,10 +1807,10 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.0     | Configuration is read from `skoolkit.ini` if present; added the   |
-|         | ``--ini`` and ``--show-config`` options; added support for 128K   |
-|         | snapshots; added the ``--no-interrupts`` option; interrupt        |
-|         | routines are executed by default; added support for writing SZX   |
-|         | snapshots                                                         |
+|         | ``--ini``, ``--no-interrupts`` and ``--show-config`` options;     |
+|         | interrupt routines are executed by default; added support for     |
+|         | 128K snapshots; added support for writing SZX snapshots; added    |
+|         | the ``-m`` and ``-M`` short options                               |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Reads and writes the T-states counter in Z80 snapshots and reads  |
 |         | the T-states counter in SZX snapshots                             |

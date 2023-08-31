@@ -332,9 +332,9 @@ def main(args):
                        help='Simplify audio delays to this depth (default: 2).')
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
-    group.add_argument('--max-operations', metavar='MAX', type=int, default=0,
+    group.add_argument('-m', '--max-operations', metavar='MAX', type=int, default=0,
                        help='Maximum number of instructions to execute.')
-    group.add_argument('--max-tstates', metavar='MAX', type=int, default=0,
+    group.add_argument('-M', '--max-tstates', metavar='MAX', type=int, default=0,
                        help='Maximum number of T-states to run for.')
     group.add_argument('-n', '--no-interrupts', dest='interrupts', action='store_false',
                        help="Don't execute interrupt routines.")

@@ -35,11 +35,11 @@ OPTIONS
   overriding any value found in ``skoolkit.ini``. This option may be used
   multiple times.
 
---max-operations `MAX`
+-m, --max-operations `MAX`
   Maximum number of instructions to execute. Overrides the `STOP` address (if
   given).
 
---max-tstates `MAX`
+-M, --max-tstates `MAX`
   Maximum number of (simulated) T-states to run for. Overrides the `STOP`
   address (if given).
 

@@ -902,14 +902,15 @@ class TraceTest(SkoolKitTestCase):
         ]
         binfile = self.write_bin_file(data, suffix='.bin')
         start = 32768
-        output, error = self.run_trace(f'-o {start} -v --max-operations 2 {binfile}')
-        self.assertEqual(error, '')
         exp_output = """
             $8000 XOR A
             $8001 INC A
             Stopped at $8002: 2 operations
         """
-        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        for option in ('-m', '--max-operations'):
+            output, error = self.run_trace(f'-o {start} -v {option} 2 {binfile}')
+            self.assertEqual(error, '')
+            self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     def test_option_max_tstates(self):
         data = [
@@ -918,14 +919,15 @@ class TraceTest(SkoolKitTestCase):
         ]
         binfile = self.write_bin_file(data, suffix='.bin')
         start = 32768
-        output, error = self.run_trace(f'-o {start} -v --max-tstates 8 {binfile}')
-        self.assertEqual(error, '')
         exp_output = """
             $8000 XOR A
             $8001 INC A
             Stopped at $8002: 8 T-states
         """
-        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        for option in ('-M', '--max-tstates'):
+            output, error = self.run_trace(f'-o {start} -v {option} 8 {binfile}')
+            self.assertEqual(error, '')
+            self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     def test_option_no_interrupts(self):
         data = [
