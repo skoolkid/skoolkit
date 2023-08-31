@@ -19,7 +19,7 @@ from functools import partial
 
 from skoolkit import SkoolKitError, open_file, write, write_line
 from skoolkit.basic import TextReader
-from skoolkit.pagingtracer import Memory, PagingTracer
+from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R,
                                 xA, xF, xB, xC, xD, xE, xH, xL, PC, T, R1)
 from skoolkit.traceutils import disassemble
@@ -204,10 +204,10 @@ class LoadTracer(PagingTracer):
         self.tape_end_time = 0
         self.custom_loader = False
         self.border = border
-        if isinstance(simulator.memory, Memory): # pragma: no cover
-            self.out7ffd = out7ffd # 128K ROM 0/1
-        else:
+        if len(simulator.memory) == 65536:
             self.out7ffd = 0x10 # Signal: 48K ROM always
+        else: # pragma: no cover
+            self.out7ffd = out7ffd # 128K ROM 0/1
         self.outfffd = outfffd
         self.ay = ay
         self.outfe = outfe

@@ -295,27 +295,27 @@ def _set_sim_load_config(options):
     for spec in options.sim_load_config:
         name, sep, value = spec.partition('=')
         if sep:
-            if name == 'accelerate-dec-a': # pragma: no cover
+            if name == 'accelerate-dec-a':
                 options.accelerate_dec_a = parse_int(value, options.accelerate_dec_a)
             elif name == 'accelerator':
                 options.accelerator = value
-            elif name == 'contended-in': # pragma: no cover
+            elif name == 'contended-in':
                 options.contended_in = parse_int(value, options.contended_in)
-            elif name == 'fast-load': # pragma: no cover
+            elif name == 'fast-load':
                 options.fast_load = parse_int(value, options.fast_load)
-            elif name == 'finish-tape': # pragma: no cover
+            elif name == 'finish-tape':
                 options.finish_tape = parse_int(value, options.finish_tape)
-            elif name == 'first-edge': # pragma: no cover
+            elif name == 'first-edge':
                 options.first_edge = parse_int(value, options.first_edge)
-            elif name == 'load': # pragma: no cover
+            elif name == 'load':
                 options.load = value
-            elif name == 'machine': # pragma: no cover
+            elif name == 'machine':
                 options.machine = value
-            elif name == 'pause': # pragma: no cover
+            elif name == 'pause':
                 options.pause = parse_int(value, options.pause)
-            elif name == 'polarity': # pragma: no cover
+            elif name == 'polarity':
                 options.polarity = parse_int(value, options.polarity)
-            elif name == 'timeout': # pragma: no cover
+            elif name == 'timeout':
                 options.timeout = parse_int(value, options.timeout)
             elif name == 'trace':
                 options.trace = value
@@ -334,12 +334,12 @@ def sim_load(blocks, options, config):
     elif options.accelerator and options.accelerator != 'none':
         for name in options.accelerator.split(','):
             if name in ACCELERATORS:
-                accelerators.add(ACCELERATORS[name]) # pragma: no cover
+                accelerators.add(ACCELERATORS[name])
             else:
                 raise SkoolKitError(f'Unrecognised accelerator: {name}')
 
     interrupted = False
-    if options.machine == '128': # pragma: no cover
+    if options.machine == '128':
         if not options.load:
             options.load = 'ENTER'
         sim_cfg = {'frame_duration': FRAME_DURATIONS[1]}
@@ -353,7 +353,7 @@ def sim_load(blocks, options, config):
         stop = 0x0605 # SAVE-ETC
         kb_delay = 4
 
-    if options.load: # pragma: no cover
+    if options.load:
         load = options.load.split()
         if load[-1].startswith('PC='):
             pc = load.pop()
@@ -361,7 +361,7 @@ def sim_load(blocks, options, config):
                 stop = get_int_param(pc[3:], True)
             except ValueError:
                 raise SkoolKitError(f"Invalid integer in 'load' parameter: {pc}")
-        if load[-1] != 'ENTER':
+        if not load or load[-1] != 'ENTER':
             load.append('ENTER')
         simulator = Simulator(memory, config=sim_cfg)
         tracer = KeyboardTracer(simulator, load, kb_delay)
@@ -398,7 +398,7 @@ def sim_load(blocks, options, config):
         outfe = 0
 
     if not interrupted:
-        if options.contended_in: # pragma: no cover
+        if options.contended_in:
             in_min_addr = 0x4000
         else:
             in_min_addr = 0x8000
@@ -412,9 +412,9 @@ def sim_load(blocks, options, config):
             tracer.run(options.start, options.fast_load, options.timeout * 3500000,
                        options.trace, config['TraceLine'] + '\n', prefix, byte_fmt, word_fmt)
             _ram_operations(memory, options.ram_ops)
-        except KeyboardInterrupt: # pragma: no cover
+        except KeyboardInterrupt:
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
-        if list_accelerators: # pragma: no cover
+        if list_accelerators:
             accelerators = '; '.join(f'{k}: {v}' for k, v in tracer.accelerators.items()) or 'none'
             write_line(f'Accelerators: {accelerators}; misses: {tracer.inc_b_misses}/{tracer.dec_b_misses}')
 
@@ -455,7 +455,7 @@ def sim_load(blocks, options, config):
     state.extend(f'ay[{r}]={v}' for r, v in enumerate(tracer.ay))
     options.state = state + options.state
     if isinstance(memory, Memory):
-        return memory.banks # pragma: no cover
+        return memory.banks
     return memory[0x4000:]
 
 def _get_load_params(param_str):
@@ -555,7 +555,7 @@ def _get_tzx_block(data, i, sim):
         i += 18 + length
     elif block_id == 18:
         # Pure tone
-        if sim: # pragma: no cover
+        if sim:
             tape_data = []
             pilot = get_word(data, i)
             pilot_len = get_word(data, i + 2)
@@ -564,7 +564,7 @@ def _get_tzx_block(data, i, sim):
     elif block_id == 19:
         # Sequence of pulses of various lengths
         length = 2 * data[i]
-        if sim: # pragma: no cover
+        if sim:
             tape_data = []
             pulses = [get_word(data, j) for j in range(i + 1, i + 1 + length, 2)]
             timings = TapeBlockTimings(sync=pulses)
@@ -573,7 +573,7 @@ def _get_tzx_block(data, i, sim):
         # Pure data block
         length = get_word3(data, i + 7)
         tape_data = data[i + 10:i + 10 + length]
-        if sim: # pragma: no cover
+        if sim:
             zero = get_word(data, i)
             one = get_word(data, i + 2)
             used_bits = data[i + 4]
@@ -597,7 +597,7 @@ def _get_tzx_block(data, i, sim):
         i += get_dword(data, i) + 4
     elif block_id == 32:
         # Pause (silence) or 'Stop the tape' command
-        if sim: # pragma: no cover
+        if sim:
             pause = get_word(data, i) * 3500
             timings = TapeBlockTimings(pause=pause)
         i += 2
@@ -663,10 +663,10 @@ def _get_tzx_blocks(data, sim, start, stop, is48):
     loop = None
     while i < len(data):
         if block_num >= stop > 0:
-            break # pragma: no cover
+            break
         i, block_id, timings, tape_data = _get_tzx_block(data, i, sim)
         if block_num >= start:
-            if sim: # pragma: no cover
+            if sim:
                 if block_id == 0x20:
                     if stop == 0 and timings.pause == 0:
                         break
@@ -678,9 +678,9 @@ def _get_tzx_blocks(data, sim, start, stop, is48):
                     break
             if loop is None:
                 blocks.append((timings, tape_data))
-            else: # pragma: no cover
+            else:
                 loop.append((timings, tape_data))
-            if block_id == 0x25 and loop is not None: # pragma: no cover
+            if block_id == 0x25 and loop is not None:
                 blocks.extend(loop * repetitions)
                 loop = None
         block_num += 1
@@ -692,7 +692,7 @@ def get_tap_blocks(tap, start=1, stop=0):
     i = 0
     while i + 1 < len(tap):
         if block_num >= stop > 0:
-            break # pragma: no cover (tested but missed by coverage)
+            break
         block_len = tap[i] + 256 * tap[i + 1]
         i += 2
         if block_num >= start:
@@ -979,6 +979,8 @@ def make_snapshot(url, options, outfile, config):
     tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load, options.tape_start, options.tape_stop, is48)
     if options.sim_load:
         blocks = [b for b in tape_blocks if b[0]]
+        if not blocks:
+            raise TapeError('Tape is empty')
         ram = sim_load(blocks, options, config)
     else:
         blocks = [b[1] for b in tape_blocks]
@@ -1067,4 +1069,4 @@ def main(args):
     try:
         make_snapshot(namespace.url, namespace, namespace.outfile, config)
     except Exception as e:
-        raise SkoolKitError("Error while getting snapshot {}: {}".format(os.path.basename(namespace.outfile), e.args[0] if e.args else e))
+        raise SkoolKitError("Error while converting {}: {}".format(os.path.basename(namespace.url), e.args[0] if e.args else e))

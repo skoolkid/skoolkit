@@ -31,6 +31,9 @@ class Memory:
     def __setitem__(self, index, value):
         self.memory[index // 0x4000][index % 0x4000] = value
 
+    def __len__(self):
+        return 0x20000
+
     def out7ffd(self, value):
         self.memory[0] = self.roms[(value % 32) // 16]
         self.memory[3] = self.banks[value % 8]

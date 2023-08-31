@@ -21,14 +21,84 @@ def mock_make_snapshot(*args):
 def mock_config(name):
     return {k: v[0] for k, v in COMMANDS[name].items()}
 
-def mock_write_snapshot(ram, namespace, z80):
+def mock_write_snapshot(memory, namespace, fname):
     global snapshot, options
-    snapshot = [0] * 16384 + ram
+    if len(memory) == 8:
+        snapshot = memory
+    else:
+        snapshot = [0] * 16384 + memory
     options = namespace
+
+class MockKeyboardTracer:
+    def __init__(self, simulator, load, kb_delay):
+        global kbtracer
+        self.simulator = simulator
+        self.load = load
+        self.kb_delay = kb_delay
+        self.run_called = False
+        kbtracer = self
+
+    def run(self, stop):
+        self.stop = stop
+        self.border = id(self)
+        self.out7ffd = id(self) + 1
+        self.outfffd = id(self) + 2
+        self.ay = [id(self) + 3] * 16
+        self.outfe = id(self) + 4
+        self.run_called = True
+
+class MockLoadTracer:
+    def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity, finish_tape,
+                 in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe):
+        global load_tracer
+        self.simulator = simulator
+        self.accelerators_in = accelerators
+        self.blocks = blocks
+        self.pause = pause
+        self.first_edge = first_edge
+        self.polarity = polarity
+        self.finish_tape = finish_tape
+        self.in_min_addr = in_min_addr
+        self.accel_dec_a = accel_dec_a
+        self.list_accelerators = list_accelerators
+        self.border = border
+        self.out7ffd = out7ffd
+        self.outfffd = outfffd
+        self.ay = ay
+        self.outfe = outfe
+        self.accelerators = {'speedlock': 1, 'bleepload': 2}
+        self.inc_b_misses = 3
+        self.dec_b_misses = 4
+        self.run_called = False
+        load_tracer = self
+
+    def run(self, stop, fast_load, timeout, trace, trace_line, prefix, byte_fmt, word_fmt):
+        self.stop = stop
+        self.fast_load = fast_load
+        self.timeout = timeout
+        self.trace = trace
+        self.trace_line = trace_line
+        self.prefix = prefix
+        self.byte_fmt = byte_fmt
+        self.word_fmt = word_fmt
+        self.run_called = True
+
+class InterruptedTracer:
+    def __init__(self, *args):
+        self.border = 0
+        self.out7ffd = 0
+        self.outfffd = 0
+        self.ay = [0] * 16
+        self.outfe = 0
+
+    def run(self, *args):
+        raise KeyboardInterrupt()
 
 class Tap2SnaTest(SkoolKitTestCase):
     def setUp(self):
+        global snapshot, options, kbtracer, load_tracer
         super().setUp()
+        snapshot = options = kbtracer = load_tracer = None
         self.cwd = os.getcwd()
 
     def tearDown(self):
@@ -96,7 +166,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80fname = '{}/test.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'--ram load=1,16384 {option} {tapfile} {z80fname}')
-        self.assertEqual(cm.exception.args[0], f'Error while getting snapshot test.z80: {exp_error}')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile}: {exp_error}')
 
     @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     def test_default_option_values(self):
@@ -157,7 +227,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80file = '{}/out.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'-c accelerator=nope {tapfile} {z80file}')
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: Unrecognised accelerator: nope')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile}: Unrecognised accelerator: nope')
         self.assertEqual(self.err.getvalue(), '')
 
     def test_unrecognised_sim_load_configuration_parameter(self):
@@ -166,7 +236,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80file = '{}/out.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'-c foo=bar {tapfile} {z80file}')
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: Invalid sim-load configuration parameter: foo')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile}: Invalid sim-load configuration parameter: foo')
         self.assertEqual(self.err.getvalue(), '')
 
     def test_no_snapshot_argument_with_tap_file(self):
@@ -489,8 +559,56 @@ class Tap2SnaTest(SkoolKitTestCase):
             archive.writestr('data.tap', bytearray(tap_data))
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'--tape-name code.tap {zipfile} out.z80')
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: No file named "code.tap" in the archive')
+        self.assertEqual(cm.exception.args[0], f'Error while converting tape.zip: No file named "code.tap" in the archive')
         self.assertEqual(self.err.getvalue(), '')
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_option_tape_start_with_tap(self):
+        blocks = [
+            create_tap_header_block(),
+            create_tap_data_block([4, 5, 6]),
+        ]
+        tapfile = self._write_tap(blocks)
+        output, error = self.run_tap2sna(f'--tape-start 2 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 1)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_option_tape_start_with_tzx(self):
+        blocks = [
+            create_tzx_header_block(),
+            create_tzx_data_block([4, 5, 6]),
+        ]
+        tzxfile = self._write_tzx(blocks)
+        output, error = self.run_tap2sna(f'--tape-start 2 {tzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 1)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_option_tape_stop_with_tap(self):
+        blocks = [
+            create_tap_header_block(),
+            create_tap_data_block([4, 5, 6]),
+        ]
+        tapfile = self._write_tap(blocks)
+        output, error = self.run_tap2sna(f'--tape-stop 2 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 1)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_option_tape_stop_with_tzx(self):
+        blocks = [
+            create_tzx_header_block(),
+            create_tzx_data_block([4, 5, 6]),
+        ]
+        tzxfile = self._write_tzx(blocks)
+        output, error = self.run_tap2sna(f'--tape-stop 2 {tzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 1)
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_option_tape_sum(self):
@@ -516,7 +634,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             archive.writestr('data.tap', bytearray(tap_data))
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'--tape-sum {wrongsum} {zipfile} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while getting snapshot out.z80: Checksum mismatch: Expected {wrongsum}, actually {md5sum}')
+        self.assertEqual(cm.exception.args[0], f'Error while converting tape.zip: Checksum mismatch: Expected {wrongsum}, actually {md5sum}')
         self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
@@ -544,14 +662,14 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80_fname = 'test.z80'
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna('{} {}/{}'.format(tap_fname, odir, z80_fname))
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: {}: file not found'.format(z80_fname, tap_fname))
+        self.assertEqual(cm.exception.args[0], f'Error while converting test.tap: {tap_fname}: file not found')
 
     def test_load_nonexistent_block(self):
         tapfile = self._write_tap([create_tap_data_block([1])])
         block_num = 2
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna('--ram load={},16384 {} {}/test.z80'.format(block_num, tapfile, self.make_directory()))
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot test.z80: Block {} not found'.format(block_num))
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile}: Block {block_num} not found')
 
     def test_zip_archive_with_no_tape_file(self):
         archive_fname = self.write_bin_file(suffix='.zip')
@@ -560,7 +678,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80_fname = 'test.z80'
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna('{} {}/{}'.format(archive_fname, self.make_directory(), z80_fname))
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: No TAP or TZX file found'.format(z80_fname))
+        self.assertEqual(cm.exception.args[0], f'Error while converting {archive_fname}: No TAP or TZX file found')
 
     def test_ram_call(self):
         ram_module = """
@@ -777,7 +895,61 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80file = 'test.z80'
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna('{} {}/{}'.format(tzxfile, self.make_directory(), z80file))
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: Not a TZX file'.format(z80file))
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: Not a TZX file')
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_tape_stops_at_pause_block_with_duration_0(self):
+        blocks = [
+            create_tzx_header_block(),
+            create_tzx_data_block([1, 2, 3]),
+            (0x20, 0, 0), # 0x20 Pause 0ms
+            create_tzx_data_block([4, 5, 6]),
+        ]
+        output, error = self.run_tap2sna(self._write_tzx(blocks))
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 2)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_tzx_loop(self):
+        blocks = [
+            (0x24, 2, 0), # 0x24 Loop start
+            create_tzx_header_block(),
+            create_tzx_data_block([1, 2, 3]),
+            (0x25,), # 0x25 Loop end
+        ]
+        output, error = self.run_tap2sna(self._write_tzx(blocks))
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 4)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_tape_stops_at_tzx_block_type_0x2A_in_48k_mode(self):
+        blocks = [
+            create_tzx_header_block(),
+            create_tzx_data_block([1, 2, 3]),
+            (0x2A, 0, 0, 0, 0), # 0x2A Stop the tape if in 48K mode
+            create_tzx_data_block([4, 5, 6]),
+        ]
+        output, error = self.run_tap2sna(self._write_tzx(blocks))
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 2)
+
+    @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_tape_does_not_stop_at_tzx_block_type_0x2A_in_128k_mode(self):
+        blocks = [
+            create_tzx_header_block(),
+            create_tzx_data_block([1, 2, 3]),
+            (0x2A, 0, 0, 0, 0), # 0x2A Stop the tape if in 48K mode
+            create_tzx_data_block([4, 5, 6]),
+        ]
+        tzxfile = self._write_tzx(blocks)
+        output, error = self.run_tap2sna(f'-c machine=128 {tzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 3)
 
     def test_tzx_block_type_0x10(self):
         data = [1, 2, 4]
@@ -848,7 +1020,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(load_options=load_options, blocks=[block], tzx=True)
         self.assertEqual(data, snapshot[start:start + len(data)])
 
-    def test_tzx_with_unsupported_blocks(self):
+    def test_ram_load_tzx_with_unsupported_blocks(self):
         blocks = []
         blocks.append((18, 0, 0, 0, 0)) # 0x12 Pure Tone
         blocks.append((19, 2, 0, 0, 0, 0)) # 0x13 Pulse sequence
@@ -886,7 +1058,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80file = 'test.z80'
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna('{} {}/{}'.format(tzxfile, self.make_directory(), z80file))
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: Unknown TZX block ID: 0x{:X}'.format(z80file, block_id))
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: Unknown TZX block ID: 0x{block_id:X}')
 
     def test_default_register_values(self):
         block = create_tap_data_block([0])
@@ -1678,7 +1850,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             'Tape finished'
         ]
         self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: Failed to fast load block: unexpected end of tape')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile}: Failed to fast load block: unexpected end of tape')
         self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
@@ -1695,7 +1867,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80file = '{}/out.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{tzxfile} {z80file}')
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: TZX Direct Recording (0x15) not supported')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: TZX Direct Recording (0x15) not supported')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 
@@ -1714,7 +1886,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80file = '{}/out.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{tzxfile} {z80file}')
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: TZX CSW Recording (0x18) not supported')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: TZX CSW Recording (0x18) not supported')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 
@@ -1735,7 +1907,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80file = '{}/out.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{tzxfile} {z80file}')
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: TZX Generalized Data Block (0x19) not supported')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: TZX Generalized Data Block (0x19) not supported')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 
@@ -1905,6 +2077,169 @@ class Tap2SnaTest(SkoolKitTestCase):
               tstates - T-states elapsed since start of frame (default=34943)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_sim_load_config_parameter_default_values(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(tapfile)
+        self.assertEqual(error, '')
+        self.assertIsNone(kbtracer)
+        self.assertEqual(len(load_tracer.accelerators_in), 43)
+        self.assertTrue(load_tracer.pause)
+        self.assertEqual(load_tracer.first_edge, 0)
+        self.assertEqual(load_tracer.polarity, 0)
+        self.assertEqual(load_tracer.finish_tape, 0)
+        self.assertEqual(load_tracer.in_min_addr, 0x8000)
+        self.assertEqual(load_tracer.accel_dec_a, 1)
+        self.assertFalse(load_tracer.list_accelerators)
+        self.assertEqual(load_tracer.border, 7)
+        self.assertEqual(load_tracer.out7ffd, 0)
+        self.assertEqual(load_tracer.outfffd, 0)
+        self.assertEqual([0] * 16, load_tracer.ay)
+        self.assertEqual(load_tracer.outfe, 0)
+        self.assertTrue(load_tracer.run_called)
+        self.assertIsNone(load_tracer.stop)
+        self.assertEqual(load_tracer.fast_load, 1)
+        self.assertEqual(load_tracer.timeout, 3150000000)
+        self.assertIsNone(load_tracer.trace)
+        self.assertEqual(load_tracer.trace_line, '${pc:04X} {i}\n')
+        self.assertEqual(load_tracer.prefix, '$')
+        self.assertEqual(load_tracer.byte_fmt, '02X')
+        self.assertEqual(load_tracer.word_fmt, '04X')
+
+    @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_sim_load_config_parameters(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        params = (
+            'accelerate-dec-a=2',
+            'accelerator=speedlock',
+            'contended-in=1',
+            'fast-load=0',
+            'finish-tape=1',
+            'first-edge=1234',
+            'load=RUN',
+            'machine=128',
+            'pause=0',
+            'polarity=1',
+            'timeout=1000',
+            'trace=trace.log'
+        )
+        options = ' '.join(f'-c {p}' for p in params)
+        output, error = self.run_tap2sna(f'{options} {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(['RUN', 'ENTER'], kbtracer.load)
+        self.assertEqual(kbtracer.kb_delay, 13)
+        self.assertTrue(kbtracer.run_called)
+        self.assertEqual(kbtracer.stop, 0x13BE)
+        self.assertEqual(['speedlock'], [a.name for a in load_tracer.accelerators_in])
+        self.assertEqual(load_tracer.pause, 0)
+        self.assertEqual(load_tracer.first_edge, 1234)
+        self.assertEqual(load_tracer.polarity, 1)
+        self.assertEqual(load_tracer.finish_tape, 1)
+        self.assertEqual(load_tracer.in_min_addr, 0x4000)
+        self.assertEqual(load_tracer.accel_dec_a, 2)
+        self.assertFalse(load_tracer.list_accelerators)
+        self.assertEqual(load_tracer.border, kbtracer.border)
+        self.assertEqual(load_tracer.out7ffd, kbtracer.out7ffd)
+        self.assertEqual(load_tracer.outfffd, kbtracer.outfffd)
+        self.assertEqual(load_tracer.ay, kbtracer.ay)
+        self.assertEqual(load_tracer.outfe, kbtracer.outfe)
+        self.assertTrue(load_tracer.run_called)
+        self.assertIsNone(load_tracer.stop)
+        self.assertEqual(load_tracer.fast_load, 0)
+        self.assertEqual(load_tracer.timeout, 3500000000)
+        self.assertEqual(load_tracer.trace, 'trace.log')
+        self.assertEqual(load_tracer.trace_line, '${pc:04X} {i}\n')
+        self.assertEqual(load_tracer.prefix, '$')
+        self.assertEqual(load_tracer.byte_fmt, '02X')
+        self.assertEqual(load_tracer.word_fmt, '04X')
+
+    @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_load_parameter_defaults_to_enter_for_128k(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-c machine=128 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(['ENTER'], kbtracer.load)
+
+    @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_load_parameter_with_pc(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-c load=PC=16384 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(['ENTER'], kbtracer.load)
+        self.assertTrue(kbtracer.run_called)
+        self.assertEqual(kbtracer.stop, 16384)
+
+    @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_keyboard_tracer_config_for_48k(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-c load=RUN {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(kbtracer.simulator.memory), 65536)
+        self.assertEqual(['RUN', 'ENTER'], kbtracer.load)
+        self.assertEqual(kbtracer.kb_delay, 4)
+        self.assertTrue(kbtracer.run_called)
+        self.assertEqual(kbtracer.stop, 0x0605)
+
+    @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_keyboard_tracer_config_for_128k(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-c machine=128 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(kbtracer.simulator.memory), 0x20000)
+        self.assertEqual(['ENTER'], kbtracer.load)
+        self.assertEqual(kbtracer.kb_delay, 13)
+        self.assertTrue(kbtracer.run_called)
+        self.assertEqual(kbtracer.stop, 0x13BE)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_list_accelerators(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-c accelerator=list {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(output, 'Accelerators: speedlock: 1; bleepload: 2; misses: 3/4\n')
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_empty_tape(self):
+        tapfile = self._write_tap([])
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(tapfile)
+        self.assertEqual(cm.exception.args[0], f"Error while converting {tapfile}: Tape is empty")
+
+    def test_load_parameter_with_invalid_pc(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'-c load=PC=? {tapfile}')
+        self.assertEqual(cm.exception.args[0], f"Error while converting {tapfile}: Invalid integer in 'load' parameter: PC=?")
+
+    @patch.object(tap2sna, 'KeyboardTracer', InterruptedTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_interrupted_keyboard_tracer(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-c load=RUN {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(output, 'Simulation stopped (interrupted): PC=0\n')
+
+    @patch.object(tap2sna, 'LoadTracer', InterruptedTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_interrupted_load_tracer(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(tapfile)
+        self.assertEqual(error, '')
+        self.assertEqual(output, 'Simulation stopped (interrupted): PC=1541\n')
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_config_TraceLine_read_from_file(self):
@@ -2084,5 +2419,5 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'urlopen', Mock(side_effect=urllib.error.HTTPError('', 403, 'Forbidden', None, None)))
     def test_http_error_on_remote_download(self):
-        with self.assertRaisesRegex(SkoolKitError, '^Error while getting snapshot test.z80: HTTP Error 403: Forbidden$'):
+        with self.assertRaisesRegex(SkoolKitError, '^Error while converting test.zip: HTTP Error 403: Forbidden$'):
             self.run_tap2sna('http://example.com/test.zip {}/test.z80'.format(self.make_directory()))
