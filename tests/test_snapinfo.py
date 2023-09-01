@@ -564,7 +564,6 @@ class SnapinfoTest(SkoolKitTestCase):
             Machine: 16K ZX Spectrum
             SPCR: 8 bytes
               Border: 1
-              Port $7FFD: 0 (bank 0 paged into 49152-65535 C000-FFFF)
             Z80R: 37 bytes
               Interrupts: disabled
               Interrupt mode: 1
@@ -601,7 +600,6 @@ class SnapinfoTest(SkoolKitTestCase):
             Machine: 16K ZX Spectrum
             SPCR: 8 bytes
               Border: 2
-              Port $7FFD: 0 (bank 0 paged into 49152-65535 C000-FFFF)
             KEYB: 5 bytes
               Issue 2 emulation: disabled
             Z80R: 37 bytes
@@ -640,7 +638,6 @@ class SnapinfoTest(SkoolKitTestCase):
             Machine: 48K ZX Spectrum
             SPCR: 8 bytes
               Border: 3
-              Port $7FFD: 0 (bank 0 paged into 49152-65535 C000-FFFF)
             KEYB: 5 bytes
               Issue 2 emulation: enabled
             Z80R: 37 bytes
@@ -685,7 +682,6 @@ class SnapinfoTest(SkoolKitTestCase):
             Machine: 48K ZX Spectrum
             SPCR: 8 bytes
               Border: 4
-              Port $7FFD: 0 (bank 0 paged into 49152-65535 C000-FFFF)
             Z80R: 37 bytes
               Interrupts: enabled
               Interrupt mode: 2

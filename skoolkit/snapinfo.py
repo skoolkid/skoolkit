@@ -359,10 +359,10 @@ def _print_ramp(block, reg):
     )
 
 def _print_spcr(block, reg):
-    return (
-        f'Border: {reg.border}',
-        f'Port $7FFD: {reg.out7ffd} (bank {reg.out7ffd & 7} paged into 49152-65535 C000-FFFF)'
-    )
+    lines = [f'Border: {reg.border}']
+    if reg.machine_id > 1:
+        lines.append(f'Port $7FFD: {reg.out7ffd} (bank {reg.out7ffd % 8} paged into 49152-65535 C000-FFFF)')
+    return lines
 
 def _print_z80r(block, reg):
     lines = [
