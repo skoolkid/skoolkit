@@ -96,12 +96,17 @@ def can_read(fname):
 # Component API
 def get_snapshot(fname, page=None):
     """
-    Read a snapshot file and produce a 65536-element list of byte values.
+    Read a snapshot file and produce a list of byte values. For a 48K snapshot,
+    or a 128K snapshot with a page number (0-7) specified, the list contains
+    65536 (64K) elements: a blank 16K ROM followed by 48K RAM. For a 128K
+    snapshot with `page` equal to -1, the list contains 131072 (128K) elements:
+    RAM banks 0-7 (16K each) in order.
 
     :param fname: The snapshot filename.
-    :param page: The page number to map to addresses 49152-65535 (C000-FFFF).
-                 This is relevant only when reading a 128K snapshot file.
-    :return: A 65536-element list of byte values.
+    :param page: The page number (0-7) to map to addresses 49152-65535
+                 (C000-FFFF), or -1 to return all RAM banks. This is relevant
+                 only when reading a 128K snapshot file.
+    :return: A list of byte values.
     """
     if not can_read(fname):
         raise SnapshotError("{}: Unknown file type".format(fname))
@@ -113,11 +118,11 @@ def get_snapshot(fname, page=None):
         ram = _read_z80(data, page)
     elif ext == '.szx':
         ram = _read_szx(data, page)
-    if len(ram) not in (49152, 131072):
-        raise SnapshotError("RAM size is {0}".format(len(ram)))
-    mem = [0] * 16384
-    mem.extend(ram)
-    return mem
+    if len(ram) == 49152:
+        return [0] * 16384 + list(ram)
+    if len(ram) == 131072:
+        return list(ram)
+    raise SnapshotError(f'RAM size is {len(ram)}')
 
 def make_snapshot(fname, org, start=None, end=65536, page=None):
     snapshot_reader = get_snapshot_reader()

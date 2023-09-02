@@ -117,8 +117,7 @@ class SNATest(SnapshotTest):
         config.append(0) # TR-DOS ROM not paged
         sna = header + pages[5] + pages[2] + pages[3] + config + pages[0] + pages[1] + pages[4] + pages[6] + pages[7]
         tmp_sna = self.write_bin_file(sna, suffix='.sna')
-        snapshot = get_snapshot(tmp_sna, -1)
-        ram = snapshot[16384:]
+        ram = get_snapshot(tmp_sna, -1)
         self.assertEqual(len(ram), 131072)
         self.assertTrue(set(ram[0x00000:0x04000]), {5})
         self.assertTrue(set(ram[0x04000:0x08000]), {2})
@@ -133,7 +132,8 @@ class Z80Test(SnapshotTest):
     def _test_z80(self, exp_ram, version, compress, machine_id=0, modify=False, out_7ffd=0, pages={}, page=None):
         model, tmp_z80 = self.write_z80(exp_ram, version, compress, machine_id, modify, out_7ffd, pages)
         snapshot = get_snapshot(tmp_z80, page)
-        self._check_ram(snapshot[16384:], exp_ram, model, out_7ffd, pages, page)
+        ram = snapshot[16384:] if len(snapshot) == 65536 else snapshot
+        self._check_ram(ram, exp_ram, model, out_7ffd, pages, page)
 
     def test_z80v1(self):
         exp_ram = [n & 255 for n in range(49152)]
@@ -343,7 +343,8 @@ class SZXTest(SnapshotTest):
     def _test_szx(self, exp_ram, compress, machine_id=1, ch7ffd=0, pages={}, page=None):
         tmp_szx = self.write_szx(exp_ram, compress, machine_id, ch7ffd, pages)
         snapshot = get_snapshot(tmp_szx, page)
-        self._check_ram(snapshot[16384:], exp_ram, machine_id, ch7ffd, pages, page)
+        ram = snapshot[16384:] if len(snapshot) == 65536 else snapshot
+        self._check_ram(ram, exp_ram, machine_id, ch7ffd, pages, page)
 
     def test_szx_16k(self):
         exp_ram = [(n + 13) & 255 for n in range(16384)]

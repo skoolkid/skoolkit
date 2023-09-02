@@ -205,7 +205,7 @@ def run(snafile, options, config):
         if snafile == '48':
             memory = [0] * 0x10000
         else:
-            memory = [0] * 0x28000
+            memory = [0] * 0x20000
         reg = None
         org = 0
     else:
@@ -241,7 +241,7 @@ def run(snafile, options, config):
     elif len(memory) == 65536:
         memory[:0x4000] = read_bin_file(ROM48)
     else:
-        banks = [memory[a:a + 0x4000] for a in range(0x4000, 0x24000, 0x4000)]
+        banks = [memory[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
         memory = Memory(banks, out7ffd)
     for spec in options.pokes:
         poke(memory, spec)

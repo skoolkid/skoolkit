@@ -272,9 +272,9 @@ skoolkit.disassembler.OperandFormatter:
 
 Snapshot reader
 ---------------
-This object is responsible for producing a 65536-element list of byte values
-from a snapshot file. It must supply the following API functions, in common
-with skoolkit.snapshot:
+This object is responsible for producing a list of byte values from a snapshot
+file. It must supply the following API functions, in common with
+skoolkit.snapshot:
 
 .. automodule:: skoolkit.snapshot
    :members: can_read, get_snapshot
