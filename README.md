@@ -56,6 +56,8 @@ With SkoolKit you can:
   to analyse a snapshot or raw memory file and list the BASIC program it
   contains, show register values, produce a call graph, find tile graphic data,
   find text, or find sequences of arbitrary byte values
+* use [trace.py](https://skoolkid.github.io/skoolkit/commands.html#trace-py)
+  to trace the execution of machine code in a snapshot or raw memory file
 * use [tapinfo.py](https://skoolkid.github.io/skoolkit/commands.html#tapinfo-py)
   to analyse the blocks in a TAP or TZX file, and list the BASIC program it
   contains

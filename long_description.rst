@@ -37,6 +37,8 @@ With SkoolKit you can:
 * use snapinfo.py_ to analyse a snapshot or raw memory file and list the BASIC
   program it contains, show register values, produce a call graph, find tile
   graphic data, find text, or find sequences of arbitrary byte values
+* use trace.py_ to trace the execution of machine code in a snapshot or raw
+  memory file
 * use tapinfo.py_ to analyse the blocks in a TAP or TZX file, and list the
   BASIC program it contains
 * use bin2tap.py_ to convert a snapshot or raw memory file into a TAP file
@@ -73,6 +75,7 @@ disassemblies of `Skool Daze`_, `Back to Skool`_, `Contact Sam Cruise`_,
 .. _snapmod.py: https://skoolkid.github.io/skoolkit/commands.html#snapmod-py
 .. _tap2sna.py: https://skoolkid.github.io/skoolkit/commands.html#tap2sna-py
 .. _tapinfo.py: https://skoolkid.github.io/skoolkit/commands.html#tapinfo-py
+.. _trace.py: https://skoolkid.github.io/skoolkit/commands.html#trace-py
 .. _image macros: https://skoolkid.github.io/skoolkit/skool-macros.html#image-macros
 .. _#R: https://skoolkid.github.io/skoolkit/skool-macros.html#r
 .. _#AUDIO: https://skoolkid.github.io/skoolkit/skool-macros.html#audio
