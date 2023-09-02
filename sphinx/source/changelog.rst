@@ -16,6 +16,8 @@ Changelog
   :ref:`tap2sna.py <tap2sna-sim-load>` (to specify the EAR bit reading produced
   by the first pulse on the tape)
 * The output snapshot argument of :ref:`tap2sna.py` is now optional
+* Added support to :ref:`tap2sna.py <tap2sna-conf>` for register pairs
+  (``r[bc]``, ``r[de]`` etc.) in the ``TraceLine`` configuration parameter
 * Added support to :ref:`trace.py` for executing machine code in 128K snapshots
 * Added support to :ref:`trace.py <trace-conf>` for reading configuration
   from `skoolkit.ini`

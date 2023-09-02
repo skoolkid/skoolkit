@@ -2316,6 +2316,27 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[30], "281 $250D ADD HL,BC     AFBCDEHL=2260001C000025B3 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1F")
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_config_TraceLine_with_register_pairs(self):
+        tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
+        tracefile = '{}/sim-load.trace'.format(self.make_directory())
+        trace_line = "${pc:04X} {i:<13} BCDEHL={r[bc]:04X}{r[de]:04X}{r[hl]:04X}"
+        trace_line += " BCDEHL'={r[^bc]:04X}{r[^de]:04X}{r[^hl]:04X}"
+        trace_line += " IX={r[ix]:04X} IY={r[iy]:04X}"
+        args = ('-I', f'TraceLine={trace_line}', '-c', f'trace={tracefile}', '--start', '0x250E', tapfile, 'out.z80')
+        tap2sna.main(args)
+        self.assertEqual(self.err.getvalue(), '')
+        self.assertIn('PC=9486', options.reg)
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 31)
+        self.assertEqual(trace_lines[0], "$0605 POP AF        BCDEHL=000000000000 BCDEHL'=000000000000 IX=0000 IY=5C3A")
+        self.assertEqual(trace_lines[1], "$0606 LD A,($5C74)  BCDEHL=000000000000 BCDEHL'=000000000000 IX=0000 IY=5C3A")
+        self.assertEqual(trace_lines[2], "$0609 SUB $E0       BCDEHL=000000000000 BCDEHL'=000000000000 IX=0000 IY=5C3A")
+        self.assertEqual(trace_lines[28], "$250A LD B,$00      BCDEHL=002200002597 BCDEHL'=000000000000 IX=0000 IY=5C3A")
+        self.assertEqual(trace_lines[29], "$250C LD C,(HL)     BCDEHL=001C00002597 BCDEHL'=000000000000 IX=0000 IY=5C3A")
+        self.assertEqual(trace_lines[30], "$250D ADD HL,BC     BCDEHL=001C000025B3 BCDEHL'=000000000000 IX=0000 IY=5C3A")
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_config_TraceOperand(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
         tracefile = '{}/sim-load.trace'.format(self.make_directory())

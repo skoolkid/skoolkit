@@ -1555,9 +1555,9 @@ replacement fields:
 
 The register name ``X`` in ``r[X]`` must be one of the following::
 
-  a b c d e f h l
-  ^a ^b ^c ^d ^e ^f ^h ^l
-  ixh ixl iyh iyl
+  a b c d e f h l bc de hl
+  ^a ^b ^c ^d ^e ^f ^h ^l ^bc ^de ^hl
+  ix ixh ixl iy iyh iyl
   i r sp
 
 The names that begin with ``^`` denote the shadow registers.
@@ -1590,7 +1590,9 @@ Configuration parameters may also be set on the command line by using the
 |         | will be overwritten by default; added the ``load``, ``machine``   |
 |         | and ``polarity`` simulated LOAD configuration parameters; the     |
 |         | output snapshot argument is optional; added support for writing   |
-|         | SZX snapshots; added the ``fe`` hardware state attribute          |
+|         | SZX snapshots; added the ``fe`` hardware state attribute; added   |
+|         | support for register pairs (``r[bc]``, ``r[de]`` etc.) in the     |
+|         | ``TraceLine`` configuration parameter                             |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |

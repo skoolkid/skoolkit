@@ -469,9 +469,9 @@ replacement fields:
 
 The register name ``X`` in ``r[X]`` must be one of the following::
 
-  a b c d e f h l
-  ^a ^b ^c ^d ^e ^f ^h ^l
-  ixh ixl iyh iyl
+  a b c d e f h l bc de hl
+  ^a ^b ^c ^d ^e ^f ^h ^l ^bc ^de ^hl
+  ix ixh ixl iy iyh iyl
   i r sp
 
 The names that begin with ``^`` denote the shadow registers.
