@@ -226,7 +226,7 @@ def set_z80_state(z80, *specs):
         except ValueError:
             raise SkoolKitError("Cannot parse integer: {}".format(spec))
 
-def print_state_help(short_option=None, show_defaults=True):
+def print_state_help(short_option=None, show_defaults=True, show_128k=True, show_szx=True):
     options = ['--state name=value']
     if short_option:
         options.insert(0, '-{} name=value'.format(short_option))
@@ -238,21 +238,23 @@ def print_state_help(short_option=None, show_defaults=True):
         tstates = ' (default=34943)'
     else:
         infix = border = issue2 = iff = im = tstates = ''
-    print(f"""
-Usage: {opts}
-
-Set a hardware state attribute. Recognised names {infix}are:
-
-  7ffd    - last OUT to port 0x7ffd (128K only)
-  ay[N]   - contents of AY register N (N=0-15; 128K only)
-  border  - border colour{border}
-  fe      - last OUT to port 0xfe (SZX only)
-  fffd    - last OUT to port 0xfffd (128K only)
-  iff     - interrupt flip-flop: 0=disabled, 1=enabled{iff}
-  im      - interrupt mode{im}
-  issue2  - issue 2 emulation: 0=disabled, 1=enabled{issue2}
-  tstates - T-states elapsed since start of frame{tstates}
-""".strip())
+    attributes = [
+        ('border', f'border colour{border}'),
+        ('iff', f'interrupt flip-flop: 0=disabled, 1=enabled{iff}'),
+        ('im', f'interrupt mode{im}'),
+        ('issue2', f'issue 2 emulation: 0=disabled, 1=enabled{issue2}'),
+        ('tstates', f'T-states elapsed since start of frame{tstates}')
+    ]
+    if show_128k:
+        attributes.extend((
+            ('7ffd', 'last OUT to port 0x7ffd (128K only)'),
+            ('ay[N]', 'contents of AY register N (N=0-15; 128K only)'),
+            ('fffd', 'last OUT to port 0xfffd (128K only)')
+        ))
+    if show_szx:
+        attributes.append(('fe', 'last OUT to port 0xfe (SZX only)'))
+    attrs = '\n'.join(f'  {a:<7} - {d}' for a, d in sorted(attributes))
+    print(f'Usage: {opts}\n\nSet a hardware state attribute. Recognised names {infix}are:\n\n{attrs}')
 
 def make_z80_ram_block(data, page):
     block = []

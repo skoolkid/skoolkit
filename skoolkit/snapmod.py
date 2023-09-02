@@ -76,7 +76,7 @@ def main(args):
         print_reg_help('r')
         return
     if 'help' in namespace.state:
-        print_state_help('s', False)
+        print_state_help('s', False, False, False)
         return
     infile = namespace.infile
     outfile = namespace.outfile

@@ -72,10 +72,7 @@ The ``--state`` option sets a hardware state attribute.
 Recognised attribute names are:
 
 |
-|  ``7ffd``    - last OUT to port 0x7ffd (128K only)
-|  ``ay[N]``   - contents of AY register N (N=0-15; 128K only)
 |  ``border``  - border colour
-|  ``fffd``    - last OUT to port 0xfffd (128K only)
 |  ``iff``     - interrupt flip-flop: 0=disabled, 1=enabled
 |  ``im``      - interrupt mode
 |  ``issue2``  - issue 2 emulation: 0=disabled, 1=enabled
