@@ -1391,7 +1391,7 @@ parameters are:
   (``1``, the default), or 'DEC A: JP NZ,$-1' delay loops (``2``), or neither
   (``0``)
 * ``accelerator`` - a comma-separated list of tape-sampling loop accelerators
-  to use (see below)
+  to use (see :ref:`tap2sna-accelerators`)
 * ``contended-in`` - interpret 'IN A,($FE)' instructions in the address range
   $4000-$7FFF as reading the tape (``1``), or ignore them (``0``, the default)
 * ``fast-load`` - enable fast loading (``1``, the default), or disable it
@@ -1404,7 +1404,7 @@ parameters are:
 * ``first-edge`` - the time (in T-states) from the start of the tape at which
   to place the leading edge of the first pulse (default: ``0``)
 * ``load`` - a space-separated list of keys to press to build an alternative
-  command line to load the tape (see below)
+  command line to load the tape (see :ref:`tap2sna-load`)
 * ``machine`` - the type of machine to simulate: a 48K Spectrum (``48``, the
   default), or a 128K Spectrum (``128``)
 * ``pause`` - pause the tape between blocks and resume playback when port 254
@@ -1425,8 +1425,13 @@ This can be reversed by setting ``polarity=1``. Run *tap2sna.py* with the
 ``--tape-analysis`` option to see the timings and EAR bit readings of the
 pulses on a tape.
 
-The ``accelerator`` parameter must be either a comma-separated list of specific
-accelerator names or one of the following special values:
+.. _tap2sna-accelerators:
+
+Accelerators
+^^^^^^^^^^^^
+The ``accelerator`` simulated LOAD configuration parameter must be either a
+comma-separated list of specific accelerator names or one of the following
+special values:
 
 * ``auto`` - select accelerators automatically (this is the default)
 * ``list`` - list the accelerators used during a simulated LOAD, along with the
@@ -1492,15 +1497,19 @@ loop accelerators are:
 * ``us-gold`` (Gauntlet II)
 * ``weird-science`` (Flash Beer Trilogy, Ghost Castles, TV-Game)
 
-The ``load`` parameter may be used to specify an alternative command line to
-load the tape in cases where neither 'LOAD ""' nor 'LOAD ""CODE' works. Its
-value is a space-separated list of 'words' (a 'word' being a sequence of any
-characters other than space), each of which is broken down into a sequence of
-one or more keypresses. If a word contains the '+' symbol, the tokens it
-separates are converted into keypresses made simultaneously. If a word matches
-a BASIC token, the corresponding sequence of keypresses to produce that token
-are substituted. Otherwise, each character in the word is converted
-individually into the appropriate keypresses.
+.. _tap2sna-load:
+
+LOAD command
+^^^^^^^^^^^^
+The ``load`` simulated LOAD configuration parameter may be used to specify an
+alternative command line to load the tape in cases where neither 'LOAD ""' nor
+'LOAD ""CODE' works. Its value is a space-separated list of 'words' (a 'word'
+being a sequence of any characters other than space), each of which is broken
+down into a sequence of one or more keypresses. If a word contains the '+'
+symbol, the tokens it separates are converted into keypresses made
+simultaneously. If a word matches a BASIC token, the corresponding sequence of
+keypresses to produce that token are substituted. Otherwise, each character in
+the word is converted individually into the appropriate keypresses.
 
 The following special tokens are also recognised:
 
