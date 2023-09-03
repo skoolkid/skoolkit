@@ -22,51 +22,9 @@ from skoolkit.config import get_config, show_config, update_options
 from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_snapshot
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                                SP, SP2, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
+                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 from skoolkit.snapinfo import parse_snapshot
-from skoolkit.traceutils import disassemble
-
-REGISTERS = {
-    'a': (A, SP2),
-    'f': (F, SP2),
-    'bc': (C, B),
-    'b': (B, SP2),
-    'c': (C, SP2),
-    'de': (E, D),
-    'd': (D, SP2),
-    'e': (E, SP2),
-    'hl': (L, H),
-    'h': (H, SP2),
-    'l': (L, SP2),
-    'ix': (IXl, IXh),
-    'ixh': (IXh, SP2),
-    'ixl': (IXl, SP2),
-    'iy': (IYl, IYh),
-    'iyh': (IYh, SP2),
-    'iyl': (IYl, SP2),
-    'sp': (SP, SP2),
-    'i': (I, SP2),
-    'r': (R, SP2),
-    '^a': (xA, SP2),
-    '^f': (xF, SP2),
-    '^bc': (xC, xB),
-    '^b': (xB, SP2),
-    '^c': (xC, SP2),
-    '^de': (xE, xD),
-    '^d': (xD, SP2),
-    '^e': (xE, SP2),
-    '^hl': (xL, xH),
-    '^h': (xH, SP2),
-    '^l': (xL, SP2)
-}
-
-class Registers:
-    def __init__(self, registers):
-        self.registers = registers
-
-    def __getitem__(self, key):
-        lo, hi = REGISTERS[key]
-        return self.registers[lo] + 256 * self.registers[hi]
+from skoolkit.traceutils import Registers, disassemble
 
 class Tracer(PagingTracer):
     def __init__(self, simulator, border, out7ffd, outfffd, ay, outfe):

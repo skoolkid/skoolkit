@@ -1046,3 +1046,42 @@ class SimLoadTest(SkoolKitTestCase):
             'Simulation stopped (PC at start address): PC=49152'
         ]
         self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_trace_with_load_command(self):
+        basic_data = [
+            0, 10,               # Line 10
+            14, 0,               # Line length
+            249, 192,            # RANDOMIZE USR
+            51, 50, 55, 54, 56,  # 32768 in ASCII
+            14, 0, 0, 0, 128, 0, # 32768 in floating point form
+            13                   # ENTER
+        ]
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ]
+        tapfile = self._write_tap(blocks)
+        tracefile = '{}/sim-load.trace'.format(self.make_directory())
+        output, error = self.run_tap2sna(('-c', f'trace={tracefile}', '-c', 'load=LOAD ""', tapfile, 'out.z80'))
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,18',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32768',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        exp_reg = set(('^F=69', 'SP=65344', 'IX=23773', 'IY=23610', 'PC=32768'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 773700)
+        self.assertEqual(trace_lines[0], '$0000 DI')
+        self.assertEqual(trace_lines[1], '$0001 XOR A')
+        self.assertEqual(trace_lines[2], '$0002 LD DE,$FFFF')
+        self.assertEqual(trace_lines[3], '$0005 JP $11CB')
+        self.assertEqual(trace_lines[765494], '$0605 POP AF')
+        self.assertEqual(trace_lines[773699], '$34BB RET')

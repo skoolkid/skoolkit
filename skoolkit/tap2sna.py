@@ -353,6 +353,14 @@ def sim_load(blocks, options, config):
         stop = 0x0605 # SAVE-ETC
         kb_delay = 4
 
+    if options.trace:
+        tracefile = open_file(options.trace, 'w')
+        trace_line = config['TraceLine'] + '\n'
+        op_fmt = config['TraceOperand']
+        prefix, byte_fmt, word_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
+    else:
+        tracefile = trace_line = prefix = byte_fmt = word_fmt = None
+
     if options.load:
         load = options.load.split()
         if load[-1].startswith('PC='):
@@ -367,7 +375,7 @@ def sim_load(blocks, options, config):
         tracer = KeyboardTracer(simulator, load, kb_delay)
         simulator.set_tracer(tracer)
         try:
-            tracer.run(stop)
+            tracer.run(stop, tracefile, trace_line, prefix, byte_fmt, word_fmt)
             border = tracer.border
             out7ffd = tracer.out7ffd
             outfffd = tracer.outfffd
@@ -406,17 +414,18 @@ def sim_load(blocks, options, config):
                             options.polarity, options.finish_tape, in_min_addr, options.accelerate_dec_a,
                             list_accelerators, border, out7ffd, outfffd, ay, outfe)
         simulator.set_tracer(tracer, False, False)
-        op_fmt = config['TraceOperand']
-        prefix, byte_fmt, word_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
         try:
             tracer.run(options.start, options.fast_load, options.timeout * 3500000,
-                       options.trace, config['TraceLine'] + '\n', prefix, byte_fmt, word_fmt)
+                       tracefile, trace_line, prefix, byte_fmt, word_fmt)
             _ram_operations(memory, options.ram_ops)
         except KeyboardInterrupt:
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
         if list_accelerators:
             accelerators = '; '.join(f'{k}: {v}' for k, v in tracer.accelerators.items()) or 'none'
             write_line(f'Accelerators: {accelerators}; misses: {tracer.inc_b_misses}/{tracer.dec_b_misses}')
+
+    if tracefile:
+        tracefile.close()
 
     sim_registers = simulator.registers
     registers = {

@@ -434,11 +434,13 @@ class SkoolKitTestCase(TestCase):
 
     def _run_skoolkit_command(self, cmd, args, catch_exit):
         self.clear_streams()
+        if isinstance(args, str):
+            args = args.split()
         if catch_exit is None:
-            cmd(args.split())
+            cmd(args)
         else:
             with self.assertRaises(SystemExit) as cm:
-                cmd(args.split())
+                cmd(args)
             self.assertEqual(cm.exception.args[0], catch_exit)
         return self.out.getvalue(), self.err.getvalue()
 

@@ -20,9 +20,8 @@ from functools import partial
 from skoolkit import SkoolKitError, open_file, write, write_line
 from skoolkit.basic import TextReader
 from skoolkit.pagingtracer import PagingTracer
-from skoolkit.simulator import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, SP2,
-                                I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T, R1)
-from skoolkit.traceutils import disassemble
+from skoolkit.simulator import A, D, E, F, H, L, IXh, IXl, PC, T, R1
+from skoolkit.traceutils import Registers, disassemble
 
 DEC = tuple(tuple((
         v % 256,
@@ -46,48 +45,6 @@ INC = tuple(tuple((
     ) for v in range(1, 257)
     ) for c in (0, 1)
 )
-
-REGISTERS = {
-    'a': (A, SP2),
-    'f': (F, SP2),
-    'bc': (C, B),
-    'b': (B, SP2),
-    'c': (C, SP2),
-    'de': (E, D),
-    'd': (D, SP2),
-    'e': (E, SP2),
-    'hl': (L, H),
-    'h': (H, SP2),
-    'l': (L, SP2),
-    'ix': (IXl, IXh),
-    'ixh': (IXh, SP2),
-    'ixl': (IXl, SP2),
-    'iy': (IYl, IYh),
-    'iyh': (IYh, SP2),
-    'iyl': (IYl, SP2),
-    'sp': (SP, SP2),
-    'i': (I, SP2),
-    'r': (R, SP2),
-    '^a': (xA, SP2),
-    '^f': (xF, SP2),
-    '^bc': (xC, xB),
-    '^b': (xB, SP2),
-    '^c': (xC, SP2),
-    '^de': (xE, xD),
-    '^d': (xD, SP2),
-    '^e': (xE, SP2),
-    '^hl': (xL, xH),
-    '^h': (xH, SP2),
-    '^l': (xL, SP2)
-}
-
-class Registers:
-    def __init__(self, registers):
-        self.registers = registers
-
-    def __getitem__(self, key):
-        lo, hi = REGISTERS[key]
-        return self.registers[lo] + 256 * self.registers[hi]
 
 def get_edges(blocks, first_edge, polarity, analyse=False):
     edges = [first_edge]
@@ -222,7 +179,7 @@ class LoadTracer(PagingTracer):
         self.outfe = outfe
         self.text = TextReader()
 
-    def run(self, stop, fast_load, timeout, trace, trace_line, prefix, byte_fmt, word_fmt):
+    def run(self, stop, fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
         opcodes = simulator.opcodes
         memory = simulator.memory
@@ -235,13 +192,12 @@ class LoadTracer(PagingTracer):
         max_index = self.max_index
         tstates = 0
         accept_int = False
-        if trace:
-            tracefile = open_file(trace, 'w')
+        if tracefile:
             r = Registers(registers)
 
         while True:
             t0 = tstates
-            if trace:
+            if tracefile:
                 i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                 opcodes[memory[pc]]()
                 tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
@@ -308,9 +264,6 @@ class LoadTracer(PagingTracer):
                 if tstates > timeout: # pragma: no cover
                     write_line(f'Simulation stopped (timed out): PC={pc}')
                     break
-
-        if trace:
-            tracefile.close()
 
     def dec_a_jr(self, registers, memory):
         # Speed up any

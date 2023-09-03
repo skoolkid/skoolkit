@@ -1,4 +1,4 @@
-# Copyright 2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022, 2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -13,6 +13,51 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
+
+from skoolkit.simulator import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
+                                SP, SP2, I, R, xA, xF, xB, xC, xD, xE, xH, xL)
+
+REGISTERS = {
+    'a': (A, SP2),
+    'f': (F, SP2),
+    'bc': (C, B),
+    'b': (B, SP2),
+    'c': (C, SP2),
+    'de': (E, D),
+    'd': (D, SP2),
+    'e': (E, SP2),
+    'hl': (L, H),
+    'h': (H, SP2),
+    'l': (L, SP2),
+    'ix': (IXl, IXh),
+    'ixh': (IXh, SP2),
+    'ixl': (IXl, SP2),
+    'iy': (IYl, IYh),
+    'iyh': (IYh, SP2),
+    'iyl': (IYl, SP2),
+    'sp': (SP, SP2),
+    'i': (I, SP2),
+    'r': (R, SP2),
+    '^a': (xA, SP2),
+    '^f': (xF, SP2),
+    '^bc': (xC, xB),
+    '^b': (xB, SP2),
+    '^c': (xC, SP2),
+    '^de': (xE, xD),
+    '^d': (xD, SP2),
+    '^e': (xE, SP2),
+    '^hl': (xL, xH),
+    '^h': (xH, SP2),
+    '^l': (xL, SP2)
+}
+
+class Registers:
+    def __init__(self, registers):
+        self.registers = registers
+
+    def __getitem__(self, key):
+        lo, hi = REGISTERS[key]
+        return self.registers[lo] + 256 * self.registers[hi]
 
 def disassemble(memory, address, prefix='$', byte_fmt='02X', word_fmt='04X'):
     opcode = memory[address]

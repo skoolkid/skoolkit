@@ -38,8 +38,13 @@ class MockKeyboardTracer:
         self.run_called = False
         kbtracer = self
 
-    def run(self, stop):
+    def run(self, stop, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         self.stop = stop
+        self.tracefile = tracefile
+        self.trace_line = trace_line
+        self.prefix = prefix
+        self.byte_fmt = byte_fmt
+        self.word_fmt = word_fmt
         self.border = id(self)
         self.out7ffd = id(self) + 1
         self.outfffd = id(self) + 2
@@ -72,11 +77,11 @@ class MockLoadTracer:
         self.run_called = False
         load_tracer = self
 
-    def run(self, stop, fast_load, timeout, trace, trace_line, prefix, byte_fmt, word_fmt):
+    def run(self, stop, fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         self.stop = stop
         self.fast_load = fast_load
         self.timeout = timeout
-        self.trace = trace
+        self.tracefile = tracefile
         self.trace_line = trace_line
         self.prefix = prefix
         self.byte_fmt = byte_fmt
@@ -2103,17 +2108,18 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertIsNone(load_tracer.stop)
         self.assertEqual(load_tracer.fast_load, 1)
         self.assertEqual(load_tracer.timeout, 3150000000)
-        self.assertIsNone(load_tracer.trace)
-        self.assertEqual(load_tracer.trace_line, '${pc:04X} {i}\n')
-        self.assertEqual(load_tracer.prefix, '$')
-        self.assertEqual(load_tracer.byte_fmt, '02X')
-        self.assertEqual(load_tracer.word_fmt, '04X')
+        self.assertIsNone(load_tracer.tracefile)
+        self.assertIsNone(load_tracer.trace_line)
+        self.assertIsNone(load_tracer.prefix)
+        self.assertIsNone(load_tracer.byte_fmt)
+        self.assertIsNone(load_tracer.word_fmt)
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_config_parameters(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
+        trace_log = '{}/trace.log'.format(self.make_directory())
         params = (
             'accelerate-dec-a=2',
             'accelerator=speedlock',
@@ -2126,7 +2132,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             'pause=0',
             'polarity=1',
             'timeout=1000',
-            'trace=trace.log'
+            f'trace={trace_log}'
         )
         options = ' '.join(f'-c {p}' for p in params)
         output, error = self.run_tap2sna(f'{options} {tapfile}')
@@ -2135,6 +2141,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(kbtracer.kb_delay, 13)
         self.assertTrue(kbtracer.run_called)
         self.assertEqual(kbtracer.stop, 0x13BE)
+        self.assertEqual(kbtracer.tracefile.name, trace_log)
+        self.assertEqual(kbtracer.trace_line, '${pc:04X} {i}\n')
+        self.assertEqual(kbtracer.prefix, '$')
+        self.assertEqual(kbtracer.byte_fmt, '02X')
+        self.assertEqual(kbtracer.word_fmt, '04X')
         self.assertEqual(['speedlock'], [a.name for a in load_tracer.accelerators_in])
         self.assertEqual(load_tracer.pause, 0)
         self.assertEqual(load_tracer.first_edge, 1234)
@@ -2152,7 +2163,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertIsNone(load_tracer.stop)
         self.assertEqual(load_tracer.fast_load, 0)
         self.assertEqual(load_tracer.timeout, 3500000000)
-        self.assertEqual(load_tracer.trace, 'trace.log')
+        self.assertEqual(load_tracer.tracefile.name, trace_log)
         self.assertEqual(load_tracer.trace_line, '${pc:04X} {i}\n')
         self.assertEqual(load_tracer.prefix, '$')
         self.assertEqual(load_tracer.byte_fmt, '02X')

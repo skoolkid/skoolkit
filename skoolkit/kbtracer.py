@@ -16,6 +16,7 @@
 
 from skoolkit import SkoolKitError
 from skoolkit.pagingtracer import PagingTracer
+from skoolkit.traceutils import Registers, disassemble
 
 KEYS = {
     '1': (0xF7FE, 0b11111110),
@@ -310,8 +311,9 @@ class KeyboardTracer(PagingTracer):
         self.out7ffd = 0
         self.outfffd = 0
         self.ay = [0] * 16
+        self.outfe = 0
 
-    def run(self, stop):
+    def run(self, stop, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
         opcodes = simulator.opcodes
         memory = simulator.memory
@@ -321,10 +323,17 @@ class KeyboardTracer(PagingTracer):
         pc = registers[24]
         tstates = 0
         accept_int = False
+        if tracefile:
+            r = Registers(registers)
 
         while True:
             t0 = tstates
-            opcodes[memory[pc]]()
+            if tracefile:
+                i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
+                opcodes[memory[pc]]()
+                tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
+            else:
+                opcodes[memory[pc]]()
             tstates = registers[25]
 
             if simulator.iff:
