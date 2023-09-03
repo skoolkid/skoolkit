@@ -18,22 +18,21 @@ def mock_config(name):
     return {k: v[0] for k, v in COMMANDS[name].items()}
 
 def mock_write_snapshot(fname, ram, registers, state):
-    global z80fname, snapshot, banks, z80reg, z80state
-    z80fname = fname
-    snapshot = [0] * 16384
+    global s_fname, s_memory, s_banks, s_reg, s_state
+    s_fname = fname
     if len(ram) == 8:
-        banks = ram
+        s_banks = ram
         page = 0
         for spec in state:
             if spec.startswith('7ffd='):
                 page = int(spec[5:]) % 8
                 break
-        snapshot += ram[5] + ram[2] + ram[page]
+        s_memory = [0] * 16384 + ram[5] + ram[2] + ram[page]
     else:
-        banks = None
-        snapshot = [0] * 16384 + ram
-    z80reg = registers
-    z80state = state
+        s_banks = None
+        s_memory = [0] * 16384 + ram
+    s_reg = registers
+    s_state = state
 
 class TestSimulator(simulator.Simulator):
     def __init__(self, memory, registers=None, state=None, config=None):
@@ -644,7 +643,7 @@ class TraceTest(SkoolKitTestCase):
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file} {outfile}')
         self.assertEqual(error, '')
-        self.assertEqual(snapshot[0xc001], 2) # DJNZ interrupted when B=2
+        self.assertEqual(s_memory[0xc001], 2) # DJNZ interrupted when B=2
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_interrupt_with_ldir(self):
@@ -669,7 +668,7 @@ class TraceTest(SkoolKitTestCase):
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file} {outfile}')
         self.assertEqual(error, '')
-        self.assertEqual(snapshot[0xc000], 2) # LDIR interrupted when BC=2
+        self.assertEqual(s_memory[0xc000], 2) # LDIR interrupted when BC=2
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_interrupt_with_lddr(self):
@@ -694,7 +693,7 @@ class TraceTest(SkoolKitTestCase):
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file} {outfile}')
         self.assertEqual(error, '')
-        self.assertEqual(snapshot[0xc000], 2) # LDDR interrupted when BC=2
+        self.assertEqual(s_memory[0xc000], 2) # LDDR interrupted when BC=2
 
     def test_option_audio(self):
         data = [
@@ -1602,11 +1601,11 @@ class TraceTest(SkoolKitTestCase):
             Wrote {outfile}
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
-        self.assertEqual(z80fname, outfile)
-        self.assertEqual(snapshot[0x4000], 5)
-        self.assertEqual(banks[5][0], 5)
-        self.assertEqual(snapshot[0xC000], 5)
-        self.assertEqual(banks[0][0], 0)
+        self.assertEqual(s_fname, outfile)
+        self.assertEqual(s_memory[0x4000], 5)
+        self.assertEqual(s_banks[5][0], 5)
+        self.assertEqual(s_memory[0xC000], 5)
+        self.assertEqual(s_banks[0][0], 0)
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_128k_bank_2(self):
@@ -1629,11 +1628,11 @@ class TraceTest(SkoolKitTestCase):
             Wrote {outfile}
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
-        self.assertEqual(z80fname, outfile)
-        self.assertEqual(snapshot[0x8000], 2)
-        self.assertEqual(banks[2][0], 2)
-        self.assertEqual(snapshot[0xC000], 2)
-        self.assertEqual(banks[0][0], 0)
+        self.assertEqual(s_fname, outfile)
+        self.assertEqual(s_memory[0x8000], 2)
+        self.assertEqual(s_banks[2][0], 2)
+        self.assertEqual(s_memory[0xC000], 2)
+        self.assertEqual(s_banks[0][0], 0)
 
     def test_invalid_register_value(self):
         binfile = self.write_bin_file([201], suffix='.bin')
@@ -1695,10 +1694,10 @@ class TraceTest(SkoolKitTestCase):
         )
         exp_state = ['border=1', 'fe=1', 'iff=0', 'im=2', 'tstates=166']
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
-        self.assertEqual(z80fname, outfile)
-        self.assertEqual(data, snapshot[start:stop])
-        self.assertEqual(exp_reg, z80reg)
-        self.assertEqual(exp_state, z80state)
+        self.assertEqual(s_fname, outfile)
+        self.assertEqual(data, s_memory[start:stop])
+        self.assertEqual(exp_reg, s_reg)
+        self.assertEqual(exp_state, s_state)
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_write_z80_128k(self):
@@ -1759,11 +1758,11 @@ class TraceTest(SkoolKitTestCase):
         exp_state = [f'ay[{n}]=0' for n in range(16)]
         exp_state.extend(('7ffd=1', 'fffd=0', 'border=1', 'fe=1', 'iff=0', 'im=2', 'tstates=178'))
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
-        self.assertEqual(z80fname, outfile)
-        self.assertEqual(code, snapshot[start:stop])
-        self.assertTrue(all(b == 1 for b in snapshot[0xC000:0x10000]))
-        self.assertEqual(exp_reg, z80reg)
-        self.assertEqual(exp_state, z80state)
+        self.assertEqual(s_fname, outfile)
+        self.assertEqual(code, s_memory[start:stop])
+        self.assertTrue(all(b == 1 for b in s_memory[0xC000:0x10000]))
+        self.assertEqual(exp_reg, s_reg)
+        self.assertEqual(exp_state, s_state)
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_ay_tracing_from_z80(self):
@@ -1792,9 +1791,9 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-s {start} -S {stop} {z80file} out.z80')
         exp_state = [f'ay[{n}]={v + 1}' for n, v in enumerate(ay[1:])]
         exp_state.append('fffd=0')
-        self.assertEqual(snapshot[0xff10], ay[1 + ay[0]])   # Input: current AY register value
-        self.assertEqual(ay[1:], snapshot[0xff00:0xff10])   # Input: all AY register values
-        self.assertLessEqual(set(exp_state), set(z80state)) # Output: AY state
+        self.assertEqual(s_memory[0xff10], ay[1 + ay[0]])   # Input: current AY register value
+        self.assertEqual(ay[1:], s_memory[0xff00:0xff10])   # Input: all AY register values
+        self.assertLessEqual(set(exp_state), set(s_state))  # Output: AY state
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_ay_tracing_from_szx(self):
@@ -1823,6 +1822,29 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-s {start} -S {stop} {szxfile} out.z80')
         exp_state = [f'ay[{n}]={v + 1}' for n, v in enumerate(ay[1:])]
         exp_state.append('fffd=0')
-        self.assertEqual(snapshot[0xff10], ay[1 + ay[0]])   # Input: current AY register value
-        self.assertEqual(ay[1:], snapshot[0xff00:0xff10])   # Input: all AY register values
-        self.assertLessEqual(set(exp_state), set(z80state)) # Output: AY state
+        self.assertEqual(s_memory[0xff10], ay[1 + ay[0]])   # Input: current AY register value
+        self.assertEqual(ay[1:], s_memory[0xff00:0xff10])   # Input: all AY register values
+        self.assertLessEqual(set(exp_state), set(s_state))  # Output: AY state
+
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_bit_5_of_output_to_port_0x7ffd(self):
+        code = (
+            0xF3,             # $8000 DI
+            0x01, 0xFD, 0x7F, # $8001 LD BC,$7FFD
+            0x3E, 0x20,       # $8004 LD A,$20    ; Bit 5 set: disable paging
+            0xED, 0x79,       # $8006 OUT (C),A   ; and ignore further output.
+            0x3E, 0x07,       # $8008 LD A,$07
+            0xED, 0x79,       # $800A OUT (C),A   ; This OUT should be ignored.
+        )
+        ram = [0] * 49152
+        start = 32768
+        ram[start - 0x4000:start - 0x4000 + len(code)] = code
+        ram[32768] = 255 # POKE 49152,255
+        stop = start + len(code)
+        z80file = self.write_z80(ram, machine_id=4)[1]
+        stop = start + len(code)
+        self.run_trace(f'-s {start} -S {stop} {z80file} out.z80')
+        out7ffd = [s[5:] for s in s_state if s.startswith('7ffd=')]
+        self.assertEqual(len(out7ffd), 1)
+        self.assertEqual(out7ffd[0], '32')
+        self.assertEqual(s_memory[49152], 255)

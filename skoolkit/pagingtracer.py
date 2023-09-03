@@ -43,7 +43,7 @@ class PagingTracer:
         if port % 2 == 0:
             self.border = value % 8
             self.outfe = value
-        elif port & 0x8002 == 0:
+        elif port & 0x8002 == 0 and self.out7ffd & 32 == 0:
             memory = self.simulator.memory
             if isinstance(memory, Memory):
                 memory.out7ffd(value)

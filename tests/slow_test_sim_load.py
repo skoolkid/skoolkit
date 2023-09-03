@@ -8,8 +8,16 @@ from skoolkit import tap2sna, loadtracer, ROM48, read_bin_file
 
 def mock_write_snapshot(ram, namespace, z80):
     global snapshot, options
-    snapshot = [0] * 16384 + ram
     options = namespace
+    if len(ram) == 8:
+        page = 0
+        for spec in options.state:
+            if spec.startswith('7ffd='):
+                page = int(spec[5:]) % 8
+                break
+        snapshot = [0] * 16384 + ram[5] + ram[2] + ram[page]
+    else:
+        snapshot = [0] * 16384 + ram
 
 def get_loader(addr, bits=(0xB0, 0xCB)):
     rom = list(read_bin_file(ROM48, 0x0605))
@@ -75,11 +83,13 @@ class SimLoadTest(SkoolKitTestCase):
                 out_lines.append(line.rstrip())
         return out_lines
 
-    def _test_sim_load(self, args, exp_data, exp_reg, exp_output):
+    def _test_sim_load(self, args, exp_data, exp_reg, exp_output, exp_state=None):
         output, error = self.run_tap2sna(args)
         for data, addr in exp_data:
             self.assertEqual(data, snapshot[addr:addr + len(data)])
         self.assertLessEqual(exp_reg, set(options.reg))
+        if exp_state:
+            self.assertLessEqual(exp_state, set(options.state))
         out_lines = self._format_output(output)
         self.assertEqual(exp_output, out_lines)
         self.assertEqual(error, '')
@@ -1085,3 +1095,43 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[3], '$0005 JP $11CB')
         self.assertEqual(trace_lines[765494], '$0605 POP AF')
         self.assertEqual(trace_lines[773699], '$34BB RET')
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_bit_5_of_output_to_port_0x7ffd(self):
+        code = [
+            0xF3,             # $8000 DI
+            0x21, 0x00, 0xC0, # $8001 LD HL,$C000
+            0x74,             # $8004 LD (HL),H   ; POKE 49152,192
+            0x01, 0xFD, 0x7F, # $8005 LD BC,$7FFD
+            0x3E, 0x20,       # $8008 LD A,$20    ; Bit 5 set: disable paging
+            0xED, 0x79,       # $800A OUT (C),A   ; and ignore further output.
+            0x3E, 0x07,       # $800C LD A,$07
+            0xED, 0x79,       # $800E OUT (C),A   ; This OUT should be ignored.
+        ]
+        code_start = 32768
+        start = code_start + len(code)
+        basic_data = self._get_basic_data(code_start)
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+            create_tap_header_block("simloadbyt", code_start, len(code)),
+            create_tap_data_block(code),
+        ]
+        tapfile = self._write_tap(blocks)
+
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            ([192], 49152)
+        )
+        exp_reg = {f'PC={start}'}
+        exp_output = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            'Bytes: simloadbyt',
+            f'Fast loading data block: 32768,{len(code)}',
+            'Tape finished',
+            f'Simulation stopped (PC at start address): PC={start}'
+        ]
+        exp_state = {'7ffd=32'}
+        self._test_sim_load(f'--start {start} -c machine=128 {tapfile} out.z80', exp_data, exp_reg, exp_output, exp_state)
