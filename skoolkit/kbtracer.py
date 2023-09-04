@@ -313,7 +313,7 @@ class KeyboardTracer(PagingTracer):
         self.ay = [0] * 16
         self.outfe = 0
 
-    def run(self, stop, tracefile, trace_line, prefix, byte_fmt, word_fmt):
+    def run(self, stop, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
         opcodes = simulator.opcodes
         memory = simulator.memory
@@ -346,6 +346,9 @@ class KeyboardTracer(PagingTracer):
 
             pc = registers[24]
             if pc == stop:
+                break
+
+            if tstates > timeout:
                 break
 
     def read_port(self, registers, port):

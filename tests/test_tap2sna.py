@@ -38,8 +38,9 @@ class MockKeyboardTracer:
         self.run_called = False
         kbtracer = self
 
-    def run(self, stop, tracefile, trace_line, prefix, byte_fmt, word_fmt):
+    def run(self, stop, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         self.stop = stop
+        self.timeout = timeout
         self.tracefile = tracefile
         self.trace_line = trace_line
         self.prefix = prefix
@@ -50,6 +51,7 @@ class MockKeyboardTracer:
         self.outfffd = id(self) + 2
         self.ay = [id(self) + 3] * 16
         self.outfe = id(self) + 4
+        self.simulator.registers[25] = 70000 * len(self.load)
         self.run_called = True
 
 class MockLoadTracer:
@@ -2141,6 +2143,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(kbtracer.kb_delay, 13)
         self.assertTrue(kbtracer.run_called)
         self.assertEqual(kbtracer.stop, 0x13BE)
+        self.assertEqual(kbtracer.timeout, 3500000000)
         self.assertEqual(kbtracer.tracefile.name, trace_log)
         self.assertEqual(kbtracer.trace_line, '${pc:04X} {i}\n')
         self.assertEqual(kbtracer.prefix, '$')
@@ -2162,7 +2165,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertTrue(load_tracer.run_called)
         self.assertIsNone(load_tracer.stop)
         self.assertEqual(load_tracer.fast_load, 0)
-        self.assertEqual(load_tracer.timeout, 3500000000)
+        self.assertTrue(load_tracer.timeout < 3500000000)
         self.assertEqual(load_tracer.tracefile.name, trace_log)
         self.assertEqual(load_tracer.trace_line, '${pc:04X} {i}\n')
         self.assertEqual(load_tracer.prefix, '$')
@@ -2235,6 +2238,18 @@ class Tap2SnaTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'-c load=PC=? {tapfile}')
         self.assertEqual(cm.exception.args[0], f"Error while converting {tapfile}: Invalid integer in 'load' parameter: PC=?")
+
+    @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_keyboard_tracer_timed_out(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        load = ' '.join(['a'] * 50)
+        output, error = self.run_tap2sna(('-c', 'timeout=1', '-c', f'load={load}', tapfile))
+        self.assertEqual(error, '')
+        self.assertTrue(kbtracer.run_called)
+        self.assertEqual(kbtracer.timeout, 3500000)
+        self.assertEqual(output, 'Simulation stopped (timed out): PC=0\n')
 
     @patch.object(tap2sna, 'KeyboardTracer', InterruptedTracer)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)

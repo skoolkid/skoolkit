@@ -32,7 +32,7 @@ from skoolkit.loadsample import ACCELERATORS
 from skoolkit.loadtracer import LoadTracer, get_edges
 from skoolkit.pagingtracer import Memory
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC)
+                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 from skoolkit.snapshot import FRAME_DURATIONS, move, poke, print_reg_help, print_state_help, write_snapshot
 
 SYSVARS = (
@@ -361,6 +361,8 @@ def sim_load(blocks, options, config):
     else:
         tracefile = trace_line = prefix = byte_fmt = word_fmt = None
 
+    timeout = options.timeout * 3500000
+
     if options.load:
         load = options.load.split()
         if load[-1].startswith('PC='):
@@ -375,12 +377,13 @@ def sim_load(blocks, options, config):
         tracer = KeyboardTracer(simulator, load, kb_delay)
         simulator.set_tracer(tracer)
         try:
-            tracer.run(stop, tracefile, trace_line, prefix, byte_fmt, word_fmt)
+            tracer.run(stop, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
             border = tracer.border
             out7ffd = tracer.out7ffd
             outfffd = tracer.outfffd
             ay = tracer.ay
             outfe = tracer.outfe
+            timeout -= simulator.registers[T]
         except KeyboardInterrupt:
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
             interrupted = True
@@ -405,7 +408,9 @@ def sim_load(blocks, options, config):
         ay = [0] * 16
         outfe = 0
 
-    if not interrupted:
+    if timeout <= 0:
+        write_line(f'Simulation stopped (timed out): PC={simulator.registers[PC]}')
+    elif not interrupted:
         if options.contended_in:
             in_min_addr = 0x4000
         else:
@@ -415,8 +420,7 @@ def sim_load(blocks, options, config):
                             list_accelerators, border, out7ffd, outfffd, ay, outfe)
         simulator.set_tracer(tracer, False, False)
         try:
-            tracer.run(options.start, options.fast_load, options.timeout * 3500000,
-                       tracefile, trace_line, prefix, byte_fmt, word_fmt)
+            tracer.run(options.start, options.fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
             _ram_operations(memory, options.ram_ops)
         except KeyboardInterrupt:
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
