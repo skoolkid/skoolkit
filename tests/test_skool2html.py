@@ -80,8 +80,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     def setUp(self):
         global html_writer
         SkoolKitTestCase.setUp(self)
-        self.odir = 'html-{0}'.format(os.getpid())
-        self.tempdirs.append(self.odir)
+        self.odir = 'html'
         html_writer = None
 
     def _write_ref_file(self, text, path=None, suffix='.ref'):

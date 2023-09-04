@@ -106,11 +106,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         global snapshot, options, kbtracer, load_tracer
         super().setUp()
         snapshot = options = kbtracer = load_tracer = None
-        self.cwd = os.getcwd()
-
-    def tearDown(self):
-        os.chdir(self.cwd)
-        super().tearDown()
 
     def _write_tap(self, blocks, zip_archive=False, tap_name=None):
         tap_data = []
@@ -247,7 +242,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(self.err.getvalue(), '')
 
     def test_no_snapshot_argument_with_tap_file(self):
-        os.chdir(self.make_directory())
         tapfile = self._write_tap([create_tap_data_block([0])])
         exp_z80_fname = tapfile[:-4] + '.z80'
         output, error = self.run_tap2sna(f'--ram load=1,16384 {tapfile}')
@@ -255,7 +249,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertTrue(os.path.isfile(exp_z80_fname))
 
     def test_no_snapshot_argument_with_tzx_file(self):
-        os.chdir(self.make_directory())
         tzxfile = self._write_tzx([create_tzx_data_block([0])])
         exp_z80_fname = tzxfile[:-4] + '.z80'
         output, error = self.run_tap2sna(f'--ram load=1,16384 {tzxfile}')
@@ -263,7 +256,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertTrue(os.path.isfile(exp_z80_fname))
 
     def test_no_snapshot_argument_with_zip_file(self):
-        os.chdir(self.make_directory())
         zipfile = self._write_tap([create_tap_data_block([0])], True, 'great_game.tap')
         exp_z80_fname = 'great_game.z80'
         output, error = self.run_tap2sna(f'--ram load=1,16384 {zipfile}')
@@ -271,7 +263,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertTrue(os.path.isfile(exp_z80_fname))
 
     def test_no_snapshot_argument_with_unconventionally_named_tap_file(self):
-        os.chdir(self.make_directory())
         tapfile = self.write_bin_file(create_tap_data_block([0]), suffix='.tape')
         exp_z80_fname = tapfile + '.z80'
         output, error = self.run_tap2sna(f'--ram load=1,16384 {tapfile}')
@@ -280,7 +271,6 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'urlopen', Mock(return_value=BytesIO(bytearray(create_tap_data_block([0])))))
     def test_no_snapshot_argument_with_remote_download(self):
-        os.chdir(self.make_directory())
         url = 'http://example.com/test.tap'
         exp_z80_fname = 'test.z80'
         output, error = self.run_tap2sna(f'--ram load=1,16384 {url}')

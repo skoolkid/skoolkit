@@ -64,10 +64,6 @@ TEST_SPLIT_QUOTED = (
 )
 
 class TextUtilsTest(SkoolKitTestCase):
-    def setUp(self):
-        SkoolKitTestCase.setUp(self)
-        self.longMessage = True
-
     def _test_function(self, exp_result, func, *args, **kwargs):
         args_str = ', '.join([repr(a) for a in args])
         kwargs_str = ', '.join(['{}={!r}'.format(k, v) for k, v in kwargs.items()])

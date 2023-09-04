@@ -2209,10 +2209,6 @@ class Instruction:
         self.bytes = byte_values
 
 class Z80Test(SkoolKitTestCase):
-    def setUp(self):
-        SkoolKitTestCase.setUp(self)
-        self.longMessage = True
-
     def _test_operation(self, operation, exp_data, address):
         assembler = Assembler()
         data = assembler.assemble(operation, address)

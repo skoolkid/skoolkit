@@ -166,8 +166,11 @@ class SkoolKitTestCase(TestCase):
         sys.stderr = self.err = Stream()
         self.tempfiles = []
         self.tempdirs = []
+        self.cwd = os.getcwd()
+        os.chdir(self.make_directory())
 
     def tearDown(self):
+        os.chdir(self.cwd)
         self.remove_files()
         sys.stdin = self.stdin
         sys.stdout = self.stdout
@@ -195,13 +198,13 @@ class SkoolKitTestCase(TestCase):
     def make_directory(self, path=None):
         if path is None:
             tempdir = tempfile.mkdtemp(dir='')
-            self.tempdirs.append(tempdir)
+            self.tempdirs.append(os.path.abspath(tempdir))
             return tempdir
         if path and not os.path.isdir(path):
             parent = path
             while 1:
                 parent = dirname(parent)
-                if parent in self.tempdirs:
+                if os.path.abspath(parent) in self.tempdirs:
                     os.makedirs(path)
                     return
                 if parent in ('', os.path.sep):

@@ -223,8 +223,6 @@ HARDWARE_INFO = {
 
 CHARS = {9: '\t', 13: '\n'}
 
-TEXT_READER = TextReader()
-
 def _bytes_to_str(data):
     return ', '.join(str(b) for b in data)
 
@@ -412,7 +410,7 @@ def _get_block_info(data, i, block_num):
 def _print_info(text):
     print('  ' + text)
 
-def _print_block(index, data, show_data, info=(), block_id=None, header=None):
+def _print_block(index, data, show_data, text_reader, info=(), block_id=None, header=None):
     if block_id is None:
         print("{}:".format(index))
     else:
@@ -439,7 +437,8 @@ def _print_block(index, data, show_data, info=(), block_id=None, header=None):
                 start = get_word(data, 14)
             if name_str:
                 data_type = "Header block"
-                name = TEXT_READER.get_text(data[2:12])
+                text_reader.lspace = False
+                name = text_reader.get_text(data[2:12])
         elif data[0] == 255:
             data_type = "Data block"
         _print_info("Type: {}".format(data_type))
@@ -476,7 +475,7 @@ def _get_basic_block(spec):
         except ValueError:
             raise SkoolKitError('Invalid block specification: {}'.format(spec))
 
-def _analyse_tzx(tzx, basic_block, options):
+def _analyse_tzx(tzx, basic_block, text_reader, show_data):
     if tzx[:8] != bytearray((90, 88, 84, 97, 112, 101, 33, 26)):
         raise SkoolKitError("Not a TZX file")
 
@@ -494,10 +493,10 @@ def _analyse_tzx(tzx, basic_block, options):
         if basic_block:
             _list_basic(block_num, tape_data, *basic_block)
         else:
-            _print_block(block_num, tape_data, options.data, info, block_id, header)
+            _print_block(block_num, tape_data, show_data, text_reader, info, block_id, header)
         block_num += 1
 
-def _analyse_tap(tap, basic_block, show_data):
+def _analyse_tap(tap, basic_block, text_reader, show_data):
     i = 0
     block_num = 1
     while i + 1 < len(tap):
@@ -506,7 +505,7 @@ def _analyse_tap(tap, basic_block, show_data):
         if basic_block:
             _list_basic(block_num, data, *basic_block)
         else:
-            _print_block(block_num, data, show_data)
+            _print_block(block_num, data, show_data, text_reader)
         i += block_len + 2
         block_num += 1
 
@@ -538,11 +537,11 @@ def main(args):
         raise SkoolKitError('Unrecognised tape type')
 
     basic_block = _get_basic_block(namespace.basic)
-
+    text_reader = TextReader()
     with open(infile, 'rb') as f:
         tape = f.read()
 
     if tape_type == '.tap':
-        _analyse_tap(tape, basic_block, namespace.data)
+        _analyse_tap(tape, basic_block, text_reader, namespace.data)
     else:
-        _analyse_tzx(tape, basic_block, namespace)
+        _analyse_tzx(tape, basic_block, text_reader, namespace.data)

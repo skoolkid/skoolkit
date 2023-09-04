@@ -41,14 +41,6 @@ def mock_config(name):
     return {k: v[0] for k, v in COMMANDS[name].items()}
 
 class Sna2SkoolTest(SkoolKitTestCase):
-    def setUp(self):
-        super().setUp()
-        self.cwd = os.getcwd()
-
-    def tearDown(self):
-        os.chdir(self.cwd)
-        super().tearDown()
-
     @patch.object(sna2skool, 'run', mock_run)
     @patch.object(sna2skool, 'get_config', mock_config)
     def test_default_option_values(self):
@@ -279,7 +271,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_c_with_current_directory(self):
-        os.chdir(self.make_directory())
         ctl1 = self.write_text_file(suffix='.ctl')
         ctl2 = self.write_text_file(suffix='.ctl')
         ctlfiles = sorted(os.path.join('.', f) for f in (ctl1, ctl2))
