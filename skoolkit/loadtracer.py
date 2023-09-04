@@ -134,7 +134,7 @@ class LoadTracer(PagingTracer):
         registers = simulator.registers
         if accel_dec_a == 1:
             opcodes[0x3D] = partial(self.dec_a_jr, registers, memory)
-        elif accel_dec_a == 2: # pragma: no cover
+        elif accel_dec_a == 2:
             opcodes[0x3D] = partial(self.dec_a_jp, registers, memory)
         if accelerators:
             inc_b_acc = []
@@ -144,11 +144,11 @@ class LoadTracer(PagingTracer):
                     inc_b_acc.append(accelerator)
                 else:
                     dec_b_acc.append(accelerator)
-            if list_accelerators: # pragma: no cover
+            if list_accelerators:
                 opcodes[0x04] = partial(self.list_accelerators, registers, memory, inc_b_acc, self.inc_b_auto, 0x04)
                 opcodes[0x05] = partial(self.list_accelerators, registers, memory, dec_b_acc, self.dec_b_auto, 0x05)
             else:
-                if len(inc_b_acc) == 1: # pragma: no cover
+                if len(inc_b_acc) == 1:
                     accelerator = inc_b_acc[0]
                     if None in accelerator.code:
                         opcodes[0x04] = partial(self.inc_b_none, registers, memory, accelerator)
@@ -156,7 +156,7 @@ class LoadTracer(PagingTracer):
                         opcodes[0x04] = partial(self.inc_b, registers, memory, accelerator)
                 elif inc_b_acc:
                     opcodes[0x04] = partial(self.inc_b_auto, registers, memory, inc_b_acc)
-                if len(dec_b_acc) == 1: # pragma: no cover
+                if len(dec_b_acc) == 1:
                     opcodes[0x05] = partial(self.dec_b, registers, memory, dec_b_acc[0])
                 elif dec_b_acc:
                     opcodes[0x05] = partial(self.dec_b_auto, registers, memory, dec_b_acc)
@@ -211,7 +211,7 @@ class LoadTracer(PagingTracer):
                 if accept_int:
                     accept_int = simulator.accept_interrupt(registers, memory, pc)
 
-            if self.tape_running and tstates >= self.next_edge: # pragma: no cover
+            if self.tape_running and tstates >= self.next_edge:
                 index = self.index
                 while index < max_index and edges[index + 1] < tstates:
                     index += 1
@@ -219,10 +219,10 @@ class LoadTracer(PagingTracer):
                 if index == max_index:
                     # Allow 1ms for the final edge on the tape to be read
                     if tstates - edges[index] > 3500:
-                        self.stop_tape(tstates)
+                        self.stop_tape(tstates) # pragma: no cover
                 elif index > self.block_max_index:
                     # Pause tape between blocks
-                    self.next_block(tstates)
+                    self.next_block(tstates) # pragma: no cover
                 else:
                     self.next_edge = edges[index + 1]
                     if index < self.block_max_index:
@@ -252,7 +252,7 @@ class LoadTracer(PagingTracer):
                 pc = registers[24]
             else:
                 if self.end_of_tape and stop is None:
-                    if self.custom_loader: # pragma: no cover
+                    if self.custom_loader:
                         write_line(f'Simulation stopped (end of tape): PC={pc}')
                         break
                     if pc > 0x3FFF:
@@ -272,7 +272,7 @@ class LoadTracer(PagingTracer):
         # loop, which is common in tape loading routines
         a = registers[0]
         pcn = registers[24] + 1
-        if a and memory[pcn:pcn + 2] == [0x20, 0xFD]: # pragma: no cover
+        if a and memory[pcn:pcn + 2] == [0x20, 0xFD]:
             registers[0] = 0
             registers[1] = 0x42 + (registers[1] % 2)
             r = registers[15]
@@ -285,7 +285,7 @@ class LoadTracer(PagingTracer):
             registers[25] += 4
             registers[24] = pcn % 65536
 
-    def dec_a_jp(self, registers, memory): # pragma: no cover
+    def dec_a_jp(self, registers, memory):
         # Speed up any
         #   LD_DELAY: DEC A
         #             JP NZ,LD_DELAY
@@ -305,7 +305,7 @@ class LoadTracer(PagingTracer):
             registers[25] += 4
             registers[24] = (pc + 1) % 65536
 
-    def dec_b(self, registers, memory, acc): # pragma: no cover
+    def dec_b(self, registers, memory, acc):
         # Speed up the tape-sampling loop with a loader-specific accelerator
         b = registers[2]
         loops = 0
@@ -332,7 +332,7 @@ class LoadTracer(PagingTracer):
         if self.tape_running:
             loops = 0
             for i, acc in enumerate(accelerators):
-                if memory[pcn - acc.c0:pcn + acc.c1] == acc.code: # pragma: no cover
+                if memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
                     if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
                         delta = self.next_edge - registers[25] - acc.in_time
                         if delta > 0:
@@ -356,7 +356,7 @@ class LoadTracer(PagingTracer):
         registers[25] += 4
         registers[24] = pcn % 65536
 
-    def inc_b(self, registers, memory, acc): # pragma: no cover
+    def inc_b(self, registers, memory, acc):
         # Speed up the tape-sampling loop with a loader-specific accelerator
         b = registers[2]
         loops = 0
@@ -375,7 +375,7 @@ class LoadTracer(PagingTracer):
         registers[25] += acc.loop_time * loops + 4
         registers[24] = pcn % 65536
 
-    def inc_b_none(self, registers, memory, acc): # pragma: no cover
+    def inc_b_none(self, registers, memory, acc):
         # Speed up the tape-sampling loop with a loader-specific accelerator
         b = registers[2]
         loops = 0
@@ -402,7 +402,7 @@ class LoadTracer(PagingTracer):
         if self.tape_running:
             loops = 0
             for i, acc in enumerate(accelerators):
-                if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)): # pragma: no cover
+                if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
                     if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
                         delta = self.next_edge - registers[25] - acc.in_time
                         if delta > 0:
@@ -426,13 +426,13 @@ class LoadTracer(PagingTracer):
         registers[25] += 4
         registers[24] = pcn % 65536
 
-    def list_accelerators(self, registers, memory, accelerators, auto_method, opcode): # pragma: no cover
+    def list_accelerators(self, registers, memory, accelerators, auto_method, opcode):
         # Speed up the tape-sampling loop with an automatically selected
         # loader-specific accelerator, and also count hits and misses
         pcn = registers[24] + 1
         if self.tape_running:
             for i, acc in enumerate(accelerators):
-                if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)): # pragma: no cover
+                if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
                     self.accelerators[acc.name] += 1
                     if i:
                         # Move the selected accelerator to the beginning of the
@@ -450,7 +450,7 @@ class LoadTracer(PagingTracer):
     def read_port(self, registers, port):
         if port % 256 == 0xFE:
             pc = registers[24]
-            if pc >= self.in_min_addr or (0x0562 <= pc <= 0x05F1 and self.out7ffd & 0x10): # pragma: no cover
+            if pc >= self.in_min_addr or (0x0562 <= pc <= 0x05F1 and self.out7ffd & 0x10):
                 self.custom_loader = True
                 index = self.index
                 if self.announce_data and not self.end_of_tape:
