@@ -17,7 +17,7 @@ usage:
 	@echo "  test3X        run core tests with Python 3.X (8<=X<=11)"
 	@echo "  test-cover    run core tests with coverage info"
 	@echo "  test-slow     run slow tests in parallel"
-	@echo "  test-all      run core and disassembly tests"
+	@echo "  test-all      run core and disassembly tests in parallel"
 	@echo "  test3X-all    run core and disassembly tests with Python 3.X (8<=X<=11)"
 	@echo "  release       build a SkoolKit release tarball and zip archive"
 	@echo "  tarball       build a SkoolKit release tarball"
@@ -55,7 +55,7 @@ write-disassembly-tests:
 
 .PHONY: remove-disassembly-tests
 remove-disassembly-tests:
-	rm -f tests/test_hh_*.py*
+	rm -f tests/test_hh_*.py
 
 .PHONY: test
 test: remove-disassembly-tests
@@ -63,7 +63,7 @@ test: remove-disassembly-tests
 
 .PHONY: test-all
 test-all: write-disassembly-tests
-	$(NOSE)
+	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES)
 
 .PHONY: test3%
 test3%: remove-disassembly-tests

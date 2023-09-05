@@ -5,6 +5,7 @@ HTML_OPTIONS = $(HTML_OPTS)
 HTML_OPTIONS += -d $(BUILD)/html -t
 HTML_OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
 TESTS ?= asm ctl html
+CORES ?= 0
 
 .PHONY: usage
 usage:
@@ -12,7 +13,7 @@ usage:
 	@echo "  usage     show this help"
 	@echo "  html      build the HTML disassembly"
 	@echo "  asm       build the ASM disassembly"
-	@echo "  test      run tests with default Python 3 interpreter"
+	@echo "  test      run tests in parallel"
 	@echo "  test3X    run tests with Python 3.X (8<=X<=11)"
 	@$(MAKE) -s _targets
 	@echo ""
@@ -22,6 +23,7 @@ usage:
 	@echo "  THEMES         CSS theme(s) to use"
 	@echo "  HTML_OPTS      extra options passed to skool2html.py"
 	@echo "  ASM_OPTS       options passed to skool2asm.py"
+	@echo "  CORES          number of processes to use when running tests in parallel"
 
 .PHONY: _targets
 _targets:
@@ -43,7 +45,7 @@ write-tests:
 
 .PHONY: test
 test: write-tests
-	nose2-3
+	nose2-3 --plugin=nose2.plugins.mp -N $(CORES)
 
 .PHONY: test3%
 test3%: write-tests

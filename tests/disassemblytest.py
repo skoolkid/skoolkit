@@ -105,8 +105,7 @@ class CtlTestCase(DisassembliesTestCase):
 class HtmlTestCase(DisassembliesTestCase):
     def setUp(self):
         DisassembliesTestCase.setUp(self)
-        self.odir = 'html-{0}'.format(os.getpid())
-        self.tempdirs.append(self.odir)
+        self.odir = 'html'
 
     def _validate_xhtml(self):
         for root, dirs, files in os.walk(self.odir):

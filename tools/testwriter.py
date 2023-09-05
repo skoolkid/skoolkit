@@ -2,6 +2,7 @@ import sys
 import os
 
 PROLOGUE = """
+import shutil
 import sys
 import os
 
@@ -24,23 +25,27 @@ def _write_tests(test_type, sources, snapshot, output, skool, ctl, ref, clean):
     if skool:
         _add_variable(variables, 'SKOOL', skool)
     else:
-        _add_variable(variables, 'SNAPSHOT', os.path.abspath(snapshot))
-        _add_variable(variables, 'CTL', os.path.abspath(ctl))
+        _add_variable(variables, 'SNAPSHOT', os.path.basename(snapshot))
+        _add_variable(variables, 'CTL', os.path.basename(ctl))
     if test_type == 'asm':
         if not clean:
             _add_variable(variables, 'CLEAN', clean)
     elif test_type == 'html':
         _add_variable(variables, 'OUTPUT', output, True)
         if ref:
-            _add_variable(variables, 'REF', os.path.abspath(ref))
+            _add_variable(variables, 'REF', os.path.basename(ref))
     class_name = '{}TestCase'.format(test_type.capitalize())
     print('class {0}(disassemblytest.{0}):'.format(class_name))
+    print('    def setUp(self):')
+    print('        super().setUp()')
     if sources:
-        print('    @classmethod')
-        print('    def setUpClass(cls):')
-        print('        super().setUpClass()')
-        print('        os.chdir(SOURCEDIR)')
-        print('')
+        print("        shutil.copytree(SOURCEDIR, '.', dirs_exist_ok=True)")
+    else:
+        cwd = os.getcwd()
+        print(f"        shutil.copy('{cwd}/{snapshot}', '.')")
+        print(f"        shutil.copy('{cwd}/{ctl}', '.')")
+        print(f"        shutil.copy('{cwd}/{ref}', '.')")
+    print('')
     for options in OPTIONS_LISTS[test_type]:
         method_name_suffix = options.replace('-', '_').replace(' ', '')
         method_name = 'test_{}{}'.format(test_type, method_name_suffix)
