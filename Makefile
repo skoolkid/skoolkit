@@ -13,12 +13,12 @@ usage:
 	@echo "  man           build the man pages"
 	@echo "  clean         clean the documentation and man pages"
 	@echo "  hh            build the Hungry Horace disassembly"
-	@echo "  test          run core tests in parallel"
+	@echo "  test          run core tests"
 	@echo "  test3X        run core tests with Python 3.X (8<=X<=11)"
-	@echo "  test-cover    run core tests with coverage info"
-	@echo "  test-slow     run slow tests in parallel"
-	@echo "  test-all      run core and disassembly tests in parallel"
+	@echo "  test-slow     run slow tests"
+	@echo "  test-all      run core and disassembly tests"
 	@echo "  test3X-all    run core and disassembly tests with Python 3.X (8<=X<=11)"
+	@echo "  test-cover    run core tests with coverage info"
 	@echo "  release       build a SkoolKit release tarball and zip archive"
 	@echo "  tarball       build a SkoolKit release tarball"
 	@echo "  deb           build a SkoolKit Debian package"
@@ -27,7 +27,7 @@ usage:
 	@echo "Variables:"
 	@echo "  THEMES     CSS theme(s) to use"
 	@echo "  HTML_OPTS  options passed to skool2html.py"
-	@echo "  CORES      number of processes to use when running tests in parallel"
+	@echo "  CORES      number of processes to use when running tests"
 
 .PHONY: doc
 doc:
@@ -67,11 +67,11 @@ test-all: write-disassembly-tests
 
 .PHONY: test3%
 test3%: remove-disassembly-tests
-	$(HOME)/Python/Python3.$*/bin/nose2
+	$(HOME)/Python/Python3.$*/bin/nose2 --plugin=nose2.plugins.mp -N $(CORES)
 
 .PHONY: test3%-all
 test3%-all: write-disassembly-tests
-	$(HOME)/Python/Python3.$*/bin/nose2
+	$(HOME)/Python/Python3.$*/bin/nose2 --plugin=nose2.plugins.mp -N $(CORES)
 
 .PHONY: test-cover
 test-cover: remove-disassembly-tests

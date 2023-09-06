@@ -13,7 +13,7 @@ usage:
 	@echo "  usage     show this help"
 	@echo "  html      build the HTML disassembly"
 	@echo "  asm       build the ASM disassembly"
-	@echo "  test      run tests in parallel"
+	@echo "  test      run tests"
 	@echo "  test3X    run tests with Python 3.X (8<=X<=11)"
 	@$(MAKE) -s _targets
 	@echo ""
@@ -23,7 +23,7 @@ usage:
 	@echo "  THEMES         CSS theme(s) to use"
 	@echo "  HTML_OPTS      extra options passed to skool2html.py"
 	@echo "  ASM_OPTS       options passed to skool2asm.py"
-	@echo "  CORES          number of processes to use when running tests in parallel"
+	@echo "  CORES          number of processes to use when running tests"
 
 .PHONY: _targets
 _targets:
@@ -49,4 +49,4 @@ test: write-tests
 
 .PHONY: test3%
 test3%: write-tests
-	$(HOME)/Python/Python3.$*/bin/nose2
+	$(HOME)/Python/Python3.$*/bin/nose2 --plugin=nose2.plugins.mp -N $(CORES)

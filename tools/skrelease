@@ -236,21 +236,13 @@ test_disassemblies() {
   csclog=$CONTACTSAMCRUISE_HOME/build/tests.log
   targets="test38 test39 test310 test311"
 
-  make -C $HUNGRYHORACE_HOME $targets &> $hhlog & PIDhh=$!
-  make -C $MANICMINER_HOME $targets &> $mmlog & PIDmm=$!
-  make -C $JETSETWILLY_HOME $targets &> $jswlog & PIDjsw=$!
-  make -C $ROM_DISASSEMBLY_HOME $targets &> $romlog & PIDrom=$!
-  make -C $SKOOLDAZE_HOME $targets &> $sdlog & PIDsd=$!
-  make -C $BACKTOSKOOL_HOME $targets &> $btslog & PIDbts=$!
-  make -C $CONTACTSAMCRUISE_HOME $targets &> $csclog & PIDcsc=$!
-
-  _wait "Hungry Horace tests" $PIDhh "(see $hhlog)" _
-  _wait "Manic Miner tests" $PIDmm "(see $mmlog)" _
-  _wait "Jet Set Willy tests" $PIDjsw "(see $jswlog)" _
-  _wait "Spectrum ROM tests" $PIDrom "(see $romlog)" _
-  _wait "Skool Daze tests" $PIDsd "(see $sdlog)" _
-  _wait "Back to Skool tests" $PIDbts "(see $btslog)" _
-  _wait "Contact Sam Cruise tests" $PIDcsc "(see $csclog)" _
+  _exec "Hungry Horace tests" "make -C $HUNGRYHORACE_HOME $targets" $hhlog
+  _exec "Manic Miner tests" "make -C $MANICMINER_HOME $targets" $mmlog
+  _exec "Jet Set Willy tests" "make -C $JETSETWILLY_HOME $targets" $jswlog
+  _exec "Spectrum ROM tests" "make -C $ROM_DISASSEMBLY_HOME $targets" $romlog
+  _exec "Skool Daze tests" "make -C $SKOOLDAZE_HOME $targets" $sdlog
+  _exec "Back to Skool tests" "make -C $BACKTOSKOOL_HOME $targets" $btslog
+  _exec "Contact Sam Cruise tests" "make -C $CONTACTSAMCRUISE_HOME $targets" $csclog
 }
 
 ###############################################################################
