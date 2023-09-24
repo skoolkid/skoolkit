@@ -203,6 +203,7 @@ loop accelerators are:
 |  ``gargoyle2`` (various games created or published by Gargoyle Games)
 |  ``gremlin`` (various games published by Gremlin Graphics)
 |  ``gremlin2`` (Super Cars)
+|  ``housenka`` (Housenka)
 |  ``microprose`` (F-15 Strike Eagle)
 |  ``microsphere`` (Back to Skool, Contact Sam Cruise, Skool Daze, Sky Ranger)
 |  ``micro-style`` (Xenophobe)

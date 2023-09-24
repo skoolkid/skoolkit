@@ -553,6 +553,27 @@ ACCELERATORS = {
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 
+    'housenka': Accelerator(
+        'housenka',
+        [
+            0x04,       # LD_SAMPLE INC B          [4]
+            0xC8,       #           RET Z          [11/5]
+            0x3E, 0xFE, #           LD A,$FE       [7]
+            0xDB, 0xFE, #           IN A,($FE)     [11]
+            0x1F,       #           RRA            [4]
+            0xD0,       #           RET NC         [11/5]
+            0xA9,       #           XOR C          [4]
+            0xE6, 0x20, #           AND $20        [7]
+            0x28, 0xF3, #           JR Z,LD_SAMPLE [12/7]
+        ],
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
+        59,   # 59 T-states per loop iteration
+        9,    # R register increment per loop iteration
+        0x20, # EAR mask
+        0     # Zero flag is reset upon edge detection by AND $20
+    ),
+
     'microprose': Accelerator(
         'microprose',
         [

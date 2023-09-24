@@ -2152,7 +2152,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(tapfile)
         self.assertEqual(error, '')
         self.assertIsNone(kbtracer)
-        self.assertEqual(len(load_tracer.accelerators_in), 44)
+        self.assertEqual(len(load_tracer.accelerators_in), 45)
         self.assertTrue(load_tracer.pause)
         self.assertEqual(load_tracer.first_edge, 0)
         self.assertEqual(load_tracer.polarity, 0)

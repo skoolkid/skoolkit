@@ -1478,6 +1478,7 @@ loop accelerators are:
 * ``gargoyle2`` (various games created or published by Gargoyle Games)
 * ``gremlin`` (various games published by Gremlin Graphics)
 * ``gremlin2`` (Super Cars)
+* ``housenka`` (Housenka)
 * ``microprose`` (F-15 Strike Eagle)
 * ``microsphere`` (Back to Skool, Contact Sam Cruise, Skool Daze, Sky Ranger)
 * ``micro-style`` (Xenophobe)
@@ -1603,7 +1604,7 @@ Configuration parameters may also be set on the command line by using the
 |         | SZX snapshots; added the ``fe`` hardware state attribute; added   |
 |         | support for register pairs (``r[bc]``, ``r[de]`` etc.) in the     |
 |         | ``TraceLine`` configuration parameter; added the ``ernieware``    |
-|         | tape-sampling loop accelerator                                    |
+|         | and ``housenka`` tape-sampling loop accelerators                  |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |
