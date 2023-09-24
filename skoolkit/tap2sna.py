@@ -394,8 +394,14 @@ def sim_load(blocks, options, config):
             memory[a] = b % 256
             if b > 0xFF:
                 memory[a + 1] = b // 256
-        block1_data = blocks[0][1]
-        if len(block1_data) >= 19 and tuple(block1_data[0:2]) == (0, 3):
+        is_code = False
+        for block in blocks:
+            block_data = block[1]
+            if block_data:
+                if len(block_data) >= 19 and tuple(block_data[0:2]) == (0, 3):
+                    is_code = True
+                break
+        if is_code:
             for a, b in SIM_LOAD_CODE_PATCH.items():
                 memory[a] = b % 256
                 if b > 0xFF:

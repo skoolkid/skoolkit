@@ -1874,6 +1874,26 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_sim_load_with_initial_pause_block(self):
+        pause_block = [
+            32,    # Block ID
+            1, 0,  # Pause (1ms)
+        ]
+        tzxfile = self._write_tzx([
+            pause_block,
+            create_tzx_header_block("simloadbas", 10, 1, 0),
+        ])
+        output, error = self.run_tap2sna(f'--start 1343 {tzxfile} out.z80')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=1343',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_unexpected_end_of_tape(self):
         basic_data = [
             0, 10,       # Line 10
