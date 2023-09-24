@@ -1474,6 +1474,7 @@ loop accelerators are:
 * ``design-design`` (various games published by Design Design Software)
 * ``digital-integration`` (Digital Integration)
 * ``dinaload`` (Dinaload)
+* ``ernieware`` (The Evolution)
 * ``gargoyle2`` (various games created or published by Gargoyle Games)
 * ``gremlin`` (various games published by Gremlin Graphics)
 * ``gremlin2`` (Super Cars)
@@ -1601,7 +1602,8 @@ Configuration parameters may also be set on the command line by using the
 |         | output snapshot argument is optional; added support for writing   |
 |         | SZX snapshots; added the ``fe`` hardware state attribute; added   |
 |         | support for register pairs (``r[bc]``, ``r[de]`` etc.) in the     |
-|         | ``TraceLine`` configuration parameter                             |
+|         | ``TraceLine`` configuration parameter; added the ``ernieware``    |
+|         | tape-sampling loop accelerator                                    |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |
