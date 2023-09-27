@@ -740,8 +740,8 @@ def _get_tape(urlstring, user_agent, member):
             if not data:
                 break
             f.write(data)
-    elif url.path:
-        f = open_file(url.path, 'rb')
+    else:
+        f = open_file(urlstring, 'rb')
 
     if urlstring.lower().endswith('.zip'):
         z = zipfile.ZipFile(f)

@@ -326,6 +326,17 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertTrue(os.path.isfile(exp_z80_fname))
 
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_tape_file_with_hash_in_name(self):
+        code = [1, 2, 3, 4, 5]
+        start = 24576
+        tap_data = create_tap_data_block(code)
+        tapfile = '{}/game#2.tap'.format(self.make_directory())
+        self.write_bin_file(tap_data, tapfile)
+        output, error = self.run_tap2sna(f'--ram load=1,{start} {tapfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(code, snapshot[start:start + len(code)])
+
     def test_option_d(self):
         odir = '{}/tap2sna'.format(self.make_directory())
         tapfile = self._write_tap([create_tap_data_block([0])])

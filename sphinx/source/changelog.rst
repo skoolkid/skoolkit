@@ -41,6 +41,8 @@ Changelog
   snapshots
 * Changed the default value of ``H`` and ``A`` for the :ref:`assemble`
   directive to 2
+* Fixed the bug that prevents :ref:`tap2sna.py` from loading a tape that has a
+  hash character (``#``) in its filename
 
 8.10 (2023-06-17)
 -----------------
