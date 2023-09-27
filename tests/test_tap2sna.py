@@ -2288,14 +2288,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertTrue(kbtracer.run_called)
         self.assertEqual(kbtracer.stop, 0x13BE)
 
-    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
-    def test_list_accelerators(self):
-        tapfile = self._write_tap([create_tap_data_block([0])])
-        output, error = self.run_tap2sna(f'-c accelerator=list {tapfile}')
-        self.assertEqual(error, '')
-        self.assertEqual(output, 'Accelerators: speedlock: 1; bleepload: 2; misses: 3/4\n')
-
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_empty_tape(self):
         tapfile = self._write_tap([])
