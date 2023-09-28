@@ -479,7 +479,7 @@ ACCELERATORS = {
             0x3E, 0x7F,       #           LD A,$7F       [7]
             0xDB, 0xFE,       #           IN A,($FE)     [11]
             0x1F,             #           RRA            [4]
-            0xD2, 0x00, 0x00, #           JP NC,$0000    [10]
+            0xD2, None, None, #           JP NC,nn       [10]
             0xA9,             #           XOR C          [4]
             0xE6, 0x20,       #           AND $20        [7]
             0x28, 0xF1,       #           JR Z,LD_SAMPLE [12/7]

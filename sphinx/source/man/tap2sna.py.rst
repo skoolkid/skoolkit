@@ -199,7 +199,7 @@ loop accelerators are:
 |  ``design-design`` (various games published by Design Design Software)
 |  ``digital-integration`` (Digital Integration)
 |  ``dinaload`` (Dinaload)
-|  ``ernieware`` (The Evolution)
+|  ``ernieware`` (The Evolution, Golem)
 |  ``gargoyle2`` (various games created or published by Gargoyle Games)
 |  ``gremlin`` (various games published by Gremlin Graphics)
 |  ``gremlin2`` (Super Cars)
