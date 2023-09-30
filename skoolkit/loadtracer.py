@@ -123,6 +123,9 @@ class LoadTracer(PagingTracer):
         self.accelerators = defaultdict(int)
         self.inc_b_misses = 0
         self.dec_b_misses = 0
+        self.dec_a_jr_hits = 0
+        self.dec_a_jp_hits = 0
+        self.dec_a_misses = 0
         self.simulator = simulator
         self.edges, self.indexes, self.blocks = get_edges(blocks, first_edge, polarity)
         self.pause = pause
@@ -132,7 +135,9 @@ class LoadTracer(PagingTracer):
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
-        if accel_dec_a == 1:
+        if list_accelerators:
+            opcodes[0x3D] = partial(self.dec_a_list, registers, memory)
+        elif accel_dec_a == 1:
             opcodes[0x3D] = partial(self.dec_a_jr, registers, memory)
         elif accel_dec_a == 2:
             opcodes[0x3D] = partial(self.dec_a_jp, registers, memory)
@@ -301,6 +306,23 @@ class LoadTracer(PagingTracer):
             registers[24] = (pc + 4) % 65536
         else:
             registers[:2] = DEC[registers[1] % 2][a]
+            registers[15] = R1[registers[15]]
+            registers[25] += 4
+            registers[24] = (pc + 1) % 65536
+
+    def dec_a_list(self, registers, memory):
+        # Speed up any 'DEC A: JR/JP NZ,$-1' loop, and also count hits and
+        # misses
+        pc = registers[24]
+        if memory[pc + 1:pc + 3] == [0x20, 0xFD]:
+            self.dec_a_jr_hits += 1
+            self.dec_a_jr(registers, memory)
+        elif memory[pc + 1:pc + 4] == [0xC2, pc % 256, pc // 256]:
+            self.dec_a_jp_hits += 1
+            self.dec_a_jp(registers, memory)
+        else:
+            self.dec_a_misses += 1
+            registers[:2] = DEC[registers[1] % 2][registers[0]]
             registers[15] = R1[registers[15]]
             registers[25] += 4
             registers[24] = (pc + 1) % 65536

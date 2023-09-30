@@ -20,6 +20,8 @@ Changelog
   (``r[bc]``, ``r[de]`` etc.) in the ``TraceLine`` configuration parameter
 * Added the ``ernieware`` and ``housenka`` tape-sampling loop
   :ref:`accelerators <tap2sna-accelerators>`
+* Statistics for 'DEC A' tape-sampling delay loops are now shown by
+  :ref:`tap2sna.py` when ``accelerator=list``
 * Added support to :ref:`trace.py` for executing machine code in 128K snapshots
 * Added support to :ref:`trace.py <trace-conf>` for reading configuration
   from `skoolkit.ini`

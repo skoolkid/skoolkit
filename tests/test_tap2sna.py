@@ -2709,14 +2709,19 @@ class Tap2SnaTest(SkoolKitTestCase):
         global mock_memory
         mock_memory = [0] * 65536
         code = (
-            0x04,       # $C000 INC B
-            0xC8,       # $C001 RET Z
-            0xDB, 0xFE, # $C002 IN A,($FE)
-            0xA9,       # $C004 XOR C
-            0xE6, 0x40, # $C005 AND $40
-            0x28, 0xF7, # $C007 JR Z,$C000
-            0x04,       # $C009 INC B      ; INC B miss
-            0x05,       # $C00A DEC B      ; DEC B miss
+            0x04,             # $C000 INC B
+            0xC8,             # $C001 RET Z
+            0xDB, 0xFE,       # $C002 IN A,($FE)
+            0xA9,             # $C004 XOR C
+            0xE6, 0x40,       # $C005 AND $40
+            0x28, 0xF7,       # $C007 JR Z,$C000
+            0x04,             # $C009 INC B       ; INC B miss
+            0x05,             # $C00A DEC B       ; DEC B miss
+            0x3D,             # $C00B DEC A       ; DEC A miss
+            0x3D,             # $C00C DEC A       ; DEC A; JR NZ,$-1 hit
+            0x20, 0xFD,       # $C00D JR NZ,$C00C ;
+            0x3D,             # $C00F DEC A       ; DEC A; JP NZ,$-1 hit
+            0xC2, 0x0F, 0xC0, # $C010 JP NZ,$C00F ;
         )
         mock_memory[0xC000:0xC000 + len(code)] = code
         tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
@@ -2724,9 +2729,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Data (19 bytes)',
             'Tape finished',
-            'Simulation stopped (end of tape): PC=49166',
-            'Accelerators: tiny: 1; misses: 1/1'
+            'Simulation stopped (end of tape): PC=49174',
+            'Accelerators: tiny: 1; misses: 1/1; dec-a: 1/1/1'
         ]
         self.assertEqual(exp_out_lines, self._format_output(output))
         self.assertEqual(error, '')
+        self.assertEqual(simulator.registers[0], 255)
         self.assertEqual(simulator.registers[2], 156)

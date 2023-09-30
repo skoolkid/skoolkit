@@ -1442,12 +1442,17 @@ special values:
 
 The output produced by ``accelerator=list`` looks something like this::
 
-  Accelerators: microsphere: 6695; rom: 794013; misses: 19/9
+  Accelerators: microsphere: 6695; rom: 794013; misses: 19/9; dec-a: 800708/0/224
 
-This means that the ``microsphere`` and ``rom`` tape-sampling loops were
-detected, and were entered 6695 times and 794013 times respectively. In
-addition, 19 instances of 'INC B' outside a recognised tape-sampling loop were
-executed, and the corresponding figure for 'DEC B' is 9.
+This means that:
+
+* the ``microsphere`` and ``rom`` tape-sampling loops were detected, and were
+  entered 6695 times and 794013 times respectively
+* 19 instances of 'INC B' outside a recognised tape-sampling loop were
+  executed, and the corresponding figure for 'DEC B' is 9
+* 800708 'DEC A: JR NZ,$-1' delay loops were entered, no 'DEC A: JP NZ,$-1'
+  delay loops were entered, and 224 instances of 'DEC A' outside such delay
+  loops were executed
 
 Specifying by name the types of tape-sampling loop used by a game's custom
 loader may reduce the loading time. The names of the available tape-sampling
@@ -1604,7 +1609,8 @@ Configuration parameters may also be set on the command line by using the
 |         | SZX snapshots; added the ``fe`` hardware state attribute; added   |
 |         | support for register pairs (``r[bc]``, ``r[de]`` etc.) in the     |
 |         | ``TraceLine`` configuration parameter; added the ``ernieware``    |
-|         | and ``housenka`` tape-sampling loop accelerators                  |
+|         | and ``housenka`` tape-sampling loop accelerators; shows 'DEC A'   |
+|         | delay loop statistics when ``accelerator=list``                   |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |
