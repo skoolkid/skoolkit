@@ -2311,7 +2311,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertTrue(kbtracer.run_called)
         self.assertEqual(kbtracer.timeout, 3500000)
-        self.assertEqual(output, 'Simulation stopped (timed out): PC=0\n')
+        self.assertEqual(output, 'Simulation stopped (timed out): PC=4608\n')
 
     @patch.object(tap2sna, 'KeyboardTracer', InterruptedTracer)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
@@ -2319,7 +2319,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c load=RUN {tapfile}')
         self.assertEqual(error, '')
-        self.assertEqual(output, 'Simulation stopped (interrupted): PC=0\n')
+        self.assertEqual(output, 'Simulation stopped (interrupted): PC=4608\n')
 
     @patch.object(tap2sna, 'LoadTracer', InterruptedTracer)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)

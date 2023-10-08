@@ -1088,13 +1088,13 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertLessEqual(exp_reg, set(options.reg))
         with open(tracefile, 'r') as f:
             trace_lines = f.read().rstrip().split('\n')
-        self.assertEqual(len(trace_lines), 773700)
-        self.assertEqual(trace_lines[0], '$0000 DI')
-        self.assertEqual(trace_lines[1], '$0001 XOR A')
-        self.assertEqual(trace_lines[2], '$0002 LD DE,$FFFF')
-        self.assertEqual(trace_lines[3], '$0005 JP $11CB')
-        self.assertEqual(trace_lines[765494], '$0605 POP AF')
-        self.assertEqual(trace_lines[773699], '$34BB RET')
+        self.assertEqual(len(trace_lines), 134694)
+        self.assertEqual(trace_lines[0], '$1200 LD ($5CB4),HL')
+        self.assertEqual(trace_lines[1], '$1203 LD DE,$3EAF')
+        self.assertEqual(trace_lines[2], '$1206 LD BC,$00A8')
+        self.assertEqual(trace_lines[3], '$1209 EX DE,HL')
+        self.assertEqual(trace_lines[126488], '$0605 POP AF')
+        self.assertEqual(trace_lines[134693], '$34BB RET')
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_bit_5_of_output_to_port_0x7ffd(self):

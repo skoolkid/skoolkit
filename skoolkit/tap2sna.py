@@ -342,11 +342,15 @@ def sim_load(blocks, options, config):
     if options.machine == '128':
         if not options.load:
             options.load = 'ENTER'
+        registers = {'PC': 0x00EA, '^HL': 0xFFFF, 'R': 0x38}
+        state = {'tstates': 3453395}
         sim_cfg = {'frame_duration': FRAME_DURATIONS[1]}
         memory = Memory()
         stop = 0x13BE
         kb_delay = 13
     else:
+        registers = {'PC': 0x1200, 'HL': 0xFFFF, 'R': 0x22}
+        state = {'tstates': 5701854}
         sim_cfg = {}
         memory = [0] * 65536
         memory[:0x4000] = read_bin_file(ROM48, 16384)
@@ -373,7 +377,7 @@ def sim_load(blocks, options, config):
                 raise SkoolKitError(f"Invalid integer in 'load' parameter: {pc}")
         if not load or load[-1] != 'ENTER':
             load.append('ENTER')
-        simulator = Simulator(memory, config=sim_cfg)
+        simulator = Simulator(memory, registers, state, sim_cfg)
         tracer = KeyboardTracer(simulator, load, kb_delay)
         simulator.set_tracer(tracer)
         try:
