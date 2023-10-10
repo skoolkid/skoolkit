@@ -18,7 +18,7 @@ Changelog
 * The output snapshot argument of :ref:`tap2sna.py` is now optional
 * Added support to :ref:`tap2sna.py <tap2sna-conf>` for register pairs
   (``r[bc]``, ``r[de]`` etc.) in the ``TraceLine`` configuration parameter
-* Added the ``ernieware`` and ``housenka`` tape-sampling loop
+* Added the ``antirom``, ``ernieware`` and ``housenka`` tape-sampling loop
   :ref:`accelerators <tap2sna-accelerators>`
 * Statistics for 'DEC A' tape-sampling delay loops are now shown by
   :ref:`tap2sna.py` when ``accelerator=list``

@@ -191,6 +191,7 @@ loop accelerators are:
 |  ``alkatraz2`` (Alkatraz 2)
 |  ``alternative`` (Fireman Sam, Huxley Pig)
 |  ``alternative2`` (Kentucky Racing)
+|  ``antirom`` (Boxe)
 |  ``bleepload`` (Firebird BleepLoad)
 |  ``boguslaw-juza`` (Euro Biznes)
 |  ``bulldog`` (Rigel's Revenge)

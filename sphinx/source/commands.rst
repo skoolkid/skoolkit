@@ -1466,6 +1466,7 @@ loop accelerators are:
 * ``alkatraz2`` (Alkatraz 2)
 * ``alternative`` (Fireman Sam, Huxley Pig)
 * ``alternative2`` (Kentucky Racing)
+* ``antirom`` (Boxe)
 * ``bleepload`` (Firebird BleepLoad)
 * ``boguslaw-juza`` (Euro Biznes)
 * ``bulldog`` (Rigel's Revenge)
@@ -1608,9 +1609,9 @@ Configuration parameters may also be set on the command line by using the
 |         | output snapshot argument is optional; added support for writing   |
 |         | SZX snapshots; added the ``fe`` hardware state attribute; added   |
 |         | support for register pairs (``r[bc]``, ``r[de]`` etc.) in the     |
-|         | ``TraceLine`` configuration parameter; added the ``ernieware``    |
-|         | and ``housenka`` tape-sampling loop accelerators; shows 'DEC A'   |
-|         | delay loop statistics when ``accelerator=list``                   |
+|         | ``TraceLine`` configuration parameter; added the ``antirom``,     |
+|         | ``ernieware`` and ``housenka`` tape-sampling loop accelerators;   |
+|         | shows 'DEC A' delay loop statistics when ``accelerator=list``     |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |
