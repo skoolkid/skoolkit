@@ -1948,11 +1948,30 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_sim_load_can_ignore_tzx_block_type_0x15(self):
+        direct_recording_block = (
+            21,          # Block ID
+            79, 0,       # T-states per sample
+            0, 0,        # Pause
+            8,           # Used bits in last byte
+            3, 0, 0,     # Data length
+            1, 2, 3,     # Data
+        )
+        tzxfile = self._write_tzx((
+            direct_recording_block,
+            create_tzx_header_block()
+        ))
+        output, error = self.run_tap2sna(f'--tape-start 2 {tzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 1)
+
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x18(self):
         block = [
             24,          # Block ID
-            11, 0, 0, 0, # Block length
+            10, 0, 0, 0, # Block length
             0, 0,        # Pause
             68, 172,     # Sampling rate
             1,           # Compression type
@@ -1966,6 +1985,26 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: TZX CSW Recording (0x18) not supported')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_sim_load_can_ignore_tzx_block_type_0x18(self):
+        csw_recording_block = (
+            24,          # Block ID
+            10, 0, 0, 0, # Block length
+            0, 0,        # Pause
+            68, 172,     # Sampling rate
+            1,           # Compression type
+            1, 0, 0, 0,  # Number of stored pulses
+            1,           # CSW Data
+        )
+        tzxfile = self._write_tzx((
+            csw_recording_block,
+            create_tzx_header_block()
+        ))
+        output, error = self.run_tap2sna(f'--tape-start 2 {tzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 1)
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x19(self):
@@ -1987,6 +2026,28 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: TZX Generalized Data Block (0x19) not supported')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_sim_load_can_ignore_tzx_block_type_0x19(self):
+        generalized_data_block = (
+            25,          # Block ID
+            14, 0, 0, 0, # Block length
+            0, 0,        # Pause
+            0, 0, 0, 0,  # Number of symbols in pilot/sync block
+            1,           # Maximum number of pulses per pilot/sync symbol
+            1,           # Number of pilot/sync symbols in alphabet table
+            0, 0, 0, 0,  # Number of symbols in data stream
+            1,           # Maximum number of pulses per data symbol
+            1,           # Number of data symbols in alphabet table
+        )
+        tzxfile = self._write_tzx((
+            generalized_data_block,
+            create_tzx_header_block()
+        ))
+        output, error = self.run_tap2sna(f'--tape-start 2 {tzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 1)
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_trace(self):

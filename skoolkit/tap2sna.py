@@ -238,7 +238,7 @@ class TapeError(Exception):
     pass
 
 class TapeBlockTimings:
-    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0, used_bits=8):
+    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0, used_bits=8, error=None):
         self.pilot_len = pilot_len
         self.pilot = pilot
         self.sync = sync
@@ -246,6 +246,7 @@ class TapeBlockTimings:
         self.one = one
         self.pause = pause
         self.used_bits = used_bits
+        self.error = error
 
 def get_tape_block_timings(first_byte, pause=3500000):
     if first_byte == 0:
@@ -611,17 +612,17 @@ def _get_tzx_block(data, i, sim):
     elif block_id == 21:
         # Direct recording block
         if sim:
-            raise TapeError("TZX Direct Recording (0x15) not supported")
+            timings = TapeBlockTimings(error="TZX Direct Recording (0x15) not supported")
         i += get_word3(data, i + 5) + 8
     elif block_id == 24:
         # CSW recording block
         if sim:
-            raise TapeError("TZX CSW Recording (0x18) not supported")
+            timings = TapeBlockTimings(error="TZX CSW Recording (0x18) not supported")
         i += get_dword(data, i) + 4
     elif block_id == 25:
         # Generalized data block
         if sim:
-            raise TapeError("TZX Generalized Data Block (0x19) not supported")
+            timings = TapeBlockTimings(error="TZX Generalized Data Block (0x19) not supported")
         i += get_dword(data, i) + 4
     elif block_id == 32:
         # Pause (silence) or 'Stop the tape' command
@@ -694,6 +695,8 @@ def _get_tzx_blocks(data, sim, start, stop, is48):
             break
         i, block_id, timings, tape_data = _get_tzx_block(data, i, sim)
         if block_num >= start:
+            if timings and timings.error:
+                raise TapeError(timings.error)
             if sim:
                 if block_id == 0x20:
                     if stop == 0 and timings.pause == 0:
