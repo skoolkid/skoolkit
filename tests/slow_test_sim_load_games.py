@@ -509,6 +509,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=raxoft --start 64851'
         )
 
+    def test_read_in_r_c(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/s/Sokoban_3.tap.zip',
+            'SOKOBAN.TAP',
+            'e1ca546008696c2f53699683874b0717',
+            {
+                'AF,BC,DE,HL': '0001,0000,0000,053F',
+                "AF',BC',DE',HL'": 'FF81,7FFD,0009,0038',
+                'PC,SP,IX,IY': '5B14,5F52,C654,5C3A',
+                'IR,iff,im,border': '3F2F,1,1,0',
+                'ram': '8b493d98725e984a89a08aab2183717c'
+            },
+            '-c read-in-r-c=1 -c machine=128 -c finish-tape=1 --start 23316'
+        )
+
     def test_realtime(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/s/StarstrikeII.tzx.zip',

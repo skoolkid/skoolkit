@@ -488,7 +488,15 @@ class LoadTracer(PagingTracer):
                 if index % 2 == 0:
                     return 191
         elif port == 0xFFFD: # pragma: no cover
-            return self.ay[self.outfffd % 16]
+            ay_reg = self.outfffd % 16
+            if ay_reg == 14 and registers[24] == 0x08B2:
+                # Avoid an infinite loop at 0x08AF in the 128K ROM:
+                #   $08AF CALL $05D6  ; Check for BREAK.
+                #   $08B2 IN A,(C)    ; Read AY register 14 (BC=$FFFD).
+                #   $08B4 AND $40     ; Ready to send data?
+                #   $08B6 JR NZ,$08AF ; Jump back if not (bit 6 set).
+                return 0
+            return self.ay[ay_reg]
         return 255
 
     def next_block(self, tstates):

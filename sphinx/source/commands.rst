@@ -1414,6 +1414,9 @@ parameters are:
 * ``polarity`` - the EAR bit reading produced by the first pulse on the tape:
   ``0`` (the default) or ``1``; subsequent pulses give readings that alternate
   between 0 and 1
+* ``read-in-r-c`` - when executing an 'IN r,(C)' instruction, either yield a
+  simulated port reading (``1``), or always yield the value 0xFF (``0``, the
+  default)
 * ``timeout`` - the number of seconds of Z80 CPU time after which to abort the
   simulated LOAD if it's still in progress (default: 900)
 * ``trace`` - the file to which to log all instructions executed during the
@@ -1604,14 +1607,15 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.0     | A simulated LOAD is performed by default; an existing snapshot    |
-|         | will be overwritten by default; added the ``load``, ``machine``   |
-|         | and ``polarity`` simulated LOAD configuration parameters; the     |
-|         | output snapshot argument is optional; added support for writing   |
-|         | SZX snapshots; added the ``fe`` hardware state attribute; added   |
-|         | support for register pairs (``r[bc]``, ``r[de]`` etc.) in the     |
-|         | ``TraceLine`` configuration parameter; added the ``antirom``,     |
-|         | ``ernieware`` and ``housenka`` tape-sampling loop accelerators;   |
-|         | shows 'DEC A' delay loop statistics when ``accelerator=list``     |
+|         | will be overwritten by default; added the ``load``, ``machine``,  |
+|         | ``polarity`` and ``read-in-r-c`` simulated LOAD configuration     |
+|         | parameters; the output snapshot argument is optional; added       |
+|         | support for writing SZX snapshots; added the ``fe`` hardware      |
+|         | state attribute; added support for register pairs (``r[bc]``,     |
+|         | ``r[de]`` etc.) in the ``TraceLine`` configuration parameter;     |
+|         | added the ``antirom``, ``ernieware`` and ``housenka``             |
+|         | tape-sampling loop accelerators; shows 'DEC A' delay loop         |
+|         | statistics when ``accelerator=list``                              |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |

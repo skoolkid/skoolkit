@@ -290,6 +290,7 @@ def _set_sim_load_config(options):
     options.machine = '48'
     options.pause = True
     options.polarity = 0
+    options.read_in_r_c = False
     options.timeout = 900
     options.trace = None
     for spec in options.sim_load_config:
@@ -315,6 +316,8 @@ def _set_sim_load_config(options):
                 options.pause = parse_int(value, options.pause)
             elif name == 'polarity':
                 options.polarity = parse_int(value, options.polarity)
+            elif name == 'read-in-r-c':
+                options.read_in_r_c = parse_int(value, options.read_in_r_c)
             elif name == 'timeout':
                 options.timeout = parse_int(value, options.timeout)
             elif name == 'trace':
@@ -428,7 +431,7 @@ def sim_load(blocks, options, config):
         tracer = LoadTracer(simulator, blocks, accelerators, options.pause, options.first_edge,
                             options.polarity, options.finish_tape, in_min_addr, options.accelerate_dec_a,
                             list_accelerators, border, out7ffd, outfffd, ay, outfe)
-        simulator.set_tracer(tracer, False, False)
+        simulator.set_tracer(tracer, options.read_in_r_c, False)
         try:
             tracer.run(options.start, options.fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
             _ram_operations(memory, options.ram_ops)
@@ -880,6 +883,7 @@ Usage: --sim-load-config accelerate-dec-a=0/1/2
        --sim-load-config machine=48/128
        --sim-load-config pause=0/1
        --sim-load-config polarity=0/1
+       --sim-load-config read-in-r-c=0/1
        --sim-load-config timeout=N
        --sim-load-config trace=FILE
 
@@ -979,6 +983,12 @@ Configure various properties of a simulated LOAD.
   By default, the first pulse on the tape produces an EAR bit reading of 0
   (polarity=0), and subsequent pulses give readings that alternate between 1
   and 0. This works for most loaders, but some require polarity=1.
+
+--sim-load-config read-in-r-c=0/1
+
+  By default, 'IN r,(C)' instructions yield a value of 0xFF, regardless of the
+  port being read. Set read-in-r-c=1 to enable 'IN r,(C)' instructions to yield
+  a simulated port reading (as 'IN A,(n)' instructions always do).
 
 --sim-load-config timeout=N
 

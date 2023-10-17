@@ -140,6 +140,9 @@ parameters are:
 * ``polarity`` - the EAR bit reading produced by the first pulse on the tape:
   ``0`` (the default) or ``1``; subsequent pulses give readings that alternate
   between 0 and 1
+* ``read-in-r-c`` - when executing an 'IN r,(C)' instruction, either yield a
+  simulated port reading (``1``), or always yield the value 0xFF (``0``, the
+  default)
 * ``timeout`` - the number of seconds of Z80 CPU time after which to abort the
   simulated LOAD if it's still in progress (default: 900)
 * ``trace`` - the file to which to log all instructions executed during the

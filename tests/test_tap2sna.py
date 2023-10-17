@@ -2203,6 +2203,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             'machine=128',
             'pause=0',
             'polarity=1',
+            'read-in-r-c=1',
             'timeout=1000',
             f'trace={trace_log}'
         )
