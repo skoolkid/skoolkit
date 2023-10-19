@@ -1026,7 +1026,8 @@ def make_snapshot(url, options, outfile, config):
     if outfile is None:
         if tape_name.lower().endswith(('.tap', '.tzx')):
             tape_name = tape_name[:-4]
-        outfile = tape_name + '.z80'
+        fmt = config['DefaultSnapshotFormat']
+        outfile = f'{tape_name}.{fmt}'
     if options.output_dir:
         outfile = os.path.join(options.output_dir, outfile)
     _write_snapshot(ram, options, outfile)

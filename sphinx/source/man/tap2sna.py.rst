@@ -466,6 +466,9 @@ CONFIGURATION
 the current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
+  :DefaultSnapshotFormat: The format of the snapshot written when no output
+    snapshot argument is specified. Valid values are ``z80`` (the default) and
+    ``szx``.
   :TraceLine: The format of each line in the trace log file for a simulated
     LOAD (default: ``${pc:04X} {i}``).
   :TraceOperand: The prefix, byte format, and word format for the numeric

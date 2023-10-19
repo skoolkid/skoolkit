@@ -114,6 +114,7 @@ COMMANDS = {
         'Warnings': (1, 'warn')
     },
     'tap2sna': {
+        'DefaultSnapshotFormat': ('z80', ''),
         'TraceLine': ('${pc:04X} {i}', ''),
         'TraceOperand': ('$,02X,04X', '')
     },

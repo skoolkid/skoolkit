@@ -1557,6 +1557,9 @@ Configuration
 current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
+* ``DefaultSnapshotFormat`` - the format of the snapshot written when no output
+  snapshot argument is specified; valid values are ``z80`` (the default) and
+  ``szx``
 * ``TraceLine`` - the format of each line in the trace log file for a simulated
   LOAD (default: ``${pc:04X} {i}``)
 * ``TraceOperand`` - the prefix, byte format, and word format for the numeric
@@ -1610,10 +1613,11 @@ Configuration parameters may also be set on the command line by using the
 |         | will be overwritten by default; added the ``load``, ``machine``,  |
 |         | ``polarity`` and ``read-in-r-c`` simulated LOAD configuration     |
 |         | parameters; the output snapshot argument is optional; added       |
-|         | support for writing SZX snapshots; added the ``fe`` hardware      |
-|         | state attribute; added support for register pairs (``r[bc]``,     |
-|         | ``r[de]`` etc.) in the ``TraceLine`` configuration parameter;     |
-|         | added the ``antirom``, ``ernieware`` and ``housenka``             |
+|         | support for writing SZX snapshots; added the                      |
+|         | ``DefaultSnapshotFormat`` configuration parameter; added the      |
+|         | ``fe`` hardware state attribute; added support for register pairs |
+|         | (``r[bc]``, ``r[de]`` etc.) in the ``TraceLine`` configuration    |
+|         | parameter; added the ``antirom``, ``ernieware`` and ``housenka``  |
 |         | tape-sampling loop accelerators; shows 'DEC A' delay loop         |
 |         | statistics when ``accelerator=list``                              |
 +---------+-------------------------------------------------------------------+

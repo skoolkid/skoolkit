@@ -400,6 +400,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = r"""
             [tap2sna]
+            DefaultSnapshotFormat=z80
             TraceLine=${pc:04X} {i}
             TraceOperand=$,02X,04X
         """
@@ -415,6 +416,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [tap2sna]
+            DefaultSnapshotFormat=z80
             TraceLine={pc:05} {i}
             TraceOperand=$,02X,04X
         """
@@ -2390,6 +2392,25 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(tapfile)
         self.assertEqual(error, '')
         self.assertEqual(output, 'Simulation stopped (interrupted): PC=1541\n')
+
+    def test_config_DefaultSnapshotFormat_read_from_file(self):
+        ini = """
+            [tap2sna]
+            DefaultSnapshotFormat=szx
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        exp_outfile = tapfile[:-4] + '.szx'
+        output, error = self.run_tap2sna(f'--ram load=1,16384 {tapfile}')
+        self.assertEqual(len(error), 0)
+        self.assertTrue(os.path.isfile(exp_outfile))
+
+    def test_config_DefaultSnapshotFormat_set_on_command_line(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        exp_outfile = tapfile[:-4] + '.szx'
+        output, error = self.run_tap2sna(f'--ram load=1,16384 -I DefaultSnapshotFormat=szx {tapfile}')
+        self.assertEqual(len(error), 0)
+        self.assertTrue(os.path.isfile(exp_outfile))
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_config_TraceLine_read_from_file(self):

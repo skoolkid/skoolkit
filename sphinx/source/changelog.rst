@@ -19,6 +19,9 @@ Changelog
   :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to yield a simulated
   port reading for 'IN r,(C)' instructions)
 * The output snapshot argument of :ref:`tap2sna.py` is now optional
+* Added the ``DefaultSnapshotFormat`` configuration parameter for
+  :ref:`tap2sna.py <tap2sna-conf>` (to specify the default output snapshot
+  format)
 * Added support to :ref:`tap2sna.py <tap2sna-conf>` for register pairs
   (``r[bc]``, ``r[de]`` etc.) in the ``TraceLine`` configuration parameter
 * Added the ``antirom``, ``ernieware`` and ``housenka`` tape-sampling loop
