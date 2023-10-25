@@ -283,15 +283,14 @@ def _ram_operations(snapshot, ram_ops, blocks=None):
 def _set_sim_load_config(options):
     options.accelerate_dec_a = 1
     options.accelerator = 'auto'
-    options.contended_in = False
     options.fast_load = True
     options.finish_tape = False
     options.first_edge = 0
+    options.in_flags = 0
     options.load = None
     options.machine = '48'
     options.pause = True
     options.polarity = 0
-    options.read_in_r_c = False
     options.timeout = 900
     options.trace = None
     for spec in options.sim_load_config:
@@ -301,14 +300,14 @@ def _set_sim_load_config(options):
                 options.accelerate_dec_a = parse_int(value, options.accelerate_dec_a)
             elif name == 'accelerator':
                 options.accelerator = value
-            elif name == 'contended-in':
-                options.contended_in = parse_int(value, options.contended_in)
             elif name == 'fast-load':
                 options.fast_load = parse_int(value, options.fast_load)
             elif name == 'finish-tape':
                 options.finish_tape = parse_int(value, options.finish_tape)
             elif name == 'first-edge':
                 options.first_edge = parse_int(value, options.first_edge)
+            elif name == 'in-flags':
+                options.in_flags = parse_int(value, options.in_flags)
             elif name == 'load':
                 options.load = value
             elif name == 'machine':
@@ -317,8 +316,6 @@ def _set_sim_load_config(options):
                 options.pause = parse_int(value, options.pause)
             elif name == 'polarity':
                 options.polarity = parse_int(value, options.polarity)
-            elif name == 'read-in-r-c':
-                options.read_in_r_c = parse_int(value, options.read_in_r_c)
             elif name == 'timeout':
                 options.timeout = parse_int(value, options.timeout)
             elif name == 'trace':
@@ -425,14 +422,16 @@ def sim_load(blocks, options, config):
     if timeout <= 0:
         write_line(f'Simulation stopped (timed out): PC={simulator.registers[PC]}')
     elif not interrupted:
-        if options.contended_in:
+        if options.in_flags & 1:
             in_min_addr = 0x4000
+        elif options.in_flags & 2:
+            in_min_addr = 0x10000
         else:
             in_min_addr = 0x8000
         tracer = LoadTracer(simulator, blocks, accelerators, options.pause, options.first_edge,
                             options.polarity, options.finish_tape, in_min_addr, options.accelerate_dec_a,
                             list_accelerators, border, out7ffd, outfffd, ay, outfe)
-        simulator.set_tracer(tracer, options.read_in_r_c, False)
+        simulator.set_tracer(tracer, options.in_flags & 4, False)
         try:
             tracer.run(options.start, options.fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
             _ram_operations(memory, options.ram_ops)
@@ -878,15 +877,14 @@ def _print_sim_load_config_help():
     print(f"""
 Usage: --sim-load-config accelerate-dec-a=0/1/2
        --sim-load-config accelerator=NAME
-       --sim-load-config contended-in=0/1
        --sim-load-config fast-load=0/1
        --sim-load-config finish-tape=0/1
        --sim-load-config first-edge=N
+       --sim-load-config in-flags=FLAGS
        --sim-load-config load=KEYS
        --sim-load-config machine=48/128
        --sim-load-config pause=0/1
        --sim-load-config polarity=0/1
-       --sim-load-config read-in-r-c=0/1
        --sim-load-config timeout=N
        --sim-load-config trace=FILE
 
@@ -907,13 +905,6 @@ Configure various properties of a simulated LOAD.
 
   {accelerators}
 
---sim-load-config contended-in=0/1
-
-  By default, 'IN A,($FE)' instructions in RAM are ignored (i.e. are not
-  interpreted as reading the tape) unless they are at address $8000 or above.
-  Set contended-in=1 to enable 'IN A,($FE)' instructions in the address range
-  $4000-$7FFF to read the tape as well.
-
 --sim-load-config fast-load=0/1
 
   By default, whenever the Spectrum ROM's load routine is called, a shortcut is
@@ -931,10 +922,19 @@ Configure various properties of a simulated LOAD.
 --sim-load-config first-edge=N
 
   Set the time (in T-states) from the start of the tape at which to place the
-  leading edge of the first pulse (default: 0). Any pulses that occur before
-  time 0 are discarded. The EAR bit reading yielded by a pulse is 0 if the
-  0-based index of the pulse is even (i.e. first, third, fifth pulses etc.), or
-  1 otherwise.
+  leading edge of the first pulse (default: 0).
+
+--sim-load-config in-flags=FLAGS
+
+  Specify how to handle 'IN' instructions. FLAGS is the sum of the following
+  values, chosen according to the desired behaviour:
+
+    1 - interpret 'IN A,($FE)' instructions in the address range $4000-$7FFF as
+        reading the tape (by default they are ignored)
+    2 - ignore 'IN' instructions in the address range $4000-$FFFF (i.e. in RAM)
+        that read port $FE
+    4 - yield a simulated port reading when executing an 'IN r,(C)' instruction
+        (by default such an instruction always yields the value $FF)
 
 --sim-load-config load=KEYS
 
@@ -986,12 +986,6 @@ Configure various properties of a simulated LOAD.
   By default, the first pulse on the tape produces an EAR bit reading of 0
   (polarity=0), and subsequent pulses give readings that alternate between 1
   and 0. This works for most loaders, but some require polarity=1.
-
---sim-load-config read-in-r-c=0/1
-
-  By default, 'IN r,(C)' instructions yield a value of 0xFF, regardless of the
-  port being read. Set read-in-r-c=1 to enable 'IN r,(C)' instructions to yield
-  a simulated port reading (as 'IN A,(n)' instructions always do).
 
 --sim-load-config timeout=N
 

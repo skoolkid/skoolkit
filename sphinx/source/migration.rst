@@ -51,6 +51,9 @@ longer supported.
 In SkoolKit 8, the default value of the ``first-edge`` simulated LOAD
 configuration parameter was -2168. In SkoolKit 9, the default value is 0.
 
+The ``contended-in`` simulated LOAD configuration parameter is no longer
+supported. Use ``in-flags=1`` instead.
+
 The following tape-sampling loop accelerator names are not available in
 SkoolKit 9:
 

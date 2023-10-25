@@ -34,6 +34,7 @@ class MockSimulator:
 
     def set_tracer(self, tracer, *args, **kwargs):
         self.tracer = tracer
+        self.set_tracer_args = args
 
     def in_a_n(self):
         self.tracer.read_port(self.registers, 0xFE)
@@ -2258,15 +2259,14 @@ class Tap2SnaTest(SkoolKitTestCase):
         params = (
             'accelerate-dec-a=2',
             'accelerator=speedlock',
-            'contended-in=1',
             'fast-load=0',
             'finish-tape=1',
             'first-edge=1234',
+            'in-flags=0',
             'load=RUN',
             'machine=128',
             'pause=0',
             'polarity=1',
-            'read-in-r-c=1',
             'timeout=1000',
             f'trace={trace_log}'
         )
@@ -2288,7 +2288,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(load_tracer.first_edge, 1234)
         self.assertEqual(load_tracer.polarity, 1)
         self.assertEqual(load_tracer.finish_tape, 1)
-        self.assertEqual(load_tracer.in_min_addr, 0x4000)
+        self.assertEqual(load_tracer.in_min_addr, 0x8000)
         self.assertEqual(load_tracer.accel_dec_a, 2)
         self.assertFalse(load_tracer.list_accelerators)
         self.assertEqual(load_tracer.border, kbtracer.border)
@@ -2305,6 +2305,42 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(load_tracer.prefix, '$')
         self.assertEqual(load_tracer.byte_fmt, '02X')
         self.assertEqual(load_tracer.word_fmt, '04X')
+
+    @patch.object(tap2sna, 'Simulator', MockSimulator)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_in_flags_parameter_bit_0(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-c in-flags=1 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(load_tracer.in_min_addr, 0x4000)
+        set_tracer_args = load_tracer.simulator.set_tracer_args
+        self.assertFalse(set_tracer_args[0])
+        self.assertFalse(set_tracer_args[1])
+
+    @patch.object(tap2sna, 'Simulator', MockSimulator)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_in_flags_parameter_bit_1(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-c in-flags=2 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(load_tracer.in_min_addr, 0x10000)
+        set_tracer_args = load_tracer.simulator.set_tracer_args
+        self.assertFalse(set_tracer_args[0])
+        self.assertFalse(set_tracer_args[1])
+
+    @patch.object(tap2sna, 'Simulator', MockSimulator)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_in_flags_parameter_bit_2(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-c in-flags=4 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(load_tracer.in_min_addr, 0x8000)
+        set_tracer_args = load_tracer.simulator.set_tracer_args
+        self.assertTrue(set_tracer_args[0])
+        self.assertFalse(set_tracer_args[1])
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)

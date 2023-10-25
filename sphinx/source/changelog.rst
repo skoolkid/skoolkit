@@ -15,9 +15,9 @@ Changelog
 * Added the ``polarity`` simulated LOAD configuration parameter to
   :ref:`tap2sna.py <tap2sna-sim-load>` (to specify the EAR bit reading produced
   by the first pulse on the tape)
-* Added the ``read-in-r-c`` simulated LOAD configuration parameter to
-  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to yield a simulated
-  port reading for 'IN r,(C)' instructions)
+* Added the ``in-flags`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify how to handle 'IN'
+  instructions)
 * The output snapshot argument of :ref:`tap2sna.py` is now optional
 * Added the ``DefaultSnapshotFormat`` configuration parameter for
   :ref:`tap2sna.py <tap2sna-conf>` (to specify the default output snapshot

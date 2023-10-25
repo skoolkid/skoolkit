@@ -118,8 +118,6 @@ parameters are:
   (``0``)
 * ``accelerator`` - a comma-separated list of tape-sampling loop accelerators
   to use (see the ``ACCELERATORS`` section below)
-* ``contended-in`` - interpret 'IN A,($FE)' instructions in the address range
-  $4000-$7FFF as reading the tape (``1``), or ignore them (``0``, the default)
 * ``fast-load`` - enable fast loading (``1``, the default), or disable it
   (``0``); fast loading significantly reduces the load time for many tapes, but
   can also cause some loaders to fail
@@ -129,6 +127,8 @@ parameters are:
   has finished (``0``, the default)
 * ``first-edge`` - the time (in T-states) from the start of the tape at which
   to place the leading edge of the first pulse (default: ``0``)
+* ``in-flags`` - various flags specifying how to handle 'IN' instructions (see
+  below)
 * ``load`` - a space-separated list of keys to press to build an alternative
   command line to load the tape (see the ``LOAD COMMAND`` section below)
 * ``machine`` - the type of machine to simulate: a 48K Spectrum (``48``, the
@@ -140,13 +140,20 @@ parameters are:
 * ``polarity`` - the EAR bit reading produced by the first pulse on the tape:
   ``0`` (the default) or ``1``; subsequent pulses give readings that alternate
   between 0 and 1
-* ``read-in-r-c`` - when executing an 'IN r,(C)' instruction, either yield a
-  simulated port reading (``1``), or always yield the value 0xFF (``0``, the
-  default)
 * ``timeout`` - the number of seconds of Z80 CPU time after which to abort the
   simulated LOAD if it's still in progress (default: 900)
 * ``trace`` - the file to which to log all instructions executed during the
   simulated LOAD (default: none)
+
+The ``in-flags`` parameter is the sum of the following values, chosen according
+to the desired behaviour:
+
+* 1 - interpret 'IN A,($FE)' instructions in the address range $4000-$7FFF as
+  reading the tape (by default they are ignored)
+* 2 - ignore 'IN' instructions in the address range $4000-$FFFF (i.e. in RAM)
+  that read port $FE
+* 4 - yield a simulated port reading when executing an 'IN r,(C)' instruction
+  (by default such an instruction always yields the value $FF)
 
 By default, the EAR bit reading produced by a pulse is 0 if the 0-based index
 of the pulse is even (i.e. first, third, fifth pulses etc.), or 1 otherwise.
