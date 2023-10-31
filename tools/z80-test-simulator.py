@@ -28,7 +28,7 @@ class Options:
     accelerator = None
     machine = None
     load = None
-    contended_in = 0
+    in_flags = 0
     pause = 1
     first_edge = 0
     polarity = 0
