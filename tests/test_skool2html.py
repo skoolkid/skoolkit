@@ -1161,7 +1161,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'get_config', mock_config)
     def test_option_t(self):
         skoolfile = self.write_text_file(suffix='.skool')
-        pattern = 'Done \([0-9]+\.[0-9][0-9]s\)'
+        pattern = r'Done \([0-9]+\.[0-9][0-9]s\)'
         for option in ('-t', '--time'):
             output, error = self.run_skool2html('{} -w i -d {} {}'.format(option, self.odir, skoolfile))
             self.assertEqual(error, '')

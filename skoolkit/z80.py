@@ -1,4 +1,4 @@
-# Copyright 2015, 2017-2019, 2021, 2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015, 2017-2019, 2021-2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -736,7 +736,7 @@ def _convert_chars(text):
     return s
 
 def _convert_nums(text):
-    elements = re.split('(\$[0-9A-Fa-f]+|%[01]+|\d+)', re.sub('\s+', '', text))
+    elements = re.split(r'(\$[0-9A-Fa-f]+|%[01]+|\d+)', re.sub(r'\s+', '', text))
     for i in range(1, len(elements), 2):
         q = elements[i]
         if q.startswith('$'):

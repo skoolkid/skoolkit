@@ -1,4 +1,4 @@
-# Copyright 2008-2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -426,7 +426,7 @@ class AsmWriter:
         if ignores == []:
             return ()
         addresses = set()
-        for match in re.finditer('(\A|\s|\()((?:0x|\$)[0-9A-Fa-f]{4}|[1-9][0-9]{2,4})(?!([0-9A-Za-z]|[./*+][0-9]))', text):
+        for match in re.finditer(r'(\A|\s|\()((?:0x|\$)[0-9A-Fa-f]{4}|[1-9][0-9]{2,4})(?!([0-9A-Za-z]|[./*+][0-9]))', text):
             addr = match.group(2)
             if addr.startswith(('0x', '$')):
                 address = int(addr[-4:], 16)

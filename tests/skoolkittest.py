@@ -199,7 +199,7 @@ class SkoolKitTestCase(TestCase):
         if path is None:
             tempdir = tempfile.mkdtemp(dir='')
             self.tempdirs.append(os.path.abspath(tempdir))
-            return tempdir
+            return os.path.relpath(tempdir)
         if path and not os.path.isdir(path):
             parent = path
             while 1:

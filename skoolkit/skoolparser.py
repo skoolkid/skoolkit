@@ -40,7 +40,7 @@ Flags = namedtuple('Flags', 'prepend final overwrite append')
 Reference = namedtuple('Reference', 'entry address addr_str use_label')
 
 def _replace_nums(operation, hex_fmt=None, skip_bit=False, prefix=None):
-    elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', (prefix or '(') + operation)
+    elements = re.split(r'(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', (prefix or '(') + operation)
     for i in range(2 * int(skip_bit) + 1, len(elements), 2):
         p1, p2 = elements[i - 1][:-1].strip(), elements[i - 1][-1]
         if (p2 != '%' or not p1 or p1[-1] in ')"') and p2 != '"':
@@ -66,7 +66,7 @@ def _is_8_bit_ld_instruction(operation):
     return False
 
 def get_address(operation):
-    search = re.search('(\A|[\s,(+-])(\$[0-9A-Fa-f]+|%[01]+|\d+)', operation)
+    search = re.search(r'(\A|[\s,(+-])(\$[0-9A-Fa-f]+|%[01]+|\d+)', operation)
     if search:
         return search.group(2)
 
@@ -1008,7 +1008,7 @@ class InstructionUtility:
         op = elements[0]
 
         # Instructions containing '(I[XY]+d)'
-        if re.search('\(I[XY] *[+-].*\)', operation.upper()):
+        if re.search(r'\(I[XY] *[+-].*\)', operation.upper()):
             return _replace_nums(operation, hex2fmt, op in ('BIT', 'RES', 'SET'))
 
         if op in ('CALL', 'DJNZ', 'JP', 'JR'):
@@ -1083,7 +1083,7 @@ class InstructionUtility:
         rep = ''
         for p in split_quoted(operand):
             if not p.startswith('"'):
-                pieces = re.split('(\A|(?<=[\s,(+-]))(\$[0-9A-Fa-f]+|%[01]+|\d+)', p)
+                pieces = re.split(r'(\A|(?<=[\s,(+-]))(\$[0-9A-Fa-f]+|%[01]+|\d+)', p)
                 for i in range(2, len(pieces), 3):
                     label = self._get_label(entry, instruction, pieces[i])
                     if label:

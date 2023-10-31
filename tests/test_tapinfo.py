@@ -631,7 +631,7 @@ class TapinfoTest(SkoolKitTestCase):
         tapfile = self.write_bin_file(tap_data, suffix='.tap')
         output, error = self.run_tapinfo('-d {}'.format(tapfile))
         self.assertEqual(error, '')
-        exp_output = """
+        exp_output = r"""
             1:
               Type: Header block
               Bytes: test_tap02
@@ -687,7 +687,7 @@ class TapinfoTest(SkoolKitTestCase):
         tzxfile = self._write_tzx(blocks)
         output, error = self.run_tapinfo('-d {}'.format(tzxfile))
         self.assertEqual(error, '')
-        exp_output = """
+        exp_output = r"""
             Version: 1.20
             1: Standard speed data (0x10)
               Pause: 0ms

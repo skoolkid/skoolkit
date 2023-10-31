@@ -29,7 +29,8 @@ class MockSimulator:
         # The NOP at 49151 is a dummy instruction that triggers LoadTracer's
         # read_port() (via in_a_n() below) and starts the tape running.
         self.registers[24] = 49151 # PC
-        self.stop = max(a for a in range(49152, 65536) if mock_memory[a]) + 2
+        if self.memory:
+            self.stop = max(a for a in range(49152, 65536) if self.memory[a]) + 2
         simulator = self
 
     def set_tracer(self, tracer, *args, **kwargs):

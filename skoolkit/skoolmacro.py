@@ -45,7 +45,7 @@ DELIMITERS = {
 
 ZX_CHARS = {94: 8593, 96: 163, 127: 169}
 
-INTEGER = '(\d+|\$[0-9a-fA-F]+)'
+INTEGER = r'(\d+|\$[0-9a-fA-F]+)'
 
 PARAM_NAME = '[a-z]+'
 
@@ -57,9 +57,9 @@ RE_ANCHOR = re.compile('#[a-zA-Z0-9$#]*')
 
 RE_CODE_ID = re.compile('@[a-zA-Z0-9$]*')
 
-RE_EXPAND = re.compile('#[^A-Za-z0-9\s]')
+RE_EXPAND = re.compile(r'#[^A-Za-z0-9\s]')
 
-RE_FRAME_ID = re.compile('[^\s,;(]+')
+RE_FRAME_ID = re.compile(r'[^\s,;(]+')
 
 RE_MACRO = re.compile('#[A-Z]+')
 
@@ -67,9 +67,9 @@ RE_MACRO_METHOD = re.compile('expand_([a-z]+)$')
 
 RE_METHOD_NAME = re.compile('[a-zA-Z_][a-zA-Z0-9_]*')
 
-RE_LINK_PARAMS = re.compile('[^(\s]+')
+RE_LINK_PARAMS = re.compile(r'[^(\s]+')
 
-RE_PARAM_NAME = re.compile('\s*{}\s*='.format(PARAM_NAME))
+RE_PARAM_NAME = re.compile(r'\s*{}\s*='.format(PARAM_NAME))
 
 RE_REGISTER = re.compile("(af?|f|bc?|c|de?|e|hl?|l)'?|i[xy][lh]?|i|pc|r|sp")
 

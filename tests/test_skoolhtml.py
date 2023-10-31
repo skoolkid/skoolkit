@@ -974,7 +974,7 @@ class MethodTest(HtmlWriterTestCase):
             {item}
             <# endfor #>
         """
-        with self.assertRaisesRegex(SkoolKitError, "^Invalid foreach directive: Not enough parameters \(expected 2\): ''$"):
+        with self.assertRaisesRegex(SkoolKitError, r"^Invalid foreach directive: Not enough parameters \(expected 2\): ''$"):
             self._get_writer(ref=ref).format_template('loop', {})
 
     def test_format_template_foreach_missing_parameter(self):
@@ -984,7 +984,7 @@ class MethodTest(HtmlWriterTestCase):
             {item}
             <# endfor #>
         """
-        with self.assertRaisesRegex(SkoolKitError, "^Invalid foreach directive: Not enough parameters \(expected 2\): 'item'$"):
+        with self.assertRaisesRegex(SkoolKitError, r"^Invalid foreach directive: Not enough parameters \(expected 2\): 'item'$"):
             self._get_writer(ref=ref).format_template('loop', {})
 
     def test_format_template_foreach_extra_parameter(self):
@@ -994,7 +994,7 @@ class MethodTest(HtmlWriterTestCase):
             {item}
             <# endfor #>
         """
-        with self.assertRaisesRegex(SkoolKitError, "^Invalid foreach directive: Too many parameters \(expected 2\): 'item,list,surplus'$"):
+        with self.assertRaisesRegex(SkoolKitError, r"^Invalid foreach directive: Too many parameters \(expected 2\): 'item,list,surplus'$"):
             self._get_writer(ref=ref).format_template('loop', {})
 
     def test_format_template_foreach_no_closing_bracket(self):
@@ -1004,7 +1004,7 @@ class MethodTest(HtmlWriterTestCase):
             {item}
             <# endfor #>
         """
-        with self.assertRaisesRegex(SkoolKitError, "^Invalid foreach directive: No closing bracket: \(item,list$"):
+        with self.assertRaisesRegex(SkoolKitError, r"^Invalid foreach directive: No closing bracket: \(item,list$"):
             self._get_writer(ref=ref).format_template('loop', {})
 
     def test_format_template_foreach_unknown_variable(self):
@@ -1232,7 +1232,7 @@ class MethodTest(HtmlWriterTestCase):
             Content
             <# endif #>
         """
-        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: No closing bracket: \(true$"):
+        with self.assertRaisesRegex(SkoolKitError, r"^Invalid if directive: No closing bracket: \(true$"):
             self._get_writer(ref=ref).format_template('if', {})
 
     def test_format_template_if_unknown_variable(self):
@@ -1262,7 +1262,7 @@ class MethodTest(HtmlWriterTestCase):
             Content
             <# endif #>
         """
-        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: Syntax error in expression: '\(1;\)'$"):
+        with self.assertRaisesRegex(SkoolKitError, r"^Invalid if directive: Syntax error in expression: '\(1;\)'$"):
             self._get_writer(ref=ref).format_template('if', {})
 
     def test_format_template_include(self):
@@ -1330,7 +1330,7 @@ class MethodTest(HtmlWriterTestCase):
             [Template:include]
             <# include(t1 #>
         """
-        with self.assertRaisesRegex(SkoolKitError, "^Invalid include directive: No closing bracket: \(t1$"):
+        with self.assertRaisesRegex(SkoolKitError, r"^Invalid include directive: No closing bracket: \(t1$"):
             self._get_writer(ref=ref).format_template('include', {})
 
     def test_format_template_include_unknown_template(self):
@@ -5174,7 +5174,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             @expand=#N(x)
             c32768 RET
         """
-        with self.assertRaisesRegex(SkoolParsingError, "^Failed to expand '#N\(x\)': Error while parsing #N macro: Cannot parse integer 'x' in parameter string: 'x'$"):
+        with self.assertRaisesRegex(SkoolParsingError, r"^Failed to expand '#N\(x\)': Error while parsing #N macro: Cannot parse integer 'x' in parameter string: 'x'$"):
             self._get_writer(skool=skool)
 
     def test_expand_directive_with_unexpandable_macro(self):
@@ -5901,7 +5901,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Config]
             Expand=#N(x)
         """
-        with self.assertRaisesRegex(SkoolParsingError, "^Failed to expand '#N\(x\)': Error while parsing #N macro: Cannot parse integer 'x' in parameter string: 'x'$"):
+        with self.assertRaisesRegex(SkoolParsingError, r"^Failed to expand '#N\(x\)': Error while parsing #N macro: Cannot parse integer 'x' in parameter string: 'x'$"):
             self._get_writer(ref=ref, skool=skool)
 
     def test_parameter_Expand_with_unexpandable_macro(self):

@@ -234,24 +234,24 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_bin_with_invalid_org_and_begin_and_end_addresses(self):
         binfile = self.write_bin_file([0], suffix='.bin')
-        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=32768, BEGIN=65535, END=32769\)$'):
+        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=32768, BEGIN=65535, END=32769\)$'):
             self.run_bin2tap('-o 32768 -b 65535 {}'.format(binfile))
-        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=32768, BEGIN=32768, END=24576\)$'):
+        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=32768, BEGIN=32768, END=24576\)$'):
             self.run_bin2tap('-o 32768 -e 24576 {}'.format(binfile))
-        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=32768, BEGIN=32768, END=32768\)$'):
+        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=32768, BEGIN=32768, END=32768\)$'):
             self.run_bin2tap('-o 32768 -b 32768 -e 32768 {}'.format(binfile))
-        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=32768, BEGIN=23296, END=23297\)$'):
+        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=32768, BEGIN=23296, END=23297\)$'):
             self.run_bin2tap('-o 32768 -b 23296 -e 23297 {}'.format(binfile))
-        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=32768, BEGIN=49152, END=49153\)$'):
+        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=32768, BEGIN=49152, END=49153\)$'):
             self.run_bin2tap('-o 32768 -b 49152 -e 49153 {}'.format(binfile))
 
     def test_snapshot_with_invalid_begin_and_end_addresses(self):
         snafile = self.write_bin_file([0] * 49179, suffix='.sna')
-        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=0, BEGIN=65536, END=65536\)$'):
+        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=0, BEGIN=65536, END=65536\)$'):
             self.run_bin2tap('-b 65536 {}'.format(snafile))
-        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=0, BEGIN=16384, END=16384\)$'):
+        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=0, BEGIN=16384, END=16384\)$'):
             self.run_bin2tap('-e 16384 {}'.format(snafile))
-        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=0, BEGIN=32768, END=24576\)$'):
+        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=0, BEGIN=32768, END=24576\)$'):
             self.run_bin2tap('-b 32768 -e 24576 {}'.format(snafile))
 
     def test_no_options(self):

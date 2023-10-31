@@ -1,4 +1,4 @@
-# Copyright 2008-2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -127,7 +127,7 @@ class HtmlWriter:
                         anchor, title, paragraphs = entry
                     except ValueError:
                         title, paragraphs = entry
-                        anchor = re.sub('[\s()]', '_', title.lower())
+                        anchor = re.sub(r'[\s()]', '_', title.lower())
                     if use_paragraphs:
                         entries.append((anchor, title, paragraphs))
                     else:
@@ -1364,7 +1364,7 @@ class TemplateFormatter:
     def _eval_template_expr(self, expr, fields):
         if expr:
             try:
-                return eval(re.sub('\[([^0-9][^]]*)\]', r"['\1']", expr.format(**fields)), None, fields)
+                return eval(re.sub(r'\[([^0-9][^]]*)\]', r"['\1']", expr.format(**fields)), None, fields)
             except SyntaxError:
                 raise ValueError("Syntax error in expression: '{}'".format(expr))
             except KeyError as e:
