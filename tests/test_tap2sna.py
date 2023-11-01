@@ -2635,6 +2635,58 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         self.assertEqual(snapshot[32768], 255)
 
+    def test_t2s_file_with_default_snapshot_filename(self):
+        code = [3, 2, 1]
+        code_start = 32768
+        tap_data = create_tap_data_block(code)
+        tapfile = self.write_bin_file(tap_data)
+        args = f"""
+            "{tapfile}"
+            --ram load=1,{code_start}
+        """
+        args_file = self.write_text_file(dedent(args).strip(), suffix='.t2s')
+        exp_z80 = f'{args_file[:-4]}.z80'
+        output, error = self.run_tap2sna(f'@{args_file}')
+        self.assertEqual(error, '')
+        self.assertTrue(os.path.isfile(exp_z80))
+        snapshot = get_snapshot(exp_z80)
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+
+    def test_t2s_file_with_default_snapshot_filename_in_szx_format(self):
+        code = [3, 2, 1]
+        code_start = 32768
+        tap_data = create_tap_data_block(code)
+        tapfile = self.write_bin_file(tap_data)
+        args = f"""
+            "{tapfile}"
+            --ram load=1,{code_start}
+            --ini DefaultSnapshotFormat=szx
+        """
+        args_file = self.write_text_file(dedent(args).strip(), suffix='.t2s')
+        exp_szx = f'{args_file[:-4]}.szx'
+        output, error = self.run_tap2sna(f'@{args_file}')
+        self.assertEqual(error, '')
+        self.assertTrue(os.path.isfile(exp_szx))
+        snapshot = get_snapshot(exp_szx)
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+
+    def test_t2s_file_with_snapshot_filename_given_on_command_line(self):
+        code = [3, 2, 1]
+        code_start = 32768
+        tap_data = create_tap_data_block(code)
+        tapfile = self.write_bin_file(tap_data)
+        args = f"""
+            "{tapfile}"
+            --ram load=1,{code_start}
+        """
+        args_file = self.write_text_file(dedent(args).strip(), suffix='.t2s')
+        z80file = 'out.z80'
+        output, error = self.run_tap2sna(f'@{args_file} {z80file}')
+        self.assertEqual(error, '')
+        self.assertTrue(os.path.isfile(z80file))
+        snapshot = get_snapshot(z80file)
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+
     @patch.object(tap2sna, 'urlopen', Mock(return_value=BytesIO(bytearray(create_tap_data_block([2, 3])))))
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_remote_download(self):

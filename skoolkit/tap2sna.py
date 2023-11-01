@@ -1076,7 +1076,7 @@ def main(args):
                        help="Set the User-Agent header.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
-    namespace, unknown_args = parser.parse_known_args(args)
+    namespace, unknown_args = parser.parse_known_intermixed_args(args)
     if namespace.show_config:
         show_config('tap2sna', config)
     if 'help' in namespace.sim_load_config:
@@ -1099,6 +1099,11 @@ def main(args):
     if not namespace.sim_load and namespace.start is not None:
         namespace.reg.append('pc={}'.format(namespace.start))
     update_options('tap2sna', namespace, namespace.params, config)
+    if namespace.outfile is None:
+        for arg in args:
+            if arg.startswith('@') and arg.lower().endswith('.t2s') and os.path.isfile(arg[1:]):
+                namespace.outfile = os.path.basename(arg[1:-3]) + config['DefaultSnapshotFormat']
+                break
     try:
         make_snapshot(namespace.url, namespace, namespace.outfile, config)
     except Exception as e:

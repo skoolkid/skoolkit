@@ -85,9 +85,8 @@ OPTIONS
 
 TZX SUPPORT
 ===========
-``tap2sna.py`` can read data from TZX block types 0x10 (standard speed data),
-0x11 (turbo speed data) and 0x14 (pure data), but not block types 0x15 (direct
-recording), 0x18 (CSW recording) or 0x19 (generalized data block).
+``tap2sna.py`` cannot read data from TZX block types 0x15 (direct recording),
+0x18 (CSW recording) or 0x19 (generalized data block).
 
 SIMULATED LOAD
 ==============
@@ -453,7 +452,6 @@ the file ``game.t2s`` has the following contents:
 |    ; tap2sna.py file for GAME
 |    ;
 |    \http://example.com/pub/games/GAME.zip
-|    game.z80
 |    -c fast-load=0      # Disable fast loading
 |    -c accelerator=none # Disable tape-sampling loop acceleration
 |    --state issue2=1    # Enable issue 2 keyboard emulation
@@ -465,7 +463,11 @@ then:
 |   ``tap2sna.py @game.t2s``
 
 will create ``game.z80`` as if the arguments specified in ``game.t2s`` had been
-given on the command line.
+given on the command line. When ``tap2sna.py`` reads arguments from a file
+whose name ends with '.t2s', the output snapshot filename defaults to the name
+of that arguments file with '.t2s' replaced by either '.z80' or '.szx'
+(depending on the value of the ``DefaultSnapshotFormat`` configuration
+parameter).
 
 CONFIGURATION
 =============
