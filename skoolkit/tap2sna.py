@@ -1058,7 +1058,6 @@ def main(args):
                        help="Show configuration parameter values.")
     group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
                        help="Set the start address to JP to.")
-    group.add_argument('--sim-load', action='store_true', help=argparse.SUPPRESS)
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "
                             "This option may be used multiple times.")
