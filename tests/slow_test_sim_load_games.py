@@ -176,23 +176,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
             }
         )
 
-    def test_contended_in(self):
-        # Has a custom loading routine in what is contended memory on a
-        # standard 48K Spectrum
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/s/Sapper.tzx.zip',
-            'sapper.tzx',
-            'e8f2e39a382c56c82318e1a92dd69274',
-            {
-                'AF,BC,DE,HL': '0093,B07E,0000,002E',
-                "AF',BC',DE',HL'": '7E6D,1621,369B,2758',
-                'PC,SP,IX,IY': '5EAB,5E87,FFE7,5C3A',
-                'IR,iff,im,border': '3F12,1,1,0',
-                'ram': 'db755f6f3f27dfbcd6741ba8b96c64f5'
-            },
-            '-c contended-in=1 --start 24235'
-        )
-
     def test_crl(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/b/BallbreakerII.tzx.zip',
@@ -388,6 +371,41 @@ class SimLoadGamesTest(SkoolKitTestCase):
             }
         )
 
+    def test_in_flags_1(self):
+        # Has a custom loading routine in what is contended memory on a
+        # standard 48K Spectrum.
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/s/Sapper.tzx.zip',
+            'sapper.tzx',
+            'e8f2e39a382c56c82318e1a92dd69274',
+            {
+                'AF,BC,DE,HL': '0093,B07E,0000,002E',
+                "AF',BC',DE',HL'": '7E6D,1621,369B,2758',
+                'PC,SP,IX,IY': '5EAB,5E87,FFE7,5C3A',
+                'IR,iff,im,border': '3F12,1,1,0',
+                'ram': 'db755f6f3f27dfbcd6741ba8b96c64f5'
+            },
+            '-c in-flags=1 --start 24235'
+        )
+
+    def test_in_flags_4(self):
+        # Exercises the routine at 0x08A3 in the 128K Spectrum ROM, which uses
+        # an 'IN A,(C)' instruction to probe the RS232 port. 'in-flags=4' is
+        # required to avoid an infinite loop in that routine.
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/s/Sokoban_3.tap.zip',
+            'SOKOBAN.TAP',
+            'e1ca546008696c2f53699683874b0717',
+            {
+                'AF,BC,DE,HL': '0001,0000,0000,053F',
+                "AF',BC',DE',HL'": 'FF81,7FFD,0009,0038',
+                'PC,SP,IX,IY': '5B14,5F52,C654,5C3A',
+                'IR,iff,im,border': '3F2F,1,1,0',
+                'ram': '8b493d98725e984a89a08aab2183717c'
+            },
+            '-c in-flags=4 -c machine=128 -c finish-tape=1 --start 23316'
+        )
+
     def test_load_code(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/g/Gobstopper.tzx.zip',
@@ -507,21 +525,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'ram': '3aa858ab90ea0fbfeabce045d62b3d0e'
             },
             '-c accelerator=raxoft --start 64851'
-        )
-
-    def test_read_in_r_c(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/s/Sokoban_3.tap.zip',
-            'SOKOBAN.TAP',
-            'e1ca546008696c2f53699683874b0717',
-            {
-                'AF,BC,DE,HL': '0001,0000,0000,053F',
-                "AF',BC',DE',HL'": 'FF81,7FFD,0009,0038',
-                'PC,SP,IX,IY': '5B14,5F52,C654,5C3A',
-                'IR,iff,im,border': '3F2F,1,1,0',
-                'ram': '8b493d98725e984a89a08aab2183717c'
-            },
-            '-c read-in-r-c=1 -c machine=128 -c finish-tape=1 --start 23316'
         )
 
     def test_realtime(self):
