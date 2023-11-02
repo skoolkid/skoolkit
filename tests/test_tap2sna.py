@@ -12,6 +12,7 @@ from skoolkittest import (SkoolKitTestCase, Z80_REGISTERS, create_data_block,
                           create_tzx_turbo_data_block, create_tzx_pure_data_block)
 from skoolkit import tap2sna, VERSION, SkoolKitError
 from skoolkit.config import COMMANDS
+from skoolkit.loadtracer import LoadTracer
 from skoolkit.snapshot import get_snapshot
 
 mock_memory = None
@@ -120,6 +121,15 @@ class MockLoadTracer:
         self.byte_fmt = byte_fmt
         self.word_fmt = word_fmt
         self.run_called = True
+
+class TestLoadTracer(LoadTracer):
+    def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity, finish_tape,
+                 in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe):
+        # Ensure that accelerators are in a predictable order when testing the
+        # {dec,inc}_b_auto() methods on LoadTracer
+        acc_sorted = sorted(accelerators, key=lambda a: a.name)
+        super().__init__(simulator, blocks, acc_sorted, pause, first_edge, polarity, finish_tape,
+                 in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe)
 
 class InterruptedTracer:
     def __init__(self, *args):
@@ -2771,6 +2781,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(simulator.registers[2], 98)
 
+    @patch.object(tap2sna, 'LoadTracer', TestLoadTracer)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_dec_b_auto(self):
@@ -2850,6 +2861,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(simulator.registers[2], 149)
 
+    @patch.object(tap2sna, 'LoadTracer', TestLoadTracer)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_inc_b_auto(self):
