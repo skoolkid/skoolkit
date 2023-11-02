@@ -2662,6 +2662,26 @@ class Tap2SnaTest(SkoolKitTestCase):
         snapshot = get_snapshot(exp_z80)
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
 
+    def test_t2s_file_in_subdirectory_with_default_snapshot_filename(self):
+        code = [3, 2, 1]
+        code_start = 32768
+        tap_data = create_tap_data_block(code)
+        tapfile = self.write_bin_file(tap_data)
+        args = f"""
+            "{tapfile}"
+            --ram load=1,{code_start}
+        """
+        subdir = 'foo/bar/baz'
+        t2s_name = 'game'
+        os.makedirs(subdir)
+        args_file = self.write_text_file(dedent(args).strip(), f'{subdir}/{t2s_name}.t2s')
+        exp_z80 = f'{t2s_name}.z80'
+        output, error = self.run_tap2sna(f'@{args_file}')
+        self.assertEqual(error, '')
+        self.assertTrue(os.path.isfile(exp_z80))
+        snapshot = get_snapshot(exp_z80)
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+
     def test_t2s_file_with_default_snapshot_filename_in_szx_format(self):
         code = [3, 2, 1]
         code_start = 32768
