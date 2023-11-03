@@ -17,7 +17,7 @@
 from collections import defaultdict
 from functools import partial
 
-from skoolkit import SkoolKitError, open_file, write, write_line
+from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
 from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import A, D, E, F, H, L, IXh, IXl, PC, T, R1

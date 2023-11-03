@@ -14,10 +14,9 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import argparse
 
-from skoolkit import SkoolKitError, get_word, read_bin_file, write_line, VERSION
+from skoolkit import SkoolKitError, get_word, read_bin_file, VERSION
 from skoolkit.snapshot import (get_snapshot, make_z80_ram_block, make_z80v3_ram_blocks,
                                move, poke, print_reg_help, print_state_help,
                                set_z80_registers, set_z80_state)

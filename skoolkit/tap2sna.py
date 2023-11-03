@@ -25,7 +25,7 @@ from urllib.parse import urlparse
 
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       get_word, get_word3, integer, open_file, parse_int,
-                      read_bin_file, warn, write_line, ROM48, VERSION)
+                      read_bin_file, write_line, ROM48, VERSION)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.kbtracer import KeyboardTracer
 from skoolkit.loadsample import ACCELERATORS
