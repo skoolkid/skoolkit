@@ -19,15 +19,15 @@ os.chdir(SKOOLKIT_HOME)
 IGNORE_MSG_IDS = [
     'C0103', # Invalid name for variable, constant, class
     'C0111', # Missing docstring
+    'C0209', # Formatting a regular string which could be an f-string
     'C0301', # Line too long
     'C0302', # Too many lines in module
     'C0325', # Unnecessary parens after 'print' keyword
-    'C1001', # Old-style class
+    'C3001', # Unnecessary lambda assignment
     'E0601', # Variable used before assignment
     'E0611', # No such name in module
     'E1101', # No such member in instance
     'F0401', # Import error
-    'R0201', # Method could be a function
     'R0902', # Too many instance attributes
     'R0903', # Too few public methods
     'R0904', # Too many public methods
@@ -36,16 +36,17 @@ IGNORE_MSG_IDS = [
     'R0913', # Too many arguments
     'R0914', # Too many local variables
     'R0915', # Too many statements
+    'R1702', # Too many nested blocks
     'R1710', # Inconsistent return statements
-    'W0142', # Used * or ** magic
     'W0201', # Attribute defined outside __init__
-    'W0232', # Class has no __init__ method
     'W0601', # Global variable undefined at the module level
     'W0603', # Using the global statement
     'W0631', # Using possibly undefined loop variable
     'W0632', # Possible unbalanced tuple unpacking
     'W0633', # Attempting to unpack a non-sequence
+    'W0707', # Consider explicitly re-raising using 'raise * from *'
     'W1401', # Anomalous backslash in string
+    'W1514', # Using open without explicitly specifying an encoding
 ]
 
 # pylint options
