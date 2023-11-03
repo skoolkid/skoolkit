@@ -1,7 +1,7 @@
 Changelog
 =========
 
-9.0b1
+9.0rc
 -----
 * Dropped support for Python 3.7
 * :ref:`tap2sna.py` now performs a :ref:`simulated LOAD <tap2sna-sim-load>` by
