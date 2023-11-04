@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2014, 2022, 2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -40,10 +40,13 @@ class AudioWriter:
                 except ValueError:
                     pass
 
-    def write_audio(self, audio_file, delays, contention=False, interrupts=False, offset=0):
+    def write_audio(self, audio_file, delays, contention=False, interrupts=False, offset=0, ma_filter=False):
         if contention or interrupts:
             self._add_contention(delays, contention, interrupts, offset)
-        samples = self._delays_to_samples(delays)
+        if ma_filter:
+            samples = self._moving_average_filter(delays)
+        else:
+            samples = self._delays_to_samples(delays)
         self._write_wav(audio_file, samples)
 
     def formats(self):
@@ -95,6 +98,31 @@ class AudioWriter:
                     # Delay crosses frame boundary
                     d_offset += f_duration - cycle
                     cycle = 0
+
+    def _moving_average_filter(self, delays):
+        sample_delay = self.options[CLOCK_SPEED] / self.options[SAMPLE_RATE]
+        s0, s1 = 0, sample_delay
+        samples = []
+        bits = []
+        max_bits = 100
+        bit = 0
+        for d in delays:
+            while d:
+                if d >= max_bits:
+                    bits.extend([bit] * max_bits)
+                    d -= max_bits
+                else:
+                    bits.extend([bit] * d)
+                    d = 0
+                while s0 + len(bits) >= s1:
+                    num_bits = int(s1 - s0)
+                    sample = int(65535 * sum(bits[:num_bits]) / num_bits) - 32768
+                    samples.append(sample if sample >= 0 else sample + 65536)
+                    s0 += num_bits
+                    s1 += sample_delay
+                    bits = bits[num_bits:]
+            bit = 1 - bit
+        return samples
 
     def _delays_to_samples(self, delays):
         sample_delay = self.options[CLOCK_SPEED] / self.options[SAMPLE_RATE]

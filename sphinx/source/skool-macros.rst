@@ -858,6 +858,9 @@ outcome:
   section)
 * 4 (bit 2) - execute instructions from ``start`` to ``stop`` in a simulator to
   obtain the delays between speaker state changes
+* 8 (bit 3) - pass delays through a moving average filter; while this can
+  produce higher quality audio (especially for multi-channel tunes), it is also
+  quite slow
 
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly. Otherwise the filename is taken to be relative to
@@ -934,11 +937,13 @@ The :ref:`t_audio` template is used to format the ``<audio>`` element.
 
 Audio file creation can be configured via the :ref:`ref-AudioWriter` section.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.7     | New     |
-+---------+---------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 9.0     | Added support for passing delays through a moving average filter |
++---------+------------------------------------------------------------------+
+| 8.7     | New                                                              |
++---------+------------------------------------------------------------------+
 
 .. _CALL:
 

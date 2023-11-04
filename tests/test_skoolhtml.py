@@ -268,12 +268,14 @@ class TestAudioWriter(AudioWriter):
     contention = None
     interrupts = None
     offset = None
+    ma_filter = None
 
-    def write_audio(self, audio_file, delays, contention=False, interrupts=False, offset=0):
+    def write_audio(self, audio_file, delays, contention=False, interrupts=False, offset=0, ma_filter=False):
         self.delays = delays
         self.contention = bool(contention)
         self.interrupts = bool(interrupts)
         self.offset = offset
+        self.ma_filter = bool(ma_filter)
 
 class HtmlWriterTestCase(SkoolKitTestCase):
     def setUp(self):
@@ -1447,7 +1449,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         if udgs:
             self._check_image(writer, udgs, scale, mask, tindex, alpha, x, y, width, height, path)
 
-    def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=False, interrupts=False, offset=0, config=None):
+    def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=False, interrupts=False, offset=0, ma_filter=False, config=None):
         exp_html = f"""
             <audio controls="" src="{src}">
             <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
@@ -1463,11 +1465,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             self.assertEqual(audio_writer.contention, None)
             self.assertEqual(audio_writer.interrupts, None)
             self.assertEqual(audio_writer.offset, None)
+            self.assertEqual(audio_writer.ma_filter, None)
         else:
             self.assertEqual(delays, audio_writer.delays)
             self.assertEqual(contention, audio_writer.contention)
             self.assertEqual(interrupts, audio_writer.interrupts)
             self.assertEqual(offset, audio_writer.offset)
+            self.assertEqual(ma_filter, audio_writer.ma_filter)
         aw_config = {
             'ClockSpeed': 3500000,
             'ContentionBegin': 14334,
@@ -1621,6 +1625,16 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_path = f'audio/{fname}'
         exp_delays = [500] * 4
         self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, True, False, offset)
+
+    def test_macro_audio_with_moving_average_filter(self):
+        writer = self._get_writer(skool='', mock_file_info=True)
+        fname = 'sound.wav'
+        delays = '[500]*4'
+        macro = f'#AUDIO8({fname})({delays})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [500] * 4
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, ma_filter=True)
 
     def test_macro_audio_with_replacement_fields(self):
         writer = self._get_writer(skool='', mock_file_info=True)

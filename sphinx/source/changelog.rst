@@ -1,8 +1,8 @@
 Changelog
 =========
 
-9.0rc
------
+9.0rc2
+------
 * Dropped support for Python 3.7
 * :ref:`tap2sna.py` now performs a :ref:`simulated LOAD <tap2sna-sim-load>` by
   default, and will also overwrite an existing snapshot by default
@@ -41,6 +41,9 @@ Changelog
 * Added support to :ref:`bin2sna.py` and :ref:`tap2sna.py` for setting the
   ``fe`` hardware state attribute (i.e. the last value written to port 0xFE in
   SZX snapshots)
+* Added support to the :ref:`AUDIO` macro for passing delays through a moving
+  average filter (which can produce higher quality audio, especially for
+  multi-channel tunes)
 * Added support to :ref:`control directive loops <ctlLoops>` for avoiding
   repetition of an ``N`` directive at the start of a loop
 * :ref:`tapinfo.py` now shows the LINE number (if present) for 'Program:'

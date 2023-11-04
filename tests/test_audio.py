@@ -23,9 +23,9 @@ class TestAudioWriter(AudioWriter):
         return
 
 class AudioWriterTest(SkoolKitTestCase):
-    def _get_audio_data(self, audio_writer, delays):
+    def _get_audio_data(self, audio_writer, delays, ma_filter=False):
         audio_stream = BytesIO()
-        audio_writer.write_audio(audio_stream, delays)
+        audio_writer.write_audio(audio_stream, delays, ma_filter=ma_filter)
         audio_bytes = bytearray(audio_stream.getvalue())
         audio_stream.close()
         return audio_bytes
@@ -53,6 +53,12 @@ class AudioWriterTest(SkoolKitTestCase):
         audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
         samples = self._check_header(audio_bytes)
         self.assertEqual(samples, b'\xff\x7f\xff\x7f\x00\x80\xff\x7f\x00\x80\x00\x80')
+
+    def test_ma_filter(self):
+        audio_writer = AudioWriter()
+        audio_bytes = self._get_audio_data(audio_writer, [50, 150, 50, 150], True)
+        samples = self._check_header(audio_bytes)
+        self.assertEqual(samples, b'\xf9\xdd\xff\x7f\x65\x06\x1c\x59\xff\x7f')
 
     def test_contention(self):
         audio_writer = TestAudioWriter()
