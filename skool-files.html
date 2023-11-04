@@ -1,18 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Skool files &#8212; SkoolKit 8.10 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Skool files &#8212; SkoolKit 9.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Skool macros" href="skool-macros.html" />
@@ -25,15 +28,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="control-files.html" title="Control files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool files</a></li> 
       </ul>
     </div>  
@@ -43,13 +43,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="skool-files">
-<span id="skoolfiles"></span><h1>Skool files<a class="headerlink" href="#skool-files" title="Permalink to this headline">¶</a></h1>
+  <section id="skool-files">
+<span id="skoolfiles"></span><h1>Skool files<a class="headerlink" href="#skool-files" title="Permalink to this heading">¶</a></h1>
 <p>A skool file contains the list of Z80 instructions that make up the routines
 and data blocks of the program being disassembled, with accompanying comments
 (if any).</p>
-<div class="section" id="skool-file-format">
-<span id="skoolfileformat"></span><h2>Skool file format<a class="headerlink" href="#skool-file-format" title="Permalink to this headline">¶</a></h2>
+<section id="skool-file-format">
+<span id="skoolfileformat"></span><h2>Skool file format<a class="headerlink" href="#skool-file-format" title="Permalink to this heading">¶</a></h2>
 <p>A skool file must be in a certain format to ensure that it is processed
 correctly by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>, <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> and <a class="reference internal" href="commands.html#skool2ctl-py"><span class="std std-ref">skool2ctl.py</span></a>.
 The rules are as follows:</p>
@@ -62,8 +62,8 @@ see <a class="reference internal" href="#entryheaderformat"><span class="std std
 <code class="docutils literal notranslate"><span class="pre">;*</span> <span class="pre">&#64;bcgistuw</span></code>; see <a class="reference internal" href="#entrylineformat"><span class="std std-ref">Entry line format</span></a></p></li>
 <li><p>tables (grids) have their own markup syntax; see <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> for details</p></li>
 </ul>
-<div class="section" id="entry-header-format">
-<span id="entryheaderformat"></span><h3>Entry header format<a class="headerlink" href="#entry-header-format" title="Permalink to this headline">¶</a></h3>
+<section id="entry-header-format">
+<span id="entryheaderformat"></span><h3>Entry header format<a class="headerlink" href="#entry-header-format" title="Permalink to this heading">¶</a></h3>
 <p>An entry header is a sequence of comment lines broken into four sections:</p>
 <ul class="simple">
 <li><p>entry title</p></li>
@@ -140,9 +140,9 @@ For example:</p>
 <p>When a register name is supplied in this format, the delimiter characters must
 be something other than a letter or digit. In addition, <a class="reference internal" href="skool-macros.html#list"><span class="std std-ref">#LIST</span></a> and
 <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macros in a register name field are not expanded in ASM mode.</p>
-</div>
-<div class="section" id="entry-line-format">
-<span id="entrylineformat"></span><h3>Entry line format<a class="headerlink" href="#entry-line-format" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="entry-line-format">
+<span id="entrylineformat"></span><h3>Entry line format<a class="headerlink" href="#entry-line-format" title="Permalink to this heading">¶</a></h3>
 <p>Each line in an entry may start with one of <code class="docutils literal notranslate"><span class="pre">;*</span> <span class="pre">&#64;bcgistuw</span></code>, where:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">;</span></code> begins a comment line</p></li>
@@ -199,10 +199,10 @@ containing a dot (<code class="docutils literal notranslate"><span class="pre">.
 HTML version of the disassembly (generated by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>), and will
 have labels generated for them in the ASM version (generated by
 <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>).</p>
-</div>
-</div>
-<div class="section" id="asm-directives">
-<span id="asm"></span><h2>ASM directives<a class="headerlink" href="#asm-directives" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="asm-directives">
+<span id="asm"></span><h2>ASM directives<a class="headerlink" href="#asm-directives" title="Permalink to this heading">¶</a></h2>
 <p>To write an ASM directive in a skool file, start a line with <code class="docutils literal notranslate"><span class="pre">&#64;</span></code>; for
 example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; Start the game
@@ -211,9 +211,9 @@ c24576 XOR A
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="asm.html#asmmodesanddirectives"><span class="std std-ref">ASM modes and directives</span></a> for more details.</p>
-</div>
-<div class="section" id="escaping-characters">
-<h2>Escaping characters<a class="headerlink" href="#escaping-characters" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="escaping-characters">
+<h2>Escaping characters<a class="headerlink" href="#escaping-characters" title="Permalink to this heading">¶</a></h2>
 <p>Backslash (<code class="docutils literal notranslate"><span class="pre">\</span></code>) and double quote (<code class="docutils literal notranslate"><span class="pre">&quot;</span></code>) characters in string and character
 operands must be escaped by preceding them with a backslash. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>c32768 LD A,&quot;\&quot;&quot;     ; LD A,34
@@ -221,9 +221,9 @@ operands must be escaped by preceding them with a backslash. For example:</p>
 </pre></div>
 </div>
 <p>This ensures that SkoolKit or an assembler can parse such operands correctly.</p>
-</div>
-<div class="section" id="braces-in-comments">
-<span id="bracesincomments"></span><h2>Braces in comments<a class="headerlink" href="#braces-in-comments" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="braces-in-comments">
+<span id="bracesincomments"></span><h2>Braces in comments<a class="headerlink" href="#braces-in-comments" title="Permalink to this heading">¶</a></h2>
 <p>As noted above, opening and closing braces (<code class="docutils literal notranslate"><span class="pre">{</span></code>, <code class="docutils literal notranslate"><span class="pre">}</span></code>) are used to mark the
 start and end points of an instruction-level comment that is associated with
 more than one instruction, and the braces are removed before the comment is
@@ -268,9 +268,9 @@ DEFB 0                  ; unmatched closing brace}
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>DEFB 0                  ; {Unmatched opening brace
 </pre></div>
 </div>
-</div>
-<div class="section" id="non-entry-blocks">
-<span id="nonentryblocks"></span><h2>Non-entry blocks<a class="headerlink" href="#non-entry-blocks" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="non-entry-blocks">
+<span id="nonentryblocks"></span><h2>Non-entry blocks<a class="headerlink" href="#non-entry-blocks" title="Permalink to this heading">¶</a></h2>
 <p>In addition to regular entries (routines and data blocks), a skool file may
 also contain blocks of lines that do not match the format of an entry, such as
 a header comment that appears before the first entry and contains copyright
@@ -304,10 +304,10 @@ c24573 JP 32768
 <p>is seen as a non-entry block (with the <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> block directives retained) by
 <cite>skool2ctl.py</cite> and <cite>skool2html.py</cite>, but as a regular entry (without the
 <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> block directives) by <cite>skool2asm.py</cite>.</p>
-</div>
-<div class="section" id="revision-history">
-<h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
-<table class="docutils colwidths-auto align-default">
+</section>
+<section id="revision-history">
+<h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this heading">¶</a></h2>
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -342,8 +342,8 @@ entry description by using a dot (<code class="docutils literal notranslate"><sp
 </tr>
 </tbody>
 </table>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -352,8 +352,9 @@ entry description by using a dot (<code class="docutils literal notranslate"><sp
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Skool files</a><ul>
 <li><a class="reference internal" href="#skool-file-format">Skool file format</a><ul>
 <li><a class="reference internal" href="#entry-header-format">Entry header format</a></li>
@@ -369,12 +370,17 @@ entry description by using a dot (<code class="docutils literal notranslate"><sp
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="control-files.html"
-                        title="previous chapter">Control files</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="skool-macros.html"
-                        title="next chapter">Skool macros</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="control-files.html"
+                          title="previous chapter">Control files</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="skool-macros.html"
+                          title="next chapter">Skool macros</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -386,12 +392,12 @@ entry description by using a dot (<code class="docutils literal notranslate"><sp
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -403,21 +409,18 @@ entry description by using a dot (<code class="docutils literal notranslate"><sp
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >next</a> |</li>
         <li class="right" >
           <a href="control-files.html" title="Control files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool files</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2023, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

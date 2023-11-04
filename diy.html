@@ -1,18 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Disassembly DIY &#8212; SkoolKit 8.10 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Disassembly DIY &#8212; SkoolKit 9.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Commands" href="commands.html" />
@@ -25,15 +28,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="commands.html" title="Commands"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Disassembly DIY</a></li> 
       </ul>
     </div>  
@@ -43,12 +43,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="disassembly-diy">
-<span id="disassemblydiy"></span><h1>Disassembly DIY<a class="headerlink" href="#disassembly-diy" title="Permalink to this headline">¶</a></h1>
+  <section id="disassembly-diy">
+<span id="disassemblydiy"></span><h1>Disassembly DIY<a class="headerlink" href="#disassembly-diy" title="Permalink to this heading">¶</a></h1>
 <p>The following sections describe how to use SkoolKit to get started on your own
 Spectrum game disassembly.</p>
-<div class="section" id="getting-started">
-<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading">¶</a></h2>
 <p>The first thing to do is select a Spectrum game to disassemble. For the purpose
 of this discussion, we’ll use <a class="reference external" href="https://spectrumcomputing.co.uk/entry/2390/">Hungry Horace</a>. To build a pristine snapshot of
 the game, run the following command in the directory where SkoolKit was
@@ -78,9 +78,9 @@ to find out.</p>
 <p>Once you have figured out where the code and data blocks are, it would be handy
 if you could supply <cite>sna2skool.py</cite> with this information, so that it can
 disassemble the blocks accordingly. That is where the control file comes in.</p>
-</div>
-<div class="section" id="the-control-file">
-<h2>The control file<a class="headerlink" href="#the-control-file" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="the-control-file">
+<h2>The control file<a class="headerlink" href="#the-control-file" title="Permalink to this heading">¶</a></h2>
 <p>In its most basic form, a control file contains a list of start addresses of
 code and data blocks. Each address is marked with a ‘control directive’, which
 is a single letter that indicates what the block contains: <code class="docutils literal notranslate"><span class="pre">c</span></code> for a code
@@ -105,9 +105,9 @@ c 25167
 </ul>
 <p>For more information on control file directives and their syntax, see
 <a class="reference internal" href="control-files.html#controlfiles"><span class="std std-ref">Control files</span></a>.</p>
-</div>
-<div class="section" id="a-skeleton-disassembly">
-<h2>A skeleton disassembly<a class="headerlink" href="#a-skeleton-disassembly" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="a-skeleton-disassembly">
+<h2>A skeleton disassembly<a class="headerlink" href="#a-skeleton-disassembly" title="Permalink to this heading">¶</a></h2>
 <p>So if we had a control file for Hungry Horace, we could produce a much more
 useful skool file. As it happens, SkoolKit includes one: <cite>hungry_horace.ctl</cite>.
 You can use it with <cite>sna2skool.py</cite> thus:</p>
@@ -139,9 +139,9 @@ with the skool file we’ve just created:</p>
 <p>Now the disassembly will sport a game logo image.</p>
 <p>See <a class="reference internal" href="ref-files.html#reffiles"><span class="std std-ref">Ref files</span></a> for more information on how to use a ref file to configure
 and customise a disassembly.</p>
-</div>
-<div class="section" id="generating-a-control-file">
-<h2>Generating a control file<a class="headerlink" href="#generating-a-control-file" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="generating-a-control-file">
+<h2>Generating a control file<a class="headerlink" href="#generating-a-control-file" title="Permalink to this heading">¶</a></h2>
 <p>If you are planning to create a disassembly of some game other than Hungry
 Horace, you will need to create your own control file. To get started, you can
 use <a class="reference internal" href="commands.html#sna2ctl-py"><span class="std std-ref">sna2ctl.py</span></a> to perform a rudimentary static code analysis of the
@@ -177,9 +177,9 @@ produce a hexadecimal control file and a hexadecimal skool file:</p>
 $ sna2skool.py --hex -c game.ctl game.z80 &gt; game.skool
 </pre></div>
 </div>
-</div>
-<div class="section" id="developing-the-disassembly">
-<h2>Developing the disassembly<a class="headerlink" href="#developing-the-disassembly" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="developing-the-disassembly">
+<h2>Developing the disassembly<a class="headerlink" href="#developing-the-disassembly" title="Permalink to this heading">¶</a></h2>
 <p>When you’re happy that your control file does a decent job of distinguishing
 the code blocks from the data blocks in your memory snapshot, it’s time to
 start work on adding annotations that describe what the code does and what the
@@ -247,9 +247,9 @@ code and data blocks. Then generate a new skool file:</p>
 </div>
 <p>This new skool file, <cite>game-2.skool</cite>, will contain your reorganised code and
 data blocks, and all the annotations you carefully added to <cite>game.skool</cite>.</p>
-</div>
-<div class="section" id="adding-pokes-bugs-and-trivia">
-<h2>Adding pokes, bugs and trivia<a class="headerlink" href="#adding-pokes-bugs-and-trivia" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="adding-pokes-bugs-and-trivia">
+<h2>Adding pokes, bugs and trivia<a class="headerlink" href="#adding-pokes-bugs-and-trivia" title="Permalink to this heading">¶</a></h2>
 <p>Adding ‘Pokes’, ‘Bugs’, and ‘Trivia’ pages to a disassembly is done by adding
 <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">[Poke:*]</span></a>, <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">[Bug:*]</span></a>, and
 <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">[Fact:*]</span></a> sections to the ref file. For any such sections that
@@ -275,9 +275,9 @@ entry to be documented. Entries will appear on the ‘Pokes’, ‘Bugs’ or �
 page in the same order as the sections appear in the ref file.</p>
 <p>See <a class="reference internal" href="ref-files.html#reffiles"><span class="std std-ref">Ref files</span></a> for more information on the format of the <code class="docutils literal notranslate"><span class="pre">Poke</span></code>,
 <code class="docutils literal notranslate"><span class="pre">Bug</span></code>, and <code class="docutils literal notranslate"><span class="pre">Fact</span></code> (and other) sections that may appear in a ref file.</p>
-</div>
-<div class="section" id="themes">
-<h2>Themes<a class="headerlink" href="#themes" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="themes">
+<h2>Themes<a class="headerlink" href="#themes" title="Permalink to this heading">¶</a></h2>
 <p>In addition to the default theme (defined in <cite>skoolkit.css</cite>), SkoolKit includes
 some alternative themes:</p>
 <ul class="simple">
@@ -296,9 +296,9 @@ example, to use the ‘dark’ theme:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -T plum -T wide game.skool
 </pre></div>
 </div>
-</div>
-<div class="section" id="base-switching">
-<h2>Base switching<a class="headerlink" href="#base-switching" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="base-switching">
+<h2>Base switching<a class="headerlink" href="#base-switching" title="Permalink to this heading">¶</a></h2>
 <p>If you would like to build both decimal and hexadecimal versions of your
 disassembly in HTML format and have them link to each other, then one possible
 approach is to define a custom page footer that contains a link to the
@@ -317,8 +317,8 @@ directory <em>html/dec</em>, and the second command builds the hexadecimal versi
 the directory <em>html/hex</em>. The footer of each page in the decimal version will
 contain a link to the corresponding page in the hexadecimal version, and vice
 versa.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -327,8 +327,9 @@ versa.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Disassembly DIY</a><ul>
 <li><a class="reference internal" href="#getting-started">Getting started</a></li>
 <li><a class="reference internal" href="#the-control-file">The control file</a></li>
@@ -342,12 +343,17 @@ versa.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="usage.html"
-                        title="previous chapter">Installing and using SkoolKit</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="commands.html"
-                        title="next chapter">Commands</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="usage.html"
+                          title="previous chapter">Installing and using SkoolKit</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="commands.html"
+                          title="next chapter">Commands</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -359,12 +365,12 @@ versa.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -376,21 +382,18 @@ versa.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="commands.html" title="Commands"
              >next</a> |</li>
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Disassembly DIY</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2023, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

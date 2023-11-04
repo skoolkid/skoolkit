@@ -9,7 +9,7 @@ While creating a disassembly of a game, you may find that SkoolKit's suite of
 :ref:`skool macros <skoolMacros>` is inadequate for certain tasks. For example,
 the game might have large tile-based sprites that you want to create images of
 for the HTML disassembly, and composing long ``#UDGARRAY`` macros for them or
-defining a new sprite-building macro with the :ref:`DEFINE` macro would be too
+defining a new sprite-building macro with the :ref:`DEF` macro would be too
 tedious or impractical. Or you might want to insert a timestamp somewhere in
 the ASM disassembly so that you (or others) can keep track of when your ASM
 files were written.
@@ -227,6 +227,7 @@ The skoolkit.skoolmacro module provides some utility functions that may be used
 to parse the parameters of a skool macro.
 
 .. autofunction:: skoolkit.skoolmacro.parse_ints
+   :noindex:
 
    .. versionchanged:: 6.0
       Added the *fields* parameter.
@@ -240,14 +241,17 @@ to parse the parameters of a skool macro.
       defaults to 0.
 
 .. autofunction:: skoolkit.skoolmacro.parse_strings
+   :noindex:
 
    .. versionadded:: 5.1
 
 .. autofunction:: skoolkit.skoolmacro.parse_brackets
+   :noindex:
 
    .. versionadded:: 5.1
 
 .. autofunction:: skoolkit.skoolmacro.parse_image_macro
+   :noindex:
 
    .. versionchanged:: 8.3
       Added the *fields* parameter.
@@ -261,8 +265,10 @@ are useful for immediately expanding macros in a ``#CALL`` method or custom
 macro method.
 
 .. automethod:: skoolkit.skoolasm.AsmWriter.expand
+   :noindex:
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.expand
+   :noindex:
 
    .. versionchanged:: 5.1
       The *cwd* parameter is optional.
@@ -273,17 +279,22 @@ HtmlWriter provides some convenience methods for extracting text and data from
 ref files. These methods are described below.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_section
+   :noindex:
 
    .. versionchanged:: 5.3
       Added the *trim* parameter.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_sections
+   :noindex:
 
    .. versionchanged:: 5.3
       Added the *trim* parameter.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_dictionary
+   :noindex:
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_dictionaries
+   :noindex:
 
 Formatting templates
 --------------------
@@ -291,6 +302,7 @@ HtmlWriter provides a method for formatting a template defined by a
 :ref:`Template` section.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.format_template
+   :noindex:
 
    .. versionchanged:: 8.0
       Removed the *default* parameter.
@@ -345,12 +357,16 @@ snapshots, which can be useful for temporarily changing graphic data or the
 contents of data tables.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.push_snapshot
+   :noindex:
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.pop_snapshot
+   :noindex:
 
 In addition, HtmlWriter (but not AsmWriter) provides a method for retrieving
 the snapshot name.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_snapshot_name
+   :noindex:
 
 .. _ext-Graphics:
 
@@ -364,6 +380,7 @@ The Udg class represents an 8x8 graphic (8 bytes) with a single attribute byte,
 and an optional mask.
 
 .. autoclass:: skoolkit.graphics.Udg
+   :noindex:
 
    .. versionchanged:: 5.4
       The Udg class moved from skoolkit.skoolhtml to skoolkit.graphics.
@@ -390,15 +407,20 @@ The Udg class provides two methods for manipulating an 8x8 graphic: `flip` and
 `rotate`.
 
 .. automethod:: skoolkit.graphics.Udg.flip
+   :noindex:
+
 .. automethod:: skoolkit.graphics.Udg.rotate
+   :noindex:
 
 The Udg class also provides a method for creating a copy of a UDG.
 
 .. automethod:: skoolkit.graphics.Udg.copy
+   :noindex:
 
 The Frame class represents a single frame of a still or animated image.
 
 .. autoclass:: skoolkit.graphics.Frame
+   :noindex:
 
    .. versionchanged:: 8.3
       Added the *x_offset* and *y_offset* parameters.
@@ -423,6 +445,7 @@ HtmlWriter and skoolkit.graphics provide the following image-related methods
 and functions.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.handle_image
+   :noindex:
 
    .. versionchanged:: 7.0
       *path_id* defaults to ``ImagePath`` (previously ``UDGImagePath``).
@@ -437,14 +460,18 @@ and functions.
    .. versionadded:: 5.1
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.screenshot
+   :noindex:
 
 .. autofunction:: skoolkit.graphics.flip_udgs
+   :noindex:
 
 .. autofunction:: skoolkit.graphics.overlay_udgs
+   :noindex:
 
    .. versionadded:: 8.5
 
 .. autofunction:: skoolkit.graphics.rotate_udgs
+   :noindex:
 
 HTML page initialisation
 ------------------------
@@ -453,6 +480,7 @@ If you need to perform page-specific actions or customise the ``SkoolKit`` and
 place to do that is the `init_page()` method.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.init_page
+   :noindex:
 
    .. versionadded:: 7.0
 
@@ -463,10 +491,12 @@ tasks, such as creating instance variables, or parsing ref file sections, the
 place to do that is the `init()` method.
 
 .. automethod:: skoolkit.skoolasm.AsmWriter.init
+   :noindex:
 
    .. versionadded:: 6.1
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.init
+   :noindex:
 
 For example:
 

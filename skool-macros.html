@@ -1,18 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Skool macros &#8212; SkoolKit 8.10 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Skool macros &#8212; SkoolKit 9.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Ref files" href="ref-files.html" />
@@ -25,15 +28,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool macros</a></li> 
       </ul>
     </div>  
@@ -43,13 +43,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="skool-macros">
-<span id="skoolmacros"></span><h1>Skool macros<a class="headerlink" href="#skool-macros" title="Permalink to this headline">¶</a></h1>
+  <section id="skool-macros">
+<span id="skoolmacros"></span><h1>Skool macros<a class="headerlink" href="#skool-macros" title="Permalink to this heading">¶</a></h1>
 <p>Skool files and ref files may contain skool macros that are ‘expanded’ to an
 appropriate piece of HTML markup (when rendering in HTML mode), or to an
 appropriate piece of plain text (when rendering in ASM mode).</p>
-<div class="section" id="syntax">
-<h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h2>
+<section id="syntax">
+<h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this heading">¶</a></h2>
 <p>Skool macros have the following general form:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#MACROri1,ri2,...[,oi1,oi2,...](rs1,rs2,...[,os1,os2,...])
 </pre></div>
@@ -79,9 +79,9 @@ default value. So, for example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDG30115,56,2
 </pre></div>
 </div>
-</div>
-<div class="section" id="numeric-parameters">
-<span id="numericparameters"></span><h2>Numeric parameters<a class="headerlink" href="#numeric-parameters" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="numeric-parameters">
+<span id="numericparameters"></span><h2>Numeric parameters<a class="headerlink" href="#numeric-parameters" title="Permalink to this heading">¶</a></h2>
 <p>Numeric parameters may be written in decimal notation:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDG51673,17
 </pre></div>
@@ -113,9 +113,9 @@ fields:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#IF(1 == 2 || (1 &lt;= 2 &amp;&amp; 2 &lt; 3))(Yes,No)
 </pre></div>
 </div>
-</div>
-<div class="section" id="string-parameters">
-<span id="stringparameters"></span><h2>String parameters<a class="headerlink" href="#string-parameters" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="string-parameters">
+<span id="stringparameters"></span><h2>String parameters<a class="headerlink" href="#string-parameters" title="Permalink to this heading">¶</a></h2>
 <p>Where a macro requires a single string parameter consisting of arbitrary text,
 it must be enclosed in parentheses, square brackets or braces:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(text)
@@ -160,13 +160,13 @@ and close with <code class="docutils literal notranslate"><span class="pre">sd</
 <p><span class="versionmodified changed">Changed in version 6.4: </span>When a comma-separated sequence of string parameters is split, any commas
 that appear between parentheses are retained.</p>
 </div>
-</div>
-<div class="section" id="replacement-fields">
-<span id="replacementfields"></span><h2>Replacement fields<a class="headerlink" href="#replacement-fields" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="replacement-fields">
+<span id="replacementfields"></span><h2>Replacement fields<a class="headerlink" href="#replacement-fields" title="Permalink to this heading">¶</a></h2>
 <p>The following replacement fields are available for use in the integer
 parameters of the <a class="reference internal" href="asm.html#asm-if"><span class="std std-ref">&#64;if</span></a> directive and every skool macro (including
-macros defined by <a class="reference internal" href="#def"><span class="std std-ref">#DEF</span></a> or <a class="reference internal" href="#define"><span class="std std-ref">#DEFINE</span></a>), and also in the string
-parameters of some macros:</p>
+macros defined by <a class="reference internal" href="#def"><span class="std std-ref">#DEF</span></a>), and also in the string parameters of some
+macros:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">asm</span></code> - 1 if in <a class="reference internal" href="asm.html#isubmode"><span class="std std-ref">&#64;isub mode</span></a>, 2 if in <a class="reference internal" href="asm.html#ssubmode"><span class="std std-ref">&#64;ssub mode</span></a>, 3 if in
 <a class="reference internal" href="asm.html#rsubmode"><span class="std std-ref">&#64;rsub mode</span></a>, or 0 otherwise</p></li>
@@ -207,14 +207,14 @@ enclosed in parentheses.</p>
 <p><span class="versionmodified changed">Changed in version 6.4: </span>The <code class="docutils literal notranslate"><span class="pre">asm</span></code> replacement field indicates the exact ASM mode; added the
 <code class="docutils literal notranslate"><span class="pre">fix</span></code> and <code class="docutils literal notranslate"><span class="pre">vars</span></code> replacement fields.</p>
 </div>
-</div>
-<div class="section" id="smpl-macros">
-<span id="smplmacros"></span><h2>SMPL macros<a class="headerlink" href="#smpl-macros" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="smpl-macros">
+<span id="smplmacros"></span><h2>SMPL macros<a class="headerlink" href="#smpl-macros" title="Permalink to this heading">¶</a></h2>
 <p>The macros described in this section constitute the Skool Macro Programming
 Language (SMPL). They can be used to programmatically specify values in the
 parameter string of any macro.</p>
-<div class="section" id="hash">
-<span id="id1"></span><h3>#()<a class="headerlink" href="#hash" title="Permalink to this headline">¶</a></h3>
+<section id="hash">
+<span id="id1"></span><h3>#()<a class="headerlink" href="#hash" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#()</span></code> macro expands the skool macros in its sole string parameter.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#(text)
 </pre></div>
@@ -233,9 +233,9 @@ skool macro, and is expanded <cite>before</cite> that macro. For example:</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">text</span></code> parameter. Note that if an alternative delimiter is used, it must not
 be an alphanumeric character (A-Z, a-z, 0-9).</p>
-</div>
-<div class="section" id="def">
-<span id="id2"></span><h3>#DEF<a class="headerlink" href="#def" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="def">
+<span id="id2"></span><h3>#DEF<a class="headerlink" href="#def" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#DEF</span></code> macro defines a new skool macro.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#DEF[flags](#MACRO[(ia[=i0],ib[=i1]...)[(sa[=s0],sb[=s1]...)]] body)
 </pre></div>
@@ -337,7 +337,7 @@ skool file or ref files, consider using the <a class="reference internal" href="
 <p>The integer parameters of a macro defined by <code class="docutils literal notranslate"><span class="pre">#DEF</span></code> may contain
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>, and may also be supplied via
 keyword arguments.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -354,54 +354,9 @@ ability to strip whitespace from the defined macro’s output</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="define">
-<span id="id3"></span><h3>#DEFINE<a class="headerlink" href="#define" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">#DEFINE</span></code> macro defines a new skool macro.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#DEFINEiparams[,sparams](name,value)
-</pre></div>
-</div>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">iparams</span></code> is the number of integer parameters the macro expects</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sparams</span></code> is the number of string parameters the macro expects (default:
-<code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is the macro name (which must be all upper case letters)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">value</span></code> is the macro’s output value (a standard Python format string
-containing replacement fields for the integer and string arguments)</p></li>
-</ul>
-<p>For example:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#DEFINE2(MIN,#IF({0}&lt;{1})({0},{1}))
-</pre></div>
-</div>
-<p>This defines a <code class="docutils literal notranslate"><span class="pre">#MIN</span></code> macro that accepts two integer arguments and expands to
-the value of the smaller argument.</p>
-<p>To define a macro that will be available for use immediately anywhere in the
-skool file or ref files, consider using the <a class="reference internal" href="asm.html#expand"><span class="std std-ref">&#64;expand</span></a> directive, or the
-<code class="docutils literal notranslate"><span class="pre">Expand</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-config"><span class="std std-ref">[Config]</span></a> section.</p>
-<p>The integer parameters of a macro defined by <code class="docutils literal notranslate"><span class="pre">#DEFINE</span></code> may contain
-<a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
-<p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
-<code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">value</span></code> parameters.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">#DEFINE</span></code> macro is deprecated since version 8.5. Use the more powerful
-<a class="reference internal" href="#def"><span class="std std-ref">#DEF</span></a> macro instead.</p>
-</div>
-<table class="docutils colwidths-auto align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Version</p></th>
-<th class="head"><p>Changes</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>8.2</p></td>
-<td><p>New</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="eval">
-<span id="id4"></span><h3>#EVAL<a class="headerlink" href="#eval" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="eval">
+<span id="id3"></span><h3>#EVAL<a class="headerlink" href="#eval" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#EVAL</span></code> macro expands to the value of an arithmetic expression.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#EVALexpr[,base,width]
 </pre></div>
@@ -421,7 +376,7 @@ value will be padded with leading zeroes if necessary</p></li>
 <p>This instance of the <code class="docutils literal notranslate"><span class="pre">#EVAL</span></code> macro expands to ‘00111110’ (62 in binary).</p>
 <p>The parameter string of the <code class="docutils literal notranslate"><span class="pre">#EVAL</span></code> macro may contain
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -440,9 +395,9 @@ value will be padded with leading zeroes if necessary</p></li>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="for">
-<span id="id5"></span><h3>#FOR<a class="headerlink" href="#for" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="for">
+<span id="id4"></span><h3>#FOR<a class="headerlink" href="#for" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#FOR</span></code> macro expands to a sequence of strings based on a range of
 integers.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#FORstart,stop[,step,flags](var,string[,sep,fsep])
@@ -482,7 +437,7 @@ variable value</p></li>
 <code class="docutils literal notranslate"><span class="pre">flags</span></code>) may contain <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">var</span></code>, <code class="docutils literal notranslate"><span class="pre">string</span></code>, <code class="docutils literal notranslate"><span class="pre">sep</span></code> and <code class="docutils literal notranslate"><span class="pre">fsep</span></code> parameters.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -500,9 +455,9 @@ variable value</p></li>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="foreach">
-<span id="id6"></span><h3>#FOREACH<a class="headerlink" href="#foreach" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="foreach">
+<span id="id5"></span><h3>#FOREACH<a class="headerlink" href="#foreach" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#FOREACH</span></code> macro expands to a sequence of output strings based on a
 sequence of input strings.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#FOREACH([s1,s2,...])(var,string[,sep,fsep])
@@ -550,7 +505,7 @@ routine (at <code class="docutils literal notranslate"><span class="pre">addr</s
 the entries of type <code class="docutils literal notranslate"><span class="pre">t</span></code> (text).</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">s1,s2,...</span></code> and <code class="docutils literal notranslate"><span class="pre">var,string[,sep,fsep]</span></code> parameter strings.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -562,9 +517,9 @@ the entries of type <code class="docutils literal notranslate"><span class="pre"
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="format">
-<span id="id7"></span><h3>#FORMAT<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="format">
+<span id="id6"></span><h3>#FORMAT<a class="headerlink" href="#format" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#FORMAT</span></code> macro performs a Python-style <a class="reference external" href="https://docs.python.org/3/library/string.html#format-string-syntax">string formatting operation</a> on
 its string argument.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#FORMAT[case](text)
@@ -594,7 +549,7 @@ pure numeric value.</p>
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">text</span></code> parameter.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -609,9 +564,9 @@ pure numeric value.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="if">
-<span id="id8"></span><h3>#IF<a class="headerlink" href="#if" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="if">
+<span id="id7"></span><h3>#IF<a class="headerlink" href="#if" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#IF</span></code> macro expands to an arbitrary string based on the truth value of an
 arithmetic expression.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#IFexpr(true[,false])
@@ -635,7 +590,7 @@ the memory snapshot in binary format with ‘X’ for one and ‘O’ for zero:
 XOXOXOXO.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">true</span></code> and <code class="docutils literal notranslate"><span class="pre">false</span></code> output strings.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -650,9 +605,9 @@ XOXOXOXO.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="let">
-<span id="id9"></span><h3>#LET<a class="headerlink" href="#let" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="let">
+<span id="id8"></span><h3>#LET<a class="headerlink" href="#let" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#LET</span></code> macro defines an integer, string or dictionary variable.</p>
 <p>The syntax for defining an integer or string variable is:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#LET(name=value)
@@ -706,7 +661,7 @@ skool file or ref files, consider using the <a class="reference internal" href="
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 entire <code class="docutils literal notranslate"><span class="pre">name=value</span></code> parameter string, or the part after the equals sign when
 defining a dictionary variable.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -721,9 +676,9 @@ defining a dictionary variable.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="map">
-<span id="id10"></span><h3>#MAP<a class="headerlink" href="#map" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="map">
+<span id="id9"></span><h3>#MAP<a class="headerlink" href="#map" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#MAP</span></code> macro expands to a value from a map of key-value pairs whose keys
 are integers.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#MAPkey(default[,k1:v1,k2:v2...])
@@ -751,7 +706,7 @@ operations. They may also be expressed using skool macros, but in that case the
 <a class="reference internal" href="#hash"><span class="std std-ref">#()</span></a> macro.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 default output string and the key-value pairs.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -766,9 +721,9 @@ default output string and the key-value pairs.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="pc">
-<span id="id11"></span><h3>#PC<a class="headerlink" href="#pc" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="pc">
+<span id="id10"></span><h3>#PC<a class="headerlink" href="#pc" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#PC</span></code> macro expands to the address of the closest instruction in the
 current entry.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#PC
@@ -785,7 +740,7 @@ the entry. In a mid-block comment, the <code class="docutils literal notranslate
 the following instruction. In an instruction-level comment, the <code class="docutils literal notranslate"><span class="pre">#PC</span></code> macro
 expands to the address of the instruction. In a block end comment, the <code class="docutils literal notranslate"><span class="pre">#PC</span></code>
 macro expands to the address of the last instruction in the entry.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -797,9 +752,9 @@ macro expands to the address of the last instruction in the entry.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="peek">
-<span id="id12"></span><h3>#PEEK<a class="headerlink" href="#peek" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="peek">
+<span id="id11"></span><h3>#PEEK<a class="headerlink" href="#peek" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#PEEK</span></code> macro expands to the contents of an address in the internal
 memory snapshot constructed from the contents of the skool file.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#PEEKaddr
@@ -815,14 +770,8 @@ memory snapshot constructed from the contents of the skool file.</p>
 </div>
 <p>This instance of the <code class="docutils literal notranslate"><span class="pre">#PEEK</span></code> macro expands to the contents of the address
 33879 in the internal memory snapshot.</p>
-<p>Note that, by default, the internal memory snapshot constructed by
-<a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> is entirely blank (all zeroes), and the snapshot
-constructed by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> is populated only by <code class="docutils literal notranslate"><span class="pre">DEFB</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFM</span></code>,
-<code class="docutils literal notranslate"><span class="pre">DEFS</span></code> and <code class="docutils literal notranslate"><span class="pre">DEFW</span></code> statements, and by <a class="reference internal" href="asm.html#defb"><span class="std std-ref">&#64;defb</span></a>, <a class="reference internal" href="asm.html#defs"><span class="std std-ref">&#64;defs</span></a> and
-<a class="reference internal" href="asm.html#defw"><span class="std std-ref">&#64;defw</span></a> directives. To change this behaviour, use the <a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble</span></a>
-directive.</p>
 <p>See also <a class="reference internal" href="#pokes"><span class="std std-ref">#POKES</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -837,9 +786,9 @@ directive.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="str">
-<span id="id13"></span><h3>#STR<a class="headerlink" href="#str" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="str">
+<span id="id12"></span><h3>#STR<a class="headerlink" href="#str" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#STR</span></code> macro expands to the text string at a given address in the memory
 snapshot.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#STRaddr[,flags,length][(end)]
@@ -877,7 +826,7 @@ placeholder <code class="docutils literal notranslate"><span class="pre">$b</spa
 <p>These instances of the <code class="docutils literal notranslate"><span class="pre">#STR</span></code> macro expand to ‘One’, ‘Two’ and ‘Three’.</p>
 <p>The parameters of the <code class="docutils literal notranslate"><span class="pre">#STR</span></code> macro may contain
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -889,9 +838,9 @@ placeholder <code class="docutils literal notranslate"><span class="pre">$b</spa
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="while">
-<span id="id14"></span><h3>#WHILE<a class="headerlink" href="#while" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="while">
+<span id="id13"></span><h3>#WHILE<a class="headerlink" href="#while" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#WHILE</span></code> macro repeatedly expands macros while a conditional expression
 is true.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#WHILE(expr)(body)
@@ -915,7 +864,7 @@ are stripped from the expanded value</p></li>
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">body</span></code> parameter.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -927,12 +876,12 @@ are stripped from the expanded value</p></li>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="general-macros">
-<h2>General macros<a class="headerlink" href="#general-macros" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="audio">
-<span id="id15"></span><h3>#AUDIO<a class="headerlink" href="#audio" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="general-macros">
+<h2>General macros<a class="headerlink" href="#general-macros" title="Permalink to this heading">¶</a></h2>
+<section id="audio">
+<span id="id14"></span><h3>#AUDIO<a class="headerlink" href="#audio" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#AUDIO</span></code> macro expands to an HTML5 <code class="docutils literal notranslate"><span class="pre">&lt;audio&gt;</span></code> element.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#AUDIO[flags,offset](fname)[(delays)]
 </pre></div>
@@ -970,6 +919,9 @@ specified by the <code class="docutils literal notranslate"><span class="pre">In
 section)</p></li>
 <li><p>4 (bit 2) - execute instructions from <code class="docutils literal notranslate"><span class="pre">start</span></code> to <code class="docutils literal notranslate"><span class="pre">stop</span></code> in a simulator to
 obtain the delays between speaker state changes</p></li>
+<li><p>8 (bit 3) - pass delays through a moving average filter; while this can
+produce higher quality audio (especially for multi-channel tunes), it is also
+quite slow</p></li>
 </ul>
 <p>If <code class="docutils literal notranslate"><span class="pre">fname</span></code> starts with a ‘/’, the filename is taken to be relative to the
 root of the HTML disassembly. Otherwise the filename is taken to be relative to
@@ -1001,7 +953,6 @@ the delays. This can be done by setting bit 2 of <code class="docutils literal n
 code to execute via the <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code> address parameters. For
 example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; #AUDIO4(beep.wav)(32768,32782)
-@assemble=2
 c32768 LD L,0
 *32771 OUT (254),A
  32773 XOR 16
@@ -1018,13 +969,6 @@ c32768 LD L,0
 interrupts. Use bits 0 and 1 of <code class="docutils literal notranslate"><span class="pre">flags</span></code> to approximate memory contention
 effects and interrupt delays if desired.</p>
 </div>
-<p>Note also that, by default, the internal memory snapshot constructed by
-<a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> is entirely blank (all zeroes), and the snapshot
-constructed by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> is populated only by <code class="docutils literal notranslate"><span class="pre">DEFB</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFM</span></code>,
-<code class="docutils literal notranslate"><span class="pre">DEFS</span></code> and <code class="docutils literal notranslate"><span class="pre">DEFW</span></code> statements, and by <a class="reference internal" href="asm.html#defb"><span class="std std-ref">&#64;defb</span></a>, <a class="reference internal" href="asm.html#defs"><span class="std std-ref">&#64;defs</span></a> and
-<a class="reference internal" href="asm.html#defw"><span class="std std-ref">&#64;defw</span></a> directives. To make sure that the internal memory snapshot actually
-contains the code to be executed, use the <a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble</span></a> directive (as shown
-in the example above).</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">delays</span></code> or <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code> parameters are specified, but <code class="docutils literal notranslate"><span class="pre">fname</span></code>
 does not end with ‘.wav’, no audio file is written. This enables the parameters
 to be kept in place as a reminder of how an original WAV file was created by
@@ -1046,21 +990,24 @@ parameter in the <a class="reference internal" href="ref-files.html#ref-game"><s
 macro may contain <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>The <a class="reference internal" href="html-templates.html#t-audio"><span class="std std-ref">audio</span></a> template is used to format the <code class="docutils literal notranslate"><span class="pre">&lt;audio&gt;</span></code> element.</p>
 <p>Audio file creation can be configured via the <a class="reference internal" href="ref-files.html#ref-audiowriter"><span class="std std-ref">[AudioWriter]</span></a> section.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.7</p></td>
+<tr class="row-even"><td><p>9.0</p></td>
+<td><p>Added support for passing delays through a moving average filter</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.7</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="call">
-<span id="id16"></span><h3>#CALL<a class="headerlink" href="#call" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="call">
+<span id="id15"></span><h3>#CALL<a class="headerlink" href="#call" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro expands to the return value of a method on
 the <cite>HtmlWriter</cite> class or subclass that is being used to create the HTML
 disassembly (as defined by the <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> parameter in the
@@ -1087,7 +1034,7 @@ method (on the <cite>HtmlWriter</cite> or <cite>AsmWriter</cite> subclass being 
 with the argument <code class="docutils literal notranslate"><span class="pre">32768</span></code>.</p>
 <p>For information on writing methods that may be called by a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro, see
 the documentation on <a class="reference internal" href="extending.html#extendingskoolkit"><span class="std std-ref">extending SkoolKit</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1112,9 +1059,9 @@ the documentation on <a class="reference internal" href="extending.html#extendin
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="chr">
-<span id="id17"></span><h3>#CHR<a class="headerlink" href="#chr" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="chr">
+<span id="id16"></span><h3>#CHR<a class="headerlink" href="#chr" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#CHR</span></code> macro expands either to a numeric character
 reference, or to a unicode character in the UTF-8 encoding. In ASM mode, it
 always expands to a unicode character in the UTF-8 encoding.</p>
@@ -1130,8 +1077,8 @@ outcome:</p>
 <ul class="simple">
 <li><p>1 - produce a character in the UTF-8 encoding instead of a numeric character
 reference in HTML mode</p></li>
-<li><p>2 - map character code 94 to 8593 (‘↑’), 96 to 163 (‘£’), and 127 to 169
-(‘©’), in accordance with the ZX Spectrum character set</p></li>
+<li><p>2 - map character code 94 to 8593 (’↑’), 96 to 163 (’£’), and 127 to 169
+(’©’), in accordance with the ZX Spectrum character set</p></li>
 </ul>
 <p>For example:</p>
 <div class="nonexistent highlight-none notranslate"><div class="highlight"><pre><span></span> 26751 DEFB 127   ; This is the copyright symbol: #CHR169
@@ -1142,7 +1089,7 @@ reference in HTML mode</p></li>
 mode, they both expand to ‘©’.</p>
 <p>The parameter string of the <code class="docutils literal notranslate"><span class="pre">#CHR</span></code> macro may contain
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1166,9 +1113,9 @@ parameter string</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="d">
-<span id="id18"></span><h3>#D<a class="headerlink" href="#d" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="d">
+<span id="id17"></span><h3>#D<a class="headerlink" href="#d" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#D</span></code> macro expands to the title of an entry (a routine or data block) in
 the memory map.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#Daddr
@@ -1187,7 +1134,7 @@ the memory map.</p>
 </pre></div>
 </div>
 <p>This instance of the <code class="docutils literal notranslate"><span class="pre">#D</span></code> macro expands to the title of the routine at 27126.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1203,9 +1150,9 @@ the memory map.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="html">
-<span id="id19"></span><h3>#HTML<a class="headerlink" href="#html" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="html">
+<span id="id18"></span><h3>#HTML<a class="headerlink" href="#html" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#HTML</span></code> macro expands to arbitrary text (in HTML mode) or to an empty
 string (in ASM mode).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#HTML(text)
@@ -1225,7 +1172,7 @@ rendering. For example:</p>
 <code class="docutils literal notranslate"><span class="pre">text</span></code> parameter. Note that if an alternative delimiter is used, it must not
 be an upper case letter.</p>
 <p>See also <a class="reference internal" href="#udgtable"><span class="std std-ref">#UDGTABLE</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1237,9 +1184,9 @@ be an upper case letter.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="include">
-<span id="id20"></span><h3>#INCLUDE<a class="headerlink" href="#include" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="include">
+<span id="id19"></span><h3>#INCLUDE<a class="headerlink" href="#include" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#INCLUDE</span></code> macro expands to the contents of one or more ref
 file sections. In ASM mode, it expands to an empty string.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#INCLUDE[paragraphs](pattern)
@@ -1266,7 +1213,7 @@ the order in which they appear in the ref file.</p>
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">pattern</span></code> parameter.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1285,9 +1232,9 @@ parameter</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="link">
-<span id="id21"></span><h3>#LINK<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="link">
+<span id="id20"></span><h3>#LINK<a class="headerlink" href="#link" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#LINK</span></code> macro expands to a hyperlink (<code class="docutils literal notranslate"><span class="pre">&lt;a&gt;</span></code> element) to
 another page.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#LINK:PageId[#name](link text)
@@ -1320,7 +1267,7 @@ entry as the anchor. For example:</p>
 <p>In HTML mode, the anchor of this <code class="docutils literal notranslate"><span class="pre">#LINK</span></code> macro (40000) is converted to the
 format specified by the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a>
 section.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1346,9 +1293,9 @@ HTML mode</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="list">
-<span id="id22"></span><h3>#LIST<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="list">
+<span id="id21"></span><h3>#LIST<a class="headerlink" href="#list" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#LIST</span></code> macro marks the beginning of a list of bulleted items; <code class="docutils literal notranslate"><span class="pre">LIST#</span></code>
 is used to mark the end. Between these markers, the list items are defined.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#LIST[(class[,bullet])][&lt;flag&gt;][items]LIST#
@@ -1381,7 +1328,7 @@ write list items when reading from a control file. Supported values are:</p>
 and subsequent lines to maintain text alignment with the first line</p></li>
 </ul>
 <p>By default, each list item is wrapped over multiple lines with no indent.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1405,9 +1352,9 @@ by one space; added the <code class="docutils literal notranslate"><span class="
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="n">
-<span id="id23"></span><h3>#N<a class="headerlink" href="#n" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="n">
+<span id="id22"></span><h3>#N<a class="headerlink" href="#n" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#N</span></code> macro renders a numeric value in either decimal or hexadecimal
 format depending on the options used with <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> or
 <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>. A hexadecimal number is rendered in lower case when the
@@ -1443,7 +1390,7 @@ format depending on the options used with <a class="reference internal" href="co
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">prefix</span></code> and <code class="docutils literal notranslate"><span class="pre">suffix</span></code> parameters.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1461,9 +1408,9 @@ format depending on the options used with <a class="reference internal" href="co
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="r">
-<span id="id24"></span><h3>#R<a class="headerlink" href="#r" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="r">
+<span id="id23"></span><h3>#R<a class="headerlink" href="#r" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#R</span></code> macro expands to a hyperlink (<code class="docutils literal notranslate"><span class="pre">&lt;a&gt;</span></code> element) to the
 disassembly page for a routine or data block, or to a line at a given address
 within that page.</p>
@@ -1506,7 +1453,7 @@ an anchor that evaluates to the address of that instruction. For example:</p>
 <p>In HTML mode, the anchor of this <code class="docutils literal notranslate"><span class="pre">#R</span></code> macro (40000) is converted to the
 format specified by the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a>
 section.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1540,9 +1487,9 @@ entry point in another disassembly when an appropriate
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="raw">
-<span id="id25"></span><h3>#RAW<a class="headerlink" href="#raw" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="raw">
+<span id="id24"></span><h3>#RAW<a class="headerlink" href="#raw" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#RAW</span></code> macro expands to the exact value of its sole string argument,
 leaving any other macros (or macro-like tokens) it contains unexpanded.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#RAW(text)
@@ -1556,7 +1503,7 @@ leaving any other macros (or macro-like tokens) it contains unexpanded.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">text</span></code> parameter. Note that if an alternative delimiter is used, it must not
 be an upper case letter.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1568,9 +1515,9 @@ be an upper case letter.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="reg">
-<span id="id26"></span><h3>#REG<a class="headerlink" href="#reg" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="reg">
+<span id="id25"></span><h3>#REG<a class="headerlink" href="#reg" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#REG</span></code> macro expands to a styled <code class="docutils literal notranslate"><span class="pre">&lt;span&gt;</span></code> element
 containing a register name or arbitrary text (with case adjusted as
 appropriate).</p>
@@ -1600,7 +1547,7 @@ i r sp pc
 <div class="nonexistent highlight-none notranslate"><div class="highlight"><pre><span></span> 24623 LD C,31       ; #REGbc&#39;=31
 </pre></div>
 </div>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1618,9 +1565,9 @@ i r sp pc
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="sim">
-<span id="id27"></span><h3>#SIM<a class="headerlink" href="#sim" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="sim">
+<span id="id26"></span><h3>#SIM<a class="headerlink" href="#sim" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#SIM</span></code> macro simulates the execution of machine code in the internal
 memory snapshot constructed from the contents of the skool file.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp]
@@ -1675,8 +1622,7 @@ default value of <code class="docutils literal notranslate"><span class="pre">st
 <li><p><code class="docutils literal notranslate"><span class="pre">sim[tstates]</span></code> - the number of T-states elapsed</p></li>
 </ul>
 <p>For example:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@assemble=2,2
-; #SIM(start=32768,stop=32772,bc=13256,de=672)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; #SIM(start=32768,stop=32772,bc=13256,de=672)
  32768 LD HL,443
  32771 ADD HL,BC
 ; At this point HL=#EVAL({sim[HL]}).
@@ -1701,17 +1647,10 @@ interrupts. This means that <code class="docutils literal notranslate"><span cla
 being simulated runs in or accesses contended memory, or performs I/O
 operations, or runs while interrupts are enabled.</p>
 </div>
-<p>Note that, by default, the internal memory snapshot constructed by
-<a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> is entirely blank (all zeroes), and the snapshot
-constructed by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> is populated only by <code class="docutils literal notranslate"><span class="pre">DEFB</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFM</span></code>,
-<code class="docutils literal notranslate"><span class="pre">DEFS</span></code> and <code class="docutils literal notranslate"><span class="pre">DEFW</span></code> statements, and by <a class="reference internal" href="asm.html#defb"><span class="std std-ref">&#64;defb</span></a>, <a class="reference internal" href="asm.html#defs"><span class="std std-ref">&#64;defs</span></a> and
-<a class="reference internal" href="asm.html#defw"><span class="std std-ref">&#64;defw</span></a> directives. To make sure that the internal memory snapshot actually
-contains the code to be executed, use the <a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble</span></a> directive (as shown
-in the example above).</p>
-<p>Note also that code executed by the <code class="docutils literal notranslate"><span class="pre">#SIM</span></code> macro operates directly on the
-internal memory snapshot, and therefore can modify it. To avoid that, use the
+<p>Note that code executed by the <code class="docutils literal notranslate"><span class="pre">#SIM</span></code> macro operates directly on the internal
+memory snapshot, and therefore can modify it. To avoid that, use the
 <a class="reference internal" href="#pushs"><span class="std std-ref">#PUSHS</span></a> and <a class="reference internal" href="#pops"><span class="std std-ref">#POPS</span></a> macros to operate on a copy of the snapshot.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1723,9 +1662,9 @@ internal memory snapshot, and therefore can modify it. To avoid that, use the
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="space">
-<span id="id28"></span><h3>#SPACE<a class="headerlink" href="#space" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="space">
+<span id="id27"></span><h3>#SPACE<a class="headerlink" href="#space" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#SPACE</span></code> macro expands to one or more <code class="docutils literal notranslate"><span class="pre">&amp;#160;</span></code> expressions (in HTML
 mode) or spaces (in ASM mode).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#SPACE[num]
@@ -1752,7 +1691,7 @@ text where necessary. For example:</p>
 t49152 DEFM &quot;Score:     0&quot;
 </pre></div>
 </div>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1771,9 +1710,9 @@ t49152 DEFM &quot;Score:     0&quot;
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="table">
-<span id="id29"></span><h3>#TABLE<a class="headerlink" href="#table" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="table">
+<span id="id28"></span><h3>#TABLE<a class="headerlink" href="#table" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#TABLE</span></code> macro marks the beginning of a table; <code class="docutils literal notranslate"><span class="pre">TABLE#</span></code> is used to mark
 the end. Between these markers, the rows of the table are defined.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#TABLE[([class[,class1[:w][,class2[:w]...]]])][&lt;flag&gt;][rows]TABLE#
@@ -1852,7 +1791,7 @@ the first line</p></li>
 </ul>
 <p>By default, each table row is wrapped over multiple lines with no indent.</p>
 <p>See also <a class="reference internal" href="#udgtable"><span class="std std-ref">#UDGTABLE</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1871,9 +1810,9 @@ comment and as a parameter of another macro</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="tstates">
-<span id="id30"></span><h3>#TSTATES<a class="headerlink" href="#tstates" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="tstates">
+<span id="id29"></span><h3>#TSTATES<a class="headerlink" href="#tstates" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#TSTATES</span></code> macro expands to the time taken, in T-states, to execute one
 or more instructions.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#TSTATESstart[,stop,flags(text)]
@@ -1917,9 +1856,7 @@ parameter:</p>
 </div>
 <p>This instance of the <code class="docutils literal notranslate"><span class="pre">#TSTATES</span></code> macro expands to <code class="docutils literal notranslate"><span class="pre">#EVAL(99*13+8)</span></code>, which in
 turn expands to ‘1295’.</p>
-<p>Note that an instruction’s timing can be determined only if it has been
-assembled. To make sure that it is assembled, use the <a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble</span></a>
-directive. In addition, unless bit 2 of <code class="docutils literal notranslate"><span class="pre">flags</span></code> is set, only true
+<p>Note that unless bit 2 of <code class="docutils literal notranslate"><span class="pre">flags</span></code> is set, only true assembly language
 instructions (i.e. not <code class="docutils literal notranslate"><span class="pre">DEFB</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFM</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFS</span></code> and <code class="docutils literal notranslate"><span class="pre">DEFW</span></code> statements)
 can be timed.</p>
 <p>If bit 2 of <code class="docutils literal notranslate"><span class="pre">flags</span></code> is set, the <code class="docutils literal notranslate"><span class="pre">stop</span></code> address must be specified, and the
@@ -1951,7 +1888,7 @@ track changes to register values as code is executed.</p>
 <p>See also the <code class="docutils literal notranslate"><span class="pre">Timings</span></code> configuration parameter for
 <a class="reference internal" href="commands.html#sna2skool-conf"><span class="std std-ref">sna2skool.py</span></a>, which can be used to show instruction
 timings in comment fields when disassembling a snapshot.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1963,21 +1900,21 @@ timings in comment fields when disassembling a snapshot.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="udgtable">
-<span id="id31"></span><h3>#UDGTABLE<a class="headerlink" href="#udgtable" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="udgtable">
+<span id="id30"></span><h3>#UDGTABLE<a class="headerlink" href="#udgtable" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#UDGTABLE</span></code> macro behaves in exactly the same way as the <code class="docutils literal notranslate"><span class="pre">#TABLE</span></code>
 macro, except that the resulting table will not be rendered in ASM mode. Its
 intended use is to contain images that will be rendered in HTML mode only.</p>
 <p>See <a class="reference internal" href="#table"><span class="std std-ref">#TABLE</span></a>, and also <a class="reference internal" href="#html"><span class="std std-ref">#HTML</span></a>.</p>
-</div>
-<div class="section" id="version">
-<span id="id32"></span><h3>#VERSION<a class="headerlink" href="#version" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="version">
+<span id="id31"></span><h3>#VERSION<a class="headerlink" href="#version" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#VERSION</span></code> macro expands to the version of SkoolKit.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#VERSION
 </pre></div>
 </div>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1989,10 +1926,10 @@ intended use is to contain images that will be rendered in HTML mode only.</p>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="image-macros">
-<span id="imagemacros"></span><h2>Image macros<a class="headerlink" href="#image-macros" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="image-macros">
+<span id="imagemacros"></span><h2>Image macros<a class="headerlink" href="#image-macros" title="Permalink to this heading">¶</a></h2>
 <p>The <a class="reference internal" href="#copy"><span class="std std-ref">#COPY</span></a>, <a class="reference internal" href="#font"><span class="std std-ref">#FONT</span></a>, <a class="reference internal" href="#over"><span class="std std-ref">#OVER</span></a>, <a class="reference internal" href="#plot"><span class="std std-ref">#PLOT</span></a>, <a class="reference internal" href="#scr"><span class="std std-ref">#SCR</span></a>, <a class="reference internal" href="#udg"><span class="std std-ref">#UDG</span></a>,
 <a class="reference internal" href="#udgarray"><span class="std std-ref">#UDGARRAY</span></a> and <a class="reference internal" href="#udgs"><span class="std std-ref">#UDGS</span></a> macros (described in the following sections)
 may be used to create images based on graphic data in the memory snapshot. They
@@ -2009,8 +1946,8 @@ as follows:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDG32768,rotate=1
 </pre></div>
 </div>
-<div class="section" id="copy">
-<span id="id33"></span><h3>#COPY<a class="headerlink" href="#copy" title="Permalink to this headline">¶</a></h3>
+<section id="copy">
+<span id="id32"></span><h3>#COPY<a class="headerlink" href="#copy" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#COPY</span></code> macro copies all or part of an existing frame into
 a new frame.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#COPY[x,y,width,height,scale,mask,tindex,alpha][{CROP}](old,new)
@@ -2050,7 +1987,7 @@ central 2x2 portion of the 4x4 frame created by the <code class="docutils litera
 may contain <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">old</span></code> and <code class="docutils literal notranslate"><span class="pre">new</span></code> parameters.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -2065,9 +2002,9 @@ may contain <a class="reference internal" href="#replacementfields"><span class=
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="font">
-<span id="id34"></span><h3>#FONT<a class="headerlink" href="#font" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="font">
+<span id="id33"></span><h3>#FONT<a class="headerlink" href="#font" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#FONT</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for an image
 of text rendered in the game font.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#FONT[:(text)]addr[,chars,attr,scale,tindex,alpha][{CROP}][(fname)]
@@ -2103,7 +2040,7 @@ starts at 49152.</p>
 may contain <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">text</span></code> parameter.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -2146,9 +2083,9 @@ optional</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="over">
-<span id="id35"></span><h3>#OVER<a class="headerlink" href="#over" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="over">
+<span id="id34"></span><h3>#OVER<a class="headerlink" href="#over" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#OVER</span></code> macro superimposes one frame (the foreground frame)
 on another (the background frame).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#OVERx,y[,xoffset,yoffset,rmode][(attr)][(byte)](bg,fg)
@@ -2211,7 +2148,7 @@ modified background frame.</p>
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">bg</span></code> and <code class="docutils literal notranslate"><span class="pre">fg</span></code> parameters.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -2223,9 +2160,9 @@ modified background frame.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="plot">
-<span id="id36"></span><h3>#PLOT<a class="headerlink" href="#plot" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="plot">
+<span id="id35"></span><h3>#PLOT<a class="headerlink" href="#plot" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#PLOT</span></code> macro sets, resets or flips a pixel in a frame
 already created by one of the other image macros.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#PLOTx,y[,value](frame)
@@ -2248,7 +2185,7 @@ third row from the top in the frame created by the <code class="docutils literal
 <code class="docutils literal notranslate"><span class="pre">#UDGARRAY*</span></code> macro then creates an image of the modified frame.</p>
 <p>The integer parameters of the <code class="docutils literal notranslate"><span class="pre">#PLOT</span></code> macro may contain
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -2260,9 +2197,9 @@ third row from the top in the frame created by the <code class="docutils literal
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="scr">
-<span id="id37"></span><h3>#SCR<a class="headerlink" href="#scr" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="scr">
+<span id="id36"></span><h3>#SCR<a class="headerlink" href="#scr" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#SCR</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for an image
 constructed from the display file and attribute file (or suitably arranged
 graphic data and attribute bytes elsewhere in memory) of the current memory
@@ -2297,7 +2234,7 @@ transparent colour (default: 0; see <a class="reference internal" href="#palette
 </div>
 <p>The integer parameters and the cropping specification of the <code class="docutils literal notranslate"><span class="pre">#SCR</span></code> macro
 may contain <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -2338,9 +2275,9 @@ parameters</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="udg">
-<span id="id38"></span><h3>#UDG<a class="headerlink" href="#udg" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="udg">
+<span id="id37"></span><h3>#UDG<a class="headerlink" href="#udg" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#UDG</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for the image
 of a UDG (an 8x8 block of pixels).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:MASK][{CROP}][(fname)]
@@ -2392,7 +2329,7 @@ element for the image of the UDG at 39144 (which will be named <cite>safe_key.pn
 with attribute byte 6 (INK 6: PAPER 0).</p>
 <p>The integer parameters, mask specification and cropping specification of the
 <code class="docutils literal notranslate"><span class="pre">#UDG</span></code> macro may contain <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -2444,9 +2381,9 @@ added support for keyword arguments</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="udgarray">
-<span id="id39"></span><h3>#UDGARRAY<a class="headerlink" href="#udgarray" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="udgarray">
+<span id="id38"></span><h3>#UDGARRAY<a class="headerlink" href="#udgarray" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for the
 image of an array of UDGs (8x8 blocks of pixels).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha](SPEC1[;SPEC2;...])[@ATTRS1[;ATTRS2;...]][{CROP}](fname)
@@ -2547,7 +2484,7 @@ named <cite>base_sprite.png</cite>.</p>
 specification and cropping specification of the <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macro may contain
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See also <a class="reference internal" href="#udgs"><span class="std std-ref">#UDGS</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -2607,9 +2544,9 @@ steps</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="udgs">
-<span id="id40"></span><h3>#UDGS<a class="headerlink" href="#udgs" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="udgs">
+<span id="id39"></span><h3>#UDGS<a class="headerlink" href="#udgs" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#UDGS</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for the image
 of a rectangular array of UDGs (8x8 blocks of pixels).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGSwidth,height[,scale,flip,rotate,mask,tindex,alpha][{CROP}](fname)(uframe)
@@ -2656,7 +2593,7 @@ contain <a class="reference internal" href="#replacementfields"><span class="std
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">uframe</span></code> parameter.</p>
 <p>See also <a class="reference internal" href="#udgarray"><span class="std std-ref">#UDGARRAY</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -2668,9 +2605,9 @@ contain <a class="reference internal" href="#replacementfields"><span class="std
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="filenames">
-<span id="id41"></span><h3>Filenames<a class="headerlink" href="#filenames" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="filenames">
+<span id="id40"></span><h3>Filenames<a class="headerlink" href="#filenames" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">fname</span></code> parameter of the <a class="reference internal" href="#font"><span class="std std-ref">#FONT</span></a>, <a class="reference internal" href="#scr"><span class="std std-ref">#SCR</span></a>, <a class="reference internal" href="#udg"><span class="std std-ref">#UDG</span></a>,
 <a class="reference internal" href="#udgarray"><span class="std std-ref">#UDGARRAY</span></a> and <a class="reference internal" href="#udgs"><span class="std std-ref">#UDGS</span></a> macros can be used to specify not only an image
 filename, but also its exact location, the <code class="docutils literal notranslate"><span class="pre">alt</span></code> attribute of the <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code>
@@ -2699,9 +2636,9 @@ example:</p>
 </div>
 <p>This <code class="docutils literal notranslate"><span class="pre">#SCR</span></code> macro creates an image named <cite>screenshot1.png</cite> with alt text
 ‘Screenshot 1’.</p>
-</div>
-<div class="section" id="animation">
-<span id="id42"></span><h3>Animation<a class="headerlink" href="#animation" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="animation">
+<span id="id41"></span><h3>Animation<a class="headerlink" href="#animation" title="Permalink to this heading">¶</a></h3>
 <p>The image macros may be used to create the frames of an animated image. To
 create a frame, the <code class="docutils literal notranslate"><span class="pre">fname</span></code> parameter must have one of the following forms:</p>
 <ul class="simple">
@@ -2746,7 +2683,7 @@ with a delay of 0.5s between each frame.</p>
 <p>Note that the first frame of an animated image determines the size of the image
 as a whole. Therefore, the region defined by the width, height and coordinates
 of any subsequent frame must fall entirely inside the first frame.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -2766,9 +2703,9 @@ a frame specification</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="cropping">
-<span id="id43"></span><h3>Cropping<a class="headerlink" href="#cropping" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="cropping">
+<span id="id42"></span><h3>Cropping<a class="headerlink" href="#cropping" title="Permalink to this heading">¶</a></h3>
 <p>The <a class="reference internal" href="#copy"><span class="std std-ref">#COPY</span></a>, <a class="reference internal" href="#font"><span class="std std-ref">#FONT</span></a>, <a class="reference internal" href="#scr"><span class="std std-ref">#SCR</span></a>, <a class="reference internal" href="#udg"><span class="std std-ref">#UDG</span></a>, <a class="reference internal" href="#udgarray"><span class="std std-ref">#UDGARRAY</span></a> and
 <a class="reference internal" href="#udgs"><span class="std std-ref">#UDGS</span></a> macros accept a cropping specification (<code class="docutils literal notranslate"><span class="pre">CROP</span></code>) which takes the
 form:</p>
@@ -2796,9 +2733,9 @@ top two rows and bottom two rows of pixels removed, and the leftmost two
 columns and rightmost two columns of pixels removed.</p>
 <p>The parameters of the cropping specification may contain
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
-</div>
-<div class="section" id="masks">
-<span id="id44"></span><h3>Masks<a class="headerlink" href="#masks" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="masks">
+<span id="id43"></span><h3>Masks<a class="headerlink" href="#masks" title="Permalink to this heading">¶</a></h3>
 <p>The <a class="reference internal" href="#copy"><span class="std std-ref">#COPY</span></a>, <a class="reference internal" href="#udg"><span class="std std-ref">#UDG</span></a>, <a class="reference internal" href="#udgarray"><span class="std std-ref">#UDGARRAY</span></a> and <a class="reference internal" href="#udgs"><span class="std std-ref">#UDGS</span></a> macros accept a
 <code class="docutils literal notranslate"><span class="pre">mask</span></code> parameter that determines what kind of mask to apply to each UDG. The
 supported values are:</p>
@@ -2813,7 +2750,7 @@ mask works as follows:</p>
 <li><p>OR the UDG bit (U) onto the background bit (B)</p></li>
 <li><p>AND the mask bit (M) onto the result</p></li>
 </ul>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>U</p></th>
 <th class="head"><p>M</p></th>
@@ -2844,7 +2781,7 @@ mask works as follows:</p>
 <li><p>AND the mask bit (M) onto the background bit (B)</p></li>
 <li><p>OR the UDG bit (U) onto the result</p></li>
 </ul>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>U</p></th>
 <th class="head"><p>M</p></th>
@@ -2875,9 +2812,9 @@ mask works as follows:</p>
 parameter in the <a class="reference internal" href="ref-files.html#ref-colours"><span class="std std-ref">[Colours]</span></a> section. To make the transparent bits in
 masked images actually transparent, set <code class="docutils literal notranslate"><span class="pre">PNGAlpha=0</span></code> in the
 <a class="reference internal" href="ref-files.html#ref-imagewriter"><span class="std std-ref">[ImageWriter]</span></a> section.</p>
-</div>
-<div class="section" id="palette">
-<span id="id45"></span><h3>Palette<a class="headerlink" href="#palette" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="palette">
+<span id="id44"></span><h3>Palette<a class="headerlink" href="#palette" title="Permalink to this heading">¶</a></h3>
 <p>Images created by the image macros use colours drawn from a palette of 16
 entries:</p>
 <ul class="simple">
@@ -2913,15 +2850,15 @@ second or subsequent frames are ignored.</p>
 <p>This <code class="docutils literal notranslate"><span class="pre">#UDG</span></code> macro creates an image of the UDG at 30000 with red INK and black
 PAPER (<code class="docutils literal notranslate"><span class="pre">attr=2</span></code>), black as the transparent colour (<code class="docutils literal notranslate"><span class="pre">tindex=1</span></code>), and full
 transparency (<code class="docutils literal notranslate"><span class="pre">alpha=0</span></code>).</p>
-</div>
-</div>
-<div class="section" id="snapshot-macros">
-<h2>Snapshot macros<a class="headerlink" href="#snapshot-macros" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="snapshot-macros">
+<h2>Snapshot macros<a class="headerlink" href="#snapshot-macros" title="Permalink to this heading">¶</a></h2>
 <p>The <a class="reference internal" href="#pokes"><span class="std std-ref">#POKES</span></a>, <a class="reference internal" href="#pops"><span class="std std-ref">#POPS</span></a> and <a class="reference internal" href="#pushs"><span class="std std-ref">#PUSHS</span></a> macros (described in the
 following sections) may be used to manipulate the memory snapshot that is built
 from the skool file. Each macro expands to an empty string.</p>
-<div class="section" id="pokes">
-<span id="id46"></span><h3>#POKES<a class="headerlink" href="#pokes" title="Permalink to this headline">¶</a></h3>
+<section id="pokes">
+<span id="id45"></span><h3>#POKES<a class="headerlink" href="#pokes" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#POKES</span></code> macro POKEs values into the current memory snapshot.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
 </pre></div>
@@ -2951,7 +2888,7 @@ But it&#39;s supposed to look like this:
 <p>The parameter string of the <code class="docutils literal notranslate"><span class="pre">#POKES</span></code> macro may contain
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See also <a class="reference internal" href="#peek"><span class="std std-ref">#PEEK</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -2973,15 +2910,15 @@ parameter string</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="pops">
-<span id="id47"></span><h3>#POPS<a class="headerlink" href="#pops" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="pops">
+<span id="id46"></span><h3>#POPS<a class="headerlink" href="#pops" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#POPS</span></code> macro removes the current internal memory snapshot and replaces
 it with the one that was previously saved by a <code class="docutils literal notranslate"><span class="pre">#PUSHS</span></code> macro.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#POPS
 </pre></div>
 </div>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -2993,9 +2930,9 @@ it with the one that was previously saved by a <code class="docutils literal not
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="pushs">
-<span id="id48"></span><h3>#PUSHS<a class="headerlink" href="#pushs" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="pushs">
+<span id="id47"></span><h3>#PUSHS<a class="headerlink" href="#pushs" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#PUSHS</span></code> macro saves the current internal memory snapshot, and replaces
 it with an identical copy with a given name.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#PUSHS[name]
@@ -3006,8 +2943,8 @@ it with an identical copy with a given name.</p>
 </ul>
 <p>The snapshot name must be limited to the characters ‘$’, ‘#’, 0-9, A-Z and a-z;
 it must not start with a capital letter. The name can be retrieved by using the
-<a class="reference internal" href="extending.html#skoolkit.skoolhtml.HtmlWriter.get_snapshot_name" title="skoolkit.skoolhtml.HtmlWriter.get_snapshot_name"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_snapshot_name()</span></code></a> method on HtmlWriter.</p>
-<table class="docutils colwidths-auto align-default">
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">get_snapshot_name()</span></code> method on HtmlWriter.</p>
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -3019,14 +2956,14 @@ it must not start with a capital letter. The name can be retrieved by using the
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="defining-macros-with-def">
-<span id="definingmacroswithdef"></span><h2>Defining macros with #DEF<a class="headerlink" href="#defining-macros-with-def" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="defining-macros-with-def">
+<span id="definingmacroswithdef"></span><h2>Defining macros with #DEF<a class="headerlink" href="#defining-macros-with-def" title="Permalink to this heading">¶</a></h2>
 <p>By using the <a class="reference internal" href="#def"><span class="std std-ref">#DEF</span></a> macro, it is possible to define new macros based on
 existing ones without writing any Python code. Some examples are given below.</p>
-<div class="section" id="asm">
-<h3>#ASM<a class="headerlink" href="#asm" title="Permalink to this headline">¶</a></h3>
+<section id="asm">
+<h3>#ASM<a class="headerlink" href="#asm" title="Permalink to this heading">¶</a></h3>
 <p>There is the <a class="reference internal" href="#html"><span class="std std-ref">#HTML</span></a> macro for inserting content in HTML mode only, but
 there is no corresponding macro for inserting content in ASM mode only. The
 following <code class="docutils literal notranslate"><span class="pre">#DEF</span></code> macro defines an <code class="docutils literal notranslate"><span class="pre">#ASM</span></code> macro to fill that gap:</p>
@@ -3037,9 +2974,9 @@ following <code class="docutils literal notranslate"><span class="pre">#DEF</spa
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#ASM(This text appears only in ASM mode.)
 </pre></div>
 </div>
-</div>
-<div class="section" id="asmudg">
-<h3>#ASMUDG<a class="headerlink" href="#asmudg" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="asmudg">
+<h3>#ASMUDG<a class="headerlink" href="#asmudg" title="Permalink to this heading">¶</a></h3>
 <p>The <a class="reference internal" href="#udg"><span class="std std-ref">#UDG</span></a> macro is not supported in ASM mode, but <code class="docutils literal notranslate"><span class="pre">#DEF</span></code> can define an
 <code class="docutils literal notranslate"><span class="pre">#ASMUDG</span></code> macro (based on the <code class="docutils literal notranslate"><span class="pre">#ASM</span></code> macro defined above) that is:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#DEF(#ASMUDG(a) #ASM(#LIST(,) #FOR($a,$a+7)(u,{ |#FOR(7,0,-1)(n,#IF(#PEEKu&amp;2**n)(*, ))| }) LIST#))
@@ -3050,9 +2987,7 @@ following <code class="docutils literal notranslate"><span class="pre">#DEF</spa
  30000 DEFB 48,72,136,144,104,4,10,4
 </pre></div>
 </div>
-<p>If conversion of DEFB statements has been switched on in ASM mode by the
-<a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble</span></a> directive (e.g. <code class="docutils literal notranslate"><span class="pre">&#64;assemble=,1</span></code>), this <code class="docutils literal notranslate"><span class="pre">#ASMUDG</span></code> macro
-produces the following output:</p>
+<p>This <code class="docutils literal notranslate"><span class="pre">#ASMUDG</span></code> macro produces the following output:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; |  **    |
 ; | *  *   |
 ; |*   *   |
@@ -3063,9 +2998,9 @@ produces the following output:</p>
 ; |     *  |
 </pre></div>
 </div>
-</div>
-<div class="section" id="tile-tiles">
-<h3>#TILE, #TILES<a class="headerlink" href="#tile-tiles" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="tile-tiles">
+<h3>#TILE, #TILES<a class="headerlink" href="#tile-tiles" title="Permalink to this heading">¶</a></h3>
 <p>Suppose the game you’re disassembling arranges tiles in groups of nine bytes:
 the attribute byte first, followed by the eight graphic bytes. If there is a
 tile at 32768, then:</p>
@@ -3095,9 +3030,9 @@ at 32768 like this:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGTABLE { #TILES32768,10 } TABLE#
 </pre></div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -3106,8 +3041,9 @@ at 32768 like this:</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Skool macros</a><ul>
 <li><a class="reference internal" href="#syntax">Syntax</a></li>
 <li><a class="reference internal" href="#numeric-parameters">Numeric parameters</a></li>
@@ -3116,7 +3052,6 @@ at 32768 like this:</p>
 <li><a class="reference internal" href="#smpl-macros">SMPL macros</a><ul>
 <li><a class="reference internal" href="#hash">#()</a></li>
 <li><a class="reference internal" href="#def">#DEF</a></li>
-<li><a class="reference internal" href="#define">#DEFINE</a></li>
 <li><a class="reference internal" href="#eval">#EVAL</a></li>
 <li><a class="reference internal" href="#for">#FOR</a></li>
 <li><a class="reference internal" href="#foreach">#FOREACH</a></li>
@@ -3183,12 +3118,17 @@ at 32768 like this:</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="skool-files.html"
-                        title="previous chapter">Skool files</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="ref-files.html"
-                        title="next chapter">Ref files</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="skool-files.html"
+                          title="previous chapter">Skool files</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="ref-files.html"
+                          title="next chapter">Ref files</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -3200,12 +3140,12 @@ at 32768 like this:</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -3217,21 +3157,18 @@ at 32768 like this:</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >next</a> |</li>
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool macros</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2023, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

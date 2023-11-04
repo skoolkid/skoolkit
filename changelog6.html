@@ -1,18 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SkoolKit 6.x changelog &#8212; SkoolKit 8.10 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>SkoolKit 6.x changelog &#8212; SkoolKit 9.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="SkoolKit 5.x changelog" href="changelog5.html" />
@@ -25,15 +28,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="changelog5.html" title="SkoolKit 5.x changelog"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="changelog7.html" title="SkoolKit 7.x changelog"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="changelog.html" accesskey="U">Changelog</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit 6.x changelog</a></li> 
       </ul>
@@ -44,10 +44,10 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="skoolkit-6-x-changelog">
-<h1>SkoolKit 6.x changelog<a class="headerlink" href="#skoolkit-6-x-changelog" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id1">
-<h2>6.4 (2018-03-31)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+  <section id="skoolkit-6-x-changelog">
+<h1>SkoolKit 6.x changelog<a class="headerlink" href="#skoolkit-6-x-changelog" title="Permalink to this heading">¶</a></h1>
+<section id="id1">
+<h2>6.4 (2018-03-31)<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added the <a class="reference internal" href="asm.html#asm-if"><span class="std std-ref">&#64;if</span></a> directive (for conditionally processing other ASM
 directives)</p></li>
@@ -76,9 +76,9 @@ the <code class="docutils literal notranslate"><span class="pre">bullet</span></
 <a class="reference internal" href="skool-macros.html#stringparameters"><span class="std std-ref">string parameters</span></a> is split, making it easier to
 nest macros (e.g. <code class="docutils literal notranslate"><span class="pre">#FOR0,9(n,#IF(n%2)(Y,N))</span></code>)</p></li>
 </ul>
-</div>
-<div class="section" id="id2">
-<h2>6.3 (2018-02-19)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="id2">
+<h2>6.3 (2018-02-19)<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added the <a class="reference internal" href="asm.html#defb"><span class="std std-ref">&#64;defb</span></a>, <a class="reference internal" href="asm.html#defs"><span class="std std-ref">&#64;defs</span></a> and <a class="reference internal" href="asm.html#defw"><span class="std std-ref">&#64;defw</span></a> directives (for inserting
 byte values and word values into the memory snapshot)</p></li>
@@ -112,9 +112,9 @@ directive on a block end comment from being preserved correctly</p></li>
 <li><p>Fixed <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> so that it can generate a control file for a
 snapshot whose final byte (at 65535) is 24 or 237</p></li>
 </ul>
-</div>
-<div class="section" id="id3">
-<h2>6.2 (2018-01-01)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="id3">
+<h2>6.2 (2018-01-01)<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added the <code class="docutils literal notranslate"><span class="pre">--reg</span></code> option to <a class="reference internal" href="commands.html#bin2sna-py"><span class="std std-ref">bin2sna.py</span></a> (for setting the value of a
 register)</p></li>
@@ -144,9 +144,9 @@ to instructions that have been replaced by an <a class="reference internal" href
 <a class="reference internal" href="asm.html#rsub"><span class="std std-ref">&#64;rsub</span></a> directive</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">&#64;nolabel</span></code> directive is now processed in HTML mode</p></li>
 </ul>
-</div>
-<div class="section" id="id4">
-<h2>6.1 (2017-09-03)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="id4">
+<h2>6.1 (2017-09-03)<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support for converting the base of every numerical term in an
 instruction operand or DEFB/DEFM/DEFS/DEFW statement that contains two or
@@ -178,9 +178,9 @@ contain a ‘&lt;’, ‘&gt;’ or ‘&amp;’ character</p></li>
 <code class="docutils literal notranslate"><span class="pre">--fixes</span> <span class="pre">3</span></code> is specified</p></li>
 <li><p>Fixed the styling of entry descriptions for ‘t’ blocks on a memory map page</p></li>
 </ul>
-</div>
-<div class="section" id="id5">
-<h2>6.0 (2017-05-06)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="id5">
+<h2>6.0 (2017-05-06)<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Dropped support for Python 2.7 and 3.3</p></li>
 <li><p>Added the <code class="docutils literal notranslate"><span class="pre">--expand</span></code> option to <a class="reference internal" href="commands.html#sna2img-py"><span class="std std-ref">sna2img.py</span></a> (for expanding a
@@ -198,7 +198,7 @@ range of distances between byte values (e.g. <code class="docutils literal notra
 the <code class="docutils literal notranslate"><span class="pre">expr</span></code> parameter of the <a class="reference internal" href="skool-macros.html#if"><span class="std std-ref">#IF</span></a> macro and the <code class="docutils literal notranslate"><span class="pre">key</span></code> parameter of
 the <a class="reference internal" href="skool-macros.html#map"><span class="std std-ref">#MAP</span></a> macro</p></li>
 <li><p>Added support for parsing a <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a> entry section as a
-sequence of multi-line list items prefixed by ‘-‘ (with
+sequence of multi-line list items prefixed by ‘-’ (with
 <code class="docutils literal notranslate"><span class="pre">SectionType=BulletPoints</span></code>)</p></li>
 <li><p>The following ref file components may now contain skool macros: the
 <code class="docutils literal notranslate"><span class="pre">anchor</span></code> and <code class="docutils literal notranslate"><span class="pre">title</span></code> of a <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a> entry section name;
@@ -216,8 +216,8 @@ IX/IY prefix (DD/FD) when generating a control file</p></li>
 <li><p>Fixed the bug that prevents the expansion of skool macros in a page’s link
 text on the disassembly home page</p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -226,8 +226,9 @@ text on the disassembly home page</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">SkoolKit 6.x changelog</a><ul>
 <li><a class="reference internal" href="#id1">6.4 (2018-03-31)</a></li>
 <li><a class="reference internal" href="#id2">6.3 (2018-02-19)</a></li>
@@ -238,12 +239,17 @@ text on the disassembly home page</p></li>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="changelog7.html"
-                        title="previous chapter">SkoolKit 7.x changelog</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="changelog5.html"
-                        title="next chapter">SkoolKit 5.x changelog</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="changelog7.html"
+                          title="previous chapter">SkoolKit 7.x changelog</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="changelog5.html"
+                          title="next chapter">SkoolKit 5.x changelog</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -255,12 +261,12 @@ text on the disassembly home page</p></li>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -272,22 +278,19 @@ text on the disassembly home page</p></li>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="changelog5.html" title="SkoolKit 5.x changelog"
              >next</a> |</li>
         <li class="right" >
           <a href="changelog7.html" title="SkoolKit 7.x changelog"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="changelog.html" >Changelog</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit 6.x changelog</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2023, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

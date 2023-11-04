@@ -1,18 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ref files &#8212; SkoolKit 8.10 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Ref files &#8212; SkoolKit 9.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
@@ -25,15 +28,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
     </div>  
@@ -43,8 +43,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="ref-files">
-<span id="reffiles"></span><h1>Ref files<a class="headerlink" href="#ref-files" title="Permalink to this headline">¶</a></h1>
+  <section id="ref-files">
+<span id="reffiles"></span><h1>Ref files<a class="headerlink" href="#ref-files" title="Permalink to this heading">¶</a></h1>
 <p>If you want to configure or augment an HTML disassembly, you will need one or
 more ref files. A ref file can be used to (for example):</p>
 <ul class="simple">
@@ -68,8 +68,8 @@ square brackets, like this:</p>
 </div>
 <p>The contents of each section that may be found in a ref file are described
 below.</p>
-<div class="section" id="audiowriter">
-<span id="ref-audiowriter"></span><h2>[AudioWriter]<a class="headerlink" href="#audiowriter" title="Permalink to this headline">¶</a></h2>
+<section id="audiowriter">
+<span id="ref-audiowriter"></span><h2>[AudioWriter]<a class="headerlink" href="#audiowriter" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">AudioWriter</span></code> section contains configuration parameters that control
 audio file creation by the <a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> macro. The parameters are in the
 format:</p>
@@ -90,7 +90,7 @@ effect (default: 51)</p></li>
 (default: 942)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SampleRate</span></code> - sample rate in Hz (default: 44100)</p></li>
 </ul>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -105,9 +105,9 @@ effect (default: 51)</p></li>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="colours">
-<span id="ref-colours"></span><h2>[Colours]<a class="headerlink" href="#colours" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="colours">
+<span id="ref-colours"></span><h2>[Colours]<a class="headerlink" href="#colours" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Colours</span></code> section contains colour definitions that will be used when
 creating images. Each line has the form:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>name=R,G,B
@@ -143,7 +143,7 @@ short 3-digit form)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">BRIGHT_YELLOW</span></code>: 255,255,0 (#ffff00)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">BRIGHT_WHITE</span></code>: 255,255,255 (#ffffff)</p></li>
 </ul>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -158,9 +158,9 @@ short 3-digit form)</p></li>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="config">
-<span id="ref-config"></span><h2>[Config]<a class="headerlink" href="#config" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="config">
+<span id="ref-config"></span><h2>[Config]<a class="headerlink" href="#config" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Config</span></code> section contains configuration parameters in the format:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>name=value
 </pre></div>
@@ -210,7 +210,7 @@ modification is small.</p>
 automatically by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> by virtue of having the same filename
 root as the skool file given on the command line (i.e. <cite>game*.ref</cite> if the skool
 file is <cite>game.skool</cite>).</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -238,9 +238,9 @@ a module outside the module search path</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="entrygroups">
-<span id="id1"></span><h2>[EntryGroups]<a class="headerlink" href="#entrygroups" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="entrygroups">
+<span id="id1"></span><h2>[EntryGroups]<a class="headerlink" href="#entrygroups" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">EntryGroups</span></code> section defines groups of entries (routines and data
 blocks) whose disassembly pages can then be given custom titles and headers via
 the <a class="reference internal" href="#titles"><span class="std std-ref">[Titles]</span></a> and <a class="reference internal" href="#pageheaders"><span class="std std-ref">[PageHeaders]</span></a> sections. Each line in this section
@@ -279,7 +279,7 @@ Includes=SpriteVariables
 </div>
 <p>This defines a memory map page named ‘SpriteVariables’ consisting of only the
 entries that belong to the group of the same name.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -294,9 +294,9 @@ entries that belong to the group of the same name.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="game">
-<span id="ref-game"></span><h2>[Game]<a class="headerlink" href="#game" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="game">
+<span id="ref-game"></span><h2>[Game]<a class="headerlink" href="#game" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Game</span></code> section contains configuration parameters that control certain
 aspects of the HTML output. The parameters are in the format:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>name=value
@@ -376,7 +376,7 @@ pages and entries on memory map pages. The default format string is
 hexadecimal addresses if the <code class="docutils literal notranslate"><span class="pre">--hex</span></code> option is used with
 <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>, and decimal addresses otherwise:
 <code class="docutils literal notranslate"><span class="pre">{address#IF({mode[base]}==16)(:04X)}</span></code>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -431,9 +431,9 @@ to live in the <code class="docutils literal notranslate"><span class="pre">[Inf
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="imagewriter">
-<span id="ref-imagewriter"></span><h2>[ImageWriter]<a class="headerlink" href="#imagewriter" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="imagewriter">
+<span id="ref-imagewriter"></span><h2>[ImageWriter]<a class="headerlink" href="#imagewriter" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ImageWriter</span></code> section contains configuration parameters that control
 SkoolKit’s image creation library. The parameters are in the format:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>name=value
@@ -451,7 +451,7 @@ is the highest (default: <code class="docutils literal notranslate"><span class=
 images that contain flashing cells, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to create plain (unanimated) PNG
 files for such images (default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</p></li>
 </ul>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -466,9 +466,9 @@ files for such images (default: <code class="docutils literal notranslate"><span
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="index">
-<span id="id2"></span><h2>[Index]<a class="headerlink" href="#index" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="index">
+<span id="id2"></span><h2>[Index]<a class="headerlink" href="#index" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Index</span></code> section contains a list of link group IDs in the order in which
 the link groups will appear on the disassembly index page. The link groups
 themselves - with the exception of <code class="docutils literal notranslate"><span class="pre">OtherCode</span></code> - are defined in
@@ -479,7 +479,7 @@ contains links to the index pages of secondary disassemblies defined by
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Index$
 </pre></div>
 </div>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -491,9 +491,9 @@ contains links to the index pages of secondary disassemblies defined by
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="indexgroup">
-<span id="id3"></span><h2>[Index:*:*]<a class="headerlink" href="#indexgroup" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="indexgroup">
+<span id="id3"></span><h2>[Index:*:*]<a class="headerlink" href="#indexgroup" title="Permalink to this heading">¶</a></h2>
 <p>Each <code class="docutils literal notranslate"><span class="pre">Index:*:*</span></code> section defines a link group (a group of links on the
 disassembly home page). The section names and contents take the form:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[Index:groupID:text]
@@ -514,7 +514,7 @@ the link group</p></li>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Index:
 </pre></div>
 </div>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -526,9 +526,9 @@ the link group</p></li>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="links">
-<span id="id4"></span><h2>[Links]<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="links">
+<span id="id4"></span><h2>[Links]<a class="headerlink" href="#links" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Links</span></code> section defines the link text for the various pages in the HTML
 disassembly (as displayed on the disassembly index page). Each line has the
 form:</p>
@@ -571,7 +571,7 @@ hyperlink. For example:</p>
 <p>This declares that the link text for the ‘Everything’ memory map page will be
 ‘Everything’, and ‘(routines, data, text and unused addresses)’ will be
 displayed alongside it.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -592,9 +592,9 @@ displayed alongside it.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="memorymap">
-<span id="id5"></span><h2>[MemoryMap:*]<a class="headerlink" href="#memorymap" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="memorymap">
+<span id="id5"></span><h2>[MemoryMap:*]<a class="headerlink" href="#memorymap" title="Permalink to this heading">¶</a></h2>
 <p>Each <code class="docutils literal notranslate"><span class="pre">MemoryMap:*</span></code> section defines the properties of a memory map page. The
 section names take the form:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[MemoryMap:PageID]
@@ -652,7 +652,7 @@ text for the custom memory map page can be defined in the <a class="reference in
 <p>Every memory map page is built using the <a class="reference internal" href="#template"><span class="std std-ref">HTML template</span></a> whose
 name matches the page ID, if one exists; otherwise, the stock <a class="reference internal" href="html-templates.html#t-layout"><span class="std std-ref">Layout</span></a>
 template is used.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -683,9 +683,9 @@ template is used.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="othercode">
-<span id="id6"></span><h2>[OtherCode:*]<a class="headerlink" href="#othercode" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="othercode">
+<span id="id6"></span><h2>[OtherCode:*]<a class="headerlink" href="#othercode" title="Permalink to this heading">¶</a></h2>
 <p>An <code class="docutils literal notranslate"><span class="pre">OtherCode:*</span></code> section defines a secondary disassembly that will appear
 under ‘Other code’ on the main disassembly home page. The section name takes
 the form:</p>
@@ -721,7 +721,7 @@ disassembly pages are written in a directory named <cite>CodeID</cite>; if a sin
 template is used, the disassembly page is written to <cite>CodeID/asm.html</cite>.</p>
 <p>Note that the index page is a memory map page, and as such can be configured by
 creating a <a class="reference internal" href="#memorymap"><span class="std std-ref">[MemoryMap:*]</span></a> section (<code class="docutils literal notranslate"><span class="pre">MemoryMap:CodeID-Index</span></code>) for it.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -736,9 +736,9 @@ creating a <a class="reference internal" href="#memorymap"><span class="std std-
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="page">
-<span id="id7"></span><h2>[Page:*]<a class="headerlink" href="#page" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="page">
+<span id="id7"></span><h2>[Page:*]<a class="headerlink" href="#page" title="Permalink to this heading">¶</a></h2>
 <p>A <code class="docutils literal notranslate"><span class="pre">Page:*</span></code> section either declares a page that already exists, or defines a
 custom page in the HTML disassembly. The section name takes the form:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[Page:PageID]
@@ -765,7 +765,7 @@ macro may be used here to include the contents of a separate ref file section</p
 which to build the entries on a <a class="reference internal" href="#boxpages"><span class="std std-ref">box page</span></a></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SectionType</span></code> - how to parse and render <a class="reference internal" href="#boxpages"><span class="std std-ref">box page</span></a> entry
 sections (when <code class="docutils literal notranslate"><span class="pre">SectionPrefix</span></code> is defined): as single-line list items with
-indentation (<code class="docutils literal notranslate"><span class="pre">ListItems</span></code>), as multi-line list items prefixed by ‘-‘
+indentation (<code class="docutils literal notranslate"><span class="pre">ListItems</span></code>), as multi-line list items prefixed by ‘-’
 (<code class="docutils literal notranslate"><span class="pre">BulletPoints</span></code>), or as paragraphs (the default)</p></li>
 </ul>
 <p>Every parameter in this section may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
@@ -780,7 +780,7 @@ default to ‘PageID’, but can be overridden in the <a class="reference intern
 <p>Every custom page is built using the <a class="reference internal" href="#template"><span class="std std-ref">HTML template</span></a> whose name
 matches the page ID, if one exists; otherwise, the <a class="reference internal" href="html-templates.html#t-layout"><span class="std std-ref">Layout</span></a> template is
 used.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -807,9 +807,9 @@ use</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="pageheaders">
-<span id="id8"></span><h2>[PageHeaders]<a class="headerlink" href="#pageheaders" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pageheaders">
+<span id="id8"></span><h2>[PageHeaders]<a class="headerlink" href="#pageheaders" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">PageHeaders</span></code> section defines the header text for every page in the HTML
 disassembly. Each line has the form:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>PageID=[prefix&lt;&gt;]suffix
@@ -860,7 +860,7 @@ section.</p>
 <p>The header text of each disassembly page for the entries belonging to a group
 defined in the <a class="reference internal" href="#entrygroups"><span class="std std-ref">[EntryGroups]</span></a> section also defaults to the page’s title,
 but can be overridden in this section.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -884,9 +884,9 @@ headers may contain <a class="reference internal" href="skool-macros.html#skoolm
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="paths">
-<span id="id9"></span><h2>[Paths]<a class="headerlink" href="#paths" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="paths">
+<span id="id9"></span><h2>[Paths]<a class="headerlink" href="#paths" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Paths</span></code> section defines the locations of the files and directories in the
 HTML disassembly. Each line has the form:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ID=path
@@ -960,7 +960,7 @@ case hexadecimal addresses instead (e.g. <code class="docutils literal notransla
 to <code class="docutils literal notranslate"><span class="pre">{address:04X}.html</span></code>. Or to produce 4-digit, upper case hexadecimal
 addresses if the <code class="docutils literal notranslate"><span class="pre">--hex</span></code> option is used with <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>, and
 decimal addresses otherwise: <code class="docutils literal notranslate"><span class="pre">{address#IF({mode[base]}==16)(:04X)}.html</span></code>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1005,9 +1005,9 @@ one image path ID in terms of another</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="resources">
-<span id="id10"></span><h2>[Resources]<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="resources">
+<span id="id10"></span><h2>[Resources]<a class="headerlink" href="#resources" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Resources</span></code> section lists files that will be copied into the disassembly
 build directory when <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> is run. Each line has the form:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fname=destDir
@@ -1037,7 +1037,7 @@ sequence of characters (e.g. <code class="docutils literal notranslate"><span cl
 <p>If your disassembly requires pre-built images or other resources that SkoolKit
 does not build, listing them in this section ensures that they will be copied
 into place whenever the disassembly is built.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1056,9 +1056,9 @@ characters</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="template">
-<span id="id11"></span><h2>[Template:*]<a class="headerlink" href="#template" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="template">
+<span id="id11"></span><h2>[Template:*]<a class="headerlink" href="#template" title="Permalink to this heading">¶</a></h2>
 <p>Each <code class="docutils literal notranslate"><span class="pre">Template:*</span></code> section defines a template used to build an HTML page (or
 part of one).</p>
 <p>To see the contents of the default templates, run the following command:</p>
@@ -1066,7 +1066,7 @@ part of one).</p>
 </pre></div>
 </div>
 <p>For more information, see <a class="reference internal" href="html-templates.html#htmltemplates"><span class="std std-ref">HTML templates</span></a>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1078,9 +1078,9 @@ part of one).</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="titles">
-<span id="id12"></span><h2>[Titles]<a class="headerlink" href="#titles" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="titles">
+<span id="id12"></span><h2>[Titles]<a class="headerlink" href="#titles" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Titles</span></code> section defines the title (i.e. text used to compose the
 <code class="docutils literal notranslate"><span class="pre">&lt;title&gt;</span></code> element) for every page in the HTML disassembly. Each line has the
 form:</p>
@@ -1136,7 +1136,7 @@ section.</p>
 <p>The title of each disassembly page for the entries belonging to a group defined
 in the <a class="reference internal" href="#entrygroups"><span class="std std-ref">[EntryGroups]</span></a> section defaults to the title for that page’s entry
 type, but can be overridden in this section.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1169,9 +1169,9 @@ contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="box-pages">
-<span id="boxpages"></span><h2>Box pages<a class="headerlink" href="#box-pages" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="box-pages">
+<span id="boxpages"></span><h2>Box pages<a class="headerlink" href="#box-pages" title="Permalink to this heading">¶</a></h2>
 <p>A ‘box page’ is an HTML page that contains entries (blocks of arbitrary text)
 distinguished by alternating background colours, and a table of contents (links
 to each entry). It is defined by a <a class="reference internal" href="#page"><span class="std std-ref">[Page:*]</span></a> section that contains a
@@ -1227,7 +1227,7 @@ between items are optional and are ignored. If the intro text is a single
 hyphen (<code class="docutils literal notranslate"><span class="pre">-</span></code>), it is not included in the final HTML rendering.</p>
 <p>If your list items are long, you might prefer to set the <code class="docutils literal notranslate"><span class="pre">SectionType</span></code>
 parameter to <code class="docutils literal notranslate"><span class="pre">BulletPoints</span></code>; in that case, each entry section is parsed as a
-sequence of multi-line list items prefixed by ‘-‘. For example:</p>
+sequence of multi-line list items prefixed by ‘-’. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[Changes:title]
 Intro text.
 
@@ -1248,15 +1248,15 @@ Intro text.
 and <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 6.0: </span>Added support for parsing an entry section as a sequence of multi-line list
-items prefixed by ‘-‘ (<code class="docutils literal notranslate"><span class="pre">SectionType=BulletPoints</span></code>). The <code class="docutils literal notranslate"><span class="pre">anchor</span></code> and
+items prefixed by ‘-’ (<code class="docutils literal notranslate"><span class="pre">SectionType=BulletPoints</span></code>). The <code class="docutils literal notranslate"><span class="pre">anchor</span></code> and
 <code class="docutils literal notranslate"><span class="pre">title</span></code> of an entry section name may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 </div>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 5.4: </span>The <code class="docutils literal notranslate"><span class="pre">anchor</span></code> part of an entry section name is optional.</p>
 </div>
-</div>
-<div class="section" id="appending-content">
-<h2>Appending content<a class="headerlink" href="#appending-content" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="appending-content">
+<h2>Appending content<a class="headerlink" href="#appending-content" title="Permalink to this heading">¶</a></h2>
 <p>Content may be appended to an existing ref file section defined elsewhere by
 adding a ‘+’ suffix to the section name. For example, to add a line to the
 <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section:</p>
@@ -1267,9 +1267,9 @@ AddressAnchor={address:04x}
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 7.0.</span></p>
 </div>
-</div>
-<div class="section" id="ref-file-comments">
-<h2>Ref file comments<a class="headerlink" href="#ref-file-comments" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="ref-file-comments">
+<h2>Ref file comments<a class="headerlink" href="#ref-file-comments" title="Permalink to this heading">¶</a></h2>
 <p>A comment may be added to a ref file by starting a line with a semicolon. For
 example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; This is a comment
@@ -1289,9 +1289,9 @@ can be escaped by doubling it:</p>
 &lt;/code&gt;
 </pre></div>
 </div>
-</div>
-<div class="section" id="square-brackets">
-<h2>Square brackets<a class="headerlink" href="#square-brackets" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="square-brackets">
+<h2>Square brackets<a class="headerlink" href="#square-brackets" title="Permalink to this heading">¶</a></h2>
 <p>If a ref file section needs to contain a line that looks like a section header
 (i.e. like <code class="docutils literal notranslate"><span class="pre">[SectionName]</span></code>), then to prevent that line from being parsed as a
 section header it can be escaped by doubling the opening square bracket:</p>
@@ -1312,8 +1312,8 @@ with the first one removed.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 4.0.</span></p>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -1322,8 +1322,9 @@ with the first one removed.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Ref files</a><ul>
 <li><a class="reference internal" href="#audiowriter">[AudioWriter]</a></li>
 <li><a class="reference internal" href="#colours">[Colours]</a></li>
@@ -1350,12 +1351,17 @@ with the first one removed.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="skool-macros.html"
-                        title="previous chapter">Skool macros</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="asm.html"
-                        title="next chapter">ASM modes and directives</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="skool-macros.html"
+                          title="previous chapter">Skool macros</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="asm.html"
+                          title="next chapter">ASM modes and directives</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -1367,12 +1373,12 @@ with the first one removed.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -1384,21 +1390,18 @@ with the first one removed.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >next</a> |</li>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2023, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

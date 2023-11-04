@@ -423,7 +423,7 @@ repeating pattern. For example::
 Repeating patterns like this can be expressed more succinctly as a loop by
 using the ``L`` directive, which has the following format::
 
-  L start,length,count[,blocks]
+  L start,length,count[,flags]
 
 where:
 
@@ -432,8 +432,14 @@ where:
   repeat)
 * ``count`` is the number of times to repeat the loop (only values of 2 or more
   make sense)
-* ``blocks`` is ``1`` to repeat block-level elements, or ``0`` to repeat only
-  sub-block elements (default: ``0``)
+* ``flags`` controls which elements in the loop are repeated (see below)
+
+``flags`` may have one of the following values:
+
+* 0 - repeat sub-block elements only (this is the default)
+* 1 - repeat block-level elements and sub-block elements
+* 2 - repeat sub-block elements only, except any mid-block comment at the loop
+  start address
 
 So using the ``L`` directive, the body of the data block above can be expressed
 in three lines instead of 20::
@@ -443,8 +449,8 @@ in three lines instead of 20::
   W 30002
   L 30000,4,10
 
-The ``L`` directive can also be used to repeat entire blocks, by setting the
-``blocks`` argument to ``1``. For example::
+The ``L`` directive can also be used to repeat entire blocks, by setting
+``flags`` to ``1``. For example::
 
   b 40000 A block of five pairs of bytes
   B 40000,10,2
@@ -458,6 +464,26 @@ is equivalent to::
   B 40010,10,2
   b 40020 A block of five pairs of bytes
   B 40020,10,2
+
+By default, an ``N`` directive at the beginning of a loop is repeated. To avoid
+that, set ``flags`` to 2. For example::
+
+  b 50000 Three groups of bytes and words
+  N 50000 The three groups are as follows:
+  B 50000 Byte
+  W 50001 Word
+  L 50000,3,3,2
+
+is equivalent to::
+
+  b 50000 Three groups of bytes and words
+  N 50000 The three groups are as follows:
+  B 50000 Byte
+  W 50001 Word
+  B 50003 Byte
+  W 50004 Word
+  B 50006 Byte
+  W 50007 Word
 
 Note that ASM directives in the address range of an ``L`` directive loop are
 *not* repeated.
@@ -757,7 +783,7 @@ L directive
 The ``L`` directive defines a control file loop that repeats a sequence of
 other control directives::
 
-  L start,length,count[,blocks]
+  L start,length,count[,flags]
 
 See :ref:`ctlLoops` for more details.
 
@@ -921,6 +947,9 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.0     | Added support to the ``L`` directive for avoiding repetition of   |
+|         | an ``N`` directive at the start of the loop                       |
++---------+-------------------------------------------------------------------+
 | 8.7     | Added support to the ``M`` directive for applying its comment to  |
 |         | each instruction in its range                                     |
 +---------+-------------------------------------------------------------------+

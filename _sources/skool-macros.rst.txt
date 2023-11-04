@@ -128,8 +128,8 @@ Replacement fields
 ^^^^^^^^^^^^^^^^^^
 The following replacement fields are available for use in the integer
 parameters of the :ref:`asm-if` directive and every skool macro (including
-macros defined by :ref:`DEF` or :ref:`DEFINE`), and also in the string
-parameters of some macros:
+macros defined by :ref:`DEF`), and also in the string parameters of some
+macros:
 
 * ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
   :ref:`rsubMode`, or 0 otherwise
@@ -329,48 +329,6 @@ keyword arguments.
 +---------+------------------------------------------------------------------+
 | 8.5     | New                                                              |
 +---------+------------------------------------------------------------------+
-
-.. _DEFINE:
-
-#DEFINE
--------
-The ``#DEFINE`` macro defines a new skool macro. ::
-
-  #DEFINEiparams[,sparams](name,value)
-
-* ``iparams`` is the number of integer parameters the macro expects
-* ``sparams`` is the number of string parameters the macro expects (default:
-  ``0``)
-* ``name`` is the macro name (which must be all upper case letters)
-* ``value`` is the macro's output value (a standard Python format string
-  containing replacement fields for the integer and string arguments)
-
-For example::
-
-  #DEFINE2(MIN,#IF({0}<{1})({0},{1}))
-
-This defines a ``#MIN`` macro that accepts two integer arguments and expands to
-the value of the smaller argument.
-
-To define a macro that will be available for use immediately anywhere in the
-skool file or ref files, consider using the :ref:`expand` directive, or the
-``Expand`` parameter in the :ref:`ref-Config` section.
-
-The integer parameters of a macro defined by ``#DEFINE`` may contain
-:ref:`replacement fields <replacementFields>`.
-
-See :ref:`stringParameters` for details on alternative ways to supply the
-``name`` and ``value`` parameters.
-
-.. note::
-   The ``#DEFINE`` macro is deprecated since version 8.5. Use the more powerful
-   :ref:`DEF` macro instead.
-
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.2     | New     |
-+---------+---------+
 
 .. _EVAL:
 
@@ -763,13 +721,6 @@ For example::
 This instance of the ``#PEEK`` macro expands to the contents of the address
 33879 in the internal memory snapshot.
 
-Note that, by default, the internal memory snapshot constructed by
-:ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
-constructed by :ref:`skool2html.py` is populated only by ``DEFB``, ``DEFM``,
-``DEFS`` and ``DEFW`` statements, and by :ref:`defb`, :ref:`defs` and
-:ref:`defw` directives. To change this behaviour, use the :ref:`assemble`
-directive.
-
 See also :ref:`POKES`.
 
 +---------+-------------------------------------------------------------------+
@@ -907,6 +858,9 @@ outcome:
   section)
 * 4 (bit 2) - execute instructions from ``start`` to ``stop`` in a simulator to
   obtain the delays between speaker state changes
+* 8 (bit 3) - pass delays through a moving average filter; while this can
+  produce higher quality audio (especially for multi-channel tunes), it is also
+  quite slow
 
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly. Otherwise the filename is taken to be relative to
@@ -942,7 +896,6 @@ code to execute via the ``start`` and ``stop`` address parameters. For
 example::
 
   ; #AUDIO4(beep.wav)(32768,32782)
-  @assemble=2
   c32768 LD L,0
   *32771 OUT (254),A
    32773 XOR 16
@@ -956,14 +909,6 @@ example::
    The simulator does not simulate memory contention, I/O contention, or
    interrupts. Use bits 0 and 1 of ``flags`` to approximate memory contention
    effects and interrupt delays if desired.
-
-Note also that, by default, the internal memory snapshot constructed by
-:ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
-constructed by :ref:`skool2html.py` is populated only by ``DEFB``, ``DEFM``,
-``DEFS`` and ``DEFW`` statements, and by :ref:`defb`, :ref:`defs` and
-:ref:`defw` directives. To make sure that the internal memory snapshot actually
-contains the code to be executed, use the :ref:`assemble` directive (as shown
-in the example above).
 
 If ``delays`` or ``start`` and ``stop`` parameters are specified, but ``fname``
 does not end with '.wav', no audio file is written. This enables the parameters
@@ -992,11 +937,13 @@ The :ref:`t_audio` template is used to format the ``<audio>`` element.
 
 Audio file creation can be configured via the :ref:`ref-AudioWriter` section.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.7     | New     |
-+---------+---------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 9.0     | Added support for passing delays through a moving average filter |
++---------+------------------------------------------------------------------+
+| 8.7     | New                                                              |
++---------+------------------------------------------------------------------+
 
 .. _CALL:
 
@@ -1570,7 +1517,6 @@ the following names:
 
 For example::
 
-  @assemble=2,2
   ; #SIM(start=32768,stop=32772,bc=13256,de=672)
    32768 LD HL,443
    32771 ADD HL,BC
@@ -1596,16 +1542,8 @@ now HL=14371'.
    being simulated runs in or accesses contended memory, or performs I/O
    operations, or runs while interrupts are enabled.
 
-Note that, by default, the internal memory snapshot constructed by
-:ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
-constructed by :ref:`skool2html.py` is populated only by ``DEFB``, ``DEFM``,
-``DEFS`` and ``DEFW`` statements, and by :ref:`defb`, :ref:`defs` and
-:ref:`defw` directives. To make sure that the internal memory snapshot actually
-contains the code to be executed, use the :ref:`assemble` directive (as shown
-in the example above).
-
-Note also that code executed by the ``#SIM`` macro operates directly on the
-internal memory snapshot, and therefore can modify it. To avoid that, use the
+Note that code executed by the ``#SIM`` macro operates directly on the internal
+memory snapshot, and therefore can modify it. To avoid that, use the
 :ref:`PUSHS` and :ref:`POPS` macros to operate on a copy of the snapshot.
 
 +---------+---------+
@@ -1802,9 +1740,7 @@ parameter::
 This instance of the ``#TSTATES`` macro expands to ``#EVAL(99*13+8)``, which in
 turn expands to '1295'.
 
-Note that an instruction's timing can be determined only if it has been
-assembled. To make sure that it is assembled, use the :ref:`assemble`
-directive. In addition, unless bit 2 of ``flags`` is set, only true
+Note that unless bit 2 of ``flags`` is set, only true assembly language
 instructions (i.e. not ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements)
 can be timed.
 
@@ -2825,9 +2761,7 @@ For example::
   ; #ASMUDG30000
    30000 DEFB 48,72,136,144,104,4,10,4
 
-If conversion of DEFB statements has been switched on in ASM mode by the
-:ref:`assemble` directive (e.g. ``@assemble=,1``), this ``#ASMUDG`` macro
-produces the following output::
+This ``#ASMUDG`` macro produces the following output::
 
   ; |  **    |
   ; | *  *   |

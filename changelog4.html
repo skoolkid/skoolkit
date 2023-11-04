@@ -1,18 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SkoolKit 4.x changelog &#8212; SkoolKit 8.10 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>SkoolKit 4.x changelog &#8212; SkoolKit 9.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="SkoolKit 3.x changelog" href="changelog3.html" />
@@ -25,15 +28,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="changelog3.html" title="SkoolKit 3.x changelog"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="changelog5.html" title="SkoolKit 5.x changelog"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="changelog.html" accesskey="U">Changelog</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit 4.x changelog</a></li> 
       </ul>
@@ -44,10 +44,10 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="skoolkit-4-x-changelog">
-<h1>SkoolKit 4.x changelog<a class="headerlink" href="#skoolkit-4-x-changelog" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id1">
-<h2>4.5 (2015-07-04)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+  <section id="skoolkit-4-x-changelog">
+<h1>SkoolKit 4.x changelog<a class="headerlink" href="#skoolkit-4-x-changelog" title="Permalink to this heading">¶</a></h1>
+<section id="id1">
+<h2>4.5 (2015-07-04)<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support to <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> for TZX block type 0x14 (pure data), for
 loading the first and last bytes of a tape block (which are usually, but not
@@ -72,9 +72,9 @@ control file</p></li>
 <li><p>Fixed the handling of terminal compound sublengths on ‘S’ directives (e.g.
 <code class="docutils literal notranslate"><span class="pre">S</span> <span class="pre">30000,10,5:32</span></code>)</p></li>
 </ul>
-</div>
-<div class="section" id="id2">
-<h2>4.4 (2015-05-23)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="id2">
+<h2>4.4 (2015-05-23)<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support to control files and skool file templates for specifying that
 numeric values in instruction operands be rendered as characters or in a
@@ -93,9 +93,9 @@ extraneous whitespace (e.g. <code class="docutils literal notranslate"><span cla
 <li><p>Fixed the handling of uncompressed version 1 Z80 snapshots by
 <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a></p></li>
 </ul>
-</div>
-<div class="section" id="id3">
-<h2>4.3 (2015-02-14)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="id3">
+<h2>4.3 (2015-02-14)<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support for block start comments (which appear after the register
 section and before the first instruction in a routine or data block)</p></li>
@@ -121,9 +121,9 @@ they work with a UDG array that contains the same UDG in more than one place</p>
 <li><p>Fixed the erroneous substitution of address labels in instructions that have
 8-bit numeric operands</p></li>
 </ul>
-</div>
-<div class="section" id="id4">
-<h2>4.2 (2014-12-07)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="id4">
+<h2>4.2 (2014-12-07)<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support for <a class="reference internal" href="control-files.html#ctlloops"><span class="std std-ref">control directive loops</span></a> using the <code class="docutils literal notranslate"><span class="pre">L</span></code>
 directive</p></li>
@@ -142,18 +142,18 @@ produced by the <a class="reference internal" href="skool-macros.html#list"><spa
 <li><p>Fixed the bug that prevents the expansion of skool macros in the intro text
 of a <code class="docutils literal notranslate"><span class="pre">Changelog:*</span></code> section</p></li>
 </ul>
-</div>
-<div class="section" id="id5">
-<h2>4.1.1 (2014-09-20)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="id5">
+<h2>4.1.1 (2014-09-20)<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Updated links to SkoolKit’s new home at <a class="reference external" href="http://skoolkit.ca">skoolkit.ca</a></p></li>
 <li><p>Added example control and ref files for <a class="reference external" href="http://www.worldofspectrum.org/infoseekid.cgi?id=0002390">Hungry Horace</a></p></li>
 <li><p>Removed the Manic Miner disassembly from the SkoolKit distribution; it is now
 being developed separately <a class="reference external" href="https://github.com/skoolkid/manicminer">here</a></p></li>
 </ul>
-</div>
-<div class="section" id="id6">
-<h2>4.1 (2014-08-30)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="id6">
+<h2>4.1 (2014-08-30)<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added the <code class="docutils literal notranslate"><span class="pre">--search</span></code> option to <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> (to add a directory to
 the resource search path)</p></li>
@@ -173,9 +173,9 @@ instruction that refers to the address of an ignored entry</p></li>
 <li><p>Removed the Jet Set Willy disassembly from the SkoolKit distribution; it is
 now being developed separately <a class="reference external" href="https://github.com/skoolkid/jetsetwilly">here</a></p></li>
 </ul>
-</div>
-<div class="section" id="id7">
-<h2>4.0 (2014-05-25)<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="id7">
+<h2>4.0 (2014-05-25)<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Every HTML page is built from templates defined in <a class="reference internal" href="ref-files.html#template"><span class="std std-ref">[Template:*]</span></a> sections
 in the ref file</p></li>
@@ -193,8 +193,8 @@ sections of it)</p></li>
 <li><p>Added the <code class="docutils literal notranslate"><span class="pre">LengthColumn</span></code> parameter to the <a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">[MemoryMap:*]</span></a> section (for
 specifying whether to display the ‘Length’ column on a memory map page)</p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -203,8 +203,9 @@ specifying whether to display the ‘Length’ column on a memory map page)</p><
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">SkoolKit 4.x changelog</a><ul>
 <li><a class="reference internal" href="#id1">4.5 (2015-07-04)</a></li>
 <li><a class="reference internal" href="#id2">4.4 (2015-05-23)</a></li>
@@ -217,12 +218,17 @@ specifying whether to display the ‘Length’ column on a memory map page)</p><
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="changelog5.html"
-                        title="previous chapter">SkoolKit 5.x changelog</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="changelog3.html"
-                        title="next chapter">SkoolKit 3.x changelog</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="changelog5.html"
+                          title="previous chapter">SkoolKit 5.x changelog</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="changelog3.html"
+                          title="next chapter">SkoolKit 3.x changelog</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -234,12 +240,12 @@ specifying whether to display the ‘Length’ column on a memory map page)</p><
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -251,22 +257,19 @@ specifying whether to display the ‘Length’ column on a memory map page)</p><
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="changelog3.html" title="SkoolKit 3.x changelog"
              >next</a> |</li>
         <li class="right" >
           <a href="changelog5.html" title="SkoolKit 5.x changelog"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="changelog.html" >Changelog</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit 4.x changelog</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2023, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

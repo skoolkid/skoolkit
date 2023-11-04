@@ -1,18 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Commands &#8212; SkoolKit 8.10 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Commands &#8212; SkoolKit 9.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Supported assemblers" href="assemblers.html" />
@@ -25,15 +28,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="assemblers.html" title="Supported assemblers"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>  
@@ -43,12 +43,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="commands">
-<span id="id1"></span><h1>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="bin2sna-py">
-<span id="id2"></span><h2>bin2sna.py<a class="headerlink" href="#bin2sna-py" title="Permalink to this headline">¶</a></h2>
-<p><cite>bin2sna.py</cite> converts a binary (raw memory) file into a Z80 snapshot. For
-example:</p>
+  <section id="commands">
+<span id="id1"></span><h1>Commands<a class="headerlink" href="#commands" title="Permalink to this heading">¶</a></h1>
+<section id="bin2sna-py">
+<span id="id2"></span><h2>bin2sna.py<a class="headerlink" href="#bin2sna-py" title="Permalink to this heading">¶</a></h2>
+<p><cite>bin2sna.py</cite> converts a binary (raw memory) file into an SZX or Z80 snapshot.
+For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ bin2sna.py game.bin
 </pre></div>
 </div>
@@ -57,10 +57,10 @@ address of the first byte of code or data), the start address (the first byte
 of code to run) and the stack pointer are set to 65536 minus the length of
 <cite>game.bin</cite>. These values can be changed by passing options to <cite>bin2sna.py</cite>. Run
 it with no arguments to see the list of available options:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: bin2sna.py [options] file.bin [file.z80]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: bin2sna.py [options] file.bin [OUTFILE]
 
-Convert a binary (raw memory) file into a Z80 snapshot. &#39;file.bin&#39; may be a
-regular file, or &#39;-&#39; for standard input. If &#39;file.z80&#39; is not given, it
+Convert a binary (raw memory) file into an SZX or Z80 snapshot. &#39;file.bin&#39; may
+be a regular file, or &#39;-&#39; for standard input. If &#39;OUTFILE&#39; is not given, it
 defaults to the name of the input file with &#39;.bin&#39; replaced by &#39;.z80&#39;, or
 &#39;program.z80&#39; if reading from standard input.
 
@@ -89,35 +89,39 @@ Options:
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.10</p></td>
+<tr class="row-even"><td><p>9.0</p></td>
+<td><p>Added support for writing SZX snapshots; added the <code class="docutils literal notranslate"><span class="pre">fe</span></code>
+hardware state attribute</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.10</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">issue2</span></code> hardware state attribute</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.9</p></td>
+<tr class="row-even"><td><p>8.9</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">tstates</span></code> hardware state attribute</p></td>
 </tr>
-<tr class="row-even"><td><p>6.3</p></td>
+<tr class="row-odd"><td><p>6.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--poke</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--reg</span></code> and <code class="docutils literal notranslate"><span class="pre">--state</span></code> options; the <code class="docutils literal notranslate"><span class="pre">--org</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options accept a hexadecimal integer
 prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>5.2</p></td>
+<tr class="row-odd"><td><p>5.2</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="bin2tap-py">
-<span id="id3"></span><h2>bin2tap.py<a class="headerlink" href="#bin2tap-py" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="bin2tap-py">
+<span id="id3"></span><h2>bin2tap.py<a class="headerlink" href="#bin2tap-py" title="Permalink to this heading">¶</a></h2>
 <p><cite>bin2tap.py</cite> converts a binary (raw memory) file or a SNA, SZX or Z80 snapshot
 into a TAP file. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ bin2tap.py game.bin
@@ -168,7 +172,7 @@ used to store essential code or data.</p>
 leaves the stack pointer alone, enabling the program to return to BASIC without
 crashing. The lowest usable address with the <code class="docutils literal notranslate"><span class="pre">--clear</span></code> option on a bare 48K
 Spectrum is 23952 (0x5D90).</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -205,9 +209,9 @@ convert SNA, SZX and Z80 snapshots</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="skool2asm-py">
-<span id="id4"></span><h2>skool2asm.py<a class="headerlink" href="#skool2asm-py" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="skool2asm-py">
+<span id="id4"></span><h2>skool2asm.py<a class="headerlink" href="#skool2asm-py" title="Permalink to this heading">¶</a></h2>
 <p><cite>skool2asm.py</cite> converts a skool file into an ASM file that can be fed to an
 assembler (see <a class="reference internal" href="assemblers.html#supportedassemblers"><span class="std std-ref">Supported assemblers</span></a>). For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2asm.py game.skool &gt; game.asm
@@ -257,8 +261,8 @@ Options:
 modes.</p>
 <p>See the <a class="reference internal" href="asm.html#set"><span class="std std-ref">&#64;set</span></a> directive for information on the ASM writer properties that
 can be set by the <code class="docutils literal notranslate"><span class="pre">--set</span></code> option.</p>
-<div class="section" id="configuration">
-<span id="skool2asm-conf"></span><h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
+<section id="configuration">
+<span id="skool2asm-conf"></span><h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h3>
 <p><cite>skool2asm.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -311,7 +315,7 @@ Set-line-width=120
 <p>Configuration parameters may also be set on the command line by using the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option. Parameter values set this way will override any found in
 <cite>skoolkit.ini</cite>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -364,10 +368,10 @@ options accept a hexadecimal integer prefixed by ‘0x’</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="skool2bin-py">
-<span id="id5"></span><h2>skool2bin.py<a class="headerlink" href="#skool2bin-py" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="skool2bin-py">
+<span id="id5"></span><h2>skool2bin.py<a class="headerlink" href="#skool2bin-py" title="Permalink to this heading">¶</a></h2>
 <p><cite>skool2bin.py</cite> converts a skool file into a binary (raw memory) file. For
 example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2bin.py game.skool
@@ -421,7 +425,7 @@ instruction, and also had its operand changed from 40003</p></li>
 <li><p>The instruction at 40006 (RET) was originally at 40003 (before other
 instructions were inserted, removed or replaced)</p></li>
 </ul>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -454,9 +458,9 @@ arithmetic expressions</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="skool2ctl-py">
-<span id="id6"></span><h2>skool2ctl.py<a class="headerlink" href="#skool2ctl-py" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="skool2ctl-py">
+<span id="id6"></span><h2>skool2ctl.py<a class="headerlink" href="#skool2ctl-py" title="Permalink to this heading">¶</a></h2>
 <p><cite>skool2ctl.py</cite> converts a skool file into a <a class="reference internal" href="control-files.html#controlfiles"><span class="std std-ref">control file</span></a>.
 For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2ctl.py game.skool &gt; game.ctl
@@ -497,8 +501,8 @@ Options:
                           n = non-entry blocks
 </pre></div>
 </div>
-<div class="section" id="skool2ctl-conf">
-<span id="id7"></span><h3>Configuration<a class="headerlink" href="#skool2ctl-conf" title="Permalink to this headline">¶</a></h3>
+<section id="skool2ctl-conf">
+<span id="id7"></span><h3>Configuration<a class="headerlink" href="#skool2ctl-conf" title="Permalink to this heading">¶</a></h3>
 <p><cite>skool2ctl.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -522,7 +526,7 @@ Hex=2
 <p>Configuration parameters may also be set on the command line by using the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option. Parameter values set this way will override any found in
 <cite>skoolkit.ini</cite>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -573,10 +577,10 @@ before 65536</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="skool2html-py">
-<span id="id8"></span><h2>skool2html.py<a class="headerlink" href="#skool2html-py" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="skool2html-py">
+<span id="id8"></span><h2>skool2html.py<a class="headerlink" href="#skool2html-py" title="Permalink to this heading">¶</a></h2>
 <p><cite>skool2html.py</cite> converts a skool file (and its associated ref files, if any
 exist) into a browsable disassembly in HTML format.</p>
 <p>For example:</p>
@@ -678,8 +682,8 @@ StyleSheet=skoolkit.css;game.css
 <li><p><cite>dark.css</cite></p></li>
 <li><p><cite>wide.css</cite></p></li>
 </ul>
-<div class="section" id="skool2html-conf">
-<span id="id9"></span><h3>Configuration<a class="headerlink" href="#skool2html-conf" title="Permalink to this headline">¶</a></h3>
+<section id="skool2html-conf">
+<span id="id9"></span><h3>Configuration<a class="headerlink" href="#skool2html-conf" title="Permalink to this heading">¶</a></h3>
 <p><cite>skool2html.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -738,7 +742,7 @@ Base=16
 <p>Configuration parameters may also be set on the command line by using the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option. Parameter values set this way will override any found in
 <cite>skoolkit.ini</cite>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -823,10 +827,10 @@ by default; added the <code class="docutils literal notranslate"><span class="pr
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="sna2ctl-py">
-<span id="id10"></span><h2>sna2ctl.py<a class="headerlink" href="#sna2ctl-py" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="sna2ctl-py">
+<span id="id10"></span><h2>sna2ctl.py<a class="headerlink" href="#sna2ctl-py" title="Permalink to this heading">¶</a></h2>
 <p><cite>sna2ctl.py</cite> generates a control file for a binary (raw memory) file or a SNA,
 SZX or Z80 snapshot. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sna2ctl.py game.z80 &gt; game.ctl
@@ -869,8 +873,8 @@ generating a control file. The supported file formats are:</p>
 <p>If the file specified by the <code class="docutils literal notranslate"><span class="pre">-m</span></code> option is 8192 bytes long, it is assumed to
 be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
 file; otherwise it is assumed to be in one of the other supported formats.</p>
-<div class="section" id="sna2ctl-conf">
-<span id="id11"></span><h3>Configuration<a class="headerlink" href="#sna2ctl-conf" title="Permalink to this headline">¶</a></h3>
+<section id="sna2ctl-conf">
+<span id="id11"></span><h3>Configuration<a class="headerlink" href="#sna2ctl-conf" title="Permalink to this heading">¶</a></h3>
 <p><cite>sna2ctl.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -899,7 +903,7 @@ Hex=2
 <p>Configuration parameters may also be set on the command line by using the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option. Parameter values set this way will override any found in
 <cite>skoolkit.ini</cite>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -918,10 +922,10 @@ Hex=2
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="sna2img-py">
-<span id="id12"></span><h2>sna2img.py<a class="headerlink" href="#sna2img-py" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="sna2img-py">
+<span id="id12"></span><h2>sna2img.py<a class="headerlink" href="#sna2img-py" title="Permalink to this heading">¶</a></h2>
 <p><cite>sna2img.py</cite> converts the screenshot or other graphic data in a binary (raw
 memory) file, SCR file, skool file, or SNA/SZX/Z80 snapshot into a PNG file.
 For example:</p>
@@ -964,7 +968,7 @@ Options:
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -988,9 +992,9 @@ options accept hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="sna2skool-py">
-<span id="id13"></span><h2>sna2skool.py<a class="headerlink" href="#sna2skool-py" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="sna2skool-py">
+<span id="id13"></span><h2>sna2skool.py<a class="headerlink" href="#sna2skool-py" title="Permalink to this heading">¶</a></h2>
 <p><cite>sna2skool.py</cite> converts a binary (raw memory) file or a SNA, SZX or Z80
 snapshot into a skool file. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sna2skool.py game.z80 &gt; game.skool
@@ -1035,8 +1039,8 @@ to be a binary file.</p>
 <p>By default, any files whose names start with the input filename (minus the
 ‘.bin’, ‘.sna’, ‘.szx’ or ‘.z80’ suffix, if any) and end with ‘.ctl’ will be
 used as <a class="reference internal" href="control-files.html#controlfiles"><span class="std std-ref">control files</span></a>.</p>
-<div class="section" id="sna2skool-conf">
-<span id="id14"></span><h3>Configuration<a class="headerlink" href="#sna2skool-conf" title="Permalink to this headline">¶</a></h3>
+<section id="sna2skool-conf">
+<span id="id14"></span><h3>Configuration<a class="headerlink" href="#sna2skool-conf" title="Permalink to this heading">¶</a></h3>
 <p><cite>sna2skool.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -1110,7 +1114,7 @@ LineWidth=120
 <p>Configuration parameters may also be set on the command line by using the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option. Parameter values set this way will override any found in
 <cite>skoolkit.ini</cite>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1198,10 +1202,10 @@ statement</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="snapinfo-py">
-<span id="id15"></span><h2>snapinfo.py<a class="headerlink" href="#snapinfo-py" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="snapinfo-py">
+<span id="id15"></span><h2>snapinfo.py<a class="headerlink" href="#snapinfo-py" title="Permalink to this heading">¶</a></h2>
 <p><cite>snapinfo.py</cite> shows information on the registers or RAM in a binary (raw
 memory) file or a SNA, SZX or Z80 snapshot. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ snapinfo.py game.z80
@@ -1246,12 +1250,12 @@ Options:
 </pre></div>
 </div>
 <p>With no options, <cite>snapinfo.py</cite> displays register values, the interrupt mode,
-and the border colour. By using one of the options shown above, it can list
-the BASIC program and variables (if present), show the contents of a range of
-addresses, search the RAM for a sequence of byte values or a text string, or
-generate a call graph.</p>
-<div class="section" id="call-graphs">
-<span id="snapinfo-call-graph"></span><h3>Call graphs<a class="headerlink" href="#call-graphs" title="Permalink to this headline">¶</a></h3>
+the border colour, and various other attributes. By using one of the options
+shown above, it can list the BASIC program and variables (if present), show the
+contents of a range of addresses, search the RAM for a sequence of byte values
+or a text string, or generate a call graph.</p>
+<section id="call-graphs">
+<span id="snapinfo-call-graph"></span><h3>Call graphs<a class="headerlink" href="#call-graphs" title="Permalink to this heading">¶</a></h3>
 <p><cite>snapinfo.py</cite> can generate a call graph in <a class="reference external" href="https://graphviz.gitlab.io/_pages/doc/info/lang.html">DOT format</a> from a snapshot and a
 corresponding control file. For example, if <cite>game.ctl</cite> is present alongside
 <cite>game.z80</cite>, then:</p>
@@ -1283,9 +1287,9 @@ following types of node:</p>
 <p>The appearance of nodes and edges in a call graph image can be configured via
 the <code class="docutils literal notranslate"><span class="pre">EdgeAttributes</span></code>, <code class="docutils literal notranslate"><span class="pre">GraphAttributes</span></code>, <code class="docutils literal notranslate"><span class="pre">NodeAttributes</span></code> and
 <code class="docutils literal notranslate"><span class="pre">NodeLabel</span></code> configuration parameters (see below).</p>
-</div>
-<div class="section" id="snapinfo-conf">
-<span id="id16"></span><h3>Configuration<a class="headerlink" href="#snapinfo-conf" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="snapinfo-conf">
+<span id="id16"></span><h3>Configuration<a class="headerlink" href="#snapinfo-conf" title="Permalink to this heading">¶</a></h3>
 <p><cite>snapinfo.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -1320,52 +1324,55 @@ GraphAttributes=bgcolor=cyan
 <p>Configuration parameters may also be set on the command line by using the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option. Parameter values set this way will override any found in
 <cite>skoolkit.ini</cite>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.10</p></td>
+<tr class="row-even"><td><p>9.0</p></td>
+<td><p>Shows the current AY register in 128K SZX and Z80 snapshots</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.10</p></td>
 <td><p>Shows the value of the T-states counter and the issue 2 emulation
 flag in SZX and Z80 snapshots</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.4</p></td>
+<tr class="row-even"><td><p>8.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Peek</span></code> and <code class="docutils literal notranslate"><span class="pre">Word</span></code> configuration parameters</p></td>
 </tr>
-<tr class="row-even"><td><p>8.3</p></td>
+<tr class="row-odd"><td><p>8.3</p></td>
 <td><p>Added support for reading control files from a directory
 (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">DIR</span></code>)</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.2</p></td>
+<tr class="row-even"><td><p>8.2</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 ability to read binary files; added the <code class="docutils literal notranslate"><span class="pre">--call-graph</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--ctl</span></code>, <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--org</span></code>, <code class="docutils literal notranslate"><span class="pre">--page</span></code> and <code class="docutils literal notranslate"><span class="pre">--show-config</span></code>
 options</p></td>
 </tr>
-<tr class="row-even"><td><p>6.2</p></td>
+<tr class="row-odd"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--find</span></code>, <code class="docutils literal notranslate"><span class="pre">--find-tile</span></code>, <code class="docutils literal notranslate"><span class="pre">--peek</span></code> and <code class="docutils literal notranslate"><span class="pre">--word</span></code>
 options accept hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.0</p></td>
+<tr class="row-even"><td><p>6.0</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--find</span></code> option for distance ranges; added
 the <code class="docutils literal notranslate"><span class="pre">--find-tile</span></code> and <code class="docutils literal notranslate"><span class="pre">--word</span></code> options; the <code class="docutils literal notranslate"><span class="pre">--peek</span></code> option
 shows UDGs and BASIC tokens</p></td>
 </tr>
-<tr class="row-even"><td><p>5.4</p></td>
+<tr class="row-odd"><td><p>5.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--variables</span></code> option; UDGs in a BASIC program are
 shown as special symbols (e.g. <code class="docutils literal notranslate"><span class="pre">{UDG-A}</span></code>)</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.3</p></td>
+<tr class="row-even"><td><p>5.3</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="snapmod-py">
-<span id="id17"></span><h2>snapmod.py<a class="headerlink" href="#snapmod-py" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="snapmod-py">
+<span id="id17"></span><h2>snapmod.py<a class="headerlink" href="#snapmod-py" title="Permalink to this heading">¶</a></h2>
 <p><cite>snapmod.py</cite> modifies the registers and RAM in a 48K Z80 snapshot. For
 example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ snapmod.py --poke 32768,0 game.z80 poked.z80
@@ -1377,7 +1384,6 @@ example:</p>
 Modify a 48K Z80 snapshot.
 
 Options:
-  -f, --force           Overwrite an existing snapshot.
   -m src,size,dest, --move src,size,dest
                         Move a block of bytes of the given size from src to
                         dest. This option may be used multiple times.
@@ -1396,7 +1402,7 @@ Options:
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
@@ -1418,33 +1424,31 @@ hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="tap2sna-py">
-<span id="id18"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="tap2sna-py">
+<span id="id18"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Permalink to this heading">¶</a></h2>
 <p><cite>tap2sna.py</cite> converts a TAP or TZX file (which may be inside a zip archive)
-into a Z80 snapshot. For example:</p>
+into an SZX or Z80 snapshot. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py game.tap game.z80
 </pre></div>
 </div>
 <p>To list the options supported by <cite>tap2sna.py</cite>, run it with no arguments:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage:
-  tap2sna.py [options] INPUT snapshot.z80
-  tap2sna.py --tape-analysis [options] INPUT
-  tap2sna.py @FILE
+  tap2sna.py [options] INPUT [OUTFILE]
+  tap2sna.py @FILE [args]
 
-Convert a TAP or TZX file (which may be inside a zip archive) into a Z80
-snapshot. INPUT may be the full URL to a remote zip archive or TAP/TZX file,
-or the path to a local file. Arguments may be read from FILE instead of (or as
-well as) being given on the command line.
+Convert a TAP or TZX file (which may be inside a zip archive) into an SZX or
+Z80 snapshot. INPUT may be the full URL to a remote zip archive or TAP/TZX
+file, or the path to a local file. Arguments may be read from FILE instead of
+(or as well as) being given on the command line.
 
 Options:
   -c name=value, --sim-load-config name=value
-                        Set the value of a --sim-load configuration parameter.
-                        Do &#39;-c help&#39; for more information. This option may be
-                        used multiple times.
+                        Set the value of a simulated LOAD configuration
+                        parameter. Do &#39;-c help&#39; for more information. This
+                        option may be used multiple times.
   -d DIR, --output-dir DIR
                         Write the snapshot file in this directory.
-  -f, --force           Overwrite an existing snapshot.
   -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
                         &#39;v&#39;. This option may be used multiple times.
   -p STACK, --stack STACK
@@ -1457,7 +1461,6 @@ Options:
   --show-config         Show configuration parameter values.
   -s START, --start START
                         Set the start address to JP to.
-  --sim-load            Simulate a 48K ZX Spectrum running LOAD &quot;&quot;.
   --state name=value    Set a hardware state attribute. Do &#39;--state help&#39; for
                         more information. This option may be used multiple
                         times.
@@ -1472,26 +1475,23 @@ Options:
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
-<p>Note that <cite>tap2sna.py</cite> can read data from TZX block types 0x10 (standard speed
-data), 0x11 (turbo speed data) and 0x14 (pure data), but not block types 0x15
-(direct recording), 0x18 (CSW recording) or 0x19 (generalized data block).</p>
-<p>By default, <cite>tap2sna.py</cite> loads bytes from every data block on the tape, using
-the start address given in the corresponding header. For tapes that contain
-headerless data blocks, headers with incorrect start addresses, or irrelevant
-blocks, the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option can be used to load bytes from specific blocks at
-the appropriate addresses. For example:</p>
+<p>Note that <cite>tap2sna.py</cite> cannot read data from TZX block types 0x15 (direct
+recording), 0x18 (CSW recording) or 0x19 (generalized data block).</p>
+<p>By default, <cite>tap2sna.py</cite> attempts to load a tape exactly as a 48K Spectrum
+would (see <a class="reference internal" href="#tap2sna-sim-load"><span class="std std-ref">Simulated LOAD</span></a>). If that doesn’t work, the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option
+can be used to load bytes from specific tape blocks at the appropriate
+addresses. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py --ram load=3,30000 game.tzx game.z80
 </pre></div>
 </div>
 <p>loads the third block on the tape at address 30000, and ignores all other
 blocks. (To see information on the blocks in a TAP or TZX file, use the
 <a class="reference internal" href="#tapinfo-py"><span class="std std-ref">tapinfo.py</span></a> command.)</p>
-<p>In addition to loading specific blocks, the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option can also be used
-to move blocks of bytes from one location to another, POKE values into
-individual addresses or address ranges, modify memory with XOR and ADD
-operations, initialise the system variables, or call a Python function to
-modify the memory snapshot in an arbitrary way before it is saved. For more
-information on these operations, run:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option can also be used to move blocks of bytes from one location
+to another, POKE values into individual addresses or address ranges, modify
+memory with XOR and ADD operations, initialise the system variables, or call a
+Python function to modify the memory snapshot in an arbitrary way before it is
+saved. For more information on these operations, run:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py --ram help
 </pre></div>
 </div>
@@ -1502,14 +1502,10 @@ the file <cite>game.t2s</cite> has the following contents:</p>
 ; tap2sna.py file for GAME
 ;
 http://example.com/pub/games/GAME.zip
-game.z80
---ram load=4,32768         # Load the fourth block at 32768
---ram move=40960,512,43520 # Move 40960-41471 to 43520-44031
---ram call=:ram.modify     # Call modify(snapshot) in ./ram.py
---ram sysvars              # Initialise the system variables
---state iff=0              # Disable interrupts
---stack 32768              # Stack at 32768
---start 34816              # Start at 34816
+-c fast-load=0       # Disable fast loading
+-c accelerator=none  # Disable tape-sampling loop acceleration
+--state issue2=1     # Enable issue 2 keyboard emulation
+--start 34816        # Start at 34816
 </pre></div>
 </div>
 <p>then:</p>
@@ -1517,18 +1513,20 @@ game.z80
 </pre></div>
 </div>
 <p>will create <cite>game.z80</cite> as if the arguments specified in <cite>game.t2s</cite> had been
-given on the command line.</p>
-<div class="section" id="simulated-load">
-<span id="tap2sna-sim-load"></span><h3>Simulated LOAD<a class="headerlink" href="#simulated-load" title="Permalink to this headline">¶</a></h3>
-<p>An alternative to the <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> approach is the <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option. It
-simulates a freshly booted 48K ZX Spectrum running LOAD “” (or LOAD “”CODE, if
-the first block on the tape is a ‘Bytes’ header). Whenever the Spectrum ROM’s
-load routine at $0556 is called, a shortcut is taken by “fast loading” the next
-block on the tape. All other code (including any custom loader) is fully
-simulated. Simulation continues until the program counter hits the start
-address given by the <code class="docutils literal notranslate"><span class="pre">--start</span></code> option, or 15 minutes of simulated Z80 CPU
-time has elapsed, or the end of the tape is reached and one of the following
-conditions is satisfied:</p>
+given on the command line. When <cite>tap2sna.py</cite> reads arguments from a file whose
+name ends with ‘.t2s’, the output snapshot filename defaults to the name of
+that arguments file with ‘.t2s’ replaced by either ‘.z80’ or ‘.szx’ (depending
+on the value of the <code class="docutils literal notranslate"><span class="pre">DefaultSnapshotFormat</span></code> configuration parameter).</p>
+<section id="simulated-load">
+<span id="tap2sna-sim-load"></span><h3>Simulated LOAD<a class="headerlink" href="#simulated-load" title="Permalink to this heading">¶</a></h3>
+<p>By default, <cite>tap2sna.py</cite> simulates a freshly booted 48K ZX Spectrum running
+LOAD “” (or LOAD “”CODE, if the first block on the tape is a ‘Bytes’ header).
+Whenever the Spectrum ROM’s load routine at $0556 is called, a shortcut is
+taken by “fast loading” the next block on the tape. All other code (including
+any custom loader) is fully simulated. Simulation continues until the program
+counter hits the start address given by the <code class="docutils literal notranslate"><span class="pre">--start</span></code> option, or 15 minutes
+of simulated Z80 CPU time has elapsed, or the end of the tape is reached and
+one of the following conditions is satisfied:</p>
 <ul class="simple">
 <li><p>a custom loader was detected</p></li>
 <li><p>the program counter hits an address outside the ROM</p></li>
@@ -1537,7 +1535,7 @@ the tape was reached</p></li>
 </ul>
 <p>A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
 has completed or been aborted, the values of the registers (including the
-program counter) in the simulator are used to populate the Z80 snapshot.</p>
+program counter) in the simulator are used to populate the snapshot.</p>
 <p>A simulated LOAD can be configured via parameters that are set by the
 <code class="docutils literal notranslate"><span class="pre">--sim-load-config</span></code> (or <code class="docutils literal notranslate"><span class="pre">-c</span></code>) option. The recognised configuration
 parameters are:</p>
@@ -1546,9 +1544,7 @@ parameters are:</p>
 (<code class="docutils literal notranslate"><span class="pre">1</span></code>, the default), or ‘DEC A: JP NZ,$-1’ delay loops (<code class="docutils literal notranslate"><span class="pre">2</span></code>), or neither
 (<code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">accelerator</span></code> - a comma-separated list of tape-sampling loop accelerators
-to use (see below)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">contended-in</span></code> - interpret ‘IN A,($FE)’ instructions in the address range
-$4000-$7FFF as reading the tape (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or ignore them (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</p></li>
+to use (see <a class="reference internal" href="#tap2sna-accelerators"><span class="std std-ref">Accelerators</span></a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fast-load</span></code> - enable fast loading (<code class="docutils literal notranslate"><span class="pre">1</span></code>, the default), or disable it
 (<code class="docutils literal notranslate"><span class="pre">0</span></code>); fast loading significantly reduces the load time for many tapes, but
 can also cause some loaders to fail</p></li>
@@ -1557,20 +1553,46 @@ the address specified by the <code class="docutils literal notranslate"><span cl
 simulation as soon as that address is reached, regardless of whether the tape
 has finished (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">first-edge</span></code> - the time (in T-states) from the start of the tape at which
-to place the leading edge of the first pulse (default: <code class="docutils literal notranslate"><span class="pre">-2168</span></code>); the
-default value places the trailing edge of the first pulse at time 0, but some
-loaders (e.g. polarity-sensitive loaders) require <code class="docutils literal notranslate"><span class="pre">first-edge=0</span></code></p></li>
+to place the leading edge of the first pulse (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">in-flags</span></code> - various flags specifying how to handle ‘IN’ instructions (see
+below)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">load</span></code> - a space-separated list of keys to press to build an alternative
+command line to load the tape (see <a class="reference internal" href="#tap2sna-load"><span class="std std-ref">LOAD command</span></a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">machine</span></code> - the type of machine to simulate: a 48K Spectrum (<code class="docutils literal notranslate"><span class="pre">48</span></code>, the
+default), or a 128K Spectrum (<code class="docutils literal notranslate"><span class="pre">128</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pause</span></code> - pause the tape between blocks and resume playback when port 254
 is read (<code class="docutils literal notranslate"><span class="pre">1</span></code>, the default), or run the tape continuously (<code class="docutils literal notranslate"><span class="pre">0</span></code>); pausing
 can help with tapes that require (but do not actually contain) long pauses
 between blocks, but can cause some loaders to fail</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">polarity</span></code> - the EAR bit reading produced by the first pulse on the tape:
+<code class="docutils literal notranslate"><span class="pre">0</span></code> (the default) or <code class="docutils literal notranslate"><span class="pre">1</span></code>; subsequent pulses give readings that alternate
+between 0 and 1</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">timeout</span></code> - the number of seconds of Z80 CPU time after which to abort the
 simulated LOAD if it’s still in progress (default: 900)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trace</span></code> - the file to which to log all instructions executed during the
 simulated LOAD (default: none)</p></li>
 </ul>
-<p>The <code class="docutils literal notranslate"><span class="pre">accelerator</span></code> parameter must be either a comma-separated list of specific
-accelerator names or one of the following special values:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">in-flags</span></code> parameter is the sum of the following values, chosen according
+to the desired behaviour:</p>
+<ul class="simple">
+<li><p>1 - interpret ‘IN A,($FE)’ instructions in the address range $4000-$7FFF as
+reading the tape (by default they are ignored)</p></li>
+<li><p>2 - ignore ‘IN’ instructions in the address range $4000-$FFFF (i.e. in RAM)
+that read port $FE</p></li>
+<li><p>4 - yield a simulated port reading when executing an ‘IN r,(C)’ instruction
+(by default such an instruction always yields the value $FF)</p></li>
+</ul>
+<p>By default, the EAR bit reading produced by a pulse is 0 if the 0-based index
+of the pulse is even (i.e. first, third, fifth pulses etc.), or 1 otherwise.
+This can be reversed by setting <code class="docutils literal notranslate"><span class="pre">polarity=1</span></code>. Run <em>tap2sna.py</em> with the
+<code class="docutils literal notranslate"><span class="pre">--tape-analysis</span></code> option to see the timings and EAR bit readings of the
+pulses on a tape.</p>
+</section>
+<section id="accelerators">
+<span id="tap2sna-accelerators"></span><h3>Accelerators<a class="headerlink" href="#accelerators" title="Permalink to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">accelerator</span></code> simulated LOAD configuration parameter must be either a
+comma-separated list of specific accelerator names or one of the following
+special values:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">auto</span></code> - select accelerators automatically (this is the default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">list</span></code> - list the accelerators used during a simulated LOAD, along with the
@@ -1580,13 +1602,19 @@ loader that uses an unrecognised tape-sampling loop may be reduced by
 specifying this value</p></li>
 </ul>
 <p>The output produced by <code class="docutils literal notranslate"><span class="pre">accelerator=list</span></code> looks something like this:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Accelerators: microsphere: 6695; rom: 794013; misses: 19/9
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Accelerators: microsphere: 6695; rom: 794013; misses: 19/9; dec-a: 800708/0/224
 </pre></div>
 </div>
-<p>This means that the <code class="docutils literal notranslate"><span class="pre">microsphere</span></code> and <code class="docutils literal notranslate"><span class="pre">rom</span></code> tape-sampling loops were
-detected, and were entered 6695 times and 794013 times respectively. In
-addition, 19 instances of ‘INC B’ outside a recognised tape-sampling loop were
-executed, and the corresponding figure for ‘DEC B’ is 9.</p>
+<p>This means that:</p>
+<ul class="simple">
+<li><p>the <code class="docutils literal notranslate"><span class="pre">microsphere</span></code> and <code class="docutils literal notranslate"><span class="pre">rom</span></code> tape-sampling loops were detected, and were
+entered 6695 times and 794013 times respectively</p></li>
+<li><p>19 instances of ‘INC B’ outside a recognised tape-sampling loop were
+executed, and the corresponding figure for ‘DEC B’ is 9</p></li>
+<li><p>800708 ‘DEC A: JR NZ,$-1’ delay loops were entered, no ‘DEC A: JP NZ,$-1’
+delay loops were entered, and 224 instances of ‘DEC A’ outside such delay
+loops were executed</p></li>
+</ul>
 <p>Specifying by name the types of tape-sampling loop used by a game’s custom
 loader may reduce the loading time. The names of the available tape-sampling
 loop accelerators are:</p>
@@ -1599,6 +1627,7 @@ loop accelerators are:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">alkatraz2</span></code> (Alkatraz 2)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">alternative</span></code> (Fireman Sam, Huxley Pig)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">alternative2</span></code> (Kentucky Racing)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">antirom</span></code> (Boxe)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bleepload</span></code> (Firebird BleepLoad)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">boguslaw-juza</span></code> (Euro Biznes)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bulldog</span></code> (Rigel’s Revenge)</p></li>
@@ -1606,38 +1635,28 @@ loop accelerators are:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">crl2</span></code> (Terrahawks)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">crl3</span></code> (Oink)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">crl4</span></code> (Federation)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cyberlode</span></code> (Cyberlode 1.1 - same as <code class="docutils literal notranslate"><span class="pre">bleepload</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cybexlab</span></code> (17.11.1989, Belegost, Starfox)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">d-and-h</span></code> (Multi-Player Soccer Manager)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">delphine</span></code> (Zakliaty zámok programátorov)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">design-design</span></code> (various games published by Design Design Software)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">digital-integration</span></code> (Digital Integration)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">dinaload</span></code> (Dinaload)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">edge</span></code> (Edge - same as <code class="docutils literal notranslate"><span class="pre">rom</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">elite-uni-loader</span></code> (Elite Uni-Loader - same as <code class="docutils literal notranslate"><span class="pre">speedlock</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">excelerator</span></code> (The Excelerator Loader - same as <code class="docutils literal notranslate"><span class="pre">bleepload</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">flash-loader</span></code> (Flash Loader - same as <code class="docutils literal notranslate"><span class="pre">rom</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ftl</span></code> (FTL - same as <code class="docutils literal notranslate"><span class="pre">speedlock</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">gargoyle</span></code> (Gargoyle - same as <code class="docutils literal notranslate"><span class="pre">speedlock</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ernieware</span></code> (The Evolution, Golem)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">gargoyle2</span></code> (various games created or published by Gargoyle Games)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">gremlin</span></code> (various games published by Gremlin Graphics)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">gremlin2</span></code> (Super Cars)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">hewson-slowload</span></code> (Hewson Slowload - same as <code class="docutils literal notranslate"><span class="pre">rom</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">injectaload</span></code> (Injectaload - same as <code class="docutils literal notranslate"><span class="pre">bleepload</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">housenka</span></code> (Housenka)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">microprose</span></code> (F-15 Strike Eagle)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">microsphere</span></code> (Back to Skool, Contact Sam Cruise, Skool Daze, Sky Ranger)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">micro-style</span></code> (Xenophobe)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">mirrorsoft</span></code> (Action Reflex)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">palas</span></code> (Bad Night)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">paul-owens</span></code> (Paul Owens Protection System)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">poliload</span></code> (Poliload - same as <code class="docutils literal notranslate"><span class="pre">dinaload</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">power-load</span></code> (Power-Load - same as <code class="docutils literal notranslate"><span class="pre">bleepload</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">raxoft</span></code> (Piskworks, Podraz 4)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">realtime</span></code> (Starstrike II)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rom</span></code> (any loader whose sampling loop is the same as the ROM’s)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">search-loader</span></code> (Search Loader)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">silverbird</span></code> (Olli &amp; Lissa II: Halloween)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">softlock</span></code> (SoftLock - same as <code class="docutils literal notranslate"><span class="pre">rom</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">software-projects</span></code> (BC’s Quest for Tires, Lode Runner)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sparklers</span></code> (Bargain Basement, Flunky)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">speedlock</span></code> (Speedlock - all versions)</p></li>
@@ -1646,15 +1665,53 @@ loop accelerators are:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">tiny</span></code> (Il Cobra di Cristallo, Negy a Nyero, Phantomasa, and others)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">us-gold</span></code> (Gauntlet II)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">weird-science</span></code> (Flash Beer Trilogy, Ghost Castles, TV-Game)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">zydroload</span></code> (Zydroload - same as <code class="docutils literal notranslate"><span class="pre">speedlock</span></code>)</p></li>
 </ul>
+</section>
+<section id="load-command">
+<span id="tap2sna-load"></span><h3>LOAD command<a class="headerlink" href="#load-command" title="Permalink to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">load</span></code> simulated LOAD configuration parameter may be used to specify an
+alternative command line to load the tape in cases where neither ‘LOAD “”’ nor
+‘LOAD “”CODE’ works. Its value is a space-separated list of ‘words’ (a ‘word’
+being a sequence of any characters other than space), each of which is broken
+down into a sequence of one or more keypresses. If a word contains the ‘+’
+symbol, the tokens it separates are converted into keypresses made
+simultaneously. If a word matches a BASIC token, the corresponding sequence of
+keypresses to produce that token are substituted. Otherwise, each character in
+the word is converted individually into the appropriate keypresses.</p>
+<p>The following special tokens are also recognised:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CS</span></code> - CAPS SHIFT</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SS</span></code> - SYMBOL SHIFT</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SPACE</span></code> - SPACE</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ENTER</span></code> - ENTER</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DOWN</span></code> - Cursor down (‘CS+6’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GOTO</span></code> - GO TO (‘g’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GOSUB</span></code> - GO SUB (‘h’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DEFFN</span></code> - DEF FN (‘CS+SS SS+1’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OPEN#</span></code> - OPEN # (‘CS+SS SS+4’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CLOSE#</span></code> - CLOSE # (‘CS+SS SS+5’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PC=address</span></code> - Stop the keyboard input simulation at this address</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">PC=address</span></code> token, if present, must appear last. The default address is
+either 0x0605 (when a 48K Spectrum is being simulated) or 0x13BE (on a 128K
+Spectrum). The simulated LOAD begins at this address.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ENTER</span></code> is automatically appended to the command line if not already present.</p>
+<p>For example, the <code class="docutils literal notranslate"><span class="pre">load</span></code> parameter may be set to:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CLEAR 34999: LOAD &quot;&quot; CODE : RANDOMIZE USR 35000
+</pre></div>
 </div>
-<div class="section" id="tap2sna-conf">
-<span id="id19"></span><h3>Configuration<a class="headerlink" href="#tap2sna-conf" title="Permalink to this headline">¶</a></h3>
+<p>Note that the spaces around <code class="docutils literal notranslate"><span class="pre">CLEAR</span></code>, <code class="docutils literal notranslate"><span class="pre">LOAD</span></code>, <code class="docutils literal notranslate"><span class="pre">CODE</span></code>, <code class="docutils literal notranslate"><span class="pre">RANDOMIZE</span></code> and
+<code class="docutils literal notranslate"><span class="pre">USR</span></code> are required in order for them to be recognised as BASIC tokens.</p>
+</section>
+<section id="tap2sna-conf">
+<span id="id19"></span><h3>Configuration<a class="headerlink" href="#tap2sna-conf" title="Permalink to this heading">¶</a></h3>
 <p><cite>tap2sna.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DefaultSnapshotFormat</span></code> - the format of the snapshot written when no output
+snapshot argument is specified; valid values are <code class="docutils literal notranslate"><span class="pre">z80</span></code> (the default) and
+<code class="docutils literal notranslate"><span class="pre">szx</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> - the format of each line in the trace log file for a simulated
 LOAD (default: <code class="docutils literal notranslate"><span class="pre">${pc:04X}</span> <span class="pre">{i}</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> - the prefix, byte format, and word format for the numeric
@@ -1668,39 +1725,24 @@ replacement fields:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">i</span></code> - the current instruction</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pc</span></code> - the address of the current instruction (program counter)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[a]</span></code> - the A register (accumulator)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[f]</span></code> - the F (flags) register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[b]</span></code> - the B register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[c]</span></code> - the C register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[d]</span></code> - the D register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[e]</span></code> - the E register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[h]</span></code> - the H register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[l]</span></code> - the L register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[^a]</span></code> - the A’ register (shadow accumulator)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[^f]</span></code> - the F’ (shadow flags) register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[^b]</span></code> - the shadow B register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[^c]</span></code> - the shadow C register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[^d]</span></code> - the shadow D register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[^e]</span></code> - the shadow E register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[^h]</span></code> - the shadow H register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[^l]</span></code> - the shadow L register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[ixh]</span></code> - the high byte of the IX register pair</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[ixl]</span></code> - the low byte of the IX register pair</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[iyh]</span></code> - the high byte of the IY register pair</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[iyl]</span></code> - the low byte of the IY register pair</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[i]</span></code> - the I register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[r]</span></code> - the R register</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[sp]</span></code> - the stack pointer</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">r[t]</span></code> - the current timestamp</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[X]</span></code> - the ‘X’ register (see below)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">t</span></code> - the current timestamp</p></li>
 </ul>
-<p>The current timestamp (<code class="docutils literal notranslate"><span class="pre">r[t]</span></code>) is the number of T-states that have elapsed
-since the start of the simulation, according to the simulator’s internal clock.
-In order to maintain synchronisation with the tape being loaded, the
-simulator’s clock is adjusted to match the timestamp of the first pulse in each
-block (as shown by the <code class="docutils literal notranslate"><span class="pre">--tape-analysis</span></code> option) when that block is reached.
-(The simulator’s clock may at times become desynchronised with the tape
-because, by default, the tape is paused between blocks, and resumed when port
-254 is read.)</p>
+<p>The register name <code class="docutils literal notranslate"><span class="pre">X</span></code> in <code class="docutils literal notranslate"><span class="pre">r[X]</span></code> must be one of the following:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>a b c d e f h l bc de hl
+^a ^b ^c ^d ^e ^f ^h ^l ^bc ^de ^hl
+ix ixh ixl iy iyh iyl
+i r sp
+</pre></div>
+</div>
+<p>The names that begin with <code class="docutils literal notranslate"><span class="pre">^</span></code> denote the shadow registers.</p>
+<p>The current timestamp (<code class="docutils literal notranslate"><span class="pre">t</span></code>) is the number of T-states that have elapsed since
+the start of the simulation, according to the simulator’s internal clock. In
+order to maintain synchronisation with the tape being loaded, the simulator’s
+clock is adjusted to match the timestamp of the first pulse in each block (as
+shown by the <code class="docutils literal notranslate"><span class="pre">--tape-analysis</span></code> option) when that block is reached. (The
+simulator’s clock may at times become desynchronised with the tape because, by
+default, the tape is paused between blocks, and resumed when port 254 is read.)</p>
 <p>Configuration parameters must appear in a <code class="docutils literal notranslate"><span class="pre">[tap2sna]</span></code> section. For example,
 to make <cite>tap2sna.py</cite> write instruction addresses and operands in a trace log
 file in decimal format by default, add the following section to
@@ -1713,79 +1755,92 @@ TraceOperand=
 <p>Configuration parameters may also be set on the command line by using the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option. Parameter values set this way will override any found in
 <cite>skoolkit.ini</cite>.</p>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.10</p></td>
+<tr class="row-even"><td><p>9.0</p></td>
+<td><p>A simulated LOAD is performed by default; an existing snapshot
+will be overwritten by default; added the <code class="docutils literal notranslate"><span class="pre">load</span></code>, <code class="docutils literal notranslate"><span class="pre">machine</span></code>,
+<code class="docutils literal notranslate"><span class="pre">polarity</span></code> and <code class="docutils literal notranslate"><span class="pre">in-flags</span></code> simulated LOAD configuration
+parameters; the output snapshot argument is optional; added
+support for writing SZX snapshots; added the
+<code class="docutils literal notranslate"><span class="pre">DefaultSnapshotFormat</span></code> configuration parameter; added the
+<code class="docutils literal notranslate"><span class="pre">fe</span></code> hardware state attribute; added support for register pairs
+(<code class="docutils literal notranslate"><span class="pre">r[bc]</span></code>, <code class="docutils literal notranslate"><span class="pre">r[de]</span></code> etc.) in the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> configuration
+parameter; added the <code class="docutils literal notranslate"><span class="pre">antirom</span></code>, <code class="docutils literal notranslate"><span class="pre">ernieware</span></code> and <code class="docutils literal notranslate"><span class="pre">housenka</span></code>
+tape-sampling loop accelerators; shows ‘DEC A’ delay loop
+statistics when <code class="docutils literal notranslate"><span class="pre">accelerator=list</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>8.10</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-analysis</span></code> options;
 added the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> and <code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> configuration
-parameters; added the <code class="docutils literal notranslate"><span class="pre">accelerate-dec-a</span></code>, <code class="docutils literal notranslate"><span class="pre">contended-in</span></code> and
-<code class="docutils literal notranslate"><span class="pre">finish-tape</span></code> simulated LOAD configuration parameters; added
-the <code class="docutils literal notranslate"><span class="pre">issue2</span></code> hardware state attribute; added the special
-<code class="docutils literal notranslate"><span class="pre">auto</span></code> and <code class="docutils literal notranslate"><span class="pre">list</span></code> tape-sampling loop accelerator names, and
-the ability to specify multiple accelerators; added the
-<code class="docutils literal notranslate"><span class="pre">alkatraz-05</span></code>, <code class="docutils literal notranslate"><span class="pre">alkatraz-09</span></code>, <code class="docutils literal notranslate"><span class="pre">alkatraz-0a</span></code>,
-<code class="docutils literal notranslate"><span class="pre">alkatraz-0b</span></code>, <code class="docutils literal notranslate"><span class="pre">alternative</span></code>, <code class="docutils literal notranslate"><span class="pre">alternative2</span></code>,
-<code class="docutils literal notranslate"><span class="pre">boguslaw-juza</span></code>, <code class="docutils literal notranslate"><span class="pre">bulldog</span></code>, <code class="docutils literal notranslate"><span class="pre">crl</span></code>, <code class="docutils literal notranslate"><span class="pre">crl2</span></code>, <code class="docutils literal notranslate"><span class="pre">crl3</span></code>,
-<code class="docutils literal notranslate"><span class="pre">crl4</span></code>, <code class="docutils literal notranslate"><span class="pre">cybexlab</span></code>, <code class="docutils literal notranslate"><span class="pre">d-and-h</span></code>, <code class="docutils literal notranslate"><span class="pre">delphine</span></code>,
-<code class="docutils literal notranslate"><span class="pre">design-design</span></code>, <code class="docutils literal notranslate"><span class="pre">gargoyle2</span></code>, <code class="docutils literal notranslate"><span class="pre">gremlin2</span></code>, <code class="docutils literal notranslate"><span class="pre">microprose</span></code>,
-<code class="docutils literal notranslate"><span class="pre">micro-style</span></code>, <code class="docutils literal notranslate"><span class="pre">mirrorsoft</span></code>, <code class="docutils literal notranslate"><span class="pre">palas</span></code>, <code class="docutils literal notranslate"><span class="pre">raxoft</span></code>,
-<code class="docutils literal notranslate"><span class="pre">realtime</span></code>, <code class="docutils literal notranslate"><span class="pre">silverbird</span></code>, <code class="docutils literal notranslate"><span class="pre">software-projects</span></code>,
-<code class="docutils literal notranslate"><span class="pre">sparklers</span></code>, <code class="docutils literal notranslate"><span class="pre">suzy-soft</span></code>, <code class="docutils literal notranslate"><span class="pre">suzy-soft2</span></code>, <code class="docutils literal notranslate"><span class="pre">tiny</span></code>,
-<code class="docutils literal notranslate"><span class="pre">us-gold</span></code> and <code class="docutils literal notranslate"><span class="pre">weird-science</span></code> tape-sampling loop accelerators</p></td>
+parameters; added the <code class="docutils literal notranslate"><span class="pre">accelerate-dec-a</span></code> and <code class="docutils literal notranslate"><span class="pre">finish-tape</span></code>
+simulated LOAD configuration parameters; added the <code class="docutils literal notranslate"><span class="pre">issue2</span></code>
+hardware state attribute; added the special <code class="docutils literal notranslate"><span class="pre">auto</span></code> and <code class="docutils literal notranslate"><span class="pre">list</span></code>
+tape-sampling loop accelerator names, and the ability to specify
+multiple accelerators; added the <code class="docutils literal notranslate"><span class="pre">alkatraz-05</span></code>,
+<code class="docutils literal notranslate"><span class="pre">alkatraz-09</span></code>, <code class="docutils literal notranslate"><span class="pre">alkatraz-0a</span></code>, <code class="docutils literal notranslate"><span class="pre">alkatraz-0b</span></code>,
+<code class="docutils literal notranslate"><span class="pre">alternative</span></code>, <code class="docutils literal notranslate"><span class="pre">alternative2</span></code>, <code class="docutils literal notranslate"><span class="pre">boguslaw-juza</span></code>,
+<code class="docutils literal notranslate"><span class="pre">bulldog</span></code>, <code class="docutils literal notranslate"><span class="pre">crl</span></code>, <code class="docutils literal notranslate"><span class="pre">crl2</span></code>, <code class="docutils literal notranslate"><span class="pre">crl3</span></code>, <code class="docutils literal notranslate"><span class="pre">crl4</span></code>, <code class="docutils literal notranslate"><span class="pre">cybexlab</span></code>,
+<code class="docutils literal notranslate"><span class="pre">d-and-h</span></code>, <code class="docutils literal notranslate"><span class="pre">delphine</span></code>, <code class="docutils literal notranslate"><span class="pre">design-design</span></code>, <code class="docutils literal notranslate"><span class="pre">gargoyle2</span></code>,
+<code class="docutils literal notranslate"><span class="pre">gremlin2</span></code>, <code class="docutils literal notranslate"><span class="pre">microprose</span></code>, <code class="docutils literal notranslate"><span class="pre">micro-style</span></code>, <code class="docutils literal notranslate"><span class="pre">mirrorsoft</span></code>,
+<code class="docutils literal notranslate"><span class="pre">palas</span></code>, <code class="docutils literal notranslate"><span class="pre">raxoft</span></code>, <code class="docutils literal notranslate"><span class="pre">realtime</span></code>, <code class="docutils literal notranslate"><span class="pre">silverbird</span></code>,
+<code class="docutils literal notranslate"><span class="pre">software-projects</span></code>, <code class="docutils literal notranslate"><span class="pre">sparklers</span></code>, <code class="docutils literal notranslate"><span class="pre">suzy-soft</span></code>,
+<code class="docutils literal notranslate"><span class="pre">suzy-soft2</span></code>, <code class="docutils literal notranslate"><span class="pre">tiny</span></code>, <code class="docutils literal notranslate"><span class="pre">us-gold</span></code> and <code class="docutils literal notranslate"><span class="pre">weird-science</span></code>
+tape-sampling loop accelerators</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.9</p></td>
+<tr class="row-even"><td><p>8.9</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--sim-load-config</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-name</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--tape-start</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-stop</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-sum</span></code> options;
 added support for TZX loops, pauses, and unused bits in data
 blocks; added support for quoted arguments in an arguments file;
 added the <code class="docutils literal notranslate"><span class="pre">tstates</span></code> hardware state attribute</p></td>
 </tr>
-<tr class="row-even"><td><p>8.8</p></td>
-<td><p>The <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option performs any <code class="docutils literal notranslate"><span class="pre">call/move/poke/sysvars</span></code>
+<tr class="row-odd"><td><p>8.8</p></td>
+<td><p>A simulated LOAD performs any <code class="docutils literal notranslate"><span class="pre">call/move/poke/sysvars</span></code>
 operations specified by <code class="docutils literal notranslate"><span class="pre">--ram</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>8.7</p></td>
-<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option; when a headerless block is
-ignored because no <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> options have been specified, a
-warning is printed</p></td>
+<tr class="row-even"><td><p>8.7</p></td>
+<td><p>Added support for simulating a 48K Spectrum LOADing a tape; when
+a headerless block is ignored because no <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> options
+have been specified, a warning is printed</p></td>
 </tr>
-<tr class="row-even"><td><p>8.6</p></td>
+<tr class="row-odd"><td><p>8.6</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">call</span></code> operation</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.4</p></td>
+<tr class="row-even"><td><p>8.4</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">sysvars</span></code>
 operation</p></td>
 </tr>
-<tr class="row-even"><td><p>6.3</p></td>
+<tr class="row-odd"><td><p>6.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--user-agent</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--ram</span></code>, <code class="docutils literal notranslate"><span class="pre">--reg</span></code>, <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options
 accept hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>5.3</p></td>
+<tr class="row-odd"><td><p>5.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.5</p></td>
+<tr class="row-even"><td><p>4.5</p></td>
 <td><p>Added support for TZX block type 0x14 (pure data), for loading
 the first and last bytes of a tape block, and for modifying
 memory with XOR and ADD operations</p></td>
 </tr>
-<tr class="row-even"><td><p>3.5</p></td>
+<tr class="row-odd"><td><p>3.5</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="tapinfo-py">
-<span id="id20"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="tapinfo-py">
+<span id="id20"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this heading">¶</a></h2>
 <p><cite>tapinfo.py</cite> shows information on the blocks in a TAP or TZX file. For
 example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tapinfo.py game.tzx
@@ -1797,72 +1852,76 @@ example:</p>
 Show the blocks in a TAP or TZX file.
 
 Options:
-  -b IDs, --tzx-blocks IDs
-                        Show TZX blocks with these IDs only. &#39;IDs&#39; is a comma-
-                        separated list of hexadecimal block IDs, e.g.
-                        10,11,2a.
-  -B N[,A], --basic N[,A]
+  -b N[,A], --basic N[,A]
                         List the BASIC program in block N loaded at address A
                         (default 23755).
   -d, --data            Show the entire contents of header and data blocks.
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
-<table class="docutils colwidths-auto align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.9</p></td>
+<tr class="row-even"><td><p>9.0</p></td>
+<td><p>Shows the LINE number (if present) for ‘Program:’ header blocks;
+renders BASIC tokens in header block names</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.9</p></td>
 <td><p>Shows full info for TZX block types 0x10 and 0x11</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.3</p></td>
+<tr class="row-even"><td><p>8.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--data</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>8.1</p></td>
+<tr class="row-odd"><td><p>8.1</p></td>
 <td><p>Shows contents of TZX block types 0x33 (hardware type) and 0x35
 (custom info)</p></td>
 </tr>
-<tr class="row-odd"><td><p>7.1</p></td>
+<tr class="row-even"><td><p>7.1</p></td>
 <td><p>Shows pulse lengths in TZX block type 0x13 and full info for TZX
 block type 0x14</p></td>
 </tr>
-<tr class="row-even"><td><p>6.2</p></td>
+<tr class="row-odd"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--basic</span></code> option accepts a hexadecimal address prefixed by
 ‘0x’</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.0</p></td>
+<tr class="row-even"><td><p>6.0</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--basic</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>5.0</p></td>
+<tr class="row-odd"><td><p>5.0</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="trace-py">
-<span id="id21"></span><h2>trace.py<a class="headerlink" href="#trace-py" title="Permalink to this headline">¶</a></h2>
-<p><cite>trace.py</cite> simulates the execution of machine code in a 48K memory snapshot.
-For example:</p>
+</section>
+<section id="trace-py">
+<span id="id21"></span><h2>trace.py<a class="headerlink" href="#trace-py" title="Permalink to this heading">¶</a></h2>
+<p><cite>trace.py</cite> simulates the execution of machine code in a 48K or 128K memory
+snapshot. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ trace.py --start 32768 --stop 49152 game.z80
 </pre></div>
 </div>
 <p>To list the options supported by <cite>trace.py</cite>, run it with no arguments:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: trace.py [options] FILE
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: trace.py [options] FILE [OUTFILE]
 
 Trace Z80 machine code execution. FILE may be a binary (raw memory) file, a
-SNA, SZX or Z80 snapshot, or &#39;.&#39; for no snapshot.
+SNA, SZX or Z80 snapshot, or &#39;48&#39; or &#39;128&#39; for no snapshot. If &#39;OUTFILE&#39; is
+given, an SZX or Z80 snapshot is written after execution has completed.
 
 Options:
   --audio               Show audio delays.
   --depth DEPTH         Simplify audio delays to this depth (default: 2).
   -D, --decimal         Show decimal values in verbose mode.
-  --dump FILE           Dump a Z80 snapshot to this file after execution.
-  -i, --interrupts      Execute interrupt routines.
-  --max-operations MAX  Maximum number of instructions to execute.
-  --max-tstates MAX     Maximum number of T-states to run for.
+  -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
+                        &#39;v&#39;. This option may be used multiple times.
+  -m MAX, --max-operations MAX
+                        Maximum number of instructions to execute.
+  -M MAX, --max-tstates MAX
+                        Maximum number of T-states to run for.
+  -n, --no-interrupts   Don&#39;t execute interrupt routines.
   -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
                         file (default: 65536 - length).
   -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
@@ -1873,8 +1932,8 @@ Options:
   -r name=value, --reg name=value
                         Set the value of a register. Do &#39;--reg help&#39; for more
                         information. This option may be used multiple times.
-  --rom FILE            Patch in a ROM at address 0 from this file. By default
-                        the 48K ZX Spectrum ROM is used.
+  --rom FILE            Patch in a ROM at address 0 from this file.
+  --show-config         Show configuration parameter values.
   -s ADDR, --start ADDR
                         Start execution at this address.
   -S ADDR, --stop ADDR  Stop execution at this address.
@@ -1887,34 +1946,89 @@ Options:
 <p>By default, <cite>trace.py</cite> silently simulates code execution beginning with the
 instruction at the address specified by the <code class="docutils literal notranslate"><span class="pre">--start</span></code> option (or the program
 counter in the snapshot) and ending when the instruction at the address
-specified by <code class="docutils literal notranslate"><span class="pre">--stop</span></code> (if any) is reached, and does not execute interrupt
-routines. Use the <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> option to show each instruction executed.
-Repeat the <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> option (<code class="docutils literal notranslate"><span class="pre">-vv</span></code>) to show register values too. Use the
-<code class="docutils literal notranslate"><span class="pre">--interrupts</span></code> option to enable the execution of interrupt routines.</p>
+specified by <code class="docutils literal notranslate"><span class="pre">--stop</span></code> (if any) is reached. Use the <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> option to
+show each instruction executed. Repeat the <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> option (<code class="docutils literal notranslate"><span class="pre">-vv</span></code>) to
+show register values too.</p>
 <p>When the <code class="docutils literal notranslate"><span class="pre">--audio</span></code> option is given, <cite>trace.py</cite> tracks changes in the state
 of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)
 between those changes. This list can be supplied to the <a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> macro to
 produce a WAV file for the sound effect that would be produced by the same code
 running on a real ZX Spectrum.</p>
-<table class="docutils colwidths-auto align-default">
+<section id="trace-conf">
+<span id="id22"></span><h3>Configuration<a class="headerlink" href="#trace-conf" title="Permalink to this heading">¶</a></h3>
+<p><cite>trace.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
+current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
+configuration parameters are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> - the format of each instruction line when <code class="docutils literal notranslate"><span class="pre">-v</span></code> is used
+(default: <code class="docutils literal notranslate"><span class="pre">${pc:04X}</span> <span class="pre">{i}</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TraceLine2</span></code> - the format of each instruction line when <code class="docutils literal notranslate"><span class="pre">-vv</span></code> is used
+(use <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> to see the default value)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TraceLineDecimal</span></code> - the format of each instruction line when <code class="docutils literal notranslate"><span class="pre">-Dv</span></code> is
+used (default: <code class="docutils literal notranslate"><span class="pre">{pc:05}</span> <span class="pre">{i}</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TraceLineDecimal2</span></code> - the format of each instruction line when <code class="docutils literal notranslate"><span class="pre">-Dvv</span></code> is
+used (use <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> to see the default value)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> - the prefix, byte format, and word format for the numeric
+operands of instructions, separated by commas (default: <code class="docutils literal notranslate"><span class="pre">$,02X,04X</span></code>); the
+byte and word formats are standard Python format specifiers for numeric
+values, and default to empty strings if not supplied</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TraceOperandDecimal</span></code> - as <code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> when <code class="docutils literal notranslate"><span class="pre">-D</span></code> is used (default:
+<code class="docutils literal notranslate"><span class="pre">,,</span></code>)</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">TraceLine*</span></code> parameters are standard Python format strings that recognise
+the following replacement fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">i</span></code> - the current instruction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pc</span></code> - the address of the current instruction (program counter)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[X]</span></code> - the ‘X’ register (see below)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">t</span></code> - the current timestamp (in T-states)</p></li>
+</ul>
+<p>The register name <code class="docutils literal notranslate"><span class="pre">X</span></code> in <code class="docutils literal notranslate"><span class="pre">r[X]</span></code> must be one of the following:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>a b c d e f h l bc de hl
+^a ^b ^c ^d ^e ^f ^h ^l ^bc ^de ^hl
+ix ixh ixl iy iyh iyl
+i r sp
+</pre></div>
+</div>
+<p>The names that begin with <code class="docutils literal notranslate"><span class="pre">^</span></code> denote the shadow registers.</p>
+<p>Wherever <code class="docutils literal notranslate"><span class="pre">\n</span></code> appears in a <code class="docutils literal notranslate"><span class="pre">TraceLine*</span></code> parameter value, it is replaced by
+a newline character.</p>
+<p>Configuration parameters must appear in a <code class="docutils literal notranslate"><span class="pre">[trace]</span></code> section. For example,
+to make <cite>trace.py</cite> write a timestamp for each instruction when <code class="docutils literal notranslate"><span class="pre">-v</span></code> is used,
+add the following section to <cite>skoolkit.ini</cite>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[trace]
+TraceLine={t:&gt;10} ${pc:04X} {i}
+</pre></div>
+</div>
+<p>Configuration parameters may also be set on the command line by using the
+<code class="docutils literal notranslate"><span class="pre">--ini</span></code> option. Parameter values set this way will override any found in
+<cite>skoolkit.ini</cite>.</p>
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
 <th class="head"><p>Changes</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.9</p></td>
-<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--interrupts</span></code> option; reads and writes the T-states
-counter in Z80 snapshots and reads the T-states counter in SZX
-snapshots</p></td>
+<tr class="row-even"><td><p>9.0</p></td>
+<td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
+<code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-interrupts</span></code> and <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> options;
+interrupt routines are executed by default; added support for
+128K snapshots; added support for writing SZX snapshots; added
+the <code class="docutils literal notranslate"><span class="pre">-m</span></code> and <code class="docutils literal notranslate"><span class="pre">-M</span></code> short options</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.8</p></td>
+<tr class="row-odd"><td><p>8.9</p></td>
+<td><p>Reads and writes the T-states counter in Z80 snapshots and reads
+the T-states counter in SZX snapshots</p></td>
+</tr>
+<tr class="row-even"><td><p>8.8</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -1923,8 +2037,9 @@ snapshots</p></td>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Commands</a><ul>
 <li><a class="reference internal" href="#bin2sna-py">bin2sna.py</a></li>
 <li><a class="reference internal" href="#bin2tap-py">bin2tap.py</a></li>
@@ -1958,21 +2073,31 @@ snapshots</p></td>
 <li><a class="reference internal" href="#snapmod-py">snapmod.py</a></li>
 <li><a class="reference internal" href="#tap2sna-py">tap2sna.py</a><ul>
 <li><a class="reference internal" href="#simulated-load">Simulated LOAD</a></li>
+<li><a class="reference internal" href="#accelerators">Accelerators</a></li>
+<li><a class="reference internal" href="#load-command">LOAD command</a></li>
 <li><a class="reference internal" href="#tap2sna-conf">Configuration</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#tapinfo-py">tapinfo.py</a></li>
-<li><a class="reference internal" href="#trace-py">trace.py</a></li>
+<li><a class="reference internal" href="#trace-py">trace.py</a><ul>
+<li><a class="reference internal" href="#trace-conf">Configuration</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="diy.html"
-                        title="previous chapter">Disassembly DIY</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="assemblers.html"
-                        title="next chapter">Supported assemblers</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="diy.html"
+                          title="previous chapter">Disassembly DIY</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="assemblers.html"
+                          title="next chapter">Supported assemblers</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -1984,12 +2109,12 @@ snapshots</p></td>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -2001,21 +2126,18 @@ snapshots</p></td>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="assemblers.html" title="Supported assemblers"
              >next</a> |</li>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2023, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

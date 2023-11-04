@@ -1,18 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>What is SkoolKit? &#8212; SkoolKit 8.10 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>What is SkoolKit? &#8212; SkoolKit 9.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installing and using SkoolKit" href="usage.html" />
@@ -25,15 +28,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="SkoolKit manual"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">What is SkoolKit?</a></li> 
       </ul>
     </div>  
@@ -43,8 +43,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="what-is-skoolkit">
-<h1>What is SkoolKit?<a class="headerlink" href="#what-is-skoolkit" title="Permalink to this headline">¶</a></h1>
+  <section id="what-is-skoolkit">
+<h1>What is SkoolKit?<a class="headerlink" href="#what-is-skoolkit" title="Permalink to this heading">¶</a></h1>
 <p>SkoolKit is a collection of utilities that can be used to disassemble a
 <a class="reference external" href="https://en.wikipedia.org/wiki/ZX_Spectrum">Spectrum</a> game (or indeed any piece of Spectrum software written in machine
 code) into a format known as a skool file. Then, from this skool file, you can
@@ -55,8 +55,8 @@ common ‘source’ for both the reader-friendly HTML version of the disassembly
 and the developer- and assembler-friendly version of the disassembly.</p>
 <p>The latest stable release of SkoolKit can always be obtained from
 <a class="reference external" href="https://skoolkit.ca">skoolkit.ca</a>; the latest development version can be found on <a class="reference external" href="https://github.com/skoolkid/">GitHub</a>.</p>
-<div class="section" id="features">
-<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this heading">¶</a></h2>
 <p>With SkoolKit you can:</p>
 <ul class="simple">
 <li><p>use <a class="reference internal" href="commands.html#sna2ctl-py"><span class="std std-ref">sna2ctl.py</span></a> to generate a <a class="reference internal" href="control-files.html#controlfiles"><span class="std std-ref">control file</span></a> (an
@@ -82,6 +82,8 @@ snapshot</p></li>
 <li><p>use <a class="reference internal" href="commands.html#snapinfo-py"><span class="std std-ref">snapinfo.py</span></a> to analyse a snapshot or raw memory file and list the
 BASIC program it contains, show register values, produce a call graph, find
 tile graphic data, find text, or find sequences of arbitrary byte values</p></li>
+<li><p>use <a class="reference internal" href="commands.html#trace-py"><span class="std std-ref">trace.py</span></a> to trace the execution of machine code in a snapshot or
+raw memory file</p></li>
 <li><p>use <a class="reference internal" href="commands.html#tapinfo-py"><span class="std std-ref">tapinfo.py</span></a> to analyse the blocks in a TAP or TZX file, and list
 the BASIC program it contains</p></li>
 <li><p>use <a class="reference internal" href="commands.html#bin2tap-py"><span class="std std-ref">bin2tap.py</span></a> to convert a snapshot or raw memory file into a TAP
@@ -109,28 +111,28 @@ disassemblies of <a class="reference external" href="https://skoolkit.ca/disasse
 releases of the source skool files for these disassemblies can always be
 obtained from <a class="reference external" href="https://skoolkit.ca">skoolkit.ca</a>; the latest development versions can be found on
 <a class="reference external" href="https://github.com/skoolkid/">GitHub</a>.</p>
-</div>
-<div class="section" id="authors">
-<h2>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="authors">
+<h2>Authors<a class="headerlink" href="#authors" title="Permalink to this heading">¶</a></h2>
 <p>SkoolKit is developed and maintained by Richard Dymond, and contains
 contributions from Philip M Anderson.</p>
-</div>
-<div class="section" id="licence">
-<h2>Licence<a class="headerlink" href="#licence" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="licence">
+<h2>Licence<a class="headerlink" href="#licence" title="Permalink to this heading">¶</a></h2>
 <p>SkoolKit is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.</p>
 <p>See the file ‘COPYING’ (distributed with SkoolKit) for the full text of the
 licence.</p>
-</div>
-<div class="section" id="k-zx-spectrum-rom">
-<h2>48K ZX Spectrum ROM<a class="headerlink" href="#k-zx-spectrum-rom" title="Permalink to this headline">¶</a></h2>
-<p>A copy of the 48K ZX Spectrum ROM is included with SkoolKit
-(<cite>skoolkit/resources/48.rom</cite>). The copyright in this ROM is held by Amstrad,
-who have kindly <a class="reference external" href="https://groups.google.com/g/comp.sys.amstrad.8bit/c/HtpBU2Bzv_U/m/HhNDSU3MksAJ">given permission</a> for it to be redistributed.</p>
-</div>
-</div>
+</section>
+<section id="zx-spectrum-roms">
+<h2>ZX Spectrum ROMs<a class="headerlink" href="#zx-spectrum-roms" title="Permalink to this heading">¶</a></h2>
+<p>Copies of the 48K and 128K ZX Spectrum ROMs are included with SkoolKit (in the
+<cite>skoolkit/resources</cite> directory). The copyright in these ROMs is held by
+Amstrad, who have kindly <a class="reference external" href="https://groups.google.com/g/comp.sys.amstrad.8bit/c/HtpBU2Bzv_U/m/HhNDSU3MksAJ">given permission</a> for them to be redistributed.</p>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -139,23 +141,29 @@ who have kindly <a class="reference external" href="https://groups.google.com/g/
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">What is SkoolKit?</a><ul>
 <li><a class="reference internal" href="#features">Features</a></li>
 <li><a class="reference internal" href="#authors">Authors</a></li>
 <li><a class="reference internal" href="#licence">Licence</a></li>
-<li><a class="reference internal" href="#k-zx-spectrum-rom">48K ZX Spectrum ROM</a></li>
+<li><a class="reference internal" href="#zx-spectrum-roms">ZX Spectrum ROMs</a></li>
 </ul>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">SkoolKit manual</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="usage.html"
-                        title="next chapter">Installing and using SkoolKit</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">SkoolKit manual</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="usage.html"
+                          title="next chapter">Installing and using SkoolKit</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -167,12 +175,12 @@ who have kindly <a class="reference external" href="https://groups.google.com/g/
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -184,21 +192,18 @@ who have kindly <a class="reference external" href="https://groups.google.com/g/
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="SkoolKit manual"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">What is SkoolKit?</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2023, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

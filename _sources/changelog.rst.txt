@@ -1,6 +1,60 @@
 Changelog
 =========
 
+9.0 (2023-11-04)
+----------------
+* Dropped support for Python 3.7
+* :ref:`tap2sna.py` now performs a :ref:`simulated LOAD <tap2sna-sim-load>` by
+  default, and will also overwrite an existing snapshot by default
+* Added the ``machine`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to simulate a 48K or
+  a 128K Spectrum)
+* Added the ``load`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify an alternative command line
+  to use to load the tape)
+* Added the ``polarity`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify the EAR bit reading produced
+  by the first pulse on the tape)
+* Added the ``in-flags`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify how to handle 'IN'
+  instructions)
+* The output snapshot argument of :ref:`tap2sna.py` is now optional
+* Added the ``DefaultSnapshotFormat`` configuration parameter for
+  :ref:`tap2sna.py <tap2sna-conf>` (to specify the default output snapshot
+  format)
+* Added support to :ref:`tap2sna.py <tap2sna-conf>` for register pairs
+  (``r[bc]``, ``r[de]`` etc.) in the ``TraceLine`` configuration parameter
+* Added the ``antirom``, ``ernieware`` and ``housenka`` tape-sampling loop
+  :ref:`accelerators <tap2sna-accelerators>`
+* Statistics for 'DEC A' tape-sampling delay loops are now shown by
+  :ref:`tap2sna.py` when ``accelerator=list``
+* Added support to :ref:`trace.py` for executing machine code in 128K snapshots
+* Added support to :ref:`trace.py <trace-conf>` for reading configuration
+  from `skoolkit.ini`
+* Added the ``--ini`` and ``--show-config`` options to :ref:`trace.py` (for
+  setting the value of a configuration parameter and for showing all
+  configuration parameter values)
+* Added the ``--no-interrupts`` option to :ref:`trace.py` (to prevent the
+  execution of interrupt routines, which are now executed by default)
+* Added support to :ref:`bin2sna.py`, :ref:`tap2sna.py` and :ref:`trace.py` for
+  writing SZX snapshots
+* Added support to :ref:`bin2sna.py` and :ref:`tap2sna.py` for setting the
+  ``fe`` hardware state attribute (i.e. the last value written to port 0xFE in
+  SZX snapshots)
+* Added support to the :ref:`AUDIO` macro for passing delays through a moving
+  average filter (which can produce higher quality audio, especially for
+  multi-channel tunes)
+* Added support to :ref:`control directive loops <ctlLoops>` for avoiding
+  repetition of an ``N`` directive at the start of a loop
+* :ref:`tapinfo.py` now shows the LINE number (if present) for 'Program:'
+  header blocks, and renders BASIC tokens in header block names
+* :ref:`snapinfo.py` now shows the current AY register in 128K SZX and Z80
+  snapshots
+* Changed the default value of ``H`` and ``A`` for the :ref:`assemble`
+  directive to 2
+* Fixed the bug that prevents :ref:`tap2sna.py` from loading a tape that has a
+  hash character (``#``) in its filename
+
 8.10 (2023-06-17)
 -----------------
 * Added the ``finish-tape`` simulated LOAD configuration parameter to
@@ -184,7 +238,7 @@ Changelog
 * Added the :ref:`COPY` macro (for copying all or part of an existing frame
   into a new frame)
 * Added the :ref:`DEF` macro (as a more powerful alternative to the
-  :ref:`DEFINE` macro, which is now deprecated)
+  ``#DEFINE`` macro, which is now deprecated)
 * Added the ``Wrap`` configuration parameter for
   :ref:`sna2skool.py <sna2skool-conf>` (for controlling whether to disassemble
   an instruction that wraps around the 64K boundary)
@@ -284,7 +338,7 @@ Changelog
 * Added the ``--ini`` and ``--show-config`` options to :ref:`snapinfo.py` (for
   setting the value of a configuration parameter and for showing all
   configuration parameter values)
-* Added the :ref:`DEFINE` macro (for defining new skool macros)
+* Added the ``#DEFINE`` macro (for defining new skool macros)
 * Added the :ref:`LET` macro (for defining variables that can be retrieved by
   other macros via replacement fields)
 * Added the :ref:`FORMAT` macro (for performing a Python-style string

@@ -180,32 +180,34 @@ purpose of populating the memory snapshot. ::
 ``H`` is an integer value that determines what is converted in HTML mode, and
 ``A`` is an integer value that determines what is converted in ASM mode:
 
-* ``0`` - do not convert anything (this is the default in ASM mode)
+* ``0`` - do not convert anything
 * ``1`` - convert ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements and
-  ``@defb``, ``@defs`` and ``@defw`` directives only (this is the default in
-  HTML mode)
-* ``2`` - convert assembly language instructions as well
+  ``@defb``, ``@defs`` and ``@defw`` directives only
+* ``2`` - convert assembly language instructions as well (this is the default
+  in both HTML and ASM mode)
 
 If ``H`` or ``A`` is blank or omitted, its value is left unchanged.
 
-For example::
+Note that setting ``H`` or ``A`` to something other than the default value of 2
+may affect the output of skool macros that inspect or operate on the contents
+of the memory snapshot:
 
-  ; The eight bytes of code in this routine are also used as UDG data.
-  ; .
-  ; #HTML(#UDG44919)
-  @assemble=2
-  c44919 LD DE,46572   ;
-   44922 CP 200        ;
-   44924 JP 45429      ;
-  @assemble=1
-
-The ``@assemble=2`` directive is required to define the bytes for addresses
-44919-44926. If it were not present, the memory snapshot would contain zeroes
-at those addresses, and the image created by the ``#UDG`` macro would be blank.
+* :ref:`audio`
+* :ref:`font`
+* :ref:`peek`
+* :ref:`scr`
+* :ref:`sim`
+* :ref:`str`
+* :ref:`tstates`
+* :ref:`udg`
+* :ref:`udgarray`
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.0     | The default value of both ``H`` and ``A`` is 2 (previously 1 and  |
+|         | 0)                                                                |
++---------+-------------------------------------------------------------------+
 | 7.0     | The accepted values are 0, 1 and 2 (previously -1, 0 and 1)       |
 +---------+-------------------------------------------------------------------+
 | 6.3     | Added support for specifying what's converted in HTML mode and    |

@@ -1,18 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Migrating from SkoolKit 7 &#8212; SkoolKit 8.10 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Migrating from SkoolKit 8 &#8212; SkoolKit 9.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Changelog" href="changelog.html" />
@@ -25,16 +28,13 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="changelog.html" title="Changelog"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="assemblers.html" title="Supported assemblers"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Migrating from SkoolKit 7</a></li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Migrating from SkoolKit 8</a></li> 
       </ul>
     </div>  
 
@@ -43,238 +43,93 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="migrating-from-skoolkit-7">
-<span id="migrating"></span><h1>Migrating from SkoolKit 7<a class="headerlink" href="#migrating-from-skoolkit-7" title="Permalink to this headline">¶</a></h1>
-<p>SkoolKit 8 includes some changes that make it incompatible with SkoolKit 7. If
-you have developed a disassembly using SkoolKit 7 and find that the SkoolKit
+  <section id="migrating-from-skoolkit-8">
+<span id="migrating"></span><h1>Migrating from SkoolKit 8<a class="headerlink" href="#migrating-from-skoolkit-8" title="Permalink to this heading">¶</a></h1>
+<p>SkoolKit 9 includes some changes that make it incompatible with SkoolKit 8. If
+you have developed a disassembly using SkoolKit 8 and find that the SkoolKit
 commands no longer work with your source files, or produce broken output, look
 through the following sections for tips on how to migrate your disassembly to
-SkoolKit 8.</p>
-<div class="section" id="gif-images">
-<h2>GIF images<a class="headerlink" href="#gif-images" title="Permalink to this headline">¶</a></h2>
-<p>Creating GIF images is not supported in SkoolKit 8. The <a class="reference internal" href="skool-macros.html#font"><span class="std std-ref">#FONT</span></a>,
-<a class="reference internal" href="skool-macros.html#scr"><span class="std std-ref">#SCR</span></a>, <a class="reference internal" href="skool-macros.html#udg"><span class="std std-ref">#UDG</span></a> and <a class="reference internal" href="skool-macros.html#udgarray"><span class="std std-ref">#UDGARRAY</span></a> macros now always create PNG images.
-Accordingly, the following parameters from the <a class="reference internal" href="ref-files.html#ref-imagewriter"><span class="std std-ref">[ImageWriter]</span></a> section
-that were available in SkoolKit 7 are no longer supported:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">DefaultAnimationFormat</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">DefaultFormat</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">GIFEnableAnimation</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">GIFTransparency</span></code></p></li>
-</ul>
-</div>
-<div class="section" id="skool-file-templates">
-<h2>Skool file templates<a class="headerlink" href="#skool-file-templates" title="Permalink to this headline">¶</a></h2>
-<p>Skool file templates are not supported in SkoolKit 8. The <cite>skool2sft.py</cite>
-command has been removed, along with the <code class="docutils literal notranslate"><span class="pre">--sft</span></code> option of
-<a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a>.</p>
-<p>Where you might have used skool file templates with SkoolKit 7, you should now
-use <a class="reference internal" href="control-files.html#controlfiles"><span class="std std-ref">control files</span></a> instead. However, note that control
-files cannot preserve ASM block directives that occur inside a regular entry,
-and so any such directives should be replaced before using <a class="reference internal" href="commands.html#skool2ctl-py"><span class="std std-ref">skool2ctl.py</span></a>.
-See <a class="reference internal" href="control-files.html#limitations"><span class="std std-ref">Limitations</span></a> for more details.</p>
-</div>
-<div class="section" id="game">
-<h2>[Game]<a class="headerlink" href="#game" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">TitlePrefix</span></code> and <code class="docutils literal notranslate"><span class="pre">TitleSuffix</span></code> parameters are no longer supported. Use
-the <code class="docutils literal notranslate"><span class="pre">GameIndex</span></code> parameter in the <a class="reference internal" href="ref-files.html#pageheaders"><span class="std std-ref">[PageHeaders]</span></a> section instead.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">AsmSinglePageTemplate</span></code> parameter is no longer supported. Use the
-<code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> parameter instead.</p>
-</div>
-<div class="section" id="titles">
-<h2>[Titles]<a class="headerlink" href="#titles" title="Permalink to this headline">¶</a></h2>
-<p>In SkoolKit 7, the entry address in a disassembly page title was included in
-the <code class="docutils literal notranslate"><span class="pre">Asm</span></code> template. In SkoolKit 8, the <code class="docutils literal notranslate"><span class="pre">Asm</span></code> template no longer exists, and
-the entry address appears as a replacement field (<code class="docutils literal notranslate"><span class="pre">{entry[address]}</span></code>) in the
-<code class="docutils literal notranslate"><span class="pre">Asm-b</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-c</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-g</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-s</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-t</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-u</span></code> and <code class="docutils literal notranslate"><span class="pre">Asm-w</span></code>
-parameters in the <a class="reference internal" href="ref-files.html#titles"><span class="std std-ref">[Titles]</span></a> section.</p>
-</div>
-<div class="section" id="control-directives">
-<h2>Control directives<a class="headerlink" href="#control-directives" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">B</span></code> and <code class="docutils literal notranslate"><span class="pre">T</span></code> control directives no longer recognise the <code class="docutils literal notranslate"><span class="pre">B</span></code> (byte) and
-<code class="docutils literal notranslate"><span class="pre">T</span></code> (text) indicators. Use the <code class="docutils literal notranslate"><span class="pre">n</span></code> and <code class="docutils literal notranslate"><span class="pre">c</span></code> base indicators instead. For
-example:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>B 30000,5,2:T3
-T 30005,5,B3:2
+SkoolKit 9.</p>
+<section id="define">
+<h2>#DEFINE<a class="headerlink" href="#define" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">#DEFINE</span></code> macro is not supported in SkoolKit 9. Instead, the more
+powerful <a class="reference internal" href="skool-macros.html#def"><span class="std std-ref">#DEF</span></a> macro should be used.</p>
+<p>For example, you might have used <code class="docutils literal notranslate"><span class="pre">#DEFINE</span></code> to define a <code class="docutils literal notranslate"><span class="pre">#MIN</span></code> macro that
+expands to the smaller of its two integer arguments:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#DEFINE2(MIN,#IF({0}&lt;{1})({0},{1}))
 </pre></div>
 </div>
-<p>should be replaced by:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>B 30000,5,2:c3
-T 30005,5,n3:2
+<p>This can be redefined by using the <code class="docutils literal notranslate"><span class="pre">#DEF</span></code> macro:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#DEF(#MIN(a,b) #IF($a&lt;$b)($a,$b))
 </pre></div>
 </div>
-</div>
-<div class="section" id="sna2skool-py">
-<h2>sna2skool.py<a class="headerlink" href="#sna2skool-py" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">DefbMod</span></code> configuration parameter is no longer supported. It could be
-used to group DEFB blocks by addresses that are divisible by a certain number,
-but the same effect can be achieved with appropriate control directives.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">DefbZfill</span></code> configuration parameter is also no longer supported.</p>
-</div>
-<div class="section" id="html-templates">
-<h2>HTML templates<a class="headerlink" href="#html-templates" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="html-templates.html#htmltemplates"><span class="std std-ref">HTML templates</span></a> have been overhauled in SkoolKit 8. As a result, the
-following templates that were available in SkoolKit 7 no longer exist:</p>
+</section>
+<section id="snapmod-py">
+<h2>snapmod.py<a class="headerlink" href="#snapmod-py" title="Permalink to this heading">¶</a></h2>
+<p>In SkoolKit 8, <a class="reference internal" href="commands.html#snapmod-py"><span class="std std-ref">snapmod.py</span></a> would refuse to overwrite an existing snapshot
+unless the <code class="docutils literal notranslate"><span class="pre">--force</span></code> option was given. In SkoolKit 9, <cite>snapmod.py</cite> will
+overwrite an existing snapshot by default, and the <code class="docutils literal notranslate"><span class="pre">--force</span></code> option is no
+longer supported.</p>
+</section>
+<section id="tapinfo-py">
+<h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">--tzx-blocks</span></code> option is no longer supported in SkoolKit 9. In addition,
+the short option name for <code class="docutils literal notranslate"><span class="pre">--basic</span></code> has changed from <code class="docutils literal notranslate"><span class="pre">-B</span></code> to <code class="docutils literal notranslate"><span class="pre">-b</span></code> (for
+consistency with the <code class="docutils literal notranslate"><span class="pre">-b</span></code> option of <a class="reference internal" href="commands.html#snapinfo-py"><span class="std std-ref">snapinfo.py</span></a>).</p>
+</section>
+<section id="tap2sna-py">
+<h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Permalink to this heading">¶</a></h2>
+<p>In SkoolKit 8, <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> performed a
+<a class="reference internal" href="commands.html#tap2sna-sim-load"><span class="std std-ref">simulated LOAD</span></a> only if the <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option was
+given. In SkoolKit 9, <cite>tap2sna.py</cite> performs a simulated LOAD by default, and
+the <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option is no longer supported. Simulated LOADing is disabled
+only if a <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> option is given.</p>
+<p>In SkoolKit 8, <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> would refuse to overwrite an existing snapshot
+unless the <code class="docutils literal notranslate"><span class="pre">--force</span></code> option was given. In SkoolKit 9, <cite>tap2sna.py</cite> will
+overwrite an existing snapshot by default, and the <code class="docutils literal notranslate"><span class="pre">--force</span></code> option is no
+longer supported.</p>
+<p>In SkoolKit 8, the default value of the <code class="docutils literal notranslate"><span class="pre">first-edge</span></code> simulated LOAD
+configuration parameter was -2168. In SkoolKit 9, the default value is 0.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">contended-in</span></code> simulated LOAD configuration parameter is no longer
+supported. Use <code class="docutils literal notranslate"><span class="pre">in-flags=1</span></code> instead.</p>
+<p>The following tape-sampling loop accelerator names are not available in
+SkoolKit 9:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Asm</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">AsmAllInOne</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">GameIndex</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Page</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Reference</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">anchor</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">asm_comment</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">asm_entry</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">asm_instruction</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">asm_register</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">contents_list_item</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">index_section</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">index_section_item</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">javascript</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">list_entry</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">list_item</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">list_items</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">map_entry</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">paragraph</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">reference_entry</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">stylesheet</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">table_cell</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">table_header_cell</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">table_row</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cyberlode</span></code> (use <code class="docutils literal notranslate"><span class="pre">bleepload</span></code> instead)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge</span></code> (use <code class="docutils literal notranslate"><span class="pre">rom</span></code> instead)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">elite-uni-loader</span></code> (use <code class="docutils literal notranslate"><span class="pre">speedlock</span></code> instead)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">excelerator</span></code> (use <code class="docutils literal notranslate"><span class="pre">bleepload</span></code> instead)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">flash-loader</span></code> (use <code class="docutils literal notranslate"><span class="pre">rom</span></code> instead)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ftl</span></code> (use <code class="docutils literal notranslate"><span class="pre">speedlock</span></code> instead)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gargoyle</span></code> (use <code class="docutils literal notranslate"><span class="pre">speedlock</span></code> instead)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hewson-slowload</span></code> (use <code class="docutils literal notranslate"><span class="pre">rom</span></code> instead)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">injectaload</span></code> (use <code class="docutils literal notranslate"><span class="pre">bleepload</span></code> instead)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">poliload</span></code> (use <code class="docutils literal notranslate"><span class="pre">dinaload</span></code> instead)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">power-load</span></code> (use <code class="docutils literal notranslate"><span class="pre">bleepload</span></code> instead)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">softlock</span></code> (use <code class="docutils literal notranslate"><span class="pre">rom</span></code> instead)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">zydroload</span></code> (use <code class="docutils literal notranslate"><span class="pre">speedlock</span></code> instead)</p></li>
 </ul>
-<p>In addition, the following templates have been rewritten to use the
-<a class="reference internal" href="html-templates.html#td-foreach"><span class="std std-ref">foreach</span></a> and <a class="reference internal" href="html-templates.html#td-if"><span class="std std-ref">if</span></a> directives, which are new in SkoolKit 8:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="html-templates.html#t-list"><span class="std std-ref">list</span></a></p></li>
-<li><p><a class="reference internal" href="html-templates.html#t-table"><span class="std std-ref">table</span></a></p></li>
-</ul>
-<p>Finally, the signature of the <code class="xref py py-meth docutils literal notranslate"><span class="pre">format_template()</span></code> method on HtmlWriter has
-changed in SkoolKit 8.0: the <em>default</em> parameter has been removed.</p>
-</div>
-<div class="section" id="css-selectors">
-<h2>CSS selectors<a class="headerlink" href="#css-selectors" title="Permalink to this headline">¶</a></h2>
-<p>The <cite>class</cite> attributes of some HTML elements have changed in SkoolKit 8.</p>
-<p>The following table lists the selectors that appeared in the CSS files in
-SkoolKit 7, and their replacements (if any) in SkoolKit 8.</p>
-<table class="docutils colwidths-auto align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>SkoolKit 7</p></th>
-<th class="head"><p>SkoolKit 8</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>div.map-entry-desc-0</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>div.map-entry-desc-1</p></td>
-<td><p>div.map-entry-desc</p></td>
-</tr>
-<tr class="row-even"><td><p>span.next-0</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>span.prev-0</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>table.input-0</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>table.input-1</p></td>
-<td><p>table.input</p></td>
-</tr>
-<tr class="row-even"><td><p>table.output-0</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>table.output-1</p></td>
-<td><p>table.output</p></td>
-</tr>
-<tr class="row-even"><td><p>td.asm-label-0</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>td.asm-label-1</p></td>
-<td><p>td.asm-label</p></td>
-</tr>
-<tr class="row-even"><td><p>td.bytes-0</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>td.bytes-1</p></td>
-<td><p>td.bytes</p></td>
-</tr>
-<tr class="row-even"><td><p>td.comment-01</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>td.comment-10</p></td>
-<td><p>td.comment-0</p></td>
-</tr>
-<tr class="row-even"><td><p>td.comment-11</p></td>
-<td><p>td.comment-1</p></td>
-</tr>
-<tr class="row-odd"><td><p>td.map-byte-0</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>td.map-byte-1</p></td>
-<td><p>td.map-byte</p></td>
-</tr>
-<tr class="row-odd"><td><p>td.map-length-0</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>td.map-length-1</p></td>
-<td><p>td.map-length</p></td>
-</tr>
-<tr class="row-odd"><td><p>td.map-page-0</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>td.map-page-1</p></td>
-<td><p>td.map-page</p></td>
-</tr>
-<tr class="row-odd"><td><p>th.map-byte-0</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>th.map-length-0</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>th.map-page-0</p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>The following table lists selectors for the classes that were unstyled (i.e.
-did not appear in any CSS files) in SkoolKit 7, and their replacements (if any)
-in SkoolKit 8.</p>
-<table class="docutils colwidths-auto align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>SkoolKit 7</p></th>
-<th class="head"><p>SkoolKit 8</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>span.next-1</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>span.prev-1</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>th.map-byte-1</p></td>
-<td><p>th.map-byte</p></td>
-</tr>
-<tr class="row-odd"><td><p>th.map-length-1</p></td>
-<td><p>th.map-length</p></td>
-</tr>
-<tr class="row-even"><td><p>th.map-page-1</p></td>
-<td><p>th.map-page</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="skoolkit7to8-py">
-<h2>skoolkit7to8.py<a class="headerlink" href="#skoolkit7to8-py" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference external" href="https://github.com/skoolkid/skoolkit/raw/master/utils/skoolkit7to8.py">skoolkit7to8.py</a> script may be used to convert a control file or ref file
-that is compatible with SkoolKit 7 into a file that will work with SkoolKit 8.
-For example, to convert <cite>game.ref</cite>:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skoolkit7to8.py game.ref &gt; game8.ref
+<p>The <code class="docutils literal notranslate"><span class="pre">r[t]</span></code> replacement field (for use in the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> configuration
+parameter) is no longer supported in SkoolKit 9. Use the <code class="docutils literal notranslate"><span class="pre">t</span></code> replacement
+field instead.</p>
+</section>
+<section id="trace-py">
+<h2>trace.py<a class="headerlink" href="#trace-py" title="Permalink to this heading">¶</a></h2>
+<p>In SkoolKit 8, <a class="reference internal" href="commands.html#trace-py"><span class="std std-ref">trace.py</span></a> had a <code class="docutils literal notranslate"><span class="pre">--dump</span></code> option for specifying an output
+Z80 snapshot file. In SkoolKit 9, this option has been removed; instead the
+output filename may be specified after the input filename. For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ trace.py --stop 32768 in.z80 out.z80
 </pre></div>
 </div>
-</div>
-</div>
+<p>In SkoolKit 8, the <code class="docutils literal notranslate"><span class="pre">--interrupts</span></code> option enabled the execution of interrupt
+routines. In SkoolKit 9, interrupt routines are executed by default, and the
+<code class="docutils literal notranslate"><span class="pre">--interrupts</span></code> option has been removed. Use the <code class="docutils literal notranslate"><span class="pre">--no-interrupts</span></code> option to
+prevent the execution of interrupt routines.</p>
+<p>In SkoolKit 8, if the input filename was ‘.’, a blank 48K snapshot was
+substituted. In SkoolKit 9, this no longer works; instead, use ‘48’ for a
+blank 48K snapshot, or ‘128’ for a blank 128K snapshot.</p>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -283,28 +138,30 @@ For example, to convert <cite>game.ref</cite>:</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Migrating from SkoolKit 7</a><ul>
-<li><a class="reference internal" href="#gif-images">GIF images</a></li>
-<li><a class="reference internal" href="#skool-file-templates">Skool file templates</a></li>
-<li><a class="reference internal" href="#game">[Game]</a></li>
-<li><a class="reference internal" href="#titles">[Titles]</a></li>
-<li><a class="reference internal" href="#control-directives">Control directives</a></li>
-<li><a class="reference internal" href="#sna2skool-py">sna2skool.py</a></li>
-<li><a class="reference internal" href="#html-templates">HTML templates</a></li>
-<li><a class="reference internal" href="#css-selectors">CSS selectors</a></li>
-<li><a class="reference internal" href="#skoolkit7to8-py">skoolkit7to8.py</a></li>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Migrating from SkoolKit 8</a><ul>
+<li><a class="reference internal" href="#define">#DEFINE</a></li>
+<li><a class="reference internal" href="#snapmod-py">snapmod.py</a></li>
+<li><a class="reference internal" href="#tapinfo-py">tapinfo.py</a></li>
+<li><a class="reference internal" href="#tap2sna-py">tap2sna.py</a></li>
+<li><a class="reference internal" href="#trace-py">trace.py</a></li>
 </ul>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="assemblers.html"
-                        title="previous chapter">Supported assemblers</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="changelog.html"
-                        title="next chapter">Changelog</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="assemblers.html"
+                          title="previous chapter">Supported assemblers</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="changelog.html"
+                          title="next chapter">Changelog</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -316,12 +173,12 @@ For example, to convert <cite>game.ref</cite>:</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -333,21 +190,18 @@ For example, to convert <cite>game.ref</cite>:</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="changelog.html" title="Changelog"
              >next</a> |</li>
         <li class="right" >
           <a href="assemblers.html" title="Supported assemblers"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Migrating from SkoolKit 7</a></li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Migrating from SkoolKit 8</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2023, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

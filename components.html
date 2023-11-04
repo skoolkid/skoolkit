@@ -1,18 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SkoolKit components &#8212; SkoolKit 8.10 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>SkoolKit components &#8212; SkoolKit 9.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Extending SkoolKit" href="extending.html" /> 
@@ -24,12 +27,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit components</a></li> 
       </ul>
     </div>  
@@ -39,8 +39,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="skoolkit-components">
-<span id="components"></span><h1>SkoolKit components<a class="headerlink" href="#skoolkit-components" title="Permalink to this headline">¶</a></h1>
+  <section id="skoolkit-components">
+<span id="components"></span><h1>SkoolKit components<a class="headerlink" href="#skoolkit-components" title="Permalink to this heading">¶</a></h1>
 <p>SkoolKit relies on several components in order to function:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#assembler"><span class="std std-ref">Assembler</span></a></p></li>
@@ -57,8 +57,8 @@
 </ul>
 <p>The objects that are used for these components can be specified in the
 <a class="reference internal" href="#skoolkit"><span class="std std-ref">[skoolkit]</span></a> section of <cite>skoolkit.ini</cite>.</p>
-<div class="section" id="skoolkit">
-<span id="id1"></span><h2>[skoolkit]<a class="headerlink" href="#skoolkit" title="Permalink to this headline">¶</a></h2>
+<section id="skoolkit">
+<span id="id1"></span><h2>[skoolkit]<a class="headerlink" href="#skoolkit" title="Permalink to this heading">¶</a></h2>
 <p>Global configuration for SkoolKit can be specified in the <code class="docutils literal notranslate"><span class="pre">[skoolkit]</span></code>
 section of a file named <cite>skoolkit.ini</cite> either in the current working directory
 or in <cite>~/.skoolkit</cite>. The default contents of this section are as follows:</p>
@@ -89,28 +89,28 @@ when generating a call graph</p></li>
 used by the <a class="reference internal" href="#snapshotrefcalc"><span class="std std-ref">snapshot reference calculator</span></a> to
 identify entry points in routines and data blocks</p></li>
 </ul>
-</div>
-<div class="section" id="assembler">
-<span id="id2"></span><h2>Assembler<a class="headerlink" href="#assembler" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="assembler">
+<span id="id2"></span><h2>Assembler<a class="headerlink" href="#assembler" title="Permalink to this heading">¶</a></h2>
 <p>This object is responsible for converting assembly language instructions and
 DEFB/DEFM/DEFS/DEFW statements into byte values, or computing their size. It
 must supply the following API functions, in common with skoolkit.z80.Assembler:</p>
 <dl class="py class">
-<dt id="skoolkit.z80.Assembler">
-<em class="property">class </em><code class="sig-prename descclassname">skoolkit.z80.</code><code class="sig-name descname">Assembler</code><a class="headerlink" href="#skoolkit.z80.Assembler" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.z80.</span></span><span class="sig-name descname"><span class="pre">Assembler</span></span></dt>
 <dd><dl class="py method">
-<dt id="skoolkit.z80.Assembler.assemble">
-<code class="sig-name descname">assemble</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">operation</span></em>, <em class="sig-param"><span class="n">address</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.z80.Assembler.assemble" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">assemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Convert an assembly language instruction or DEFB/DEFM/DEFS/DEFW
 statement into a sequence of byte values.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>operation</strong> – The operation to convert (e.g. ‘XOR A’).</p></li>
 <li><p><strong>address</strong> – The instruction address.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A sequence of byte values (empty if the instruction cannot be
 assembled).</p>
 </dd>
@@ -118,18 +118,18 @@ assembled).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.z80.Assembler.get_size">
-<code class="sig-name descname">get_size</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">operation</span></em>, <em class="sig-param"><span class="n">address</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.z80.Assembler.get_size" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">get_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Compute the size (in bytes) of an assembly language instruction or
 DEFB/DEFM/DEFS/DEFW statement.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>operation</strong> – The operation (e.g. ‘XOR A’).</p></li>
 <li><p><strong>address</strong> – The instruction address.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The instruction size, or 0 if the instruction cannot be assembled.</p>
 </dd>
 </dl>
@@ -137,34 +137,34 @@ DEFB/DEFM/DEFS/DEFW statement.</p>
 
 </dd></dl>
 
-</div>
-<div class="section" id="control-directive-composer">
-<span id="ctlcomposer"></span><h2>Control directive composer<a class="headerlink" href="#control-directive-composer" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="control-directive-composer">
+<span id="ctlcomposer"></span><h2>Control directive composer<a class="headerlink" href="#control-directive-composer" title="Permalink to this heading">¶</a></h2>
 <p>This class is responsible for computing the type, length and sublengths of a
 DEFB/DEFM/DEFS/DEFW statement, or the operand bases of a regular instruction,
 for the purpose of composing a control directive. It must supply the following
 API methods, in common with skoolkit.skoolctl.ControlDirectiveComposer:</p>
 <dl class="py class">
-<dt id="skoolkit.skoolctl.ControlDirectiveComposer">
-<em class="property">class </em><code class="sig-prename descclassname">skoolkit.skoolctl.</code><code class="sig-name descname">ControlDirectiveComposer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">preserve_base</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolctl.ControlDirectiveComposer" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.skoolctl.</span></span><span class="sig-name descname"><span class="pre">ControlDirectiveComposer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preserve_base</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Initialise the control directive composer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>preserve_base</strong> – Whether to preserve the base of decimal and
 hexadecimal values with explicit ‘d’ and ‘h’ base
 indicators.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="skoolkit.skoolctl.ControlDirectiveComposer.compose">
-<code class="sig-name descname">compose</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">operation</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolctl.ControlDirectiveComposer.compose" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Compute the type, length and sublengths of a DEFB/DEFM/DEFS/DEFW
 statement, or the operand bases of a regular instruction.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>operation</strong> – The operation (e.g. ‘LD A,0’ or ‘DEFB 0’).</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><p>A 3-element tuple, <code class="docutils literal notranslate"><span class="pre">(ctl,</span> <span class="pre">length,</span> <span class="pre">sublengths)</span></code>, where:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ctl</span></code> is ‘B’ (DEFB), ‘C’ (regular instruction), ‘S’ (DEFS),
@@ -185,25 +185,25 @@ instruction (e.g. ‘b’ for ‘LD A,%00000001’)</p></li>
 <p>If <strong>compose()</strong> encounters an error while parsing an operation and cannot
 recover, it should raise a SkoolParsingError:</p>
 <dl class="py class">
-<dt id="skoolkit.SkoolParsingError">
-<em class="property">class </em><code class="sig-prename descclassname">skoolkit.</code><code class="sig-name descname">SkoolParsingError</code><a class="headerlink" href="#skoolkit.SkoolParsingError" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.</span></span><span class="sig-name descname"><span class="pre">SkoolParsingError</span></span></dt>
 <dd><p>Raised when an error occurs while parsing a skool file.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="control-file-generator">
-<span id="ctlgenerator"></span><h2>Control file generator<a class="headerlink" href="#control-file-generator" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="control-file-generator">
+<span id="ctlgenerator"></span><h2>Control file generator<a class="headerlink" href="#control-file-generator" title="Permalink to this heading">¶</a></h2>
 <p>This object is reponsible for generating a dictionary of control directives
 from a snapshot. Each key in the dictionary is an address, and the associated
 value is the control directive (e.g. ‘b’ or ‘c’) for that address. The control
 file generator object must supply the following API function, in common with
 skoolkit.snactl:</p>
-<span class="target" id="module-skoolkit.snactl"></span><dl class="py function">
-<dt id="skoolkit.snactl.generate_ctls">
-<code class="sig-prename descclassname">skoolkit.snactl.</code><code class="sig-name descname">generate_ctls</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">snapshot</span></em>, <em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">code_map</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.snactl.generate_ctls" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.snactl.</span></span><span class="sig-name descname"><span class="pre">generate_ctls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Generate control directives from a snapshot.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>snapshot</strong> – The snapshot.</p></li>
 <li><p><strong>start</strong> – Start address. No control directives should be generated
@@ -228,24 +228,24 @@ contains at least one of the words in this collection</p></li>
 </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A dictionary of control directives.</p>
 </dd>
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="disassembler">
-<span id="id3"></span><h2>Disassembler<a class="headerlink" href="#disassembler" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="disassembler">
+<span id="id3"></span><h2>Disassembler<a class="headerlink" href="#disassembler" title="Permalink to this heading">¶</a></h2>
 <p>This class is responsible for converting byte values into assembly language
 instructions and DEFB/DEFM/DEFS/DEFW statements. It must supply the following
 API methods, in common with skoolkit.disassembler.Disassembler:</p>
 <dl class="py class">
-<dt id="skoolkit.disassembler.Disassembler">
-<em class="property">class </em><code class="sig-prename descclassname">skoolkit.disassembler.</code><code class="sig-name descname">Disassembler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">snapshot</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.Disassembler" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.disassembler.</span></span><span class="sig-name descname"><span class="pre">Disassembler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Initialise the disassembler.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>snapshot</strong> – The snapshot (list of 65536 byte values) to disassemble.</p></li>
 <li><p><strong>config</strong> – <p>Configuration object with the following attributes:</p>
@@ -266,83 +266,83 @@ around the 64K boundary</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="skoolkit.disassembler.Disassembler.defb_range">
-<code class="sig-name descname">defb_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">sublengths</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.Disassembler.defb_range" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">defb_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sublengths</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Produce a sequence of DEFB statements for an address range.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> – The start address.</p></li>
 <li><p><strong>end</strong> – The end address.</p></li>
 <li><p><strong>sublengths</strong> – Sequence of sublength identifiers.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.disassembler.Disassembler.defm_range">
-<code class="sig-name descname">defm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">sublengths</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.Disassembler.defm_range" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">defm_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sublengths</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Produce a sequence of DEFM statements for an address range.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> – The start address.</p></li>
 <li><p><strong>end</strong> – The end address.</p></li>
 <li><p><strong>sublengths</strong> – Sequence of sublength identifiers.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.disassembler.Disassembler.defs_range">
-<code class="sig-name descname">defs_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">sublengths</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.Disassembler.defs_range" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">defs_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sublengths</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Produce a sequence of DEFS statements for an address range.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> – The start address.</p></li>
 <li><p><strong>end</strong> – The end address.</p></li>
 <li><p><strong>sublengths</strong> – Sequence of sublength identifiers.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.disassembler.Disassembler.defw_range">
-<code class="sig-name descname">defw_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">sublengths</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.Disassembler.defw_range" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">defw_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sublengths</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Produce a sequence of DEFW statements for an address range.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> – The start address.</p></li>
 <li><p><strong>end</strong> – The end address.</p></li>
 <li><p><strong>sublengths</strong> – Sequence of sublength identifiers.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.disassembler.Disassembler.disassemble">
-<code class="sig-name descname">disassemble</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">base</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.Disassembler.disassemble" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">disassemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Disassemble an address range.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> – The start address.</p></li>
 <li><p><strong>end</strong> – The end address.</p></li>
@@ -352,7 +352,7 @@ instructions with two numeric operands (e.g.
 one for each operand (e.g. ‘dh’).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
 </dd>
 </dl>
@@ -389,33 +389,33 @@ should produce a list of statements with default sizes (as determined by
 boundary, along with the <em>wrap</em> attribute on the disassembler configuration
 object to control this behaviour.</p>
 </div>
-</div>
-<div class="section" id="html-template-formatter">
-<span id="htmltemplateformatter"></span><h2>HTML template formatter<a class="headerlink" href="#html-template-formatter" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="html-template-formatter">
+<span id="htmltemplateformatter"></span><h2>HTML template formatter<a class="headerlink" href="#html-template-formatter" title="Permalink to this heading">¶</a></h2>
 <p>This class is responsible for formatting HTML templates. It must supply the
 following API methods, in common with skoolkit.skoolhtml.TemplateFormatter:</p>
 <dl class="py class">
-<dt id="skoolkit.skoolhtml.TemplateFormatter">
-<em class="property">class </em><code class="sig-prename descclassname">skoolkit.skoolhtml.</code><code class="sig-name descname">TemplateFormatter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">templates</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.TemplateFormatter" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.skoolhtml.</span></span><span class="sig-name descname"><span class="pre">TemplateFormatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">templates</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Initialise the template formatter.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>templates</strong> – A dictionary of templates keyed by template name.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.TemplateFormatter.format_template">
-<code class="sig-name descname">format_template</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">page_id</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">fields</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.TemplateFormatter.format_template" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">format_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">page_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Format a template.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>page_id</strong> – The ID of the current page.</p></li>
 <li><p><strong>name</strong> – The template name.</p></li>
 <li><p><strong>fields</strong> – A dictionary of replacement field values.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The text of the formatted template.</p>
 </dd>
 </dl>
@@ -423,18 +423,18 @@ following API methods, in common with skoolkit.skoolhtml.TemplateFormatter:</p>
 
 </dd></dl>
 
-</div>
-<div class="section" id="image-writer">
-<span id="imagewriter"></span><h2>Image writer<a class="headerlink" href="#image-writer" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="image-writer">
+<span id="imagewriter"></span><h2>Image writer<a class="headerlink" href="#image-writer" title="Permalink to this heading">¶</a></h2>
 <p>This class is responsible for constructing images and writing them to files. It
 must supply the following API methods, in common with
 skoolkit.image.ImageWriter:</p>
 <dl class="py class">
-<dt id="skoolkit.image.ImageWriter">
-<em class="property">class </em><code class="sig-prename descclassname">skoolkit.image.</code><code class="sig-name descname">ImageWriter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">palette</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.image.ImageWriter" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.image.</span></span><span class="sig-name descname"><span class="pre">ImageWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Initialise the image writer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>config</strong> – A dictionary constructed from the contents of the
 <a class="reference internal" href="ref-files.html#ref-imagewriter"><span class="std std-ref">[ImageWriter]</span></a> section of the ref file.</p></li>
@@ -448,34 +448,34 @@ representing an RGB triplet.</p></li>
 <p>If <cite>config</cite> or <cite>palette</cite> is <cite>None</cite>, empty, or missing values, default
 values are used.</p>
 <dl class="py method">
-<dt id="skoolkit.image.ImageWriter.image_fname">
-<code class="sig-name descname">image_fname</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.image.ImageWriter.image_fname" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">image_fname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Convert the <cite>fname</cite> parameter of an image macro into an image filename
 with an appropriate extension.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>fname</strong> – The <cite>fname</cite> parameter of the image macro.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The image filename.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.image.ImageWriter.write_image">
-<code class="sig-name descname">write_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">frames</span></em>, <em class="sig-param"><span class="n">img_file</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.image.ImageWriter.write_image" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">write_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_file</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Write an image file. If this method leaves the image file empty, the
 file will be removed.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>frames</strong> – A list of <a class="reference internal" href="extending.html#skoolkit.graphics.Frame" title="skoolkit.graphics.Frame"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frame</span></code></a> objects from
+<li><p><strong>frames</strong> – A list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Frame</span></code> objects from
 which to build the image.</p></li>
 <li><p><strong>img_file</strong> – The file object to write the image to.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The content with which the image macro is replaced; if <cite>None</cite>,
 an appropriate <code class="docutils literal notranslate"><span class="pre">&lt;img</span> <span class="pre">.../&gt;</span></code> element is used.</p>
 </dd>
@@ -484,9 +484,9 @@ an appropriate <code class="docutils literal notranslate"><span class="pre">&lt;
 
 </dd></dl>
 
-</div>
-<div class="section" id="instruction-utility">
-<span id="instructionutility"></span><h2>Instruction utility<a class="headerlink" href="#instruction-utility" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="instruction-utility">
+<span id="instructionutility"></span><h2>Instruction utility<a class="headerlink" href="#instruction-utility" title="Permalink to this heading">¶</a></h2>
 <p>This object is responsible for performing various operations on the
 instructions in a skool file:</p>
 <ul class="simple">
@@ -506,35 +506,35 @@ output</p></li>
 <p>The object must supply the following API functions, in common with
 skoolkit.skoolparser.InstructionUtility:</p>
 <dl class="py class">
-<dt id="skoolkit.skoolparser.InstructionUtility">
-<em class="property">class </em><code class="sig-prename descclassname">skoolkit.skoolparser.</code><code class="sig-name descname">InstructionUtility</code><a class="headerlink" href="#skoolkit.skoolparser.InstructionUtility" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.skoolparser.</span></span><span class="sig-name descname"><span class="pre">InstructionUtility</span></span></dt>
 <dd><dl class="py method">
-<dt id="skoolkit.skoolparser.InstructionUtility.calculate_references">
-<code class="sig-name descname">calculate_references</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entries</span></em>, <em class="sig-param"><span class="n">remote_entries</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolparser.InstructionUtility.calculate_references" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">calculate_references</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_entries</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Generate a dictionary of references (for each instruction that refers
 to another instruction) and a dictionary of referrers (for each
 instruction that is referred to by other instructions) from the
 instructions in a skool file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>entries</strong> – A collection of memory map entries.</p></li>
 <li><p><strong>remote_entries</strong> – A collection of remote entries (as defined by
 <a class="reference internal" href="asm.html#remote"><span class="std std-ref">&#64;remote</span></a> directives).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A tuple containing the two dictionaries.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.skoolparser.InstructionUtility.convert">
-<code class="sig-name descname">convert</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entries</span></em>, <em class="sig-param"><span class="n">base</span></em>, <em class="sig-param"><span class="n">case</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolparser.InstructionUtility.convert" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Convert the base and case of every instruction in a skool file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>entries</strong> – A collection of memory map entries.</p></li>
 <li><p><strong>base</strong> – The base to convert to: 0 for no conversion, 10 for
@@ -547,8 +547,8 @@ case, or 2 for upper case.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.skoolparser.InstructionUtility.set_byte_values">
-<code class="sig-name descname">set_byte_values</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">instruction</span></em>, <em class="sig-param"><span class="n">assemble</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolparser.InstructionUtility.set_byte_values" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">set_byte_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instruction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assemble</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Decide whether to set byte values in the memory snapshot and for an
 instruction.</p>
 <p>If byte values are set in the memory snapshot, then they are available
@@ -557,14 +557,14 @@ byte values are set for an instruction, then they are available for
 display in HTML output via the <code class="docutils literal notranslate"><span class="pre">instruction[bytes]</span></code> replacement field
 in the <a class="reference internal" href="html-templates.html#t-asm"><span class="std std-ref">asm</span></a> template.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>instruction</strong> – The instruction.</p></li>
 <li><p><strong>assemble</strong> – The current value of the <em>assemble</em> property (as set
 by the <a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble</span></a> directive).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>2 if both the snapshot and the instruction should have byte
 values defined, 1 if only the snapshot should, or 0 if neither
 should.</p>
@@ -573,12 +573,12 @@ should.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.skoolparser.InstructionUtility.substitute_labels">
-<code class="sig-name descname">substitute_labels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entries</span></em>, <em class="sig-param"><span class="n">remote_entries</span></em>, <em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">mode</span></em>, <em class="sig-param"><span class="n">warn</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolparser.InstructionUtility.substitute_labels" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">substitute_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_entries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Replace addresses with labels in the operands of every instruction
 in a skool file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>entries</strong> – A collection of memory map entries.</p></li>
 <li><p><strong>remote_entries</strong> – A collection of remote entries (as defined by
@@ -653,73 +653,73 @@ instruction.</p>
 changed the required signature of the <em>warn</em> function. Added the <em>nowarn</em>
 and <em>sub</em> attributes to instruction objects.</p>
 </div>
-</div>
-<div class="section" id="operand-evaluator">
-<span id="operandevaluator"></span><h2>Operand evaluator<a class="headerlink" href="#operand-evaluator" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="operand-evaluator">
+<span id="operandevaluator"></span><h2>Operand evaluator<a class="headerlink" href="#operand-evaluator" title="Permalink to this heading">¶</a></h2>
 <p>This object is used by the <a class="reference internal" href="#assembler"><span class="std std-ref">assembler</span></a> to evaluate instruction
 operands, and by the <a class="reference internal" href="#ctlcomposer"><span class="std std-ref">control directive composer</span></a> to
 determine the length and sublengths of DEFB, DEFM and DEFS statements. It must
 supply the following API functions, in common with skoolkit.z80:</p>
 <dl class="py function">
-<dt>
-<code class="sig-prename descclassname">skoolkit.z80.</code><code class="sig-name descname">eval_int</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.z80.</span></span><span class="sig-name descname"><span class="pre">eval_int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Evaluate an integer operand.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>text</strong> – The operand.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The integer value.</p>
 </dd>
-<dt class="field-odd">Raises</dt>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><cite>ValueError</cite> if the operand is not a valid integer.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt>
-<code class="sig-prename descclassname">skoolkit.z80.</code><code class="sig-name descname">eval_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.z80.</span></span><span class="sig-name descname"><span class="pre">eval_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Evaluate a string operand.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>text</strong> – The operand, including enclosing quotes.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of byte values.</p>
 </dd>
-<dt class="field-odd">Raises</dt>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><cite>ValueError</cite> if the operand is not a valid string.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt>
-<code class="sig-prename descclassname">skoolkit.z80.</code><code class="sig-name descname">split_operands</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.z80.</span></span><span class="sig-name descname"><span class="pre">split_operands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Split a comma-separated list of operands.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>text</strong> – The operands.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of individual operands.</p>
 </dd>
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="operand-formatter">
-<span id="operandformatter"></span><h2>Operand formatter<a class="headerlink" href="#operand-formatter" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="operand-formatter">
+<span id="operandformatter"></span><h2>Operand formatter<a class="headerlink" href="#operand-formatter" title="Permalink to this heading">¶</a></h2>
 <p>This class is used by the <a class="reference internal" href="#disassembler"><span class="std std-ref">disassembler</span></a> to format numeric
 instruction operands. It must supply the following API methods, in common with
 skoolkit.disassembler.OperandFormatter:</p>
 <dl class="py class">
-<dt id="skoolkit.disassembler.OperandFormatter">
-<em class="property">class </em><code class="sig-prename descclassname">skoolkit.disassembler.</code><code class="sig-name descname">OperandFormatter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.OperandFormatter" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.disassembler.</span></span><span class="sig-name descname"><span class="pre">OperandFormatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Initialise the operand formatter.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> – <p>Configuration object with the following attributes:</p>
 <ul class="simple">
 <li><p><cite>asm_hex</cite> - if <cite>True</cite>, default base is hexadecimal</p></li>
@@ -729,45 +729,45 @@ skoolkit.disassembler.OperandFormatter:</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="skoolkit.disassembler.OperandFormatter.format_byte">
-<code class="sig-name descname">format_byte</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">base</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.OperandFormatter.format_byte" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">format_byte</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Format a byte value.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> – The byte value.</p></li>
 <li><p><strong>base</strong> – The desired base (‘b’, ‘c’, ‘d’, ‘h’, ‘m’ or ‘n’).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The formatted byte value.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.disassembler.OperandFormatter.format_word">
-<code class="sig-name descname">format_word</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">base</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.OperandFormatter.format_word" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">format_word</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Format a word (2-byte) value.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> – The word value.</p></li>
 <li><p><strong>base</strong> – The desired base (‘b’, ‘c’, ‘d’, ‘h’, ‘m’ or ‘n’).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The formatted word value.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.disassembler.OperandFormatter.is_char">
-<code class="sig-name descname">is_char</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.OperandFormatter.is_char" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">is_char</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Return whether a byte value can be formatted as a character.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>value</strong> – The byte value.</p>
 </dd>
 </dl>
@@ -775,32 +775,37 @@ skoolkit.disassembler.OperandFormatter:</p>
 
 </dd></dl>
 
-</div>
-<div class="section" id="snapshot-reader">
-<span id="snapshotreader"></span><h2>Snapshot reader<a class="headerlink" href="#snapshot-reader" title="Permalink to this headline">¶</a></h2>
-<p>This object is responsible for producing a 65536-element list of byte values
-from a snapshot file. It must supply the following API functions, in common
-with skoolkit.snapshot:</p>
-<span class="target" id="module-skoolkit.snapshot"></span><dl class="py function">
-<dt id="skoolkit.snapshot.can_read">
-<code class="sig-prename descclassname">skoolkit.snapshot.</code><code class="sig-name descname">can_read</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.snapshot.can_read" title="Permalink to this definition">¶</a></dt>
+</section>
+<section id="snapshot-reader">
+<span id="snapshotreader"></span><h2>Snapshot reader<a class="headerlink" href="#snapshot-reader" title="Permalink to this heading">¶</a></h2>
+<p>This object is responsible for producing a list of byte values from a snapshot
+file. It must supply the following API functions, in common with
+skoolkit.snapshot:</p>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.snapshot.</span></span><span class="sig-name descname"><span class="pre">can_read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Return whether this snapshot reader can read the file <cite>fname</cite>.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="skoolkit.snapshot.get_snapshot">
-<code class="sig-prename descclassname">skoolkit.snapshot.</code><code class="sig-name descname">get_snapshot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em>, <em class="sig-param"><span class="n">page</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.snapshot.get_snapshot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read a snapshot file and produce a 65536-element list of byte values.</p>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.snapshot.</span></span><span class="sig-name descname"><span class="pre">get_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Read a snapshot file and produce a list of byte values. For a 48K snapshot,
+or a 128K snapshot with a page number (0-7) specified, the list contains
+65536 (64K) elements: a blank 16K ROM followed by 48K RAM. For a 128K
+snapshot with <cite>page</cite> equal to -1, the list contains 131072 (128K) elements:
+RAM banks 0-7 (16K each) in order.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fname</strong> – The snapshot filename.</p></li>
-<li><p><strong>page</strong> – The page number to map to addresses 49152-65535 (C000-FFFF).
-This is relevant only when reading a 128K snapshot file.</p></li>
+<li><p><strong>page</strong> – The page number (0-7) to map to addresses 49152-65535
+(C000-FFFF), or -1 to return all RAM banks. This is relevant
+only when reading a 128K snapshot file.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A 65536-element list of byte values.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of byte values.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -808,14 +813,14 @@ This is relevant only when reading a 128K snapshot file.</p></li>
 <p>If <strong>get_snapshot()</strong> encounters an error while reading a snapshot file, it
 should raise a SnapshotError:</p>
 <dl class="py class">
-<dt id="skoolkit.snapshot.SnapshotError">
-<em class="property">class </em><code class="sig-prename descclassname">skoolkit.snapshot.</code><code class="sig-name descname">SnapshotError</code><a class="headerlink" href="#skoolkit.snapshot.SnapshotError" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.snapshot.</span></span><span class="sig-name descname"><span class="pre">SnapshotError</span></span></dt>
 <dd><p>Raised when an error occurs while reading a snapshot file.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="snapshot-reference-calculator">
-<span id="snapshotrefcalc"></span><h2>Snapshot reference calculator<a class="headerlink" href="#snapshot-reference-calculator" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="snapshot-reference-calculator">
+<span id="snapshotrefcalc"></span><h2>Snapshot reference calculator<a class="headerlink" href="#snapshot-reference-calculator" title="Permalink to this heading">¶</a></h2>
 <p>This object is responsible for generating a dictionary of entry point addresses
 from a snapshot. Each key in the dictionary is an entry point address, and the
 associated value is a collection of entries that jump to, call or otherwise
@@ -824,14 +829,14 @@ marking each entry point in a skool file with an asterisk, and listing its
 referrers.</p>
 <p>The snapshot reference calculator must supply the following API function, in
 common with skoolkit.snaskool:</p>
-<span class="target" id="module-skoolkit.snaskool"></span><dl class="py function">
-<dt id="skoolkit.snaskool.calculate_references">
-<code class="sig-prename descclassname">skoolkit.snaskool.</code><code class="sig-name descname">calculate_references</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entries</span></em>, <em class="sig-param"><span class="n">operations</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.snaskool.calculate_references" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.snaskool.</span></span><span class="sig-name descname"><span class="pre">calculate_references</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operations</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>For each instruction address in a memory map entry, calculate a list of the
 entries containing instructions that jump to, call or otherwise refer to
 that address.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>entries</strong> – A collection of memory map entries.</p></li>
 <li><p><strong>operations</strong> – A tuple of regular expression patterns. The address
@@ -840,7 +845,7 @@ of these patterns identifies an entry point that will be
 marked with an asterisk in the skool file.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A dictionary of entry point addresses.</p>
 </dd>
 </dl>
@@ -890,18 +895,18 @@ expression patterns.</p>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 8.2: </span>Added the <em>refs</em> and <em>rrefs</em> attributes to instruction objects.</p>
 </div>
-</div>
-<div class="section" id="component-api">
-<h2>Component API<a class="headerlink" href="#component-api" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="component-api">
+<h2>Component API<a class="headerlink" href="#component-api" title="Permalink to this heading">¶</a></h2>
 <p>The following functions are provided to facilitate access to the components and
 other values declared in the <code class="docutils literal notranslate"><span class="pre">[skoolkit]</span></code> section of <cite>skoolkit.ini</cite>.</p>
-<span class="target" id="module-skoolkit.components"></span><dl class="py function">
-<dt id="skoolkit.components.get_component">
-<code class="sig-prename descclassname">skoolkit.components.</code><code class="sig-name descname">get_component</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.components.get_component" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.components.</span></span><span class="sig-name descname"><span class="pre">get_component</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Return a component declared in the <code class="docutils literal notranslate"><span class="pre">[skoolkit]</span></code> section of
 <cite>skoolkit.ini</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – The component name.</p></li>
 <li><p><strong>args</strong> – Arguments passed to the component’s constructor.</p></li>
@@ -911,19 +916,19 @@ other values declared in the <code class="docutils literal notranslate"><span cl
 </dd></dl>
 
 <dl class="py function">
-<dt id="skoolkit.components.get_value">
-<code class="sig-prename descclassname">skoolkit.components.</code><code class="sig-name descname">get_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.components.get_value" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.components.</span></span><span class="sig-name descname"><span class="pre">get_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Return a parameter value from the <code class="docutils literal notranslate"><span class="pre">[skoolkit]</span></code> section of
 <cite>skoolkit.ini</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>name</strong> – The parameter name.</p>
 </dd>
 </dl>
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -932,8 +937,9 @@ other values declared in the <code class="docutils literal notranslate"><span cl
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">SkoolKit components</a><ul>
 <li><a class="reference internal" href="#skoolkit">[skoolkit]</a></li>
 <li><a class="reference internal" href="#assembler">Assembler</a></li>
@@ -952,9 +958,12 @@ other values declared in the <code class="docutils literal notranslate"><span cl
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="extending.html"
-                        title="previous chapter">Extending SkoolKit</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="extending.html"
+                          title="previous chapter">Extending SkoolKit</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -966,12 +975,12 @@ other values declared in the <code class="docutils literal notranslate"><span cl
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -983,18 +992,15 @@ other values declared in the <code class="docutils literal notranslate"><span cl
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit components</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2023, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

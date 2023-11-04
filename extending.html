@@ -1,18 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Extending SkoolKit &#8212; SkoolKit 8.10 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Extending SkoolKit &#8212; SkoolKit 9.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="SkoolKit components" href="components.html" />
@@ -25,15 +28,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="components.html" title="SkoolKit components"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Extending SkoolKit</a></li> 
       </ul>
     </div>  
@@ -43,15 +43,15 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="extending-skoolkit">
-<span id="extendingskoolkit"></span><h1>Extending SkoolKit<a class="headerlink" href="#extending-skoolkit" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="extension-modules">
-<h2>Extension modules<a class="headerlink" href="#extension-modules" title="Permalink to this headline">¶</a></h2>
+  <section id="extending-skoolkit">
+<span id="extendingskoolkit"></span><h1>Extending SkoolKit<a class="headerlink" href="#extending-skoolkit" title="Permalink to this heading">¶</a></h1>
+<section id="extension-modules">
+<h2>Extension modules<a class="headerlink" href="#extension-modules" title="Permalink to this heading">¶</a></h2>
 <p>While creating a disassembly of a game, you may find that SkoolKit’s suite of
 <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a> is inadequate for certain tasks. For example,
 the game might have large tile-based sprites that you want to create images of
 for the HTML disassembly, and composing long <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macros for them or
-defining a new sprite-building macro with the <a class="reference internal" href="skool-macros.html#define"><span class="std std-ref">#DEFINE</span></a> macro would be too
+defining a new sprite-building macro with the <a class="reference internal" href="skool-macros.html#def"><span class="std std-ref">#DEF</span></a> macro would be too
 tedious or impractical. Or you might want to insert a timestamp somewhere in
 the ASM disassembly so that you (or others) can keep track of when your ASM
 files were written.</p>
@@ -124,9 +124,9 @@ parameter in the ref file or <code class="docutils literal notranslate"><span cl
 <code class="docutils literal notranslate"><span class="pre">:game.GameHtmlWriter</span></code>), SkoolKit will search for the module in both the
 current working directory and the directory containing the skool file named on
 the command line.</p>
-</div>
-<div class="section" id="call-methods">
-<h2>#CALL methods<a class="headerlink" href="#call-methods" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="call-methods">
+<h2>#CALL methods<a class="headerlink" href="#call-methods" title="Permalink to this heading">¶</a></h2>
 <p>Implementing a method that can be called by a <a class="reference internal" href="skool-macros.html#call"><span class="std std-ref">#CALL</span></a> macro is done by
 adding the method to the HtmlWriter or AsmWriter subclass in the extension
 module.</p>
@@ -174,9 +174,9 @@ this:</p>
 </div>
 <p>Note that if the return value of a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method contains skool macros, then
 they will be expanded.</p>
-</div>
-<div class="section" id="skool-macros">
-<h2>Skool macros<a class="headerlink" href="#skool-macros" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="skool-macros">
+<h2>Skool macros<a class="headerlink" href="#skool-macros" title="Permalink to this heading">¶</a></h2>
 <p>Another way to add a custom method is to implement it as a skool macro. The
 main differences between a skool macro and a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method are:</p>
 <ul class="simple">
@@ -241,20 +241,20 @@ TABLE#
         <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%a</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> %b %Y %H:%M:%S %Z&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="parsing-skool-macros">
-<span id="ext-macroparsing"></span><h2>Parsing skool macros<a class="headerlink" href="#parsing-skool-macros" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="parsing-skool-macros">
+<span id="ext-macroparsing"></span><h2>Parsing skool macros<a class="headerlink" href="#parsing-skool-macros" title="Permalink to this heading">¶</a></h2>
 <p>The skoolkit.skoolmacro module provides some utility functions that may be used
 to parse the parameters of a skool macro.</p>
 <dl class="py function">
-<dt id="skoolkit.skoolmacro.parse_ints">
-<code class="sig-prename descclassname">skoolkit.skoolmacro.</code><code class="sig-name descname">parse_ints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em>, <em class="sig-param"><span class="n">index</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">num</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">defaults</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">names</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">fields</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolmacro.parse_ints" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.skoolmacro.</span></span><span class="sig-name descname"><span class="pre">parse_ints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Parse a sequence of comma-separated integer parameters, optionally
 enclosed in parentheses. If parentheses are used, the parameters may be
 expressed using arithmetic operators and skool macros. See
 <a class="reference internal" href="skool-macros.html#numericparameters"><span class="std std-ref">Numeric parameters</span></a> for more details.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> – The text to parse.</p></li>
 <li><p><strong>index</strong> – The index at which to start parsing.</p></li>
@@ -269,7 +269,7 @@ fields named in this dictionary are replaced by their values
 wherever they appear in the parameter string.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><p>A list of the form <code class="docutils literal notranslate"><span class="pre">[end,</span> <span class="pre">value1,</span> <span class="pre">value2...]</span></code>, where:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">end</span></code> is the index at which parsing terminated</p></li>
@@ -292,14 +292,14 @@ defaults to 0.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="skoolkit.skoolmacro.parse_strings">
-<code class="sig-prename descclassname">skoolkit.skoolmacro.</code><code class="sig-name descname">parse_strings</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em>, <em class="sig-param"><span class="n">index</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">num</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">defaults</span><span class="o">=</span><span class="default_value">()</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolmacro.parse_strings" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.skoolmacro.</span></span><span class="sig-name descname"><span class="pre">parse_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Parse a sequence of comma-separated string parameters. The sequence must
 be enclosed in parentheses, square brackets or braces. If the sequence
 itself contains commas or unmatched brackets, then an alternative delimiter
 and separator may be used; see <a class="reference internal" href="skool-macros.html#stringparameters"><span class="std std-ref">String parameters</span></a> for more details.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> – The text to parse.</p></li>
 <li><p><strong>index</strong> – The index at which to start parsing.</p></li>
@@ -309,7 +309,7 @@ single parameter, regardless of commas.</p></li>
 <li><p><strong>defaults</strong> – The default values of the optional parameters.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><p>A tuple of the form <code class="docutils literal notranslate"><span class="pre">(end,</span> <span class="pre">result)</span></code>, where:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">end</span></code> is the index at which parsing terminated</p></li>
@@ -325,12 +325,12 @@ single parameter, regardless of commas.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="skoolkit.skoolmacro.parse_brackets">
-<code class="sig-prename descclassname">skoolkit.skoolmacro.</code><code class="sig-name descname">parse_brackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em>, <em class="sig-param"><span class="n">index</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">opening</span><span class="o">=</span><span class="default_value">'('</span></em>, <em class="sig-param"><span class="n">closing</span><span class="o">=</span><span class="default_value">')'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolmacro.parse_brackets" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.skoolmacro.</span></span><span class="sig-name descname"><span class="pre">parse_brackets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opening</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'('</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">')'</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Parse a single string parameter enclosed either in parentheses or by an
 arbitrary pair of delimiters.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> – The text to parse.</p></li>
 <li><p><strong>index</strong> – The index at which to start parsing.</p></li>
@@ -339,7 +339,7 @@ arbitrary pair of delimiters.</p>
 <li><p><strong>closing</strong> – The closing delimiter.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><p>A tuple of the form <code class="docutils literal notranslate"><span class="pre">(end,</span> <span class="pre">param)</span></code>, where:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">end</span></code> is the index at which parsing terminated</p></li>
@@ -355,15 +355,15 @@ found)</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="skoolkit.skoolmacro.parse_image_macro">
-<code class="sig-prename descclassname">skoolkit.skoolmacro.</code><code class="sig-name descname">parse_image_macro</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em>, <em class="sig-param"><span class="n">index</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">defaults</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">names</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">fname</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">fields</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolmacro.parse_image_macro" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.skoolmacro.</span></span><span class="sig-name descname"><span class="pre">parse_image_macro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Parse a string of the form:</p>
 <p><code class="docutils literal notranslate"><span class="pre">[params][{x,y,width,height}][(fname[*frame][|alt])]</span></code></p>
 <p>The parameter string <code class="docutils literal notranslate"><span class="pre">params</span></code> may contain comma-separated integer values,
 and may optionally be enclosed in parentheses. Parentheses are <em>required</em>
 if any parameter is expressed using arithmetic operations or skool macros.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> – The text to parse.</p></li>
 <li><p><strong>index</strong> – The index at which to start parsing.</p></li>
@@ -376,7 +376,7 @@ wherever they appear in <code class="docutils literal notranslate"><span class="
 <code class="docutils literal notranslate"><span class="pre">{x,y,width,height}</span></code>.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><p>A tuple of the form
 <code class="docutils literal notranslate"><span class="pre">(end,</span> <span class="pre">crop_rect,</span> <span class="pre">fname,</span> <span class="pre">frame,</span> <span class="pre">alt,</span> <span class="pre">values)</span></code>, where:</p>
 <ul class="simple">
@@ -398,21 +398,21 @@ wherever they appear in <code class="docutils literal notranslate"><span class="
 </div>
 </dd></dl>
 
-</div>
-<div class="section" id="expanding-skool-macros">
-<h2>Expanding skool macros<a class="headerlink" href="#expanding-skool-macros" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="expanding-skool-macros">
+<h2>Expanding skool macros<a class="headerlink" href="#expanding-skool-macros" title="Permalink to this heading">¶</a></h2>
 <p>Both AsmWriter and HtmlWriter provide methods for expanding skool macros. These
 are useful for immediately expanding macros in a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method or custom
 macro method.</p>
 <dl class="py method">
-<dt id="skoolkit.skoolasm.AsmWriter.expand">
-<code class="sig-prename descclassname">AsmWriter.</code><code class="sig-name descname">expand</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolasm.AsmWriter.expand" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">AsmWriter.</span></span><span class="sig-name descname"><span class="pre">expand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Return <cite>text</cite> with skool macros expanded.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.expand">
-<code class="sig-prename descclassname">HtmlWriter.</code><code class="sig-name descname">expand</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em>, <em class="sig-param"><span class="n">cwd</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.expand" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">HtmlWriter.</span></span><span class="sig-name descname"><span class="pre">expand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Return <cite>text</cite> with skool macros expanded. <cite>cwd</cite> is the current
 working directory, which is required by macros that create images or
 hyperlinks.</p>
@@ -421,17 +421,17 @@ hyperlinks.</p>
 </div>
 </dd></dl>
 
-</div>
-<div class="section" id="parsing-ref-files">
-<h2>Parsing ref files<a class="headerlink" href="#parsing-ref-files" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="parsing-ref-files">
+<h2>Parsing ref files<a class="headerlink" href="#parsing-ref-files" title="Permalink to this heading">¶</a></h2>
 <p>HtmlWriter provides some convenience methods for extracting text and data from
 ref files. These methods are described below.</p>
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.get_section">
-<code class="sig-prename descclassname">HtmlWriter.</code><code class="sig-name descname">get_section</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">section_name</span></em>, <em class="sig-param"><span class="n">paragraphs</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">lines</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">trim</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.get_section" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">HtmlWriter.</span></span><span class="sig-name descname"><span class="pre">get_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paragraphs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Return the contents of a ref file section.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>section_name</strong> – The section name.</p></li>
 <li><p><strong>paragraphs</strong> – If <cite>True</cite>, return the contents as a list of
@@ -449,8 +449,8 @@ paragraph) as a single string.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.get_sections">
-<code class="sig-prename descclassname">HtmlWriter.</code><code class="sig-name descname">get_sections</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">section_type</span></em>, <em class="sig-param"><span class="n">paragraphs</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">lines</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">trim</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.get_sections" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">HtmlWriter.</span></span><span class="sig-name descname"><span class="pre">get_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paragraphs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Return a list of 2-tuples of the form <code class="docutils literal notranslate"><span class="pre">(suffix,</span> <span class="pre">contents)</span></code> or
 3-tuples of the form <code class="docutils literal notranslate"><span class="pre">(infix,</span> <span class="pre">suffix,</span> <span class="pre">contents)</span></code> derived from ref
 file sections whose names start with <cite>section_type</cite> followed by a
@@ -459,7 +459,7 @@ the first colon (when there is only one) or the second colon (when
 there is more than one); <code class="docutils literal notranslate"><span class="pre">infix</span></code> is the part of the section name
 between the first and second colons (when there is more than one).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>section_type</strong> – The section name prefix.</p></li>
 <li><p><strong>paragraphs</strong> – If <cite>True</cite>, return the contents of each section as a
@@ -477,15 +477,15 @@ contents (or each paragraph) as a single string.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.get_dictionary">
-<code class="sig-prename descclassname">HtmlWriter.</code><code class="sig-name descname">get_dictionary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">section_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.get_dictionary" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">HtmlWriter.</span></span><span class="sig-name descname"><span class="pre">get_dictionary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_name</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Return a dictionary built from the contents of a ref file section.
 Each line in the section should be of the form <code class="docutils literal notranslate"><span class="pre">X=Y</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.get_dictionaries">
-<code class="sig-prename descclassname">HtmlWriter.</code><code class="sig-name descname">get_dictionaries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">section_type</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.get_dictionaries" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">HtmlWriter.</span></span><span class="sig-name descname"><span class="pre">get_dictionaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_type</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Return a list of 2-tuples of the form <code class="docutils literal notranslate"><span class="pre">(suffix,</span> <span class="pre">dict)</span></code> derived
 from ref file sections whose names start with <cite>section_type</cite> followed
 by a colon. <code class="docutils literal notranslate"><span class="pre">suffix</span></code> is the part of the section name that follows the
@@ -493,23 +493,23 @@ first colon, and <code class="docutils literal notranslate"><span class="pre">di
 that section; each line in the section should be of the form <code class="docutils literal notranslate"><span class="pre">X=Y</span></code>.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="formatting-templates">
-<h2>Formatting templates<a class="headerlink" href="#formatting-templates" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="formatting-templates">
+<h2>Formatting templates<a class="headerlink" href="#formatting-templates" title="Permalink to this heading">¶</a></h2>
 <p>HtmlWriter provides a method for formatting a template defined by a
 <a class="reference internal" href="ref-files.html#template"><span class="std std-ref">[Template:*]</span></a> section.</p>
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.format_template">
-<code class="sig-prename descclassname">HtmlWriter.</code><code class="sig-name descname">format_template</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">fields</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.format_template" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">HtmlWriter.</span></span><span class="sig-name descname"><span class="pre">format_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Format a template with a set of replacement fields.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – The name of the template.</p></li>
 <li><p><strong>fields</strong> – A dictionary of replacement field names and values.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The formatted string.</p>
 </dd>
 </dl>
@@ -528,9 +528,9 @@ named <code class="docutils literal notranslate"><span class="pre">PageID-name</
 if it exists; if no such template exists, the <code class="docutils literal notranslate"><span class="pre">name</span></code> template will be used.
 This is in accordance with SkoolKit’s rules for preferring <a class="reference internal" href="html-templates.html#ps-templates"><span class="std std-ref">page-specific
 templates</span></a>.</p>
-</div>
-<div class="section" id="base-case-and-fields">
-<h2>Base, case and fields<a class="headerlink" href="#base-case-and-fields" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="base-case-and-fields">
+<h2>Base, case and fields<a class="headerlink" href="#base-case-and-fields" title="Permalink to this heading">¶</a></h2>
 <p>The <cite>base</cite> and <cite>case</cite> attributes on AsmWriter and HtmlWriter can be inspected
 to determine the mode in which <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> or <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> is
 running.</p>
@@ -554,14 +554,14 @@ running.</p>
 </div>
 <p>The <cite>fields</cite> attribute on AsmWriter and HtmlWriter is a dictionary of
 replacement field names and values (see <a class="reference internal" href="skool-macros.html#replacementfields"><span class="std std-ref">Replacement fields</span></a>).
-It can be used with the <a class="reference internal" href="#skoolkit.skoolmacro.parse_ints" title="skoolkit.skoolmacro.parse_ints"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_ints()</span></code></a> and
-<a class="reference internal" href="#skoolkit.skoolmacro.parse_image_macro" title="skoolkit.skoolmacro.parse_image_macro"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_image_macro()</span></code></a> functions.</p>
+It can be used with the <code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_ints()</span></code> and
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_image_macro()</span></code> functions.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 6.0.</span></p>
 </div>
-</div>
-<div class="section" id="memory-snapshots">
-<h2>Memory snapshots<a class="headerlink" href="#memory-snapshots" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="memory-snapshots">
+<h2>Memory snapshots<a class="headerlink" href="#memory-snapshots" title="Permalink to this heading">¶</a></h2>
 <p>The <cite>snapshot</cite> attribute on HtmlWriter and AsmWriter is a 65536-element list
 that represents the 64K of the Spectrum’s memory; it is populated when the
 skool file is being parsed.</p>
@@ -569,46 +569,46 @@ skool file is being parsed.</p>
 snapshots, which can be useful for temporarily changing graphic data or the
 contents of data tables.</p>
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.push_snapshot">
-<code class="sig-prename descclassname">HtmlWriter.</code><code class="sig-name descname">push_snapshot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.push_snapshot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">HtmlWriter.</span></span><span class="sig-name descname"><span class="pre">push_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Save a copy of the current memory snapshot for later retrieval (by
-<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.pop_snapshot" title="skoolkit.skoolhtml.HtmlWriter.pop_snapshot"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pop_snapshot()</span></code></a>).</p>
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">pop_snapshot()</span></code>).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>name</strong> – An optional name for the snapshot.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.pop_snapshot">
-<code class="sig-prename descclassname">HtmlWriter.</code><code class="sig-name descname">pop_snapshot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.pop_snapshot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">HtmlWriter.</span></span><span class="sig-name descname"><span class="pre">pop_snapshot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><p>Replace the current memory snapshot with the one most recently saved
-by <a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.push_snapshot" title="skoolkit.skoolhtml.HtmlWriter.push_snapshot"><code class="xref py py-meth docutils literal notranslate"><span class="pre">push_snapshot()</span></code></a>.</p>
+by <code class="xref py py-meth docutils literal notranslate"><span class="pre">push_snapshot()</span></code>.</p>
 </dd></dl>
 
 <p>In addition, HtmlWriter (but not AsmWriter) provides a method for retrieving
 the snapshot name.</p>
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.get_snapshot_name">
-<code class="sig-prename descclassname">HtmlWriter.</code><code class="sig-name descname">get_snapshot_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.get_snapshot_name" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">HtmlWriter.</span></span><span class="sig-name descname"><span class="pre">get_snapshot_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><p>Return the name of the current memory snapshot.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="graphics">
-<span id="ext-graphics"></span><h2>Graphics<a class="headerlink" href="#graphics" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="graphics">
+<span id="ext-graphics"></span><h2>Graphics<a class="headerlink" href="#graphics" title="Permalink to this heading">¶</a></h2>
 <p>If you are going to implement a custom image-creating <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method or skool
 macro, you will need to make use of the skoolkit.graphics.Udg and
 skoolkit.graphics.Frame classes.</p>
 <p>The Udg class represents an 8x8 graphic (8 bytes) with a single attribute byte,
 and an optional mask.</p>
 <dl class="py class">
-<dt id="skoolkit.graphics.Udg">
-<em class="property">class </em><code class="sig-prename descclassname">skoolkit.graphics.</code><code class="sig-name descname">Udg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">attr</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.Udg" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.graphics.</span></span><span class="sig-name descname"><span class="pre">Udg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Initialise the UDG.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>attr</strong> – The attribute byte.</p></li>
 <li><p><strong>data</strong> – The graphic data (sequence of 8 bytes).</p></li>
@@ -640,11 +640,11 @@ be implemented like this:</p>
 <p>The Udg class provides two methods for manipulating an 8x8 graphic: <cite>flip</cite> and
 <cite>rotate</cite>.</p>
 <dl class="py method">
-<dt id="skoolkit.graphics.Udg.flip">
-<code class="sig-prename descclassname">Udg.</code><code class="sig-name descname">flip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flip</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.Udg.flip" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">Udg.</span></span><span class="sig-name descname"><span class="pre">flip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Flip the UDG.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>flip</strong> – 1 to flip horizontally, 2 to flip vertically, or 3 to flip
 horizontally and vertically.</p>
 </dd>
@@ -652,11 +652,11 @@ horizontally and vertically.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.graphics.Udg.rotate">
-<code class="sig-prename descclassname">Udg.</code><code class="sig-name descname">rotate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rotate</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.Udg.rotate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">Udg.</span></span><span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rotate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Rotate the UDG 90 degrees clockwise.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>rotate</strong> – The number of rotations to perform.</p>
 </dd>
 </dl>
@@ -664,21 +664,21 @@ horizontally and vertically.</p>
 
 <p>The Udg class also provides a method for creating a copy of a UDG.</p>
 <dl class="py method">
-<dt id="skoolkit.graphics.Udg.copy">
-<code class="sig-prename descclassname">Udg.</code><code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.Udg.copy" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">Udg.</span></span><span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><p>Return a deep copy of the UDG.</p>
 </dd></dl>
 
 <p>The Frame class represents a single frame of a still or animated image.</p>
 <dl class="py class">
-<dt id="skoolkit.graphics.Frame">
-<em class="property">class </em><code class="sig-prename descclassname">skoolkit.graphics.</code><code class="sig-name descname">Frame</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">udgs</span></em>, <em class="sig-param"><span class="n">scale</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">x</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">y</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">height</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">delay</span><span class="o">=</span><span class="default_value">32</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">tindex</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">alpha</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">x_offset</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">y_offset</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.Frame" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.graphics.</span></span><span class="sig-name descname"><span class="pre">Frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">udgs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tindex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Create a frame of a still or animated image.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>udgs</strong> – The two-dimensional array of tiles (instances of
-<a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code></a>) from which to build the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code>) from which to build the
 frame, or a function that returns the array of tiles.</p></li>
 <li><p><strong>scale</strong> – The scale of the frame.</p></li>
 <li><p><strong>mask</strong> – The type of mask to apply to the tiles in the frame: 0 (no
@@ -729,17 +729,17 @@ added the <em>name</em> parameter.</p>
 <p>HtmlWriter and skoolkit.graphics provide the following image-related methods
 and functions.</p>
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.handle_image">
-<code class="sig-prename descclassname">HtmlWriter.</code><code class="sig-name descname">handle_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">frames</span></em>, <em class="sig-param"><span class="n">fname</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">cwd</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">alt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">path_id</span><span class="o">=</span><span class="default_value">'ImagePath'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">HtmlWriter.</span></span><span class="sig-name descname"><span class="pre">handle_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ImagePath'</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Register a named frame for an image, and write an image file if
 required. If <cite>fname</cite> is blank, no image file will be created. If
 <cite>fname</cite> does not end with ‘.png’, that suffix will be appended. If
 <cite>fname</cite> contains an image path ID replacement field, the corresponding
 parameter value from the <a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section will be substituted.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>frames</strong> – A frame (instance of <a class="reference internal" href="#skoolkit.graphics.Frame" title="skoolkit.graphics.Frame"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frame</span></code></a>)
+<li><p><strong>frames</strong> – A frame (instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">Frame</span></code>)
 or list of frames from which to build the image.</p></li>
 <li><p><strong>fname</strong> – The name of the image file.</p></li>
 <li><p><strong>cwd</strong> – The current working directory (from which the relative path
@@ -751,7 +751,7 @@ if <cite>fname</cite> starts with a ‘/’ or contains an image path
 ID replacement field.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The <code class="docutils literal notranslate"><span class="pre">&lt;img</span> <span class="pre">.../&gt;</span></code> element, or an empty string if no image is
 created.</p>
 </dd>
@@ -772,13 +772,13 @@ created.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.screenshot">
-<code class="sig-prename descclassname">HtmlWriter.</code><code class="sig-name descname">screenshot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">y</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">w</span><span class="o">=</span><span class="default_value">32</span></em>, <em class="sig-param"><span class="n">h</span><span class="o">=</span><span class="default_value">24</span></em>, <em class="sig-param"><span class="n">df_addr</span><span class="o">=</span><span class="default_value">16384</span></em>, <em class="sig-param"><span class="n">af_addr</span><span class="o">=</span><span class="default_value">22528</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.screenshot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">HtmlWriter.</span></span><span class="sig-name descname"><span class="pre">screenshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_addr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16384</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_addr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">22528</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Return a two-dimensional array of tiles (instances of
-<a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code></a>) built from the display file and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code>) built from the display file and
 attribute file of the current memory snapshot.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> – The x-coordinate of the top-left tile to include (0-31).</p></li>
 <li><p><strong>y</strong> – The y-coordinate of the top-left tile to include (0-23).</p></li>
@@ -792,11 +792,11 @@ attribute file of the current memory snapshot.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="skoolkit.graphics.flip_udgs">
-<code class="sig-prename descclassname">skoolkit.graphics.</code><code class="sig-name descname">flip_udgs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">udgs</span></em>, <em class="sig-param"><span class="n">flip</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.flip_udgs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Flip a 2D array of UDGs (instances of <a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code></a>).</p>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.graphics.</span></span><span class="sig-name descname"><span class="pre">flip_udgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">udgs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Flip a 2D array of UDGs (instances of <code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code>).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>udgs</strong> – The array of UDGs.</p></li>
 <li><p><strong>flip</strong> – 1 to flip horizontally, 2 to flip vertically, or 3 to flip
@@ -807,12 +807,12 @@ horizontally and vertically.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="skoolkit.graphics.overlay_udgs">
-<code class="sig-prename descclassname">skoolkit.graphics.</code><code class="sig-name descname">overlay_udgs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bg</span></em>, <em class="sig-param"><span class="n">fg</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">rattr</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rbyte</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.overlay_udgs" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.graphics.</span></span><span class="sig-name descname"><span class="pre">overlay_udgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rattr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rbyte</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Overlay a foreground array of UDGs (instances of
-<a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code></a>) on a background array of UDGs.</p>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code>) on a background array of UDGs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>bg</strong> – The background array of UDGs.</p></li>
 <li><p><strong>fg</strong> – The foreground array of UDGs.</p></li>
@@ -843,12 +843,12 @@ specified by <cite>mask</cite> is used.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="skoolkit.graphics.rotate_udgs">
-<code class="sig-prename descclassname">skoolkit.graphics.</code><code class="sig-name descname">rotate_udgs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">udgs</span></em>, <em class="sig-param"><span class="n">rotate</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.rotate_udgs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rotate a 2D array of UDGs (instances of <a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code></a>)
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.graphics.</span></span><span class="sig-name descname"><span class="pre">rotate_udgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">udgs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Rotate a 2D array of UDGs (instances of <code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code>)
 90 degrees clockwise.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>udgs</strong> – The array of UDGs.</p></li>
 <li><p><strong>rotate</strong> – The number of rotations to perform.</p></li>
@@ -857,22 +857,22 @@ specified by <cite>mask</cite> is used.</p></li>
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="html-page-initialisation">
-<h2>HTML page initialisation<a class="headerlink" href="#html-page-initialisation" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="html-page-initialisation">
+<h2>HTML page initialisation<a class="headerlink" href="#html-page-initialisation" title="Permalink to this heading">¶</a></h2>
 <p>If you need to perform page-specific actions or customise the <code class="docutils literal notranslate"><span class="pre">SkoolKit</span></code> and
 <code class="docutils literal notranslate"><span class="pre">Game</span></code> parameter dictionaries that are used by the <a class="reference internal" href="html-templates.html#htmltemplates"><span class="std std-ref">HTML templates</span></a>, the
 place to do that is the <cite>init_page()</cite> method.</p>
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.init_page">
-<code class="sig-prename descclassname">HtmlWriter.</code><code class="sig-name descname">init_page</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">skoolkit</span></em>, <em class="sig-param"><span class="n">game</span></em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.init_page" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">HtmlWriter.</span></span><span class="sig-name descname"><span class="pre">init_page</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">skoolkit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">game</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Perform page initialisation operations. This method is called after
 the <code class="docutils literal notranslate"><span class="pre">SkoolKit</span></code> and <code class="docutils literal notranslate"><span class="pre">Game</span></code> parameter dictionaries have been
 initialised, and provides those dictionaries as arguments for
 inspection and customisation before a page is formatted. By default the
 method does nothing, but subclasses may override it.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>skoolkit</strong> – The <code class="docutils literal notranslate"><span class="pre">SkoolKit</span></code> parameter dictionary.</p></li>
 <li><p><strong>game</strong> – The <code class="docutils literal notranslate"><span class="pre">Game</span></code> parameter dictionary.</p></li>
@@ -884,15 +884,15 @@ method does nothing, but subclasses may override it.</p>
 </div>
 </dd></dl>
 
-</div>
-<div class="section" id="writer-initialisation">
-<h2>Writer initialisation<a class="headerlink" href="#writer-initialisation" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="writer-initialisation">
+<h2>Writer initialisation<a class="headerlink" href="#writer-initialisation" title="Permalink to this heading">¶</a></h2>
 <p>If your AsmWriter or HtmlWriter subclass needs to perform some initialisation
 tasks, such as creating instance variables, or parsing ref file sections, the
 place to do that is the <cite>init()</cite> method.</p>
 <dl class="py method">
-<dt id="skoolkit.skoolasm.AsmWriter.init">
-<code class="sig-prename descclassname">AsmWriter.</code><code class="sig-name descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolasm.AsmWriter.init" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">AsmWriter.</span></span><span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><p>Perform post-initialisation operations. This method is called after
 <cite>__init__()</cite> has completed. By default the method does nothing, but
 subclasses may override it.</p>
@@ -902,8 +902,8 @@ subclasses may override it.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.init">
-<code class="sig-prename descclassname">HtmlWriter.</code><code class="sig-name descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.init" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">HtmlWriter.</span></span><span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><p>Perform post-initialisation operations. This method is called after
 <cite>__init__()</cite> has completed. By default the method does nothing, but
 subclasses may override it.</p>
@@ -918,8 +918,8 @@ subclasses may override it.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">characters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dictionary</span><span class="p">(</span><span class="s1">&#39;Characters&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -928,8 +928,9 @@ subclasses may override it.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Extending SkoolKit</a><ul>
 <li><a class="reference internal" href="#extension-modules">Extension modules</a></li>
 <li><a class="reference internal" href="#call-methods">#CALL methods</a></li>
@@ -947,12 +948,17 @@ subclasses may override it.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="html-templates.html"
-                        title="previous chapter">HTML templates</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="components.html"
-                        title="next chapter">SkoolKit components</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="html-templates.html"
+                          title="previous chapter">HTML templates</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="components.html"
+                          title="next chapter">SkoolKit components</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -964,12 +970,12 @@ subclasses may override it.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -981,21 +987,18 @@ subclasses may override it.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="components.html" title="SkoolKit components"
              >next</a> |</li>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Extending SkoolKit</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2023, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>
