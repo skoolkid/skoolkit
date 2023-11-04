@@ -1,8 +1,8 @@
 Changelog
 =========
 
-9.0rc2
-------
+9.0 (2023-11-04)
+----------------
 * Dropped support for Python 3.7
 * :ref:`tap2sna.py` now performs a :ref:`simulated LOAD <tap2sna-sim-load>` by
   default, and will also overwrite an existing snapshot by default
