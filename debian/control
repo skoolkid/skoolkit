@@ -2,7 +2,7 @@ Source: skoolkit
 Maintainer: Richard Dymond <rjdymond@gmail.com>
 Section: python
 Priority: optional
-Build-Depends: python3 (>= 3.8), debhelper (>= 7.4.3), dh-python (>= 1.20140128)
+Build-Depends: python3 (>= 3.8), python3-setuptools (>= 44.0.0), debhelper (>= 7.4.3), dh-python (>= 1.20140128)
 Standards-Version: 3.9.6
 X-Python3-Version: >= 3.8
 

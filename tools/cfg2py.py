@@ -14,7 +14,7 @@ if not os.path.isdir(SKOOLKIT_HOME):
 
 SETUP_PY = '''
 #!/usr/bin/env python3
-from distutils.core import setup
+from setuptools import setup
 
 import skoolkit
 

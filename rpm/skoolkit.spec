@@ -8,7 +8,7 @@ URL:            https://skoolkit.ca
 Source0:        https://skoolkit.ca/downloads/%{name}/%{name}-%{version}.tar.xz
 
 BuildArch:      noarch
-BuildRequires:  python3-devel
+BuildRequires:  python3-devel python3-setuptools
 Requires:       python3 >= 3.8
 
 %description
