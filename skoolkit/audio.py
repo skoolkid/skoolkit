@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from math import ceil, floor
+
 CLOCK_SPEED = 'ClockSpeed'
 CONTENTION_BEGIN = 'ContentionBegin'
 CONTENTION_END = 'ContentionEnd'
@@ -102,25 +104,25 @@ class AudioWriter:
     def _moving_average_filter(self, delays):
         sample_delay = self.options[CLOCK_SPEED] / self.options[SAMPLE_RATE]
         s0, s1 = 0, sample_delay
+        t, t1 = 0, ceil(s1)
+        bit = bits = 0
         samples = []
-        bits = []
-        max_bits = 100
-        bit = 0
         for d in delays:
-            while d:
-                if d >= max_bits:
-                    bits.extend([bit] * max_bits)
-                    d -= max_bits
-                else:
-                    bits.extend([bit] * d)
-                    d = 0
-                while s0 + len(bits) >= s1:
-                    num_bits = int(s1 - s0)
-                    sample = int(65535 * sum(bits[:num_bits]) / num_bits) - 32768
-                    samples.append(sample if sample >= 0 else sample + 65536)
-                    s0 += num_bits
-                    s1 += sample_delay
-                    bits = bits[num_bits:]
+            while True:
+                if t + d < t1:
+                    if bit:
+                        bits += d
+                    t += d
+                    break
+                i = t1 - t
+                if bit:
+                    bits += i
+                d -= i
+                samples.append((floor(0xFFFF * bits / (t1 - s0)) - 0x8000) & 0xFFFF)
+                s0 = t = t1
+                s1 += sample_delay
+                t1 = ceil(s1)
+                bits = 0
             bit = 1 - bit
         return samples
 

@@ -859,8 +859,8 @@ outcome:
 * 4 (bit 2) - execute instructions from ``start`` to ``stop`` in a simulator to
   obtain the delays between speaker state changes
 * 8 (bit 3) - pass delays through a moving average filter; while this can
-  produce higher quality audio (especially for multi-channel tunes), it is also
-  quite slow
+  produce higher quality audio (especially for multi-channel tunes), it is
+  slower than the default sampling algorithm
 
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly. Otherwise the filename is taken to be relative to

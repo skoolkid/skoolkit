@@ -58,7 +58,7 @@ class AudioWriterTest(SkoolKitTestCase):
         audio_writer = AudioWriter()
         audio_bytes = self._get_audio_data(audio_writer, [50, 150, 50, 150], True)
         samples = self._check_header(audio_bytes)
-        self.assertEqual(samples, b'\xf9\xdd\xff\x7f\x65\x06\x1c\x59\xff\x7f')
+        self.assertEqual(samples, b'\xff\xdf\xff\x7f\x32\x03\x59\x5c\xff\x7f')
 
     def test_contention(self):
         audio_writer = TestAudioWriter()
