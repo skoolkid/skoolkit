@@ -1,6 +1,9 @@
 Changelog
 =========
 
+9.1b1
+-----
+
 9.0 (2023-11-04)
 ----------------
 * Dropped support for Python 3.7

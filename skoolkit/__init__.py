@@ -22,7 +22,7 @@ import posixpath
 import textwrap
 import importlib
 
-VERSION = '9.0'
+VERSION = '9.1b1'
 PACKAGE_DIR = os.path.dirname(__file__)
 
 BASE_10 = 10
