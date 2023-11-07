@@ -523,6 +523,42 @@ def expand_macros(writer, text, *cwd):
 
     return text
 
+def _read_sim_state(writer, execint, reg=None, clear=0):
+    registers = {'iff': 0, 'im': 1, 'tstates': 0}
+    if clear == 0:
+        registers.update(writer.fields.get('sim', {}))
+    if reg:
+        for r, v in reg.items():
+            if v >= 0:
+                registers[r] = v
+    state = {a: registers.pop(a) for a in ('iff', 'im', 'tstates')}
+    config = {'fast_djnz': not execint, 'fast_ldir': not execint}
+    return registers, state, config
+
+def _write_sim_state(writer, simulator):
+    registers = simulator.registers
+    writer.fields['sim'] = {
+        'A': registers[A],
+        'F': registers[F],
+        'BC': registers[C] + 256 * registers[B],
+        'DE': registers[E] + 256 * registers[D],
+        'HL': registers[L] + 256 * registers[H],
+        '^A': registers[xA],
+        '^F': registers[xF],
+        '^BC': registers[xC] + 256 * registers[xB],
+        '^DE': registers[xE] + 256 * registers[xD],
+        '^HL': registers[xL] + 256 * registers[xH],
+        'IX': registers[IXl] + 256 * registers[IXh],
+        'IY': registers[IYl] + 256 * registers[IYh],
+        'I': registers[I],
+        'R': registers[R],
+        'SP': registers[SP],
+        'PC': registers[PC],
+        'tstates': registers[T],
+        'iff': simulator.iff,
+        'im': simulator.imode
+    }
+
 def _flatten(elements):
     f = []
     for e in elements:
@@ -544,11 +580,11 @@ def _eval_delays(spec):
 
 def parse_audio(writer, text, index, need_audio=None):
     # #AUDIO[flags,offset](fname)[(delays)]
-    # #AUDIO[flags,offset](fname)(start,stop)
+    # #AUDIO[flags,offset](fname)(start,stop[,execint])
     try:
-        end, flags, offset = parse_ints(text, index, 2, defaults=(0, 0), fields=writer.fields)
+        end, flags, offset = parse_ints(text, index, 2, defaults=(0, None), fields=writer.fields)
     except InvalidParameterError:
-        end, flags, offset = index, 0, 0
+        end, flags, offset = index, 0, None
     end, fname = parse_brackets(text, end)
     if not fname:
         raise MacroParsingError('Missing filename: #AUDIO{}'.format(text[index:end]))
@@ -556,12 +592,16 @@ def parse_audio(writer, text, index, need_audio=None):
     if need_audio:
         fname, eval_delays = need_audio(fname)
     if flags & 4:
-        end, start, stop = parse_ints(text, end, 2, fields=writer.fields)
+        end, start, stop, execint = parse_ints(text, end, 3, defaults=(0,), fields=writer.fields)
         if eval_delays:
-            simulator = Simulator(writer.snapshot, config={'fast_djnz': True, 'fast_ldir': True})
+            registers, state, config = _read_sim_state(writer, execint)
+            if offset is not None:
+                state['tstates'] = offset
+            simulator = Simulator(writer.snapshot, registers, state, config)
             tracer = AudioTracer()
             simulator.set_tracer(tracer)
-            simulator.run(start, stop)
+            simulator.run(start, stop, execint)
+            _write_sim_state(writer, simulator)
             delays = [t - tracer.out_times[i] for i, t in enumerate(tracer.out_times[1:])]
     else:
         if len(text) > end and text[end] == '(':
@@ -569,7 +609,7 @@ def parse_audio(writer, text, index, need_audio=None):
             if eval_delays:
                 expanded = writer.expand(spec)
                 delays = _eval_delays(_format_params(expanded, expanded, **writer.fields))
-    return end, flags, offset, fname, delays
+    return end, flags, offset or 0, fname, delays
 
 def parse_call(writer, text, index, *cwd):
     # #CALL:methodName(args)
@@ -1111,45 +1151,20 @@ def parse_scr(text, index=0, fields=None):
     return parse_image_macro(text, index, defaults, names, 'scr', fields)
 
 def parse_sim(writer, text, index, *cwd):
-    # #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp]
+    # #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint]
     names = ('stop', 'start', 'clear', 'a', 'f', 'bc', 'de', 'hl', 'xa', 'xf',
-             'xbc', 'xde', 'xhl', 'ix', 'iy', 'i', 'r', 'sp')
-    defaults = (-1, 0) + (-1,) * (len(names) - 3)
+             'xbc', 'xde', 'xhl', 'ix', 'iy', 'i', 'r', 'sp', 'execint')
+    defaults = (-1, 0) + (-1,) * 15 + (0,)
     reg = {}
     (end, stop, start, clear, reg['A'], reg['F'], reg['BC'], reg['DE'], reg['HL'],
      reg['^A'], reg['^F'], reg['^BC'], reg['^DE'], reg['^HL'], reg['IX'], reg['IY'],
-     reg['I'], reg['R'], reg['SP']) = parse_ints(text, index, len(names), defaults, names, writer.fields)
-    registers = {}
-    if clear == 0:
-        registers.update(writer.fields.get('sim', {}))
-    for r, v in reg.items():
-        if v >= 0:
-            registers[r] = v
-    tstates = registers.get('tstates', 0)
-    simulator = Simulator(writer.snapshot, registers, {'tstates': tstates}, {'fast_djnz': True, 'fast_ldir': True})
+     reg['I'], reg['R'], reg['SP'], execint) = parse_ints(text, index, len(names), defaults, names, writer.fields)
+    registers, state, config = _read_sim_state(writer, execint, reg, clear)
+    simulator = Simulator(writer.snapshot, registers, state, config)
     if start < 0:
         start = simulator.registers[PC]
-    simulator.run(start, stop)
-    sim_registers = simulator.registers
-    writer.fields['sim'] = {
-        'A': sim_registers[A],
-        'F': sim_registers[F],
-        'BC': sim_registers[C] + 256 * sim_registers[B],
-        'DE': sim_registers[E] + 256 * sim_registers[D],
-        'HL': sim_registers[L] + 256 * sim_registers[H],
-        '^A': sim_registers[xA],
-        '^F': sim_registers[xF],
-        '^BC': sim_registers[xC] + 256 * sim_registers[xB],
-        '^DE': sim_registers[xE] + 256 * sim_registers[xD],
-        '^HL': sim_registers[xL] + 256 * sim_registers[xH],
-        'IX': sim_registers[IXl] + 256 * sim_registers[IXh],
-        'IY': sim_registers[IYl] + 256 * sim_registers[IYh],
-        'I': sim_registers[I],
-        'R': sim_registers[R],
-        'SP': sim_registers[SP],
-        'PC': sim_registers[PC],
-        'tstates': sim_registers[T]
-    }
+    simulator.run(start, stop, execint)
+    _write_sim_state(writer, simulator)
     return end, ''
 
 def parse_space(writer, text, index, *cwd):
@@ -1194,8 +1209,8 @@ def parse_str(writer, text, index, *cwd):
     return end, s
 
 def parse_tstates(writer, text, index, *cwd):
-    # #TSTATESstart[,stop,flags(text)]
-    end, start, stop, flags = parse_ints(text, index, 3, (-1, 0), fields=writer.fields)
+    # #TSTATESstart[,stop,flags,execint(text)]
+    end, start, stop, flags, execint = parse_ints(text, index, 4, (-1, 0, 0), fields=writer.fields)
     if flags & 2:
         end, msg = parse_strings(text, end, 1)
     else:
@@ -1203,10 +1218,12 @@ def parse_tstates(writer, text, index, *cwd):
     if flags & 4:
         if stop < 0:
             raise MacroParsingError(f"Missing stop address: '{text[index:end]}'")
-        simulator = Simulator(writer.snapshot[:])
-        simulator.run(start, stop)
+        registers, state, config = _read_sim_state(writer, execint)
+        simulator = Simulator(writer.snapshot[:], registers, state, config)
+        start_time = simulator.registers[T]
+        simulator.run(start, stop, execint)
         if msg is None:
-            return end, str(simulator.registers[T])
+            return end, str(simulator.registers[T] - start_time)
         return end, Template(msg).safe_substitute(tstates=simulator.registers[T])
     if stop < start:
         stop = start + 1

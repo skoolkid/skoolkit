@@ -149,7 +149,7 @@ class Simulator:
         if hasattr(tracer, 'write_port'):
             self.out_tracer = partial(tracer.write_port, self.registers)
 
-    def run(self, start=None, stop=None):
+    def run(self, start=None, stop=None, interrupts=False):
         opcodes = self.opcodes
         memory = self.memory
         registers = self.registers
@@ -159,6 +159,22 @@ class Simulator:
 
         if stop is None:
             opcodes[memory[pc]]()
+        elif interrupts:
+            frame_duration = self.frame_duration
+            tstates = registers[25]
+            accept_int = False
+            while True:
+                t0 = tstates
+                opcodes[memory[pc]]()
+                tstates = registers[25]
+                if self.iff:
+                    if tstates // frame_duration > t0 // frame_duration:
+                        accept_int = True
+                    if accept_int:
+                        accept_int = self.accept_interrupt(registers, memory, pc)
+                pc = registers[24]
+                if pc == stop:
+                    break
         else:
             while True:
                 opcodes[memory[pc]]()

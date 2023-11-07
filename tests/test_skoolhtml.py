@@ -1569,21 +1569,45 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         skool = """
             ; Beep
             c32768 LD L,64
-            *32771 OUT (254),A
-             32773 XOR 16
-             32775 LD B,200
-             32777 DJNZ 32777
-             32779 DEC L
-             32780 JR NZ,32771
-             32782 RET
+            *32770 OUT (254),A
+             32772 XOR 16
+             32774 LD B,200
+             32776 DJNZ 32776
+             32778 DEC L
+             32779 JR NZ,32770
+             32781 RET
         """
         writer = self._get_writer(skool=skool, mock_file_info=True)
         fname = 'sound.wav'
-        macro = f'#AUDIO4({fname})(32768,32782)'
+        macro = f'#AUDIO4({fname})(32768,32781)'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [2636] * 63
         self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays)
+
+    def test_macro_audio_with_code_simulation_executing_interrupts(self):
+        skool = """
+            ; Beep with interrupts enabled
+            @rom
+            c40000 EI          ; [4]
+             40001 LD L,4      ; [7]
+            *40003 OUT (254),A ; [11]
+             40005 XOR 16      ; [7]
+             40007 LD B,10     ; [7]
+             40009 DJNZ 40009  ; [13/8]
+             40011 DEC L       ; [4]
+             40012 JR NZ,40003 ; [12/7]
+             40014 RET
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        writer.expand('#SIM(start=40000,stop=40003)')
+        offset = 69700
+        fname = 'sound.wav'
+        macro = f'#AUDIO4,{offset}({fname})(40003,40014,1)'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [166, 1121, 166]
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, offset=offset)
 
     def test_macro_audio_with_contention(self):
         writer = self._get_writer(skool='', mock_file_info=True)

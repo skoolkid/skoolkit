@@ -3,6 +3,9 @@ Changelog
 
 9.1b1
 -----
+* Added the ``execint`` parameter to the :ref:`AUDIO`, :ref:`SIM` and
+  :ref:`TSTATES` macros (to specify whether to simulate the execution of
+  interrupt routines)
 
 9.0 (2023-11-04)
 ----------------

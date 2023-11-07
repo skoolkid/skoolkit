@@ -826,9 +826,9 @@ In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
 
   #AUDIO[flags,offset](fname)[(delays)]
 
-Or, when bit 2 of ``flags`` is set::
+Or, when executing code in a simulator (bit 2 of ``flags`` set)::
 
-  #AUDIO[flags,offset](fname)(start,stop)
+  #AUDIO[flags,offset](fname)(start,stop[,execint])
 
 * ``flags`` controls various options (see below)
 * ``offset`` is the initial offset in T-states from the start of a frame
@@ -839,10 +839,10 @@ Or, when bit 2 of ``flags`` is set::
   state changes; this parameter may contain skool macros (which are expanded
   first) and :ref:`replacement fields <replacementFields>` (which are replaced
   after any skool macros have been expanded)
-* ``start`` is the address at which to start executing code in a simulator
-  (when bit 2 of ``flags`` is set)
-* ``stop`` is the address at which to stop executing code in a simulator (when
-  bit 2 of ``flags`` is set)
+* ``start`` is the address at which to start executing code
+* ``stop`` is the address at which to stop executing code
+* ``execint`` specifies whether to execute interrupt routines (1), or ignore
+  interrupts (0, the default)
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
@@ -861,6 +861,10 @@ outcome:
 * 8 (bit 3) - pass delays through a moving average filter; while this can
   produce higher quality audio (especially for multi-channel tunes), it is
   slower than the default sampling algorithm
+
+If ``execint`` is set to 1, make sure that bit 1 of ``flags`` is 0, otherwise
+interrupt delays may be applied twice: once during execution of the code, and
+again in post-processing.
 
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly. Otherwise the filename is taken to be relative to
@@ -906,9 +910,16 @@ example::
    32782 RET
 
 .. note::
-   The simulator does not simulate memory contention, I/O contention, or
-   interrupts. Use bits 0 and 1 of ``flags`` to approximate memory contention
-   effects and interrupt delays if desired.
+   The simulator does not simulate memory contention or I/O contention. Use
+   bit 0 of ``flags`` to approximate memory contention effects if desired.
+
+Before executing code in a simulator, the ``#AUDIO`` macro copies the simulator
+state as it was left by the most recent invocation of either the ``#AUDIO`` or
+the :ref:`SIM` macro (if any).
+
+Note that code executed by the ``#AUDIO`` macro operates directly on the
+internal memory snapshot, and therefore can modify it. To avoid that, use the
+:ref:`PUSHS` and :ref:`POPS` macros to operate on a copy of the snapshot.
 
 If ``delays`` or ``start`` and ``stop`` parameters are specified, but ``fname``
 does not end with '.wav', no audio file is written. This enables the parameters
@@ -940,6 +951,8 @@ Audio file creation can be configured via the :ref:`ref-AudioWriter` section.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 9.1     | Added the ``execint`` parameter                                  |
++---------+------------------------------------------------------------------+
 | 9.0     | Added support for passing delays through a moving average filter |
 +---------+------------------------------------------------------------------+
 | 8.7     | New                                                              |
@@ -1465,7 +1478,7 @@ For example:
 The ``#SIM`` macro simulates the execution of machine code in the internal
 memory snapshot constructed from the contents of the skool file. ::
 
-  #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp]
+  #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint]
 
 * ``stop`` is the address at which to stop execution
 * ``start`` is the address at which to start execution (default: ``stop`` from
@@ -1488,13 +1501,16 @@ memory snapshot constructed from the contents of the skool file. ::
 * ``i`` sets the value of the I register (default: 63)
 * ``r`` sets the value of the R register (default: 0)
 * ``sp`` sets the value of the stack pointer (default: 23552)
+* ``execint`` specifies whether to execute interrupt routines (1), or ignore
+  interrupts (0, the default)
 
 The parameters of the ``#SIM`` macro may contain
-:ref:`replacement fields <replacementFields>` and may also be given as keyword arguments.
+:ref:`replacement fields <replacementFields>` and may also be given as keyword
+arguments.
 
-When execution stops, the simulator's register and clock values are copied to
-the ``sim`` dictionary, where they are accessible via replacement fields with
-the following names:
+When execution stops, the simulator's registers and hardware state are copied
+to the ``sim`` dictionary, where they are accessible via replacement fields
+with the following names:
 
 * ``sim[A]``
 * ``sim[F]``
@@ -1514,6 +1530,8 @@ the following names:
 * ``sim[PC]`` - the program counter (equal to ``stop``); this is used as the
   default value of ``start`` for the next invocation of the ``#SIM`` macro
 * ``sim[tstates]`` - the number of T-states elapsed
+* ``sim[iff]`` - 0 if interrupts are disabled, 1 if they're enabled
+* ``sim[im]`` - interrupt mode (0, 1 or 2)
 
 For example::
 
@@ -1537,20 +1555,26 @@ here is rendered as 'At this point HL=13699', and the third is rendered as 'And
 now HL=14371'.
 
 .. note::
-   The simulator does not simulate memory contention, I/O contention, or
-   interrupts. This means that ``sim[tstates]`` may not be accurate if the code
-   being simulated runs in or accesses contended memory, or performs I/O
-   operations, or runs while interrupts are enabled.
+   The simulator does not simulate memory contention or I/O contention. This
+   means that ``sim[tstates]`` may not be accurate if the code being simulated
+   runs in or accesses contended memory, or performs I/O operations.
+
+Before executing code, the ``#SIM`` macro copies the simulator state as it was
+left by the most recent invocation of either the :ref:`AUDIO` or the ``#SIM``
+macro (if any).
 
 Note that code executed by the ``#SIM`` macro operates directly on the internal
 memory snapshot, and therefore can modify it. To avoid that, use the
 :ref:`PUSHS` and :ref:`POPS` macros to operate on a copy of the snapshot.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.7     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 9.1     | Added the ``execint`` parameter; added the ``iff`` and ``im``     |
+|         | fields to the ``sim`` dictionary                                  |
++---------+-------------------------------------------------------------------+
+| 8.7     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _SPACE:
 
@@ -1698,7 +1722,7 @@ See also :ref:`UDGTABLE`.
 The ``#TSTATES`` macro expands to the time taken, in T-states, to execute one
 or more instructions. ::
 
-  #TSTATESstart[,stop,flags(text)]
+  #TSTATESstart[,stop,flags,execint(text)]
 
 * ``start`` is the address of the instruction at which to start the clock
 * ``stop`` is the address of the instruction at which to stop the clock
@@ -1707,6 +1731,8 @@ or more instructions. ::
   contain the placeholders ``$min`` and ``$max`` for the sums of the smaller
   and larger timing values of the instructions in the given range, or
   ``$tstates`` for the actual timing value when bit 2 of ``flags`` is set
+* ``execint`` specifies whether to execute interrupt routines (1), or ignore
+  interrupts (0, the default) when simulating code execution
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
@@ -1759,10 +1785,17 @@ that are repeated in a loop. For example::
 This instance of the ``#TSTATES`` macro expands to '1703941'.
 
 .. note::
-   The simulator does not simulate memory contention, I/O contention, or
-   interrupts. This means that ``#TSTATES`` may not provide accurate timing if
-   the code being timed runs in or accesses contended memory, or performs I/O
-   operations, or runs while interrupts are enabled.
+   The simulator does not simulate memory contention or I/O contention. This
+   means that ``#TSTATES`` may not provide accurate timing if the code being
+   timed runs in or accesses contended memory, or performs I/O operations.
+
+Before executing code in a simulator, the ``#TSTATES`` macro copies the
+simulator state as it was left by the most recent invocation of the
+:ref:`AUDIO` or :ref:`SIM` macro (if any).
+
+However, unlike the :ref:`AUDIO` and :ref:`SIM` macros, code executed by the
+``#TSTATES`` macro operates on a copy of the internal memory snapshot, and
+therefore does not modify it.
 
 The integer parameters of the ``#TSTATES`` macro may contain
 :ref:`replacement fields <replacementFields>`.
@@ -1777,11 +1810,13 @@ See also the ``Timings`` configuration parameter for
 :ref:`sna2skool.py <sna2skool-conf>`, which can be used to show instruction
 timings in comment fields when disassembling a snapshot.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.7     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 9.1     | Added the ``execint`` parameter                                   |
++---------+-------------------------------------------------------------------+
+| 8.7     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _UDGTABLE:
 

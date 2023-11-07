@@ -2778,6 +2778,25 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[PC], 2)
         self.assertEqual(simulator.registers[T], 8)
 
+    def test_run_with_interrupts(self):
+        start, end = 0xF000, 0xF001
+        int_start = 0x8000
+        memory = [0] * 65536
+        memory[start] = 0x76  # HALT         ; [4]
+        int_code = (
+            0x3E, 0xFF,       # LD A,$FF     ; [7]
+            0x32, 0x00, 0x40, # LD ($4000),A ; [13]
+            0xC9,             # RET          ; [10]
+        )
+        memory[int_start:int_start + len(int_code)] = int_code
+        i = 0xFE
+        iv_addr = 255 + 256 * i
+        memory[iv_addr:iv_addr + 2] = (int_start % 256, int_start // 256)
+        simulator = Simulator(memory, {'I': i}, {'iff': 1, 'im': 2, 'tstates': -4})
+        simulator.run(start, end, True)
+        self.assertEqual(memory[0x4000], 0xFF)
+        self.assertEqual(simulator.registers[T], 49)
+
     def test_pc_register_value(self):
         memory = [0] * 65536
         simulator = Simulator(memory, {'PC': 1})

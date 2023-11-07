@@ -1881,6 +1881,27 @@ class CommonSkoolMacroTest:
         writer.expand('#TSTATES32768,32773,4')
         self.assertEqual(writer.snapshot[32768], 62)
 
+    def test_macro_tstates_with_simulator_executing_interrupt_routine(self):
+        skool = """
+            @start
+            ; Interrupt vector
+            w65279 DEFW 65281
+
+            ; Interrupt routine
+            c65281 RET
+
+            ; Routine
+            c65282 LD A,254
+             65284 LD I,A
+             65286 IM 2
+             65288 EI
+             65289 HALT
+             65290 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=65282,stop=65289)')
+        self.assertEqual(writer.expand('#TSTATES(65289,65290,4,1)'), '69889')
+
     def test_macro_tstates_invalid(self):
         skool = """
             @start
@@ -1897,7 +1918,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#TSTATES32769', "Failed to get timing for instruction at 32769", prefix)
         self._assert_error(writer, '#TSTATES32770', "Failed to get timing for instruction at 32770", prefix)
         self._assert_error(writer, '#TSTATES32768,,4', "Missing stop address: '32768,,4'", prefix)
-        self._assert_error(writer, '#TSTATES(1,2,3,4)', "Too many parameters (expected 3): '1,2,3,4'", prefix)
+        self._assert_error(writer, '#TSTATES(1,2,3,4,5)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
         self._assert_error(writer, '#TSTATES(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#TSTATES(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
         self._assert_error(writer, '#TSTATES({no})', "Unrecognised field 'no': {no}", prefix)
@@ -1968,6 +1989,31 @@ class CommonSkoolMacroTest:
         writer.expand('#PUSHS #SIM(start=49152,stop=49153,a=77,hl=32768) #POPS')
         self.assertEqual(writer.snapshot[32768], 255)
 
+    def test_macro_sim_executing_interrupt_routine(self):
+        skool = """
+            @start
+            ; Interrupt vector
+            w65279 DEFW 65281
+
+            ; Interrupt routine
+            c65281 INC (HL)
+             65282 RET
+
+            ; Routine
+            c65283 LD A,254
+             65285 LD I,A
+             65287 IM 2
+             65289 LD HL,32768
+             65292 LD (HL),128
+             65294 EI
+             65295 HALT
+             65296 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=65283,stop=65296,execint=1)')
+        self.assertEqual(writer.snapshot[32768], 129)
+        self.assertEqual(writer.expand('#FORMAT(iff={sim[iff]},im={sim[im]})'), 'iff=0,im=2')
+
     def test_macro_sim_with_keyword_arguments_and_replacement_fields(self):
         skool = """
             @start
@@ -1986,8 +2032,8 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('SIM')
 
         self._test_no_parameters(writer, 'SIM', 1)
-        params = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19'
-        self._assert_error(writer, f'#SIM({params})', f"Too many parameters (expected 18): '{params}'", prefix)
+        params = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20'
+        self._assert_error(writer, f'#SIM({params})', f"Too many parameters (expected 19): '{params}'", prefix)
         self._assert_error(writer, '#SIM(30000', "No closing bracket: (30000", prefix)
         self._assert_error(writer, '#SIM(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
         self._assert_error(writer, '#SIM({no})', "Unrecognised field 'no': {no}", prefix)
