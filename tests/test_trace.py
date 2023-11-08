@@ -709,7 +709,32 @@ class TraceTest(SkoolKitTestCase):
         exp_output = """
             Stopped at $8008
             Sound duration: 62 T-states (0.000s)
-            Delays: [31]*2
+            Delays:
+             [31]*2
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_audio_with_delays_over_multiple_lines(self):
+        data = (
+            22, 16,   # 32768 LD D,16
+            66,       # 32770 LD B,D
+            211, 254, # 32771 OUT (254),A
+            238, 16,  # 32773 XOR 16
+            16, 250,  # 32775 DJNZ 32771
+            21,       # 32777 DEC D
+            32, 246,  # 32778 JR NZ,32770
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start, stop = 32768, 32780
+        output, error = self.run_trace(f'-o {start} -S {stop} --audio {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            Stopped at $800C
+            Sound duration: 4410 T-states (0.001s)
+            Delays:
+             [31]*15, 46, [31]*14, 46, [31]*13, 46, [31]*12, 46, [31]*11, 46, [31]*10, 46,
+             [31]*9, 46, [31]*8, 46, [31]*7, 46, [31]*6, 46, [31]*5, 46, [31]*4, 46,
+             [31]*3, 46, [31]*2, 46, 31, 46
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -810,7 +835,8 @@ class TraceTest(SkoolKitTestCase):
         exp_output = """
             Stopped at $8008
             Sound duration: 93 T-states (0.000s)
-            Delays: 31, 31, 31
+            Delays:
+             31, 31, 31
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -828,7 +854,8 @@ class TraceTest(SkoolKitTestCase):
         exp_output = """
             Stopped at $8008
             Sound duration: 93 T-states (0.000s)
-            Delays: [31]*3
+            Delays:
+             [31]*3
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -848,7 +875,8 @@ class TraceTest(SkoolKitTestCase):
         exp_output = """
             Stopped at $800C
             Sound duration: 156 T-states (0.000s)
-            Delays: [18, 28]*3, 18
+            Delays:
+             [18, 28]*3, 18
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -870,7 +898,8 @@ class TraceTest(SkoolKitTestCase):
         exp_output = """
             Stopped at $8010
             Sound duration: 225 T-states (0.000s)
-            Delays: [18, 15, 31]*3, 18, 15
+            Delays:
+             [18, 15, 31]*3, 18, 15
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 

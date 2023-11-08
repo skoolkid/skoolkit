@@ -15,6 +15,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import textwrap
 import time
 
 from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
@@ -232,7 +233,8 @@ def run(snafile, options, config):
             delays.append(t - tracer.out_times[i])
         duration = sum(delays)
         print('Sound duration: {} T-states ({:.03f}s)'.format(duration, duration / 3500000))
-        print('Delays: {}'.format(simplify(delays, options.depth)))
+        lines = textwrap.wrap(simplify(delays, options.depth), 78)
+        print('Delays:\n {}'.format('\n '.join(lines)))
     if options.dump:
         state = []
         if isinstance(memory, Memory):
