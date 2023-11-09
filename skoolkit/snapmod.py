@@ -17,42 +17,43 @@
 import argparse
 
 from skoolkit import SkoolKitError, get_word, read_bin_file, VERSION
-from skoolkit.snapshot import (get_snapshot, make_z80_ram_block, make_z80v3_ram_blocks,
-                               move, poke, print_reg_help, print_state_help,
-                               set_z80_registers, set_z80_state)
+from skoolkit.snapshot import (Memory, get_snapshot, make_z80_ram_block, make_z80v3_ram_blocks, move, poke,
+                               print_reg_help, print_state_help, set_z80_registers, set_z80_state)
 
 def _read_z80(z80file):
     data = read_bin_file(z80file)
     if get_word(data, 6) > 0:
         header = data[:30]
+        page = 0
     else:
         header_len = 32 + get_word(data, 30)
         header = data[:header_len]
-    return list(header), get_snapshot(z80file)
+        page = header[35] % 8
+    return list(header), Memory(get_snapshot(z80file, -1), page)
 
-def _write_z80(header, snapshot, fname):
+def _write_z80(header, memory, fname):
     if len(header) == 30:
         header[12] |= 32
-        ram = make_z80_ram_block(snapshot[16384:], 0)[3:] + [0, 237, 237, 0]
+        ram = make_z80_ram_block(memory.contents(), 0)[3:] + [0, 237, 237, 0]
     else:
-        ram = make_z80v3_ram_blocks(snapshot[16384:])
+        ram = make_z80v3_ram_blocks(memory.contents())
     with open(fname, 'wb') as f:
         f.write(bytearray(header + ram))
 
 def run(infile, options, outfile):
-    header, snapshot = _read_z80(infile)
+    header, memory = _read_z80(infile)
     for spec in options.moves:
-        move(snapshot, spec)
+        move(memory, spec)
     for spec in options.pokes:
-        poke(snapshot, spec)
+        poke(memory, spec)
     set_z80_registers(header, *options.reg)
     set_z80_state(header, *options.state)
-    _write_z80(header, snapshot, outfile)
+    _write_z80(header, memory, outfile)
 
 def main(args):
     parser = argparse.ArgumentParser(
         usage='snapmod.py [options] in.z80 [out.z80]',
-        description="Modify a 48K Z80 snapshot.",
+        description="Modify a Z80 snapshot.",
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
@@ -75,7 +76,7 @@ def main(args):
         print_reg_help('r')
         return
     if 'help' in namespace.state:
-        print_state_help('s', False, False, False)
+        print_state_help('s', False, True, False)
         return
     infile = namespace.infile
     outfile = namespace.outfile

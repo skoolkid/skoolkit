@@ -86,6 +86,32 @@ SZX_REGISTERS = {
     'r': 25
 }
 
+class Memory:
+    def __init__(self, snapshot, page):
+        if len(snapshot) == 0x20000:
+            self.banks = [snapshot[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
+            self.memory = [[0] * 0x4000, self.banks[5], self.banks[2], self.banks[page]]
+        else:
+            self.banks = None
+            self.memory = [[0] * 0x4000, snapshot[0x4000:0x8000], snapshot[0x8000:0xC000], snapshot[0xC000:]]
+
+    def __getitem__(self, index):
+        if isinstance(index, int):
+            return self.memory[index // 0x4000][index % 0x4000]
+        return [self.memory[a // 0x4000][a % 0x4000] for a in range(index.start, min(index.stop, 0x10000))]
+
+    def __setitem__(self, index, value):
+        if isinstance(index, int):
+            self.memory[index // 0x4000][index % 0x4000] = value
+        else:
+            for a, b in zip(range(index.start, index.stop), value):
+                self.memory[a // 0x4000][a % 0x4000] = b
+
+    def contents(self):
+        if self.banks:
+            return self.banks
+        return self.memory[1] + self.memory[2] + self.memory[3]
+
 # Component API
 def can_read(fname):
     """

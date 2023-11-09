@@ -3,6 +3,7 @@ Changelog
 
 9.1b1
 -----
+* Added support to :ref:`snapmod.py` for modifying 128K Z80 snapshots
 * Added the ``execint`` parameter to the :ref:`AUDIO`, :ref:`SIM` and
   :ref:`TSTATES` macros (to specify whether to simulate the execution of
   interrupt routines)

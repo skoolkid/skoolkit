@@ -10,7 +10,11 @@ def mock_run(*args):
     run_args = args
 
 class SnapmodTest(SkoolKitTestCase):
-    def _get_header(self, version, compress=False):
+    def _get_header(self, version, is128=False, compress=False):
+        if is128:
+            machine_id = 3 if version == 2 else 4
+        else:
+            machine_id = 0
         if version == 1:
             header = [0] * 30
             header[6] = 255 # PC > 0
@@ -19,9 +23,11 @@ class SnapmodTest(SkoolKitTestCase):
         elif version == 2:
             header = [0] * 55
             header[30] = 23
+            header[34] = machine_id
         else:
             header = [0] * 86
             header[30] = 54
+            header[34] = machine_id
         return header
 
     def _test_bad_spec(self, option, infile, exp_error):
@@ -47,13 +53,32 @@ class SnapmodTest(SkoolKitTestCase):
         z80_ram = get_snapshot(outfile)[16384:]
         self.assertEqual(exp_ram, z80_ram)
 
-    def _test_move(self, option, src, block, dest, version, compress, hex_prefix=None):
+    def _test_z80_128k(self, options, header, exp_header, ram=None, exp_ram=None, version=3, compress=False):
+        if ram is None:
+            ram = [0] * 0x20000
+        if exp_ram is None:
+            exp_ram = ram
+        pages = {p: ram[p * 0x4000:(p + 1) * 0x4000] for p in range(8)}
+        low_ram = pages.pop(5) + pages.pop(2) + pages.pop(header[35] % 8)
+        infile = self.write_z80_file(header, low_ram, version, compress, pages=pages)
+        outfile = f'{infile[:-4]}-out.z80'
+        output, error = self.run_snapmod(f'{options} {infile} {outfile}')
+        self.assertEqual(output, '')
+        self.assertEqual(error, '')
+        z80_header = list(read_bin_file(outfile, len(exp_header)))
+        self.assertEqual(exp_header, z80_header)
+        z80_ram = get_snapshot(outfile, -1)
+        self.assertEqual(len(z80_ram), 0x20000)
+        for bank, a in enumerate(range(0, 0x20000, 0x4000)):
+            self.assertEqual(exp_ram[a:a + 0x4000], z80_ram[a:a + 0x4000], f'Mismatch in RAM bank {bank}')
+
+    def _test_move(self, option, src, block, dest, version, compress, hex_prefix=None, is128=False):
         size = len(block)
         if hex_prefix:
             options = '{0} {1}{2:04X},{1}{3:x},{1}{4:04x}'.format(option, hex_prefix, src, size, dest)
         else:
             options = '{} {},{},{}'.format(option, src, size, dest)
-        header = self._get_header(version, compress)
+        header = self._get_header(version, is128, compress)
         exp_header = header[:]
         if version == 1:
             exp_header[12] |= 32 # RAM block compressed
@@ -61,10 +86,13 @@ class SnapmodTest(SkoolKitTestCase):
         ram[src - 16384:src - 16384 + size] = block
         exp_ram = ram[:]
         exp_ram[dest - 16384:dest - 16384 + size] = block
-        self._test_z80(options, header, exp_header, ram, exp_ram, version, compress)
+        if is128:
+            self._test_z80_128k(options, header, exp_header, ram, exp_ram, version, compress)
+        else:
+            self._test_z80(options, header, exp_header, ram, exp_ram, version, compress)
 
-    def _test_reg(self, option, registers, version, hex_prefix=None):
-        header = self._get_header(version)
+    def _test_reg(self, option, registers, version, hex_prefix=None, is128=False):
+        header = self._get_header(version, is128)
         exp_header = header[:]
         options = []
         for reg, value in registers.items():
@@ -86,7 +114,10 @@ class SnapmodTest(SkoolKitTestCase):
                 exp_header[index:index + 2] = (value % 256, value // 256)
         if version == 1:
             exp_header[12] |= 32 # RAM block compressed
-        self._test_z80(' '.join(options), header, exp_header, version=version, compress=False)
+        if is128:
+            self._test_z80_128k(' '.join(options), header, exp_header, version=version, compress=False)
+        else:
+            self._test_z80(' '.join(options), header, exp_header, version=version, compress=False)
 
     def test_no_arguments(self):
         output, error = self.run_snapmod(catch_exit=2)
@@ -103,7 +134,7 @@ class SnapmodTest(SkoolKitTestCase):
             self.run_snapmod('unknown.snap')
 
     def test_nonexistent_input_file(self):
-        infile = '{}/non-existent.z80'.format(self.make_directory())
+        infile = 'non-existent.z80'
         with self.assertRaises(SkoolKitError) as cm:
             self.run_snapmod('-r hl=0 {}'.format(infile))
         self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
@@ -138,7 +169,7 @@ class SnapmodTest(SkoolKitTestCase):
     @patch.object(snapmod, 'run', mock_run)
     def test_options_m_move(self):
         for option in ('-m', '--move'):
-            output, error = self.run_snapmod('{0} 30000,10,40000 {0} 50000,20,60000 {1}/test.z80'.format(option, self.make_directory()))
+            output, error = self.run_snapmod(f'{option} 30000,10,40000 {option} 50000,20,60000 test.z80')
             self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, options, outfile = run_args
@@ -151,6 +182,9 @@ class SnapmodTest(SkoolKitTestCase):
         self._test_move('--move', 40000, [2] * 10, 50000, 2, True)
 
     def test_option_m_z80v3_uncompressed(self):
+        self._test_move('-m', 50000, [3] * 5, 60000, 3, False)
+
+    def test_option_m_z80v3_128k(self):
         self._test_move('-m', 50000, [3] * 5, 60000, 3, False)
 
     def test_option_move_multiple(self):
@@ -183,7 +217,7 @@ class SnapmodTest(SkoolKitTestCase):
     @patch.object(snapmod, 'run', mock_run)
     def test_options_p_poke(self):
         for option in ('-p', '--poke'):
-            output, error = self.run_snapmod('{0} 32768,1 {0} 40000-40010,2 {1}/test.z80'.format(option, self.make_directory()))
+            output, error = self.run_snapmod(f'{option} 32768,1 {option} 40000-40010,2 test.z80')
             self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, options, outfile = run_args
@@ -228,6 +262,18 @@ class SnapmodTest(SkoolKitTestCase):
         exp_header = header[:]
         options = '--poke {}-{}-{},^{}'.format(addr1, addr2, step, xor)
         self._test_z80(options, header, exp_header, ram, exp_ram, 3, True)
+
+    def test_option_p_z80v3_128k(self):
+        pokes = ((5, 0x4000, 0xFF), (2, 0x8100, 0xF0), (0, 0xC200, 0x0F))
+        header = self._get_header(3, True)
+        exp_header = header[:]
+        ram = [0] * 0x20000
+        exp_ram = ram[:]
+        options = []
+        for bank, addr, value in pokes:
+            exp_ram[(bank * 0x4000) + (addr % 0x4000)] = value
+            options.append(f'--poke {addr},{value}')
+        self._test_z80_128k(' '.join(options), header, exp_header, ram, exp_ram, 3)
 
     def test_option_poke_multiple(self):
         pokes = ((24576, 1), (32768, 34), (49152, 205))
@@ -331,6 +377,10 @@ class SnapmodTest(SkoolKitTestCase):
         registers = {'a': 0x2e, 'bc': 0xaced}
         self._test_reg('-r', registers, 1, '0x')
 
+    def test_option_r_z80v3_128k(self):
+        registers = {'a': 1, 'bc': 2}
+        self._test_reg('-r', registers, 3, is128=True)
+
     def test_option_r_invalid_values(self):
         infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
         self._test_bad_spec('-r sp=j', infile, 'Cannot parse register value: sp=j')
@@ -361,7 +411,7 @@ class SnapmodTest(SkoolKitTestCase):
     @patch.object(snapmod, 'run', mock_run)
     def test_options_s_state(self):
         for option in ('-s', '--state'):
-            output, error = self.run_snapmod('{0} im=1 {0} iff=1 {1}/test.z80'.format(option, self.make_directory()))
+            output, error = self.run_snapmod(f'{option} im=1 {option} iff=1 test.z80')
             self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, options, outfile = run_args
@@ -380,6 +430,21 @@ class SnapmodTest(SkoolKitTestCase):
         options = '-s border=2 -s iff=1 -s im=2 -s issue2=1 -s tstates=51233'
         self._test_z80(options, header, exp_header)
 
+    def test_option_s_128k(self):
+        header = self._get_header(3, True)
+        exp_header = header[:]
+        exp_header[12] |= 4 # BORDER 2
+        exp_header[27] = 1 # IFF 1
+        exp_header[28] = 1 # IFF 2
+        exp_header[29] = (header[29] & 248) | 2 # IM 2
+        exp_header[29] = (exp_header[29] & 251) | 4 # Issue 2 emulation
+        exp_header[35] = 7 # Last OUT to port 0x7ffd
+        exp_header[38] = 5 # Last OUT to port 0xfffd
+        exp_header[39] = 1 # AY register 0
+        exp_header[55:58] = (155, 7, 1) # T-states
+        options = '-s 7ffd=7 -s ay[0]=1 -s border=2 -s fffd=5 -s iff=1 -s im=2 -s issue2=1 -s tstates=51233'
+        self._test_z80_128k(options, header, exp_header)
+
     def test_option_s_invalid_values(self):
         infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
         self._test_bad_spec('-s border=k', infile, 'Cannot parse integer: border=k')
@@ -395,7 +460,10 @@ class SnapmodTest(SkoolKitTestCase):
 
             Set a hardware state attribute. Recognised names are:
 
+              7ffd    - last OUT to port 0x7ffd (128K only)
+              ay[N]   - contents of AY register N (N=0-15; 128K only)
               border  - border colour
+              fffd    - last OUT to port 0xfffd (128K only)
               iff     - interrupt flip-flop: 0=disabled, 1=enabled
               im      - interrupt mode
               issue2  - issue 2 emulation: 0=disabled, 1=enabled

@@ -342,6 +342,8 @@ class SkoolKitTestCase(TestCase):
                 header[34] = machine_id
                 header[35] = out_7ffd
                 header[37] = 128 if modify else 0
+            else:
+                machine_id = header[34]
             banks = {5: ram[:16384]}
             if (version == 2 and machine_id < 2) or (version == 3 and machine_id in (0, 1, 3)):
                 # 16K/48K

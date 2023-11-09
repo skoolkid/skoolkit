@@ -10,7 +10,7 @@ SYNOPSIS
 
 DESCRIPTION
 ===========
-``snapmod.py`` modifies the registers and RAM in a 48K Z80 snapshot.
+``snapmod.py`` modifies the registers and RAM in a Z80 snapshot.
 
 OPTIONS
 =======

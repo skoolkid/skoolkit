@@ -242,7 +242,7 @@ man_pages = [
     ('man/snapinfo.py', 'snapinfo.py',
      'show information on the registers and RAM in a snapshot file', _authors, 1),
     ('man/snapmod.py', 'snapmod.py',
-     'modify a 48K Z80 snapshot', _authors, 1),
+     'modify a Z80 snapshot', _authors, 1),
     ('man/tap2sna.py', 'tap2sna.py',
      'convert a TAP or TZX file into a snapshot file', _authors, 1),
     ('man/tapinfo.py', 'tapinfo.py',
