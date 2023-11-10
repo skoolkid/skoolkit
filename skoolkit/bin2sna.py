@@ -18,12 +18,38 @@ import os
 import argparse
 
 from skoolkit import integer, read_bin_file, VERSION
-from skoolkit.snapshot import poke, print_reg_help, print_state_help, write_snapshot
+from skoolkit.snapshot import Memory, poke, print_reg_help, print_state_help, write_snapshot
+
+def bank(arg):
+    bank, sep, bankfile = arg.partition(',')
+    if not sep:
+        raise argparse.ArgumentTypeError(f"invalid argument: '{arg}'")
+    try:
+        return (int(bank) % 8, bankfile)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"invalid integer '{bank}' in '{arg}'")
 
 def run(infile, outfile, options):
     ram = list(read_bin_file(infile, 49152))
     org = options.org or 65536 - len(ram)
     snapshot = [0] * org + ram + [0] * (65536 - org - len(ram))
+    state = [f'border={options.border}']
+    if options.page is None:
+        memory = Memory(snapshot)
+    else:
+        banks = {
+            5: snapshot[0x4000:0x8000],
+            2: snapshot[0x8000:0xC000],
+            options.page: snapshot[0xC000:]
+        }
+        for bank, f in options.bank:
+            data = list(read_bin_file(f, 0x4000))
+            banks[bank] = data + [0] * (0x4000 - len(data))
+        mem = []
+        for bank in range(8):
+            mem.extend(banks.get(bank, [0] * 0x4000))
+        memory = Memory(mem, options.page)
+        state.append(f'7ffd={options.page}')
     if options.start is None:
         start = org
     else:
@@ -33,13 +59,12 @@ def run(infile, outfile, options):
     else:
         stack = options.stack
     for spec in options.pokes:
-        poke(snapshot, spec)
+        poke(memory, spec)
     parent_dir = os.path.dirname(outfile)
     if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
-    registers = ['sp={}'.format(stack), 'pc={}'.format(start)] + options.reg
-    state = ['border={}'.format(options.border)] + options.state
-    write_snapshot(outfile, snapshot[16384:], registers, state)
+    registers = [f'sp={stack}', f'pc={start}'] + options.reg
+    write_snapshot(outfile, memory.contents(), registers, state + options.state)
 
 def main(args):
     parser = argparse.ArgumentParser(
@@ -53,10 +78,14 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('--bank', metavar='N,file', type=bank, action='append', default=[],
+                       help="Load RAM bank N (0-7) from the named file. This option may be used multiple times.")
     group.add_argument('-b', '--border', dest='border', metavar='BORDER', type=int, default=7,
                        help="Set the border colour (default: 7).")
     group.add_argument('-o', '--org', dest='org', metavar='ORG', type=integer,
                        help="Set the origin address (default: 65536 minus the length of file.bin).")
+    group.add_argument('--page', metavar='N', type=int, choices=range(8),
+                       help="Specify the RAM bank (N=0-7) mapped to 49152 (0xC000) in the main input file. This option creates a 128K snapshot.")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer (default: ORG).")
     group.add_argument('-P', '--poke', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append', default=[],
@@ -76,7 +105,7 @@ def main(args):
         print_reg_help('r')
         return
     if 'help' in namespace.state:
-        print_state_help('S', show_128k=False)
+        print_state_help('S')
         return
     infile = namespace.infile
     if unknown_args or infile is None:

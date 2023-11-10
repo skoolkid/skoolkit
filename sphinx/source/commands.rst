@@ -26,10 +26,15 @@ it with no arguments to see the list of available options::
   'program.z80' if reading from standard input.
 
   Options:
+    --bank N,file         Load RAM bank N (0-7) from the named file. This option
+                          may be used multiple times.
     -b BORDER, --border BORDER
                           Set the border colour (default: 7).
     -o ORG, --org ORG     Set the origin address (default: 65536 minus the
                           length of file.bin).
+    --page N              Specify the RAM bank (N=0-7) mapped to 49152 (0xC000)
+                          in the main input file. This option creates a 128K
+                          snapshot.
     -p STACK, --stack STACK
                           Set the stack pointer (default: ORG).
     -P a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
@@ -52,6 +57,9 @@ it with no arguments to see the list of available options::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.1     | Added the ``--bank`` and ``--page`` options and support for       |
+|         | writing 128K snapshots                                            |
++---------+-------------------------------------------------------------------+
 | 9.0     | Added support for writing SZX snapshots; added the ``fe``         |
 |         | hardware state attribute                                          |
 +---------+-------------------------------------------------------------------+

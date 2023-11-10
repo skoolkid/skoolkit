@@ -6,9 +6,15 @@ from skoolkittest import SkoolKitTestCase, Z80_REGISTERS
 from skoolkit import SkoolKitError, bin2sna, VERSION
 from skoolkit.snapshot import get_snapshot
 
+EMPTY_BANK = [0] * 0x4000
+
 def mock_run(*args):
     global run_args
     run_args = args
+
+def mock_write_snapshot(fname, memory, registers, state):
+    global write_snapshot_args
+    write_snapshot_args = (fname, memory, registers, state)
 
 class Bin2SnaTest(SkoolKitTestCase):
     def _run(self, args, outfile=None):
@@ -56,6 +62,18 @@ class Bin2SnaTest(SkoolKitTestCase):
         snapshot = get_snapshot(z80file)
         self.assertEqual(data, snapshot[org:org + len(data)])
 
+    def _check_write_snapshot(self, args, exp_ram=None, exp_state=None):
+        output, error = self.run_bin2sna(args)
+        self.assertEqual(output, '')
+        self.assertEqual(error, '')
+        fname, memory, registers, state = write_snapshot_args
+        for i, (bank, exp_bank) in enumerate(zip(memory, exp_ram or [None] * 8)):
+            self.assertEqual(exp_bank or EMPTY_BANK, bank, f'Mismatch in bank {i}')
+        if exp_state is None:
+            exp_state = []
+        exp_state.insert(0, 'border=7')
+        self.assertEqual(exp_state, state)
+
     def _test_poke(self, option, address, exp_values):
         binfile = self.write_bin_file([0], suffix='.bin')
         z80file = self._run('{} {}'.format(option, binfile))
@@ -68,6 +86,14 @@ class Bin2SnaTest(SkoolKitTestCase):
             self.run_bin2sna('{} {} {}'.format(option, binfile, z80file))
         self.assertEqual(cm.exception.args[0], exp_error)
 
+    def _write_bank_files(self, exp_ram, banks):
+        bank_options = []
+        for bank, bank_data in banks:
+            exp_ram[bank][:len(bank_data)] = bank_data
+            bankfile = self.write_bin_file(bank_data, suffix='.bin')
+            bank_options.append(f'--bank {bank},{bankfile}')
+        return ' '.join(bank_options)
+
     @patch.object(bin2sna, 'run', mock_run)
     def test_default_option_values(self):
         data = [0] * 10
@@ -76,8 +102,10 @@ class Bin2SnaTest(SkoolKitTestCase):
         infile, outfile, options = run_args
         self.assertEqual(infile, binfile)
         self.assertEqual(outfile, binfile[:-3] + 'z80')
+        self.assertEqual([], options.bank)
         self.assertEqual(options.border, 7)
         self.assertEqual(options.org, None)
+        self.assertIsNone(options.page)
         self.assertEqual([], options.pokes)
         self.assertEqual([], options.reg)
         self.assertEqual(options.stack, None)
@@ -145,6 +173,66 @@ class Bin2SnaTest(SkoolKitTestCase):
         z80file = self._run('-')
         self._check_z80(z80file, data)
 
+    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_bank(self):
+        page, data, org = 6, [1, 2, 3], 50000
+        exp_ram = [None] * 8
+        exp_ram[page] = [0] * 0x4000
+        index = org % 0x4000
+        exp_ram[page][index:index + len(data)] = data
+        bank = 7
+        exp_ram[bank] = [0] * 0x4000
+        bank_option = self._write_bank_files(exp_ram, [(bank, (4, 5, 6))])
+        binfile = self.write_bin_file(data, suffix='.bin')
+        args = f'-o {org} --page {page} {bank_option} {binfile}'
+        exp_state = [f'7ffd={page}']
+        self._check_write_snapshot(args, exp_ram, exp_state)
+
+    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_bank_multiple(self):
+        page, data, org = 0, [3, 2, 1], 50000
+        banks = (
+            (1, [1, 2, 3]),
+            (3, [4, 5, 6]),
+            (4, [7, 8, 9]),
+            (6, [10, 11, 12]),
+            (7, [13, 14, 15])
+        )
+        exp_ram = [[0] * 0x4000 for i in range(8)]
+        index = org % 0x4000
+        exp_ram[page][index:index + len(data)] = data
+        bank_options = self._write_bank_files(exp_ram, banks)
+        binfile = self.write_bin_file(data, suffix='.bin')
+        args = f'-o {org} --page {page} {bank_options} {binfile}'
+        exp_state = [f'7ffd={page}']
+        self._check_write_snapshot(args, exp_ram, exp_state)
+
+    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_bank_overwrite(self):
+        page, data, org = 0, [255], 49152
+        banks = (
+            (0, [254]),
+            (2, [253]),
+            (5, [252])
+        )
+        exp_ram = [[0] * 0x4000 for i in range(8)]
+        bank_options = self._write_bank_files(exp_ram, banks)
+        binfile = self.write_bin_file(data, suffix='.bin')
+        args = f'-o {org} --page {page} {bank_options} {binfile}'
+        exp_state = [f'7ffd={page}']
+        self._check_write_snapshot(args, exp_ram, exp_state)
+
+    def test_option_bank_invalid(self):
+        for option, exp_error in (
+                ('--bank 1', "invalid argument: '1'"),
+                ('--bank x,foo.bin', "invalid integer 'x' in 'x,foo.bin'")
+        ):
+            output, error = self.run_bin2sna(f'--page 0 {option} infile.bin out.z80', catch_exit=2)
+            self.assertEqual(output, '')
+            self.assertTrue(error.startswith('usage: bin2sna.py [options] file.bin [OUTFILE]\n'))
+            line = error.rstrip().split('\n')[-1]
+            self.assertTrue(line.endswith('error: argument --bank: ' + exp_error), line)
+
     @patch.object(bin2sna, 'run', mock_run)
     def test_options_b_border(self):
         for option, border in (('-b', 2), ('--border', 4)):
@@ -183,6 +271,29 @@ class Bin2SnaTest(SkoolKitTestCase):
         binfile = self.write_bin_file(data, suffix='.bin')
         z80file = self._run("-o 30000 {}".format(binfile))
         self._check_z80(z80file, data, 30000)
+
+    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_page(self):
+        page, data, org = 3, [1, 2, 3], 50000
+        exp_ram = [None] * 8
+        index = org % 0x4000
+        exp_ram[page] = [0] * 0x4000
+        exp_ram[page][index:index + len(data)] = data
+        binfile = self.write_bin_file(data, suffix='.bin')
+        args = f'-o {org} --page {page} {binfile}'
+        exp_state = [f'7ffd={page}']
+        self._check_write_snapshot(args, exp_ram, exp_state)
+
+    def test_option_page_invalid(self):
+        for option, exp_error in (
+                ('--page 8', "invalid choice: 8 (choose from 0, 1, 2, 3, 4, 5, 6, 7)"),
+                ('--page x', "invalid int value: 'x'")
+        ):
+            output, error = self.run_bin2sna(f'{option} in.bin', catch_exit=2)
+            self.assertEqual(output, '')
+            self.assertTrue(error.startswith('usage: bin2sna.py [options] file.bin [OUTFILE]\n'))
+            line = error.rstrip().split('\n')[-1]
+            self.assertTrue(line.endswith('error: argument --page: ' + exp_error), line)
 
     @patch.object(bin2sna, 'run', mock_run)
     def test_options_p_stack(self):
@@ -237,6 +348,17 @@ class Bin2SnaTest(SkoolKitTestCase):
 
     def test_option_P_multiple(self):
         self._test_poke('-P 20000,5 --poke 20001,6', 20000, [5, 6])
+
+    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_P_128k(self):
+        exp_ram = [[0] * 0x4000 for i in range(8)]
+        exp_ram[5][0] = 1 # 16384,1 (bank 5)
+        exp_ram[2][0] = 2 # 32768,2 (bank 2)
+        exp_ram[7][0] = 3 # 49152,3 (bank 7)
+        binfile = self.write_bin_file([0], suffix='.bin')
+        args = f'--page 7 -P 16384,1 -P 32768,2 -P 49152,3 {binfile}'
+        exp_state = ['7ffd=7']
+        self._check_write_snapshot(args, exp_ram, exp_state)
 
     def test_option_P_invalid_values(self):
         self._test_bad_spec('-P 1', 'Value missing in poke spec: 1')
@@ -363,6 +485,16 @@ class Bin2SnaTest(SkoolKitTestCase):
         z80file = self._run("-S border=3 --state iff=0 -S im=2 -S issue2=1 --state tstates=100 {}".format(binfile))
         self._check_z80(z80file, data, border=3, iff=0, im=2, issue2=1, tstates=100)
 
+    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_S_128k(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        state = ['7ffd=3', 'fffd=7']
+        state.extend(f'ay[{i}]={r}' for i, r in enumerate(range(34, 50)))
+        state_options = ' '.join(f'-S {s}' for s in state)
+        args = f'--page 0 {state_options} {binfile}'
+        exp_state = ['7ffd=0'] + state
+        self._check_write_snapshot(args, exp_state=exp_state)
+
     def test_option_S_invalid_values(self):
         self._test_bad_spec('-S border=k', 'Cannot parse integer: border=k')
         self._test_bad_spec('--state iff=$', 'Cannot parse integer: iff=$')
@@ -376,8 +508,11 @@ class Bin2SnaTest(SkoolKitTestCase):
 
             Set a hardware state attribute. Recognised names and their default values are:
 
+              7ffd    - last OUT to port 0x7ffd (128K only)
+              ay[N]   - contents of AY register N (N=0-15; 128K only)
               border  - border colour (default=0)
               fe      - last OUT to port 0xfe (SZX only)
+              fffd    - last OUT to port 0xfffd (128K only)
               iff     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
               im      - interrupt mode (default=1)
               issue2  - issue 2 emulation: 0=disabled, 1=enabled (default=0)

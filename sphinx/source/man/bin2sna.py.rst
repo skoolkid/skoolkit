@@ -17,6 +17,10 @@ not given, it defaults to the name of the input file with '.bin' replaced by
 
 OPTIONS
 =======
+--bank `N,file`
+  Load RAM bank N (0-7) from the named file. This option may be used multiple
+  times.
+
 -b, --border `BORDER`
   Set the border colour. This option is equivalent to
   ``--state border=BORDER``. The default border colour is 7 (white).
@@ -25,6 +29,10 @@ OPTIONS
   Set the origin address. The default origin address is 65536 minus the length
   of file.bin. `ORG` must be a decimal number, or a hexadecimal number prefixed
   by '0x'.
+
+--page `N`
+  Specify the RAM bank (N=0-7) mapped to 49152 (0xC000) in the main input file.
+  This option creates a 128K snapshot.
 
 -p, --stack `STACK`
   Set the stack pointer. This option is equivalent to ``--reg sp=STACK``. The
@@ -90,8 +98,11 @@ The ``--state`` option sets a hardware state attribute.
 Recognised attribute names and their default values are:
 
 |
+|  ``7ffd``    - last OUT to port 0x7ffd (128K only)
+|  ``ay[N]``   - contents of AY register N (N=0-15; 128K only)
 |  ``border``  - border colour (default=0)
 |  ``fe``      - last OUT to port 0xfe (SZX only)
+|  ``fffd``    - last OUT to port 0xfffd (128K only)
 |  ``iff``     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
 |  ``im``      - interrupt mode (default=1)
 |  ``issue2``  - issue 2 emulation: 0=disabled, 1=enabled (default=0)
@@ -109,3 +120,9 @@ EXAMPLES
 
    |
    |   ``bin2sna.py -s 32768 ram.bin game.z80``
+
+3. Convert ``game.bin`` into a 128K SZX snapshot with RAM bank 3 mapped to
+   49152-65535, and RAM bank 6 read from ``bank6.bin``:
+
+   |
+   |   ``bin2sna.py --page 3 --bank 6,bank6.bin game.bin game.szx``
