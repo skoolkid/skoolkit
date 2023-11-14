@@ -6,11 +6,11 @@ snapmod.py
 
 SYNOPSIS
 ========
-``snapmod.py`` [options] in.z80 [out.z80]
+``snapmod.py`` [options] infile [outfile]
 
 DESCRIPTION
 ===========
-``snapmod.py`` modifies the registers and RAM in a Z80 snapshot.
+``snapmod.py`` modifies the registers and RAM in an SZX or Z80 snapshot.
 
 OPTIONS
 =======
@@ -72,7 +72,11 @@ The ``--state`` option sets a hardware state attribute.
 Recognised attribute names are:
 
 |
+|  ``7ffd``    - last OUT to port 0x7ffd (128K only)
+|  ``ay[N]``   - contents of AY register N (N=0-15; 128K only)
 |  ``border``  - border colour
+|  ``fe``      - last OUT to port 0xfe (SZX only)
+|  ``fffd``    - last OUT to port 0xfffd (128K only)
 |  ``iff``     - interrupt flip-flop: 0=disabled, 1=enabled
 |  ``im``      - interrupt mode
 |  ``issue2``  - issue 2 emulation: 0=disabled, 1=enabled
@@ -85,8 +89,8 @@ EXAMPLES
    |
    |   ``snapmod.py -r hl=0 game.z80``
 
-2. POKE the value 23 into address 32768 in ``game.z80``, and write the
-   resultant snapshot to ``poked.z80``:
+2. POKE the value 23 into address 32768 in ``game.szx``, and write the
+   resultant snapshot to ``poked.szx``:
 
    |
-   |   ``snapmod.py -p 32768,23 game.z80 poked.z80``
+   |   ``snapmod.py -p 32768,23 game.szx poked.szx``

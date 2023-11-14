@@ -17,7 +17,7 @@
 import argparse
 
 from skoolkit import SkoolKitError, get_word, read_bin_file, VERSION
-from skoolkit.snapshot import (Memory, get_snapshot, make_z80_ram_block, make_z80v3_ram_blocks, move, poke,
+from skoolkit.snapshot import (Memory, SZX, get_snapshot, make_z80_ram_block, make_z80v3_ram_blocks, move, poke,
                                print_reg_help, print_state_help, set_z80_registers, set_z80_state)
 
 def _read_z80(z80file):
@@ -29,7 +29,7 @@ def _read_z80(z80file):
         header_len = 32 + get_word(data, 30)
         header = data[:header_len]
         page = header[35] % 8
-    return list(header), Memory(get_snapshot(z80file, -1), page)
+    return list(header), Memory(get_snapshot(z80file, -1), page=page)
 
 def _write_z80(header, memory, fname):
     if len(header) == 30:
@@ -40,7 +40,7 @@ def _write_z80(header, memory, fname):
     with open(fname, 'wb') as f:
         f.write(bytearray(header + ram))
 
-def run(infile, options, outfile):
+def _modify_z80(infile, options, outfile):
     header, memory = _read_z80(infile)
     for spec in options.moves:
         move(memory, spec)
@@ -50,10 +50,25 @@ def run(infile, options, outfile):
     set_z80_state(header, *options.state)
     _write_z80(header, memory, outfile)
 
+def _modify_szx(infile, options, outfile):
+    szx = SZX(infile)
+    for spec in options.moves:
+        move(szx, spec)
+    for spec in options.pokes:
+        poke(szx, spec)
+    szx.set_registers_and_state(options.reg, options.state)
+    szx.write(outfile)
+
+def run(infile, options, outfile):
+    if infile.lower().endswith('.z80'):
+        _modify_z80(infile, options, outfile)
+    else:
+        _modify_szx(infile, options, outfile)
+
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='snapmod.py [options] in.z80 [out.z80]',
-        description="Modify a Z80 snapshot.",
+        usage='snapmod.py [options] infile [outfile]',
+        description="Modify an SZX or Z80 snapshot.",
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
@@ -76,15 +91,16 @@ def main(args):
         print_reg_help('r')
         return
     if 'help' in namespace.state:
-        print_state_help('s', False, False)
+        print_state_help('s', False)
         return
     infile = namespace.infile
-    outfile = namespace.outfile
     if unknown_args or infile is None:
         parser.exit(2, parser.format_help())
-    if not infile.lower().endswith('.z80'):
+    if not infile.lower().endswith(('.szx', '.z80')):
         raise SkoolKitError('Unrecognised input snapshot type')
-
+    outfile = namespace.outfile
     if outfile is None:
         outfile = infile
+    elif not outfile[-4:].lower().endswith(infile[-4:].lower()):
+        raise SkoolKitError('Mismatched input and output snapshot types')
     run(infile, namespace, outfile)

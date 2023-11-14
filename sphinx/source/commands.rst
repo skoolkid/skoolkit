@@ -1231,15 +1231,16 @@ Configuration parameters may also be set on the command line by using the
 
 snapmod.py
 ----------
-`snapmod.py` modifies the registers and RAM in a Z80 snapshot. For example::
+`snapmod.py` modifies the registers and RAM in an SZX or Z80 snapshot. For
+example::
 
   $ snapmod.py --poke 32768,0 game.z80 poked.z80
 
 To list the options supported by `snapmod.py`, run it with no arguments::
 
-  usage: snapmod.py [options] in.z80 [out.z80]
+  usage: snapmod.py [options] infile [outfile]
 
-  Modify a Z80 snapshot.
+  Modify an SZX or Z80 snapshot.
 
   Options:
     -m src,size,dest, --move src,size,dest
@@ -1262,7 +1263,7 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.1     | Added support for modifying 128K Z80 snapshots                    |
+| 9.1     | Added support for modifying SZX snapshots and 128K snapshots      |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Added the ``issue2`` hardware state attribute                     |
 +---------+-------------------------------------------------------------------+

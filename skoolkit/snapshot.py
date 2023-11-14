@@ -17,7 +17,7 @@
 import textwrap
 import zlib
 
-from skoolkit import SkoolKitError, get_int_param, parse_int, read_bin_file
+from skoolkit import SkoolKitError, get_dword, get_int_param, parse_int, read_bin_file
 from skoolkit.components import get_snapshot_reader, get_value
 
 FRAME_DURATIONS = (69888, 70908)
@@ -87,8 +87,11 @@ SZX_REGISTERS = {
 }
 
 class Memory:
-    def __init__(self, snapshot, page=0):
-        if len(snapshot) == 0x20000:
+    def __init__(self, snapshot=None, banks=None, page=None):
+        if banks:
+            self.banks = banks
+            self.memory = [[0] * 0x4000, self.banks[5], self.banks[2], self.banks[page]]
+        elif len(snapshot) == 0x20000:
             self.banks = [snapshot[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
             self.memory = [[0] * 0x4000, self.banks[5], self.banks[2], self.banks[page]]
         else:
@@ -111,6 +114,59 @@ class Memory:
         if self.banks:
             return self.banks
         return self.memory[1] + self.memory[2] + self.memory[3]
+
+class SZX:
+    def __init__(self, szxfile):
+        self.blocks = {}
+        banks = [None] * 8
+        data = bytearray(read_bin_file(szxfile))
+        if len(data) < 8 or data[:4] != b'ZXST':
+            raise SnapshotError(f'{szxfile}: invalid SZX file')
+        self.header = data[:8]
+        page = 0
+        i = 8
+        while i + 8 <= len(data):
+            block_id = data[i:i + 4]
+            block_len = get_dword(data, i + 4)
+            if i + 8 + block_len <= len(data):
+                if block_id == b'RAMP':
+                    bank = data[i + 10] % 8
+                    ram = data[i + 11:i + 8 + block_len]
+                    if data[i + 8] % 2:
+                        ram = zlib.decompress(ram)
+                    banks[bank] = list(ram)
+                else:
+                    if block_id == b'SPCR':
+                        page = data[i + 9] % 8
+                    self.blocks[bytes(block_id)] = data[i + 8:i + 8 + block_len]
+            i += 8 + block_len
+        self.memory = Memory(banks=banks, page=page)
+
+    def __getitem__(self, index):
+        return self.memory.__getitem__(index)
+
+    def __setitem__(self, index, value):
+        self.memory.__setitem__(index, value)
+
+    def set_registers_and_state(self, registers, state):
+        _add_zxstspecregs(None, state, self.blocks.get(b'SPCR'))
+        _add_zxstz80regs(None, registers, state, self.blocks.get(b'Z80R'))
+        if any(spec.startswith(('ay[', 'fffd=')) for spec in state):
+            _add_zxstayblock(None, state, self.blocks.setdefault(b'AY\x00\x00', bytearray([0] * 18)))
+        if any(spec.startswith('issue2=') for spec in state):
+            _add_zxstkeyboard(None, state, self.blocks.setdefault(b'KEYB', bytearray([0] * 5)))
+
+    def write(self, szxfile):
+        with open(szxfile, 'wb') as f:
+            f.write(self.header)
+            for block_id, block_data in self.blocks.items():
+                f.write(block_id)
+                size = len(block_data)
+                f.write(bytes((size % 256, (size >> 8) % 256, (size >> 16) % 256, (size >> 24) % 256)))
+                f.write(block_data)
+            for bank, data in enumerate(self.memory.banks):
+                if data:
+                    f.write(_get_zxstrampage(bank, data))
 
 # Component API
 def can_read(fname):
@@ -257,7 +313,7 @@ def set_z80_state(z80, *specs):
         except ValueError:
             raise SkoolKitError("Cannot parse integer: {}".format(spec))
 
-def print_state_help(short_option=None, show_defaults=True, show_szx=True):
+def print_state_help(short_option=None, show_defaults=True):
     options = ['--state name=value']
     if short_option:
         options.insert(0, '-{} name=value'.format(short_option))
@@ -273,14 +329,13 @@ def print_state_help(short_option=None, show_defaults=True, show_szx=True):
         ('7ffd', 'last OUT to port 0x7ffd (128K only)'),
         ('ay[N]', 'contents of AY register N (N=0-15; 128K only)'),
         ('border', f'border colour{border}'),
+        ('fe', 'last OUT to port 0xfe (SZX only)'),
         ('fffd', 'last OUT to port 0xfffd (128K only)'),
         ('iff', f'interrupt flip-flop: 0=disabled, 1=enabled{iff}'),
         ('im', f'interrupt mode{im}'),
         ('issue2', f'issue 2 emulation: 0=disabled, 1=enabled{issue2}'),
         ('tstates', f'T-states elapsed since start of frame{tstates}')
     ]
-    if show_szx:
-        attributes.append(('fe', 'last OUT to port 0xfe (SZX only)'))
     attrs = '\n'.join(f'  {a:<7} - {d}' for a, d in sorted(attributes))
     print(f'Usage: {opts}\n\nSet a hardware state attribute. Recognised names {infix}are:\n\n{attrs}')
 
@@ -332,8 +387,11 @@ def _write_z80v3(fname, ram, registers, state):
     with open(fname, 'wb') as f:
         f.write(bytes(z80 + make_z80v3_ram_blocks(ram)))
 
-def _add_zxstspecregs(szx, state):
-    values = [0] * 8
+def _add_zxstspecregs(szx, state, spcr=None):
+    if spcr:
+        values = spcr
+    else:
+        values = [0] * 8
     for spec in state:
         name, sep, val = spec.lower().partition('=')
         try:
@@ -345,12 +403,16 @@ def _add_zxstspecregs(szx, state):
                 values[3] = get_int_param(val) % 256
         except ValueError:
             raise SkoolKitError(f'Cannot parse integer: {spec}')
-    szx.extend((83, 80, 67, 82)) # SPCR
-    szx.extend((8, 0, 0, 0))     # Block size
-    szx.extend(values)
+    if szx:
+        szx.extend((83, 80, 67, 82)) # SPCR
+        szx.extend((8, 0, 0, 0))     # Block size
+        szx.extend(values)
 
-def _add_zxstkeyboard(szx, state):
-    values = [0] * 5
+def _add_zxstkeyboard(szx, state, keyb=None):
+    if keyb:
+        values = keyb
+    else:
+        values = [0] * 5
     for spec in state:
         name, sep, val = spec.lower().partition('=')
         try:
@@ -358,29 +420,44 @@ def _add_zxstkeyboard(szx, state):
                 values[0] = get_int_param(val) % 2
         except ValueError:
             raise SkoolKitError(f'Cannot parse integer: {spec}')
-    szx.extend((75, 69, 89, 66)) # KEYB
-    szx.extend((5, 0, 0, 0))     # Block size
-    szx.extend(values)
+    if szx:
+        szx.extend(b'KEYB')
+        szx.extend((5, 0, 0, 0)) # Block size
+        szx.extend(values)
 
-def _add_zxstayblock(szx, state):
-    values = [0] * 17
+def _add_zxstayblock(szx, state, ay=None):
+    if ay:
+        values = ay
+    else:
+        values = [0] * 18
     for spec in state:
         name, sep, val = spec.lower().partition('=')
         try:
             if name == 'fffd':
-                values[0] = get_int_param(val) % 256
+                values[1] = get_int_param(val) % 256
             elif name.startswith('ay[') and name.endswith(']'):
                 r = get_int_param(name[3:-1]) % 16
-                values[1 + r] = get_int_param(val) % 256
+                values[2 + r] = get_int_param(val) % 256
         except ValueError:
             raise SkoolKitError(f'Cannot parse integer: {spec}')
-    szx.extend((65, 89, 0, 0)) # AY
-    szx.extend((18, 0, 0, 0))  # Block size
-    szx.append(0)              # chFlags
-    szx.extend(values)
+    if szx:
+        szx.extend(b'AY\x00\x00')
+        szx.extend((18, 0, 0, 0)) # Block size
+        szx.extend(values)
 
-def _add_zxstz80regs(szx, registers, state):
-    reg_values = [0] * 26
+def _add_zxstz80regs(szx, registers, state, z80r=None):
+    if z80r:
+        values = z80r
+    else:
+        values = [0] * 26
+        values.extend((
+            1,              # IFF1
+            1,              # IFF2
+            1,              # IM
+            127, 136, 0, 0, # dwCyclesStart=34943
+            0, 0, 0, 0
+        ))
+
     for spec in registers:
         reg, sep, val = spec.lower().partition('=')
         if sep:
@@ -395,39 +472,32 @@ def _add_zxstz80regs(szx, registers, state):
                 value = get_int_param(val, True)
             except ValueError:
                 raise SkoolKitError(f'Cannot parse register value: {spec}')
-            reg_values[offset] = value % 256
+            values[offset] = value % 256
             if size == 2:
-                reg_values[offset + 1] = (value // 256) % 256
+                values[offset + 1] = (value // 256) % 256
 
-    state_values = [
-        1,              # IFF1
-        1,              # IFF2
-        1,              # IM
-        127, 136, 0, 0, # dwCyclesStart=34943
-        0, 0, 0, 0
-    ]
     for spec in state:
         name, sep, val = spec.lower().partition('=')
         try:
             if name == 'iff':
-                state_values[0] = state_values[1] = get_int_param(val) & 255
+                values[26] = values[27] = get_int_param(val) & 255
             elif name == 'im':
-                state_values[2] = get_int_param(val) & 3
+                values[28] = get_int_param(val) & 3
             elif name == 'tstates':
                 tstates = get_int_param(val)
-                state_values[3:6] = (tstates % 256, (tstates // 256) % 256, (tstates // 65536) % 256)
+                values[29:32] = (tstates % 256, (tstates // 256) % 256, (tstates // 65536) % 256)
         except ValueError:
             raise SkoolKitError(f'Cannot parse integer: {spec}')
 
-    szx.extend((90, 56, 48, 82)) # Z80R
-    szx.extend((37, 0, 0, 0))    # Block size
-    szx.extend(reg_values)
-    szx.extend(state_values)
+    if szx:
+        szx.extend(b'Z80R')
+        szx.extend((37, 0, 0, 0)) # Block size
+        szx.extend(values)
 
 def _get_zxstrampage(page, data):
     ram = zlib.compress(bytes(data), 9)
     size = len(ram) + 3
-    ramp = [82, 65, 77, 80]                      # RAMP
+    ramp = bytearray(b'RAMP')
     ramp.extend((size % 256, size // 256, 0, 0)) # Block size
     ramp.extend((1, 0, page))
     ramp.extend(ram)

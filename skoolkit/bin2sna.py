@@ -48,7 +48,7 @@ def run(infile, outfile, options):
         mem = []
         for bank in range(8):
             mem.extend(banks.get(bank, [0] * 0x4000))
-        memory = Memory(mem, options.page)
+        memory = Memory(mem, page=options.page)
         state.append(f'7ffd={options.page}')
     if options.start is None:
         start = org

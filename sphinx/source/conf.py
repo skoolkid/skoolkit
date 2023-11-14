@@ -222,7 +222,7 @@ latex_documents = [
 _authors = ['Richard Dymond']
 man_pages = [
     ('man/bin2sna.py', 'bin2sna.py',
-     'convert a binary file into a Z80 snapshot', _authors, 1),
+     'convert a binary file into an SZX or Z80 snapshot', _authors, 1),
     ('man/bin2tap.py', 'bin2tap.py',
      'convert a binary file or snapshot into a TAP file', _authors, 1),
     ('man/skool2asm.py', 'skool2asm.py',
@@ -242,7 +242,7 @@ man_pages = [
     ('man/snapinfo.py', 'snapinfo.py',
      'show information on the registers and RAM in a snapshot file', _authors, 1),
     ('man/snapmod.py', 'snapmod.py',
-     'modify a Z80 snapshot', _authors, 1),
+     'modify an SZX or Z80 snapshot', _authors, 1),
     ('man/tap2sna.py', 'tap2sna.py',
      'convert a TAP or TZX file into a snapshot file', _authors, 1),
     ('man/tapinfo.py', 'tapinfo.py',

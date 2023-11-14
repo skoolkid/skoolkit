@@ -153,6 +153,42 @@ class StdIn:
     def close(self):
         return
 
+class SZX:
+    def __init__(self, szxfile):
+        self.blocks = {}
+        self.banks = [None] * 8
+        with open(szxfile, 'rb') as f:
+            data = f.read()
+        self.header = data[:8]
+        i = 8
+        while i + 8 <= len(data):
+            block_id = data[i:i + 4]
+            block_len = data[i + 4] + 256 * data[i + 5] + 65536 * data[i + 6] + 16777216 * data[i + 7]
+            if block_len > 0x8000:
+                raise ValueError(f"SZX block length too large: {block_len}")
+            if i + 8 + block_len <= len(data):
+                if block_id == b'RAMP':
+                    bank = data[i + 10] % 8
+                    ram = data[i + 11:i + 8 + block_len]
+                    if data[i + 8] % 2:
+                        ram = zlib.decompress(ram)
+                    self.banks[bank] = list(ram)
+                else:
+                    self.blocks[block_id] = data[i + 8:i + 8 + block_len]
+            i += 8 + block_len
+
+    def compare(self, other):
+        block_diffs = {}
+        for block_id, block in self.blocks.items():
+            other_block = other.blocks.get(block_id)
+            if block != other_block:
+                block_diffs[block_id] = block
+        ram_diffs = {}
+        for i, (bank, other_bank) in enumerate(zip(self.banks, other.banks)):
+            if bank != other_bank:
+                ram_diffs[i] = bank
+        return block_diffs, ram_diffs
+
 class SkoolKitTestCase(TestCase):
     stdout_binary = False
 

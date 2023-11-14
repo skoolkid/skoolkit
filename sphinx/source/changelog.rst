@@ -3,7 +3,8 @@ Changelog
 
 9.1b1
 -----
-* Added support to :ref:`snapmod.py` for modifying 128K Z80 snapshots
+* Added support to :ref:`snapmod.py` for modifying SZX snapshots and 128K
+  snapshots
 * Added support to :ref:`bin2sna.py` for writing 128K snapshots (by using the
   ``--page`` and ``--bank`` options)
 * Added the ``execint`` parameter to the :ref:`AUDIO`, :ref:`SIM` and

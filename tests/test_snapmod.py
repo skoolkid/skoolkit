@@ -1,7 +1,7 @@
 import textwrap
 from unittest.mock import patch
 
-from skoolkittest import SkoolKitTestCase, Z80_REGISTERS
+from skoolkittest import SkoolKitTestCase, SZX, Z80_REGISTERS
 from skoolkit import SkoolKitError, snapmod, read_bin_file, VERSION
 from skoolkit.snapshot import get_snapshot
 
@@ -53,6 +53,31 @@ class SnapmodTest(SkoolKitTestCase):
         z80_ram = get_snapshot(outfile)[16384:]
         self.assertEqual(exp_ram, z80_ram)
 
+    def _test_szx(self, options, exp_block_diffs=None, exp_ram_diffs=None, kb=48, ram=None, ch7ffd=0):
+        if ram is None:
+            if kb == 16:
+                ram = [0] * 0x4000
+            else:
+                ram = [0] * 0xC000
+        machine_id = {16: 0, 48: 1, 128: 2}[kb]
+        pages = {}
+        registers = (0,) # Registers all 0
+        border = 0
+        keyb = False
+        issue2 = 0
+        ay = None
+        infile = self.write_szx(ram, True, machine_id, ch7ffd, pages, registers, border, keyb, issue2, ay)
+        outfile = f'{infile[:-4]}-out.szx'
+        output, error = self.run_snapmod(f'{options} {infile} {outfile}')
+        block_diffs, ram_diffs = SZX(outfile).compare(SZX(infile))
+        self.assertEqual(set(exp_block_diffs or {}), set(block_diffs))
+        for block_id, block in block_diffs.items():
+            block_name = ''.join(chr(b) for b in block_id if b)
+            self.assertEqual(list(exp_block_diffs[block_id]), list(block_diffs[block_id]), f"Mismatch in '{block_name}' block")
+        self.assertEqual(set(exp_ram_diffs or {}), set(ram_diffs))
+        for bank, contents in ram_diffs.items():
+            self.assertEqual(exp_ram_diffs[bank], ram_diffs[bank], f'RAM mismatch in bank {bank}')
+
     def _test_z80_128k(self, options, header, exp_header, ram=None, exp_ram=None, version=3, compress=False):
         if ram is None:
             ram = [0] * 0x20000
@@ -82,10 +107,16 @@ class SnapmodTest(SkoolKitTestCase):
         exp_header = header[:]
         if version == 1:
             exp_header[12] |= 32 # RAM block compressed
-        ram = [0] * 49152
-        ram[src - 16384:src - 16384 + size] = block
-        exp_ram = ram[:]
-        exp_ram[dest - 16384:dest - 16384 + size] = block
+        if is128:
+            ram = [0] * 0x20000
+            ram[src % 0x4000:(src % 0x4000) + size] = block # Page 0
+            exp_ram = ram[:]
+            exp_ram[dest % 0x4000:(dest % 0x4000) + size] = block
+        else:
+            ram = [0] * 49152
+            ram[src - 16384:src - 16384 + size] = block
+            exp_ram = ram[:]
+            exp_ram[dest - 16384:dest - 16384 + size] = block
         if is128:
             self._test_z80_128k(options, header, exp_header, ram, exp_ram, version, compress)
         else:
@@ -139,6 +170,17 @@ class SnapmodTest(SkoolKitTestCase):
             self.run_snapmod('-r hl=0 {}'.format(infile))
         self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
 
+    def test_invalid_szx(self):
+        infile = self.write_bin_file([0], suffix='.szx')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_snapmod(f'-p 16384,0 {infile}')
+        self.assertEqual(cm.exception.args[0], f'{infile}: invalid SZX file')
+
+    def test_mismatched_input_and_output_snapshot_types(self):
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_snapmod('in.z80 out.szx')
+        self.assertEqual(cm.exception.args[0], 'Mismatched input and output snapshot types')
+
     def test_overwrite_input_file(self):
         header = [0] * 30
         header[6] = 1 # PC > 0
@@ -185,7 +227,36 @@ class SnapmodTest(SkoolKitTestCase):
         self._test_move('-m', 50000, [3] * 5, 60000, 3, False)
 
     def test_option_m_z80v3_128k(self):
-        self._test_move('-m', 50000, [3] * 5, 60000, 3, False)
+        self._test_move('-m', 50000, [3] * 5, 60000, 3, False, is128=True)
+
+    def test_option_m_szx_16k(self):
+        option = '-m 16384,2,16386'
+        ram = [1, 2] + [0] * 16382
+        exp_block_diffs = None
+        exp_ram_diffs = {5: [1, 2, 1, 2] + [0] * 16380}
+        self._test_szx(option, exp_block_diffs, exp_ram_diffs, 16, ram)
+
+    def test_option_m_szx_48k(self):
+        options = (
+            '-m 16384,2,32767',
+            '-m 16386,2,49151'
+        )
+        ram = [1, 2, 3, 4] + [0] * 49148
+        exp_block_diffs = None
+        exp_ram_diffs = {
+            5: [1, 2, 3, 4] + [0] * 16379 + [1], # 0x4000-0x7FFF
+            2: [2] + [0] * 16382 + [3],          # 0x8000-0xBFFF
+            0: [4] + [0] * 16383,                # 0xC000-0xFFFF
+        }
+        self._test_szx(' '.join(options), exp_block_diffs, exp_ram_diffs, 48, ram)
+
+    def test_option_m_szx_128k(self):
+        option = '-m 49152,1,49153'
+        ram = [0] * 49152
+        ram[32768] = 255 # 49152,255
+        exp_block_diffs = None
+        exp_ram_diffs = {0: [255, 255] + [0] * 16382}
+        self._test_szx(option, exp_block_diffs, exp_ram_diffs, 128, ram)
 
     def test_option_move_multiple(self):
         specs = ((34576, 2, 30000), (45678, 3, 40000), (56789, 4, 50000))
@@ -274,6 +345,34 @@ class SnapmodTest(SkoolKitTestCase):
             exp_ram[(bank * 0x4000) + (addr % 0x4000)] = value
             options.append(f'--poke {addr},{value}')
         self._test_z80_128k(' '.join(options), header, exp_header, ram, exp_ram, 3)
+
+    def test_option_p_szx_16k(self):
+        option = '-p 16384,255'
+        exp_block_diffs = None
+        exp_ram_diffs = {5: [255] + [0] * 16383}
+        self._test_szx(option, exp_block_diffs, exp_ram_diffs, 16)
+
+    def test_option_p_szx_48k(self):
+        pokes = ((5, 0x4000, 0xFF), (2, 0x8100, 0xF0), (0, 0xC200, 0x0F))
+        exp_block_diffs = None
+        exp_ram_diffs = {}
+        options = []
+        for bank, addr, value in pokes:
+            exp_ram_diffs[bank] = [0] * 0x4000
+            exp_ram_diffs[bank][addr % 0x4000] = value
+            options.append(f'--poke {addr},{value}')
+        self._test_szx(' '.join(options), exp_block_diffs, exp_ram_diffs, 48)
+
+    def test_option_p_szx_128k(self):
+        pokes = ((5, 0x4000, 0xFF), (2, 0x8100, 0xF0), (3, 0xC200, 0x0F))
+        exp_block_diffs = None
+        exp_ram_diffs = {}
+        options = []
+        for bank, addr, value in pokes:
+            exp_ram_diffs[bank] = [0] * 0x4000
+            exp_ram_diffs[bank][addr % 0x4000] = value
+            options.append(f'--poke {addr},{value}')
+        self._test_szx(' '.join(options), exp_block_diffs, exp_ram_diffs, 128, ch7ffd=3)
 
     def test_option_poke_multiple(self):
         pokes = ((24576, 1), (32768, 34), (49152, 205))
@@ -381,6 +480,30 @@ class SnapmodTest(SkoolKitTestCase):
         registers = {'a': 1, 'bc': 2}
         self._test_reg('-r', registers, 3, is128=True)
 
+    def test_option_r_szx_16k(self):
+        reg = {'a': 1, 'b': 2, 'de': 257}
+        exp_reg_block = bytes((
+            0, 1,       # AF
+            0, 2,       # BC
+            1, 1,       # DE
+            0, 0,       # HL
+            0, 0, 0, 0, # AF', BC'
+            0, 0, 0, 0, # DE', HL'
+            0, 0, 0, 0, # IX, IY
+            0, 0, 0, 0, # SP, PC
+            0, 0,       # IR
+            0, 0,       # IFF1, IFF2
+            0,          # IM
+            0, 0, 0, 0, # dwCyclesStart
+            0,          # chHoldIntReqCycles
+            0,          # chFlags
+            0, 0,       # wMemPtr
+        ))
+        exp_block_diffs = {b'Z80R': exp_reg_block}
+        exp_ram_diffs = None
+        options = ' '.join(f'-r {r}={v}' for r, v in reg.items())
+        self._test_szx(options, exp_block_diffs, exp_ram_diffs, 16)
+
     def test_option_r_invalid_values(self):
         infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
         self._test_bad_spec('-r sp=j', infile, 'Cannot parse register value: sp=j')
@@ -445,6 +568,45 @@ class SnapmodTest(SkoolKitTestCase):
         options = '-s 7ffd=7 -s ay[0]=1 -s border=2 -s fffd=5 -s iff=1 -s im=2 -s issue2=1 -s tstates=51233'
         self._test_z80_128k(options, header, exp_header)
 
+    def test_option_s_szx_16k(self):
+        state = {
+            'border': 4,
+            'iff': 0,
+            'im': 2,
+            'issue2': 1,
+            'fe': 16,
+            'tstates': 12345
+        }
+        exp_z80r_block = bytearray([0] * 37)
+        exp_z80r_block[26] = state['iff']
+        exp_z80r_block[27] = state['iff']
+        exp_z80r_block[28] = state['im']
+        exp_z80r_block[29:33] = (57, 48, 0, 0) # dwCyclesStart
+        exp_block_diffs = {
+            b'KEYB': bytes((state['issue2'], 0, 0, 0, 0)),
+            b'SPCR': bytes((state['border'], 0, 0, state['fe'], 0, 0, 0, 0)),
+            b'Z80R': exp_z80r_block,
+        }
+        exp_ram_diffs = None
+        options = ' '.join(f'-s {s}={v}' for s, v in state.items())
+        self._test_szx(options, exp_block_diffs, exp_ram_diffs, 16)
+
+    def test_option_s_szx_128k(self):
+        state = {
+            '7ffd': 3,
+            'ay[0]': 7,
+            'fffd': 2,
+        }
+        exp_ay_reg = [0] * 16
+        exp_ay_reg[0] = state['ay[0]']
+        exp_block_diffs = {
+            b'AY\x00\x00': bytes((0, state['fffd'], *exp_ay_reg)),
+            b'SPCR': bytes((0, state['7ffd'], 0, 0, 0, 0, 0, 0)),
+        }
+        exp_ram_diffs = None
+        options = ' '.join(f'-s {s}={v}' for s, v in state.items())
+        self._test_szx(options, exp_block_diffs, exp_ram_diffs, 128)
+
     def test_option_s_invalid_values(self):
         infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
         self._test_bad_spec('-s border=k', infile, 'Cannot parse integer: border=k')
@@ -463,6 +625,7 @@ class SnapmodTest(SkoolKitTestCase):
               7ffd    - last OUT to port 0x7ffd (128K only)
               ay[N]   - contents of AY register N (N=0-15; 128K only)
               border  - border colour
+              fe      - last OUT to port 0xfe (SZX only)
               fffd    - last OUT to port 0xfffd (128K only)
               iff     - interrupt flip-flop: 0=disabled, 1=enabled
               im      - interrupt mode
