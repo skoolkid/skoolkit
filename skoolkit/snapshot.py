@@ -90,7 +90,11 @@ class Memory:
     def __init__(self, snapshot=None, banks=None, page=None):
         if banks:
             self.banks = banks
-            self.memory = [[0] * 0x4000, self.banks[5], self.banks[2], self.banks[page]]
+            if page is None:
+                # Z80 48K
+                self.memory = [[0] * 0x4000, self.banks[5], self.banks[1], self.banks[2]]
+            else:
+                self.memory = [[0] * 0x4000, self.banks[5], self.banks[2], self.banks[page]]
         elif len(snapshot) == 0x20000:
             self.banks = [snapshot[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
             self.memory = [[0] * 0x4000, self.banks[5], self.banks[2], self.banks[page]]
@@ -115,7 +119,14 @@ class Memory:
             return self.banks
         return self.memory[1] + self.memory[2] + self.memory[3]
 
-class SZX:
+class Snapshot:
+    def __getitem__(self, index):
+        return self.memory.__getitem__(index)
+
+    def __setitem__(self, index, value):
+        self.memory.__setitem__(index, value)
+
+class SZX(Snapshot):
     def __init__(self, szxfile):
         self.blocks = {}
         banks = [None] * 8
@@ -142,12 +153,6 @@ class SZX:
             i += 8 + block_len
         self.memory = Memory(banks=banks, page=page)
 
-    def __getitem__(self, index):
-        return self.memory.__getitem__(index)
-
-    def __setitem__(self, index, value):
-        self.memory.__setitem__(index, value)
-
     def set_registers_and_state(self, registers, state):
         _add_zxstspecregs(None, state, self.blocks.get(b'SPCR'))
         _add_zxstz80regs(None, registers, state, self.blocks.get(b'Z80R'))
@@ -167,6 +172,56 @@ class SZX:
             for bank, data in enumerate(self.memory.banks):
                 if data:
                     f.write(_get_zxstrampage(bank, data))
+
+class Z80(Snapshot):
+    def __init__(self, z80file):
+        banks = [None] * 8
+        data = bytearray(read_bin_file(z80file))
+        if sum(data[6:8]) > 0:
+            # Version 1
+            page = 0
+            self.header = data[:30]
+            if data[12] & 32:
+                ram = _decompress_block(data[30:-4])
+            else:
+                ram = data[30:]
+            banks[5] = ram[0x0000:0x4000]
+            banks[2] = ram[0x4000:0x8000]
+            banks[0] = ram[0x8000:0xC000]
+        else:
+            page = None
+            i = 32 + data[30]
+            self.header = data[:i]
+            if (i == 55 and data[34] > 2) or (i > 55 and data[34] > 3):
+                page = data[35] % 8 # 128K
+            while i < len(data):
+                length = data[i] + 256 * data[i + 1]
+                bank = data[i + 2] - 3
+                if length == 65535:
+                    length = 16384
+                    banks[bank] = data[i + 3:i + 3 + length]
+                else:
+                    banks[bank] = _decompress_block(data[i + 3:i + 3 + length])
+                i += 3 + length
+        self.memory = Memory(banks=banks, page=page)
+
+    def set_registers_and_state(self, registers, state):
+        set_z80_registers(self.header, *registers)
+        set_z80_state(self.header, *state)
+
+    def write(self, z80file):
+        with open(z80file, 'wb') as f:
+            if len(self.header) == 30:
+                # Version 1
+                self.header[12] |= 32 # RAM is compressed
+                f.write(self.header)
+                ram = self.memory.banks[5] + self.memory.banks[2] + self.memory.banks[0]
+                f.write(bytes(make_z80_ram_block(ram)))
+            else:
+                f.write(self.header)
+                for bank, data in enumerate(self.memory.banks, 3):
+                    if data:
+                        f.write(bytes(make_z80_ram_block(data, bank)))
 
 # Component API
 def can_read(fname):
@@ -238,7 +293,7 @@ def set_z80_registers(z80, *specs):
                 size = len(reg) - 1
             else:
                 size = len(reg)
-            if reg == 'pc' and z80[6:8] != [0, 0]:
+            if reg == 'pc' and sum(z80[6:8]) > 0:
                 offset = 6
             else:
                 offset = Z80_REGISTERS.get(reg, -1)
@@ -339,7 +394,7 @@ def print_state_help(short_option=None, show_defaults=True):
     attrs = '\n'.join(f'  {a:<7} - {d}' for a, d in sorted(attributes))
     print(f'Usage: {opts}\n\nSet a hardware state attribute. Recognised names {infix}are:\n\n{attrs}')
 
-def make_z80_ram_block(data, page):
+def make_z80_ram_block(data, page=None):
     block = []
     prev_b = None
     count = 0
@@ -364,6 +419,8 @@ def make_z80_ram_block(data, page):
         block.extend((237, 237, count, prev_b))
     else:
         block.extend((prev_b,) * count)
+    if page is None:
+        return block + [0, 237, 237, 0]
     length = len(block)
     return [length % 256, length // 256, page] + block
 
@@ -595,7 +652,7 @@ def _read_z80(data, page=None):
         return data[header_size:]
     machine_id = data[34]
     extension = ()
-    if (version == 2 and machine_id < 2) or (version == 3 and machine_id in (0, 1, 3)):
+    if version >= 2 and machine_id < 2:
         if data[37] & 128:
             banks = (5,) # 16K
             extension = [0] * 32768

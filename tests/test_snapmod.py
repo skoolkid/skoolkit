@@ -1,7 +1,7 @@
 import textwrap
 from unittest.mock import patch
 
-from skoolkittest import SkoolKitTestCase, SZX, Z80_REGISTERS
+from skoolkittest import SkoolKitTestCase, SZX, Z80, Z80_REGISTERS
 from skoolkit import SkoolKitError, snapmod, read_bin_file, VERSION
 from skoolkit.snapshot import get_snapshot
 
@@ -48,10 +48,9 @@ class SnapmodTest(SkoolKitTestCase):
         output, error = self.run_snapmod('{} {} {}'.format(options, infile, outfile))
         self.assertEqual(output, '')
         self.assertEqual(error, '')
-        z80_header = list(read_bin_file(outfile, len(exp_header)))
-        self.assertEqual(exp_header, z80_header)
-        z80_ram = get_snapshot(outfile)[16384:]
-        self.assertEqual(exp_ram, z80_ram)
+        z80 = Z80(outfile)
+        self.assertEqual(exp_header, z80.header)
+        self.assertEqual(exp_ram, z80.ram)
 
     def _test_szx(self, options, exp_block_diffs=None, exp_ram_diffs=None, kb=48, ram=None, ch7ffd=0):
         if ram is None:
@@ -90,12 +89,11 @@ class SnapmodTest(SkoolKitTestCase):
         output, error = self.run_snapmod(f'{options} {infile} {outfile}')
         self.assertEqual(output, '')
         self.assertEqual(error, '')
-        z80_header = list(read_bin_file(outfile, len(exp_header)))
-        self.assertEqual(exp_header, z80_header)
-        z80_ram = get_snapshot(outfile, -1)
-        self.assertEqual(len(z80_ram), 0x20000)
+        z80 = Z80(outfile)
+        self.assertEqual(exp_header, z80.header)
+        self.assertEqual(len(z80.ram), 0x20000)
         for bank, a in enumerate(range(0, 0x20000, 0x4000)):
-            self.assertEqual(exp_ram[a:a + 0x4000], z80_ram[a:a + 0x4000], f'Mismatch in RAM bank {bank}')
+            self.assertEqual(exp_ram[a:a + 0x4000], z80.ram[a:a + 0x4000], f'Mismatch in RAM bank {bank}')
 
     def _test_move(self, option, src, block, dest, version, compress, hex_prefix=None, is128=False):
         size = len(block)

@@ -189,6 +189,56 @@ class SZX:
                 ram_diffs[i] = bank
         return block_diffs, ram_diffs
 
+class Z80:
+    def __init__(self, z80file):
+        with open(z80file, 'rb') as f:
+            data = list(f.read())
+        if sum(data[6:8]) > 0:
+            # Version 1
+            self.header = data[:30]
+            if data[12] & 32:
+                self.ram = self._decompress_block(data[30:-4])
+            else:
+                self.ram = data[30:]
+        else:
+            banks = [None] * 8
+            i = 32 + data[30]
+            self.header = data[:i]
+            while i < len(data):
+                length = data[i] + 256 * data[i + 1]
+                bank = data[i + 2] - 3
+                if length == 65535:
+                    length = 16384
+                    banks[bank] = data[i + 3:i + 3 + length]
+                else:
+                    banks[bank] = self._decompress_block(data[i + 3:i + 3 + length])
+                i += 3 + length
+            if (i == 55 and data[34] > 2) or (i > 55 and data[34] > 3):
+                self.ram = banks[0] + banks[1] + banks[2] + banks[3] + banks[4] + banks[5] + banks[6] + banks[7]
+            else:
+                self.ram = banks[5] + banks[1] + banks[2]
+
+    def _decompress_block(self, data):
+        block = []
+        i = 0
+        while i < len(data):
+            b = data[i]
+            i += 1
+            if b == 237 and i < len(data):
+                c = data[i]
+                i += 1
+                if c == 237:
+                    length, byte = data[i], data[i + 1]
+                    if length == 0:
+                        raise ValueError(f'Found ED ED 00 {byte:02X}')
+                    block += [byte] * length
+                    i += 2
+                else:
+                    block += [b, c]
+            else:
+                block.append(b)
+        return block
+
 class SkoolKitTestCase(TestCase):
     stdout_binary = False
 

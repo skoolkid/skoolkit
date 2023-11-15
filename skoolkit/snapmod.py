@@ -16,54 +16,20 @@
 
 import argparse
 
-from skoolkit import SkoolKitError, get_word, read_bin_file, VERSION
-from skoolkit.snapshot import (Memory, SZX, get_snapshot, make_z80_ram_block, make_z80v3_ram_blocks, move, poke,
-                               print_reg_help, print_state_help, set_z80_registers, set_z80_state)
-
-def _read_z80(z80file):
-    data = read_bin_file(z80file)
-    if get_word(data, 6) > 0:
-        header = data[:30]
-        page = 0
-    else:
-        header_len = 32 + get_word(data, 30)
-        header = data[:header_len]
-        page = header[35] % 8
-    return list(header), Memory(get_snapshot(z80file, -1), page=page)
-
-def _write_z80(header, memory, fname):
-    if len(header) == 30:
-        header[12] |= 32
-        ram = make_z80_ram_block(memory.contents(), 0)[3:] + [0, 237, 237, 0]
-    else:
-        ram = make_z80v3_ram_blocks(memory.contents())
-    with open(fname, 'wb') as f:
-        f.write(bytearray(header + ram))
-
-def _modify_z80(infile, options, outfile):
-    header, memory = _read_z80(infile)
-    for spec in options.moves:
-        move(memory, spec)
-    for spec in options.pokes:
-        poke(memory, spec)
-    set_z80_registers(header, *options.reg)
-    set_z80_state(header, *options.state)
-    _write_z80(header, memory, outfile)
-
-def _modify_szx(infile, options, outfile):
-    szx = SZX(infile)
-    for spec in options.moves:
-        move(szx, spec)
-    for spec in options.pokes:
-        poke(szx, spec)
-    szx.set_registers_and_state(options.reg, options.state)
-    szx.write(outfile)
+from skoolkit import SkoolKitError, VERSION
+from skoolkit.snapshot import SZX, Z80, move, poke, print_reg_help, print_state_help
 
 def run(infile, options, outfile):
     if infile.lower().endswith('.z80'):
-        _modify_z80(infile, options, outfile)
+        snapshot = Z80(infile)
     else:
-        _modify_szx(infile, options, outfile)
+        snapshot = SZX(infile)
+    for spec in options.moves:
+        move(snapshot, spec)
+    for spec in options.pokes:
+        poke(snapshot, spec)
+    snapshot.set_registers_and_state(options.reg, options.state)
+    snapshot.write(outfile)
 
 def main(args):
     parser = argparse.ArgumentParser(
