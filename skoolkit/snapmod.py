@@ -17,13 +17,10 @@
 import argparse
 
 from skoolkit import SkoolKitError, VERSION
-from skoolkit.snapshot import SZX, Z80, move, poke, print_reg_help, print_state_help
+from skoolkit.snapshot import Snapshot, move, poke, print_reg_help, print_state_help
 
 def run(infile, options, outfile):
-    if infile.lower().endswith('.z80'):
-        snapshot = Z80(infile)
-    else:
-        snapshot = SZX(infile)
+    snapshot = Snapshot.get(infile)
     for spec in options.moves:
         move(snapshot, spec)
     for spec in options.pokes:

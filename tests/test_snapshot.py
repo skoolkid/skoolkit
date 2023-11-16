@@ -11,7 +11,7 @@ class SnapshotTest(SkoolKitTestCase):
             # 16K
             self.assertEqual(len(ram), 49152)
             self.assertEqual(ram[:16384], exp_ram[:16384])
-            self.assertEqual(ram[16384:], [0] * 32768)
+            self.assertEqual(sum(ram[16384:]), 0)
         elif model == 1:
             # 48K
             self.assertEqual(len(ram), 49152)
@@ -145,7 +145,7 @@ class Z80Test(SnapshotTest):
         self._test_z80(exp_ram, 1, True)
 
     def test_z80v2_16k_compressed(self):
-        exp_ram = [(n + 7) & 255 for n in range(49152)]
+        exp_ram = [(n + 7) & 255 for n in range(16384)] + [0] * 32768
         self._test_z80(exp_ram, 2, True, modify=True)
 
     def test_z80v2_48k(self):
@@ -162,12 +162,16 @@ class Z80Test(SnapshotTest):
         self._test_z80(exp_ram, 2, False, machine_id=3)
 
     def test_z80v3_16k(self):
-        exp_ram = [(n + 7) & 255 for n in range(49152)]
+        exp_ram = [(n + 7) & 255 for n in range(16384)] + [0] * 32768
         self._test_z80(exp_ram, 3, False, machine_id=1, modify=True)
 
     def test_z80v3_48k(self):
         exp_ram = [(n + 128) & 255 for n in range(49152)]
         self._test_z80(exp_ram, 3, False)
+
+    def test_z80v3_48k_mgt(self):
+        exp_ram = [(n + 128) & 255 for n in range(49152)]
+        self._test_z80(exp_ram, 3, False, machine_id=3)
 
     def test_z80v3_48k_compressed(self):
         exp_ram = [201] * 4336 + [19] * 255 + [142] * 2 + [1, 2] + [37] * 4
@@ -367,6 +371,7 @@ class SZXTest(SnapshotTest):
         szx.extend((1, 0)) # Compressed
         page = 5
         szx.append(page)
+        szx.extend(ram)
         tmp_szx = self.write_bin_file(szx, suffix='.szx')
         try:
             get_snapshot(tmp_szx)

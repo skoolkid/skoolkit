@@ -99,7 +99,7 @@ class Memory:
             self.banks = [snapshot[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
             self.memory = [[0] * 0x4000, self.banks[5], self.banks[2], self.banks[page]]
         else:
-            self.banks = None
+            self.banks = [None] * 8
             self.memory = [[0] * 0x4000, snapshot[0x4000:0x8000], snapshot[0x8000:0xC000], snapshot[0xC000:]]
 
     def __getitem__(self, index):
@@ -115,16 +115,55 @@ class Memory:
                 self.memory[a // 0x4000][a % 0x4000] = b
 
     def contents(self):
-        if self.banks:
+        if all(self.banks):
             return self.banks
         return self.memory[1] + self.memory[2] + self.memory[3]
 
+    def ram(self, page):
+        if not all(self.banks) or page is None:
+            if self.memory[2]:
+                return self.memory[1] + self.memory[2] + self.memory[3]
+            return self.memory[1] + [0] * 32768
+        if page >= 0:
+            return self.banks[5] + self.banks[2] + self.banks[page]
+        return self.banks[0] + self.banks[1] + self.banks[2] + self.banks[3] + self.banks[4] + self.banks[5] + self.banks[6] + self.banks[7]
+
 class Snapshot:
+    @classmethod
+    def get(cls, sfile):
+        ext = sfile[-4:].lower()
+        if ext == '.sna':
+            return SNA(sfile)
+        if ext == '.szx':
+            return SZX(sfile)
+        if ext == '.z80':
+            return Z80(sfile)
+
     def __getitem__(self, index):
         return self.memory.__getitem__(index)
 
     def __setitem__(self, index, value):
         self.memory.__setitem__(index, value)
+
+    def ram(self, page=None):
+        return self.memory.ram(page)
+
+class SNA(Snapshot):
+    def __init__(self, snafile):
+        banks = [None] * 8
+        data = list(read_bin_file(snafile))
+        if len(data) > 49179:
+            page = data[49181] % 8
+            offset = 49183
+            for i in sorted(set(range(8)) - {5, 2, page}):
+                banks[i] = data[offset:offset + 16384]
+                offset += 16384
+        else:
+            page = 0
+        banks[5] = data[27:16411]
+        banks[2] = data[16411:32795]
+        banks[page] = data[32795:49179]
+        self.memory = Memory(banks=banks, page=page)
 
 class SZX(Snapshot):
     def __init__(self, szxfile):
@@ -144,13 +183,20 @@ class SZX(Snapshot):
                     bank = data[i + 10] % 8
                     ram = data[i + 11:i + 8 + block_len]
                     if data[i + 8] % 2:
-                        ram = zlib.decompress(ram)
+                        try:
+                            ram = zlib.decompress(ram)
+                        except zlib.error as e:
+                            raise SnapshotError(f'Error while decompressing page {bank}: {e.args[0]}')
+                    if len(ram) != 16384:
+                        raise SnapshotError(f'Page {bank} is {len(ram)} bytes (should be 16384)')
                     banks[bank] = list(ram)
                 else:
                     if block_id == b'SPCR':
                         page = data[i + 9] % 8
                     self.blocks[bytes(block_id)] = data[i + 8:i + 8 + block_len]
             i += 8 + block_len
+        if self.header[6] > 1 and b'SPCR' not in self.blocks:
+            raise SnapshotError("SPECREGS (SPCR) block not found")
         self.memory = Memory(banks=banks, page=page)
 
     def set_registers_and_state(self, registers, state):
@@ -176,13 +222,13 @@ class SZX(Snapshot):
 class Z80(Snapshot):
     def __init__(self, z80file):
         banks = [None] * 8
-        data = bytearray(read_bin_file(z80file))
+        data = list(read_bin_file(z80file))
         if sum(data[6:8]) > 0:
             # Version 1
             page = 0
             self.header = data[:30]
             if data[12] & 32:
-                ram = _decompress_block(data[30:-4])
+                ram = self._decompress(data[30:-4])
             else:
                 ram = data[30:]
             banks[5] = ram[0x0000:0x4000]
@@ -201,9 +247,30 @@ class Z80(Snapshot):
                     length = 16384
                     banks[bank] = data[i + 3:i + 3 + length]
                 else:
-                    banks[bank] = _decompress_block(data[i + 3:i + 3 + length])
+                    banks[bank] = self._decompress(data[i + 3:i + 3 + length])
                 i += 3 + length
         self.memory = Memory(banks=banks, page=page)
+
+    def _decompress(self, ramz):
+        block = []
+        i = 0
+        while i < len(ramz):
+            b = ramz[i]
+            i += 1
+            if b == 237 and i < len(ramz):
+                c = ramz[i]
+                i += 1
+                if c == 237:
+                    length, byte = ramz[i], ramz[i + 1]
+                    if length == 0:
+                        raise SnapshotError("Found ED ED 00 {0:02X}".format(byte))
+                    block += [byte] * length
+                    i += 2
+                else:
+                    block += [b, c]
+            else:
+                block.append(b)
+        return block
 
     def set_registers_and_state(self, registers, state):
         set_z80_registers(self.header, *registers)
@@ -214,11 +281,11 @@ class Z80(Snapshot):
             if len(self.header) == 30:
                 # Version 1
                 self.header[12] |= 32 # RAM is compressed
-                f.write(self.header)
+                f.write(bytes(self.header))
                 ram = self.memory.banks[5] + self.memory.banks[2] + self.memory.banks[0]
                 f.write(bytes(make_z80_ram_block(ram)))
             else:
-                f.write(self.header)
+                f.write(bytes(self.header))
                 for bank, data in enumerate(self.memory.banks, 3):
                     if data:
                         f.write(bytes(make_z80_ram_block(data, bank)))
@@ -247,14 +314,7 @@ def get_snapshot(fname, page=None):
     """
     if not can_read(fname):
         raise SnapshotError("{}: Unknown file type".format(fname))
-    data = read_bin_file(fname)
-    ext = fname[-4:].lower()
-    if ext == '.sna':
-        ram = _read_sna(data, page)
-    elif ext == '.z80':
-        ram = _read_z80(data, page)
-    elif ext == '.szx':
-        ram = _read_szx(data, page)
+    ram = Snapshot.get(fname).ram(page)
     if len(ram) == 49152:
         return [0] * 16384 + list(ram)
     if len(ram) == 131072:
@@ -621,148 +681,6 @@ def poke(snapshot, param_str):
     addr1, addr2, step = values + [values[0], 1][len(values) - 1:]
     for a in range(addr1, addr2 + 1, step):
         snapshot[a] = poke_f(snapshot[a])
-
-def _read_sna(data, page=None):
-    if len(data) <= 49179 or page is None:
-        return data[27:49179]
-    paged_bank = data[49181] & 7
-    pages = {5: data[27:16411], 2: data[16411:32795], paged_bank: data[32795:49179]}
-    offset = 49183
-    for i in range(8):
-        if i not in pages:
-            pages[i] = data[offset:offset + 16384]
-            offset += 16384
-    if page >= 0:
-        return pages[5] + pages[2] + pages[page]
-    return pages[0] + pages[1] + pages[2] + pages[3] + pages[4] + pages[5] + pages[6] + pages[7]
-
-def _read_z80(data, page=None):
-    if sum(data[6:8]) > 0:
-        version = 1
-    else:
-        version = 2
-    if version == 1:
-        header_size = 30
-    else:
-        header_size = 32 + data[30]
-    header = data[:header_size]
-    if version == 1:
-        if header[12] & 32:
-            return _decompress_block(data[header_size:-4])
-        return data[header_size:]
-    machine_id = data[34]
-    extension = ()
-    if version >= 2 and machine_id < 2:
-        if data[37] & 128:
-            banks = (5,) # 16K
-            extension = [0] * 32768
-        else:
-            banks = (5, 1, 2) # 48K
-    else:
-        if page is None:
-            banks = (5, 2, data[35] & 7)
-        elif page < 0:
-            banks = (0, 1, 2, 3, 4, 5, 6, 7)
-        else:
-            banks = (5, 2, page)
-    return _decompress(data[header_size:], banks, extension)
-
-def _read_szx(data, page=None):
-    extension = ()
-    machine_id = data[6]
-    if machine_id == 0:
-        banks = (5,) # 16K
-        extension = [0] * 32768
-    elif machine_id == 1:
-        banks = (5, 2, 0) # 48K
-    else:
-        if page is None:
-            specregs = _get_zxstblock(data, 8, 'SPCR')[1]
-            if specregs is None:
-                raise SnapshotError("SPECREGS (SPCR) block not found")
-            banks = (5, 2, specregs[1] & 7)
-        elif page < 0:
-            banks = (0, 1, 2, 3, 4, 5, 6, 7)
-        else:
-            banks = (5, 2, page)
-    pages = {}
-    for bank in banks:
-        pages[bank] = None
-    i = 8
-    while 1:
-        i, rampage = _get_zxstblock(data, i, 'RAMP')
-        if rampage is None:
-            break
-        page = rampage[2]
-        if page in pages:
-            ram = rampage[3:]
-            if rampage[0] & 1:
-                try:
-                    ram = zlib.decompress(ram)
-                except zlib.error as e:
-                    raise SnapshotError("Error while decompressing page {0}: {1}".format(page, e.args[0]))
-            if len(ram) != 16384:
-                raise SnapshotError("Page {0} is {1} bytes (should be 16384)".format(page, len(ram)))
-            pages[page] = ram
-    return _concatenate_pages(pages, banks, extension)
-
-def _get_zxstblock(data, index, block_id):
-    block = None
-    while index < len(data) and block is None:
-        size = data[index + 4] + 256 * data[index + 5] + 65536 * data[index + 6] + 16777216 * data[index + 7]
-        dw_id = ''.join([chr(b) for b in data[index:index + 4]])
-        if dw_id == block_id:
-            block = data[index + 8:index + 8 + size]
-        index += 8 + size
-    return index, block
-
-def _concatenate_pages(pages, banks, extension):
-    ram = []
-    for bank in banks:
-        if pages[bank] is None:
-            raise SnapshotError("Page {0} not found".format(bank))
-        ram.extend(pages[bank])
-    ram.extend(extension)
-    return ram
-
-def _decompress(ramz, banks, extension):
-    pages = {}
-    for bank in banks:
-        pages[bank] = None
-    j = 0
-    while j < len(ramz):
-        length = ramz[j] + 256 * ramz[j + 1]
-        page = ramz[j + 2] - 3
-        if length == 65535:
-            if page in pages:
-                pages[page] = ramz[j + 3:j + 16387]
-            j += 16387
-        else:
-            if page in pages:
-                pages[page] = _decompress_block(ramz[j + 3:j + 3 + length])
-            j += 3 + length
-    return _concatenate_pages(pages, banks, extension)
-
-def _decompress_block(ramz):
-    block = []
-    i = 0
-    while i < len(ramz):
-        b = ramz[i]
-        i += 1
-        if b == 237 and i < len(ramz):
-            c = ramz[i]
-            i += 1
-            if c == 237:
-                length, byte = ramz[i], ramz[i + 1]
-                if length == 0:
-                    raise SnapshotError("Found ED ED 00 {0:02X}".format(byte))
-                block += [byte] * length
-                i += 2
-            else:
-                block += [b, c]
-        else:
-            block.append(b)
-    return block
 
 # API (SnapshotReader)
 class SnapshotError(SkoolKitError):
