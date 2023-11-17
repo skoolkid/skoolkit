@@ -139,14 +139,16 @@ class Snapshot:
         if ext == '.z80':
             return Z80(sfile)
 
-    def __getitem__(self, index):
-        return self.memory.__getitem__(index)
-
-    def __setitem__(self, index, value):
-        self.memory.__setitem__(index, value)
-
     def ram(self, page=None):
         return self.memory.ram(page)
+
+    def move(self, specs):
+        for spec in specs:
+            move(self.memory, spec)
+
+    def poke(self, specs):
+        for spec in specs:
+            poke(self.memory, spec)
 
 class SNA(Snapshot):
     def __init__(self, snafile):

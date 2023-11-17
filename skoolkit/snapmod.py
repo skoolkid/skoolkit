@@ -21,10 +21,8 @@ from skoolkit.snapshot import Snapshot, move, poke, print_reg_help, print_state_
 
 def run(infile, options, outfile):
     snapshot = Snapshot.get(infile)
-    for spec in options.moves:
-        move(snapshot, spec)
-    for spec in options.pokes:
-        poke(snapshot, spec)
+    snapshot.move(options.moves)
+    snapshot.poke(options.pokes)
     snapshot.set_registers_and_state(options.reg, options.state)
     snapshot.write(outfile)
 
