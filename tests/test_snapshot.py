@@ -1,9 +1,9 @@
 from collections import defaultdict
 import zlib
 
-from skoolkittest import SkoolKitTestCase
+from skoolkittest import SkoolKitTestCase, Z80 as Z80Reader
 from skoolkit import SkoolKitError, get_dword
-from skoolkit.snapshot import get_snapshot, make_z80_ram_block, set_z80_registers, set_z80_state, write_snapshot, SnapshotError
+from skoolkit.snapshot import Z80, get_snapshot, write_snapshot, SnapshotError
 
 class SnapshotTest(SkoolKitTestCase):
     def _check_ram(self, ram, exp_ram, model, out_7ffd, pages, page):
@@ -211,75 +211,87 @@ class Z80Test(SnapshotTest):
 class Z80CompressionTest(SkoolKitTestCase):
     def test_single_ED_followed_by_five_identical_values(self):
         data = [237, 1, 1, 1, 1, 1]
-        block = make_z80_ram_block(data, 0)
-        exp_data = [len(data), 0, 0] + data
-        self.assertEqual(exp_data, block)
+        z80file = 'test.z80'
+        Z80(ram=data + [0] * 49146).write(z80file)
+        ram = Z80Reader(z80file).ram
+        self.assertEqual(data, ram[:6])
+        self.assertEqual(sum(ram[6:]), 0)
 
     def test_single_ED_followed_by_six_identical_values(self):
         data = [237, 2, 2, 2, 2, 2, 2]
-        block = make_z80_ram_block(data, 0)
-        exp_data = [6, 0, 0, 237, 2, 237, 237, 5, 2]
-        self.assertEqual(exp_data, block)
+        z80file = 'test.z80'
+        Z80(ram=data + [0] * 49145).write(z80file)
+        ram = Z80Reader(z80file).ram
+        self.assertEqual(data, ram[:7])
+        self.assertEqual(sum(ram[7:]), 0)
 
     def test_block_ending_with_single_ED(self):
-        data = [0, 237]
-        exp_data = [2, 0, 0, 0, 237]
-        self.assertEqual(exp_data, make_z80_ram_block(data, 0))
+        data = [0] * 16383 + [237]
+        z80file = 'test.z80'
+        Z80(ram=data + [0] * 32768).write(z80file)
+        ram = Z80Reader(z80file).ram
+        self.assertEqual(ram[16383], 237)
+        self.assertEqual(sum(ram), 237)
 
 class Z80StateTest(SkoolKitTestCase):
     def test_iff(self):
-        header = [255] * 30
+        z80 = Z80()
         for iff in (0, 1):
-            set_z80_state(header, f'iff={iff}')
-            self.assertEqual([iff, iff], header[27:29])
+            z80.header[27:29] = (255, 255)
+            z80.set_registers_and_state((), [f'iff={iff}'])
+            self.assertEqual([iff, iff], z80.header[27:29])
 
     def test_im(self):
-        header = [255] * 30
+        z80 = Z80()
         for im in (0, 1, 2):
-            set_z80_state(header, f'im={im}')
-            self.assertEqual(header[29], 252 + im)
+            z80.header[29] = 255
+            z80.set_registers_and_state((), [f'im={im}'])
+            self.assertEqual(z80.header[29], 252 + im)
 
     def test_border(self):
-        header = [255] * 30
+        z80 = Z80()
         for border in range(8):
-            set_z80_state(header, f'border={border}')
-            self.assertEqual(header[12], 241 + border * 2)
+            z80.header[12] = 255
+            z80.set_registers_and_state((), [f'border={border}'])
+            self.assertEqual(z80.header[12], 241 + border * 2)
 
     def test_tstates_48k(self):
-        header = [255] * 58
-        header[34] = 0 # 48K
+        z80 = Z80()
+        z80.header[34] = 0 # 48K
         for tstates in (0, 1000, 17471, 17472, 20000, 38000, 56000, 69887, 69888):
-            set_z80_state(header, f'tstates={tstates}')
-            t_lo = header[55] + 256 * header[56]
-            t_hi = header[57]
+            z80.set_registers_and_state((), [f'tstates={tstates}'])
+            t_lo = z80.header[55] + 256 * z80.header[56]
+            t_hi = z80.header[57]
             t = 69887 - ((2 - t_hi) % 4) * 17472 - (t_lo % 17472)
             self.assertEqual(t, tstates % 69888)
 
     def test_tstates_128k(self):
-        header = [255] * 58
-        header[34] = 4 # 128K
+        z80 = Z80()
+        z80.header[34] = 4 # 128K
         for tstates in (0, 1000, 17726, 17727, 20000, 38000, 56000, 70907, 70908):
-            set_z80_state(header, f'tstates={tstates}')
-            t_lo = header[55] + 256 * header[56]
-            t_hi = header[57]
+            z80.set_registers_and_state((), [f'tstates={tstates}'])
+            t_lo = z80.header[55] + 256 * z80.header[56]
+            t_hi = z80.header[57]
             t = 70907 - ((2 - t_hi) % 4) * 17727 - (t_lo % 17727)
             self.assertEqual(t, tstates % 70908)
 
     def test_issue2(self):
-        header = [255] * 30
+        z80 = Z80()
         for issue2 in (0, 1):
-            set_z80_state(header, f'issue2={issue2}')
-            self.assertEqual(header[29], 251 + issue2 * 4)
+            z80.header[29] = 255
+            z80.set_registers_and_state((), [f'issue2={issue2}'])
+            self.assertEqual(z80.header[29], 251 + issue2 * 4)
 
     def test_all(self):
-        header = [255] * 58
-        header[34] = 0 # 48K
-        set_z80_state(header, 'iff=0', 'im=2', 'border=3', 'tstates=17471', 'issue2=0')
-        self.assertEqual(header[27], 0) # IFF1
-        self.assertEqual(header[28], 0) # IFF2
-        self.assertEqual(header[29], 250) # IM (bits 0-1), issue 2 (bit 2)
-        self.assertEqual(header[12], 247) # Border (bits 1-3)
-        self.assertEqual([0, 0, 3], header[55:58]) # T-states
+        z80 = Z80()
+        z80.header[12:58] = [255] * 46
+        z80.header[34] = 0 # 48K
+        z80.set_registers_and_state((), ('iff=0', 'im=2', 'border=3', 'tstates=17471', 'issue2=0'))
+        self.assertEqual(z80.header[27], 0) # IFF1
+        self.assertEqual(z80.header[28], 0) # IFF2
+        self.assertEqual(z80.header[29], 250) # IM (bits 0-1), issue 2 (bit 2)
+        self.assertEqual(z80.header[12], 247) # Border (bits 1-3)
+        self.assertEqual([0, 0, 3], z80.header[55:58]) # T-states
 
 class Z80RegistersTest(SkoolKitTestCase):
     def test_8_bit_registers(self):
@@ -288,9 +300,10 @@ class Z80RegistersTest(SkoolKitTestCase):
             '^a': 11, '^f': 12, '^b': 13, '^c':14, '^d': 15, '^e': 16, '^h': 17, '^l': 18
         }
         for p, f in (('', 'd'), ('$', '02x'), ('0x', '02x'), ('%', '08b')):
-            header = [0] * 33
             specs = [f'{r}={p}{v:{f}}' for r, v in reg.items()]
-            set_z80_registers(header, *specs)
+            z80 = Z80()
+            z80.set_registers_and_state(specs, ())
+            header = z80.header
             self.assertEqual(header[0], 1)   # A
             self.assertEqual(header[1], 2)   # F
             self.assertEqual(header[3], 3)   # B
@@ -317,9 +330,10 @@ class Z80RegistersTest(SkoolKitTestCase):
             '^bc': 3597, '^de': 4111, '^hl': 4625, 'pc': 5139
         }
         for p, f in (('', 'd'), ('$', '04x'), ('0x', '04x'), ('%', '016b')):
-            header = [0] * 33
             specs = [f'{r}={p}{v:{f}}' for r, v in reg.items()]
-            set_z80_registers(header, *specs)
+            z80 = Z80()
+            z80.set_registers_and_state(specs, ())
+            header = z80.header
             self.assertEqual([1, 2], header[2:4])     # BC
             self.assertEqual([3, 4], header[13:15])   # DE
             self.assertEqual([5, 6], header[4:6])     # HL
@@ -332,16 +346,18 @@ class Z80RegistersTest(SkoolKitTestCase):
             self.assertEqual([19, 20], header[32:34]) # PC
 
     def test_r_with_bit_7_reset(self):
-        header = [255] * 33
-        set_z80_registers(header, 'r=1')
-        self.assertEqual(header[11], 1)
-        self.assertEqual(header[12], 254)
+        z80 = Z80()
+        z80.header[12] = 255
+        z80.set_registers_and_state(['r=1'], ())
+        self.assertEqual(z80.header[11], 1)
+        self.assertEqual(z80.header[12], 254)
 
     def test_r_with_bit_7_set(self):
-        header = [0] * 33
-        set_z80_registers(header, 'r=240')
-        self.assertEqual(header[11], 240)
-        self.assertEqual(header[12], 1)
+        z80 = Z80()
+        z80.header[12] = 128
+        z80.set_registers_and_state(['r=240'], ())
+        self.assertEqual(z80.header[11], 240)
+        self.assertEqual(z80.header[12], 129)
 
 class SZXTest(SnapshotTest):
     def _test_szx(self, exp_ram, compress, machine_id=1, ch7ffd=0, pages={}, page=None):
@@ -597,7 +613,7 @@ class WriteSZXTest(WriteSnapshotTest):
         else:
             self._check_keyb(blocks, exp_state)
         self._check_ramp(blocks, ram)
-        self.assertEqual(len(blocks), 0) # Should be no other blocks
+        self.assertEqual([], list(blocks.keys())) # Should be no other blocks
 
     def _test_bad_spec(self, exp_error, ram, registers=(), state=()):
         fname = '{}/test.szx'.format(self.make_directory())
@@ -806,7 +822,7 @@ class WriteZ80Test(WriteSnapshotTest):
         self.assertEqual(cm.exception.args[0], exp_error)
 
     def test_write_z80_48k(self):
-        ram = [[(i + j) % 256 for i in range(16384)] for j in range(8)]
+        ram = [n % 256 for n in range(49152)]
         registers = {
             'a': 1,
             'b': 2,
@@ -841,7 +857,7 @@ class WriteZ80Test(WriteSnapshotTest):
         self._test_z80(ram, registers, state)
 
     def test_write_z80_128k(self):
-        ram = [n % 256 for n in range(49152)]
+        ram = [[(i + j) % 256 for i in range(16384)] for j in range(8)]
         registers = {
             'a': 1,
             'bc': 2300,
