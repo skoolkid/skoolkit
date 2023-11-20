@@ -7,6 +7,8 @@ Changelog
   snapshots
 * Added support to :ref:`bin2sna.py` for writing 128K snapshots (by using the
   ``--page`` and ``--bank`` options)
+* Added support to the :ref:`rom` directive for inserting a copy of a 128K ROM
+  into the internal memory snapshot
 * Added the ``execint`` parameter to the :ref:`AUDIO`, :ref:`SIM` and
   :ref:`TSTATES` macros (to specify whether to simulate the execution of
   interrupt routines)

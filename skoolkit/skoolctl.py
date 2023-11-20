@@ -41,7 +41,7 @@ AD_REFS = 'refs'
 
 # An entry ASM directive is one that should be placed before the entry title
 # when it is associated with the first instruction in the entry
-RE_ENTRY_ASM_DIRECTIVE = re.compile(r"assemble=|def[bsw]=|end$|equ=|expand=|if\(|org$|org=|remote=|replace=|rom|set-[-a-z]+=|start$|writer=")
+RE_ENTRY_ASM_DIRECTIVE = re.compile(r"assemble=|def[bsw]=|end$|equ=|expand=|if\(|org$|org=|remote=|replace=|rom$|rom=|set-[-a-z]+=|start$|writer=")
 
 # Comment types to which the @ignoreua directive may be applied
 TITLE = 't'

@@ -18,7 +18,7 @@ from collections import defaultdict, namedtuple
 from html import escape
 import re
 
-from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, ROM48, SkoolParsingError,
+from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, ROM48, ROM128, SkoolParsingError,
                       warn, wrap, get_int_param, parse_int, read_bin_file, open_file, z80)
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import INTEGER, ClosingBracketError, MacroParsingError, parse_brackets, parse_if, parse_strings
@@ -696,7 +696,12 @@ class SkoolParser:
         elif directive.startswith('replace='):
             self._add_replacement(directive[8:])
         elif directive.startswith('rom'):
-            rom = read_bin_file(ROM48)
+            rom_file = ROM48
+            if directive.startswith('rom='):
+                model, sep, index = directive[4:].partition(',')
+                if model == '128':
+                    rom_file = ROM128[index == '1']
+            rom = read_bin_file(rom_file)
             self.snapshot[:len(rom)] = rom
         elif directive.startswith('assemble='):
             html_value, asm_value = [parse_int(i) for i in (directive[9:] + ',').split(',')][:2]
