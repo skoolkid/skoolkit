@@ -18,8 +18,8 @@ import re
 
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.components import get_assembler, get_component, get_operand_evaluator
-from skoolkit.skoolparser import (Comment, parse_entry_header, parse_instruction,
-                                  parse_address_comments, join_comments, read_skool, DIRECTIVES)
+from skoolkit.skoolutils import (Comment, parse_entry_header, parse_instruction,
+                                 parse_address_comments, join_comments, read_skool, DIRECTIVES)
 from skoolkit.textutils import partition_unquoted
 
 ASM_DIRECTIVES = 'a'

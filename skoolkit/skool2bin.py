@@ -1,4 +1,4 @@
-# Copyright 2015-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015-2021, 2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -21,9 +21,9 @@ from os.path import basename
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, parse_int, warn, VERSION
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
-from skoolkit.skoolparser import (DIRECTIVES, parse_address_range, parse_asm_data_directive,
-                                  parse_asm_keep_directive, parse_asm_nowarn_directive,
-                                  parse_asm_sub_fix_directive, read_skool)
+from skoolkit.skoolutils import (DIRECTIVES, parse_address_range, parse_asm_data_directive,
+                                 parse_asm_keep_directive, parse_asm_nowarn_directive,
+                                 parse_asm_sub_fix_directive, read_skool)
 from skoolkit.textutils import partition_unquoted
 
 VALID_CTLS = DIRECTIVES + ' *'
@@ -52,7 +52,7 @@ class Instruction:
         return '{0:05} {0:04X} {1} {2:13} {3}'.format(self.real_address, self.marker, self.operation, suffix).rstrip()
 
 class BinWriter:
-    def __init__(self, skoolfile, asm_mode=0, fix_mode=0, start=-1, end=65537, data=False, verbose=False, warn=True):
+    def __init__(self, skoolfile, asm_mode=0, fix_mode=0, start=-1, end=65537, data=False, verbose=False, warn=False):
         if fix_mode > 2:
             asm_mode = 3
         elif asm_mode > 2:

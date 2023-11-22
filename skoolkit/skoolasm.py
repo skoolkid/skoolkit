@@ -18,8 +18,9 @@ import re
 
 from skoolkit import (CASE_LOWER, skoolmacro, SkoolKitError, SkoolParsingError,
                       format_template, warn, write_text, wrap)
-from skoolkit.skoolparser import (TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER,
-                                  LIST_MARKER, LIST_END_MARKER)
+from skoolkit.skoolutils import (TableParser, ListParser, TABLE_MARKER,
+                                 TABLE_END_MARKER, LIST_MARKER,
+                                 LIST_END_MARKER)
 
 BLOCK_SEP = '\x00'
 

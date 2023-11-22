@@ -20,7 +20,7 @@ from collections import defaultdict
 from skoolkit import warn, get_int_param, open_file
 from skoolkit.skoolctl import (extract_entry_asm_directives, AD_IGNOREUA, AD_ORG, AD_START,
                                TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
-from skoolkit.skoolparser import parse_asm_data_directive
+from skoolkit.skoolutils import parse_asm_data_directive
 from skoolkit.textutils import partition_unquoted, split_unquoted
 
 COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)

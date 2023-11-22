@@ -32,7 +32,7 @@ from skoolkit.components import get_component, get_image_writer
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.refparser import RefParser
-from skoolkit.skoolparser import TableParser, ListParser
+from skoolkit.skoolutils import TableParser, ListParser
 
 #: The ID of the main disassembly.
 MAIN_CODE_ID = 'main'

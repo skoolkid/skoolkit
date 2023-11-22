@@ -4,8 +4,9 @@ import re
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolParsingError, BASE_10, BASE_16, components, z80
-from skoolkit.skoolparser import SkoolParser, TableParser, set_bytes, CASE_LOWER, CASE_UPPER
+from skoolkit import SkoolParsingError, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, components, z80
+from skoolkit.skoolparser import SkoolParser
+from skoolkit.skoolutils import TableParser, set_bytes
 
 TEST_BASE_CONVERSION_SKOOL = r"""
 c30000 LD A,%11101011

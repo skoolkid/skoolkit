@@ -1,4 +1,4 @@
-# Copyright 2009-2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -24,9 +24,9 @@ from skoolkit.skoolasm import UDGTABLE_MARKER
 from skoolkit.skoolctl import (AD_LABEL, AD_REFS, TITLE, DESCRIPTION,
                                REGISTERS, MID_BLOCK, INSTRUCTION, END)
 from skoolkit.skoolmacro import INTEGER, ClosingBracketError, parse_brackets
-from skoolkit.skoolparser import (get_address, parse_asm_refs_directive,
-                                  parse_register, LIST_MARKER, TABLE_MARKER,
-                                  LIST_END_MARKER, TABLE_END_MARKER)
+from skoolkit.skoolutils import (get_address, parse_asm_refs_directive,
+                                 parse_register, LIST_MARKER, TABLE_MARKER,
+                                 LIST_END_MARKER, TABLE_END_MARKER)
 from skoolkit.z80 import get_timing
 
 MIN_COMMENT_WIDTH = 10
