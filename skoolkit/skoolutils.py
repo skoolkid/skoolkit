@@ -31,6 +31,41 @@ Z80_ASSEMBLER = z80.Assembler()
 
 Flags = namedtuple('Flags', 'prepend final overwrite append')
 
+class Memory:
+    def __init__(self, banks=None):
+        if banks is None:
+            self.banks = [None] * 8
+            self.banks[5] = [0] * 0x4000
+            self.banks[2] = [0] * 0x4000
+            self.banks[0] = [0] * 0x4000
+        else:
+            self.banks = banks
+        self.memory = [[0] * 0x4000, self.banks[5], self.banks[2], self.banks[0]]
+
+    def __getitem__(self, index):
+        if isinstance(index, int):
+            return self.memory[index // 0x4000][index % 0x4000]
+        return [self.memory[a // 0x4000][a % 0x4000] for a in range(index.start or 0, index.stop or 65536, index.step or 1)]
+
+    def __setitem__(self, index, value):
+        if isinstance(index, int):
+            self.memory[index // 0x4000][index % 0x4000] = value
+        else:
+            for a, b in zip(range(index.start or 0, index.stop or 65536, index.step or 1), value):
+                self.memory[a // 0x4000][a % 0x4000] = b
+
+    def bank(self, page, data=None):
+        if None in self.banks:
+            for i in (1, 3, 4, 6, 7):
+                self.banks[i] = [0] * 0x4000
+        if data is None:
+            self.memory[3] = self.banks[page]
+        else:
+            self.banks[page][:] = data
+
+    def copy(self):
+        return Memory([bank[:] if bank else None for bank in self.banks])
+
 class Comment:
     def __init__(self, rowspan, text):
         self.rowspan = rowspan
@@ -385,6 +420,14 @@ def parse_addresses(line):
             if addr is not None:
                 addresses.append(addr)
     return addresses
+
+def parse_asm_bank_directive(directive, snapshot, skool_reader):
+    bank, sep, skoolfile = directive[5:].partition(',')
+    page = parse_int(bank, 0) % 8
+    if skoolfile:
+        snapshot.bank(page, skool_reader(skoolfile).snapshot[49152:])
+    else:
+        snapshot.bank(page)
 
 def parse_asm_block_directive(directive, stack):
     prefix = directive[:4]

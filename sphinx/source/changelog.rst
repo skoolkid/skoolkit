@@ -9,6 +9,9 @@ Changelog
   ``--page`` and ``--bank`` options)
 * Added support to the :ref:`rom` directive for inserting a copy of a 128K ROM
   into the internal memory snapshot
+* Added the :ref:`bank` directive (for specifying the RAM bank that is mapped
+  to 49152-65535, and for populating a RAM bank from the contents of another
+  skool file)
 * Added the ``execint`` parameter to the :ref:`AUDIO`, :ref:`SIM` and
   :ref:`TSTATES` macros (to specify whether to simulate the execution of
   interrupt routines)

@@ -1755,6 +1755,59 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(memory_map[0].end_comment, ['The end of the first routine.', 'Really.'])
         self.assertEqual(memory_map[1].end_comment, ['The end of the second routine.'])
 
+    def test_bank_directive(self):
+        skool = """
+            @bank=7
+            ; Start
+            b49152 DEFS 16384,255
+        """
+        memory = self._get_parser(skool).snapshot
+        self.assertIs(memory.memory[3], memory.banks[7])
+        self.assertEqual(sum(memory.banks[7]), 255 * 16384)
+
+    def test_bank_directive_with_skoolfile(self):
+        bank3 = """
+            ; RAM bank 3
+            b49152 DEFS 16384,255
+        """
+        bank3skool = self.write_text_file(dedent(bank3).strip())
+        skool = f"""
+            @bank=3,{bank3skool}
+            ; Start
+            b49152 DEFS 16384
+        """
+        memory = self._get_parser(skool).snapshot
+        self.assertIs(memory.memory[3], memory.banks[0])
+        self.assertEqual(sum(memory.banks[0]), 0)
+        self.assertEqual(sum(memory.banks[3]), 255 * 16384)
+
+    def test_bank_directive_with_incomplete_skoolfile(self):
+        bank6 = """
+            ; RAM bank 6 (one byte)
+            b50000 DEFB 255
+        """
+        bank6skool = self.write_text_file(dedent(bank6).strip())
+        skool = f"""
+            @bank=6,{bank6skool}
+            ; Start
+            b49152 DEFS 16384
+        """
+        memory = self._get_parser(skool).snapshot
+        self.assertIs(memory.memory[3], memory.banks[0])
+        self.assertEqual(sum(memory.banks[0]), 0)
+        bank6 = memory.banks[6]
+        self.assertEqual(len(bank6), 16384)
+        self.assertEqual(bank6[50000 % 16384], 255)
+        self.assertEqual(sum(bank6), 255)
+
+    def test_bank_directive_with_nonexistent_skool_file(self):
+        skool = """
+            @bank=4,nonexistent.skool
+            ; Start
+            b49152 DEFS 16384,255
+        """
+        self.assert_error(skool, "Error while parsing @bank directive: nonexistent.skool: file not found")
+
     def test_defb_directives(self):
         skool = """
             @defb=23296:1,$0A,%10101010,"01",32768/256
@@ -5602,11 +5655,11 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_clone(self):
         skool = """
             @expand=#LET(x=0)
-            b40000 DEFB 1,2,3,4,5,6,7,8
+            b40000 DEFB 1,2,3,4,5,6,7,8 ; Copied to clone
         """
         parser = self._get_parser(skool, html=True, variables=(('foo', 1), ('bar', 2)))
         parser.fields.update({'foo': 1, 'bar$': 'hi'}) # Simulate #LET variable definitions
-        skool2 = 'b40002 DEFB 9,10,11,12'
+        skool2 = 'b40002 DEFB 9,10,11,12 ; Overwrites original'
         skool2file = self.write_text_file(skool2, suffix='.skool')
         clone = parser.clone(skool2file)
         self.assertEqual(parser.case, clone.case)

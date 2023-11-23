@@ -1191,6 +1191,22 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         self._test_ctl(skool, exp_ctl)
 
+    def test_bank_directives(self):
+        skool = """
+            @bank=4
+            ; Routine
+            c40000 LD A,C
+            @bank=1,bank1.skool
+             40001 RET
+        """
+        exp_ctl = """
+            @ 40000 bank=4
+            c 40000 Routine
+            @ 40001 bank=1,bank1.skool
+            i 40002
+        """
+        self._test_ctl(skool, exp_ctl)
+
     def test_defb_directives(self):
         skool = """
             @defb=23296:128

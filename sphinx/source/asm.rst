@@ -219,6 +219,29 @@ of the memory snapshot:
 | 5.0     | New                                                               |
 +---------+-------------------------------------------------------------------+
 
+.. _bank:
+
+@bank
+^^^^^
+The ``@bank`` directive either specifies the RAM bank that is mapped to
+49152-65535 (0xC000-0xFFFF) in the memory snapshot::
+
+  @bank=page
+
+or populates a specific RAM bank in the memory snapshot from the contents of
+another skool file::
+
+  @bank=page,fname
+
+* ``page`` is the page number (0-7)
+* ``fname`` is the name of the skool file
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 9.1     | New     |
++---------+---------+
+
 .. _bfix:
 
 @bfix

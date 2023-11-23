@@ -1060,6 +1060,20 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
+    def test_bank_directives(self):
+        ctl = """
+            @ 50000 bank=1,bank1.skool
+            c 50000 Routine at 50000
+            @ 50001 bank=7
+        """
+        exp_entry_directives = {
+            50000: ['bank=1,bank1.skool'],
+        }
+        exp_instruction_directives = {
+            50001: ['bank=7']
+        }
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
+
     def test_bfix_directives(self):
         ctl = """
             @ 40000 bfix=XOR A

@@ -21,12 +21,13 @@ import re
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, ROM48, ROM128, SkoolParsingError,
                       warn, get_int_param, parse_int, read_bin_file, open_file, z80)
 from skoolkit.components import get_assembler, get_instruction_utility
+from skoolkit.skool2bin import BinWriter
 from skoolkit.skoolmacro import INTEGER, MacroParsingError, parse_if
-from skoolkit.skoolutils import (DIRECTIVES, Z80_ASSEMBLER, Comment, get_address, join_comments, parse_address_comments,
-                                 parse_address_range, parse_addresses, parse_asm_data_directive,
-                                 parse_asm_keep_directive, parse_asm_nowarn_directive, parse_asm_refs_directive,
-                                 parse_asm_sub_fix_directive, parse_entry_header, parse_instruction, read_skool,
-                                 set_bytes)
+from skoolkit.skoolutils import (DIRECTIVES, Z80_ASSEMBLER, Comment, Memory, get_address, join_comments,
+                                 parse_address_comments, parse_address_range, parse_addresses, parse_asm_bank_directive,
+                                 parse_asm_data_directive, parse_asm_keep_directive, parse_asm_nowarn_directive,
+                                 parse_asm_refs_directive, parse_asm_sub_fix_directive, parse_entry_header,
+                                 parse_instruction, read_skool, set_bytes)
 from skoolkit.textutils import split_quoted, split_unquoted
 
 Reference = namedtuple('Reference', 'entry address addr_str use_label')
@@ -115,7 +116,7 @@ class SkoolParser:
                 'mode': self.fields.copy(),
                 'vars': defaultdict(int, variables)
             })
-        self.snapshot = snapshot or [0] * 65536  # 64K of Spectrum memory
+        self.snapshot = snapshot or Memory()     # Spectrum memory
         self.expands = expands or []
         self._instructions = defaultdict(list)   # address -> [Instructions]
         self._entries = {}                       # address -> SkoolEntry
@@ -145,7 +146,7 @@ class SkoolParser:
             self.mode.asm_labels,
             self.label_fmt,
             fields=self.fields,
-            snapshot=self.snapshot[:],
+            snapshot=self.snapshot.copy(),
             expands=self.expands[:]
         )
 
@@ -373,6 +374,11 @@ class SkoolParser:
                     rom_file = ROM128[index == '1']
             rom = read_bin_file(rom_file)
             self.snapshot[:len(rom)] = rom
+        elif directive.startswith('bank='):
+            try:
+                parse_asm_bank_directive(directive, self.snapshot, BinWriter)
+            except Exception as e:
+                raise SkoolParsingError(f'Error while parsing @bank directive: {e.args[0]}')
         elif directive.startswith('assemble='):
             html_value, asm_value = [parse_int(i) for i in (directive[9:] + ',').split(',')][:2]
             if self.mode.html and html_value is not None:

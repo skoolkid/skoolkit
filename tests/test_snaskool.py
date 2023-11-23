@@ -1935,6 +1935,23 @@ class SkoolWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this item has...")):
             writer.write_skool()
 
+    def test_bank_directives(self):
+        ctl = """
+            @ 00000 bank=3
+            c 00000 Routine at 0
+            @ 00001 bank=6,bank6.skool
+            i 00002
+        """
+        exp_skool = """
+            @bank=3
+            ; Routine at 0
+            c00000 XOR A         ;
+            @bank=6,bank6.skool
+             00001 RET           ;
+        """
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_defb_directives(self):
         snapshot = [0] * 5
         ctl = """
