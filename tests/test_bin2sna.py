@@ -135,6 +135,16 @@ class Bin2SnaTest(SkoolKitTestCase):
         z80file = self._run(binfile)
         self._check_z80(z80file, data)
 
+    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
+    def test_128k_input_file(self):
+        exp_ram = []
+        data = []
+        for i in range(8):
+            exp_ram.append([i] * 0x4000)
+            data.extend(exp_ram[-1])
+        args = self.write_bin_file(data, suffix='.bin')
+        self._check_write_snapshot(args, exp_ram)
+
     def test_nonstandard_bin_name(self):
         data = [0]
         binfile = self.write_bin_file(data, suffix='.ram')
@@ -284,6 +294,19 @@ class Bin2SnaTest(SkoolKitTestCase):
         exp_state = [f'7ffd={page}']
         self._check_write_snapshot(args, exp_ram, exp_state)
 
+    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_page_with_128k_input_file(self):
+        exp_ram = []
+        data = []
+        for i in range(8):
+            exp_ram.append([i] * 0x4000)
+            data.extend(exp_ram[-1])
+        binfile = self.write_bin_file(data, suffix='.bin')
+        page = 1
+        args = f'--page {page} {binfile}'
+        exp_state = [f'7ffd={page}']
+        self._check_write_snapshot(args, exp_ram, exp_state)
+
     def test_option_page_invalid(self):
         for option, exp_error in (
                 ('--page 8', "invalid choice: 8 (choose from 0, 1, 2, 3, 4, 5, 6, 7)"),
@@ -358,6 +381,20 @@ class Bin2SnaTest(SkoolKitTestCase):
         binfile = self.write_bin_file([0], suffix='.bin')
         args = f'--page 7 -P 16384,1 -P 32768,2 -P 49152,3 {binfile}'
         exp_state = ['7ffd=7']
+        self._check_write_snapshot(args, exp_ram, exp_state)
+
+    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_P_with_128k_input_file(self):
+        exp_ram = []
+        data = []
+        for i in range(8):
+            exp_ram.append([i] * 0x4000)
+            data.extend(exp_ram[-1])
+        binfile = self.write_bin_file(data, suffix='.bin')
+        page = 3
+        args = f'--page {page} -P 49152,255 {binfile}'
+        exp_ram[page][0] = 255 # POKE 49152,255
+        exp_state = [f'7ffd={page}']
         self._check_write_snapshot(args, exp_ram, exp_state)
 
     def test_option_P_invalid_values(self):

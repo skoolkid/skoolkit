@@ -6,7 +6,7 @@ Changelog
 * Added support to :ref:`snapmod.py` for modifying SZX snapshots and 128K
   snapshots
 * Added support to :ref:`bin2sna.py` for writing 128K snapshots (by using the
-  ``--page`` and ``--bank`` options)
+  ``--page`` and ``--bank`` options, or by providing a 128K input file)
 * Added support to the :ref:`rom` directive for inserting a copy of a 128K ROM
   into the internal memory snapshot
 * Added the :ref:`bank` directive (for specifying the RAM bank that is mapped

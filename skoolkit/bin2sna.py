@@ -30,25 +30,31 @@ def bank(arg):
         raise argparse.ArgumentTypeError(f"invalid integer '{bank}' in '{arg}'")
 
 def run(infile, outfile, options):
-    ram = list(read_bin_file(infile, 49152))
-    org = options.org or 65536 - len(ram)
-    snapshot = [0] * org + ram + [0] * (65536 - org - len(ram))
-    state = [f'border={options.border}']
-    if options.page is None:
-        memory = Memory(snapshot)
+    ram = list(read_bin_file(infile, 0x20000))
+    if len(ram) == 0x20000:
+        org = 0
+        memory = Memory(ram, page=options.page or 0)
     else:
-        banks = {
-            5: snapshot[0x4000:0x8000],
-            2: snapshot[0x8000:0xC000],
-            options.page: snapshot[0xC000:]
-        }
-        for bank, f in options.bank:
-            data = list(read_bin_file(f, 0x4000))
-            banks[bank] = data + [0] * (0x4000 - len(data))
-        mem = []
-        for bank in range(8):
-            mem.extend(banks.get(bank, [0] * 0x4000))
-        memory = Memory(mem, page=options.page)
+        ram = ram[:49152]
+        org = options.org or 65536 - len(ram)
+        mem = [0] * org + ram + [0] * (65536 - org - len(ram))
+        if options.page is None:
+            memory = Memory(mem)
+        else:
+            banks = {
+                5: mem[0x4000:0x8000],
+                2: mem[0x8000:0xC000],
+                options.page: mem[0xC000:]
+            }
+            for bank, f in options.bank:
+                data = list(read_bin_file(f, 0x4000))
+                banks[bank] = data + [0] * (0x4000 - len(data))
+            mem = []
+            for bank in range(8):
+                mem.extend(banks.get(bank, [0] * 0x4000))
+            memory = Memory(mem, page=options.page)
+    state = [f'border={options.border}']
+    if options.page is not None:
         state.append(f'7ffd={options.page}')
     if options.start is None:
         start = org

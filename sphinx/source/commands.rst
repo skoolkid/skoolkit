@@ -12,11 +12,16 @@ For example::
 
   $ bin2sna.py game.bin
 
-will create a file named `game.z80`. By default, the origin address (the
-address of the first byte of code or data), the start address (the first byte
-of code to run) and the stack pointer are set to 65536 minus the length of
-`game.bin`. These values can be changed by passing options to `bin2sna.py`. Run
-it with no arguments to see the list of available options::
+will create a file named `game.z80`.
+
+If the input file is 128K in length, it is assumed to hold the contents of RAM
+banks 0-7 in order, and `bin2sna.py` will write a corresponding 128K snapshot.
+Otherwise, the ``--page`` option is required to write a 128K snapshot, and the
+contents of individual RAM banks may be specified by ``--bank`` options. If the
+input file is less than 128K in length and no ``--page`` option is given, a 48K
+snapshot is written.
+
+Run `bin2sna.py` with no arguments to see the list of available options::
 
   usage: bin2sna.py [options] file.bin [OUTFILE]
 

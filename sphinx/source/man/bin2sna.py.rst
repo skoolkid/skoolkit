@@ -15,6 +15,13 @@ DESCRIPTION
 not given, it defaults to the name of the input file with '.bin' replaced by
 '.z80', or 'program.z80' if reading from standard input.
 
+If the input file is 128K in length, it is assumed to hold the contents of RAM
+banks 0-7 in order, and ``bin2sna.py`` will write a corresponding 128K
+snapshot. Otherwise, the ``--page`` option is required to write a 128K
+snapshot, and the contents of individual RAM banks may be specified by
+``--bank`` options. If the input file is less than 128K in length and no
+``--page`` option is given, a 48K snapshot is written.
+
 OPTIONS
 =======
 --bank `N,file`
