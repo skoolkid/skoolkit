@@ -17,6 +17,9 @@ not given, it defaults to the name of the input file with '.skool' replaced by
 
 OPTIONS
 =======
+-B, --banks
+  Process @bank directives and write RAM banks 0-7 to a 128K file.
+
 -b, --bfix
   Apply @ofix and @bfix directives.
 

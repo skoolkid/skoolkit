@@ -5,12 +5,13 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, VERSION, components, skool2bin
 
 class MockBinWriter:
-    def __init__(self, skoolfile, asm_mode, fix_mode, start, end, data, verbose, warn):
+    def __init__(self, skoolfile, asm_mode, fix_mode, banks, start, end, data, verbose, warn):
         global mock_bin_writer
         mock_bin_writer = self
         self.skoolfile = skoolfile
         self.asm_mode = asm_mode
         self.fix_mode = fix_mode
+        self.banks = banks
         self.start = start
         self.end = end
         self.data = data
@@ -22,11 +23,12 @@ class MockBinWriter:
         self.binfile = binfile
 
 class Skool2BinTest(SkoolKitTestCase):
-    def _check_values(self, skoolfile, binfile, asm_mode=0, fix_mode=0, data=False, verbose=False, warn=True, start=-1, end=65537):
+    def _check_values(self, skoolfile, binfile, asm_mode=0, fix_mode=0, banks=False, data=False, verbose=False, warn=True, start=-1, end=65537):
         self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
         self.assertEqual(mock_bin_writer.binfile, binfile)
         self.assertEqual(mock_bin_writer.asm_mode, asm_mode)
         self.assertEqual(mock_bin_writer.fix_mode, fix_mode)
+        self.assertIs(mock_bin_writer.banks, banks)
         self.assertIs(mock_bin_writer.data, data)
         self.assertIs(mock_bin_writer.verbose, verbose)
         self.assertIs(mock_bin_writer.warn, warn)
@@ -79,6 +81,15 @@ class Skool2BinTest(SkoolKitTestCase):
         output, error = self.run_skool2bin('{} {}'.format(skoolfile, binfile))
         self.assertEqual(len(error), 0)
         self.assertEqual(mock_bin_writer.binfile, binfile)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_B(self):
+        skoolfile = 'test-B.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option in ('-B', '--banks'):
+            output, error = self.run_skool2bin(f'{option} {skoolfile}')
+            self.assertEqual(len(error), 0)
+            self._check_values(skoolfile, exp_binfile, banks=True)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_b(self):
@@ -203,7 +214,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self._check_values(skoolfile, exp_binfile, warn=False)
 
 class BinWriterTestCase(SkoolKitTestCase):
-    def _test_write(self, skool, base_address, exp_data, *modes, data=False, start=-1, end=65537, warn=True, exp_output='', exp_warnings=''):
+    def _test_write(self, skool, base_address, exp_data, *modes, banks=False, data=False, start=-1, end=65537, warn=True, exp_output='', exp_warnings=''):
         if skool is None:
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
@@ -217,13 +228,18 @@ class BinWriterTestCase(SkoolKitTestCase):
                 asm_mode = {'isub': 1, 'ssub': 2, 'rsub': 3}[mode]
             elif mode.endswith('fix'):
                 fix_mode = {'ofix': 1, 'bfix': 2, 'rfix': 3}[mode]
-        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode, start, end, data, bool(exp_output), warn)
+        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode, banks, start, end, data, bool(exp_output), warn)
         bin_writer.write(binfile)
         with open(binfile, 'rb') as f:
             bdata = list(f.read())
-        self.assertEqual(exp_data, bdata)
-        size = len(bdata)
-        status = "Wrote {}: start={}, end={}, size={}\n".format(binfile, base_address, base_address + size, size)
+        if len(exp_data) == 0x20000:
+            for bank, i in enumerate(range(0, 0x20000, 0x4000)):
+                self.assertEqual(exp_data[i:i + 0x4000], bdata[i:i + 0x4000], f'Mismatch in RAM bank {bank}')
+            status = f'Wrote {binfile}: size=128K\n'
+        else:
+            self.assertEqual(exp_data, bdata)
+            size = len(bdata)
+            status = f"Wrote {binfile}: start={base_address}, end={base_address + size}, size={size}\n"
         if exp_output:
             exp_output = dedent(exp_output).strip() + '\n' + status
         elif exp_warnings:
@@ -350,6 +366,210 @@ class BinWriterTest(BinWriterTestCase):
         """
         exp_data = [1, 1, 1, 175]
         self._test_write(skool, 30000, exp_data)
+
+    def test_bank_directive_without_banks_option(self):
+        skool = f"""
+            @bank=6
+            b49152 DEFB 255
+        """
+        exp_data = [255]
+        self._test_write(skool, 49152, exp_data, banks=False)
+
+    def test_bank_directive_with_banks_option(self):
+        bank = 4
+        skool = f"""
+            @bank={bank}
+            b49152 DEFB 255
+        """
+        exp_data = [0] * 0x20000
+        exp_data[bank * 0x4000] = 255
+        self._test_write(skool, None, exp_data, banks=True)
+
+    def test_bank_directives_with_parameters(self):
+        exp_data = [128] * 16384
+        for i in range(1, 8):
+            with open(f'bank{i}.skool', 'w') as f:
+                f.write(f'b49152 DEFS 16384,{128 + i}')
+            exp_data += [128 + i] * 16384
+        skool = f"""
+            @bank=0
+            @bank=1,bank1.skool
+            @bank=2,bank2.skool
+            @bank=3,bank3.skool
+            @bank=4,bank4.skool
+            @bank=5,bank5.skool
+            @bank=6,bank6.skool
+            @bank=7,bank7.skool
+            b49152 DEFS 16384,128
+        """
+        self._test_write(skool, None, exp_data, banks=True)
+
+    def test_bank_directive_with_isub(self):
+        bank_skool = """
+            @isub=DEFB 1
+            @ssub=DEFB 2
+            @rsub=DEFB 3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        exp_data = [1] + [0] * 0x1FFFF
+        self._test_write(skool, None, exp_data, 'isub', banks=True)
+
+    def test_bank_directive_with_ssub(self):
+        bank_skool = """
+            @isub=DEFB 1
+            @ssub=DEFB 2
+            @rsub=DEFB 3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        exp_data = [2] + [0] * 0x1FFFF
+        self._test_write(skool, None, exp_data, 'ssub', banks=True)
+
+    def test_bank_directive_with_rsub(self):
+        bank_skool = """
+            @isub=DEFB 1
+            @ssub=DEFB 2
+            @rsub=DEFB 3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        exp_data = [3] + [0] * 0x1FFFF
+        self._test_write(skool, None, exp_data, 'rsub', banks=True)
+
+    def test_bank_directive_with_ofix(self):
+        bank_skool = """
+            @ofix=DEFB 1
+            @bfix=DEFB 2
+            @rfix=DEFB 3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        exp_data = [1] + [0] * 0x1FFFF
+        self._test_write(skool, None, exp_data, 'ofix', banks=True)
+
+    def test_bank_directive_with_bfix(self):
+        bank_skool = """
+            @ofix=DEFB 1
+            @bfix=DEFB 2
+            @rfix=DEFB 3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        exp_data = [2] + [0] * 0x1FFFF
+        self._test_write(skool, None, exp_data, 'bfix', banks=True)
+
+    def test_bank_directive_with_rfix(self):
+        bank_skool = """
+            @ofix=DEFB 1
+            @bfix=DEFB 2
+            @rfix=DEFB 3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        exp_data = [3] + [0] * 0x1FFFF
+        self._test_write(skool, None, exp_data, 'rfix', banks=True)
+
+    def test_bank_directive_with_data_directives(self):
+        bank_skool = """
+            @defb=49153:1
+            @defw=49154:514
+            @defs=49156:3,3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        exp_data = [0] * 0x20000
+        exp_data[:7] = (0, 1, 2, 2, 3, 3, 3)
+        self._test_write(skool, None, exp_data, banks=True, data=True)
+
+    def test_bank_directive_with_data_directives_ignored(self):
+        bank_skool = """
+            @defb=49153:1
+            @defw=49154:514
+            @defs=49156:3,3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        exp_data = [0] * 0x20000
+        self._test_write(skool, None, exp_data, banks=True, data=False)
+
+    def test_bank_directive_in_bank_skool_file_is_ignored(self):
+        bank1_skool = """
+            b49152 DEFB 255
+        """
+        with open('bank1.skool', 'w') as f:
+            f.write(dedent(bank1_skool).strip())
+        bank0_skool = """
+            @bank=1,bank1.skool
+            b49152 DEFB 0
+        """
+        with open('bank0.skool', 'w') as f:
+            f.write(dedent(bank0_skool).strip())
+        skool = f"""
+            @bank=2
+            @bank=0,bank0.skool
+            b65535 DEFB 0
+        """
+        exp_data = [0] * 0x20000
+        self._test_write(skool, None, exp_data, banks=True)
+
+    def test_bank_directive_with_nonexistent_skool_file(self):
+        skool = """
+            @bank=3,nonexistent.skool
+            b65535 DEFB 0
+        """
+        skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2bin(f'--banks {skoolfile}')
+        self.assertEqual(cm.exception.args[0], 'nonexistent.skool: file not found')
 
     def test_data_directives_ignored(self):
         skool = """

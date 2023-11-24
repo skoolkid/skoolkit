@@ -29,6 +29,8 @@ TABLE_MARKER = '#TABLE'
 TABLE_END_MARKER = 'TABLE#'
 Z80_ASSEMBLER = z80.Assembler()
 
+INDEX_STOP = {None: 65536}
+
 Flags = namedtuple('Flags', 'prepend final overwrite append')
 
 class Memory:
@@ -45,14 +47,19 @@ class Memory:
     def __getitem__(self, index):
         if isinstance(index, int):
             return self.memory[index // 0x4000][index % 0x4000]
-        return [self.memory[a // 0x4000][a % 0x4000] for a in range(index.start or 0, index.stop or 65536, index.step or 1)]
+        return [self.memory[a // 0x4000][a % 0x4000] for a in range(index.start or 0, INDEX_STOP.get(index.stop, index.stop), index.step or 1)]
 
     def __setitem__(self, index, value):
         if isinstance(index, int):
             self.memory[index // 0x4000][index % 0x4000] = value
         else:
-            for a, b in zip(range(index.start or 0, index.stop or 65536, index.step or 1), value):
+            for a, b in zip(range(index.start or 0, INDEX_STOP.get(index.stop, index.stop), index.step or 1), value):
                 self.memory[a // 0x4000][a % 0x4000] = b
+
+    def __len__(self):
+        if None in self.banks:
+            return 0x10000
+        return 0x20000
 
     def bank(self, page, data=None):
         if None in self.banks:
@@ -421,11 +428,11 @@ def parse_addresses(line):
                 addresses.append(addr)
     return addresses
 
-def parse_asm_bank_directive(directive, snapshot, skool_reader):
+def parse_asm_bank_directive(directive, snapshot, skool_reader, **kwargs):
     bank, sep, skoolfile = directive[5:].partition(',')
     page = parse_int(bank, 0) % 8
     if skoolfile:
-        snapshot.bank(page, skool_reader(skoolfile).snapshot[49152:])
+        snapshot.bank(page, skool_reader(skoolfile, **kwargs).snapshot[49152:])
     else:
         snapshot.bank(page)
 

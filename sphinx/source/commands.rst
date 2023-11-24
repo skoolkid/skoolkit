@@ -322,6 +322,8 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
   'file.bin' may be a regular file, or '-' for standard output.
 
   Options:
+    -B, --banks           Process @bank directives and write RAM banks 0-7 to a
+                          128K file.
     -b, --bfix            Apply @ofix and @bfix directives.
     -d, --data            Process @defb, @defs and @defw directives.
     -E ADDR, --end ADDR   Stop converting at this address.
@@ -363,6 +365,8 @@ This output shows that:
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.1     | Added the ``--banks`` option                                      |
++---------+-------------------------------------------------------------------+
 | 8.1     | Added the ``--data``, ``--rsub``, ``--rfix``, ``--verbose`` and   |
 |         | ``--no-warnings`` options                                         |
 +---------+-------------------------------------------------------------------+

@@ -1800,6 +1800,151 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(bank6[50000 % 16384], 255)
         self.assertEqual(sum(bank6), 255)
 
+    def test_bank_directive_with_isub(self):
+        bank_skool = """
+            @isub=DEFB 1
+            @ssub=DEFB 2
+            @rsub=DEFB 3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @start
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        bank0 = self._get_parser(skool, asm_mode=1).snapshot.banks[0]
+        self.assertEqual(bank0[0], 1)
+
+    def test_bank_directive_with_ssub(self):
+        bank_skool = """
+            @isub=DEFB 1
+            @ssub=DEFB 2
+            @rsub=DEFB 3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @start
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        bank0 = self._get_parser(skool, asm_mode=2).snapshot.banks[0]
+        self.assertEqual(bank0[0], 2)
+
+    def test_bank_directive_with_rsub(self):
+        bank_skool = """
+            @isub=DEFB 1
+            @ssub=DEFB 2
+            @rsub=DEFB 3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @start
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        bank0 = self._get_parser(skool, asm_mode=3).snapshot.banks[0]
+        self.assertEqual(bank0[0], 3)
+
+    def test_bank_directive_with_ofix(self):
+        bank_skool = """
+            @ofix=DEFB 1
+            @bfix=DEFB 2
+            @rfix=DEFB 3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @start
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        bank0 = self._get_parser(skool, fix_mode=1).snapshot.banks[0]
+        self.assertEqual(bank0[0], 1)
+
+    def test_bank_directive_with_bfix(self):
+        bank_skool = """
+            @ofix=DEFB 1
+            @bfix=DEFB 2
+            @rfix=DEFB 3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @start
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        bank0 = self._get_parser(skool, fix_mode=2).snapshot.banks[0]
+        self.assertEqual(bank0[0], 2)
+
+    def test_bank_directive_with_rfix(self):
+        bank_skool = """
+            @ofix=DEFB 1
+            @bfix=DEFB 2
+            @rfix=DEFB 3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @start
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        bank0 = self._get_parser(skool, fix_mode=3).snapshot.banks[0]
+        self.assertEqual(bank0[0], 3)
+
+    def test_bank_directive_with_data_directives(self):
+        bank_skool = """
+            @defb=49153:1
+            @defw=49154:514
+            @defs=49156:3,3
+            b49152 DEFB 0
+        """
+        with open('bank.skool', 'w') as f:
+            f.write(dedent(bank_skool).strip())
+        skool = f"""
+            @bank=1
+            @bank=0,bank.skool
+            b65535 DEFB 0
+        """
+        bank0 = self._get_parser(skool).snapshot.banks[0]
+        self.assertEqual([0, 1, 2, 2, 3, 3, 3], bank0[0:7])
+
+    def test_bank_directive_in_bank_skool_file_is_ignored(self):
+        bank1_skool = """
+            b49152 DEFB 255
+        """
+        with open('bank1.skool', 'w') as f:
+            f.write(dedent(bank1_skool).strip())
+        bank0_skool = """
+            @bank=1,bank1.skool
+            b49152 DEFB 0
+        """
+        with open('bank0.skool', 'w') as f:
+            f.write(dedent(bank0_skool).strip())
+        skool = f"""
+            @bank=2
+            @bank=0,bank0.skool
+            b65535 DEFB 0
+        """
+        bank1 = self._get_parser(skool).snapshot.banks[1]
+        self.assertEqual(bank1[0], 0)
+
     def test_bank_directive_with_nonexistent_skool_file(self):
         skool = """
             @bank=4,nonexistent.skool

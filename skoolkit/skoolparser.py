@@ -376,7 +376,15 @@ class SkoolParser:
             self.snapshot[:len(rom)] = rom
         elif directive.startswith('bank='):
             try:
-                parse_asm_bank_directive(directive, self.snapshot, BinWriter)
+                bw_args = {
+                    'asm_mode': self.mode.asm_mode,
+                    'fix_mode': self.mode.fix_mode,
+                    'banks': False,
+                    'data': True,
+                    'verbose': False,
+                    'warn': False
+                }
+                parse_asm_bank_directive(directive, self.snapshot, BinWriter, **bw_args)
             except Exception as e:
                 raise SkoolParsingError(f'Error while parsing @bank directive: {e.args[0]}')
         elif directive.startswith('assemble='):

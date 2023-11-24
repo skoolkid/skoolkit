@@ -21,9 +21,9 @@ from os.path import basename
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, parse_int, warn, VERSION
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
-from skoolkit.skoolutils import (DIRECTIVES, parse_address_range, parse_asm_data_directive,
-                                 parse_asm_keep_directive, parse_asm_nowarn_directive,
-                                 parse_asm_sub_fix_directive, read_skool)
+from skoolkit.skoolutils import (DIRECTIVES, Memory, parse_address_range, parse_asm_bank_directive,
+                                 parse_asm_data_directive, parse_asm_keep_directive,
+                                 parse_asm_nowarn_directive, parse_asm_sub_fix_directive, read_skool)
 from skoolkit.textutils import partition_unquoted
 
 VALID_CTLS = DIRECTIVES + ' *'
@@ -52,13 +52,14 @@ class Instruction:
         return '{0:05} {0:04X} {1} {2:13} {3}'.format(self.real_address, self.marker, self.operation, suffix).rstrip()
 
 class BinWriter:
-    def __init__(self, skoolfile, asm_mode=0, fix_mode=0, start=-1, end=65537, data=False, verbose=False, warn=False):
+    def __init__(self, skoolfile, asm_mode=0, fix_mode=0, banks=False, start=-1, end=65537, data=False, verbose=False, warn=False):
         if fix_mode > 2:
             asm_mode = 3
         elif asm_mode > 2:
             fix_mode = max(fix_mode, 1)
         self.asm_mode = asm_mode
         self.fix_mode = fix_mode
+        self.banks = banks
         self.start = start
         self.end = end
         self.verbose = verbose
@@ -75,8 +76,8 @@ class BinWriter:
             'asm': asm_mode,
             'fix': fix_mode
         }
-        self.snapshot = [0] * 65536
-        self.base_address = len(self.snapshot)
+        self.snapshot = Memory()
+        self.base_address = 65536
         self.end_address = 0
         self._reset(data)
         self.entry_ctl = None
@@ -204,6 +205,16 @@ class BinWriter:
             addrs = [parse_int(a) for a in directive[7:].partition(':')[-1].split(',')]
             if addrs[0] is not None:
                 self.remote_entries.append(Entry(None, [Instruction(a) for a in addrs if a is not None]))
+        elif directive.startswith('bank=') and self.banks:
+            bw_args = {
+                'asm_mode': self.asm_mode,
+                'fix_mode': self.fix_mode,
+                'banks': False,
+                'data': self.data is not None,
+                'verbose': False,
+                'warn': False
+            }
+            parse_asm_bank_directive(directive, self.snapshot, BinWriter, **bw_args)
         return address
 
     def _poke(self, instruction, data):
@@ -231,6 +242,13 @@ class BinWriter:
                 self._poke(i, self.assembler.assemble(i.operation, i.real_address))
 
     def write(self, binfile):
+        if len(self.snapshot) == 0x20000:
+            with open_file(binfile, 'wb') as f:
+                for bank in self.snapshot.banks:
+                    f.write(bytes(bank))
+            info(f'Wrote {binfile}: size=128K')
+            return
+
         if self.start < 0:
             base_address = self.base_address
         else:
@@ -248,8 +266,8 @@ class BinWriter:
         info("Wrote {}: start={}, end={}, size={}".format(binfile, base_address, end_address, len(data)))
 
 def run(skoolfile, binfile, options):
-    binwriter = BinWriter(skoolfile, options.asm_mode, options.fix_mode, options.start, options.end,
-                          options.data, options.verbose, not options.no_warnings)
+    binwriter = BinWriter(skoolfile, options.asm_mode, options.fix_mode, options.banks, options.start,
+                          options.end, options.data, options.verbose, options.warn)
     binwriter.write(binfile)
 
 def main(args):
@@ -264,6 +282,8 @@ def main(args):
     parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('binfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-B', '--banks', action='store_true',
+                       help="Process @bank directives and write RAM banks 0-7 to a 128K file.")
     group.add_argument('-b', '--bfix', dest='fix_mode', action='store_const', const=2, default=0,
                        help="Apply @ofix and @bfix directives.")
     group.add_argument('-d', '--data', dest='data', action='store_true',
@@ -286,7 +306,7 @@ def main(args):
                        help='Show info on each converted instruction.')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
-    group.add_argument('-w', '--no-warnings', action='store_true',
+    group.add_argument('-w', '--no-warnings', dest='warn', action='store_false',
                        help="Suppress warnings.")
     namespace, unknown_args = parser.parse_known_args(args)
     skoolfile = namespace.skoolfile
