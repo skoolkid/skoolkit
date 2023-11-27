@@ -17,6 +17,8 @@ Changelog
 * Added the ``execint`` parameter to the :ref:`AUDIO`, :ref:`SIM` and
   :ref:`TSTATES` macros (to specify whether to simulate the execution of
   interrupt routines)
+* Added support to the :ref:`SIM` macro for executing code in a 128K memory
+  snapshot
 
 9.0 (2023-11-04)
 ----------------

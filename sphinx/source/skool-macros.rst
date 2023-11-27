@@ -1508,9 +1508,9 @@ The parameters of the ``#SIM`` macro may contain
 :ref:`replacement fields <replacementFields>` and may also be given as keyword
 arguments.
 
-When execution stops, the simulator's registers and hardware state are copied
-to the ``sim`` dictionary, where they are accessible via replacement fields
-with the following names:
+When execution stops, the simulator's register values are copied to the ``sim``
+dictionary, where they are accessible via replacement fields with the following
+names:
 
 * ``sim[A]``
 * ``sim[F]``
@@ -1529,9 +1529,17 @@ with the following names:
 * ``sim[SP]``
 * ``sim[PC]`` - the program counter (equal to ``stop``); this is used as the
   default value of ``start`` for the next invocation of the ``#SIM`` macro
-* ``sim[tstates]`` - the number of T-states elapsed
+
+In addition, the simulator's hardware state is copied to the ``sim``
+dictionary, where it is accessible via replacement fields with the following
+names:
+
+* ``sim[7ffd]`` - the value of the last OUT to port 0x7ffd
+* ``sim[ay][N]`` - the value of AY register N (0-15)
+* ``sim[fffd]`` - the value of the last OUT to port 0xfffd
 * ``sim[iff]`` - 0 if interrupts are disabled, 1 if they're enabled
 * ``sim[im]`` - interrupt mode (0, 1 or 2)
+* ``sim[tstates]`` - the number of T-states elapsed
 
 For example::
 
@@ -1570,8 +1578,9 @@ memory snapshot, and therefore can modify it. To avoid that, use the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.1     | Added the ``execint`` parameter; added the ``iff`` and ``im``     |
-|         | fields to the ``sim`` dictionary                                  |
+| 9.1     | Added the ``execint`` parameter; added support for executing code |
+|         | in a 128K memory snapshot; added the ``iff``, ``im``, ``7ffd``,   |
+|         | ``fffd`` and ``ay`` fields to the ``sim`` dictionary              |
 +---------+-------------------------------------------------------------------+
 | 8.7     | New                                                               |
 +---------+-------------------------------------------------------------------+

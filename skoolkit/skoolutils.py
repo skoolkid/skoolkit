@@ -17,7 +17,7 @@
 from collections import namedtuple
 import re
 
-from skoolkit import CASE_LOWER, CASE_UPPER, SkoolParsingError, parse_int, wrap, z80
+from skoolkit import CASE_LOWER, CASE_UPPER, ROM128, SkoolParsingError, parse_int, read_bin_file, wrap, z80
 from skoolkit.skoolmacro import ClosingBracketError, MacroParsingError, parse_brackets, parse_strings
 from skoolkit.textutils import partition_unquoted
 
@@ -34,7 +34,7 @@ INDEX_STOP = {None: 65536}
 Flags = namedtuple('Flags', 'prepend final overwrite append')
 
 class Memory:
-    def __init__(self, banks=None):
+    def __init__(self, banks=None, bank=None, roms=None, rom=None):
         if banks is None:
             self.banks = [None] * 8
             self.banks[5] = [0] * 0x4000
@@ -42,7 +42,11 @@ class Memory:
             self.banks[0] = [0] * 0x4000
         else:
             self.banks = banks
-        self.memory = [[0] * 0x4000, self.banks[5], self.banks[2], self.banks[0]]
+        if roms is None:
+            self.roms = tuple(list(read_bin_file(r)) for r in ROM128)
+        else:
+            self.roms = roms
+        self.memory = [rom or [0] * 0x4000, self.banks[5], self.banks[2], bank or self.banks[0]]
 
     def __getitem__(self, index):
         if isinstance(index, int):
@@ -65,13 +69,27 @@ class Memory:
         if None in self.banks:
             for i in (1, 3, 4, 6, 7):
                 self.banks[i] = [0] * 0x4000
+            self.memory[0] = self.roms[0]
         if data is None:
             self.memory[3] = self.banks[page]
         else:
             self.banks[page][:] = data
 
     def copy(self):
-        return Memory([bank[:] if bank else None for bank in self.banks])
+        banks = [bank[:] if bank else None for bank in self.banks]
+        roms = (self.roms[0][:], self.roms[1][:])
+        if all(banks):
+            bank = banks[self.banks.index(self.memory[3])]
+            rom = roms[self.roms.index(self.memory[0])]
+        else:
+            bank = banks[0]
+            rom = self.memory[0][:]
+        return Memory(banks, bank, roms, rom)
+
+    def out7ffd(self, value):
+        if all(self.banks):
+            self.memory[0] = self.roms[(value % 32) // 16]
+            self.memory[3] = self.banks[value % 8]
 
 class Comment:
     def __init__(self, rowspan, text):

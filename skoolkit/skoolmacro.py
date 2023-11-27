@@ -26,6 +26,7 @@ from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
 from skoolkit.graphics import Udg
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
+from skoolkit.snapshot import FRAME_DURATIONS
 
 _map_cache = {}
 
@@ -96,6 +97,27 @@ class FormattingError(MacroParsingError):
 
 class ClosingBracketError(MacroParsingError):
     pass
+
+class PagingTracer:
+    def __init__(self, memory, out7ffd, outfffd, ay):
+        self.memory = memory
+        self.out7ffd = out7ffd
+        self.outfffd = outfffd
+        self.ay = ay
+
+    def read_port(self, registers, port):
+        if port == 0xFFFD:
+            return self.ay[self.outfffd % 16]
+        return 255
+
+    def write_port(self, registers, port, value):
+        if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
+            self.memory.out7ffd(value)
+            self.out7ffd = value
+        elif port == 0xFFFD:
+            self.outfffd = value
+        elif port == 0xBFFD:
+            self.ay[self.outfffd % 16] = value
 
 class AudioTracer:
     def __init__(self):
@@ -524,19 +546,27 @@ def expand_macros(writer, text, *cwd):
     return text
 
 def _read_sim_state(writer, execint, reg=None, clear=0):
-    registers = {'iff': 0, 'im': 1, 'tstates': 0}
+    registers = {'iff': 0, 'im': 1, 'tstates': 0, '7ffd': 0, 'fffd': 0, 'ay': [0] * 16}
     if clear == 0:
         registers.update(writer.fields.get('sim', {}))
     if reg:
         for r, v in reg.items():
             if v >= 0:
                 registers[r] = v
-    state = {a: registers.pop(a) for a in ('iff', 'im', 'tstates')}
+    state = {a: registers.pop(a) for a in ('iff', 'im', 'tstates', '7ffd', 'fffd', 'ay')}
     config = {'fast_djnz': not execint, 'fast_ldir': not execint}
     return registers, state, config
 
-def _write_sim_state(writer, simulator):
+def _write_sim_state(writer, simulator, tracer=None):
     registers = simulator.registers
+    if tracer:
+        out7ffd = tracer.out7ffd
+        outfffd = tracer.outfffd
+        ay = tracer.ay
+    else:
+        out7ffd = 0
+        outfffd = 0
+        ay = [0] * 16
     writer.fields['sim'] = {
         'A': registers[A],
         'F': registers[F],
@@ -556,7 +586,10 @@ def _write_sim_state(writer, simulator):
         'PC': registers[PC],
         'tstates': registers[T],
         'iff': simulator.iff,
-        'im': simulator.imode
+        'im': simulator.imode,
+        '7ffd': out7ffd,
+        'fffd': outfffd,
+        'ay': ay
     }
 
 def _flatten(elements):
@@ -1160,11 +1193,18 @@ def parse_sim(writer, text, index, *cwd):
      reg['^A'], reg['^F'], reg['^BC'], reg['^DE'], reg['^HL'], reg['IX'], reg['IY'],
      reg['I'], reg['R'], reg['SP'], execint) = parse_ints(text, index, len(names), defaults, names, writer.fields)
     registers, state, config = _read_sim_state(writer, execint, reg, clear)
-    simulator = Simulator(writer.snapshot, registers, state, config)
+    memory = writer.snapshot
+    if len(memory) == 0x20000:
+        config['frame_duration'] = FRAME_DURATIONS[1]
+        tracer = PagingTracer(memory, state['7ffd'], state['fffd'], state['ay'])
+    else:
+        tracer = None
+    simulator = Simulator(memory, registers, state, config)
     if start < 0:
         start = simulator.registers[PC]
+    simulator.set_tracer(tracer)
     simulator.run(start, stop, execint)
-    _write_sim_state(writer, simulator)
+    _write_sim_state(writer, simulator, tracer)
     return end, ''
 
 def parse_space(writer, text, index, *cwd):

@@ -2012,7 +2012,188 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(skool=skool)
         writer.expand('#SIM(start=65283,stop=65296,execint=1)')
         self.assertEqual(writer.snapshot[32768], 129)
-        self.assertEqual(writer.expand('#FORMAT(iff={sim[iff]},im={sim[im]})'), 'iff=0,im=2')
+        self.assertEqual(writer.expand('#FORMAT(iff={sim[iff]},im={sim[im]},tstates={sim[tstates]})'), 'iff=0,im=2,tstates=69928')
+
+    def test_macro_sim_executing_interrupt_routine_128k(self):
+        skool = """
+            @start
+            @bank=0
+            ; Interrupt vector
+            w65279 DEFW 65281
+
+            ; Interrupt routine
+            c65281 INC (HL)
+             65282 RET
+
+            ; Routine
+            c65283 LD A,254
+             65285 LD I,A
+             65287 IM 2
+             65289 LD HL,32768
+             65292 LD (HL),128
+             65294 EI
+             65295 HALT
+             65296 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=65283,stop=65296,execint=1)')
+        self.assertEqual(writer.snapshot[32768], 129)
+        self.assertEqual(writer.expand('#FORMAT(iff={sim[iff]},im={sim[im]},tstates={sim[tstates]})'), 'iff=0,im=2,tstates=70948')
+
+    def test_macro_sim_128k_bank_switching(self):
+        skool = """
+            @start
+            @bank=0
+            ; Routine
+            c40000 LD BC,$7FFD
+             40003 LD D,0
+             40005 OUT (C),D
+             40007 LD A,D
+             40008 OR 128
+             40010 LD (49152),A
+             40013 INC D
+             40014 BIT 3,D
+             40016 JR Z,40005
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=40000,stop=40018)')
+        self.assertEqual(writer.snapshot[49152], 135)
+        banks = writer.snapshot.banks
+        self.assertEqual(banks[0][0], 128)
+        self.assertEqual(banks[1][0], 129)
+        self.assertEqual(banks[2][0], 130)
+        self.assertEqual(banks[3][0], 131)
+        self.assertEqual(banks[4][0], 132)
+        self.assertEqual(banks[5][0], 133)
+        self.assertEqual(banks[6][0], 134)
+        self.assertEqual(banks[7][0], 135)
+        self.assertEqual(writer.expand('#FORMAT(7ffd={sim[7ffd]})'), '7ffd=7')
+
+    def test_macro_sim_128k_port_7ffd_saved_and_restored(self):
+        skool = """
+            @start
+            @bank=0
+            ; Disable paging
+            c32768 LD BC,$7FFD
+             32771 LD A,32
+             32773 OUT (C),A
+
+            ; Test port $7FFD
+            c40000 LD BC,$7FFD
+             40003 LD A,1
+             40005 OUT (C),A    ; This should do nothing
+             40007 LD (49152),A ; This should write to bank 0, not bank 1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=32768,stop=32775)')
+        self.assertEqual(writer.expand('#FORMAT(7ffd={sim[7ffd]})'), '7ffd=32')
+        writer.expand('#SIM(start=40000,stop=40010)')
+        self.assertEqual(writer.expand('#FORMAT(7ffd={sim[7ffd]})'), '7ffd=32')
+        self.assertEqual(writer.snapshot[49152], 1)
+        self.assertEqual(writer.snapshot.banks[0][0], 1)
+
+    def test_macro_sim_ay_tracing(self):
+        skool = """
+            @start
+            @bank=0
+            ; Routine
+            c50000 LD DE,$FF00
+             50003 LD BC,$FFFD
+             50006 OUT (C),E    ; Switch AY register
+             50008 LD B,$BF     ; BC=$BFFD
+             50010 LD A,E
+             50011 OR 16
+             50013 OUT (C),A    ; Set value of this AY register
+             50015 LD B,$FF     ; BC=$FFFD
+             50017 IN (C),A     ; Read value of this AY register
+             50019 LD (DE),A    ; Store value of this AY register
+             50020 INC E        ; Next AY register
+             50021 BIT 4,E
+             50023 JR Z,50006
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=50000,stop=50025)')
+        self.assertEqual(list(range(16, 32)), writer.snapshot[0xff00:0xff10])
+        self.assertEqual(writer.expand('#FORMAT(fffd={sim[fffd]})'), 'fffd=15')
+        for r in range(16):
+            self.assertEqual(writer.expand(f'#FORMAT(ay[{r}]={{sim[ay][{r}]}})'), f'ay[{r}]={r + 16}')
+
+    def test_macro_sim_ay_state_saved_and_restored(self):
+        skool = """
+            @start
+            @bank=0
+            ; Initialise
+            c40000 LD C,$FD
+             40002 LD D,0
+             40004 LD B,$FF     ; BC=$FFFD
+             40006 OUT (C),D    ; Switch AY register
+             40008 LD A,D
+             40009 ADD A,32
+             40011 LD B,$BF     ; BC=$BFFD
+             40013 OUT (C),A    ; Set value of this AY register
+             40015 INC D        ; Next AY register
+             40016 BIT 4,D
+             40018 JR Z,40004
+
+            ; Read AY state
+            c50000 LD BC,$FFFD
+             50003 IN A,(C)     ; Read value of current AY register
+             50006 LD (65535),A ; Store value of current AY register
+             50009 LD DE,$FF00
+             50012 OUT (C),E    ; Switch AY register
+             50014 IN A,(C)     ; Read value of this AY register
+             50016 LD (DE),A    ; Store value of this AY register
+             50017 INC E        ; Next AY register
+             50018 BIT 4,E
+             50020 JR Z,50012
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=40000,stop=40020)')
+        self.assertEqual(writer.expand('#FORMAT(fffd={sim[fffd]})'), 'fffd=15')
+        for r in range(16):
+            self.assertEqual(writer.expand(f'#FORMAT(ay[{r}]={{sim[ay][{r}]}})'), f'ay[{r}]={r + 32}')
+
+        writer.expand('#SIM(start=50000,stop=50022)')
+        self.assertEqual(writer.expand('#FORMAT(fffd={sim[fffd]})'), 'fffd=15')
+        self.assertEqual(writer.snapshot[65535], 47)
+        self.assertEqual(list(range(32, 48)), writer.snapshot[0xff00:0xff10])
+
+    def test_macro_sim_128k_read_ports_other_than_fffd(self):
+        skool = """
+            @start
+            @bank=0
+            ; Routine
+            c40000 LD HL,65535
+             40003 LD (HL),255
+             40005 LD BC,$FF00
+             40008 LD A,C
+             40009 CP $FD
+             40011 JR Z,40017
+             40013 IN A,(C)
+             40015 AND (HL)
+             40016 LD (HL),A
+             40017 INC C
+             40018 JR NZ,40008
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=40000,stop=40022)')
+        self.assertEqual(writer.snapshot[65535], 255)
+
+    def test_macro_sim_128k_with_pushs_and_pops(self):
+        skool = """
+            @start
+            @bank=0
+            ; Switch to bank 1, ROM 1
+            c30000 LD BC,$7FFD
+             30003 LD A,17
+             30005 OUT (C),A
+        """
+        writer = self._get_writer(skool=skool)
+        self.assertEqual(writer.snapshot[1], 1) # ROM 0
+        self.assertEqual(writer.expand('#PUSHS #SIM(start=30000,stop=30007) #POKES49152,255 #PEEK1 #POPS').strip(), '175')
+        self.assertEqual(writer.snapshot[1], 1) # ROM 0 again
+        self.assertEqual(writer.snapshot[49152], 0)
+        self.assertEqual(writer.snapshot.banks[1][0], 0)
 
     def test_macro_sim_with_keyword_arguments_and_replacement_fields(self):
         skool = """
