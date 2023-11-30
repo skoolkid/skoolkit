@@ -196,12 +196,159 @@ class Bin2TapTest(SkoolKitTestCase):
         exp_data.append(self._get_parity(exp_data))
         self.assertEqual(exp_data, tap_data[index:])
 
+    def _check_tap_with_ram_banks(self, tap_data, bin_data, banks, out7ffd, infile, clear, begin, start=None, loader=None, scr=None):
+        if start is None:
+            start = begin
+        if loader is None:
+            loader = clear + 1
+
+        name = os.path.basename(infile)
+        if name.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
+            name = name[:-4]
+        title = self._get_str(name[:10].ljust(10))
+
+        # BASIC loader data
+        exp_data = [0, 0, 255]
+        clear_addr = self._get_str(f'"{clear}"')
+        loader_addr = self._get_str(f'"{loader}"')
+        line_length = 17 + len(clear_addr) + len(loader_addr)
+        if scr:
+            line_length += 20
+        exp_data += [0, 10, line_length, 0]
+        exp_data += [253, 176] + clear_addr       # CLEAR VAL "address"
+        exp_data.append(58)                       # :
+        if scr:
+            poke_addr = self._get_str('"23739"')
+            exp_data.extend((239, 34, 34, 170))   # LOAD ""SCREEN$
+            exp_data.append(58)                   # :
+            exp_data.extend((244, 176))           # POKE VAL
+            exp_data.extend(poke_addr)            # "23739"
+            exp_data.append(44)                   # ,
+            exp_data.extend((175, 34, 111, 34))   # CODE "o"
+            exp_data.append(58)                   # :
+        exp_data += [239, 34, 34, 175]            # LOAD ""CODE
+        exp_data.append(58)                       # :
+        exp_data += [239, 34, 34, 175]            # LOAD ""CODE
+        exp_data.append(58)                       # :
+        exp_data += [249, 192, 176] + loader_addr # RANDOMIZE USR VAL "address"
+        exp_data.append(13)                       # ENTER
+        exp_data.append(self._get_parity(exp_data))
+        length = len(exp_data)
+        loader_length = length - 4
+        exp_data[0] = length - 2
+        index = 21 + length
+        self.assertEqual(exp_data, tap_data[21:index])
+
+        # BASIC loader header
+        exp_header = [19, 0, 0, 0]
+        exp_header.extend(title)
+        exp_header.extend(self._get_word(loader_length))
+        exp_header.extend((10, 0))
+        exp_header.extend(self._get_word(loader_length))
+        exp_header.append(self._get_parity(exp_header))
+        self.assertEqual(exp_header, tap_data[:21])
+
+        if scr:
+            # Loading screen header
+            exp_header = [19, 0, 0, 3]
+            exp_header.extend(title)
+            exp_header.extend(self._get_word(6912))
+            exp_header.extend(self._get_word(16384))
+            exp_header.extend((0, 0))
+            exp_header.append(self._get_parity(exp_header))
+            self.assertEqual(exp_header, tap_data[index:index + 21])
+            index += 21
+
+            # Loading screen data
+            exp_data = []
+            exp_data.extend(self._get_word(6914))
+            exp_data.append(255)
+            exp_data.extend(scr)
+            exp_data.append(self._get_parity(exp_data))
+            self.assertEqual(exp_data, tap_data[index:index + 6916])
+            index += 6916
+
+        # Main code header
+        exp_header = [19, 0, 0, 3]
+        exp_header.extend(title)
+        exp_header.extend(self._get_word(len(bin_data)))
+        exp_header.extend(self._get_word(begin))
+        exp_header.extend((0, 0))
+        exp_header.append(self._get_parity(exp_header))
+        self.assertEqual(exp_header, tap_data[index:index + 21])
+        index += 21
+
+        # Main code data
+        exp_data = []
+        exp_data.extend(self._get_word(len(bin_data) + 2))
+        exp_data.append(255)
+        exp_data.extend(bin_data)
+        exp_data.append(self._get_parity(exp_data))
+        self.assertEqual(exp_data, tap_data[index:index + len(exp_data)])
+        index += len(exp_data)
+
+        table_addr = ((loader + 38) % 256, (loader + 38) // 256)
+        start_addr = (start % 256, start // 256)
+        exp_loader = [
+            0x21, *table_addr,      #      LD HL,TABLE
+            0x01, 0xFD, 0x7F,       # LOOP LD BC,$7FFD
+            0x7E,                   #      LD A,(HL)
+            0xE6, 0x3F,             #      AND $3F
+            0xF3,                   #      DI
+            0xED, 0x79,             #      OUT (C),A
+            0x32, 0x5C, 0x5B,       #      LD ($5B5C),A
+            0xFB,                   #      EI
+            0xCB, 0x7E,             #      BIT 7,(HL)
+            0xC2, *start_addr,      #      JP NZ,START
+            0xE5,                   #      PUSH HL
+            0xDD, 0x21, 0x00, 0xC0, #      LD IX,$C000
+            0x11, 0x00, 0x40,       #      LD DE,$4000
+            0x37,                   #      SCF
+            0x9F,                   #      SBC A,A
+            0xCD, 0x56, 0x05,       #      CALL $0556
+            0xE1,                   #      POP HL
+            0x23,                   #      INC HL
+            0x18, 0xDD,             #      JR LOOP
+        ]
+        for bank, bank_data in banks:
+            exp_loader.append(bank | 0x10)
+        exp_loader.append(out7ffd | 0x80)
+
+        # RAM bank loader header
+        exp_header = [19, 0, 0, 3]
+        exp_header.extend(title)
+        exp_header.extend(self._get_word(len(exp_loader)))
+        exp_header.extend(self._get_word(loader))
+        exp_header.extend((0, 0))
+        exp_header.append(self._get_parity(exp_header))
+        self.assertEqual(exp_header, tap_data[index:index + 21])
+        index += 21
+
+        # RAM bank loader data
+        exp_data = []
+        exp_data.extend(self._get_word(len(exp_loader) + 2))
+        exp_data.append(255)
+        exp_data.extend(exp_loader)
+        exp_data.append(self._get_parity(exp_data))
+        self.assertEqual(exp_data, tap_data[index:index + len(exp_data)])
+        index += len(exp_data)
+
+        # RAM banks
+        for bank, bank_data in banks:
+            exp_data = []
+            exp_data.extend(self._get_word(len(bank_data) + 2))
+            exp_data.append(255)
+            exp_data.extend(bank_data)
+            exp_data.append(self._get_parity(exp_data))
+            self.assertEqual(exp_data, tap_data[index:index + len(exp_data)])
+            index += len(exp_data)
+
     @patch.object(bin2tap, 'run', mock_run)
     def test_default_option_values(self):
         data = [0] * 10
         binfile = self.write_bin_file(data, suffix='.bin')
         bin2tap.main((binfile,))
-        ram, clear, org, start, stack, tapfile, scr = run_args
+        ram, clear, org, start, stack, tapfile, scr, banks, out7ffd, loader_addr = run_args
         self.assertEqual(ram, bytearray(data))
         self.assertIsNone(clear)
         self.assertEqual(org, 65536 - len(data))
@@ -209,6 +356,9 @@ class Bin2TapTest(SkoolKitTestCase):
         self.assertEqual(stack, org)
         self.assertEqual(tapfile, binfile[:-4] + '.tap')
         self.assertIsNone(scr)
+        self.assertIsNone(banks)
+        self.assertIsNone(out7ffd)
+        self.assertIsNone(loader_addr)
 
     def test_no_arguments(self):
         output, error = self.run_bin2tap(catch_exit=2)
@@ -307,6 +457,109 @@ class Bin2TapTest(SkoolKitTestCase):
         for option in ('-V', '--version'):
             output, error = self.run_bin2tap(option, catch_exit=0)
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
+
+    def test_option_7ffd(self):
+        data = [1, 2, 3]
+        begin = 40000
+        end = begin + len(data)
+        clear = 32767
+        out7ffd = 0
+        ram = [0] * 49152
+        ram[begin - 16384:begin - 16384 + len(data)] = data
+        sna_data = [0] * 27 + ram
+        sna_data.extend((
+            0, 0,    # PC
+            out7ffd, # Port 0x7ffd
+            0        # TR-DOS ROM
+        ))
+        banks = []
+        for bank in (0, 1, 3, 4, 6, 7):
+            if bank == out7ffd % 8:
+                banks.append((bank, ram[32768:]))
+            else:
+                banks.append((bank, [bank] * 16384))
+                sna_data.extend(banks[-1][1])
+        sna = self.write_bin_file(sna_data, suffix='.sna')
+        tap_data = self._run(f'-b {begin} -e {end} -c {clear} --7ffd {out7ffd} {sna}')
+        self._check_tap_with_ram_banks(tap_data, data, banks, out7ffd, sna, clear, begin)
+
+    def test_option_7ffd_with_start_address(self):
+        data = [128, 129, 130]
+        begin = 40000
+        end = begin + len(data)
+        clear = 32767
+        start = 50000
+        out7ffd = 4
+        ram = [0] * 32768 + [4] * 16384
+        ram[begin - 16384:begin - 16384 + len(data)] = data
+        sna_data = [0] * 27 + ram
+        sna_data.extend((
+            0, 0,    # PC
+            out7ffd, # Port 0x7ffd
+            0        # TR-DOS ROM
+        ))
+        banks = []
+        for bank in (0, 1, 3, 4, 6, 7):
+            if bank == out7ffd % 8:
+                banks.append((bank, ram[32768:]))
+            else:
+                banks.append((bank, [bank] * 16384))
+                sna_data.extend(banks[-1][1])
+        sna = self.write_bin_file(sna_data, suffix='.sna')
+        tap_data = self._run(f'-b {begin} -e {end} -c {clear} -s {start} --7ffd {out7ffd} {sna}')
+        self._check_tap_with_ram_banks(tap_data, data, banks, out7ffd, sna, clear, begin, start)
+
+    def test_option_7ffd_with_loader_address(self):
+        data = [255, 254, 253]
+        begin = 40000
+        end = begin + len(data)
+        clear = 32767
+        loader = 35000
+        out7ffd = 6
+        ram = [0] * 32768 + [6] * 16384
+        ram[begin - 16384:begin - 16384 + len(data)] = data
+        sna_data = [0] * 27 + ram
+        sna_data.extend((
+            0, 0,    # PC
+            out7ffd, # Port 0x7ffd
+            0        # TR-DOS ROM
+        ))
+        banks = []
+        for bank in (0, 1, 3, 4, 6, 7):
+            if bank == out7ffd % 8:
+                banks.append((bank, ram[32768:]))
+            else:
+                banks.append((bank, [bank] * 16384))
+                sna_data.extend(banks[-1][1])
+        sna = self.write_bin_file(sna_data, suffix='.sna')
+        tap_data = self._run(f'-b {begin} -e {end} -c {clear} --loader {loader} --7ffd {out7ffd} {sna}')
+        self._check_tap_with_ram_banks(tap_data, data, banks, out7ffd, sna, clear, begin, loader=loader)
+
+    def test_option_7ffd_with_loading_screen(self):
+        data = [50, 100, 150]
+        begin = 40000
+        end = begin + len(data)
+        clear = 24576
+        out7ffd = 3
+        ram = [85] * 6912 + [0] * 25856 + [3] * 16384
+        ram[begin - 16384:begin - 16384 + len(data)] = data
+        sna_data = [0] * 27 + ram
+        sna_data.extend((
+            0, 0,    # PC
+            out7ffd, # Port 0x7ffd
+            0        # TR-DOS ROM
+        ))
+        banks = []
+        for bank in (0, 1, 3, 4, 6, 7):
+            if bank == out7ffd % 8:
+                banks.append((bank, ram[32768:]))
+            else:
+                banks.append((bank, [bank] * 16384))
+                sna_data.extend(banks[-1][1])
+        sna = self.write_bin_file(sna_data, suffix='.sna')
+        tap_data = self._run(f'-b {begin} -e {end} -c {clear} -S {sna} --7ffd {out7ffd} {sna}')
+        scr = ram[:6912]
+        self._check_tap_with_ram_banks(tap_data, data, banks, out7ffd, sna, clear, begin, scr=scr)
 
     def test_option_b(self):
         bin_data = range(30)

@@ -7,6 +7,8 @@ Changelog
   snapshots
 * Added support to :ref:`bin2sna.py` for writing 128K snapshots (by using the
   ``--page`` and ``--bank`` options, or by providing a 128K input file)
+* Added support to :ref:`bin2tap.py` for writing 128K TAP files (by using the
+  ``--7ffd`` and ``--loader`` options)
 * Added support to the :ref:`rom` directive for inserting a copy of a 128K ROM
   into the internal memory snapshot
 * Added the :ref:`bank` directive (for specifying the RAM bank that is mapped

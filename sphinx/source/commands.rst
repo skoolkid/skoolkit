@@ -103,12 +103,16 @@ it with no arguments to see the list of available options::
   input.
 
   Options:
+    --7ffd N              Add 128K RAM banks to the TAP file and write N to port
+                          0x7ffd after they've loaded.
     -b BEGIN, --begin BEGIN
                           Begin conversion at this address (default: ORG for a
                           binary file, 16384 for a snapshot).
     -c N, --clear N       Use a 'CLEAR N' command in the BASIC loader and leave
                           the stack pointer alone.
     -e END, --end END     End conversion at this address.
+    --loader ADDR         Place the 128K RAM bank loader at this address
+                          (default: CLEAR address + 1).
     -o ORG, --org ORG     Set the origin address for a binary file (default:
                           65536 minus the length of FILE).
     -p STACK, --stack STACK
@@ -137,9 +141,26 @@ leaves the stack pointer alone, enabling the program to return to BASIC without
 crashing. The lowest usable address with the ``--clear`` option on a bare 48K
 Spectrum is 23952 (0x5D90).
 
+To create a TAP file that loads a 128K game, use the ``--7ffd``, ``--begin``,
+``--end`` and ``--clear`` options along with a 128K snapshot as input, where:
+
+* ``--7ffd`` specifies the value to write to port 0x7FFD after all the RAM
+  banks have loaded and before starting the game
+* ``--begin`` and ``--end`` specify the start and end addresses of the
+  code/data below 49152 (0xC000) to include on the tape
+* ``--clear`` specifies the address of the CLEAR command in the BASIC loader;
+  by default, the 128K RAM bank loader is placed one above this address
+
+Use the ``--loader`` option to place the 128K RAM bank loader at an alternative
+address. The lowest usable address with the ``--clear`` option on a bare 128K
+Spectrum is 23977 (0x5DA9).
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.1     | Added the ``--7ffd`` and ``--loader`` options and support for     |
+|         | writing 128K TAP files                                            |
++---------+-------------------------------------------------------------------+
 | 8.3     | Added the ``--begin`` option; the ``--end`` option applies to raw |
 |         | memory files as well as snapshots                                 |
 +---------+-------------------------------------------------------------------+

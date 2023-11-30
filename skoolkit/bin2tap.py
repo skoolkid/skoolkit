@@ -1,4 +1,5 @@
-# Copyright 2010-2013, 2015-2017, 2019-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2013, 2015-2017, 2019-2020, 2023
+# Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -53,7 +54,7 @@ def _get_header(title, length, start=None, line=None):
         data.extend(_get_word(length))      # Length of BASIC program only
     return _make_tap_block(data, True)
 
-def _get_basic_loader(title, clear, start, scr):
+def _get_basic_loader(title, clear, start, scr, banks=None):
     data = [0, 10]                          # Line 10
     if clear is None:
         start_addr = '"23296"'
@@ -64,6 +65,8 @@ def _get_basic_loader(title, clear, start, scr):
         line_length = 12 + len(clear_addr) + len(start_addr)
         if scr:
             line_length += 20
+        if banks:
+            line_length += 5
         data.extend(_get_word(line_length)) # Length of line 10
         data.extend((253, 176))             # CLEAR VAL
         data.extend(_get_str(clear_addr))   # "address"
@@ -76,6 +79,9 @@ def _get_basic_loader(title, clear, start, scr):
             data.extend(poke_addr)          # "23739"
             data.append(44)                 # ,
             data.extend((175, 34, 111, 34)) # CODE "o"
+            data.append(58)                 # :
+        if banks:
+            data.extend((239, 34, 34, 175)) # LOAD ""CODE
             data.append(58)                 # :
     data.extend((239, 34, 34, 175))         # LOAD ""CODE
     data.append(58)                         # :
@@ -107,11 +113,43 @@ def _get_data_loader(title, org, length, start, stack, scr):
 
     return _get_header(title, len(data), address) + _make_tap_block(data)
 
-def run(ram, clear, org, start, stack, tapfile, scr):
+def _get_bank_loader(title, address, start_addr, banks, out7ffd):
+    table_addr = address + 38
+    table = (table_addr % 256, table_addr // 256)
+    start = (start_addr % 256, start_addr // 256)
+    data = [
+        0x21, *table,           #      LD HL,TABLE
+        0x01, 0xFD, 0x7F,       # LOOP LD BC,$7FFD
+        0x7E,                   #      LD A,(HL)
+        0xE6, 0x3F,             #      AND $3F
+        0xF3,                   #      DI
+        0xED, 0x79,             #      OUT (C),A
+        0x32, 0x5C, 0x5B,       #      LD ($5B5C),A
+        0xFB,                   #      EI
+        0xCB, 0x7E,             #      BIT 7,(HL)
+        0xC2, *start,           #      JP NZ,START
+        0xE5,                   #      PUSH HL
+        0xDD, 0x21, 0x00, 0xC0, #      LD IX,$C000
+        0x11, 0x00, 0x40,       #      LD DE,$4000
+        0x37,                   #      SCF
+        0x9F,                   #      SBC A,A
+        0xCD, 0x56, 0x05,       #      CALL $0556
+        0xE1,                   #      POP HL
+        0x23,                   #      INC HL
+        0x18, 0xDD,             #      JR LOOP
+    ]
+    data.extend(b + 0x10 for b in sorted(banks))
+    data.append(0x80 | out7ffd) # End marker
+    return _get_header(title, len(data), address) + _make_tap_block(data)
+
+def run(ram, clear, org, start, stack, tapfile, scr, banks, out7ffd, loader_addr):
     title = os.path.basename(tapfile)
     if title.lower().endswith('.tap'):
         title = title[:-4]
-    tap_data = _get_basic_loader(title, clear, start, scr)
+    if banks:
+        tap_data = _get_basic_loader(title, clear, loader_addr, scr, banks)
+    else:
+        tap_data = _get_basic_loader(title, clear, start, scr)
 
     length = len(ram)
     if clear is None:
@@ -135,6 +173,11 @@ def run(ram, clear, org, start, stack, tapfile, scr):
         tap_data.extend(_get_header(title, length, org))
     tap_data.extend(_make_tap_block(ram))
 
+    if banks:
+        tap_data.extend(_get_bank_loader(title, loader_addr, start, banks, out7ffd))
+        for b in sorted(banks):
+            tap_data.extend(_make_tap_block(banks[b]))
+
     with open(tapfile, 'wb') as f:
         f.write(bytearray(tap_data))
 
@@ -148,12 +191,16 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('--7ffd', metavar='N', dest='out7ffd', type=integer,
+                       help="Add 128K RAM banks to the TAP file and write N to port 0x7ffd after they've loaded.")
     group.add_argument('-b', '--begin', dest='begin', metavar='BEGIN', type=integer,
                        help="Begin conversion at this address (default: ORG for a binary file, 16384 for a snapshot).")
     group.add_argument('-c', '--clear', dest='clear', metavar='N', type=integer,
                        help="Use a 'CLEAR N' command in the BASIC loader and leave the stack pointer alone.")
     group.add_argument('-e', '--end', dest='end', metavar='END', type=integer,
                        help="End conversion at this address.")
+    group.add_argument('--loader', metavar='ADDR', type=integer,
+                       help="Place the 128K RAM bank loader at this address (default: CLEAR address + 1).")
     group.add_argument('-o', '--org', dest='org', metavar='ORG', type=integer,
                        help="Set the origin address for a binary file (default: 65536 minus the length of FILE).")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
@@ -170,11 +217,21 @@ def main(args):
     if unknown_args or infile is None:
         parser.exit(2, parser.format_help())
     snapshot_reader = get_snapshot_reader()
+    banks = None
+    clear = namespace.clear
+    out7ffd = namespace.out7ffd
+    loader_addr = namespace.loader
     if snapshot_reader.can_read(infile):
         org = 0
         begin = namespace.begin or 16384
         end = namespace.end or 65536
         ram = snapshot_reader.get_snapshot(infile)[begin:end]
+        if out7ffd is not None and clear is not None:
+            snapshot = snapshot_reader.get_snapshot(infile, -1)
+            if len(snapshot) == 0x20000:
+                banks = {b: snapshot[b * 0x4000:(b + 1) * 0x4000] for b in (0, 1, 3, 4, 6, 7)}
+                if loader_addr is None:
+                    loader_addr = clear + 1
     else:
         ram = read_bin_file(infile, 49152)
         if not ram:
@@ -185,7 +242,6 @@ def main(args):
         ram = ram[begin - org:end - org]
     if not ram:
         raise SkoolKitError('Input is empty (ORG={}, BEGIN={}, END={})'.format(org, begin, end))
-    clear = namespace.clear
     start = namespace.start or begin
     stack = namespace.stack or begin
     tapfile = namespace.outfile
@@ -203,4 +259,4 @@ def main(args):
             scr = snapshot_reader.get_snapshot(scr)[16384:23296]
         else:
             scr = read_bin_file(scr, 6912)
-    run(ram, clear, begin, start, stack, tapfile, scr)
+    run(ram, clear, begin, start, stack, tapfile, scr, banks, out7ffd, loader_addr)
