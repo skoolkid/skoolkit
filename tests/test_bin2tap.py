@@ -561,6 +561,31 @@ class Bin2TapTest(SkoolKitTestCase):
         scr = ram[:6912]
         self._check_tap_with_ram_banks(tap_data, data, banks, out7ffd, sna, clear, begin, scr=scr)
 
+    def test_option_7ffd_with_128k_binary_file(self):
+        data = [1, 2, 3]
+        begin = 40000
+        end = begin + len(data)
+        clear = 32767
+        out7ffd = 0
+        ram = [0] * 49152
+        ram[begin - 16384:begin - 16384 + len(data)] = data
+        bin_data = []
+        banks = []
+        for bank in range(8):
+            if bank == 2:
+                bin_data += ram[16384:32768]
+            elif bank == 5:
+                bin_data += ram[:16384]
+            elif bank == out7ffd % 8:
+                banks.append((bank, ram[32768:]))
+                bin_data += banks[-1][1]
+            else:
+                banks.append((bank, [bank] * 16384))
+                bin_data += banks[-1][1]
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
+        tap_data = self._run(f'-b {begin} -e {end} -c {clear} --7ffd {out7ffd} {binfile}')
+        self._check_tap_with_ram_banks(tap_data, data, banks, out7ffd, binfile, clear, begin)
+
     def test_option_b(self):
         bin_data = range(30)
         binfile = self.write_bin_file(bin_data, suffix='.bin')

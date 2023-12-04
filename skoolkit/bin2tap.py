@@ -221,6 +221,8 @@ def main(args):
     clear = namespace.clear
     out7ffd = namespace.out7ffd
     loader_addr = namespace.loader
+    if loader_addr is None and clear is not None:
+        loader_addr = clear + 1
     if snapshot_reader.can_read(infile):
         org = 0
         begin = namespace.begin or 16384
@@ -230,13 +232,17 @@ def main(args):
             snapshot = snapshot_reader.get_snapshot(infile, -1)
             if len(snapshot) == 0x20000:
                 banks = {b: snapshot[b * 0x4000:(b + 1) * 0x4000] for b in (0, 1, 3, 4, 6, 7)}
-                if loader_addr is None:
-                    loader_addr = clear + 1
     else:
-        ram = read_bin_file(infile, 49152)
-        if not ram:
-            raise SkoolKitError('{} is empty'.format(infile))
-        org = namespace.org or 65536 - len(ram)
+        snapshot = read_bin_file(infile, 0x20000)
+        if len(snapshot) == 0x20000 and out7ffd is not None and clear is not None:
+            banks = {b: snapshot[b * 0x4000:(b + 1) * 0x4000] for b in range(8)}
+            ram = list(banks.pop(5) + banks.pop(2)) + [0] * 16384
+            org = 16384
+        elif snapshot:
+            ram = snapshot[:49152]
+            org = namespace.org or 65536 - len(ram)
+        else:
+            raise SkoolKitError(f'{infile} is empty')
         begin = namespace.begin or org
         end = namespace.end or org + len(ram)
         ram = ram[begin - org:end - org]

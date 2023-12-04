@@ -142,7 +142,8 @@ crashing. The lowest usable address with the ``--clear`` option on a bare 48K
 Spectrum is 23952 (0x5D90).
 
 To create a TAP file that loads a 128K game, use the ``--7ffd``, ``--begin``,
-``--end`` and ``--clear`` options along with a 128K snapshot as input, where:
+``--end`` and ``--clear`` options along with a 128K snapshot or a 128K binary
+file as input, where:
 
 * ``--7ffd`` specifies the value to write to port 0x7FFD after all the RAM
   banks have loaded and before starting the game
