@@ -223,28 +223,32 @@ def main(args):
     loader_addr = namespace.loader
     if loader_addr is None and clear is not None:
         loader_addr = clear + 1
+    has_128k_options = out7ffd is not None and clear is not None and namespace.begin is not None
     if snapshot_reader.can_read(infile):
         org = 0
         begin = namespace.begin or 16384
-        end = namespace.end or 65536
-        ram = snapshot_reader.get_snapshot(infile)[begin:end]
-        if out7ffd is not None and clear is not None:
+        if has_128k_options:
             snapshot = snapshot_reader.get_snapshot(infile, -1)
             if len(snapshot) == 0x20000:
                 banks = {b: snapshot[b * 0x4000:(b + 1) * 0x4000] for b in (0, 1, 3, 4, 6, 7)}
+                end = namespace.end or 49152
+        else:
+            end = namespace.end or 65536
+        ram = snapshot_reader.get_snapshot(infile)[begin:end]
     else:
         snapshot = read_bin_file(infile, 0x20000)
-        if len(snapshot) == 0x20000 and out7ffd is not None and clear is not None:
+        if len(snapshot) == 0x20000 and has_128k_options:
             banks = {b: snapshot[b * 0x4000:(b + 1) * 0x4000] for b in range(8)}
             ram = list(banks.pop(5) + banks.pop(2)) + [0] * 16384
             org = 16384
+            end = namespace.end or 49152
         elif snapshot:
             ram = snapshot[:49152]
             org = namespace.org or 65536 - len(ram)
+            end = namespace.end or org + len(ram)
         else:
             raise SkoolKitError(f'{infile} is empty')
         begin = namespace.begin or org
-        end = namespace.end or org + len(ram)
         ram = ram[begin - org:end - org]
     if not ram:
         raise SkoolKitError('Input is empty (ORG={}, BEGIN={}, END={})'.format(org, begin, end))

@@ -79,20 +79,20 @@ Spectrum is 23952 (0x5D90).
 
 128K TAPES
 ==========
-To create a TAP file that loads a 128K game, use the ``--7ffd``, ``--begin``,
-``--end`` and ``--clear`` options along with a 128K snapshot or a 128K binary
-file as input, where:
+To create a TAP file that loads a 128K game, use the ``--7ffd``, ``--begin``
+and ``--clear`` options along with a 128K snapshot or a 128K binary file as
+input, where:
 
 * ``--7ffd`` specifies the value to write to port 0x7FFD after all the RAM
   banks have loaded and before starting the game
-* ``--begin`` and ``--end`` specify the start and end addresses of the
-  code/data below 49152 (0xC000) to include on the tape
-* ``--clear`` specifies the address of the CLEAR command in the BASIC loader;
-  by default, the 128K RAM bank loader is placed one above this address
+* ``--begin`` specifies the start address of the code/data below 49152 (0xC000)
+  to include on the tape
+* ``--clear`` specifies the address of the CLEAR command in the BASIC loader
 
-Use the ``--loader`` option to place the 128K RAM bank loader at an alternative
-address. The lowest usable address with the ``--clear`` option on a bare 128K
-Spectrum is 23977 (0x5DA9).
+By default, the 128K RAM bank loader (which is 45 bytes long) is placed one
+above the CLEAR address. Use the ``--loader`` option to place it at an
+alternative address. The lowest usable address with the ``--clear`` option on a
+bare 128K Spectrum is 23977 (0x5DA9).
 
 EXAMPLES
 ========
