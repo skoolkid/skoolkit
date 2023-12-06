@@ -269,13 +269,15 @@ class TestAudioWriter(AudioWriter):
     interrupts = None
     offset = None
     ma_filter = None
+    is128k = None
 
-    def write_audio(self, audio_file, delays, contention=False, interrupts=False, offset=0, ma_filter=False):
+    def write_audio(self, audio_file, delays, contention=False, interrupts=False, offset=0, ma_filter=False, is128k=False):
         self.delays = delays
         self.contention = bool(contention)
         self.interrupts = bool(interrupts)
         self.offset = offset
         self.ma_filter = bool(ma_filter)
+        self.is128k = is128k
 
 class HtmlWriterTestCase(SkoolKitTestCase):
     def setUp(self):
@@ -1449,7 +1451,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         if udgs:
             self._check_image(writer, udgs, scale, mask, tindex, alpha, x, y, width, height, path)
 
-    def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=False, interrupts=False, offset=0, ma_filter=False, config=None):
+    def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=False, interrupts=False, offset=0, ma_filter=False, is128k=False, config=None):
         exp_html = f"""
             <audio controls="" src="{src}">
             <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
@@ -1466,24 +1468,27 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             self.assertEqual(audio_writer.interrupts, None)
             self.assertEqual(audio_writer.offset, None)
             self.assertEqual(audio_writer.ma_filter, None)
+            self.assertEqual(audio_writer.is128k, None)
         else:
             self.assertEqual(delays, audio_writer.delays)
             self.assertEqual(contention, audio_writer.contention)
             self.assertEqual(interrupts, audio_writer.interrupts)
             self.assertEqual(offset, audio_writer.offset)
             self.assertEqual(ma_filter, audio_writer.ma_filter)
+            self.assertEqual(is128k, audio_writer.is128k)
+        is128k = len(writer.snapshot) == 0x20000
         aw_config = {
-            'ClockSpeed': 3500000,
-            'ContentionBegin': 14334,
-            'ContentionEnd': 57248,
+            'ClockSpeed': 3546900 if is128k else 3500000,
+            'ContentionBegin': 14361 if is128k else 14334,
+            'ContentionEnd': 58041 if is128k else 57248,
             'ContentionFactor': 51,
-            'FrameDuration': 69888,
-            'InterruptDelay': 942,
+            'FrameDuration': 70908 if is128k else 69888,
+            'InterruptDelay': 1584 if is128k else 942,
             'SampleRate': 44100
         }
         if config:
             aw_config.update(config)
-        for k, v in audio_writer.options.items():
+        for k, v in audio_writer.options[is128k].items():
             self.assertEqual(v, int(aw_config[k]))
 
     def _test_udgarray_macro(self, snapshot, prefix, udg_specs, suffix, path, udgs=None, scale=2, mask=0, tindex=0,
@@ -1608,6 +1613,35 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_path = f'audio/{fname}'
         exp_delays = [166, 1121, 166]
         self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, offset=offset)
+
+    def test_macro_audio_with_code_simulation_on_128k(self):
+        bank3_skool = """
+            ; Beep
+            c49152 LD L,32
+            *49154 OUT (254),A
+             49156 XOR 16
+             49158 LD B,100
+            *49160 DJNZ 49160
+             49162 DEC L
+             49163 JR NZ,49154
+             49165 RET
+        """
+        bank3 = self.write_text_file(dedent(bank3_skool).strip(), suffix='.skool')
+        skool = f"""
+             @bank=3,{bank3}
+             ; Execute sound routine in RAM bank 3
+             c40000 LD BC,$7FFD
+              40003 LD A,3
+              40005 OUT (C),A
+              40007 JP 49152
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        fname = 'sound.wav'
+        macro = f'#AUDIO4({fname})(40000,49165)'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [1336] * 31
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, is128k=True)
 
     def test_macro_audio_with_contention(self):
         writer = self._get_writer(skool='', mock_file_info=True)

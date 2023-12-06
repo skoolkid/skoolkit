@@ -1026,9 +1026,9 @@ class HtmlWriter:
         return path
 
     def _write_audio(self, audio_path, delays, flags, offset):
-        f = self.file_info.open_file(audio_path, mode='wb')
-        self.audio_writer.write_audio(f, delays, flags & 1, flags & 2, offset, flags & 8)
-        f.close()
+        contention, interrupts, ma_filter, is128k = flags & 1, flags & 2, flags & 8, len(self.snapshot) == 0x20000
+        with self.file_info.open_file(audio_path, mode='wb') as f:
+            self.audio_writer.write_audio(f, delays, contention, interrupts, offset, ma_filter, is128k)
         self.file_info.add_audio(audio_path)
 
     def _need_audio(self, fname):

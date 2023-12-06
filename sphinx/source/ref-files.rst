@@ -36,27 +36,29 @@ format::
 
   name=value
 
-Recognised parameters are:
+Recognised parameters and their default values are:
 
-* ``ClockSpeed`` - Z80 clock speed in cycles per second (default: 3500000)
+* ``ClockSpeed`` - Z80 clock speed in cycles per second: 3500000 (48K) or
+  3546900 (128K)
 * ``ContentionBegin`` - when memory contention begins, in T-states from the
-  start of a frame (default: 14334)
+  start of a frame: 14334 (48K) or 14361 (128K)
 * ``ContentionEnd`` - when memory contention ends, in T-states from the start
-  of a frame (default: 57248)
+  of a frame: 57248 (48K) or 58041 (128K)
 * ``ContentionFactor`` - percentage slowdown when memory contention is in
-  effect (default: 51)
-* ``FrameDuration`` - length of a frame in T-states (default: 69888)
-* ``InterruptDelay`` - delay in T-states caused by an interrupt routine
-  (default: 942)
-* ``SampleRate`` - sample rate in Hz (default: 44100)
+  effect: 51
+* ``FrameDuration`` - length of a frame in T-states: 69888 (48K) or 70908
+  (128K)
+* ``InterruptDelay`` - delay in T-states caused by an interrupt routine: 942
+  (48K) or 1584 (128K)
+* ``SampleRate`` - sample rate in Hz: 44100
 
-+---------+----------------------------------------+
-| Version | Changes                                |
-+=========+========================================+
-| 8.8     | Removed the ``MaxAmplitude`` parameter |
-+---------+----------------------------------------+
-| 8.7     | New                                    |
-+---------+----------------------------------------+
++---------+-----------------------------------------+
+| Version | Changes                                 |
++=========+=========================================+
+| 9.1     | Added default values for the 128K model |
++---------+-----------------------------------------+
+| 8.7     | New                                     |
++---------+-----------------------------------------+
 
 .. _ref-Colours:
 

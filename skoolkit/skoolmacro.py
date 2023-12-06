@@ -129,6 +129,19 @@ class AudioTracer:
             self.spkr = value & 0x10
             self.out_times.append(registers[T])
 
+class AudioTracer128(PagingTracer):
+    def __init__(self, memory, out7ffd, outfffd, ay):
+        super().__init__(memory, out7ffd, outfffd, ay)
+        self.spkr = None
+        self.out_times = []
+
+    def write_port(self, registers, port, value):
+        if port % 2 == 0 and self.spkr != value & 0x10:
+            self.spkr = value & 0x10
+            self.out_times.append(registers[T])
+        else:
+            super().write_port(registers, port, value)
+
 # API
 def parse_ints(text, index=0, num=0, defaults=(), names=(), fields=None):
     """Parse a sequence of comma-separated integer parameters, optionally
@@ -555,11 +568,13 @@ def _read_sim_state(writer, execint, reg=None, clear=0):
                 registers[r] = v
     state = {a: registers.pop(a) for a in ('iff', 'im', 'tstates', '7ffd', 'fffd', 'ay')}
     config = {'fast_djnz': not execint, 'fast_ldir': not execint}
+    if len(writer.snapshot) == 0x20000:
+        config['frame_duration'] = FRAME_DURATIONS[1]
     return registers, state, config
 
 def _write_sim_state(writer, simulator, tracer=None):
     registers = simulator.registers
-    if tracer:
+    if isinstance(tracer, PagingTracer):
         out7ffd = tracer.out7ffd
         outfffd = tracer.outfffd
         ay = tracer.ay
@@ -631,10 +646,13 @@ def parse_audio(writer, text, index, need_audio=None):
             if offset is not None:
                 state['tstates'] = offset
             simulator = Simulator(writer.snapshot, registers, state, config)
-            tracer = AudioTracer()
+            if len(writer.snapshot) == 0x20000:
+                tracer = AudioTracer128(writer.snapshot, state['7ffd'], state['fffd'], state['ay'])
+            else:
+                tracer = AudioTracer()
             simulator.set_tracer(tracer)
             simulator.run(start, stop, execint)
-            _write_sim_state(writer, simulator)
+            _write_sim_state(writer, simulator, tracer)
             delays = [t - tracer.out_times[i] for i, t in enumerate(tracer.out_times[1:])]
     else:
         if len(text) > end and text[end] == '(':
@@ -1195,7 +1213,6 @@ def parse_sim(writer, text, index, *cwd):
     registers, state, config = _read_sim_state(writer, execint, reg, clear)
     memory = writer.snapshot
     if len(memory) == 0x20000:
-        config['frame_duration'] = FRAME_DURATIONS[1]
         tracer = PagingTracer(memory, state['7ffd'], state['fffd'], state['ay'])
     else:
         tracer = None
