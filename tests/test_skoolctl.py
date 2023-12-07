@@ -1412,22 +1412,6 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         self._test_ctl(skool, exp_ctl)
 
-    def test_rom_directives_with_parameters(self):
-        skool = """
-            @rom=48
-            ; Routine
-            c49152 LD A,C
-            @rom=128,1
-             49153 RET
-        """
-        exp_ctl = """
-            @ 49152 rom=48
-            c 49152 Routine
-            @ 49153 rom=128,1
-            i 49154
-        """
-        self._test_ctl(skool, exp_ctl)
-
     def test_set_directives(self):
         skool = """
             @set-crlf=1

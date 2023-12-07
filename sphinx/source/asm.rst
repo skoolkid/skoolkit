@@ -236,6 +236,9 @@ another skool file::
 * ``page`` is the page number (0-7)
 * ``fname`` is the name of the skool file
 
+When the first ``@bank`` directive in a skool file is processed, the memory
+snapshot is converted from 48K to 128K and the 128K ROM is loaded.
+
 +---------+---------+
 | Version | Changes |
 +=========+=========+
@@ -1260,16 +1263,10 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 
 @rom
 ^^^^
-The ``@rom`` directive inserts a copy of the 48K or 128K ZX Spectrum ROM into
-the internal memory snapshot constructed from the contents of the skool file.
-::
+The ``@rom`` directive inserts a copy of the 48K ZX Spectrum ROM into the
+memory snapshot constructed from the contents of the skool file. ::
 
-  @rom[=model[,id]]
-
-where:
-
-* ``model`` is either ``48`` (the default) or ``128``
-* ``id`` is either ``0`` (the default) for 128K ROM 0, or ``1`` for 128K ROM 1
+  @rom
 
 Some reasons why you might want to do this are:
 
@@ -1280,13 +1277,11 @@ Some reasons why you might want to do this are:
 * to gain access to the Spectrum character set at 0x3D00 for the purpose of
   creating images of text
 
-+---------+-------------------------------------------+
-| Version | Changes                                   |
-+=========+===========================================+
-| 9.1     | Added the ``model`` and ``id`` parameters |
-+---------+-------------------------------------------+
-| 8.7     | New                                       |
-+---------+-------------------------------------------+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.7     | New     |
++---------+---------+
 
 .. _rsub:
 

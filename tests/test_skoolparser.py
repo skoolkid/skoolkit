@@ -2335,42 +2335,6 @@ class SkoolParserTest(SkoolKitTestCase):
         rom = bytearray(parser.snapshot[:16384])
         self.assertEqual(hashlib.md5(rom).hexdigest(), '4c42a2f075212361c3117015b107ff68')
 
-    def test_rom_directive_48(self):
-        skool = """
-            @rom=48
-            c32768 RET
-        """
-        parser = self._get_parser(skool)
-        rom = bytes(parser.snapshot[:16384])
-        self.assertEqual(hashlib.md5(rom).hexdigest(), '4c42a2f075212361c3117015b107ff68')
-
-    def test_rom_directive_128(self):
-        skool = """
-            @rom=128
-            c32768 RET
-        """
-        parser = self._get_parser(skool)
-        rom = bytes(parser.snapshot[:16384])
-        self.assertEqual(hashlib.md5(rom).hexdigest(), 'b4d2692115a9f2924df92a3cbfb358fb')
-
-    def test_rom_directive_128_0(self):
-        skool = """
-            @rom=128,0
-            c32768 RET
-        """
-        parser = self._get_parser(skool)
-        rom = bytes(parser.snapshot[:16384])
-        self.assertEqual(hashlib.md5(rom).hexdigest(), 'b4d2692115a9f2924df92a3cbfb358fb')
-
-    def test_rom_directive_128_1(self):
-        skool = """
-            @rom=128,1
-            c32768 RET
-        """
-        parser = self._get_parser(skool)
-        rom = bytes(parser.snapshot[:16384])
-        self.assertEqual(hashlib.md5(rom).hexdigest(), '6e09e5d3c4aef166601669feaaadc01c')
-
     def test_references(self):
         skool = """
             ; Routine
