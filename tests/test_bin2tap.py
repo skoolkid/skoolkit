@@ -634,6 +634,54 @@ class Bin2TapTest(SkoolKitTestCase):
         tap_data = self._run(f'-b {begin} -c {clear} --7ffd {out7ffd} {binfile}')
         self._check_tap_with_ram_banks(tap_data, data, banks, out7ffd, binfile, clear, begin)
 
+    def test_option_banks(self):
+        data = [128, 129, 130]
+        begin = 49152 - len(data)
+        clear = 32767
+        out7ffd = 7
+        ram = [0] * 49152
+        ram[begin - 16384:begin - 16384 + len(data)] = data
+        bin_data = []
+        for bank in range(8):
+            if bank == 2:
+                bin_data += ram[16384:32768]
+            elif bank == 5:
+                bin_data += ram[:16384]
+            elif bank == out7ffd % 8:
+                bin_data += ram[32768:]
+            else:
+                bin_data += [bank] * 16384
+        banks = []
+        bank_nums = (1, 4, 7)
+        for bank in bank_nums:
+            banks.append((bank, bin_data[bank * 0x4000:(bank + 1) * 0x4000]))
+        pages = ','.join(str(b) for b in bank_nums)
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
+        tap_data = self._run(f'-b {begin} -c {clear} --7ffd {out7ffd} --banks {pages} {binfile}')
+        self._check_tap_with_ram_banks(tap_data, data, banks, out7ffd, binfile, clear, begin)
+
+    def test_option_banks_with_no_banks(self):
+        data = [128, 129, 130]
+        begin = 49152 - len(data)
+        clear = 32767
+        out7ffd = 4
+        ram = [0] * 49152
+        ram[begin - 16384:begin - 16384 + len(data)] = data
+        bin_data = []
+        for bank in range(8):
+            if bank == 2:
+                bin_data += ram[16384:32768]
+            elif bank == 5:
+                bin_data += ram[:16384]
+            elif bank == out7ffd % 8:
+                bin_data += ram[32768:]
+            else:
+                bin_data += [bank] * 16384
+        banks = []
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
+        tap_data = self._run(f'-b {begin} -c {clear} --7ffd {out7ffd} --banks , {binfile}')
+        self._check_tap_with_ram_banks(tap_data, data, banks, out7ffd, binfile, clear, begin)
+
     def test_option_b(self):
         bin_data = range(30)
         binfile = self.write_bin_file(bin_data, suffix='.bin')

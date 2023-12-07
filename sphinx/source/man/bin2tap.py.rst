@@ -20,6 +20,9 @@ OPTIONS
   Add 128K RAM banks to the TAP file and write `N` to port 0x7ffd after they've
   loaded.
 
+--banks `N[,N...]`
+  Add only these 128K RAM banks to the TAP file (default: 0,1,3,4,6,7).
+
 -b, --begin `BEGIN`
   Begin conversion at this address. The default begin address is the origin
   address (`ORG`) for a binary file, or 16384 for a snapshot. `BEGIN` must be a
@@ -89,10 +92,18 @@ input, where:
   to include on the tape
 * ``--clear`` specifies the address of the CLEAR command in the BASIC loader
 
-By default, the 128K RAM bank loader (which is 45 bytes long) is placed one
-above the CLEAR address. Use the ``--loader`` option to place it at an
-alternative address. The lowest usable address with the ``--clear`` option on a
-bare 128K Spectrum is 23977 (0x5DA9).
+By default, the 128K RAM bank loader (which is 39-45 bytes long, depending on
+the number of RAM banks to load) is placed one above the CLEAR address. Use the
+``--loader`` option to place it at an alternative address. The lowest usable
+address with the ``--clear`` option on a bare 128K Spectrum is 23977 (0x5DA9).
+
+By default, 128K RAM banks 0, 1, 3, 4, 6 and 7 are added to the TAP file. If
+one or more of these RAM banks are not required, use the ``--banks`` option to
+specify a smaller set of RAM banks to add. If none of these RAM banks are
+required, use ``,`` (a single comma) as the argument to the ``--banks`` option.
+The contents of RAM banks 5 and 2 - from the ``--begin`` address and up to but
+not including the ``--end`` address (if given) - are included in the main code
+block on the tape.
 
 EXAMPLES
 ========

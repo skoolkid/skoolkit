@@ -18,7 +18,7 @@
 import os.path
 import argparse
 
-from skoolkit import SkoolKitError, integer, read_bin_file, VERSION
+from skoolkit import SkoolKitError, integer, parse_int, read_bin_file, VERSION
 from skoolkit.components import get_snapshot_reader
 
 def _get_str(chars):
@@ -65,7 +65,7 @@ def _get_basic_loader(title, clear, start, scr, banks=None):
         line_length = 12 + len(clear_addr) + len(start_addr)
         if scr:
             line_length += 20
-        if banks:
+        if banks is not None:
             line_length += 5
         data.extend(_get_word(line_length)) # Length of line 10
         data.extend((253, 176))             # CLEAR VAL
@@ -80,7 +80,7 @@ def _get_basic_loader(title, clear, start, scr, banks=None):
             data.append(44)                 # ,
             data.extend((175, 34, 111, 34)) # CODE "o"
             data.append(58)                 # :
-        if banks:
+        if banks is not None:
             data.extend((239, 34, 34, 175)) # LOAD ""CODE
             data.append(58)                 # :
     data.extend((239, 34, 34, 175))         # LOAD ""CODE
@@ -146,10 +146,10 @@ def run(ram, clear, org, start, stack, tapfile, scr, banks, out7ffd, loader_addr
     title = os.path.basename(tapfile)
     if title.lower().endswith('.tap'):
         title = title[:-4]
-    if banks:
-        tap_data = _get_basic_loader(title, clear, loader_addr, scr, banks)
-    else:
+    if banks is None:
         tap_data = _get_basic_loader(title, clear, start, scr)
+    else:
+        tap_data = _get_basic_loader(title, clear, loader_addr, scr, banks)
 
     length = len(ram)
     if clear is None:
@@ -173,7 +173,7 @@ def run(ram, clear, org, start, stack, tapfile, scr, banks, out7ffd, loader_addr
         tap_data.extend(_get_header(title, length, org))
     tap_data.extend(_make_tap_block(ram))
 
-    if banks:
+    if banks is not None:
         tap_data.extend(_get_bank_loader(title, loader_addr, start, banks, out7ffd))
         for b in sorted(banks):
             tap_data.extend(_make_tap_block(banks[b]))
@@ -193,6 +193,8 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('--7ffd', metavar='N', dest='out7ffd', type=integer,
                        help="Add 128K RAM banks to the TAP file and write N to port 0x7ffd after they've loaded.")
+    group.add_argument('--banks', metavar='N[,N...]',
+                       help="Add only these 128K RAM banks to the TAP file (default: 0,1,3,4,6,7).")
     group.add_argument('-b', '--begin', dest='begin', metavar='BEGIN', type=integer,
                        help="Begin conversion at this address (default: ORG for a binary file, 16384 for a snapshot).")
     group.add_argument('-c', '--clear', dest='clear', metavar='N', type=integer,
@@ -252,6 +254,9 @@ def main(args):
         ram = ram[begin - org:end - org]
     if not ram:
         raise SkoolKitError('Input is empty (ORG={}, BEGIN={}, END={})'.format(org, begin, end))
+    if banks and namespace.banks:
+        for b in set(banks) - set(parse_int(b) for b in namespace.banks.split(',')):
+            del banks[b]
     start = namespace.start or begin
     stack = namespace.stack or begin
     tapfile = namespace.outfile
