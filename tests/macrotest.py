@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 from skoolkit import BASE_10, BASE_16, VERSION
 from skoolkit.skoolhtml import HtmlWriter
 from skoolkit.skoolparser import CASE_LOWER, CASE_UPPER
@@ -1830,102 +1832,6 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#STR0,8({nope})', "Unrecognised field 'nope': {nope}", prefix)
         self._assert_error(writer, '#STR0,8({bar)', "Invalid format string: {bar", prefix)
 
-    def test_macro_tstates(self):
-        skool = """
-            @start
-            @assemble=2,2
-            ; Routine
-            c32768 XOR A       ; 4 T-states
-             32769 ADD A,(HL)  ; 7 T-states
-             32770 JR NC,32772 ; 12/7 T-states
-             32772 RET         ; 10 T-states
-        """
-        writer = self._get_writer(skool=skool)
-
-        self.assertEqual(writer.expand('#TSTATES32768'), '4')
-        self.assertEqual(writer.expand('#TSTATES32768,32770'), '11')
-        self.assertEqual(writer.expand('#TSTATES32770'), '7')
-        self.assertEqual(writer.expand('#TSTATES32770,,1'), '12')
-        self.assertEqual(writer.expand('#TSTATES32770,32773'), '17')
-        self.assertEqual(writer.expand('#TSTATES32770,32773,1'), '22')
-        self.assertEqual(writer.expand('#TSTATES32769,,2($min or $max)'), '7 or 7')
-        self.assertEqual(writer.expand('#TSTATES32770,,2/${min} or ${max}/'), '7 or 12')
-        self.assertEqual(writer.expand('#TSTATES32770,32773,2[$min or $max]'), '17 or 22')
-        self.assertEqual(writer.expand('#TSTATES32770,32773,2|#EVAL(($min+$max)/2)|'), '19')
-        self.assertEqual(writer.expand('#LET(a=32768)#TSTATES({a},{a}+2)'), '11')
-
-    def test_macro_tstates_with_simulator(self):
-        skool = """
-            @start
-            @assemble=2,2
-            ; Routine
-            c32768 LD B,2     ; 7 T-states
-            *32770 DJNZ 32770 ; 13 + 8 = 21 T-states
-             32772 RET
-        """
-        writer = self._get_writer(skool=skool)
-
-        self.assertEqual(writer.expand('#TSTATES32768,32772,4'), '28')
-        self.assertEqual(writer.expand('#TSTATES32768,32772,6($tstates T-states)'), '28 T-states')
-
-    def test_macro_tstates_with_simulator_does_not_modify_writer_snapshot(self):
-        skool = """
-            @start
-            @assemble=2,2
-            ; Routine
-            c32768 LD A,6
-             32770 LD (32768),A
-             32773 RET
-        """
-        writer = self._get_writer(skool=skool)
-        writer.expand('#TSTATES32768,32773,4')
-        self.assertEqual(writer.snapshot[32768], 62)
-
-    def test_macro_tstates_with_simulator_executing_interrupt_routine(self):
-        skool = """
-            @start
-            ; Interrupt vector
-            w65279 DEFW 65281
-
-            ; Interrupt routine
-            c65281 RET
-
-            ; Routine
-            c65282 LD A,254
-             65284 LD I,A
-             65286 IM 2
-             65288 EI
-             65289 HALT
-             65290 RET
-        """
-        writer = self._get_writer(skool=skool)
-        writer.expand('#SIM(start=65282,stop=65289)')
-        self.assertEqual(writer.expand('#TSTATES(65289,65290,4,1)'), '69889')
-
-    def test_macro_tstates_invalid(self):
-        skool = """
-            @start
-            @assemble=2,2
-            ; Stuff
-            c32768 XOR A
-             32769 DEFB 0
-        """
-        writer = self._get_writer(skool=skool)
-        prefix = ERROR_PREFIX.format('TSTATES')
-
-        self._test_no_parameters(writer, 'TSTATES', 1)
-        self._assert_error(writer, '#TSTATES32768,32770', "Failed to get timing for instruction at 32769", prefix)
-        self._assert_error(writer, '#TSTATES32769', "Failed to get timing for instruction at 32769", prefix)
-        self._assert_error(writer, '#TSTATES32770', "Failed to get timing for instruction at 32770", prefix)
-        self._assert_error(writer, '#TSTATES32768,,4', "Missing stop address: '32768,,4'", prefix)
-        self._assert_error(writer, '#TSTATES(1,2,3,4,5)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
-        self._assert_error(writer, '#TSTATES(2', "No closing bracket: (2", prefix)
-        self._assert_error(writer, '#TSTATES(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
-        self._assert_error(writer, '#TSTATES({no})', "Unrecognised field 'no': {no}", prefix)
-        self._assert_error(writer, '#TSTATES({foo)', "Invalid format string: {foo", prefix)
-        self._assert_error(writer, '#TSTATES32768,,2(hi', "No closing bracket: (hi", prefix)
-        self._assert_error(writer, '#TSTATES32768,,2/hi', "No terminating delimiter: /hi", prefix)
-
     def test_macro_sim(self):
         skool = """
             @start
@@ -2219,6 +2125,134 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#SIM(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
         self._assert_error(writer, '#SIM({no})', "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, '#SIM({foo)', "Invalid format string: {foo", prefix)
+
+    def test_macro_tstates(self):
+        skool = """
+            @start
+            ; Routine
+            c32768 XOR A       ; 4 T-states
+             32769 ADD A,(HL)  ; 7 T-states
+             32770 JR NC,32772 ; 12/7 T-states
+             32772 RET         ; 10 T-states
+        """
+        writer = self._get_writer(skool=skool)
+
+        self.assertEqual(writer.expand('#TSTATES32768'), '4')
+        self.assertEqual(writer.expand('#TSTATES32768,32770'), '11')
+        self.assertEqual(writer.expand('#TSTATES32770'), '7')
+        self.assertEqual(writer.expand('#TSTATES32770,,1'), '12')
+        self.assertEqual(writer.expand('#TSTATES32770,32773'), '17')
+        self.assertEqual(writer.expand('#TSTATES32770,32773,1'), '22')
+        self.assertEqual(writer.expand('#TSTATES32769,,2($min or $max)'), '7 or 7')
+        self.assertEqual(writer.expand('#TSTATES32770,,2/${min} or ${max}/'), '7 or 12')
+        self.assertEqual(writer.expand('#TSTATES32770,32773,2[$min or $max]'), '17 or 22')
+        self.assertEqual(writer.expand('#TSTATES32770,32773,2|#EVAL(($min+$max)/2)|'), '19')
+        self.assertEqual(writer.expand('#LET(a=32768)#TSTATES({a},{a}+2)'), '11')
+
+    def test_macro_tstates_with_simulator(self):
+        skool = """
+            @start
+            ; Routine
+            c32768 LD B,2     ; 7 T-states
+            *32770 DJNZ 32770 ; 13 + 8 = 21 T-states
+             32772 RET
+        """
+        writer = self._get_writer(skool=skool)
+
+        self.assertEqual(writer.expand('#TSTATES32768,32772,4'), '28')
+        self.assertEqual(writer.expand('#TSTATES32768,32772,6($tstates T-states)'), '28 T-states')
+
+    def test_macro_tstates_with_simulator_does_not_modify_writer_snapshot(self):
+        skool = """
+            @start
+            ; Routine
+            c32768 LD A,6
+             32770 LD (32768),A
+             32773 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#TSTATES32768,32773,4')
+        self.assertEqual(writer.snapshot[32768], 62)
+
+    def test_macro_tstates_with_simulator_does_not_modify_sim_dictionary(self):
+        skool = """
+            @start
+            ; Routine
+            c32768 LD A,6
+             32770 INC A
+             32771 LD B,A
+             32772 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM32770,32768')
+        self.assertEqual(writer.expand('#FORMAT(PC={sim[PC]} A={sim[A]} BC={sim[BC]})'), 'PC=32770 A=6 BC=0')
+        writer.expand('#TSTATES32770,32772,4')
+        self.assertEqual(writer.expand('#FORMAT(PC={sim[PC]} A={sim[A]} BC={sim[BC]})'), 'PC=32770 A=6 BC=0')
+
+    def test_macro_tstates_with_simulator_executing_interrupt_routine(self):
+        skool = """
+            @start
+            ; Interrupt vector
+            w65279 DEFW 65281
+
+            ; Interrupt routine
+            c65281 RET
+
+            ; Routine
+            c65282 LD A,254
+             65284 LD I,A
+             65286 IM 2
+             65288 EI
+             65289 HALT
+             65290 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=65282,stop=65289)')
+        self.assertEqual(writer.expand('#TSTATES(65289,65290,4,1)'), '69889')
+
+    def test_macro_tstates_with_simulator_128k(self):
+        bank6_skool = """
+            @start
+            ; Routine
+            c49152 LD B,2      ; 7 T-states
+            *49154 DJNZ 49154  ; 13 + 8 = 21 T-states
+             49156 RET
+        """
+        bank6 = self.write_text_file(dedent(bank6_skool), suffix='.skool')
+        skool = f"""
+            @start
+            @bank=6,{bank6}
+            ; Page in bank 6 and call subroutine
+            c32768 LD BC,$7FFD ; 10 T-states
+             32771 LD A,6      ; 7 T-states
+             32773 OUT (C),A   ; 12 T-states
+             32775 CALL 49152  ; 17 T-states
+        """
+        writer = self._get_writer(skool=skool)
+        self.assertEqual(writer.expand('#TSTATES32768,49156,4'), '74')
+
+    def test_macro_tstates_invalid(self):
+        skool = """
+            @start
+            ; Stuff
+            c32768 XOR A
+             32769 DEFB 0
+        """
+        writer = self._get_writer(skool=skool)
+        prefix = ERROR_PREFIX.format('TSTATES')
+
+        self._test_no_parameters(writer, 'TSTATES', 1)
+        self._assert_error(writer, '#TSTATES32768,32770', "Failed to get timing for instruction at 32769", prefix)
+        self._assert_error(writer, '#TSTATES32769', "Failed to get timing for instruction at 32769", prefix)
+        self._assert_error(writer, '#TSTATES32770', "Failed to get timing for instruction at 32770", prefix)
+        self._assert_error(writer, '#TSTATES32768,,4', "Missing stop address: '32768,,4'", prefix)
+        self._assert_error(writer, '#TSTATES(1,2,3,4,5)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
+        self._assert_error(writer, '#TSTATES(2', "No closing bracket: (2", prefix)
+        self._assert_error(writer, '#TSTATES(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
+        self._assert_error(writer, '#TSTATES({no})', "Unrecognised field 'no': {no}", prefix)
+        self._assert_error(writer, '#TSTATES({foo)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#TSTATES32768,,2(hi', "No closing bracket: (hi", prefix)
+        self._assert_error(writer, '#TSTATES32768,,2/hi', "No terminating delimiter: /hi", prefix)
 
     def test_macro_udg_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)

@@ -1276,7 +1276,13 @@ def parse_tstates(writer, text, index, *cwd):
         if stop < 0:
             raise MacroParsingError(f"Missing stop address: '{text[index:end]}'")
         registers, state, config = _read_sim_state(writer, execint)
-        simulator = Simulator(writer.snapshot.copy(), registers, state, config)
+        memory = writer.snapshot.copy()
+        if len(memory) == 0x20000:
+            tracer = PagingTracer(memory, state['7ffd'], state['fffd'], state['ay'])
+        else:
+            tracer = None
+        simulator = Simulator(memory, registers, state, config)
+        simulator.set_tracer(tracer)
         start_time = simulator.registers[T]
         simulator.run(start, stop, execint)
         if msg is None:
