@@ -1277,6 +1277,9 @@ Some reasons why you might want to do this are:
 * to gain access to the Spectrum character set at 0x3D00 for the purpose of
   creating images of text
 
+Note that the ``@rom`` directive does nothing if the memory snapshot has
+already been converted to 128K by a :ref:`asm-bank` directive.
+
 +---------+---------+
 | Version | Changes |
 +=========+=========+

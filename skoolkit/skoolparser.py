@@ -367,8 +367,9 @@ class SkoolParser:
         elif directive.startswith('replace='):
             self._add_replacement(directive[8:])
         elif directive.startswith('rom'):
-            rom = read_bin_file(ROM48)
-            self.snapshot[:len(rom)] = rom
+            if len(self.snapshot) == 0x10000:
+                rom = read_bin_file(ROM48)
+                self.snapshot[:len(rom)] = rom
         elif directive.startswith('bank='):
             try:
                 bw_args = {
