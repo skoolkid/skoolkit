@@ -11,6 +11,9 @@ def nest_macros(template, *values):
     return template.format(*nested_macros)
 
 class CommonSkoolMacroTest:
+    def _write_skool_file(self, skool):
+        return self.write_text_file(dedent(skool).strip(), suffix='.skool')
+
     def _check_call(self, writer, params, *args, **kwargs):
         macro = '#CALL:test_call({})'.format(params)
         cwd = ('<cwd>',) if isinstance(writer, HtmlWriter) else ()
@@ -38,6 +41,39 @@ class CommonSkoolMacroTest:
         self._test_invalid_audio_macro(writer, '#AUDIO(f)(', "No closing bracket: (", prefix)
 
         return writer, prefix
+
+    def test_macro_bank(self):
+        banks = {b: self._write_skool_file(f'b49152 DEFB {b}') for b in (1, 3, 4, 6, 7)}
+        skool = f"""
+            @start
+            @bank=0
+            @bank=1,{banks[1]}
+            @bank=3,{banks[3]}
+            @bank=4,{banks[4]}
+            @bank=6,{banks[6]}
+            @bank=7,{banks[7]}
+            ; Bank 5
+            b16384 DEFB 5
+
+            ; Bank 2
+            b32768 DEFB 2
+
+            ; Bank 0
+            b49152 DEFB 255
+        """
+        writer = self._get_writer(skool=skool)
+        self.assertEqual(writer.expand('#FOR0,7,,1(b,#BANKb#PEEK49152)'), '255,1,2,3,4,5,6,7')
+
+    def test_macro_bank_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('BANK')
+
+        self._assert_error(writer, '#BANK', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#BANKx', "No parameters (expected 1): 'x'", prefix)
+        self._assert_error(writer, '#BANK(2', "No closing bracket: (2", prefix)
+        self._assert_error(writer, '#BANK(5$3)', "Cannot parse integer '5$3' in parameter string: '5$3'", prefix)
+        self._assert_error(writer, '#BANK({no})', "Unrecognised field 'no': {no}", prefix)
+        self._assert_error(writer, '#BANK({foo)', "Invalid format string: {foo", prefix)
 
     def test_macro_call(self):
         writer = self._get_writer(skool='', variables=[('one', 1)])
@@ -2218,7 +2254,7 @@ class CommonSkoolMacroTest:
             *49154 DJNZ 49154  ; 13 + 8 = 21 T-states
              49156 RET
         """
-        bank6 = self.write_text_file(dedent(bank6_skool), suffix='.skool')
+        bank6 = self._write_skool_file(bank6_skool)
         skool = f"""
             @start
             @bank=6,{bank6}

@@ -959,6 +959,34 @@ Audio file creation can be configured via the :ref:`ref-AudioWriter` section.
 | 8.7     | New                                                               |
 +---------+-------------------------------------------------------------------+
 
+.. _BANK:
+
+#BANK
+-----
+The ``#BANK`` macro switches the RAM bank that is mapped to 49152-65535
+(0xC000-0xFFFF) in the memory snapshot::
+
+  #BANKpage
+
+* ``page`` is the page number (0-7)
+
+For example::
+
+  ; This is the UDG at 50000 in RAM bank 6: #BANK6 #UDG50000(udg)
+
+This instance of the ``#BANK`` macro maps RAM bank 6 to 49152-65535 in
+preparation for creating an image of the UDG at 50000 in that RAM bank.
+
+If the memory snapshot hasn't already been converted from 48K to 128K by a
+:ref:`asm-bank` directive, it will be converted when the first ``#BANK`` macro
+in the skool file is expanded.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 9.1     | New     |
++---------+---------+
+
 .. _CALL:
 
 #CALL

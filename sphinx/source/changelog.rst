@@ -9,11 +9,13 @@ Changelog
   ``--page`` and ``--bank`` options, or by providing a 128K input file)
 * Added support to :ref:`bin2tap.py` for writing 128K TAP files (by using the
   ``--7ffd``, ``--banks`` and ``--loader`` options)
-* Added the :ref:`bank` directive (for specifying the RAM bank that is mapped
-  to 49152-65535, and for populating a RAM bank from the contents of another
-  skool file)
+* Added the :ref:`BANK` macro (for switching the RAM bank that is mapped to
+  49152-65535)
+* Added the :ref:`asm-bank` directive (for specifying the RAM bank that is
+  mapped to 49152-65535, and for populating a RAM bank from the contents of
+  another skool file)
 * Added the ``--banks`` option to :ref:`skool2bin.py` (for processing
-  :ref:`bank` directives and writing RAM banks 0-7 to a 128K file)
+  :ref:`asm-bank` directives and writing RAM banks 0-7 to a 128K file)
 * Added the ``execint`` parameter to the :ref:`AUDIO`, :ref:`SIM` and
   :ref:`TSTATES` macros (to specify whether to simulate the execution of
   interrupt routines)

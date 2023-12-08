@@ -491,6 +491,7 @@ def get_params(param_string, num, defaults, names, text, safe=True):
 
 def get_macros(writer):
     macros = {
+        '#BANK': partial(parse_bank, writer),
         '#CALL': partial(parse_call, writer),
         '#CHR': partial(parse_chr, writer),
         '#D': partial(parse_d, writer),
@@ -661,6 +662,12 @@ def parse_audio(writer, text, index, need_audio=None):
                 expanded = writer.expand(spec)
                 delays = _eval_delays(_format_params(expanded, expanded, **writer.fields))
     return end, flags, offset or 0, fname, delays
+
+def parse_bank(writer, text, index, *cwd):
+    # BANKpage
+    end, page = parse_ints(text, index, 1, fields=writer.fields)
+    writer.snapshot.bank(page % 8)
+    return end, ''
 
 def parse_call(writer, text, index, *cwd):
     # #CALL:methodName(args)
