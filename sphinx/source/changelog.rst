@@ -21,6 +21,8 @@ Changelog
   interrupt routines)
 * Added the ``tstates`` parameter to the :ref:`SIM` macro (to set the value of
   the simulator's clock)
+* Added the ``iff`` parameter to the :ref:`SIM` macro (to set whether
+  interrupts are enabled)
 * Added support to the :ref:`AUDIO`, :ref:`SIM` and :ref:`TSTATES` macros for
   executing code in a 128K memory snapshot
 

@@ -1209,15 +1209,16 @@ def parse_scr(text, index=0, fields=None):
     return parse_image_macro(text, index, defaults, names, 'scr', fields)
 
 def parse_sim(writer, text, index, *cwd):
-    # #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates]
+    # #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff]
     names = ('stop', 'start', 'clear', 'a', 'f', 'bc', 'de', 'hl', 'xa', 'xf',
              'xbc', 'xde', 'xhl', 'ix', 'iy', 'i', 'r', 'sp', 'execint',
-             'tstates')
-    defaults = (-1, 0) + (-1,) * 15 + (0, -1)
+             'tstates', 'iff')
+    defaults = (-1, 0) + (-1,) * 15 + (0, -1, -1)
     reg = {}
     (end, stop, start, clear, reg['A'], reg['F'], reg['BC'], reg['DE'], reg['HL'],
      reg['^A'], reg['^F'], reg['^BC'], reg['^DE'], reg['^HL'], reg['IX'], reg['IY'],
-     reg['I'], reg['R'], reg['SP'], execint, reg['tstates']) = parse_ints(text, index, len(names), defaults, names, writer.fields)
+     reg['I'], reg['R'], reg['SP'], execint, reg['tstates'], reg['iff']
+     ) = parse_ints(text, index, len(names), defaults, names, writer.fields)
     registers, state, config = _read_sim_state(writer, execint, reg, clear)
     memory = writer.snapshot
     if len(memory) == 0x20000:
