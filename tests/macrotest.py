@@ -2118,7 +2118,7 @@ class CommonSkoolMacroTest:
              40018 JR NZ,40008
         """
         writer = self._get_writer(skool=skool)
-        writer.expand('#SIM(start=40000,stop=40022)')
+        writer.expand('#SIM(start=40000,stop=40020)')
         self.assertEqual(writer.snapshot[65535], 255)
 
     def test_macro_sim_128k_with_pushs_and_pops(self):
@@ -2136,6 +2136,16 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.snapshot[1], 1) # ROM 0 again
         self.assertEqual(writer.snapshot[49152], 0)
         self.assertEqual(writer.snapshot.banks[1][0], 0)
+
+    def test_macro_sim_tstates_parameter(self):
+        skool = """
+            @start
+            ; Routine
+            c32768 LD A,1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=32768,stop=32770,tstates=10000)')
+        self.assertEqual(writer.expand('#FORMAT(T={sim[tstates]})'), 'T=10007')
 
     def test_macro_sim_with_keyword_arguments_and_replacement_fields(self):
         skool = """
@@ -2155,8 +2165,8 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('SIM')
 
         self._test_no_parameters(writer, 'SIM', 1)
-        params = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20'
-        self._assert_error(writer, f'#SIM({params})', f"Too many parameters (expected 19): '{params}'", prefix)
+        params = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21'
+        self._assert_error(writer, f'#SIM({params})', f"Too many parameters (expected 20): '{params}'", prefix)
         self._assert_error(writer, '#SIM(30000', "No closing bracket: (30000", prefix)
         self._assert_error(writer, '#SIM(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
         self._assert_error(writer, '#SIM({no})', "Unrecognised field 'no': {no}", prefix)

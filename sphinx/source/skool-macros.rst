@@ -1507,7 +1507,7 @@ For example:
 The ``#SIM`` macro simulates the execution of machine code in the internal
 memory snapshot constructed from the contents of the skool file. ::
 
-  #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint]
+  #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates]
 
 * ``stop`` is the address at which to stop execution
 * ``start`` is the address at which to start execution (default: ``stop`` from
@@ -1532,6 +1532,7 @@ memory snapshot constructed from the contents of the skool file. ::
 * ``sp`` sets the value of the stack pointer (default: 23552)
 * ``execint`` specifies whether to execute interrupt routines (1), or ignore
   interrupts (0, the default)
+* ``tstates`` sets the value of the simulator's clock (default: 0)
 
 The parameters of the ``#SIM`` macro may contain
 :ref:`replacement fields <replacementFields>` and may also be given as keyword
@@ -1607,9 +1608,10 @@ memory snapshot, and therefore can modify it. To avoid that, use the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.1     | Added the ``execint`` parameter; added support for executing code |
-|         | in a 128K memory snapshot; added the ``iff``, ``im``, ``7ffd``,   |
-|         | ``fffd`` and ``ay`` fields to the ``sim`` dictionary              |
+| 9.1     | Added the ``execint`` and ``tstates`` parameters; added support   |
+|         | for executing code in a 128K memory snapshot; added the ``iff``,  |
+|         | ``im``, ``7ffd``, ``fffd`` and ``ay`` fields to the ``sim``       |
+|         | dictionary                                                        |
 +---------+-------------------------------------------------------------------+
 | 8.7     | New                                                               |
 +---------+-------------------------------------------------------------------+
