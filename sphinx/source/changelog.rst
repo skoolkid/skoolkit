@@ -25,6 +25,7 @@ Changelog
   interrupts are enabled)
 * Added the ``im`` parameter to the :ref:`SIM` macro (to set the interrupt
   mode)
+* Made the ``stop`` parameter of the :ref:`SIM` macro optional
 * Added support to the :ref:`AUDIO`, :ref:`SIM` and :ref:`TSTATES` macros for
   executing code in a 128K memory snapshot
 

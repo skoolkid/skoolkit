@@ -2184,6 +2184,22 @@ class CommonSkoolMacroTest:
         writer.expand('#SIM(start=65282,stop=65281,tstates=69884,i=254,iff=1,im=2)')
         self.assertEqual(writer.expand('#FORMAT(T={sim[tstates]} im={sim[im]} iff={sim[iff]})'), 'T=69907 im=2 iff=0')
 
+    def test_macro_sim_without_stop_parameter(self):
+        skool = """
+            @start
+            ; Routine
+            c50000 LD A,255
+             50002 RET
+        """
+        writer = self._get_writer(skool=skool)
+        macro = '#FORMAT(PC={sim[PC]} A={sim[A]} BC={sim[BC]} DE={sim[DE]} HL={sim[HL]})'
+
+        writer.expand('#SIM(start=50000,stop=50002)')
+        self.assertEqual(writer.expand(macro), 'PC=50002 A=255 BC=0 DE=0 HL=0')
+
+        writer.expand('#SIM(a=1,bc=1000,de=2000,hl=3000)')
+        self.assertEqual(writer.expand(macro), 'PC=50002 A=1 BC=1000 DE=2000 HL=3000')
+
     def test_macro_sim_with_keyword_arguments_and_replacement_fields(self):
         skool = """
             @start
@@ -2201,7 +2217,6 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('SIM')
 
-        self._test_no_parameters(writer, 'SIM', 1)
         params = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23'
         self._assert_error(writer, f'#SIM({params})', f"Too many parameters (expected 22): '{params}'", prefix)
         self._assert_error(writer, '#SIM(30000', "No closing bracket: (30000", prefix)

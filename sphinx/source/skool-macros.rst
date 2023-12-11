@@ -1507,9 +1507,10 @@ For example:
 The ``#SIM`` macro simulates the execution of machine code in the internal
 memory snapshot constructed from the contents of the skool file. ::
 
-  #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im]
+  #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im]
 
-* ``stop`` is the address at which to stop execution
+* ``stop`` is the address at which to stop execution; if not given, no code is
+  executed
 * ``start`` is the address at which to start execution (default: ``stop`` from
   the previous invocation of the ``#SIM`` macro, or 0 if this is the first run)
 * ``clear`` is 0 to use the register values that resulted from the previous
@@ -1599,6 +1600,11 @@ now HL=14371'.
    means that ``sim[tstates]`` may not be accurate if the code being simulated
    runs in or accesses contended memory, or performs I/O operations.
 
+If the ``stop`` parameter is not given, no code is executed, but the
+simulator's registers and hardware state may be updated by providing other
+parameters. This technique can be used to initialise the simulator for use by
+the :ref:`AUDIO` or :ref:`TSTATES` macro.
+
 Before executing code, the ``#SIM`` macro copies the simulator state as it was
 left by the most recent invocation of either the :ref:`AUDIO` or the ``#SIM``
 macro (if any).
@@ -1613,7 +1619,8 @@ memory snapshot, and therefore can modify it. To avoid that, use the
 | 9.1     | Added the ``execint``, ``iff``, ``im`` and ``tstates``            |
 |         | parameters; added support for executing code in a 128K memory     |
 |         | snapshot; added the ``iff``, ``im``, ``7ffd``, ``fffd`` and       |
-|         | ``ay`` fields to the ``sim`` dictionary                           |
+|         | ``ay`` fields to the ``sim`` dictionary; made the ``stop``        |
+|         | parameter optional                                                |
 +---------+-------------------------------------------------------------------+
 | 8.7     | New                                                               |
 +---------+-------------------------------------------------------------------+

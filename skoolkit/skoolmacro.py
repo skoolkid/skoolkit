@@ -1209,11 +1209,11 @@ def parse_scr(text, index=0, fields=None):
     return parse_image_macro(text, index, defaults, names, 'scr', fields)
 
 def parse_sim(writer, text, index, *cwd):
-    # #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im]
+    # #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im]
     names = ('stop', 'start', 'clear', 'a', 'f', 'bc', 'de', 'hl', 'xa', 'xf',
              'xbc', 'xde', 'xhl', 'ix', 'iy', 'i', 'r', 'sp', 'execint',
              'tstates', 'iff', 'im')
-    defaults = (-1,) * 21
+    defaults = (-1,) * 22
     reg = {}
     (end, stop, start, clear, reg['A'], reg['F'], reg['BC'], reg['DE'], reg['HL'],
      reg['^A'], reg['^F'], reg['^BC'], reg['^DE'], reg['^HL'], reg['IX'], reg['IY'],
@@ -1226,10 +1226,11 @@ def parse_sim(writer, text, index, *cwd):
     else:
         tracer = None
     simulator = Simulator(memory, registers, state, config)
-    if start < 0:
-        start = simulator.registers[PC]
-    simulator.set_tracer(tracer)
-    simulator.run(start, stop, execint)
+    if stop >= 0:
+        if start < 0:
+            start = simulator.registers[PC]
+        simulator.set_tracer(tracer)
+        simulator.run(start, stop, execint)
     _write_sim_state(writer, simulator, tracer)
     return end, ''
 
