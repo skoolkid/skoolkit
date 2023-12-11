@@ -561,14 +561,14 @@ def expand_macros(writer, text, *cwd):
 
 def _read_sim_state(writer, execint, reg=None, clear=0):
     registers = {'iff': 0, 'im': 1, 'tstates': 0, '7ffd': 0, 'fffd': 0, 'ay': [0] * 16}
-    if clear == 0:
+    if clear < 1:
         registers.update(writer.fields.get('sim', {}))
     if reg:
         for r, v in reg.items():
             if v >= 0:
                 registers[r] = v
     state = {a: registers.pop(a) for a in ('iff', 'im', 'tstates', '7ffd', 'fffd', 'ay')}
-    config = {'fast_djnz': not execint, 'fast_ldir': not execint}
+    config = {'fast_djnz': execint < 1, 'fast_ldir': execint < 1}
     if len(writer.snapshot) == 0x20000:
         config['frame_duration'] = FRAME_DURATIONS[1]
     return registers, state, config
@@ -1209,16 +1209,16 @@ def parse_scr(text, index=0, fields=None):
     return parse_image_macro(text, index, defaults, names, 'scr', fields)
 
 def parse_sim(writer, text, index, *cwd):
-    # #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff]
+    # #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im]
     names = ('stop', 'start', 'clear', 'a', 'f', 'bc', 'de', 'hl', 'xa', 'xf',
              'xbc', 'xde', 'xhl', 'ix', 'iy', 'i', 'r', 'sp', 'execint',
-             'tstates', 'iff')
-    defaults = (-1, 0) + (-1,) * 15 + (0, -1, -1)
+             'tstates', 'iff', 'im')
+    defaults = (-1,) * 21
     reg = {}
     (end, stop, start, clear, reg['A'], reg['F'], reg['BC'], reg['DE'], reg['HL'],
      reg['^A'], reg['^F'], reg['^BC'], reg['^DE'], reg['^HL'], reg['IX'], reg['IY'],
-     reg['I'], reg['R'], reg['SP'], execint, reg['tstates'], reg['iff']
-     ) = parse_ints(text, index, len(names), defaults, names, writer.fields)
+     reg['I'], reg['R'], reg['SP'], execint, reg['tstates'], reg['iff'],
+     reg['im']) = parse_ints(text, index, len(names), defaults, names, writer.fields)
     registers, state, config = _read_sim_state(writer, execint, reg, clear)
     memory = writer.snapshot
     if len(memory) == 0x20000:

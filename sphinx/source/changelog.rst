@@ -23,6 +23,8 @@ Changelog
   the simulator's clock)
 * Added the ``iff`` parameter to the :ref:`SIM` macro (to set whether
   interrupts are enabled)
+* Added the ``im`` parameter to the :ref:`SIM` macro (to set the interrupt
+  mode)
 * Added support to the :ref:`AUDIO`, :ref:`SIM` and :ref:`TSTATES` macros for
   executing code in a 128K memory snapshot
 
