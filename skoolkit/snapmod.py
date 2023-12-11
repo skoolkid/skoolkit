@@ -17,7 +17,7 @@
 import argparse
 
 from skoolkit import SkoolKitError, VERSION
-from skoolkit.snapshot import Snapshot, move, poke, print_reg_help, print_state_help
+from skoolkit.snapshot import Snapshot, print_reg_help, print_state_help
 
 def run(infile, options, outfile):
     snapshot = Snapshot.get(infile)
