@@ -9,6 +9,9 @@ Changelog
   ``--page`` and ``--bank`` options, or by providing a 128K input file)
 * Added support to :ref:`bin2tap.py` for writing 128K TAP files (by using the
   ``--7ffd``, ``--banks`` and ``--loader`` options)
+* Added support to :ref:`bin2sna.py`, :ref:`snapmod.py`, :ref:`tap2sna.py` and
+  :ref:`trace.py` for modifying 128K RAM banks (via the ``--poke`` and
+  ``--ram poke`` options)
 * Added the :ref:`BANK` macro (for switching the RAM bank that is mapped to
   49152-65535)
 * Added the :ref:`asm-bank` directive (for specifying the RAM bank that is

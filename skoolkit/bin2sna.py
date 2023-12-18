@@ -94,8 +94,8 @@ def main(args):
                        help="Specify the RAM bank (N=0-7) mapped to 49152 (0xC000) in the main input file. This option creates a 128K snapshot.")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer (default: ORG).")
-    group.add_argument('-P', '--poke', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append', default=[],
-                       help="POKE N,v for N in {a, a+c, a+2c..., b}. "
+    group.add_argument('-P', '--poke', dest='pokes', metavar='[p:]a[-b[-c]],[^+]v', action='append', default=[],
+                       help="POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}. "
                             "Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD operation. "
                             "This option may be used multiple times.")
     group.add_argument('-r', '--reg', dest='reg', metavar='name=value', action='append', default=[],

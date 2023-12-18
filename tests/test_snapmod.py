@@ -344,6 +344,27 @@ class SnapmodTest(SkoolKitTestCase):
             options.append(f'--poke {addr},{value}')
         self._test_z80_128k(' '.join(options), header, exp_header, ram, exp_ram, 3)
 
+    def test_option_p_z80v3_with_page_number(self):
+        pokes = (
+            (0, 0x0000, 0xFF),
+            (1, 0x4000, 0xFE),
+            (2, 0x8000, 0xFD),
+            (3, 0xC000, 0xFC),
+            (4, 0x3FFF, 0xFB),
+            (5, 0x7FFF, 0xFA),
+            (6, 0xBFFF, 0xF9),
+            (7, 0xFFFF, 0xF8),
+        )
+        header = self._get_header(3, True)
+        exp_header = header[:]
+        ram = [0] * 0x20000
+        exp_ram = ram[:]
+        options = []
+        for bank, addr, value in pokes:
+            exp_ram[(bank * 0x4000) + (addr % 0x4000)] = value
+            options.append(f'--poke {bank}:{addr},{value}')
+        self._test_z80_128k(' '.join(options), header, exp_header, ram, exp_ram, 3)
+
     def test_option_p_szx_16k(self):
         option = '-p 16384,255'
         exp_block_diffs = None
@@ -371,6 +392,26 @@ class SnapmodTest(SkoolKitTestCase):
             exp_ram_diffs[bank][addr % 0x4000] = value
             options.append(f'--poke {addr},{value}')
         self._test_szx(' '.join(options), exp_block_diffs, exp_ram_diffs, 128, ch7ffd=3)
+
+    def test_option_p_szx_with_page_number(self):
+        pokes = (
+            (0, 0x0000, 0xFF),
+            (1, 0x4000, 0xFE),
+            (2, 0x8000, 0xFD),
+            (3, 0xC000, 0xFC),
+            (4, 0x3FFF, 0xFB),
+            (5, 0x7FFF, 0xFA),
+            (6, 0xBFFF, 0xF9),
+            (7, 0xFFFF, 0xF8),
+        )
+        exp_block_diffs = None
+        exp_ram_diffs = {}
+        options = []
+        for bank, addr, value in pokes:
+            exp_ram_diffs[bank] = [0] * 0x4000
+            exp_ram_diffs[bank][addr % 0x4000] = value
+            options.append(f'--poke {bank}:{addr},{value}')
+        self._test_szx(' '.join(options), exp_block_diffs, exp_ram_diffs, 128)
 
     def test_option_poke_multiple(self):
         pokes = ((24576, 1), (32768, 34), (49152, 205))
@@ -413,6 +454,7 @@ class SnapmodTest(SkoolKitTestCase):
         infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
         self._test_bad_spec('-p 1', infile, 'Value missing in poke spec: 1')
         self._test_bad_spec('-p q', infile, 'Value missing in poke spec: q')
+        self._test_bad_spec('-p p:1,x', infile, 'Invalid page number in poke spec: p:1,x')
         self._test_bad_spec('-p 1,x', infile, 'Invalid value in poke spec: 1,x')
         self._test_bad_spec('-p x,1', infile, 'Invalid address range in poke spec: x,1')
         self._test_bad_spec('-p 1-y,1', infile, 'Invalid address range in poke spec: 1-y,1')

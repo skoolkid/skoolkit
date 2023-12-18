@@ -620,6 +620,14 @@ def poke(snapshot, param_str):
         addr, val = param_str.split(',', 1)
     except ValueError:
         raise SkoolKitError("Value missing in poke spec: {}".format(param_str))
+    if ':' in addr:
+        page, addr = addr.split(':', 1)
+        try:
+            page = get_int_param(page)
+        except ValueError:
+            raise SkoolKitError(f'Invalid page number in poke spec: {param_str}')
+    else:
+        page = None
     try:
         if val.startswith('^'):
             value = get_int_param(val[1:], True)
@@ -637,8 +645,14 @@ def poke(snapshot, param_str):
     except ValueError:
         raise SkoolKitError('Invalid address range in poke spec: {}'.format(param_str))
     addr1, addr2, step = values + [values[0], 1][len(values) - 1:]
-    for a in range(addr1, addr2 + 1, step):
-        snapshot[a] = poke_f(snapshot[a])
+    if page is None:
+        for a in range(addr1, addr2 + 1, step):
+            snapshot[a] = poke_f(snapshot[a])
+    elif hasattr(snapshot, 'banks'):
+        bank = snapshot.banks[page % 8]
+        if bank:
+            for a in range(addr1, addr2 + 1, step):
+                bank[a % 0x4000] = poke_f(bank[a % 0x4000])
 
 # API (SnapshotReader)
 class SnapshotError(SkoolKitError):

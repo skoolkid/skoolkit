@@ -189,20 +189,20 @@ class Tap2SnaTest(SkoolKitTestCase):
             return self._write_tap(blocks), basic_data
         return blocks, basic_data
 
-    def _get_snapshot(self, start=16384, data=None, options='', load_options=None, blocks=None, tzx=False):
+    def _get_snapshot(self, start=16384, data=None, options='', load_options=None, blocks=None, tzx=False, page=None):
         if blocks is None:
             blocks = [create_tap_data_block(data)]
         if tzx:
             tape_file = self._write_tzx(blocks)
         else:
             tape_file = self._write_tap(blocks)
-        z80file = '{}/out.z80'.format(self.make_directory())
+        z80file = 'out.z80'
         if load_options is None:
             load_options = '--ram load=1,{}'.format(start)
         output, error = self.run_tap2sna(f'{load_options} {options} {tape_file} {z80file}')
         self.assertEqual(output, 'Writing {}\n'.format(z80file))
         self.assertEqual(error, '')
-        return get_snapshot(z80file)
+        return get_snapshot(z80file, page)
 
     def _test_bad_spec(self, option, exp_error):
         tapfile = self._write_tap([create_tap_data_block([1])])
@@ -898,9 +898,42 @@ class Tap2SnaTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(16384, [2, 1, 2], '--ram poke=0x4000-0x4002-0x02,0x2a')
         self.assertEqual([42, 1, 42], snapshot[16384:16387])
 
+    def test_ram_poke_with_page_number(self):
+        data = [0]
+        basic_data = [
+            0, 10,  # Line 10
+            2, 0,   # Line length
+            234,    # REM
+            13      # ENTER
+        ]
+        blocks = [
+            create_tap_header_block('basicprog', 10, len(basic_data), 0),
+            create_tap_data_block(basic_data)
+        ]
+        tapfile = self._write_tap(blocks)
+        z80file = 'out.z80'
+        pokes = (
+            (0, 0x0000, 255),
+            (1, 0x4000, 254),
+            (2, 0x8000, 253),
+            (3, 0xC000, 252),
+            (4, 0x3FFF, 251),
+            (5, 0x7FFF, 250),
+            (6, 0xBFFF, 249),
+            (7, 0xFFFF, 248),
+        )
+        poke_opts = ' '.join(f'--ram poke={p}:{a},{v}' for p, a, v in pokes)
+        output, error = self.run_tap2sna(f'-c machine=128 {poke_opts} {tapfile} {z80file}')
+        self.assertTrue(output.endswith(f'\nWriting {z80file}\n'))
+        self.assertEqual(error, '')
+        snapshot = get_snapshot(z80file, -1)
+        for p, a, v in pokes:
+            self.assertEqual(snapshot[p * 0x4000 + (a % 0x4000)], v)
+
     def test_ram_poke_bad_value(self):
         self._test_bad_spec('--ram poke=1', 'Value missing in poke spec: 1')
         self._test_bad_spec('--ram poke=q', 'Value missing in poke spec: q')
+        self._test_bad_spec('--ram poke=p:1,1', 'Invalid page number in poke spec: p:1,1')
         self._test_bad_spec('--ram poke=1,x', 'Invalid value in poke spec: 1,x')
         self._test_bad_spec('--ram poke=x,1', 'Invalid address range in poke spec: x,1')
         self._test_bad_spec('--ram poke=1-y,1', 'Invalid address range in poke spec: 1-y,1')

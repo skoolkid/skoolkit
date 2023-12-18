@@ -784,7 +784,7 @@ def _print_ram_help():
 Usage: --ram call=[/path/to/moduledir:]module.function
        --ram load=[+]block[+],start[,length,step,offset,inc]
        --ram move=src,size,dest
-       --ram poke=a[-b[-c]],[^+]v
+       --ram poke=[p:]a[-b[-c]],[^+]v
        --ram sysvars
 
 Load data from a tape block, move a block of bytes from one location to
@@ -844,10 +844,11 @@ snapshot in an arbitrary way.
 
   --ram move=32512,256,32768  # Move 32512-32767 to 32768-33023
 
---ram poke=a[-b[-c]],[^+]v
+--ram poke=[p:]a[-b[-c]],[^+]v
 
-  Do POKE N,v for N in {a, a+c, a+2c..., b}.
+  Do POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
 
+  p - the RAM bank to POKE (0-7; 128K only)
   a - the first address to POKE
   b - the last address to POKE (optional; default=a)
   c - step (optional; default=1)

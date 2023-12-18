@@ -362,9 +362,12 @@ The ``--ram`` option can be used to POKE values into the snapshot before saving
 it.
 
 |
-|  ``--ram poke=A[-B[-C]],[^+]V``
+|  ``--ram poke=[P:]A[-B[-C]],[^+]V``
 
-This does ``POKE N,V`` for ``N`` in ``{A, A+C, A+2C..., B}``, where:
+This does ``POKE N,V`` in RAM bank ``P`` for ``N`` in ``{A, A+C, A+2C..., B}``,
+where:
+
+``P`` is the RAM bank to POKE (0-7; 128K only)
 
 ``A`` is the first address to POKE
 

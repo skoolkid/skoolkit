@@ -42,11 +42,11 @@ Run `bin2sna.py` with no arguments to see the list of available options::
                           snapshot.
     -p STACK, --stack STACK
                           Set the stack pointer (default: ORG).
-    -P a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
-                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
-                          with '^' to perform an XOR operation, or '+' to
-                          perform an ADD operation. This option may be used
-                          multiple times.
+    -P [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
+                          POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
+                          Prefix 'v' with '^' to perform an XOR operation, or
+                          '+' to perform an ADD operation. This option may be
+                          used multiple times.
     -r name=value, --reg name=value
                           Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
@@ -63,7 +63,8 @@ Run `bin2sna.py` with no arguments to see the list of available options::
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.1     | Added the ``--bank`` and ``--page`` options and support for       |
-|         | writing 128K snapshots                                            |
+|         | writing 128K snapshots; the ``--poke`` option can modify specific |
+|         | RAM banks                                                         |
 +---------+-------------------------------------------------------------------+
 | 9.0     | Added support for writing SZX snapshots; added the ``fe``         |
 |         | hardware state attribute                                          |
@@ -1287,11 +1288,11 @@ To list the options supported by `snapmod.py`, run it with no arguments::
     -m src,size,dest, --move src,size,dest
                           Move a block of bytes of the given size from src to
                           dest. This option may be used multiple times.
-    -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
-                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
-                          with '^' to perform an XOR operation, or '+' to
-                          perform an ADD operation. This option may be used
-                          multiple times.
+    -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
+                          POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
+                          Prefix 'v' with '^' to perform an XOR operation, or
+                          '+' to perform an ADD operation. This option may be
+                          used multiple times.
     -r name=value, --reg name=value
                           Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
@@ -1304,7 +1305,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.1     | Added support for modifying SZX snapshots and 128K snapshots      |
+| 9.1     | Added support for modifying SZX snapshots and 128K snapshots; the |
+|         | ``--poke`` option can modify specific RAM banks                   |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Added the ``issue2`` hardware state attribute                     |
 +---------+-------------------------------------------------------------------+
@@ -1668,6 +1670,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.1     | The ``--ram poke`` option can modify specific RAM banks           |
++---------+-------------------------------------------------------------------+
 | 9.0     | A simulated LOAD is performed by default; an existing snapshot    |
 |         | will be overwritten by default; added the ``load``, ``machine``,  |
 |         | ``polarity`` and ``in-flags`` simulated LOAD configuration        |
@@ -1806,11 +1810,11 @@ To list the options supported by `trace.py`, run it with no arguments::
     -n, --no-interrupts   Don't execute interrupt routines.
     -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
                           file (default: 65536 - length).
-    -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
-                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
-                          with '^' to perform an XOR operation, or '+' to
-                          perform an ADD operation. This option may be used
-                          multiple times.
+    -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
+                          POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
+                          Prefix 'v' with '^' to perform an XOR operation, or
+                          '+' to perform an ADD operation. This option may be
+                          used multiple times.
     -r name=value, --reg name=value
                           Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
@@ -1894,6 +1898,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.1     | The ``--poke`` option can modify specific RAM banks               |
++---------+-------------------------------------------------------------------+
 | 9.0     | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--no-interrupts`` and ``--show-config`` options;     |
 |         | interrupt routines are executed by default; added support for     |

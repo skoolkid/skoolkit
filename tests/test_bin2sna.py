@@ -384,6 +384,26 @@ class Bin2SnaTest(SkoolKitTestCase):
         self._check_write_snapshot(args, exp_ram, exp_state)
 
     @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_P_with_page_number(self):
+        exp_ram = [[0] * 0x4000 for i in range(8)]
+        args = ['--page 5']
+        for page, addr, value in (
+                (0, 0, 255),
+                (1, 16384, 254),
+                (2, 32768, 253),
+                (3, 49152, 252),
+                (4, 65535, 251),
+                (5, 49151, 250),
+                (6, 32767, 249),
+                (7, 16383, 248),
+        ):
+            exp_ram[page][addr % 0x4000] = value
+            args.append(f'-P {page}:{addr},{value}')
+        args.append(self.write_bin_file([0], suffix='.bin'))
+        exp_state = ['7ffd=5']
+        self._check_write_snapshot(' '.join(args), exp_ram, exp_state)
+
+    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_P_with_128k_input_file(self):
         exp_ram = []
         data = []
@@ -400,6 +420,7 @@ class Bin2SnaTest(SkoolKitTestCase):
     def test_option_P_invalid_values(self):
         self._test_bad_spec('-P 1', 'Value missing in poke spec: 1')
         self._test_bad_spec('-P q', 'Value missing in poke spec: q')
+        self._test_bad_spec('-P p:1,0', 'Invalid page number in poke spec: p:1,0')
         self._test_bad_spec('-P 1,x', 'Invalid value in poke spec: 1,x')
         self._test_bad_spec('-P x,1', 'Invalid address range in poke spec: x,1')
         self._test_bad_spec('-P 1-y,1', 'Invalid address range in poke spec: 1-y,1')

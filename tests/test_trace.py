@@ -996,6 +996,51 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_option_poke_with_page_number(self):
+        data = [
+            0x16, 0x00,             # $6000 LD D,$00
+            0x01, 0xFD, 0x7F,       # $6002 LD BC,$7FFD
+            0xED, 0x51,             # $6005 OUT (C),D
+            0x3A, 0x00, 0xC0,       # $6007 LD A,($C000)
+            0x14,                   # $600A INC D
+            0xCB, 0x5A,             # $600B BIT 3,D
+            0x28, 0xF6,             # $600D JR Z,$6005
+        ]
+        sna = [0] * 131103
+        start, stop = 0x6000, 0x600F
+        index = start + 27 - 16384
+        sna[index:index + len(data)] = data
+        snafile = self.write_bin_file(sna, suffix='.sna')
+        ini = """
+            [trace]
+            TraceLine=${pc:04X} {i:<15} Bank {r[d]}: A=${r[a]:02X}
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        pokes = (
+            (0, 0x0000, 0xFF),
+            (1, 0x4000, 0xFE),
+            (2, 0x8000, 0xFD),
+            (3, 0xC000, 0xFC),
+            (4, 0x0000, 0xFB),
+            (5, 0x4000, 0xFA),
+            (6, 0x8000, 0xF9),
+            (7, 0xC000, 0xF8),
+        )
+        poke_opts = ' '.join(f'--poke {p}:{a},{v}' for p, a, v in pokes)
+        output, error = self.run_trace(f'-s {start} -S {stop} -v {poke_opts} {snafile}')
+        self.assertEqual(error, '')
+        exp_output = [
+            '$6007 LD A,($C000)    Bank 0: A=$FF',
+            '$6007 LD A,($C000)    Bank 1: A=$FE',
+            '$6007 LD A,($C000)    Bank 2: A=$FD',
+            '$6007 LD A,($C000)    Bank 3: A=$FC',
+            '$6007 LD A,($C000)    Bank 4: A=$FB',
+            '$6007 LD A,($C000)    Bank 5: A=$FA',
+            '$6007 LD A,($C000)    Bank 6: A=$F9',
+            '$6007 LD A,($C000)    Bank 7: A=$F8'
+        ]
+        self.assertEqual(exp_output, output.rstrip().split('\n')[3::5])
+
     def test_option_reg(self):
         data = [
             0x3C  # INC A
