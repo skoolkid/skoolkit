@@ -605,29 +605,42 @@ def print_state_help(short_option=None, show_defaults=True):
     attrs = '\n'.join(f'  {a:<7} - {d}' for a, d in sorted(attributes))
     print(f'Usage: {opts}\n\nSet a hardware state attribute. Recognised names {infix}are:\n\n{attrs}')
 
+def _get_page(param, desc, spec, default=None):
+    if ':' in param:
+        page, v = param.split(':', 1)
+        try:
+            return get_int_param(page), v
+        except ValueError:
+            raise SkoolKitError(f'Invalid page number in {desc} spec: {spec}')
+    return default, param
+
 def move(snapshot, param_str):
-    params = param_str.split(',', 2)
-    if len(params) < 3:
-        raise SkoolKitError("Not enough arguments in move spec (expected 3): {}".format(param_str))
     try:
-        src, length, dest = [get_int_param(p, True) for p in params]
+        src, length, dest = param_str.split(',', 2)
+    except ValueError:
+        raise SkoolKitError(f'Not enough arguments in move spec (expected 3): {param_str}')
+    src_page, src = _get_page(src, 'move', param_str)
+    dest_page, dest = _get_page(dest, 'move', param_str, src_page)
+    try:
+        src, length, dest = [get_int_param(p, True) for p in (src, length, dest)]
     except ValueError:
         raise SkoolKitError('Invalid integer in move spec: {}'.format(param_str))
-    snapshot[dest:dest + length] = snapshot[src:src + length]
+    if src_page is None:
+        snapshot[dest:dest + length] = snapshot[src:src + length]
+    elif hasattr(snapshot, 'banks'):
+        src_bank = snapshot.banks[src_page % 8]
+        dest_bank = snapshot.banks[dest_page % 8]
+        if src_bank and dest_bank:
+            s = src % 0x4000
+            d = dest % 0x4000
+            dest_bank[d:d + length] = src_bank[s:s + length]
 
 def poke(snapshot, param_str):
     try:
         addr, val = param_str.split(',', 1)
     except ValueError:
         raise SkoolKitError("Value missing in poke spec: {}".format(param_str))
-    if ':' in addr:
-        page, addr = addr.split(':', 1)
-        try:
-            page = get_int_param(page)
-        except ValueError:
-            raise SkoolKitError(f'Invalid page number in poke spec: {param_str}')
-    else:
-        page = None
+    page, addr = _get_page(addr, 'poke', param_str)
     try:
         if val.startswith('^'):
             value = get_int_param(val[1:], True)

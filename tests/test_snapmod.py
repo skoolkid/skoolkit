@@ -52,20 +52,19 @@ class SnapmodTest(SkoolKitTestCase):
         self.assertEqual(exp_header, z80.header)
         self.assertEqual(exp_ram, z80.ram)
 
-    def _test_szx(self, options, exp_block_diffs=None, exp_ram_diffs=None, kb=48, ram=None, ch7ffd=0):
+    def _test_szx(self, options, exp_block_diffs=None, exp_ram_diffs=None, kb=48, ram=None, ch7ffd=0, pages=None):
         if ram is None:
             if kb == 16:
                 ram = [0] * 0x4000
             else:
                 ram = [0] * 0xC000
         machine_id = {16: 0, 48: 1, 128: 2}[kb]
-        pages = {}
         registers = (0,) # Registers all 0
         border = 0
         keyb = False
         issue2 = 0
         ay = None
-        infile = self.write_szx(ram, True, machine_id, ch7ffd, pages, registers, border, keyb, issue2, ay)
+        infile = self.write_szx(ram, True, machine_id, ch7ffd, pages or {}, registers, border, keyb, issue2, ay)
         outfile = f'{infile[:-4]}-out.szx'
         output, error = self.run_snapmod(f'{options} {infile} {outfile}')
         block_diffs, ram_diffs = SZX(outfile).compare(SZX(infile))
@@ -227,6 +226,29 @@ class SnapmodTest(SkoolKitTestCase):
     def test_option_m_z80v3_128k(self):
         self._test_move('-m', 50000, [3] * 5, 60000, 3, False, is128=True)
 
+    def test_option_m_z80v3_with_page_number(self):
+        moves = (
+            (1, 0, 1, None, 2),
+            (3, 0, 2, 3, 2),
+            (4, 0, 3, 6, 1000),
+            (7, 0, 4, None, 10),
+        )
+        header = self._get_header(3, True)
+        exp_header = header[:]
+        ram = list(range(256)) * 1024
+        exp_ram = ram[:]
+        options = []
+        for src_page, src, length, dest_page, dest in moves:
+            s = src_page * 0x4000 + src
+            if dest_page:
+                d = dest_page * 0x4000 + dest
+                options.append(f'--move {src_page}:{src},{length},{dest_page}:{dest}')
+            else:
+                d = src_page * 0x4000 + dest
+                options.append(f'--move {src_page}:{src},{length},{dest}')
+            exp_ram[d:d + length] = exp_ram[s:s + length]
+        self._test_z80_128k(' '.join(options), header, exp_header, ram, exp_ram, 3)
+
     def test_option_m_szx_16k(self):
         option = '-m 16384,2,16386'
         ram = [1, 2] + [0] * 16382
@@ -256,6 +278,29 @@ class SnapmodTest(SkoolKitTestCase):
         exp_ram_diffs = {0: [255, 255] + [0] * 16382}
         self._test_szx(option, exp_block_diffs, exp_ram_diffs, 128, ram)
 
+    def test_option_m_szx_with_page_number(self):
+        moves = (
+            (1, 0, 1, None, 2),
+            (3, 0, 2, 3, 2),
+            (4, 0, 3, 6, 1000),
+            (7, 0, 4, None, 10),
+        )
+        pages = {p: list(range(256)) * 64 for p in (1, 3, 4, 6, 7)}
+        options = []
+        exp_ram_diffs = {}
+        for src_page, src, length, dest_page, dest in moves:
+            if dest_page:
+                exp_ram_diffs.setdefault(dest_page, pages[dest_page][:])
+                exp_ram_diffs[dest_page][dest:dest + length] = pages[src_page][src:src + length]
+                options.append(f'--move {src_page}:{src},{length},{dest_page}:{dest}')
+            else:
+                exp_ram_diffs.setdefault(src_page, pages[src_page][:])
+                exp_ram_diffs[src_page][dest:dest + length] = exp_ram_diffs[src_page][src:src + length]
+                options.append(f'--move {src_page}:{src},{length},{dest}')
+        ram = [0] * 49152
+        exp_block_diffs = None
+        self._test_szx(' '.join(options), exp_block_diffs, exp_ram_diffs, 128, ram, pages=pages)
+
     def test_option_move_multiple(self):
         specs = ((34576, 2, 30000), (45678, 3, 40000), (56789, 4, 50000))
         header = [0] * 30
@@ -279,6 +324,8 @@ class SnapmodTest(SkoolKitTestCase):
         infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
         self._test_bad_spec('-m 1', infile, 'Not enough arguments in move spec (expected 3): 1')
         self._test_bad_spec('-m 1,2', infile, 'Not enough arguments in move spec (expected 3): 1,2')
+        self._test_bad_spec('-m s:1,2,3', infile, 'Invalid page number in move spec: s:1,2,3')
+        self._test_bad_spec('-m 1,2,d:3', infile, 'Invalid page number in move spec: 1,2,d:3')
         self._test_bad_spec('-m x,2,3', infile, 'Invalid integer in move spec: x,2,3')
         self._test_bad_spec('-m 1,y,3', infile, 'Invalid integer in move spec: 1,y,3')
         self._test_bad_spec('-m 1,2,z', infile, 'Invalid integer in move spec: 1,2,z')

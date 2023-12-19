@@ -1285,9 +1285,10 @@ To list the options supported by `snapmod.py`, run it with no arguments::
   Modify an SZX or Z80 snapshot.
 
   Options:
-    -m src,size,dest, --move src,size,dest
-                          Move a block of bytes of the given size from src to
-                          dest. This option may be used multiple times.
+    -m [s:]src,size,[d:]dest, --move [s:]src,size,[d:]dest
+                          Copy a block of bytes of the given size from src in
+                          RAM bank s to dest in RAM bank d. This option may be
+                          used multiple times.
     -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
                           POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
                           Prefix 'v' with '^' to perform an XOR operation, or
@@ -1306,7 +1307,7 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.1     | Added support for modifying SZX snapshots and 128K snapshots; the |
-|         | ``--poke`` option can modify specific RAM banks                   |
+|         | ``--move`` and ``--poke`` options can modify specific RAM banks   |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Added the ``issue2`` hardware state attribute                     |
 +---------+-------------------------------------------------------------------+
@@ -1670,7 +1671,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.1     | The ``--ram poke`` option can modify specific RAM banks           |
+| 9.1     | The ``--ram move`` and ``--ram poke`` options can modify specific |
+|         | RAM banks                                                         |
 +---------+-------------------------------------------------------------------+
 | 9.0     | A simulated LOAD is performed by default; an existing snapshot    |
 |         | will be overwritten by default; added the ``load``, ``machine``,  |

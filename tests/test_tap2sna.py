@@ -961,6 +961,45 @@ class Tap2SnaTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(src, [value], '--ram move=0x{:X},0x{:X},0x{:x}'.format(src, size, dest))
         self.assertEqual(snapshot[dest], value)
 
+    def test_ram_move_with_page_number(self):
+        data = [0]
+        basic_data = [
+            0, 10,  # Line 10
+            2, 0,   # Line length
+            234,    # REM
+            13      # ENTER
+        ]
+        blocks = [
+            create_tap_header_block('basicprog', 10, len(basic_data), 0),
+            create_tap_data_block(basic_data)
+        ]
+        tapfile = self._write_tap(blocks)
+        z80file = 'out.z80'
+        moves = (
+            (5, 22528, 8, 1, 0),
+            (5, 17440, 8, 3, 0),
+            (5, 17440, 8, None, 8),
+            (0, 16376, 8, 4, 49152),
+        )
+        move_opts = []
+        for src_page, src, length, dest_page, dest in moves:
+            if dest_page:
+                move_opts.append(f'--ram move={src_page}:{src},{length},{dest_page}:{dest}')
+            else:
+                move_opts.append(f'--ram move={src_page}:{src},{length},{dest}')
+        move_opts = ' '.join(move_opts)
+        output, error = self.run_tap2sna(f'-c machine=128 {move_opts} {tapfile} {z80file}')
+        self.assertTrue(output.endswith(f'\nWriting {z80file}\n'))
+        self.assertEqual(error, '')
+        snapshot = get_snapshot(z80file, -1)
+        for src_page, src, length, dest_page, dest in moves:
+            s = src_page * 0x4000 + (src % 0x4000)
+            if dest_page:
+                d = dest_page * 0x4000 + (dest % 0x4000)
+            else:
+                d = src_page * 0x4000 + (dest % 0x4000)
+            self.assertEqual(snapshot[s:s + length], snapshot[d:d + length])
+
     def test_ram_move_bad_address(self):
         self._test_bad_spec('--ram move=1', 'Not enough arguments in move spec (expected 3): 1')
         self._test_bad_spec('--ram move=1,2', 'Not enough arguments in move spec (expected 3): 1,2')

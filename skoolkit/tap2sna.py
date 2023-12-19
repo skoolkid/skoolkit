@@ -783,11 +783,11 @@ def _print_ram_help():
     sys.stdout.write("""
 Usage: --ram call=[/path/to/moduledir:]module.function
        --ram load=[+]block[+],start[,length,step,offset,inc]
-       --ram move=src,size,dest
+       --ram move=[s:]src,size,[d:]dest
        --ram poke=[p:]a[-b[-c]],[^+]v
        --ram sysvars
 
-Load data from a tape block, move a block of bytes from one location to
+Load data from a tape block, copy a block of bytes from one location to
 another, POKE a single address or range of addresses with a given value,
 initialise the system variables, or call a Python function to modify the memory
 snapshot in an arbitrary way.
@@ -832,17 +832,20 @@ snapshot in an arbitrary way.
   --ram load=2,32768,2048  # Load the first 2K at 32768
   --ram load=2,0xC000      # Load the remainder at 49152
 
---ram move=src,size,dest
+--ram move=[s:]src,size,[d:]dest
 
-  Move a block of bytes from one location to another.
+  Copy a block of bytes from one location to another.
 
+  s    - the source RAM bank (0-7; 128K only)
   src  - the address of the first byte in the block
   size - the number of bytes in the block
+  d    - the destination RAM bank (0-7; 128K only)
   dest - the destination address
 
   For example:
 
-  --ram move=32512,256,32768  # Move 32512-32767 to 32768-33023
+  --ram move=32512,256,32768  # Copy 32512-32767 to 32768-33023
+  --ram move=3:0,8,4:0        # Copy the first 8 bytes of bank 3 to bank 4
 
 --ram poke=[p:]a[-b[-c]],[^+]v
 

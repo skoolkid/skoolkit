@@ -344,17 +344,18 @@ A single tape block can be loaded in two or more stages; for example:
 
 MOVE OPERATIONS
 ===============
-The ``--ram`` option can be used to move a block of bytes from one location to
+The ``--ram`` option can be used to copy a block of bytes from one location to
 another before saving the snapshot.
 
 |
-|  ``--ram move=src,N,dest``
+|  ``--ram move=[s:]src,N,[d:]dest``
 
-This moves a block of ``N`` bytes from ``src`` to ``dest``. For example:
+This copies a block of ``N`` bytes from ``src`` in RAM bank ``s`` to ``dest``
+in RAM bank ``d``. For example:
 
 |
-|  ``--ram move=32512,256,32768``     # Move 32512-32767 to 32768-33023
-|  ``--ram move=0x9c00,0x100,0x9d00`` # Move 39936-40191 to 40192-40447
+|  ``--ram move=32512,256,32768``  # Copy 32512-32767 to 32768-33023
+|  ``--ram move=3:0,8,4:0``        # Copy the first 8 bytes of bank 3 to bank 4
 
 POKE OPERATIONS
 ===============

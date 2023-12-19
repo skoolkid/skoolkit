@@ -35,8 +35,8 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-m', '--move', dest='moves', metavar='src,size,dest', action='append', default=[],
-                       help='Move a block of bytes of the given size from src to dest. This option may be used multiple times.')
+    group.add_argument('-m', '--move', dest='moves', metavar='[s:]src,size,[d:]dest', action='append', default=[],
+                       help='Copy a block of bytes of the given size from src in RAM bank s to dest in RAM bank d. This option may be used multiple times.')
     group.add_argument('-p', '--poke', dest='pokes', metavar='[p:]a[-b[-c]],[^+]v', action='append', default=[],
                        help="POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}. "
                             "Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD operation. "
