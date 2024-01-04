@@ -33,6 +33,7 @@ Changelog
   executing code in a 128K memory snapshot
 * Fixed how :ref:`trace.py` handles the value of the SP register in a 128K SNA
   file
+* Fixed how :ref:`trace.py` logs timestamps when an interrupt occurs
 
 9.0 (2023-11-04)
 ----------------

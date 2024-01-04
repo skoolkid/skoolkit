@@ -441,7 +441,6 @@ class TraceTest(SkoolKitTestCase):
             0xC9,       # $7FFE RET
             0xFE, 0x7F, # $7FFF DEFW $7FFE
         ]
-        binfile = self.write_bin_file(data, suffix='.bin')
         start = 0x7ffb
         stop = 0x7ffd
         ram = [0] * 49152
@@ -694,6 +693,51 @@ class TraceTest(SkoolKitTestCase):
         output, error = self.run_trace(f'-S {stop} -v {z80file} {outfile}')
         self.assertEqual(error, '')
         self.assertEqual(s_memory[0xc000], 2) # LDDR interrupted when BC=2
+
+    def test_interrupt_mode_1_with_timestamps(self):
+        data = [
+            0x00, # $8000 NOP ; t=69884 (interrupt follows)
+            0x00, # $8001 NOP
+        ]
+        start = 0x8000
+        stop = 0x8002
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69884}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        trace_line = 'TraceLine={t} ${pc:04X} {i}'
+        output, error = self.run_trace(('-I', trace_line, '-S', str(stop), '-v', z80file))
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '69884 $8000 NOP')
+        self.assertEqual(output_lines[1], '69901 $0038 PUSH AF')
+        self.assertEqual(output_lines[2], '69912 $0039 PUSH HL')
+        self.assertEqual(output_lines[109], '70833 $0052 RET')
+        self.assertEqual(output_lines[110], '70843 $8001 NOP')
+        self.assertEqual(output_lines[111], 'Stopped at $8002')
+
+    def test_interrupt_mode_2_with_timestamps(self):
+        data = [
+            0x00,       # $7FFB NOP ; t=69884 (interrupt follows)
+            0x00,       # $7FFC NOP
+            0x00,       # $7FFD NOP
+            0xC9,       # $7FFE RET
+            0xFE, 0x7F, # $7FFF DEFW $7FFE
+        ]
+        start = 0x7ffb
+        stop = 0x7ffd
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'I': 127, 'iff2': 1, 'im': 2, 'tstates': 69884}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        trace_line = 'TraceLine={t} ${pc:04X} {i}'
+        output, error = self.run_trace(('-I', trace_line, '-S', str(stop), '-v', z80file))
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '69884 $7FFB NOP')
+        self.assertEqual(output_lines[1], '69907 $7FFE RET')
+        self.assertEqual(output_lines[2], '69917 $7FFC NOP')
+        self.assertEqual(output_lines[3], 'Stopped at $7FFD')
 
     def test_option_audio(self):
         data = [
