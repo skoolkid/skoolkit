@@ -1,4 +1,4 @@
-# Copyright 2022, 2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -170,7 +170,7 @@ def run(snafile, options, config):
     else:
         memory, org = make_snapshot(snafile, options.org, page=-1)[:2]
         reg = parse_snapshot(snafile)[1]
-        if snafile.lower()[-4:] == '.sna':
+        if snafile.lower()[-4:] == '.sna' and len(memory) == 65536:
             reg.sp = (reg.sp + 2) % 65536
     if reg:
         state = {'im': reg.im, 'iff': reg.iff2, 'tstates': reg.tstates}

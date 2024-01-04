@@ -31,6 +31,8 @@ Changelog
 * Made the ``stop`` parameter of the :ref:`SIM` macro optional
 * Added support to the :ref:`AUDIO`, :ref:`SIM` and :ref:`TSTATES` macros for
   executing code in a 128K memory snapshot
+* Fixed how :ref:`trace.py` handles the value of the SP register in a 128K SNA
+  file
 
 9.0 (2023-11-04)
 ----------------

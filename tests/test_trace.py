@@ -191,7 +191,7 @@ class TraceTest(SkoolKitTestCase):
         snafile = self.write_bin_file(sna, suffix='.sna')
         exp_output = """
             $6000 OUT (C),A        A=11  F=00010110  BC=7FFD  DE=0D0C  HL=0B0A  IX=1312 IY=1110
-                                   A'=09 F'=00001000 BC'=0706 DE'=0504 HL'=0302 SP=4002 IR=0116
+                                   A'=09 F'=00001000 BC'=0706 DE'=0504 HL'=0302 SP=4000 IR=0116
             Stopped at $6002
         """
         self._test_trace(f'-vv -S 24578 {snafile}', exp_output)
