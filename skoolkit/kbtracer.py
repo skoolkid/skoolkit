@@ -1,4 +1,4 @@
-# Copyright 2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2023, 2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -343,6 +343,7 @@ class KeyboardTracer(PagingTracer):
                     accept_int = simulator.accept_interrupt(registers, memory, pc)
                     if not accept_int and (keys and not keys[0]):
                         keys.pop(0)
+                    tstates = registers[25]
 
             pc = registers[24]
             if pc == stop:

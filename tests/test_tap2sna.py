@@ -2190,6 +2190,42 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[19499], '$8038 JR NC,$8037')
         self.assertEqual(trace_lines[19500], '$8037 SCF')
 
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_sim_load_with_trace_and_interrupts_and_timestamps(self):
+        basic_data = [
+            0, 10,             # Line 10
+            9, 0,              # Line length
+            242,               # PAUSE
+            48,                # 0 in ASCII
+            14, 0, 0, 0, 0, 0, # 0 in floating point form
+            13                 # ENTER
+        ]
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ]
+        tapfile = self._write_tap(blocks)
+        tracefile = 'sim-load.trace'
+        trace_line = 'TraceLine={t} ${pc:04X} {i}'
+        output, error = self.run_tap2sna(('-I', trace_line, '-c', f'trace={tracefile}', '--start', '57', tapfile, 'out.z80'))
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,13',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=57',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        exp_reg = set(('IX=23768', 'IY=23610', 'PC=57'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 11187)
+        self.assertEqual(trace_lines[11185], '17891327 $1F3D HALT')
+        self.assertEqual(trace_lines[11186], '17891344 $0038 PUSH AF')
+
     def test_sim_load_config_help(self):
         for option in ('-c', '--sim-load-config'):
             output, error = self.run_tap2sna(f'{option} help')

@@ -1,4 +1,4 @@
-# Copyright 2022, 2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -215,6 +215,7 @@ class LoadTracer(PagingTracer):
                     accept_int = True
                 if accept_int:
                     accept_int = simulator.accept_interrupt(registers, memory, pc)
+                    tstates = registers[25]
 
             if self.tape_running and tstates >= self.next_edge:
                 index = self.index

@@ -1097,6 +1097,56 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[134693], '$34BB RET')
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_trace_with_load_command_and_interrupts_and_timestamps(self):
+        basic_data = [
+            0, 10, # Line 10
+            2, 0,  # Line length
+            234,   # REM
+            13     # ENTER
+        ]
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ]
+        tapfile = self._write_tap(blocks)
+        tracefile = 'sim-load.trace'
+        args = (
+            '-I', 'TraceLine={t} ${pc:04X} {i}',
+            '-c', f'trace={tracefile}',
+            '-c', 'load=LOAD ""',
+            '--start', '0x053f',
+            '-c', 'finish-tape=1',
+            tapfile,
+            'out.z80'
+        )
+        output, error = self.run_tap2sna(args)
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,6',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=1343',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        exp_reg = set(('^F=69', 'SP=65360', 'IX=23761', 'IY=23610', 'PC=1343'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 133874)
+        self.assertEqual(trace_lines[2023], '5730799 $0E5C LDIR')
+        self.assertEqual(trace_lines[2024], '5730833 $0038 PUSH AF')
+        self.assertEqual(trace_lines[5604], '5800690 $0E5C LDIR')
+        self.assertEqual(trace_lines[5605], '5800724 $0038 PUSH AF')
+        self.assertEqual(trace_lines[9239], '5870587 $0E59 LD (HL),$00')
+        self.assertEqual(trace_lines[9240], '5870610 $0038 PUSH AF')
+        self.assertEqual(trace_lines[17129], '5940475 $15F7 LD E,(HL)')
+        self.assertEqual(trace_lines[17130], '5940495 $0038 PUSH AF')
+        self.assertEqual(trace_lines[24021], '6010364 $15E8 LD HL,($5C51)')
+        self.assertEqual(trace_lines[24022], '6010393 $0038 PUSH AF')
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_bit_5_of_output_to_port_0x7ffd(self):
         code = [
             0xF3,             # $8000 DI
