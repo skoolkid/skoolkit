@@ -1,4 +1,4 @@
-# Copyright 2022, 2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -24,10 +24,13 @@ R1 = tuple((r & 0x80) + ((r + 1) % 128) for r in range(256))
 
 R2 = tuple((r & 0x80) + ((r + 2) % 128) for r in range(256))
 
+INT_ACTIVE = (32, 36)
+
 CONFIG = {
     'fast_djnz': False,
     'fast_ldir': False,
-    'frame_duration': 69888
+    'frame_duration': 69888,
+    'int_active': INT_ACTIVE[0]
 }
 
 A = 0
@@ -133,6 +136,7 @@ class Simulator:
             self.after_ED[0xB0] = partial(self.ldir_fast, self.registers, self.memory, 1)
             self.after_ED[0xB8] = partial(self.ldir_fast, self.registers, self.memory, -1)
         self.frame_duration = cfg['frame_duration']
+        self.int_active = cfg['int_active']
         self.set_tracer(None)
 
     def set_tracer(self, tracer, in_r_c=True, ini=True):
@@ -161,17 +165,11 @@ class Simulator:
             opcodes[memory[pc]]()
         elif interrupts:
             frame_duration = self.frame_duration
-            tstates = registers[25]
-            accept_int = False
+            int_active = self.int_active
             while True:
-                t0 = tstates
                 opcodes[memory[pc]]()
-                tstates = registers[25]
-                if self.iff:
-                    if tstates // frame_duration > t0 // frame_duration:
-                        accept_int = True
-                    if accept_int:
-                        accept_int = self.accept_interrupt(registers, memory, pc)
+                if self.iff and registers[25] % frame_duration < int_active:
+                    self.accept_interrupt(registers, memory, pc)
                 pc = registers[24]
                 if pc == stop:
                     break
@@ -548,12 +546,10 @@ class Simulator:
 
     def halt(self, registers):
         # HALT
-        if self.iff:
-            t = registers[25]
-            if (t + 4) // self.frame_duration > t // self.frame_duration:
-                registers[24] = (registers[24] + 1) % 65536 # PC
-        registers[15] = R1[registers[15]] # R
         registers[25] += 4 # T-states
+        if self.iff and registers[25] % self.frame_duration < self.int_active:
+            registers[24] = (registers[24] + 1) % 65536 # PC
+        registers[15] = R1[registers[15]] # R
 
     def im(self, registers, mode):
         # IM 0/1/2

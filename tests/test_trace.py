@@ -397,41 +397,43 @@ class TraceTest(SkoolKitTestCase):
 
     def test_interrupt_mode_0(self):
         data = [
-            0xED, 0x46, # $8000 IM 0
-            0x76,       # $8002 HALT
-            0xAF,       # $8003 XOR A
+            0x76,       # $8000 HALT
+            0xAF,       # $8001 XOR A
         ]
-        binfile = self.write_bin_file(data, suffix='.bin')
         start = 0x8000
-        stop = 0x8004
-        output, error = self.run_trace(f'-o {start} -S {stop} -v {binfile}')
+        stop = 0x8002
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 0, 'tstates': 69884}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 IM 0')
-        self.assertEqual(output_lines[1:17471], ['$8002 HALT'] * 17470)
-        self.assertEqual(output_lines[17471], '$0038 PUSH AF')
-        self.assertEqual(output_lines[17579], '$0052 RET')
-        self.assertEqual(output_lines[17580], '$8003 XOR A')
-        self.assertEqual(output_lines[17581], 'Stopped at $8004')
+        self.assertEqual(output_lines[0], '$8000 HALT')
+        self.assertEqual(output_lines[1], '$0038 PUSH AF')
+        self.assertEqual(output_lines[109], '$0052 RET')
+        self.assertEqual(output_lines[110], '$8001 XOR A')
+        self.assertEqual(output_lines[111], 'Stopped at $8002')
 
     def test_interrupt_mode_1(self):
         data = [
-            0xED, 0x56, # $8000 IM 1
-            0x76,       # $8002 HALT
-            0xAF,       # $8003 XOR A
+            0x76,       # $8000 HALT
+            0xAF,       # $8001 XOR A
         ]
-        binfile = self.write_bin_file(data, suffix='.bin')
         start = 0x8000
-        stop = 0x8004
-        output, error = self.run_trace(f'-o {start} -S {stop} -v {binfile}')
+        stop = 0x8002
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69884}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 IM 1')
-        self.assertEqual(output_lines[1:17471], ['$8002 HALT'] * 17470)
-        self.assertEqual(output_lines[17471], '$0038 PUSH AF')
-        self.assertEqual(output_lines[17579], '$0052 RET')
-        self.assertEqual(output_lines[17580], '$8003 XOR A')
-        self.assertEqual(output_lines[17581], 'Stopped at $8004')
+        self.assertEqual(output_lines[0], '$8000 HALT')
+        self.assertEqual(output_lines[1], '$0038 PUSH AF')
+        self.assertEqual(output_lines[109], '$0052 RET')
+        self.assertEqual(output_lines[110], '$8001 XOR A')
+        self.assertEqual(output_lines[111], 'Stopped at $8002')
 
     def test_interrupt_mode_2(self):
         data = [

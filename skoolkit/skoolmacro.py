@@ -1,4 +1,4 @@
-# Copyright 2012-2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -25,7 +25,7 @@ from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
                       SkoolKitError, SkoolParsingError, eval_variable, evaluate)
 from skoolkit.graphics import Udg
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
+                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T, INT_ACTIVE)
 from skoolkit.snapshot import FRAME_DURATIONS
 
 _map_cache = {}
@@ -571,6 +571,7 @@ def _read_sim_state(writer, execint, reg=None, clear=0):
     config = {'fast_djnz': execint < 1, 'fast_ldir': execint < 1}
     if len(writer.snapshot) == 0x20000:
         config['frame_duration'] = FRAME_DURATIONS[1]
+        config['int_active'] = INT_ACTIVE[1]
     return registers, state, config
 
 def _write_sim_state(writer, simulator, tracer=None):

@@ -2155,10 +2155,10 @@ class CommonSkoolMacroTest:
         """
         writer = self._get_writer(skool=skool)
 
-        writer.expand('#SIM(start=32768,stop=32770,iff=1)')
+        writer.expand('#SIM(start=32768,stop=32770,iff=1,tstates=32)')
         self.assertEqual(writer.expand('PF=#EVAL(({sim[F]}&4)/4) iff=#EVAL({sim[iff]})'), 'PF=1 iff=1')
 
-        writer.expand('#SIM(start=32768,stop=32770,iff=0)')
+        writer.expand('#SIM(start=32768,stop=32770,iff=0,tstates=32)')
         self.assertEqual(writer.expand('PF=#EVAL(({sim[F]}&4)/4) iff=#EVAL({sim[iff]})'), 'PF=0 iff=0')
 
     def test_macro_sim_im_parameter(self):
@@ -2183,6 +2183,87 @@ class CommonSkoolMacroTest:
 
         writer.expand('#SIM(start=65282,stop=65281,tstates=69884,i=254,iff=1,im=2)')
         self.assertEqual(writer.expand('#FORMAT(T={sim[tstates]} im={sim[im]} iff={sim[iff]})'), 'T=69907 im=2 iff=0')
+
+    def test_macro_sim_executing_interrupt_routine_twice_while_int_is_active_48k(self):
+        skool = """
+            @start
+            ; Interrupt vector
+            w65279 DEFW 65281
+
+            ; Interrupt routine
+            c65281 EI
+             65282 INC A
+             65283 NOP
+
+            ; Routine
+            c65284 HALT
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=65284,stop=65283,iff=1,execint=1,im=2,i=254,a=0,tstates=69884)')
+        self.assertEqual(writer.expand('#FORMAT(A={sim[A]},iff={sim[iff]},tstates={sim[tstates]})'), 'A=2,iff=1,tstates=69942')
+
+    def test_macro_sim_executing_interrupt_routine_twice_while_int_is_active_128k(self):
+        skool = """
+            @start
+            @bank=0
+            ; Interrupt vector
+            w65279 DEFW 65281
+
+            ; Interrupt routine
+            c65281 EI
+             65282 INC (HL)
+             65283 NOP
+
+            ; Routine
+            c65284 HALT
+        """
+        writer = self._get_writer(skool=skool)
+        hl = 32768
+        writer.expand(f'#SIM(start=65284,stop=65283,iff=1,execint=1,im=2,i=254,hl={hl},tstates=70904)')
+        self.assertEqual(writer.snapshot[hl], 2)
+        self.assertEqual(writer.expand('#FORMAT(iff={sim[iff]},tstates={sim[tstates]})'), 'iff=1,tstates=70976')
+
+    def test_macro_sim_interrupt_routine_blocked_48k(self):
+        skool = """
+            @start
+            ; Routine
+            c49152 EI       ; T=69884
+             49153 DEFB $DD ; T=69888 (0 mod 69888)
+             49154 DEFB $FD ; T=69892 (4 mod 69888)
+             49155 EI       ; T=69896 (8 mod 69888)
+             49156 DEFB $FD ; T=69900 (12 mod 69888)
+             49157 DEFB $DD ; T=69904 (16 mod 69888)
+             49158 EI       ; T=69908 (20 mod 69888)
+             49159 EI       ; T=69912 (24 mod 69888)
+             49160 EI       ; T=69916 (28 mod 69888)
+             49161 NOP      ; T=69920 (32 mod 69888): INT inactive
+             49162 RET      ; T=69924
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=49152,stop=49162,execint=1,tstates=69884)')
+        self.assertEqual(writer.expand('#FORMAT(iff={sim[iff]},tstates={sim[tstates]})'), 'iff=1,tstates=69924')
+
+    def test_macro_sim_interrupt_routine_blocked_128k(self):
+        skool = """
+            @start
+            @bank=0
+            ; Routine
+            c49152 EI       ; T=70904
+             49153 DEFB $DD ; T=70908 (0 mod 70908)
+             49154 DEFB $FD ; T=70912 (4 mod 70908)
+             49155 EI       ; T=70916 (8 mod 70908)
+             49156 DEFB $FD ; T=70920 (12 mod 70908)
+             49157 DEFB $DD ; T=70924 (16 mod 70908)
+             49158 EI       ; T=70928 (20 mod 70908)
+             49159 EI       ; T=70932 (24 mod 70908)
+             49160 EI       ; T=70936 (28 mod 70908)
+             49161 EI       ; T=70940 (32 mod 70908)
+             49162 NOP      ; T=70944 (36 mod 70908): INT inactive
+             49163 RET      ; T=70948
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=49152,stop=49163,execint=1,tstates=70904)')
+        self.assertEqual(writer.expand('#FORMAT(iff={sim[iff]},tstates={sim[tstates]})'), 'iff=1,tstates=70948')
 
     def test_macro_sim_without_stop_parameter(self):
         skool = """
