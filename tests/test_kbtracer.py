@@ -55,7 +55,8 @@ class KeyboardTracerTest(SkoolKitTestCase):
         loop = (
             0x21, 0xFF, 0x7F,   # $0000 LD HL,$7FFF
             0x22, 0xFE, 0x7F,   # $0003 LD ($7FFE),HL
-            0x18, 0xFE,         # $0006 JR $0006
+            0xFB,               # $0006 EI
+            0x18, 0xFE,         # $0007 JR $0007
         )
         memory[0:len(loop)] = loop
         int_r = (
@@ -85,7 +86,7 @@ class KeyboardTracerTest(SkoolKitTestCase):
        )
         memory[56:56 + len(int_r)] = int_r
         config = {'frame_duration': 1000}
-        simulator = Simulator(memory, state={'iff': 1}, config=config)
+        simulator = Simulator(memory, config=config)
         delay = 0
         kbtracer = KeyboardTracer(simulator, list(keys) + ['1+2'], delay)
         simulator.set_tracer(kbtracer)

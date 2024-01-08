@@ -190,13 +190,13 @@ class LoadTracer(PagingTracer):
         memory = simulator.memory
         registers = simulator.registers
         frame_duration = simulator.frame_duration
+        int_active = simulator.int_active
         pc = registers[24]
         progress = 0
         edges = self.edges
         tape_length = edges[-1] // 1000
         max_index = self.max_index
-        tstates = 0
-        accept_int = False
+        tstates = registers[25]
         if tracefile:
             r = Registers(registers)
 
@@ -210,12 +210,9 @@ class LoadTracer(PagingTracer):
                 opcodes[memory[pc]]()
             tstates = registers[25]
 
-            if simulator.iff:
-                if tstates // frame_duration > t0 // frame_duration:
-                    accept_int = True
-                if accept_int:
-                    accept_int = simulator.accept_interrupt(registers, memory, pc)
-                    tstates = registers[25]
+            if simulator.iff and tstates % frame_duration < int_active:
+                simulator.accept_interrupt(registers, memory, pc)
+                tstates = registers[25]
 
             if self.tape_running and tstates >= self.next_edge:
                 index = self.index

@@ -201,7 +201,7 @@ class Simulator:
         opcode = memory[prev_pc]
         pc = registers[24]
         if opcode == 0xFB or (opcode in (0xDD, 0xFD) and prev_pc == (pc - 1) % 65536):
-            return True
+            return False
         if self.imode == 2:
             vaddr = 255 + 256 * registers[14]
             iaddr = memory[vaddr] + 256 * memory[(vaddr + 1) % 65536]
@@ -219,7 +219,7 @@ class Simulator:
         registers[15] = R1[registers[15]] # R
         registers[24] = iaddr # PC
         self.iff = 0
-        return False
+        return True
 
     def prefix(self, opcodes, registers, memory):
         opcodes[memory[(registers[24] + 1) % 65536]]()

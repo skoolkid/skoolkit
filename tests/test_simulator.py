@@ -2824,8 +2824,8 @@ class SimulatorTest(SkoolKitTestCase):
         pc = 30000
         sp = 40000
         simulator = Simulator([0] * 65536, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 0})
-        blocked = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
-        self.assertFalse(blocked)
+        accepted = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
+        self.assertTrue(accepted)
         self.assertEqual(simulator.registers[T], 13)
         self.assertEqual(simulator.registers[PC], 56)
         self.assertEqual(simulator.registers[R], 1)
@@ -2837,8 +2837,8 @@ class SimulatorTest(SkoolKitTestCase):
         pc = 40000
         sp = 50000
         simulator = Simulator([0] * 65536, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 1})
-        blocked = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
-        self.assertFalse(blocked)
+        accepted = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
+        self.assertTrue(accepted)
         self.assertEqual(simulator.registers[T], 13)
         self.assertEqual(simulator.registers[PC], 56)
         self.assertEqual(simulator.registers[R], 1)
@@ -2855,8 +2855,8 @@ class SimulatorTest(SkoolKitTestCase):
         pc = 50000
         sp = 60000
         simulator = Simulator(memory, {'PC': pc, 'SP': sp, 'I': i}, {'iff': 1, 'im': 2})
-        blocked = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
-        self.assertFalse(blocked)
+        accepted = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
+        self.assertTrue(accepted)
         self.assertEqual(simulator.registers[T], 19)
         self.assertEqual(simulator.registers[PC], iaddr)
         self.assertEqual(simulator.registers[R], 1)
@@ -2870,8 +2870,8 @@ class SimulatorTest(SkoolKitTestCase):
         sp = 40000
         memory[pc - 1] = 0xFB # EI
         simulator = Simulator(memory, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 1})
-        blocked = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
-        self.assertTrue(blocked)
+        accepted = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
+        self.assertFalse(accepted)
         self.assertEqual(simulator.registers[T], 0)
         self.assertEqual(simulator.registers[PC], pc)
         self.assertEqual(simulator.registers[R], 0)
@@ -2885,8 +2885,8 @@ class SimulatorTest(SkoolKitTestCase):
         sp = 40000
         memory[pc - 1] = 0xDD
         simulator = Simulator(memory, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 1})
-        blocked = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
-        self.assertTrue(blocked)
+        accepted = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
+        self.assertFalse(accepted)
         self.assertEqual(simulator.registers[T], 0)
         self.assertEqual(simulator.registers[PC], pc)
         self.assertEqual(simulator.registers[R], 0)
@@ -2900,8 +2900,8 @@ class SimulatorTest(SkoolKitTestCase):
         sp = 40000
         memory[pc - 1] = 0xFD
         simulator = Simulator(memory, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 1})
-        blocked = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
-        self.assertTrue(blocked)
+        accepted = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
+        self.assertFalse(accepted)
         self.assertEqual(simulator.registers[T], 0)
         self.assertEqual(simulator.registers[PC], pc)
         self.assertEqual(simulator.registers[R], 0)

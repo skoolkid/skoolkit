@@ -65,7 +65,7 @@ class Tracer(PagingTracer):
                 if tstates // frame_duration > t0 // frame_duration:
                     accept_int = True
                 if accept_int:
-                    accept_int = simulator.accept_interrupt(registers, memory, pc)
+                    accept_int = not simulator.accept_interrupt(registers, memory, pc)
                     tstates = registers[25]
 
             pc = registers[24]

@@ -400,8 +400,8 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0001,0000,0000,053F',
                 "AF',BC',DE',HL'": 'FF81,7FFD,0009,0038',
                 'PC,SP,IX,IY': '5B14,5F52,C654,5C3A',
-                'IR,iff,im,border': '3F2F,1,1,0',
-                'ram': '8b493d98725e984a89a08aab2183717c'
+                'IR,iff,im,border': '3F6A,1,1,0',
+                'ram': '25466216f28f0b841bdc419d57ddf3aa'
             },
             '-c in-flags=4 -c machine=128 -c finish-tape=1 --start 23316'
         )
@@ -430,8 +430,8 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0001,0004,0000,053F',
                 "AF',BC',DE',HL'": 'FF81,0221,0000,0000',
                 'PC,SP,IX,IY': '053F,88B1,FFFE,5C3A',
-                'IR,iff,im,border': '3F5F,0,1,7',
-                'ram': '58788a9663f98020867c068833144fff'
+                'IR,iff,im,border': '3F67,0,1,7',
+                'ram': 'a7824496a22358ff430fe29e9fe691da'
             },
             ('--start', '1343', '-c', 'finish-tape=1', '-c', 'load=CLEAR 35000: LOAD ""')
         )

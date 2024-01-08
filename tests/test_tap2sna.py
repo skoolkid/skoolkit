@@ -24,6 +24,7 @@ class MockSimulator:
         self.opcodes = [self.in_a_n] * 256
         self.registers = [0x80] * 26
         self.frame_duration = 69888
+        self.int_active = 32
         self.iff = 0
         self.imode = 1
 

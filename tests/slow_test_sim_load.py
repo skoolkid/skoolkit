@@ -1088,13 +1088,13 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertLessEqual(exp_reg, set(options.reg))
         with open(tracefile, 'r') as f:
             trace_lines = f.read().rstrip().split('\n')
-        self.assertEqual(len(trace_lines), 134694)
+        self.assertEqual(len(trace_lines), 134589)
         self.assertEqual(trace_lines[0], '$1200 LD ($5CB4),HL')
         self.assertEqual(trace_lines[1], '$1203 LD DE,$3EAF')
         self.assertEqual(trace_lines[2], '$1206 LD BC,$00A8')
         self.assertEqual(trace_lines[3], '$1209 EX DE,HL')
         self.assertEqual(trace_lines[126488], '$0605 POP AF')
-        self.assertEqual(trace_lines[134693], '$34BB RET')
+        self.assertEqual(trace_lines[134588], '$34BB RET')
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_trace_with_load_command_and_interrupts_and_timestamps(self):
@@ -1134,7 +1134,7 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertLessEqual(exp_reg, set(options.reg))
         with open(tracefile, 'r') as f:
             trace_lines = f.read().rstrip().split('\n')
-        self.assertEqual(len(trace_lines), 133874)
+        self.assertEqual(len(trace_lines), 133769)
         self.assertEqual(trace_lines[2023], '5730799 $0E5C LDIR')
         self.assertEqual(trace_lines[2024], '5730833 $0038 PUSH AF')
         self.assertEqual(trace_lines[5604], '5800690 $0E5C LDIR')

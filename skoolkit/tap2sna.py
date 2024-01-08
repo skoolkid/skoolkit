@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2018, 2020-2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2018, 2020-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -31,7 +31,7 @@ from skoolkit.kbtracer import KeyboardTracer
 from skoolkit.loadsample import ACCELERATORS
 from skoolkit.loadtracer import LoadTracer, get_edges
 from skoolkit.pagingtracer import Memory
-from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
+from skoolkit.simulator import (Simulator, INT_ACTIVE, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 from skoolkit.snapshot import FRAME_DURATIONS, move, poke, print_reg_help, print_state_help, write_snapshot
 
@@ -345,7 +345,7 @@ def sim_load(blocks, options, config):
             options.load = 'ENTER'
         registers = {'PC': 0x00EA, '^HL': 0xFFFF, 'R': 0x38}
         state = {'tstates': 3453395}
-        sim_cfg = {'frame_duration': FRAME_DURATIONS[1]}
+        sim_cfg = {'frame_duration': FRAME_DURATIONS[1], 'int_active': INT_ACTIVE[1]}
         memory = Memory()
         stop = 0x13BE
         kb_delay = 13
