@@ -35,8 +35,8 @@ Changelog
   file
 * Fixed how :ref:`tap2sna.py` and :ref:`trace.py` log timestamps when an
   interrupt occurs
-* Fixed how interrupts are accepted when :ref:`tap2sna.py` executes code in a
-  simulator
+* Fixed how interrupts are accepted when :ref:`tap2sna.py` and :ref:`trace.py`
+  execute code in a simulator
 
 9.0 (2023-11-04)
 ----------------

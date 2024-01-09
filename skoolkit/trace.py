@@ -22,9 +22,10 @@ from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_snapshot
-from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
+from skoolkit.simulator import (Simulator, INT_ACTIVE, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 from skoolkit.snapinfo import parse_snapshot
+from skoolkit.snapshot import FRAME_DURATIONS
 from skoolkit.traceutils import Registers, disassemble
 
 class Tracer(PagingTracer):
@@ -45,10 +46,10 @@ class Tracer(PagingTracer):
         memory = simulator.memory
         registers = simulator.registers
         frame_duration = simulator.frame_duration
+        int_active = simulator.int_active
         pc = registers[PC] = start
         operations = 0
         tstates = registers[25]
-        accept_int = False
         r = Registers(registers)
 
         while True:
@@ -61,12 +62,9 @@ class Tracer(PagingTracer):
                 opcodes[memory[pc]]()
             tstates = registers[25]
 
-            if interrupts and simulator.iff:
-                if tstates // frame_duration > t0 // frame_duration:
-                    accept_int = True
-                if accept_int:
-                    accept_int = not simulator.accept_interrupt(registers, memory, pc)
-                    tstates = registers[25]
+            if interrupts and simulator.iff and tstates % frame_duration < int_active:
+                simulator.accept_interrupt(registers, memory, pc)
+                tstates = registers[25]
 
             pc = registers[24]
             operations += 1
@@ -195,6 +193,8 @@ def run(snafile, options, config):
             start = options.org
         else:
             start = org
+    fast = options.verbose == 0 and not options.interrupts
+    sim_config = {'fast_djnz': fast, 'fast_ldir': fast}
     if options.rom:
         rom = read_bin_file(options.rom)
         memory[:len(rom)] = rom
@@ -203,10 +203,10 @@ def run(snafile, options, config):
     else:
         banks = [memory[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
         memory = Memory(banks, out7ffd)
+        sim_config['frame_duration'] = FRAME_DURATIONS[1]
+        sim_config['int_active'] = INT_ACTIVE[1]
     for spec in options.pokes:
         poke(memory, spec)
-    fast = options.verbose == 0 and not options.interrupts
-    sim_config = {'fast_djnz': fast, 'fast_ldir': fast}
     simulator = Simulator(memory, get_registers(reg, options.reg), state, sim_config)
     tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe)
     simulator.set_tracer(tracer)

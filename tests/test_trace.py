@@ -138,7 +138,7 @@ class TraceTest(SkoolKitTestCase):
             14, 15, # BC
             16, 17, # IY
             18, 19, # IX
-            4,      # iff2 (bit 2)
+            0,      # iff2 (bit 2)
             20,     # R
             21, 22, # AF
             0, 64,  # SP=16384
@@ -154,7 +154,7 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $6001
         """
         self._test_trace(f'-vv -S 24577 {snafile}', exp_output)
-        self.assertEqual(simulator.iff, 1)
+        self.assertEqual(simulator.iff, 0)
         self.assertEqual(simulator.imode, 2)
 
     @patch.object(trace, 'Simulator', TestSimulator)
@@ -171,7 +171,7 @@ class TraceTest(SkoolKitTestCase):
             253, 127,  # BC
             16, 17,    # IY
             18, 19,    # IX
-            4,         # iff2 (bit 2)
+            0,         # iff2 (bit 2)
             20,        # R
             22,        # F
             17,        # A (page in bank 1 and ROM 1)
@@ -195,7 +195,7 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $6002
         """
         self._test_trace(f'-vv -S 24578 {snafile}', exp_output)
-        self.assertEqual(simulator.iff, 1)
+        self.assertEqual(simulator.iff, 0)
         self.assertEqual(simulator.imode, 2)
         self.assertTrue(all(b == 1 for b in simulator.memory[0xC000:0x10000]))
         self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM1_MD5)
@@ -387,7 +387,7 @@ class TraceTest(SkoolKitTestCase):
     def test_default_start_address_for_binary_file(self):
         data = [0xAF] # XOR A
         binfile = self.write_bin_file(data, suffix='.bin')
-        output, error = self.run_trace(f'-v -S 0 {binfile}')
+        output, error = self.run_trace(f'-n -v -S 0 {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $FFFF XOR A
@@ -741,6 +741,136 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(output_lines[2], '69917 $7FFC NOP')
         self.assertEqual(output_lines[3], 'Stopped at $7FFD')
 
+    def test_interrupt_routine_executed_twice_while_int_is_active_48k(self):
+        data = [
+            0x00,       # $7FF9 NOP        ; T=69884 (interrupt follows)
+            0x00,       # $7FFA NOP
+            0xFB,       # $7FFB EI
+            0xED, 0x44, # $7FFC NEG
+            0x00,       # $7FFE NOP
+            0xFB, 0x7F, # $7FFF DEFW $7FFB ; Interrupt vector
+        ]
+        start = 0x7ff9
+        stop = 0x7fff
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'I': 127, 'iff2': 1, 'im': 2, 'tstates': 69884}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        exp_output = """
+            $7FF9 NOP
+            $7FFB EI
+            $7FFC NEG
+            $7FFB EI
+            $7FFC NEG
+            $7FFE NOP
+            Stopped at $7FFF
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_interrupt_routine_executed_twice_while_int_is_active_128k(self):
+        data = [
+            0x00,       # $7FF9 NOP        ; T=70904 (interrupt follows)
+            0x00,       # $7FFA NOP
+            0xFB,       # $7FFB EI
+            0xED, 0x78, # $7FFC IN A,(C)
+            0x00,       # $7FFE NOP
+            0xFB, 0x7F, # $7FFF DEFW $7FFB ; Interrupt vector
+        ]
+        start = 0x7ff9
+        stop = 0x7fff
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'I': 127, 'iff2': 1, 'im': 2, 'tstates': 70904}
+        z80file = self.write_z80_file(None, ram, machine_id=4, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        exp_output = """
+            $7FF9 NOP
+            $7FFB EI
+            $7FFC IN A,(C)
+            $7FFB EI
+            $7FFC IN A,(C)
+            $7FFE NOP
+            Stopped at $7FFF
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_interrupt_routine_blocked_48k(self):
+        data = [
+            0xFB,       # $8000 EI       ; T=69884
+            0xDD,       # $8001 DEFB $DD ; T=69888 (0 mod 69888)
+            0xFD,       # $8002 DEFB $FD ; T=69892 (4 mod 69888)
+            0xFB,       # $8003 EI       ; T=69896 (8 mod 69888)
+            0xFD,       # $8004 DEFB $FD ; T=69900 (12 mod 69888)
+            0xDD,       # $8005 DEFB $DD ; T=69904 (16 mod 69888)
+            0xFB,       # $8006 EI       ; T=69908 (20 mod 69888)
+            0xFB,       # $8007 EI       ; T=69912 (24 mod 69888)
+            0xFB,       # $8008 EI       ; T=69916 (28 mod 69888)
+            0x00,       # $8009 NOP      ; T=69920 (32 mod 69888): INT inactive
+        ]
+        start = 0x8000
+        stop = 0x800a
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'im': 1, 'tstates': 69884}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        exp_output = """
+            $8000 EI
+            $8001 DEFB $DD
+            $8002 DEFB $FD
+            $8003 EI
+            $8004 DEFB $FD
+            $8005 DEFB $DD
+            $8006 EI
+            $8007 EI
+            $8008 EI
+            $8009 NOP
+            Stopped at $800A
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_interrupt_routine_blocked_128k(self):
+        data = [
+            0xFB,       # $8000 EI       ; T=69884
+            0xDD,       # $8001 DEFB $DD ; T=69888 (0 mod 69888)
+            0xFD,       # $8002 DEFB $FD ; T=69892 (4 mod 69888)
+            0xFB,       # $8003 EI       ; T=69896 (8 mod 69888)
+            0xFD,       # $8004 DEFB $FD ; T=69900 (12 mod 69888)
+            0xDD,       # $8005 DEFB $DD ; T=69904 (16 mod 69888)
+            0xFB,       # $8006 EI       ; T=69908 (20 mod 69888)
+            0xFB,       # $8007 EI       ; T=69912 (24 mod 69888)
+            0xFB,       # $8008 EI       ; T=69916 (28 mod 69888)
+            0xFB,       # $8009 EI       ; T=69920 (32 mod 69888)
+            0x00,       # $800A NOP      ; T=69924 (36 mod 69888): INT inactive
+        ]
+        start = 0x8000
+        stop = 0x800b
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'im': 1, 'tstates': 69884}
+        z80file = self.write_z80_file(None, ram, machine_id=4, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        exp_output = """
+            $8000 EI
+            $8001 DEFB $DD
+            $8002 DEFB $FD
+            $8003 EI
+            $8004 DEFB $FD
+            $8005 DEFB $DD
+            $8006 EI
+            $8007 EI
+            $8008 EI
+            $8009 EI
+            $800A NOP
+            Stopped at $800B
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     def test_option_audio(self):
         data = [
             6, 3,     # 32768 LD B,3
@@ -806,7 +936,7 @@ class TraceTest(SkoolKitTestCase):
             Stopped at 0
         """
         for option in ('-D', '--decimal'):
-            output, error = self.run_trace(f'-v -S 0 {option} {binfile}')
+            output, error = self.run_trace(f'-n -v -S 0 {option} {binfile}')
             self.assertEqual(error, '')
             self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -863,7 +993,7 @@ class TraceTest(SkoolKitTestCase):
             Stopped at 0
         """
         for option in ('-D', '--decimal'):
-            output, error = self.run_trace(f'-vv -r r=99 -S 0 {option} {binfile}')
+            output, error = self.run_trace(f'-n -vv -r r=99 -S 0 {option} {binfile}')
             self.assertEqual(error, '')
             self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -982,7 +1112,7 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $8002: 2 operations
         """
         for option in ('-m', '--max-operations'):
-            output, error = self.run_trace(f'-o {start} -v {option} 2 {binfile}')
+            output, error = self.run_trace(f'-n -o {start} -v {option} 2 {binfile}')
             self.assertEqual(error, '')
             self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -999,7 +1129,7 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $8002: 8 T-states
         """
         for option in ('-M', '--max-tstates'):
-            output, error = self.run_trace(f'-o {start} -v {option} 8 {binfile}')
+            output, error = self.run_trace(f'-n -o {start} -v {option} 8 {binfile}')
             self.assertEqual(error, '')
             self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -1031,7 +1161,7 @@ class TraceTest(SkoolKitTestCase):
         ]
         binfile = self.write_bin_file(data, suffix='.bin')
         start, stop = 32768, 32772
-        output, error = self.run_trace(f'-o {start} -S {stop} -vv --poke 49152,1 {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} -vv --poke 49152,1 {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $8000 LD HL,$C000      A=00  F=00000000  BC=0000  DE=0000  HL=C000  IX=0000 IY=5C3A
@@ -1111,7 +1241,7 @@ class TraceTest(SkoolKitTestCase):
             'SP': 0x5432
         }
         reg_options = ' '.join(f'--reg {r}={v}' for r, v in registers.items())
-        output, error = self.run_trace(f'-o {start} -S {stop} -vv {reg_options} {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} -vv {reg_options} {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $8000 INC A            A=51  F=00000001  BC=1234  DE=2345  HL=3456  IX=4567 IY=5678
@@ -1129,7 +1259,7 @@ class TraceTest(SkoolKitTestCase):
         romfile = self.write_bin_file([175], suffix='.bin')
         binfile = self.write_bin_file([195, 0, 0], suffix='.bin')
         start, stop = 32768, 1
-        output, error = self.run_trace(f'-o {start} -S {stop} --rom {romfile} -v {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} --rom {romfile} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $8000 JP $0000
@@ -1196,7 +1326,7 @@ class TraceTest(SkoolKitTestCase):
         ]
         binfile = self.write_bin_file(data, suffix='.bin')
         start, stop = 32768, 32770
-        output, error = self.run_trace(f'-o {start} -S {stop} --stats {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} --stats {binfile}')
         self.assertEqual(error, '')
         o_lines = output.split('\n')
         self.assertEqual(o_lines[0], 'Stopped at $8002')
@@ -1224,7 +1354,7 @@ class TraceTest(SkoolKitTestCase):
 
     def test_option_stop(self):
         for option in ('-S 57', '--stop 0x0039'):
-            output, error = self.run_trace(f'-v -s 56 {option} 48')
+            output, error = self.run_trace(f'-n -v -s 56 {option} 48')
             self.assertEqual(error, '')
             exp_output = """
                 $0038 PUSH AF
@@ -1238,7 +1368,7 @@ class TraceTest(SkoolKitTestCase):
         ]
         binfile = self.write_bin_file(data, suffix='.bin')
         start, stop = 32768, 32769
-        output, error = self.run_trace(f'-o {start} -S {stop} --verbose {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} --verbose {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $8000 XOR A
@@ -1253,7 +1383,7 @@ class TraceTest(SkoolKitTestCase):
         ]
         binfile = self.write_bin_file(data, suffix='.bin')
         start, stop = 32768, 32770
-        output, error = self.run_trace(f'-o {start} -S {stop} -vv {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} -vv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $8000 XOR A            A=00  F=01000100  BC=0000  DE=0000  HL=0000  IX=0000 IY=5C3A
@@ -1274,7 +1404,7 @@ class TraceTest(SkoolKitTestCase):
             0xED, 0xB0,             # $800C LDIR
         )
         binfile = self.write_bin_file(data, suffix='.bin')
-        output, error = self.run_trace(f'-o 0x8000 -S 0x800E -v {binfile}')
+        output, error = self.run_trace(f'-n -o 0x8000 -S 0x800E -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $8000 LD B,$02
@@ -1299,7 +1429,7 @@ class TraceTest(SkoolKitTestCase):
             0xED, 0xB0,             # $FF0C LDIR
         )
         binfile = self.write_bin_file(data, suffix='.bin')
-        output, error = self.run_trace(f'-o 0xff00 -S 0xff0E -vv {binfile}')
+        output, error = self.run_trace(f'-n -o 0xff00 -S 0xff0E -vv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $FF00 LD B,$02         A=00  F=00000000  BC=0200  DE=0000  HL=0000  IX=0000 IY=5C3A
@@ -1340,7 +1470,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 0x8000
         stop = start + len(code)
-        output, error = self.run_trace(f'-o {start} -S {stop} -v {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             000000 $8000 LD B,$02
@@ -1358,7 +1488,7 @@ class TraceTest(SkoolKitTestCase):
         start = 0x8000
         stop = start + len(code)
         trace_line = '{pc}:{i}'
-        output, error = self.run_trace(f'-I TraceLine={trace_line} -o {start} -S {stop} -v {binfile}')
+        output, error = self.run_trace(f'-n -I TraceLine={trace_line} -o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             32768:LD B,$02
@@ -1381,7 +1511,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 0x8000
         stop = start + len(code)
-        output, error = self.run_trace(f'-o {start} -S {stop} -vv {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} -vv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $8000 LD BC,$0302     B=03 C=02 D=00 E=00 H=00 L=00
@@ -1400,7 +1530,7 @@ class TraceTest(SkoolKitTestCase):
         start = 0x8000
         stop = start + len(code)
         trace_line = '{pc:<6}{i:<12}BC={r[b]}{r[c]}'
-        output, error = self.run_trace(f'-I TraceLine2={trace_line} -o {start} -S {stop} -vv {binfile}')
+        output, error = self.run_trace(f'-n -I TraceLine2={trace_line} -o {start} -S {stop} -vv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             32768 LD B,$02    BC=20
@@ -1422,7 +1552,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 32768
         stop = start + len(code)
-        output, error = self.run_trace(f'-o {start} -S {stop} -Dv {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} -Dv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             000000 32768 LD D,2
@@ -1440,7 +1570,7 @@ class TraceTest(SkoolKitTestCase):
         start = 0x8000
         stop = start + len(code)
         trace_line = '{pc}:{i}'
-        output, error = self.run_trace(f'-I TraceLineDecimal={trace_line} -o {start} -S {stop} -Dv {binfile}')
+        output, error = self.run_trace(f'-n -I TraceLineDecimal={trace_line} -o {start} -S {stop} -Dv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             32768:LD B,2
@@ -1466,7 +1596,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 32768
         stop = start + len(code)
-        output, error = self.run_trace(f'-o {start} -S {stop} -Dvv {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} -Dvv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             32768 LD BC,4660   B'=0 C'=0 D'=0 E'=0 H'=0 L'=0 IXh=0 IXl=0 IYh=92 IYl=58
@@ -1488,7 +1618,7 @@ class TraceTest(SkoolKitTestCase):
         start = 0x8000
         stop = start + len(code)
         trace_line = '{pc:<6}{i:<12}BC={r[b]},{r[c]}'
-        output, error = self.run_trace(f'-I TraceLineDecimal2={trace_line} -o {start} -S {stop} -Dvv {binfile}')
+        output, error = self.run_trace(f'-n -I TraceLineDecimal2={trace_line} -o {start} -S {stop} -Dvv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             32768 LD B,2      BC=2,0
@@ -1510,7 +1640,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 0x8000
         stop = start + len(code)
-        output, error = self.run_trace(f'-o {start} -S {stop} -v {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $8000 LD B,&1a
@@ -1527,7 +1657,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 0x8000
         stop = start + len(code)
-        output, error = self.run_trace(f'-I TraceOperand=#,02x,04x -o {start} -S {stop} -v {binfile}')
+        output, error = self.run_trace(f'-n -I TraceOperand=#,02x,04x -o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $8000 LD B,#1a
@@ -1544,7 +1674,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 0x8000
         stop = start + len(code)
-        output, error = self.run_trace(f'--ini TraceOperand=# -o {start} -S {stop} -v {binfile}')
+        output, error = self.run_trace(f'-n --ini TraceOperand=# -o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $8000 LD B,#26
@@ -1561,7 +1691,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 0x8000
         stop = start + len(code)
-        output, error = self.run_trace(f'-I TraceOperand=#,02x -o {start} -S {stop} -v {binfile}')
+        output, error = self.run_trace(f'-n -I TraceOperand=#,02x -o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $8000 LD B,#1a
@@ -1578,7 +1708,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 0x8000
         stop = start + len(code)
-        output, error = self.run_trace(f'--ini TraceOperand=#,02x,04x,??? -o {start} -S {stop} -v {binfile}')
+        output, error = self.run_trace(f'-n --ini TraceOperand=#,02x,04x,??? -o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $8000 LD B,#1a
@@ -1600,7 +1730,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 0x8000
         stop = start + len(code)
-        output, error = self.run_trace(f'-o {start} -S {stop} -Dv {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} -Dv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             32768 LD B,d026
@@ -1617,7 +1747,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 0x8000
         stop = start + len(code)
-        output, error = self.run_trace(f'-I TraceOperandDecimal=0d,03,05 -o {start} -S {stop} -Dv {binfile}')
+        output, error = self.run_trace(f'-n -I TraceOperandDecimal=0d,03,05 -o {start} -S {stop} -Dv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             32768 LD B,0d026
@@ -1634,7 +1764,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 0x8000
         stop = start + len(code)
-        output, error = self.run_trace(f'--ini TraceOperandDecimal=0d -o {start} -S {stop} -Dv {binfile}')
+        output, error = self.run_trace(f'-n --ini TraceOperandDecimal=0d -o {start} -S {stop} -Dv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             32768 LD B,0d26
@@ -1651,7 +1781,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 0x8000
         stop = start + len(code)
-        output, error = self.run_trace(f'-I TraceOperandDecimal=0d,03 -o {start} -S {stop} -Dv {binfile}')
+        output, error = self.run_trace(f'-n -I TraceOperandDecimal=0d,03 -o {start} -S {stop} -Dv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             32768 LD B,0d026
@@ -1668,7 +1798,7 @@ class TraceTest(SkoolKitTestCase):
         binfile = self.write_bin_file(code, suffix='.bin')
         start = 0x8000
         stop = start + len(code)
-        output, error = self.run_trace(f'--ini TraceOperandDecimal=0d,03,05,??? -o {start} -S {stop} -Dv {binfile}')
+        output, error = self.run_trace(f'-n --ini TraceOperandDecimal=0d,03,05,??? -o {start} -S {stop} -Dv {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             32768 LD B,0d026
@@ -1686,7 +1816,7 @@ class TraceTest(SkoolKitTestCase):
         )
         binfile = self.write_bin_file(data, suffix='.bin')
         start, stop = 0x8000, 0x8008
-        output, error = self.run_trace(f'-o {start} -S {stop} -v {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} -v {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             $8000 LD B,$02
@@ -1764,9 +1894,9 @@ class TraceTest(SkoolKitTestCase):
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_write_z80_48k(self):
         data = [
-            0x37,                   # $8000 SCF
-            0x9F,                   # $8001 SBC A,A
-            0xF3,                   # $8002 DI
+            0xF3,                   # $8000 DI
+            0x37,                   # $8001 SCF
+            0x9F,                   # $8002 SBC A,A
             0xED, 0x5E,             # $8003 IM 2
             0xED, 0x47,             # $8005 LD I,A
             0xED, 0x4F,             # $8007 LD R,A
