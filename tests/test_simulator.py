@@ -1296,6 +1296,14 @@ class SimulatorTest(SkoolKitTestCase):
             reg_out = {A: i_in, F: f_out}
             self._test_instruction(simulator, operation, data, 9, reg_out)
 
+    def test_ld_a_i_interrupted(self):
+        memory = [0] * 65536
+        start = 32768
+        memory[start:start + 2] = (0xED, 0x57) # LD A,I
+        simulator = Simulator(memory, {'F': 0b00000100}, {'iff': 1})
+        simulator.run(start)
+        self.assertEqual(simulator.registers[F], 0b00101000)
+
     def test_ld_a_r(self):
         # LD A,R
         simulator = Simulator([0] * 65536)
@@ -1315,6 +1323,14 @@ class SimulatorTest(SkoolKitTestCase):
             registers[R] = r_in
             reg_out = {A: r_out, F: f_out}
             self._test_instruction(simulator, operation, data, 9, reg_out)
+
+    def test_ld_a_r_interrupted(self):
+        memory = [0] * 65536
+        start = 32768
+        memory[start:start + 2] = (0xED, 0x5F) # LD A,R
+        simulator = Simulator(memory, {'F': 0b00000100}, {'iff': 1})
+        simulator.run(start)
+        self.assertEqual(simulator.registers[F], 0b00000000)
 
     def test_ld_special_a(self):
         # LD I,A; LD R,A
@@ -2815,7 +2831,7 @@ class SimulatorTest(SkoolKitTestCase):
         memory = [0] * 65536
         start = 32768
         memory[start:start + 2] = (0xED, 0x57) # LD A,I
-        simulator = Simulator(memory, state={'iff': 1})
+        simulator = Simulator(memory, state={'iff': 1, 'tstates': 32})
         simulator.run(start)
         self.assertEqual(simulator.registers[PC], start + 2)
         self.assertEqual(simulator.registers[F], 0b00101100)

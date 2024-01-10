@@ -37,6 +37,9 @@ Changelog
   interrupt occurs
 * Fixed how interrupts are accepted when :ref:`tap2sna.py` and :ref:`trace.py`
   execute code in a simulator
+* Fixed how the Z80 instruction set simulator updates bit 2 of the flags
+  register when executing an 'LD A,I' or 'LD A,R' instruction just before an
+  interrupt is accepted
 
 9.0 (2023-11-04)
 ----------------

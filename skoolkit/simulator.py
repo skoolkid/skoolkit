@@ -665,8 +665,11 @@ class Simulator:
         registers[15] = R2[registers[15]] # R
         a = registers[r]
         registers[0] = a
-        registers[1] = (a & 0xA8) + (a == 0) * 0x40 + self.iff * 0x04 + (registers[1] % 2)
         registers[25] += 9 # T-states
+        if self.iff and registers[25] % self.frame_duration < self.int_active:
+            registers[1] = (a & 0xA8) + (a == 0) * 0x40 + (registers[1] % 2)
+        else:
+            registers[1] = (a & 0xA8) + (a == 0) * 0x40 + self.iff * 0x04 + (registers[1] % 2)
         registers[24] = (registers[24] + 2) % 65536 # PC
 
     def ld_hl_n(self, registers, memory):
