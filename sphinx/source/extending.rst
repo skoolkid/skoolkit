@@ -348,9 +348,13 @@ It can be used with the :meth:`~skoolkit.skoolmacro.parse_ints` and
 
 Memory snapshots
 ----------------
-The `snapshot` attribute on HtmlWriter and AsmWriter is a 65536-element list
-that represents the 64K of the Spectrum's memory; it is populated when the
-skool file is being parsed.
+The `snapshot` attribute on HtmlWriter and AsmWriter is a list-like object that
+represents the Spectrum's memory. It supports both indexing and slicing for
+addresses 0-65535 ($0000-$FFFF), and reports a length (via the **len**
+function) of either 65536 (for a 48K Spectrum) or 131072 (for a 128K Spectrum).
+
+.. versionchanged:: 9.1
+   The `snapshot` attribute is no longer a plain list object.
 
 HtmlWriter and AsmWriter also provide methods for saving and restoring memory
 snapshots, which can be useful for temporarily changing graphic data or the
