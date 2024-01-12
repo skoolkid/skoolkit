@@ -40,6 +40,8 @@ Changelog
 * Fixed how the Z80 instruction set simulator updates bit 2 of the flags
   register when executing an 'LD A,I' or 'LD A,R' instruction just before an
   interrupt is accepted
+* Fixed the bug that makes the ``--basic`` option of :ref:`snapinfo.py` fail
+  when the value of PROG is 65535
 
 9.0 (2023-11-04)
 ----------------

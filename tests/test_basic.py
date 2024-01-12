@@ -66,6 +66,12 @@ class BasicListerTest(SkoolKitTestCase):
         exp_output = ['  10 PRINT "A"']
         self._test_basic(basic, exp_output, 23800)
 
+    def test_prog_too_high(self):
+        basic = [0]
+        exp_output = ['']
+        prog = 65535
+        self._test_basic(basic, exp_output, prog)
+
     def test_integers(self):
         basic = [
             0, 10, 12, 0,                    # Line 10, length

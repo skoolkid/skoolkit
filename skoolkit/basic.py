@@ -1,4 +1,4 @@
-# Copyright 2016-2017, 2020, 2023 Richard Dymond (rjdymond@gmail.com),
+# Copyright 2016-2017, 2020, 2023, 2024 Richard Dymond (rjdymond@gmail.com),
 # Philip M. Anderson (weyoun47@gmail.com)
 #
 # This file is part of SkoolKit.
@@ -189,7 +189,7 @@ class BasicLister:
         lines = []
         self.snapshot = snapshot
         i = (snapshot[23635] + 256 * snapshot[23636]) or 23755
-        while i < len(snapshot) and snapshot[i] < 64:
+        while i + 1 < len(snapshot) and snapshot[i] < 64:
             line_no = snapshot[i] * 256 + snapshot[i + 1]
             self.text.lspace = False
             i, line = self._get_basic_line(i + 4)
