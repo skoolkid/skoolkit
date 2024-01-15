@@ -1,10 +1,8 @@
-import os
 import textwrap
 from unittest.mock import patch
 
-from skoolkittest import SkoolKitTestCase, Z80_REGISTERS
+from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, bin2sna, VERSION
-from skoolkit.snapshot import get_snapshot
 
 EMPTY_BANK = [0] * 0x4000
 
@@ -17,67 +15,34 @@ def mock_write_snapshot(fname, memory, registers, state):
     write_snapshot_args = (fname, memory, registers, state)
 
 class Bin2SnaTest(SkoolKitTestCase):
-    def _run(self, args, outfile=None):
-        infile = args.split()[-1]
-        if outfile:
-            args += ' ' + outfile
-        elif infile.lower().endswith('.bin'):
-            outfile = infile[:-3] + 'z80'
-        elif infile == '-':
-            outfile = 'program.z80'
-        else:
-            outfile = infile + '.z80'
-        output, error = self.run_bin2sna(args)
-        self.assertEqual(output, '')
-        self.assertEqual(error, '')
-        self.assertTrue(os.path.isfile(outfile))
-        self.tempfiles.append(outfile)
-        return outfile
-
-    def _check_z80(self, z80file, data, org=None, sp=None, pc=None, border=7,
-                   iff=1, im=1, issue2=0, tstates=34943):
-        with open(z80file, 'rb') as f:
-            z80h = f.read(58)
-        if org is None:
-            org = 65536 - len(data)
-        if sp is None:
-            sp = org
-        if pc is None:
-            pc = org
-
-        self.assertEqual((z80h[12] >> 1) & 7, border) # BORDER
-        self.assertEqual(z80h[27], iff)               # IFF1
-        self.assertEqual(z80h[28], iff)               # IFF2
-        self.assertEqual(z80h[29] & 3, im)            # Interrupt mode
-        self.assertEqual((z80h[29] >> 2) & 1, issue2) # Issue 2 emulation
-
-        self.assertEqual(z80h[8] + 256 * z80h[9], sp)      # SP
-        self.assertEqual(z80h[10], 63)                     # I
-        self.assertEqual(z80h[23] + 256 * z80h[24], 23610) # IY
-        self.assertEqual(z80h[32] + 256 * z80h[33], pc)    # PC
-        t1 = (z80h[55] + 256 * z80h[56]) % 17472
-        t2 = (2 - z80h[57]) % 4
-        self.assertEqual(69887 - t2 * 17472 - t1, tstates)
-
-        snapshot = get_snapshot(z80file)
-        self.assertEqual(data, snapshot[org:org + len(data)])
-
-    def _check_write_snapshot(self, args, exp_ram=None, exp_state=None):
+    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
+    def _check_write_snapshot(self, args, exp_ram=None, exp_state=None, exp_registers=None, exp_fname=None):
         output, error = self.run_bin2sna(args)
         self.assertEqual(output, '')
         self.assertEqual(error, '')
         fname, memory, registers, state = write_snapshot_args
-        for i, (bank, exp_bank) in enumerate(zip(memory, exp_ram or [None] * 8)):
-            self.assertEqual(exp_bank or EMPTY_BANK, bank, f'Mismatch in bank {i}')
+        if exp_ram:
+            if len(exp_ram) == 49152:
+                self.assertEqual(exp_ram, memory)
+            else:
+                for i, (bank, exp_bank) in enumerate(zip(memory, exp_ram)):
+                    self.assertEqual(exp_bank or EMPTY_BANK, bank, f'Mismatch in bank {i}')
         if exp_state is None:
             exp_state = []
-        exp_state.insert(0, 'border=7')
+        if not (exp_state and exp_state[0].startswith('border=')):
+            exp_state.insert(0, 'border=7')
         self.assertEqual(exp_state, state)
+        if exp_registers:
+            self.assertEqual(exp_registers, registers)
+        if exp_fname:
+            self.assertEqual(fname, exp_fname)
 
     def _test_poke(self, option, address, exp_values):
         binfile = self.write_bin_file([0], suffix='.bin')
-        z80file = self._run('{} {}'.format(option, binfile))
-        self._check_z80(z80file, exp_values, address, 65535, 65535)
+        args = f'{option} {binfile}'
+        exp_ram = [0] * 49152
+        exp_ram[address - 16384:address - 16384 + len(exp_values)] = exp_values
+        self._check_write_snapshot(args, exp_ram)
 
     def _test_bad_spec(self, option, exp_error):
         binfile = self.write_bin_file([0], suffix='.bin')
@@ -131,11 +96,10 @@ class Bin2SnaTest(SkoolKitTestCase):
 
     def test_no_options(self):
         data = [1, 2, 3, 4, 5]
-        binfile = self.write_bin_file(data, suffix='.bin')
-        z80file = self._run(binfile)
-        self._check_z80(z80file, data)
+        args = self.write_bin_file(data, suffix='.bin')
+        exp_ram = [0] * (49152 - len(data)) + data
+        self._check_write_snapshot(args, exp_ram)
 
-    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
     def test_128k_input_file(self):
         exp_ram = []
         data = []
@@ -146,44 +110,34 @@ class Bin2SnaTest(SkoolKitTestCase):
         self._check_write_snapshot(args, exp_ram)
 
     def test_nonstandard_bin_name(self):
-        data = [0]
-        binfile = self.write_bin_file(data, suffix='.ram')
-        z80file = self._run(binfile)
-        self._check_z80(z80file, data)
+        args = self.write_bin_file([0], suffix='.ram')
+        exp_fname = args + '.z80'
+        self._check_write_snapshot(args, exp_fname=exp_fname)
 
     def test_bin_in_subdirectory(self):
-        z80file = self.write_bin_file(suffix='.z80')
-        data = [1]
-        binfile = self.write_bin_file(data, '{}/{}.bin'.format(self.make_directory(), z80file[:-4]))
-        output, error = self.run_bin2sna(binfile)
-        self.assertEqual(output, '')
-        self.assertEqual(error, '')
-        self._check_z80(z80file, data)
+        args = self.write_bin_file([0], '{}/foo.bin'.format(self.make_directory()))
+        exp_fname = 'foo.z80'
+        self._check_write_snapshot(args, exp_fname=exp_fname)
 
     def test_nonstandard_bin_name_in_subdirectory(self):
-        z80file = self.write_bin_file(suffix='.ram.z80')
-        data = [1]
-        binfile = self.write_bin_file(data, '{}/{}'.format(self.make_directory(), z80file[:-4]))
-        output, error = self.run_bin2sna(binfile)
-        self.assertEqual(output, '')
-        self.assertEqual(error, '')
-        self._check_z80(z80file, data)
+        args = self.write_bin_file([0], '{}/foo.ram'.format(self.make_directory()))
+        exp_fname = 'foo.ram.z80'
+        self._check_write_snapshot(args, exp_fname=exp_fname)
 
     def test_z80_in_subdirectory(self):
-        odir = 'bin2sna-{}'.format(os.getpid())
-        self.tempdirs.append(odir)
-        data = [1]
-        binfile = self.write_bin_file(data, suffix='.bin')
-        z80file = self._run(binfile, '{}/out.z80'.format(odir))
-        self._check_z80(z80file, data)
+        binfile = self.write_bin_file([0], suffix='.bin')
+        exp_fname = z80file = 'bin2sna/out.z80'
+        args = f'{binfile} {z80file}'
+        self._check_write_snapshot(args, exp_fname=exp_fname)
 
     def test_read_from_standard_input(self):
         data = [1, 2, 3]
         self.write_stdin(bytearray(data))
-        z80file = self._run('-')
-        self._check_z80(z80file, data)
+        args = '-'
+        exp_ram = [0] * (49152 - len(data)) + data
+        exp_fname = 'program.z80'
+        self._check_write_snapshot(args, exp_ram, exp_fname=exp_fname)
 
-    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_bank(self):
         page, data, org = 6, [1, 2, 3], 50000
         exp_ram = [None] * 8
@@ -198,7 +152,6 @@ class Bin2SnaTest(SkoolKitTestCase):
         exp_state = [f'7ffd={page}']
         self._check_write_snapshot(args, exp_ram, exp_state)
 
-    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_bank_multiple(self):
         page, data, org = 0, [3, 2, 1], 50000
         banks = (
@@ -217,7 +170,6 @@ class Bin2SnaTest(SkoolKitTestCase):
         exp_state = [f'7ffd={page}']
         self._check_write_snapshot(args, exp_ram, exp_state)
 
-    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_bank_overwrite(self):
         page, data, org = 0, [255], 49152
         banks = (
@@ -253,10 +205,10 @@ class Bin2SnaTest(SkoolKitTestCase):
             self.assertEqual(options.border, border)
 
     def test_option_b(self):
-        data = [0, 2, 4]
-        binfile = self.write_bin_file(data, suffix='.bin')
-        z80file = self._run("-b 2 {}".format(binfile))
-        self._check_z80(z80file, data, border=2)
+        binfile = self.write_bin_file([0], suffix='.bin')
+        args = f'-b 2 {binfile}'
+        exp_state = ['border=2']
+        self._check_write_snapshot(args, exp_state=exp_state)
 
     @patch.object(bin2sna, 'run', mock_run)
     def test_options_o_org(self):
@@ -279,10 +231,12 @@ class Bin2SnaTest(SkoolKitTestCase):
     def test_option_o(self):
         data = [1, 2, 3]
         binfile = self.write_bin_file(data, suffix='.bin')
-        z80file = self._run("-o 30000 {}".format(binfile))
-        self._check_z80(z80file, data, 30000)
+        org = 30000
+        args = f'-o {org} {binfile}'
+        exp_ram = [0] * 49152
+        exp_ram[org - 16384:org - 16384 + len(data)] = data
+        self._check_write_snapshot(args, exp_ram)
 
-    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_page(self):
         page, data, org = 3, [1, 2, 3], 50000
         exp_ram = [None] * 8
@@ -294,7 +248,6 @@ class Bin2SnaTest(SkoolKitTestCase):
         exp_state = [f'7ffd={page}']
         self._check_write_snapshot(args, exp_ram, exp_state)
 
-    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_page_with_128k_input_file(self):
         exp_ram = []
         data = []
@@ -337,10 +290,11 @@ class Bin2SnaTest(SkoolKitTestCase):
             self.assertEqual(options.stack, int(stack[2:], 16))
 
     def test_option_p(self):
-        data = [1, 2, 4]
-        binfile = self.write_bin_file(data, suffix='.bin')
-        z80file = self._run("-p 49152 {}".format(binfile))
-        self._check_z80(z80file, data, sp=49152)
+        binfile = self.write_bin_file([0], suffix='.bin')
+        sp = 49152
+        args = f'-p {sp} {binfile}'
+        exp_registers = [f'sp={sp}', 'pc=65535']
+        self._check_write_snapshot(args, exp_registers=exp_registers)
 
     @patch.object(bin2sna, 'run', mock_run)
     def test_options_P_poke(self):
@@ -355,7 +309,7 @@ class Bin2SnaTest(SkoolKitTestCase):
         self._test_poke('-P 32768,1', 32768, [1])
 
     def test_option_P_address_range(self):
-        self._test_poke('-P 40000-40002,2', 40000, [2])
+        self._test_poke('-P 40000-40002,2', 40000, [2] * 3)
 
     def test_option_P_address_range_with_step(self):
         self._test_poke('-P 50000-50004-2,3', 50000, [3, 0, 3, 0, 3])
@@ -372,7 +326,6 @@ class Bin2SnaTest(SkoolKitTestCase):
     def test_option_P_multiple(self):
         self._test_poke('-P 20000,5 --poke 20001,6', 20000, [5, 6])
 
-    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_P_128k(self):
         exp_ram = [[0] * 0x4000 for i in range(8)]
         exp_ram[5][0] = 1 # 16384,1 (bank 5)
@@ -383,7 +336,6 @@ class Bin2SnaTest(SkoolKitTestCase):
         exp_state = ['7ffd=7']
         self._check_write_snapshot(args, exp_ram, exp_state)
 
-    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_P_with_page_number(self):
         exp_ram = [[0] * 0x4000 for i in range(8)]
         args = ['--page 5']
@@ -403,7 +355,6 @@ class Bin2SnaTest(SkoolKitTestCase):
         exp_state = ['7ffd=5']
         self._check_write_snapshot(' '.join(args), exp_ram, exp_state)
 
-    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_P_with_128k_input_file(self):
         exp_ram = []
         data = []
@@ -428,7 +379,6 @@ class Bin2SnaTest(SkoolKitTestCase):
 
     def test_option_r(self):
         binfile = self.write_bin_file([0], suffix='.bin')
-        z80file = self.write_bin_file(suffix='.z80')
         reg_dicts = (
             {'^a': 1, '^b': 2, '^c': 3, '^d': 4, '^e': 5, '^f': 6, '^h': 7, '^l': 8},
             {'a': 9, 'b': 10, 'c': 11, 'd': 12, 'e': 13, 'f': 14, 'h': 15, 'l': 16, 'r': 129},
@@ -436,45 +386,29 @@ class Bin2SnaTest(SkoolKitTestCase):
             {'i': 13, 'ix': 1027, 'iy': 1284, 'pc': 1541, 'r': 23, 'sp': 32769}
         )
         for reg_dict in reg_dicts:
+            exp_registers = ['sp=65535', 'pc=65535']
             options = []
             option = '--reg'
             for reg, value in reg_dict.items():
-                options.append('{} {}={}'.format(option, reg, value))
+                exp_registers.append(f'{reg}={value}')
+                options.append(f'{option} {reg}={value}')
                 option = '-r' if option == '--reg' else '--reg'
-            output, error = self.run_bin2sna('{} {} {}'.format(' '.join(options), binfile, z80file))
-            self.assertEqual(error, '')
-            with open(z80file, 'rb') as f:
-                z80_header = f.read(34)
-            for reg, exp_value in reg_dict.items():
-                offset = Z80_REGISTERS[reg]
-                size = len(reg) - 1 if reg.startswith('^') else len(reg)
-                if size == 1:
-                    value = z80_header[offset]
-                else:
-                    value = z80_header[offset] + 256 * z80_header[offset + 1]
-                self.assertEqual(value, exp_value)
-                if reg == 'r' and exp_value & 128:
-                    self.assertEqual(z80_header[12] & 1, 1)
+            args = ' '.join(options) + f' {binfile}'
+            self._check_write_snapshot(args, exp_registers=exp_registers)
 
     def test_option_reg_with_hex_value(self):
+        bc = '$8a9f'
         binfile = self.write_bin_file([0], suffix='.bin')
-        z80file = self.write_bin_file(suffix='.z80')
-        reg_value = 35487
-        output, error = self.run_bin2sna('--reg bc=${:x} {} {}'.format(reg_value, binfile, z80file))
-        self.assertEqual(error, '')
-        with open(z80file, 'rb') as f:
-            z80_header = f.read(4)
-        self.assertEqual(z80_header[2] + 256 * z80_header[3], reg_value)
+        args = f'--reg bc={bc} {binfile}'
+        exp_registers = ['sp=65535', 'pc=65535', f'bc={bc}']
+        self._check_write_snapshot(args, exp_registers=exp_registers)
 
     def test_option_reg_with_0x_hex_value(self):
+        hl = '0xAA91'
         binfile = self.write_bin_file([0], suffix='.bin')
-        z80file = self.write_bin_file(suffix='.z80')
-        reg_value = 43665
-        output, error = self.run_bin2sna('--reg hl=0x{:X} {} {}'.format(reg_value, binfile, z80file))
-        self.assertEqual(error, '')
-        with open(z80file, 'rb') as f:
-            z80_header = f.read(6)
-        self.assertEqual(z80_header[4] + 256 * z80_header[5], reg_value)
+        args = f'--reg hl={hl} {binfile}'
+        exp_registers = ['sp=65535', 'pc=65535', f'hl={hl}']
+        self._check_write_snapshot(args, exp_registers=exp_registers)
 
     def test_option_reg_bad_value(self):
         self._test_bad_spec('--reg bc=A2', 'Cannot parse register value: bc=A2')
@@ -523,10 +457,11 @@ class Bin2SnaTest(SkoolKitTestCase):
             self.assertEqual(options.start, int(start[2:], 16))
 
     def test_option_s(self):
-        data = [2, 3, 4]
-        binfile = self.write_bin_file(data, suffix='.bin')
-        z80file = self._run("-s 50000 {}".format(binfile))
-        self._check_z80(z80file, data, pc=50000)
+        pc = 50000
+        binfile = self.write_bin_file([0], suffix='.bin')
+        args = f'-s {pc} {binfile}'
+        exp_registers = [f'sp=65535', f'pc={pc}']
+        self._check_write_snapshot(args, exp_registers=exp_registers)
 
     @patch.object(bin2sna, 'run', mock_run)
     def test_options_S_state(self):
@@ -538,12 +473,12 @@ class Bin2SnaTest(SkoolKitTestCase):
             self.assertEqual(values, options.state)
 
     def test_option_S(self):
-        data = [0]
-        binfile = self.write_bin_file(data, suffix='.bin')
-        z80file = self._run("-S border=3 --state iff=0 -S im=2 -S issue2=1 --state tstates=100 {}".format(binfile))
-        self._check_z80(z80file, data, border=3, iff=0, im=2, issue2=1, tstates=100)
+        binfile = self.write_bin_file([0], suffix='.bin')
+        border, iff, im, issue2, tstates = 3, 0, 2, 1, 100
+        args = f'-S border={border} --state iff={iff} -S im={im} -S issue2={issue2} --state tstates={tstates} {binfile}'
+        exp_state = ['border=7', f'border={border}', f'iff={iff}', f'im={im}', f'issue2={issue2}', f'tstates={tstates}']
+        self._check_write_snapshot(args, exp_state=exp_state)
 
-    @patch.object(bin2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_S_128k(self):
         binfile = self.write_bin_file([0], suffix='.bin')
         state = ['7ffd=3', 'fffd=7']
