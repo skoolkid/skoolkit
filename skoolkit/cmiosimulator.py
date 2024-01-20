@@ -304,7 +304,10 @@ class CMIOSimulator(Simulator):
         pc = registers[24]
         pc1 = pc + 1
         ir = registers[15] + 256 * registers[14]
-        delay = self.contend(registers[25], ((pc, 4), (ir, 1), (pc1, 3), (pc1, 1), (pc1, 1), (pc1, 1), (pc1, 1), (pc1, 1)))
+        if registers[2] != 1:
+            delay = self.contend(registers[25], ((pc, 4), (ir, 1), (pc1, 3), (pc1, 1), (pc1, 1), (pc1, 1), (pc1, 1), (pc1, 1)))
+        else:
+            delay = self.contend(registers[25], ((pc, 4), (ir, 1), (pc1, 3)))
         super().djnz(registers, memory)
         registers[25] += delay
 
@@ -454,7 +457,11 @@ class CMIOSimulator(Simulator):
     def ld_r_n(self, registers, memory, r_inc, timing, size, r):
         # LD r,n
         pc = registers[24]
-        delay = self.contend(registers[25], ((pc, 4), (pc + 1, 3)))
+        if size == 2:
+            delay = self.contend(registers[25], ((pc, 4), (pc + 1, 3)))
+        else:
+            # LD IXh/IXl/IYh/IYl,n
+            delay = self.contend(registers[25], ((pc, 4), (pc + 1, 4), (pc + 2, 3)))
         super().ld_r_n(registers, memory, r_inc, timing, size, r)
         registers[25] += delay
 
@@ -562,7 +569,7 @@ class CMIOSimulator(Simulator):
             # LD BC/DE/SP/IX/IY,(nn) (and prefixed LD HL,(nn))
             pc3 = (pc + 3) % 65536
             addr = memory[pc2] + 256 * memory[pc3]
-            delay = self.contend(registers[25], ((pc, 4), (pc1, 3), (pc2, 3), (pc3, 3), (addr, 3), (addr + 1, 3)))
+            delay = self.contend(registers[25], ((pc, 4), (pc1, 4), (pc2, 3), (pc3, 3), (addr, 3), (addr + 1, 3)))
         super().ld_rr_mm(registers, memory, r_inc, timing, size, rh, rl)
         registers[25] += delay
 
@@ -579,7 +586,7 @@ class CMIOSimulator(Simulator):
             # LD (nn),BC/DE/SP/IX/IY (and prefixed LD (nn),HL)
             pc3 = (pc + 3) % 65536
             addr = memory[pc2] + 256 * memory[pc3]
-            delay = self.contend(registers[25], ((pc, 4), (pc1, 3), (pc2, 3), (pc3, 3), (addr, 3), (addr + 1, 3)))
+            delay = self.contend(registers[25], ((pc, 4), (pc1, 4), (pc2, 3), (pc3, 3), (addr, 3), (addr + 1, 3)))
         super().ld_mm_rr(registers, memory, r_inc, timing, size, rh, rl)
         registers[25] += delay
 
