@@ -22,6 +22,8 @@ Changelog
 * Added the ``cmio`` simulated LOAD configuration parameter to
   :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to simulate memory
   and I/O contention delays)
+* Added the ``--cmio`` option to :ref:`trace.py` (to enable simulation of
+  memory and I/O contention delays)
 * Added the ``execint`` parameter to the :ref:`AUDIO`, :ref:`SIM` and
   :ref:`TSTATES` macros (to specify whether to simulate the execution of
   interrupt routines)

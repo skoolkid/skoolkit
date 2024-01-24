@@ -19,6 +19,7 @@ import textwrap
 import time
 
 from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
+from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_snapshot
@@ -207,7 +208,11 @@ def run(snafile, options, config):
         sim_config['int_active'] = INT_ACTIVE[1]
     for spec in options.pokes:
         poke(memory, spec)
-    simulator = Simulator(memory, get_registers(reg, options.reg), state, sim_config)
+    if options.cmio:
+        simulator_cls = CMIOSimulator
+    else:
+        simulator_cls = Simulator
+    simulator = simulator_cls(memory, get_registers(reg, options.reg), state, sim_config)
     tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe)
     simulator.set_tracer(tracer)
     if options.verbose:
@@ -287,6 +292,8 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('--audio', action='store_true',
                        help="Show audio delays.")
+    group.add_argument('-c', '--cmio', action='store_true',
+                       help="Simulate memory and I/O contention.")
     group.add_argument('-D', '--decimal', action='store_true',
                        help="Show decimal values in verbose mode.")
     group.add_argument('--depth', type=int, default=2,

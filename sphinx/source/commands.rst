@@ -1805,6 +1805,7 @@ To list the options supported by `trace.py`, run it with no arguments::
 
   Options:
     --audio               Show audio delays.
+    -c, --cmio            Simulate memory and I/O contention.
     --depth DEPTH         Simplify audio delays to this depth (default: 2).
     -D, --decimal         Show decimal values in verbose mode.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
@@ -1904,7 +1905,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.1     | The ``--poke`` option can modify specific RAM banks               |
+| 9.1     | The ``--poke`` option can modify specific RAM banks; added the    |
+|         | ``--cmio`` option                                                 |
 +---------+-------------------------------------------------------------------+
 | 9.0     | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--no-interrupts`` and ``--show-config`` options;     |

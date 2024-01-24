@@ -54,6 +54,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertIsNone(options.start)
         self.assertIsNone(options.stop)
         self.assertFalse(options.audio)
+        self.assertFalse(options.cmio)
         self.assertEqual(options.depth, 2)
         self.assertIsNone(options.dump)
         self.assertTrue(options.interrupts)
@@ -101,6 +102,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertIsNone(options.start)
         self.assertIsNone(options.stop)
         self.assertFalse(options.audio)
+        self.assertFalse(options.cmio)
         self.assertEqual(options.depth, 2)
         self.assertIsNone(options.dump)
         self.assertTrue(options.interrupts)
@@ -913,6 +915,36 @@ class TraceTest(SkoolKitTestCase):
              [31]*3, 46, [31]*2, 46, 31, 46
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_cmio(self):
+        data = (
+            0xAF,             # $6000 XOR A        ;  4T -> 10T [ 4T ->  10T]
+            0x06, 0x01,       # $6001 LD B,$01     ;  7T -> 15T [11T ->  25T]
+            0x11, 0x02, 0x00, # $6003 LD DE,$0002  ; 10T -> 24T [21T ->  49T]
+            0xDD, 0x34, 0x00, # $6006 INC (IX+$00) ; 23T -> 53T [44T -> 102T]
+            0xC3, 0x00, 0x80, # $6009 JP $8000     ; 10T -> 19T [54T -> 121T]
+        )
+        start = 0x6000
+        stop = 0x8000
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 14335}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        trace_line = 'TraceLine={t} ${pc:04X} {i}'
+        exp_output = """
+            14335 $6000 XOR A
+            14345 $6001 LD B,$01
+            14360 $6003 LD DE,$0002
+            14384 $6006 INC (IX+$00)
+            14437 $6009 JP $8000
+            Stopped at $8000
+            Z80 execution time: 121 T-states
+        """
+        for option in ('-c', '--cmio'):
+            output, error = self.run_trace((option, '-I', trace_line, '--stats', '-S', str(stop), '-v', z80file))
+            self.assertEqual(error, '')
+            output = output.rsplit('\n', 3)[0].rsplit(' ', 1)[0]
+            self.assertEqual(dedent(exp_output).strip(), output)
 
     def test_option_decimal_verbose(self):
         data = (

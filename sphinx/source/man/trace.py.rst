@@ -21,6 +21,9 @@ OPTIONS
   Show a list of the delays (in T-states) between changes in the state of the
   ZX Spectrum speaker made by the code that was executed.
 
+-c, --cmio
+  Simulate memory contention and I/O contention delays.
+
 --depth `N`
   Simplify audio delays to this depth (default: 2). When this option is given,
   any sequence of delays up to length `N` that repeats is shown in a simplified
