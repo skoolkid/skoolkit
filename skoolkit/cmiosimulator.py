@@ -349,7 +349,10 @@ class CMIOSimulator(Simulator):
     def halt(self, registers):
         # HALT
         pc = registers[24]
-        delay = self.contend(registers[25], ((pc, 4),))
+        if self.halted:
+            delay = self.contend(registers[25], ((pc + 1, 4),))
+        else:
+            delay = self.contend(registers[25], ((pc, 4),))
         super().halt(registers)
         registers[25] += delay
 

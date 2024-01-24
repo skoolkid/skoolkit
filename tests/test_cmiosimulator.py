@@ -1815,6 +1815,16 @@ class CMIOSimulatorTest(SkoolKitTestCase):
             self._check_time(cs, op, data, t0, ctime)
             self._check_time(cs, op, data, 0, nctime)
 
+    def _test_halt_after_first_fetch(self, addr, exp_times):
+        cs = CMIOSimulator([0] * 65536)
+        cs.memory[addr] = 0x76
+        cs.registers[25] = 14331 # T
+        cs.run(addr) # First fetch
+        for exp_time in exp_times:
+            t0 = cs.registers[25]
+            cs.run(addr)
+            self.assertEqual(cs.registers[25] - t0, exp_time)
+
     def test_contention_48k(self):
         self._test_contention('48K', TIMINGS)
 
@@ -1830,6 +1840,12 @@ class CMIOSimulatorTest(SkoolKitTestCase):
         cs.registers[25] = t0 # T
         cs.run(addr)
         self.assertEqual(cs.registers[25] - t0, 17)
+
+    def test_halt_at_3fff_after_first_fetch(self):
+        self._test_halt_after_first_fetch(0x3FFF, (10, 8, 8, 8, 8, 8, 8, 8))
+
+    def test_halt_at_7fff_after_first_fetch(self):
+        self._test_halt_after_first_fetch(0x7FFF, (4, 4, 4, 4, 4, 4, 4, 4))
 
     def test_io_contention(self):
         cs = CMIOSimulator([0] * 65536)

@@ -125,6 +125,7 @@ class Simulator:
             state = {}
         self.imode = state.get('im', 1)
         self.iff = state.get('iff', 0)
+        self.halted = state.get('halted', False)
         self.registers[25] = state.get('tstates', 0)
         cfg = CONFIG.copy()
         if config:
@@ -219,6 +220,7 @@ class Simulator:
         registers[15] = R1[registers[15]] # R
         registers[24] = iaddr # PC
         self.iff = 0
+        self.halted = False
         return True
 
     def prefix(self, opcodes, registers, memory):
@@ -549,6 +551,9 @@ class Simulator:
         registers[25] += 4 # T-states
         if self.iff and registers[25] % self.frame_duration < self.int_active:
             registers[24] = (registers[24] + 1) % 65536 # PC
+            self.halted = False
+        else:
+            self.halted = True
         registers[15] = R1[registers[15]] # R
 
     def im(self, registers, mode):
