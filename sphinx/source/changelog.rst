@@ -19,6 +19,9 @@ Changelog
   another skool file)
 * Added the ``--banks`` option to :ref:`skool2bin.py` (for processing
   :ref:`asm-bank` directives and writing RAM banks 0-7 to a 128K file)
+* Added the ``cmio`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to simulate memory
+  and I/O contention delays)
 * Added the ``execint`` parameter to the :ref:`AUDIO`, :ref:`SIM` and
   :ref:`TSTATES` macros (to specify whether to simulate the execution of
   interrupt routines)

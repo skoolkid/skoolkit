@@ -1447,6 +1447,9 @@ parameters are:
   (``0``)
 * ``accelerator`` - a comma-separated list of tape-sampling loop accelerators
   to use (see :ref:`tap2sna-accelerators`)
+* ``cmio`` - enable simulation of memory contention and I/O contention delays
+  (``1``), or disable it (``0``); this is disabled by default to improve
+  performance, but some loaders may require it
 * ``fast-load`` - enable fast loading (``1``, the default), or disable it
   (``0``); fast loading significantly reduces the load time for many tapes, but
   can also cause some loaders to fail
@@ -1672,7 +1675,8 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.1     | The ``--ram move`` and ``--ram poke`` options can modify specific |
-|         | RAM banks                                                         |
+|         | RAM banks; added the ``cmio`` simulated LOAD configuration        |
+|         | parameter                                                         |
 +---------+-------------------------------------------------------------------+
 | 9.0     | A simulated LOAD is performed by default; an existing snapshot    |
 |         | will be overwritten by default; added the ``load``, ``machine``,  |

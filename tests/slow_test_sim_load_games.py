@@ -176,6 +176,43 @@ class SimLoadGamesTest(SkoolKitTestCase):
             }
         )
 
+    def test_cmio(self):
+        # After the first CODE block has loaded, this line of BASIC is run:
+        #
+        #   3 LET I=USR 23328: IF I<1200 OR I>3000 THEN RANDOMIZE USR O
+        #
+        # The code at 23328 listens for the pilot tone of the next block on the
+        # tape:
+        #
+        #   23328 LD H,50     ; Detect 50 edges of the pilot tone.
+        #   23330 LD BC,0     ; BC will count the port readings.
+        #   23333 IN A,(254)  ; Take an initial port reading.
+        #   23335 LD L,A      ; Save the current port reading in L.
+        #   23336 IN A,(254)  ; Take another port reading.
+        #   23338 INC BC      ; Increment the counter.
+        #   23339 CP L        ; Detected an edge yet?
+        #   23340 JR Z,23336  ; If not, jump back to take another port reading.
+        #   23342 DEC H       ; Detected 50 edges yet?
+        #   23343 JR NZ,23335 ; Jump back if not.
+        #   23345 RET         ; Return to BASIC.
+        #
+        # If memory and I/O contention delays are not simulated, this routine
+        # returns to BASIC with BC=3208, which is too high a value, and
+        # triggers the 'RANDOMIZE USR O' (where the variable 'O' equals 0).
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/g/GoldMine.tzx.zip',
+            'Gold Mine - Main Game.tzx',
+            '611fbfd3d6982496eadb2e2b663cc27f',
+            {
+                'AF,BC,DE,HL': '0001,0009,0000,053F',
+                "AF',BC',DE',HL'": 'FF81,0F21,0000,0000',
+                'PC,SP,IX,IY': '053F,FF50,8000,5C3A',
+                'IR,iff,im,border': '3F72,0,1,7',
+                'ram': '55a02bdd92a0e78c6668e9916dfa950c'
+            },
+            '-c cmio=1 -c first-edge=30000 -c in-flags=1 -c finish-tape=1 --start 1343'
+        )
+
     def test_crl(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/b/BallbreakerII.tzx.zip',

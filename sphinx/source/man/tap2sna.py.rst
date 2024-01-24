@@ -117,6 +117,9 @@ parameters are:
   (``0``)
 * ``accelerator`` - a comma-separated list of tape-sampling loop accelerators
   to use (see the ``ACCELERATORS`` section below)
+* ``cmio`` - enable simulation of memory contention and I/O contention delays
+  (``1``), or disable it (``0``); this is disabled by default to improve
+  performance, but some loaders may require it
 * ``fast-load`` - enable fast loading (``1``, the default), or disable it
   (``0``); fast loading significantly reduces the load time for many tapes, but
   can also cause some loaders to fail

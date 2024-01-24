@@ -26,6 +26,7 @@ from urllib.parse import urlparse
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       get_word, get_word3, integer, open_file, parse_int,
                       read_bin_file, write_line, ROM48, VERSION)
+from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.kbtracer import KeyboardTracer
 from skoolkit.loadsample import ACCELERATORS
@@ -283,6 +284,7 @@ def _ram_operations(snapshot, ram_ops, blocks=None):
 def _set_sim_load_config(options):
     options.accelerate_dec_a = 1
     options.accelerator = 'auto'
+    options.cmio = False
     options.fast_load = True
     options.finish_tape = False
     options.first_edge = 0
@@ -300,6 +302,8 @@ def _set_sim_load_config(options):
                 options.accelerate_dec_a = parse_int(value, options.accelerate_dec_a)
             elif name == 'accelerator':
                 options.accelerator = value
+            elif name == 'cmio':
+                options.cmio = parse_int(value, options.cmio)
             elif name == 'fast-load':
                 options.fast_load = parse_int(value, options.fast_load)
             elif name == 'finish-tape':
@@ -368,6 +372,11 @@ def sim_load(blocks, options, config):
 
     timeout = options.timeout * 3500000
 
+    if options.cmio:
+        simulator_cls = CMIOSimulator
+    else:
+        simulator_cls = Simulator
+
     if options.load:
         load = options.load.split()
         if load[-1].startswith('PC='):
@@ -378,7 +387,7 @@ def sim_load(blocks, options, config):
                 raise SkoolKitError(f"Invalid integer in 'load' parameter: {pc}")
         if not load or load[-1] != 'ENTER':
             load.append('ENTER')
-        simulator = Simulator(memory, registers, state, sim_cfg)
+        simulator = simulator_cls(memory, registers, state, sim_cfg)
         tracer = KeyboardTracer(simulator, load, kb_delay)
         simulator.set_tracer(tracer)
         try:
@@ -412,7 +421,7 @@ def sim_load(blocks, options, config):
                 if b > 0xFF:
                     memory[a + 1] = b // 256
         memory[0xFF58:] = memory[0x3E08:0x3EB0] # UDGs
-        simulator = Simulator(memory, {'PC': 0x0605, 'SP': 0xFF50})
+        simulator = simulator_cls(memory, {'PC': 0x0605, 'SP': 0xFF50})
         border = 7
         out7ffd = 0
         outfffd = 0
@@ -881,6 +890,7 @@ def _print_sim_load_config_help():
     print(f"""
 Usage: --sim-load-config accelerate-dec-a=0/1/2
        --sim-load-config accelerator=NAME
+       --sim-load-config cmio=0/1
        --sim-load-config fast-load=0/1
        --sim-load-config finish-tape=0/1
        --sim-load-config first-edge=N
@@ -908,6 +918,12 @@ Configure various properties of a simulated LOAD.
   accelerator names are:
 
   {accelerators}
+
+--sim-load-config cmio=0/1
+
+  By default, memory contention and I/O contention delays are not simulated.
+  This improves performance and does not affect most loaders. Set cmio=1 to
+  enable simulation of memory and I/O contention delays.
 
 --sim-load-config fast-load=0/1
 

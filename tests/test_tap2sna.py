@@ -2347,6 +2347,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(tapfile)
         self.assertEqual(error, '')
         self.assertIsNone(kbtracer)
+        self.assertEqual(load_tracer.simulator.__class__.__name__, 'Simulator')
         self.assertEqual(len(load_tracer.accelerators_in), 46)
         self.assertTrue(load_tracer.pause)
         self.assertEqual(load_tracer.first_edge, 0)
@@ -2379,6 +2380,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         params = (
             'accelerate-dec-a=2',
             'accelerator=speedlock',
+            'cmio=1',
             'fast-load=0',
             'finish-tape=1',
             'first-edge=1234',
@@ -2403,6 +2405,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(kbtracer.prefix, '$')
         self.assertEqual(kbtracer.byte_fmt, '02X')
         self.assertEqual(kbtracer.word_fmt, '04X')
+        self.assertEqual(load_tracer.simulator.__class__.__name__, 'CMIOSimulator')
         self.assertEqual(['speedlock'], [a.name for a in load_tracer.accelerators_in])
         self.assertEqual(load_tracer.pause, 0)
         self.assertEqual(load_tracer.first_edge, 1234)
