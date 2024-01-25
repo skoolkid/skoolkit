@@ -1775,7 +1775,7 @@ See also :ref:`UDGTABLE`.
 The ``#TSTATES`` macro expands to the time taken, in T-states, to execute one
 or more instructions. ::
 
-  #TSTATESstart[,stop,flags,execint(text)]
+  #TSTATESstart[,stop,flags,execint,cmio(text)]
 
 * ``start`` is the address of the instruction at which to start the clock
 * ``stop`` is the address of the instruction at which to stop the clock
@@ -1786,6 +1786,8 @@ or more instructions. ::
   ``$tstates`` for the actual timing value when bit 2 of ``flags`` is set
 * ``execint`` specifies whether to execute interrupt routines (1), or ignore
   interrupts (0, the default) when simulating code execution
+* ``cmio`` specifies whether memory and I/O contention are simulated (1), or
+  not simulated (0, the default)
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
@@ -1837,10 +1839,11 @@ that are repeated in a loop. For example::
 
 This instance of the ``#TSTATES`` macro expands to '1703941'.
 
-.. note::
-   The simulator does not simulate memory contention or I/O contention. This
-   means that ``#TSTATES`` may not provide accurate timing if the code being
-   timed runs in or accesses contended memory, or performs I/O operations.
+Note that, by default, the simulator does not simulate memory contention or
+I/O contention. This means that the time reported by ``#TSTATES`` may not be
+accurate if the code being simulated runs in or accesses contended memory, or
+performs I/O operations. To obtain precise timing in such cases, set the
+``cmio`` parameter to 1.
 
 Before executing code in a simulator, the ``#TSTATES`` macro copies the
 simulator state as it was left by the most recent invocation of the
@@ -1866,8 +1869,8 @@ timings in comment fields when disassembling a snapshot.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.1     | Added the ``execint`` parameter; added support for executing code |
-|         | in a 128K memory snapshot                                         |
+| 9.1     | Added the ``cmio`` and ``execint`` parameters; added support for  |
+|         | executing code in a 128K memory snapshot                          |
 +---------+-------------------------------------------------------------------+
 | 8.7     | New                                                               |
 +---------+-------------------------------------------------------------------+

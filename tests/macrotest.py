@@ -2434,6 +2434,23 @@ class CommonSkoolMacroTest:
         writer.expand('#SIM(start=65282,stop=65289)')
         self.assertEqual(writer.expand('#TSTATES(65289,65290,4,1)'), '69889')
 
+    def test_macro_tstates_with_simulator_and_memory_and_io_contention(self):
+        skool = """
+            @start
+            ; Beep in contended memory
+            c24576 LD L,6
+            *24578 OUT (254),A
+             24580 XOR 16
+             24582 LD B,8
+            *24584 DJNZ 24584
+             24586 DEC L
+             24587 JR NZ,24578
+             24589 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(tstates=14335)')
+        self.assertEqual(writer.expand('#TSTATES(24576,24589,4,,1)'), '1299')
+
     def test_macro_tstates_with_simulator_128k(self):
         bank6_skool = """
             @start
@@ -2470,7 +2487,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#TSTATES32769', "Failed to get timing for instruction at 32769", prefix)
         self._assert_error(writer, '#TSTATES32770', "Failed to get timing for instruction at 32770", prefix)
         self._assert_error(writer, '#TSTATES32768,,4', "Missing stop address: '32768,,4'", prefix)
-        self._assert_error(writer, '#TSTATES(1,2,3,4,5)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
+        self._assert_error(writer, '#TSTATES(1,2,3,4,5,6)', "Too many parameters (expected 5): '1,2,3,4,5,6'", prefix)
         self._assert_error(writer, '#TSTATES(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#TSTATES(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
         self._assert_error(writer, '#TSTATES({no})', "Unrecognised field 'no': {no}", prefix)

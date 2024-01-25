@@ -1287,8 +1287,8 @@ def parse_str(writer, text, index, *cwd):
     return end, s
 
 def parse_tstates(writer, text, index, *cwd):
-    # #TSTATESstart[,stop,flags,execint(text)]
-    end, start, stop, flags, execint = parse_ints(text, index, 4, (-1, 0, 0), fields=writer.fields)
+    # #TSTATESstart[,stop,flags,execint,cmio(text)]
+    end, start, stop, flags, execint, cmio = parse_ints(text, index, 5, (-1, 0, 0, 0), fields=writer.fields)
     if flags & 2:
         end, msg = parse_strings(text, end, 1)
     else:
@@ -1302,7 +1302,11 @@ def parse_tstates(writer, text, index, *cwd):
             tracer = PagingTracer(memory, state['7ffd'], state['fffd'], state['ay'])
         else:
             tracer = None
-        simulator = Simulator(memory, registers, state, config)
+        if cmio:
+            simulator_cls = CMIOSimulator
+        else:
+            simulator_cls = Simulator
+        simulator = simulator_cls(memory, registers, state, config)
         simulator.set_tracer(tracer)
         start_time = simulator.registers[T]
         simulator.run(start, stop, execint)
