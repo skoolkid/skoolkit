@@ -23,6 +23,7 @@ from string import Template
 
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
                       SkoolKitError, SkoolParsingError, eval_variable, evaluate)
+from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.graphics import Udg
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T, INT_ACTIVE)
@@ -560,14 +561,14 @@ def expand_macros(writer, text, *cwd):
     return text
 
 def _read_sim_state(writer, execint, reg=None, clear=0):
-    registers = {'iff': 0, 'im': 1, 'tstates': 0, '7ffd': 0, 'fffd': 0, 'ay': [0] * 16}
+    registers = {'iff': 0, 'im': 1, 'halted': 0, 'tstates': 0, '7ffd': 0, 'fffd': 0, 'ay': [0] * 16}
     if clear < 1:
         registers.update(writer.fields.get('sim', {}))
     if reg:
         for r, v in reg.items():
             if v >= 0:
                 registers[r] = v
-    state = {a: registers.pop(a) for a in ('iff', 'im', 'tstates', '7ffd', 'fffd', 'ay')}
+    state = {a: registers.pop(a) for a in ('iff', 'im', 'halted', 'tstates', '7ffd', 'fffd', 'ay')}
     config = {'fast_djnz': execint < 1, 'fast_ldir': execint < 1}
     if len(writer.snapshot) == 0x20000:
         config['frame_duration'] = FRAME_DURATIONS[1]
@@ -604,6 +605,7 @@ def _write_sim_state(writer, simulator, tracer=None):
         'tstates': registers[T],
         'iff': simulator.iff,
         'im': simulator.imode,
+        'halted': int(simulator.halted),
         '7ffd': out7ffd,
         'fffd': outfffd,
         'ay': ay
@@ -1210,28 +1212,32 @@ def parse_scr(text, index=0, fields=None):
     return parse_image_macro(text, index, defaults, names, 'scr', fields)
 
 def parse_sim(writer, text, index, *cwd):
-    # #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im]
+    # #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im,cmio]
     names = ('stop', 'start', 'clear', 'a', 'f', 'bc', 'de', 'hl', 'xa', 'xf',
              'xbc', 'xde', 'xhl', 'ix', 'iy', 'i', 'r', 'sp', 'execint',
-             'tstates', 'iff', 'im')
-    defaults = (-1,) * 22
+             'tstates', 'iff', 'im', 'cmio')
+    defaults = (-1,) * len(names)
     reg = {}
     (end, stop, start, clear, reg['A'], reg['F'], reg['BC'], reg['DE'], reg['HL'],
      reg['^A'], reg['^F'], reg['^BC'], reg['^DE'], reg['^HL'], reg['IX'], reg['IY'],
      reg['I'], reg['R'], reg['SP'], execint, reg['tstates'], reg['iff'],
-     reg['im']) = parse_ints(text, index, len(names), defaults, names, writer.fields)
+     reg['im'], cmio) = parse_ints(text, index, len(names), defaults, names, writer.fields)
     registers, state, config = _read_sim_state(writer, execint, reg, clear)
     memory = writer.snapshot
     if len(memory) == 0x20000:
         tracer = PagingTracer(memory, state['7ffd'], state['fffd'], state['ay'])
     else:
         tracer = None
-    simulator = Simulator(memory, registers, state, config)
+    if cmio > 0:
+        simulator_cls = CMIOSimulator
+    else:
+        simulator_cls = Simulator
+    simulator = simulator_cls(memory, registers, state, config)
     if stop >= 0:
         if start < 0:
             start = simulator.registers[PC]
         simulator.set_tracer(tracer)
-        simulator.run(start, stop, execint)
+        simulator.run(start, stop, execint > 0)
     _write_sim_state(writer, simulator, tracer)
     return end, ''
 

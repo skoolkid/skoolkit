@@ -2175,13 +2175,13 @@ class CommonSkoolMacroTest:
         """
         writer = self._get_writer(skool=skool)
 
-        writer.expand('#SIM(start=65282,stop=56,tstates=69884,iff=1,im=0)')
+        writer.expand('#SIM(start=65282,stop=56,tstates=69884,iff=1,im=0,execint=1)')
         self.assertEqual(writer.expand('#FORMAT(T={sim[tstates]} im={sim[im]} iff={sim[iff]})'), 'T=69901 im=0 iff=0')
 
-        writer.expand('#SIM(start=65282,stop=56,tstates=69884,iff=1,im=1)')
+        writer.expand('#SIM(start=65282,stop=56,tstates=69884,iff=1,im=1,execint=1)')
         self.assertEqual(writer.expand('#FORMAT(T={sim[tstates]} im={sim[im]} iff={sim[iff]})'), 'T=69901 im=1 iff=0')
 
-        writer.expand('#SIM(start=65282,stop=65281,tstates=69884,i=254,iff=1,im=2)')
+        writer.expand('#SIM(start=65282,stop=65281,tstates=69884,i=254,iff=1,im=2,execint=1)')
         self.assertEqual(writer.expand('#FORMAT(T={sim[tstates]} im={sim[im]} iff={sim[iff]})'), 'T=69907 im=2 iff=0')
 
     def test_macro_sim_executing_interrupt_routine_twice_while_int_is_active_48k(self):
@@ -2281,6 +2281,45 @@ class CommonSkoolMacroTest:
         writer.expand('#SIM(a=1,bc=1000,de=2000,hl=3000)')
         self.assertEqual(writer.expand(macro), 'PC=50002 A=1 BC=1000 DE=2000 HL=3000')
 
+    def test_macro_sim_with_contended_memory_and_io(self):
+        skool = """
+            @start
+            ; Routine
+            c24576 XOR A
+             24577 LD B,5
+             24579 OUT (254),A
+             24581 XOR 16
+             24583 DJNZ 24579
+             24585 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=24576,stop=24585,tstates=14335,cmio=1)')
+        self.assertEqual(writer.expand('T=#EVAL({sim[tstates]})'), 'T=14568')
+
+    def test_macro_sim_with_contended_memory_and_io_halted(self):
+        skool = """
+            @start
+            ; Routine
+            c32766 NOP
+             32767 HALT
+        """
+        writer = self._get_writer(skool=skool)
+        macro = '#FORMAT(T={sim[tstates]} halted={sim[halted]})'
+
+        writer.expand('#SIM(start=32766,stop=32767,tstates=14335,cmio=1)')
+        self.assertEqual(writer.expand(macro), 'T=14345 halted=0')
+
+        # Contention on initial fetch of HALT opcode
+        writer.expand('#SIM(32767,cmio=1)')
+        self.assertEqual(writer.expand(macro), 'T=14353 halted=1')
+
+        # No contention after that (CPU reads 32768 now)
+        writer.expand('#SIM(32767,cmio=1)')
+        self.assertEqual(writer.expand(macro), 'T=14357 halted=1')
+
+        writer.expand('#SIM(32768,tstates=69884,iff=1)')
+        self.assertEqual(writer.expand(macro), 'T=69888 halted=0')
+
     def test_macro_sim_with_keyword_arguments_and_replacement_fields(self):
         skool = """
             @start
@@ -2298,8 +2337,8 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('SIM')
 
-        params = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23'
-        self._assert_error(writer, f'#SIM({params})', f"Too many parameters (expected 22): '{params}'", prefix)
+        params = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24'
+        self._assert_error(writer, f'#SIM({params})', f"Too many parameters (expected 23): '{params}'", prefix)
         self._assert_error(writer, '#SIM(30000', "No closing bracket: (30000", prefix)
         self._assert_error(writer, '#SIM(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
         self._assert_error(writer, '#SIM({no})', "Unrecognised field 'no': {no}", prefix)

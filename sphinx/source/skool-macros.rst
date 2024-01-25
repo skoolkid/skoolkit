@@ -1507,7 +1507,7 @@ For example:
 The ``#SIM`` macro simulates the execution of machine code in the internal
 memory snapshot constructed from the contents of the skool file. ::
 
-  #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im]
+  #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im,cmio]
 
 * ``stop`` is the address at which to stop execution; if not given, no code is
   executed
@@ -1536,6 +1536,8 @@ memory snapshot constructed from the contents of the skool file. ::
 * ``tstates`` sets the value of the simulator's clock (default: 0)
 * ``iff`` sets whether interrupts are disabled (0, the default) or enabled (1)
 * ``im`` sets the interrupt mode (default: 1)
+* ``cmio`` specifies whether memory and I/O contention are simulated (1), or
+  not simulated (0, the default)
 
 The parameters of the ``#SIM`` macro may contain
 :ref:`replacement fields <replacementFields>` and may also be given as keyword
@@ -1570,6 +1572,7 @@ names:
 * ``sim[7ffd]`` - the value of the last OUT to port 0x7ffd
 * ``sim[ay][N]`` - the value of AY register N (0-15)
 * ``sim[fffd]`` - the value of the last OUT to port 0xfffd
+* ``sim[halted]`` - 1 if the simulated CPU is halted, 0 otherwise
 * ``sim[iff]`` - 0 if interrupts are disabled, 1 if they're enabled
 * ``sim[im]`` - interrupt mode (0, 1 or 2)
 * ``sim[tstates]`` - the number of T-states elapsed
@@ -1595,10 +1598,11 @@ After the ``#EVAL`` macros have been expanded, the second mid-block comment
 here is rendered as 'At this point HL=13699', and the third is rendered as 'And
 now HL=14371'.
 
-.. note::
-   The simulator does not simulate memory contention or I/O contention. This
-   means that ``sim[tstates]`` may not be accurate if the code being simulated
-   runs in or accesses contended memory, or performs I/O operations.
+Note that, by default, the simulator does not simulate memory contention or
+I/O contention. This means that ``sim[tstates]`` may not be accurate if the
+code being simulated runs in or accesses contended memory, or performs I/O
+operations. To simulate memory and I/O contention, set the ``cmio`` parameter
+to 1.
 
 If the ``stop`` parameter is not given, no code is executed, but the
 simulator's registers and hardware state may be updated by providing other
@@ -1616,11 +1620,11 @@ memory snapshot, and therefore can modify it. To avoid that, use the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.1     | Added the ``execint``, ``iff``, ``im`` and ``tstates``            |
+| 9.1     | Added the ``cmio``, ``execint``, ``iff``, ``im`` and ``tstates``  |
 |         | parameters; added support for executing code in a 128K memory     |
-|         | snapshot; added the ``iff``, ``im``, ``7ffd``, ``fffd`` and       |
-|         | ``ay`` fields to the ``sim`` dictionary; made the ``stop``        |
-|         | parameter optional                                                |
+|         | snapshot; added the ``7ffd``, ``ay``, ``fffd``, ``halted``,       |
+|         | ``iff`` and ``im`` fields to the ``sim`` dictionary; made the     |
+|         | ``stop`` parameter optional                                       |
 +---------+-------------------------------------------------------------------+
 | 8.7     | New                                                               |
 +---------+-------------------------------------------------------------------+
