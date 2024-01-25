@@ -1614,6 +1614,27 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_delays = [166, 1121, 166]
         self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, offset=offset)
 
+    def test_macro_audio_with_code_simulation_and_memory_and_io_contention(self):
+        skool = """
+            ; Beep in contended memory
+            c24576 LD L,6
+            *24578 OUT (254),A
+             24580 XOR 16
+             24582 LD B,8
+            *24584 DJNZ 24584
+             24586 DEC L
+             24587 JR NZ,24578
+             24589 RET
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        offset = 14335
+        fname = 'sound.wav'
+        macro = f'#AUDIO4,{offset}({fname})(24576,24589,,1)'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [203, 214, 217, 215, 220]
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, offset=offset)
+
     def test_macro_audio_with_code_simulation_on_128k(self):
         bank3_skool = """
             ; Beep

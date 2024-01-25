@@ -828,7 +828,7 @@ In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
 
 Or, when executing code in a simulator (bit 2 of ``flags`` set)::
 
-  #AUDIO[flags,offset](fname)(start,stop[,execint])
+  #AUDIO[flags,offset](fname)(start,stop[,execint,cmio])
 
 * ``flags`` controls various options (see below)
 * ``offset`` is the initial offset in T-states from the start of a frame
@@ -843,6 +843,8 @@ Or, when executing code in a simulator (bit 2 of ``flags`` set)::
 * ``stop`` is the address at which to stop executing code
 * ``execint`` specifies whether to execute interrupt routines (1), or ignore
   interrupts (0, the default)
+* ``cmio`` specifies whether memory and I/O contention are simulated (1), or
+  not simulated (0, the default)
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
@@ -864,7 +866,9 @@ outcome:
 
 If ``execint`` is set to 1, make sure that bit 1 of ``flags`` is 0, otherwise
 interrupt delays may be applied twice: once during execution of the code, and
-again in post-processing.
+again in post-processing. Similarly, if ``cmio`` is set to 1, make sure that
+bit 0 of ``flags`` is 0, otherwise memory and I/O contention delays may be
+applied twice.
 
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly. Otherwise the filename is taken to be relative to
@@ -909,10 +913,6 @@ example::
    32780 JR NZ,32771
    32782 RET
 
-.. note::
-   The simulator does not simulate memory contention or I/O contention. Use
-   bit 0 of ``flags`` to approximate memory contention effects if desired.
-
 Before executing code in a simulator, the ``#AUDIO`` macro copies the simulator
 state as it was left by the most recent invocation of either the ``#AUDIO`` or
 the :ref:`SIM` macro (if any).
@@ -941,8 +941,8 @@ written. This enables an original WAV file to be replaced by an alternative
 looks for before writing a WAV file are specified by the ``AudioFormats``
 parameter in the :ref:`ref-game` section.
 
-The ``flags``, ``offset``, ``start`` and ``stop`` parameters of the ``#AUDIO``
-macro may contain :ref:`replacement fields <replacementFields>`.
+The integer parameters (i.e. all except ``fname`` and ``delays``) of the
+``#AUDIO`` macro may contain :ref:`replacement fields <replacementFields>`.
 
 The :ref:`t_audio` template is used to format the ``<audio>`` element.
 
@@ -951,8 +951,8 @@ Audio file creation can be configured via the :ref:`ref-AudioWriter` section.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.1     | Added the ``execint`` parameter; added support for executing code |
-|         | in a 128K memory snapshot                                         |
+| 9.1     | Added the ``cmio`` and ``execint`` parameters; added support for  |
+|         | executing code in a 128K memory snapshot                          |
 +---------+-------------------------------------------------------------------+
 | 9.0     | Added support for passing delays through a moving average filter  |
 +---------+-------------------------------------------------------------------+

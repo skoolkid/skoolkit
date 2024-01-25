@@ -33,8 +33,8 @@ Changelog
   interrupts are enabled)
 * Added the ``im`` parameter to the :ref:`SIM` macro (to set the interrupt
   mode)
-* Added the ``cmio`` parameter to the :ref:`SIM` macro (to specify whether to
-  simulate memory and I/O contention)
+* Added the ``cmio`` parameter to the :ref:`AUDIO` and :ref:`SIM` macros (to
+  specify whether to simulate memory and I/O contention)
 * Made the ``stop`` parameter of the :ref:`SIM` macro optional
 * Added support to the :ref:`AUDIO`, :ref:`SIM` and :ref:`TSTATES` macros for
   executing code in a 128K memory snapshot

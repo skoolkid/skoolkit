@@ -39,6 +39,12 @@ class CommonSkoolMacroTest:
         self._test_invalid_audio_macro(writer, '#AUDIO({x})(f)', "Unrecognised field 'x': {x}", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO({x)(f)', "Invalid format string: {x", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO(f)(', "No closing bracket: (", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO4(f)', "No parameters (expected 2)", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO4(f)(', "No closing bracket: (", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO4(f)()', "No parameters (expected 2): '()'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO4(f)(1)', "Not enough parameters (expected 2): '1'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO4(f)(1,{x})', "Unrecognised field 'x': 1,{x}", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO4(f)(1,2,3,4,5)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
 
         return writer, prefix
 

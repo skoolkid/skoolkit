@@ -632,7 +632,7 @@ def _eval_delays(spec):
 
 def parse_audio(writer, text, index, need_audio=None):
     # #AUDIO[flags,offset](fname)[(delays)]
-    # #AUDIO[flags,offset](fname)(start,stop[,execint])
+    # #AUDIO[flags,offset](fname)(start,stop[,execint,cmio])
     try:
         end, flags, offset = parse_ints(text, index, 2, defaults=(0, None), fields=writer.fields)
     except InvalidParameterError:
@@ -644,12 +644,16 @@ def parse_audio(writer, text, index, need_audio=None):
     if need_audio:
         fname, eval_delays = need_audio(fname)
     if flags & 4:
-        end, start, stop, execint = parse_ints(text, end, 3, defaults=(0,), fields=writer.fields)
+        end, start, stop, execint, cmio = parse_ints(text, end, 4, defaults=(0, 0), fields=writer.fields)
         if eval_delays:
             registers, state, config = _read_sim_state(writer, execint)
             if offset is not None:
                 state['tstates'] = offset
-            simulator = Simulator(writer.snapshot, registers, state, config)
+            if cmio:
+                simulator_cls = CMIOSimulator
+            else:
+                simulator_cls = Simulator
+            simulator = simulator_cls(writer.snapshot, registers, state, config)
             if len(writer.snapshot) == 0x20000:
                 tracer = AudioTracer128(writer.snapshot, state['7ffd'], state['fffd'], state['ay'])
             else:
