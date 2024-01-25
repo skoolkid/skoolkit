@@ -16,6 +16,7 @@ if not os.path.isdir(SKOOLKIT_HOME):
 sys.path.insert(0, SKOOLKIT_HOME)
 
 from skoolkit import ROM48, integer, read_bin_file
+from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.simulator import Simulator, A, PC, T
 from skoolkit.tap2sna import get_tap_blocks, sim_load
 
@@ -28,6 +29,7 @@ class Options:
     accelerator = None
     machine = None
     load = None
+    cmio = 0
     in_flags = 0
     pause = 1
     first_edge = 0
@@ -102,7 +104,8 @@ def run(tapfile, options):
     if options.stop > 0:
         test_addr = 34938 + options.stop * 2
         snapshot[test_addr:test_addr + 2] = (0, 0)
-    simulator = Simulator(snapshot, {'PC': start})
+    simulator_cls = CMIOSimulator if options.cmio else Simulator
+    simulator = simulator_cls(snapshot, {'PC': start})
     if options.quiet:
         tracer = None
         print('Running tests')
@@ -137,6 +140,8 @@ if __name__ == '__main__':
     )
     parser.add_argument('tapfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-c', '--cmio', action='store_true',
+                       help="Run tests with CMIOSimulator.")
     group.add_argument('-t', '--test', metavar='TEST', type=int, default=0,
                        help='Start at this test (default: 0).')
     group.add_argument('-T', '--stop', metavar='TEST', type=int, default=0,
