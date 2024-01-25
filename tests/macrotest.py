@@ -2294,7 +2294,7 @@ class CommonSkoolMacroTest:
         """
         writer = self._get_writer(skool=skool)
         writer.expand('#SIM(start=24576,stop=24585,tstates=14335,cmio=1)')
-        self.assertEqual(writer.expand('T=#EVAL({sim[tstates]})'), 'T=14568')
+        self.assertEqual(writer.expand('T=#EVAL({sim[tstates]})'), 'T=14576')
 
     def test_macro_sim_with_contended_memory_and_io_halted(self):
         skool = """

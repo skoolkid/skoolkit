@@ -1,4 +1,4 @@
-# Copyright 2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2023, 2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -37,6 +37,7 @@ class Memory:
     def out7ffd(self, value):
         self.memory[0] = self.roms[(value % 32) // 16]
         self.memory[3] = self.banks[value % 8]
+        self.page = value % 8
 
 class PagingTracer:
     def write_port(self, registers, port, value):

@@ -37,8 +37,10 @@ class CMIOSimulator(Simulator):
         super().__init__(memory, registers, state, config)
         if len(memory) == 0x20000:
             self.contend = self.contend_128k
+            self.io_contention = self.io_contention_128k
         else:
             self.contend = self.contend_48k
+            self.io_contention = self.io_contention_48k
 
     def contend_48k(self, t, timings):
         if 14312 < t % 69888 < 57245:
@@ -51,9 +53,20 @@ class CMIOSimulator(Simulator):
             return delay
         return 0
 
+    def io_contention_48k(self, port):
+        if port % 2:
+            # Low bit set
+            if 0x4000 <= port < 0x8000:
+                return ((0x4000, 1), (0x4000, 1), (0x4000, 1), (0x4000, 1))
+            return ((0, 4),)
+        # Low bit reset (ULA port)
+        if 0x4000 <= port < 0x8000:
+            return ((0x4000, 1), (0x4000, 3))
+        return ((0, 1), (0x4000, 3))
+
     def contend_128k(self, t, timings):
         if 14338 < t % 70908 < 58035:
-            c = self.memory.banks.index(self.memory.memory[3]) % 2
+            c = self.memory.page % 2
             delay = 0
             for address, tstates in timings:
                 if 0x4000 <= address % 65536 < 0x8000 or (c and 0xC000 <= address % 65536):
@@ -63,16 +76,16 @@ class CMIOSimulator(Simulator):
             return delay
         return 0
 
-    def io_contention(self, port):
+    def io_contention_128k(self, port):
         if port % 2:
             # Low bit set
-            if 0x4000 <= port < 0x8000:
-                return ((port, 1), (port, 1), (port, 1), (port, 1))
+            if 0x4000 <= port < 0x8000 or (self.memory.page % 2 and port >= 0xC000):
+                return ((0x4000, 1), (0x4000, 1), (0x4000, 1), (0x4000, 1))
             return ((0, 4),)
         # Low bit reset (ULA port)
-        if 0x4000 <= port < 0x8000:
-            return ((port, 1), (port, 3))
-        return ((0, 1), (port, 3))
+        if 0x4000 <= port < 0x8000 or (self.memory.page % 2 and port >= 0xC000):
+            return ((0x4000, 1), (0x4000, 3))
+        return ((0, 1), (0x4000, 3))
 
     def af_hl(self, registers, memory, af):
         # ADD A,(HL) / AND (HL) / CP (HL) / OR (HL) / SUB (HL) / XOR (HL)

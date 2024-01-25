@@ -469,7 +469,7 @@ TIMINGS = {
     "D0000000": ("RET NC", 17, 11),
     "D1000000": ("POP DE", 16, 10),
     "D2000000": ("JP NC,$0000", 25, 10),
-    "D3000000": ("OUT ($00),A", 21, 11),
+    "D3000000": ("OUT ($00),A", 25, 11),
     "D4000000": ("CALL NC,$0000", 37, 17),
     "D5000000": ("PUSH DE", 17, 11),
     "D6000000": ("SUB $00", 17, 7),
@@ -477,7 +477,7 @@ TIMINGS = {
     "D8000000": ("RET C", 11, 5),
     "D9000000": ("EXX", 10, 4),
     "DA000000": ("JP C,$0000", 25, 10),
-    "DB000000": ("IN A,($00)", 21, 11),
+    "DB000000": ("IN A,($00)", 25, 11),
     "DC000000": ("CALL C,$0000", 25, 10),
     "DD000000": ("DEFB $DD,$00", 10, 4),
     "DD010000": ("DEFB $DD,$01", 10, 4),
@@ -1069,64 +1069,64 @@ TIMINGS = {
     "ED3D0000": ("DEFB $ED,$3D", 18, 8),
     "ED3E0000": ("DEFB $ED,$3E", 18, 8),
     "ED3F0000": ("DEFB $ED,$3F", 18, 8),
-    "ED400000": ("IN B,(C)", 22, 12),
-    "ED410000": ("OUT (C),B", 22, 12),
+    "ED400000": ("IN B,(C)", 25, 12),
+    "ED410000": ("OUT (C),B", 25, 12),
     "ED420000": ("SBC HL,BC", 25, 15),
     "ED430000": ("LD ($0000),BC", 39, 20),
     "ED440000": ("NEG", 18, 8),
     "ED450000": ("RETN", 24, 14),
     "ED460000": ("IM 0", 18, 8),
     "ED470000": ("LD I,A", 19, 9),
-    "ED480000": ("IN C,(C)", 22, 12),
-    "ED490000": ("OUT (C),C", 22, 12),
+    "ED480000": ("IN C,(C)", 25, 12),
+    "ED490000": ("OUT (C),C", 25, 12),
     "ED4A0000": ("ADC HL,BC", 25, 15),
     "ED4B0000": ("LD BC,($0000)", 39, 20),
     "ED4C0000": ("NEG", 18, 8),
     "ED4D0000": ("RETI", 24, 14),
     "ED4E0000": ("IM 0", 18, 8),
     "ED4F0000": ("LD R,A", 19, 9),
-    "ED500000": ("IN D,(C)", 22, 12),
-    "ED510000": ("OUT (C),D", 22, 12),
+    "ED500000": ("IN D,(C)", 25, 12),
+    "ED510000": ("OUT (C),D", 25, 12),
     "ED520000": ("SBC HL,DE", 25, 15),
     "ED530000": ("LD ($0000),DE", 39, 20),
     "ED540000": ("NEG", 18, 8),
     "ED550000": ("RETN", 24, 14),
     "ED560000": ("IM 1", 18, 8),
     "ED570000": ("LD A,I", 19, 9),
-    "ED580000": ("IN E,(C)", 22, 12),
-    "ED590000": ("OUT (C),E", 22, 12),
+    "ED580000": ("IN E,(C)", 25, 12),
+    "ED590000": ("OUT (C),E", 25, 12),
     "ED5A0000": ("ADC HL,DE", 25, 15),
     "ED5B0000": ("LD DE,($0000)", 39, 20),
     "ED5C0000": ("NEG", 18, 8),
     "ED5D0000": ("RETN", 24, 14),
     "ED5E0000": ("IM 2", 18, 8),
     "ED5F0000": ("LD A,R", 19, 9),
-    "ED600000": ("IN H,(C)", 22, 12),
-    "ED610000": ("OUT (C),H", 22, 12),
+    "ED600000": ("IN H,(C)", 25, 12),
+    "ED610000": ("OUT (C),H", 25, 12),
     "ED620000": ("SBC HL,HL", 25, 15),
     "ED630000": ("LD ($0000),HL", 39, 20),
     "ED640000": ("NEG", 18, 8),
     "ED650000": ("RETN", 24, 14),
     "ED660000": ("IM 0", 18, 8),
     "ED670000": ("RRD", 28, 18),
-    "ED680000": ("IN L,(C)", 22, 12),
-    "ED690000": ("OUT (C),L", 22, 12),
+    "ED680000": ("IN L,(C)", 25, 12),
+    "ED690000": ("OUT (C),L", 25, 12),
     "ED6A0000": ("ADC HL,HL", 25, 15),
     "ED6B0000": ("LD HL,($0000)", 39, 20),
     "ED6C0000": ("NEG", 18, 8),
     "ED6D0000": ("RETN", 24, 14),
     "ED6E0000": ("IM 0", 18, 8),
     "ED6F0000": ("RLD", 28, 18),
-    "ED700000": ("IN F,(C)", 22, 12),
-    "ED710000": ("OUT (C),0", 22, 12),
+    "ED700000": ("IN F,(C)", 25, 12),
+    "ED710000": ("OUT (C),0", 25, 12),
     "ED720000": ("SBC HL,SP", 25, 15),
     "ED730000": ("LD ($0000),SP", 39, 20),
     "ED740000": ("NEG", 18, 8),
     "ED750000": ("RETN", 24, 14),
     "ED760000": ("IM 1", 18, 8),
     "ED770000": ("DEFB $ED,$77", 18, 8),
-    "ED780000": ("IN A,(C)", 22, 12),
-    "ED790000": ("OUT (C),A", 22, 12),
+    "ED780000": ("IN A,(C)", 25, 12),
+    "ED790000": ("OUT (C),A", 25, 12),
     "ED7A0000": ("ADC HL,SP", 25, 15),
     "ED7B0000": ("LD SP,($0000)", 39, 20),
     "ED7C0000": ("NEG", 18, 8),
@@ -1167,7 +1167,7 @@ TIMINGS = {
     "ED9F0000": ("DEFB $ED,$9F", 18, 8),
     "EDA00000": ("LDI", 26, 16),
     "EDA10000": ("CPI", 26, 16),
-    "EDA20000": ("INI", 26, 16),
+    "EDA20000": ("INI", 28, 16),
     "EDA30000": ("OUTI", 26, 16),
     "EDA40000": ("DEFB $ED,$A4", 18, 8),
     "EDA50000": ("DEFB $ED,$A5", 18, 8),
@@ -1175,7 +1175,7 @@ TIMINGS = {
     "EDA70000": ("DEFB $ED,$A7", 18, 8),
     "EDA80000": ("LDD", 26, 16),
     "EDA90000": ("CPD", 26, 16),
-    "EDAA0000": ("IND", 26, 16),
+    "EDAA0000": ("IND", 28, 16),
     "EDAB0000": ("OUTD", 26, 16),
     "EDAC0000": ("DEFB $ED,$AC", 18, 8),
     "EDAD0000": ("DEFB $ED,$AD", 18, 8),
@@ -1183,7 +1183,7 @@ TIMINGS = {
     "EDAF0000": ("DEFB $ED,$AF", 18, 8),
     "EDB00000": ("LDIR", 31, 21),
     "EDB10000": ("CPIR", 31, 21),
-    "EDB20000": ("INIR", 31, 21),
+    "EDB20000": ("INIR", 33, 21),
     "EDB30000": ("OTIR", 31, 21),
     "EDB40000": ("DEFB $ED,$B4", 18, 8),
     "EDB50000": ("DEFB $ED,$B5", 18, 8),
@@ -1191,7 +1191,7 @@ TIMINGS = {
     "EDB70000": ("DEFB $ED,$B7", 18, 8),
     "EDB80000": ("LDDR", 31, 21),
     "EDB90000": ("CPDR", 31, 21),
-    "EDBA0000": ("INDR", 31, 21),
+    "EDBA0000": ("INDR", 33, 21),
     "EDBB0000": ("OTDR", 31, 21),
     "EDBC0000": ("DEFB $ED,$BC", 18, 8),
     "EDBD0000": ("DEFB $ED,$BD", 18, 8),
@@ -1792,11 +1792,10 @@ TIMINGS = {
 }
 
 class CMIOSimulatorTest(SkoolKitTestCase):
-    def _check_time(self, cs, op, data, t0, exp_time):
+    def _check_time(self, cs, op, data, t0, exp_time, addr=0x6000):
         cs.registers[:] = [0] * len(cs.registers)
         cs.registers[0] = 1   # A (to exercise long CPIR/CPDR)
         cs.registers[25] = t0 # T
-        addr = 24576
         for i, b in enumerate(data):
             cs.memory[addr + i] = b
         cs.run(addr)
@@ -1808,7 +1807,6 @@ class CMIOSimulatorTest(SkoolKitTestCase):
             t0 = 14335
         else:
             cs = CMIOSimulator(Memory())
-            cs.memory.memory[0] = [0] * 16384
             t0 = 14361
         for hb, (op, ctime, nctime) in timings.items():
             data = tuple(int(hb[i:i + 2], 16) for i in range(0, 8, 2))
@@ -1831,6 +1829,14 @@ class CMIOSimulatorTest(SkoolKitTestCase):
     def test_contention_128k(self):
         self._test_contention('128K', TIMINGS)
 
+    def test_contention_128k_banks(self):
+        cs = CMIOSimulator(Memory())
+        op, ctime, nctime = TIMINGS['00000000']
+        for bank in range(8):
+            cs.memory.out7ffd(bank)
+            exp_time = ctime if bank % 2 else nctime
+            self._check_time(cs, op, [0], 14361, exp_time, 0xC000)
+
     def test_djnz_jump_not_made(self):
         cs = CMIOSimulator([0] * 65536)
         addr = 24576
@@ -1847,14 +1853,14 @@ class CMIOSimulatorTest(SkoolKitTestCase):
     def test_halt_at_7fff_after_first_fetch(self):
         self._test_halt_after_first_fetch(0x7FFF, (4, 4, 4, 4, 4, 4, 4, 4))
 
-    def test_io_contention(self):
+    def test_io_contention_48k(self):
         cs = CMIOSimulator([0] * 65536)
         addr = 24576
         t0 = 14335
         for port, exp_time in (
                 (0x40FE, 26),
                 (0x40FF, 32),
-                (0x80FE, 21),
+                (0x80FE, 25),
                 (0x80FF, 21)
         ):
             cs.memory[addr:addr + 2] = (0xD3, port % 256) # OUT (n),A
@@ -1862,3 +1868,36 @@ class CMIOSimulatorTest(SkoolKitTestCase):
             cs.registers[25] = t0         # T
             cs.run(addr)
             self.assertEqual(cs.registers[25] - t0, exp_time)
+
+    def test_io_contention_128k(self):
+        cs = CMIOSimulator(Memory())
+        addr = 24576
+        t0 = 14361
+        for port, exp_time, page in (
+                (0x40FE, 26, 0),
+                (0x40FF, 32, 0),
+                (0x80FE, 25, 0),
+                (0x80FF, 21, 0),
+                (0xC0FE, 25, 0),
+                (0xC0FF, 21, 0),
+                (0xC0FE, 26, 1),
+                (0xC0FF, 32, 1),
+                (0xC0FE, 25, 2),
+                (0xC0FF, 21, 2),
+                (0xC0FE, 26, 3),
+                (0xC0FF, 32, 3),
+                (0xC0FE, 25, 4),
+                (0xC0FF, 21, 4),
+                (0xC0FE, 26, 5),
+                (0xC0FF, 32, 5),
+                (0xC0FE, 25, 6),
+                (0xC0FF, 21, 6),
+                (0xC0FE, 26, 7),
+                (0xC0FF, 32, 7)
+        ):
+            cs.memory[addr], cs.memory[addr + 1] = 0xD3, port % 256 # OUT (n),A
+            cs.memory.out7ffd(page)
+            cs.registers[0] = port // 256 # A
+            cs.registers[25] = t0         # T
+            cs.run(addr)
+            self.assertEqual(cs.registers[25] - t0, exp_time, f'Timing failed with port=0x{port:04X}, page={page}')
