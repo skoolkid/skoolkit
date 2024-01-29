@@ -142,7 +142,8 @@ If the input file contains a program that returns to BASIC, you should use the
 ``--clear`` option to add a CLEAR command to the BASIC loader. This option
 leaves the stack pointer alone, enabling the program to return to BASIC without
 crashing. The lowest usable address with the ``--clear`` option on a bare 48K
-Spectrum is 23952 (0x5D90).
+Spectrum is 23972 (5DA4) if a loading screen is used, or 23952 (0x5D90)
+otherwise.
 
 To create a TAP file that loads a 128K game, use the ``--7ffd``, ``--begin``
 and ``--clear`` options along with a 128K snapshot or a 128K binary file as
@@ -157,7 +158,8 @@ input, where:
 By default, the 128K RAM bank loader (which is 39-45 bytes long, depending on
 the number of RAM banks to load) is placed one above the CLEAR address. Use the
 ``--loader`` option to place it at an alternative address. The lowest usable
-address with the ``--clear`` option on a bare 128K Spectrum is 23977 (0x5DA9).
+address with the ``--clear`` option on a bare 128K Spectrum is 23977 (0x5DA9)
+if a loading screen is used, or 23957 (0x5D95) otherwise.
 
 By default, 128K RAM banks 0, 1, 3, 4, 6 and 7 are added to the TAP file. If
 one or more of these RAM banks are not required, use the ``--banks`` option to
