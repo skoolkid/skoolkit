@@ -2287,7 +2287,7 @@ class CommonSkoolMacroTest:
         writer.expand('#SIM(a=1,bc=1000,de=2000,hl=3000)')
         self.assertEqual(writer.expand(macro), 'PC=50002 A=1 BC=1000 DE=2000 HL=3000')
 
-    def test_macro_sim_with_contended_memory_and_io(self):
+    def test_macro_sim_with_contended_memory_and_io_48k(self):
         skool = """
             @start
             ; Routine
@@ -2301,6 +2301,45 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(skool=skool)
         writer.expand('#SIM(start=24576,stop=24585,tstates=14335,cmio=1)')
         self.assertEqual(writer.expand('T=#EVAL({sim[tstates]})'), 'T=14576')
+
+    def test_macro_sim_with_contended_memory_and_io_128k(self):
+        skool = """
+            @start
+            @bank=1
+            ; Routine
+            c49152 XOR A
+             49153 LD B,5
+            *49155 OUT (254),A
+             49157 XOR 16
+             49159 DJNZ 49155
+             49161 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=49152,stop=49161,tstates=14361,cmio=1)')
+        self.assertEqual(writer.expand('T=#EVAL({sim[tstates]})'), 'T=14598')
+
+    def test_macro_sim_with_contended_memory_and_io_128k_bank_switching(self):
+        bank4_skool = """
+            @start
+            ; Uncontended loop (28 T-states total)
+            c49159 LD B,2      ; 7 T-states
+            *49161 DJNZ 49161  ; 13 + 8 = 21 T-states
+             49163 RET
+        """
+        bank4 = self._write_skool_file(bank4_skool)
+        skool = f"""
+            @start
+            @bank=3
+            @bank=4,{bank4}
+            ; Contended routine (72 T-states total) to page in bank 4
+            c49152 LD BC,$7FFD ; 25 T-states (normally 10)
+             49155 LD A,4      ; 16 T-states (normally 7)
+             49157 OUT (C),A   ; 31 T-states (normally 12)
+             49159 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=49152,stop=49163,tstates=14361,cmio=1)')
+        self.assertEqual(writer.expand('T=#EVAL({sim[tstates]})'), 'T=14461')
 
     def test_macro_sim_with_contended_memory_and_io_halted(self):
         skool = """
@@ -2434,7 +2473,7 @@ class CommonSkoolMacroTest:
         writer.expand('#SIM(start=65282,stop=65289)')
         self.assertEqual(writer.expand('#TSTATES(65289,65290,4,1)'), '69889')
 
-    def test_macro_tstates_with_simulator_and_memory_and_io_contention(self):
+    def test_macro_tstates_with_simulator_and_memory_and_io_contention_48k(self):
         skool = """
             @start
             ; Beep in contended memory
@@ -2471,6 +2510,47 @@ class CommonSkoolMacroTest:
         """
         writer = self._get_writer(skool=skool)
         self.assertEqual(writer.expand('#TSTATES32768,49156,4'), '74')
+
+    def test_macro_tstates_with_simulator_and_memory_and_io_contention_128k(self):
+        skool = """
+            @start
+            @bank=3
+            ; Beep in contended memory
+            c50000 LD L,6
+            *50002 OUT (254),A
+             50004 XOR 16
+             50006 LD B,8
+            *50008 DJNZ 50008
+             50010 DEC L
+             50011 JR NZ,50002
+             50013 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(tstates=14361)')
+        self.assertEqual(writer.expand('#TSTATES(50000,50013,4,,1)'), '1293')
+
+    def test_macro_tstates_with_simulator_and_memory_and_io_contention_128k_bank_switching(self):
+        bank2_skool = """
+            @start
+            ; Uncontended loop (28 T-states total)
+            c49159 LD B,2      ; 7 T-states
+            *49161 DJNZ 49161  ; 13 + 8 = 21 T-states
+             49163 RET
+        """
+        bank2 = self._write_skool_file(bank2_skool)
+        skool = f"""
+            @start
+            @bank=1
+            @bank=2,{bank2}
+            ; Contended routine (72 T-states total) to page in bank 2
+            c49152 LD BC,$7FFD ; 25 T-states (normally 10)
+             49155 LD A,2      ; 16 T-states (normally 7)
+             49157 OUT (C),A   ; 31 T-states (normally 12)
+             49159 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(tstates=14361)')
+        self.assertEqual(writer.expand('#TSTATES49152,49163,4,,1'), '100')
 
     def test_macro_tstates_invalid(self):
         skool = """

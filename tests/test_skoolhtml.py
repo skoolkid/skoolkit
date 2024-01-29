@@ -1614,7 +1614,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_delays = [166, 1121, 166]
         self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, offset=offset)
 
-    def test_macro_audio_with_code_simulation_and_memory_and_io_contention(self):
+    def test_macro_audio_with_code_simulation_and_memory_and_io_contention_48k(self):
         skool = """
             ; Beep in contended memory
             c24576 LD L,6
@@ -1663,6 +1663,28 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_path = f'audio/{fname}'
         exp_delays = [1336] * 31
         self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, is128k=True)
+
+    def test_macro_audio_with_code_simulation_and_memory_and_io_contention_128k(self):
+        skool = """
+            @bank=5
+            ; Beep in contended memory
+            c60000 LD L,6
+            *60002 OUT (254),A
+             60004 XOR 16
+             60006 LD B,8
+            *60008 DJNZ 60008
+             60010 DEC L
+             60011 JR NZ,60002
+             60013 RET
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        offset = 14361
+        fname = 'sound.wav'
+        macro = f'#AUDIO4,{offset}({fname})(60000,60013,,1)'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [203, 215, 215, 218, 215]
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, offset=offset, is128k=True)
 
     def test_macro_audio_with_contention(self):
         writer = self._get_writer(skool='', mock_file_info=True)
