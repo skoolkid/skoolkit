@@ -11,13 +11,18 @@ SRO = ('RLC', 'RRC', 'RL', 'RR', 'SLA', 'SRA', 'SRL', 'SLL')
 ALO_A = ('AND ', 'CP ', 'OR ', 'SUB ', 'XOR ', 'ADC A,', 'ADD A,', 'SBC A,')
 
 ADDRESSES = {
-    1: (16384, 32768),               # rr
-    2: (16383, 16384, 32767, 32768), # rr, rr+1
-    3: (16385, 16386, 32769, 32770), # sp-1, sp-2
+    1: (0x4000, 0x8000, 0xC000),                                         # rr
+    2: (0x3FFF, 0x4000, 0x7FFF, 0x8000, 0xBFFF, 0xC000, 0xFFFF),         # rr, rr+1
+    3: (0x0000, 0x0001, 0x4001, 0x4002, 0x8001, 0x8002, 0xC001, 0xC002), # sp-1, sp-2
 }
+
+PORTS = (0x40FE, 0x40FF, 0x80FE, 0x80FF, 0xC0FE, 0xC0FF)
+PORTS_MSB = (0x40, 0x80, 0xC0)
+PORTS_LSB = (0xFE, 0xFF)
 
 GROUPS = (
     (
+        'pc4',
         'pc:4',
         (
             'NOP',
@@ -32,6 +37,7 @@ GROUPS = (
     ),
 
     (
+        'pc4_pcn4',
         'pc:4,pc+1:4',
         (
             'JP (IX)', 'JP (IY)',
@@ -45,12 +51,14 @@ GROUPS = (
     ),
 
     (
+        'ld_a_ir',
         'pc:4,pc+1:4,ir:1',
         ('LD A,I', 'LD A,R', 'LD I,A', 'LD R,A'),
         [{'IR': ir} for ir in ADDRESSES[1]]
     ),
 
     (
+        'ld_sp_hl_inc_dec_rr',
         'pc:4,ir:1,ir:1',
         (
             'LD SP,HL',
@@ -60,18 +68,21 @@ GROUPS = (
     ),
 
     (
+        'ld_sp_xy_inc_dec_xy',
         'pc:4,pc+1:4,ir:1,ir:1',
         ('LD SP,IX', 'LD SP,IY', 'INC IX', 'INC IY', 'DEC IX', 'DEC IY'),
         [{'IR': ir} for ir in ADDRESSES[1]]
     ),
 
     (
+        'add_hl_rr',
         'pc:4,ir:1,ir:1,ir:1,ir:1,ir:1,ir:1,ir:1',
         ('ADD HL,BC', 'ADD HL,DE', 'ADD HL,HL', 'ADD HL,SP'),
         [{'IR': ir} for ir in ADDRESSES[1]]
     ),
 
     (
+        'add_xy_rr_adc_sbc_hl_rr',
         'pc:4,pc+1:4,ir:1,ir:1,ir:1,ir:1,ir:1,ir:1,ir:1',
         (
             'ADD IX,IX', 'ADD IY,IY',
@@ -82,6 +93,7 @@ GROUPS = (
     ),
 
     (
+        'ld_r_n_alo_a_n',
         'pc:4,pc+1:3',
         (
             *[f'LD {r},0' for r in REG8],
@@ -91,6 +103,7 @@ GROUPS = (
     ),
 
     (
+        'ld_xy_n',
         'pc:4,pc+1:4,pc+2:3',
         [f'LD {r},0' for r in REG8XY],
         [{}]
@@ -98,6 +111,7 @@ GROUPS = (
 
     *[
         (
+            f'ld_a_{rr}',
             f'pc:4,{rr}:3',
             (f'LD A,({rr.upper()})', f'LD ({rr.upper()}),A'),
             [{rr.upper(): rv} for rv in ADDRESSES[1]]
@@ -105,6 +119,7 @@ GROUPS = (
     ],
 
     (
+        'ld_r_hl_alo_a_hl',
         'pc:4,hl:3',
         (
             *[f'LD {r},(HL)' for r in REG8],
@@ -116,6 +131,7 @@ GROUPS = (
 
     *[
         (
+            f'ld_r_{rr}_d_alo_a_{rr}_d',
             f'pc:4,pc+1:4,pc+2:3,pc+2:1,pc+2:1,pc+2:1,pc+2:1,pc+2:1,{rr}:3',
             (
                 *[f'LD {r},({rr.upper()}+0)' for r in REG8],
@@ -127,6 +143,7 @@ GROUPS = (
     ],
 
     (
+        'bit_n_hl',
         'pc:4,pc+1:4,hl:3,hl:1',
         [f'BIT {b},(HL)' for b in range(8)],
         [{'HL': hl} for hl in ADDRESSES[1]]
@@ -134,6 +151,7 @@ GROUPS = (
 
     *[
         (
+            f'bit_n_{rr}_d',
             f'pc:4,pc+1:4,pc+2:3,pc+3:3,pc+3:1,pc+3:1,{rr}:3,{rr}:1',
             [f'BIT {b},({rr.upper()}+0)' for b in range(8)],
             [{rr.upper(): rv} for rv in ADDRESSES[1]]
@@ -141,6 +159,7 @@ GROUPS = (
     ],
 
     (
+        'jp_nn_ld_rr_nn',
         'pc:4,pc+1:3,pc+2:3',
         (
             'JP 0',
@@ -151,12 +170,14 @@ GROUPS = (
     ),
 
     (
+        'ld_xy_nn',
         'pc:4,pc+1:4,pc+2:3,pc+3:3',
         ('LD IX,0', 'LD IY,0'),
         [{}]
     ),
 
     (
+        'ld_hl_n',
         'pc:4,pc+1:3,hl:3',
         ['LD (HL),0'],
         [{'HL': hl} for hl in ADDRESSES[1]]
@@ -164,6 +185,7 @@ GROUPS = (
 
     *[
         (
+            f'ld_{rr}_d_n',
             f'pc:4,pc+1:4,pc+2:3,pc+3:3,pc+3:1,pc+3:1,{rr}:3',
             [f'LD ({rr.upper()}+0),0'],
             [{rr.upper(): rv} for rv in ADDRESSES[1]]
@@ -172,6 +194,7 @@ GROUPS = (
 
     *[
         (
+            f'ld_a_{addr:04x}',
             f'pc:4,pc+1:3,pc+2:3,{addr:04x}:3',
             (f'LD A,(${addr:04X})', f'LD (${addr:04X}),A'),
             [{}]
@@ -180,6 +203,7 @@ GROUPS = (
 
     *[
         (
+            f'ld_hl_{addr:04x}',
             f'pc:4,pc+1:3,pc+2:3,{addr:04x}:3,{addr+1:04x}:3',
             (f'LD HL,(${addr:04X})', f'LD (${addr:04X}),HL'),
             [{}]
@@ -188,6 +212,7 @@ GROUPS = (
 
     *[
         (
+            f'ld_rr_{addr:04x}',
             f'pc:4,pc+1:4,pc+2:3,pc+3:3,{addr:04x}:3,{addr+1:04x}:3',
             (
                 f'LD BC,(${addr:04X})', f'LD (${addr:04X}),BC',
@@ -203,12 +228,14 @@ GROUPS = (
     ],
 
     (
+        'inc_dec_hl',
         'pc:4,hl:3,hl:1,hl:3',
         ('INC (HL)', 'DEC (HL)'),
         [{'HL': hl} for hl in ADDRESSES[1]]
     ),
 
     (
+        'set_res_sro_hl',
         'pc:4,pc+1:4,hl:3,hl:1,hl:3',
         (
             *[f'SET {b},(HL)' for b in range(8)],
@@ -220,6 +247,7 @@ GROUPS = (
 
     *[
         (
+            f'inc_dec_{rr}_d',
             f'pc:4,pc+1:4,pc+2:3,pc+2:1,pc+2:1,pc+2:1,pc+2:1,pc+2:1,{rr}:3,{rr}:1,{rr}:3',
             (f'INC ({rr.upper()}+0)', f'DEC ({rr.upper()}+0)'),
             [{rr.upper(): rv} for rv in ADDRESSES[1]]
@@ -228,6 +256,7 @@ GROUPS = (
 
     *[
         (
+            f'set_res_sro_{rr}_d',
             f'pc:4,pc+1:4,pc+2:3,pc+3:3,pc+3:1,pc+3:1,{rr}:3,{rr}:1,{rr}:3',
             (
                 *[f'SET {b},({rr.upper()}+0)' for b in range(8)],
@@ -239,46 +268,53 @@ GROUPS = (
     ],
 
     (
+        'pop_rr_ret',
         'pc:4,sp:3,sp+1:3',
         ('POP BC', 'POP DE', 'POP HL', 'POP AF', 'RET'),
         [{'SP': sp} for sp in ADDRESSES[2]]
     ),
 
     (
+        'pop_xy_reti_retn',
         'pc:4,pc+1:4,sp:3,sp+1:3',
         ('POP IX', 'POP IY', 'RETI', 'RETN'),
         [{'SP': sp} for sp in ADDRESSES[2]]
     ),
 
-    # Return not made
+    # RET Z/C/PE/M - return not made
     (
+        'ret_z_c_pe_m_not_made',
         'pc:4,ir:1',
         ('RET Z', 'RET C', 'RET PE', 'RET M'),
         [{'F': 0, 'IR': ir} for ir in ADDRESSES[1]]
     ),
 
-    # Return not made
+    # RET NZ/NC/PO/P - return not made
     (
+        'ret_nz_nc_po_p_not_made',
         'pc:4,ir:1',
         ('RET NZ', 'RET NC', 'RET PO', 'RET P'),
         [{'F': 0xFF, 'IR': ir} for ir in ADDRESSES[1]]
     ),
 
-    # Return made
+    # RET Z/C/PE/M - return made
     (
+        'ret_z_c_pe_m_made',
         'pc:4,ir:1,sp:3,sp+1:3',
         ('RET Z', 'RET C', 'RET PE', 'RET M'),
         [{'F': 0xFF, 'IR': ir, 'SP': sp} for ir in ADDRESSES[1] for sp in ADDRESSES[2]]
     ),
 
-    # Return made
+    # RET NZ/NC/PO/P - return made
     (
+        'ret_nz_nc_po_p_made',
         'pc:4,ir:1,sp:3,sp+1:3',
         ('RET NZ', 'RET NC', 'RET PO', 'RET P'),
         [{'F': 0x00, 'IR': ir, 'SP': sp} for ir in ADDRESSES[1] for sp in ADDRESSES[2]]
     ),
 
     (
+        'push_rr_rst',
         'pc:4,ir:1,sp-1:3,sp-2:3',
         (
             'PUSH BC', 'PUSH DE', 'PUSH HL', 'PUSH AF',
@@ -288,48 +324,63 @@ GROUPS = (
     ),
 
     (
+        'push_xy',
         'pc:4,pc+1:4,ir:1,sp-1:3,sp-2:3',
         ('PUSH IX', 'PUSH IY'),
         [{'IR': ir, 'SP': sp} for ir in ADDRESSES[1] for sp in ADDRESSES[3]]
     ),
 
-    # CALL not made
+    # CALL
     (
+        'call',
+        'pc:4,pc+1:3,pc+2:3,pc+2:1,sp-1:3,sp-2:3',
+        ['CALL 0'],
+        [{'SP': sp} for sp in ADDRESSES[3]]
+    ),
+
+    # CALL Z/C/PE/M not made
+    (
+        'call_z_c_pe_m_not_made',
         'pc:4,pc+1:3,pc+2:3',
         ('CALL Z,0', 'CALL C,0', 'CALL PE,0', 'CALL M,0'),
         [{'F': 0}]
     ),
 
-    # CALL not made
+    # CALL NZ/NC/PO/P not made
     (
+        'call_nz_nc_po_p_not_made',
         'pc:4,pc+1:3,pc+2:3',
         ('CALL NZ,0', 'CALL NC,0', 'CALL PO,0', 'CALL P,0'),
         [{'F': 0xFF}]
     ),
 
-    # CALL made
+    # CALL Z/C/PE/M made
     (
+        'call_z_c_pe_m_made',
         'pc:4,pc+1:3,pc+2:3,pc+2:1,sp-1:3,sp-2:3',
         ('CALL Z,0', 'CALL C,0', 'CALL PE,0', 'CALL M,0'),
         [{'F': 0xFF, 'SP': sp} for sp in ADDRESSES[3]]
     ),
 
-    # CALL made
+    # CALL NZ/NC/PO/P made
     (
+        'call_nz_nc_po_p_made',
         'pc:4,pc+1:3,pc+2:3,pc+2:1,sp-1:3,sp-2:3',
         ('CALL 0', 'CALL NZ,0', 'CALL NC,0', 'CALL PO,0', 'CALL P,0'),
         [{'F': 0, 'SP': sp} for sp in ADDRESSES[3]]
     ),
 
-    # JR not made
+    # JR C/Z not made
     (
+        'jr_c_z_no_jump',
         'pc:4,pc+1:3',
         ('JR C,0', 'JR Z,0'),
         [{'F': 0}]
     ),
 
-    # JR not made
+    # JR NC/NZ not made
     (
+        'jr_nc_nz_no_jump',
         'pc:4,pc+1:3',
         ('JR NC,0', 'JR NZ,0'),
         [{'F': 0xFF}]
@@ -337,45 +388,60 @@ GROUPS = (
 
     # DJNZ not made
     (
+        'djnz_no_jump',
         'pc:4,ir:1,pc+1:3',
         ['DJNZ 0'],
         [{'BC': 0x0100, 'IR': ir} for ir in ADDRESSES[1]]
     ),
 
-    # JR made
+    # JR C/Z made
     (
+        'jr_c_z_jump_made',
         'pc:4,pc+1:3,pc+1:1,pc+1:1,pc+1:1,pc+1:1,pc+1:1',
         ('JR C,0', 'JR Z,0'),
         [{'F': 0xFF}]
     ),
 
-    # JR made
+    # JR NC/NZ made
     (
+        'jr_nc_nz_jump_made',
         'pc:4,pc+1:3,pc+1:1,pc+1:1,pc+1:1,pc+1:1,pc+1:1',
         ('JR NC,0', 'JR NZ,0'),
         [{'F': 0}]
     ),
 
+    # JR made
+    (
+        'jr_jump_made',
+        'pc:4,pc+1:3,pc+1:1,pc+1:1,pc+1:1,pc+1:1,pc+1:1',
+        ['JR 0'],
+        [{}]
+    ),
+
     # DJNZ made
     (
+        'djnz_jump_made',
         'pc:4,ir:1,pc+1:3,pc+1:1,pc+1:1,pc+1:1,pc+1:1,pc+1:1',
         ['DJNZ 0'],
         [{'BC': 0x0200, 'IR': ir} for ir in ADDRESSES[1]]
     ),
 
     (
+        'rld_rrd',
         'pc:4,pc+1:4,hl:3,hl:1,hl:1,hl:1,hl:1,hl:3',
         ('RLD', 'RRD'),
         [{'HL': hl} for hl in ADDRESSES[1]]
     ),
 
     (
+        'ex_sp_hl',
         'pc:4,sp:3,sp+1:3,sp+1:1,sp+1:3,sp:3,sp:1,sp:1',
         ['EX (SP),HL'],
         [{'SP': sp} for sp in ADDRESSES[2]]
     ),
 
     (
+        'ex_sp_xy',
         'pc:4,pc+1:4,sp:3,sp+1:3,sp+1:1,sp+1:3,sp:3,sp:1,sp:1',
         ('EX (SP),IX', 'EX (SP),IY'),
         [{'SP': sp} for sp in ADDRESSES[2]]
@@ -383,6 +449,7 @@ GROUPS = (
 
     # LDI/LDIR/LDD/LDDR with BC == 1
     (
+        'ldi_ldd_ldir_lddr_no_repeat',
         'pc:4,pc+1:4,hl:3,de:3,de:1,de:1',
         ('LDI', 'LDIR', 'LDD', 'LDDR'),
         [{'BC': 1, 'DE': de, 'HL': hl} for de in ADDRESSES[1] for hl in ADDRESSES[1]],
@@ -390,6 +457,7 @@ GROUPS = (
 
     # LDIR/LDDR with BC != 1
     (
+        'ldir_lddr_repeat',
         'pc:4,pc+1:4,hl:3,de:3,de:1,de:1,de:1,de:1,de:1,de:1,de:1',
         ('LDIR', 'LDDR'),
         [{'BC': 2, 'DE': de, 'HL': hl} for de in ADDRESSES[1] for hl in ADDRESSES[1]]
@@ -397,6 +465,7 @@ GROUPS = (
 
     # CPI/CPIR/CPD/CPDR with BC == 1
     (
+        'cpi_cpd_cpir_cpdr_no_repeat',
         'pc:4,pc+1:4,hl:3,hl:1,hl:1,hl:1,hl:1,hl:1',
         ('CPI', 'CPIR', 'CPD', 'CPDR'),
         [{'BC': 1, 'HL': hl} for hl in ADDRESSES[1]]
@@ -404,6 +473,7 @@ GROUPS = (
 
     # CPIR/CPDR with BC != 1 and A != (HL)
     (
+        'cpir_cpdr_repeat',
         'pc:4,pc+1:4,hl:3,hl:1,hl:1,hl:1,hl:1,hl:1,hl:1,hl:1,hl:1,hl:1,hl:1',
         ('CPIR', 'CPDR'),
         [{'A': 1, 'BC': 2, 'HL': hl} for hl in ADDRESSES[1]]
@@ -411,47 +481,53 @@ GROUPS = (
 
     *[
         (
+            f'in_out_a_{lsb:02x}',
             'pc:4,pc+1:3,io:4',
             (f'IN A,(${lsb:02X})', f'OUT (${lsb:02X}),A'),
-            [{'A': msb} for msb in (0x40, 0x80)]
+            [{'A': msb} for msb in PORTS_MSB]
         ) for lsb in (0xFE, 0xFF)
     ],
 
     (
+        'in_out_c',
         'pc:4,pc+1:4,io:4',
         (
             *[f'IN {r},(C)' for r in REG8],
             *[f'OUT (C),{r}' for r in REG8]
         ),
-        [{'BC': bc} for bc in (0x40FE, 0x40FF, 0x80FE, 0x80FF)]
+        [{'BC': bc} for bc in PORTS]
     ),
 
     # INI/INIR/IND/INDR with B == 1
     (
+        'ini_ind_inir_indr_no_repeat',
         'pc:4,pc+1:4,ir:1,io:4,hl:3',
         ('INI', 'INIR', 'IND', 'INDR'),
-        [{'BC': 256 + c, 'IR': ir, 'HL': hl} for c in (0xFE, 0xFF) for ir in ADDRESSES[1] for hl in ADDRESSES[1]]
+        [{'BC': 256 + c, 'IR': ir, 'HL': hl} for c in PORTS_LSB for ir in ADDRESSES[1] for hl in ADDRESSES[1]]
     ),
 
     # INIR/INDR with B != 1
     (
+        'inir_indr_repeat',
         'pc:4,pc+1:4,ir:1,io:4,hl:3,hl:1,hl:1,hl:1,hl:1,hl:1',
         ('INIR', 'INDR'),
-        [{'BC': bc, 'IR': ir, 'HL': hl} for bc in (0x40FE, 0x40FF, 0x80FE, 0x80FF) for ir in ADDRESSES[1] for hl in ADDRESSES[1]]
+        [{'BC': bc, 'IR': ir, 'HL': hl} for bc in PORTS for ir in ADDRESSES[1] for hl in ADDRESSES[1]]
     ),
 
     # OUTI/OTIR/OUTD/OTDR with B == 1
     (
+        'outi_outd_otir_otdr_no_repeat',
         'pc:4,pc+1:4,ir:1,hl:3,io:4',
         ('OUTI', 'OTIR', 'OUTD', 'OTDR'),
-        [{'BC': 256 + c, 'IR': ir, 'HL': hl} for c in (0xFE, 0xFF) for ir in ADDRESSES[1] for hl in ADDRESSES[1]]
+        [{'BC': 256 + c, 'IR': ir, 'HL': hl} for c in PORTS_LSB for ir in ADDRESSES[1] for hl in ADDRESSES[1]]
     ),
 
     # OTIR/OTDR with B != 1
     (
+        'otir_otdr_repeat',
         'pc:4,pc+1:4,ir:1,hl:3,io:4,bc:1,bc:1,bc:1,bc:1,bc:1',
         ('OTIR', 'OTDR'),
-        [{'BC': bc, 'IR': ir, 'HL': hl} for bc in (0x40FE, 0x40FF, 0x80FE, 0x80FF) for ir in ADDRESSES[1] for hl in ADDRESSES[1]]
+        [{'BC': bc, 'IR': ir, 'HL': hl} for bc in PORTS for ir in ADDRESSES[1] for hl in ADDRESSES[1]]
     ),
 )
 
@@ -498,10 +574,10 @@ REGISTERS = {
 }
 
 ADDRESSES = {
-    1: (0x4000, 0x8000),
-    2: (0x3FFF, 0x4000, 0x7FFF, 0x8000),
-    3: (0x3FFE, 0x3FFF, 0x4000, 0x7FFE, 0x7FFF, 0x8000),
-    4: (0x3FFD, 0x3FFE, 0x3FFF, 0x4000, 0x7FFD, 0x7FFE, 0x7FFF, 0x8000)
+    1: (0x4000, 0x8000, 0xC000),
+    2: (0x3FFF, 0x4000, 0x7FFF, 0x8000, 0xBFFF, 0xC000, 0xFFFF),
+    3: (0x3FFE, 0x3FFF, 0x4000, 0x7FFE, 0x7FFF, 0x8000, 0xBFFE, 0xBFFF, 0xC000, 0xFFFE, 0xFFFF),
+    4: (0x3FFD, 0x3FFE, 0x3FFF, 0x4000, 0x7FFD, 0x7FFE, 0x7FFF, 0x8000, 0xBFFD, 0xBFFE, 0xBFFF, 0xC000, 0xFFFD, 0xFFFE, 0xFFFF)
 }
 
 RVALUES = {
@@ -521,7 +597,7 @@ RVALUES = {
     'ir': lambda kw: kw['IR'],
 }
 
-def contend_48k(t, timings):
+def contend_48k(t, timings, page):
     delay = 0
     if 14312 < t % 69888 < 57245:
         for address, tstates in timings:
@@ -531,24 +607,24 @@ def contend_48k(t, timings):
             t += tstates
     return delay
 
-def contend_128k(t, timings):
+def contend_128k(t, timings, page):
     delay = 0
     if 14338 < t % 70908 < 58035:
         for address, tstates in timings:
-            if 0x4000 <= address % 65536 < 0x8000:
+            if 0x4000 <= address % 65536 < 0x8000 or (page % 2 and 0xC000 <= address % 65536):
                 delay += DELAYS_128K[t % 70908]
                 t += DELAYS_128K[t % 70908]
             t += tstates
     return delay
 
-def io_contention(port):
+def io_contention(port, page):
     if port % 2:
         # Low bit set
-        if 0x4000 <= port < 0x8000:
+        if 0x4000 <= port < 0x8000 or (page % 2 and port >= 0xC000):
             return ((0x4000, 1), (0x4000, 1), (0x4000, 1), (0x4000, 1))
         return ((0, 4),)
     # Low bit reset (ULA port)
-    if 0x4000 <= port < 0x8000:
+    if 0x4000 <= port < 0x8000 or (page % 2 and port >= 0xC000):
         return ((0x4000, 1), (0x4000, 3))
     return ((0, 1), (0x4000, 3))
 
@@ -562,14 +638,14 @@ def calculate_contention(cycles, **kwargs):
         elif set(r) < addr_chars:
             rv = int(r, 16)
         elif r == 'io':
-            timings.extend(io_contention(kwargs['port']))
+            timings.extend(io_contention(kwargs['port'], kwargs['page']))
         else:
             raise ValueError(f"Unrecognised spec: '{spec}'")
         if r != 'io':
             timings.append((rv, int(t)))
     return timings
 
-def get_times(contend_f, cycles, addr, assembler, assembled, ops, size, registers, t_ranges, t0, period):
+def get_times(contend_f, cycles, duration, addr, assembler, assembled, ops, size, registers, t_ranges, t0, period, page=0):
     t1 = t0 + period
     tmax = t0 + 191 * period
     d = {}
@@ -589,7 +665,7 @@ def get_times(contend_f, cycles, addr, assembler, assembled, ops, size, register
                 port = data[1] + 256 * registers['A']
             else:
                 port = registers['BC']
-            contention = calculate_contention(cycles, PC=addr, port=port, **registers)
+            contention = calculate_contention(cycles, PC=addr, port=port, page=page, **registers)
         else:
             contention = calculate_contention(cycles, PC=addr, **registers)
         times = {}
@@ -599,86 +675,72 @@ def get_times(contend_f, cycles, addr, assembler, assembled, ops, size, register
                 if t1 <= t < tmax:
                     delay = d[t % period]
                 else:
-                    delay = contend_f(t, contention)
+                    delay = contend_f(t, contention, page)
                     d[t % period] = delay
-                times[t_range[0]].append(delay)
+                times[t_range[0]].append(duration + delay)
     return times
 
+CS48 = CMIOSimulator([0] * 65536)
+CS128 = CMIOSimulator(Memory())
+CS128.memory.roms = [[0] * 16384, [0] * 16384]
+
 class CMIOSimulatorTest(unittest.TestCase):
-    def _run(self, cs, registers, addr, op, data, t, duration, exp_delay, page=-1):
-        if page >= 0:
-            cs.memory.out7ffd(page)
-        for i, b in enumerate(data):
-            cs.memory[(addr + i) % 65536] = b
-        for r, v in registers.items():
-            if r == 'SP':
-                cs.registers[12] = v
-            elif r == 'F':
-                cs.registers[1] = v
-            elif r == 'A':
-                cs.registers[0] = v
-            else:
-                cs.registers[REGISTERS[r]] = v // 256
-                cs.registers[REGISTERS[r] + 1] = v % 256
-        cs.registers[25] = t
-        cs.run(addr)
-        self.assertEqual(cs.registers[25] - t - duration, exp_delay, f"Failed for '{op}' {data} at {addr} (T={t}, page={page}, registers={registers})")
-
-    def _test_contention_128k(self, cs, registers, addr, cycles, op, data, t, duration, exp_delay):
-        if 'io:4' in cycles and registers.get('BC', 0) // 256 != 1:
-            reg = registers.copy()
-            if data[0] in (0xD3, 0xDB):
-                # IN A,(n) / OUT (n),A
-                contended_port = 0x40 <= reg['A'] < 0x80
-                reg['A'] = 0xC0
-            else:
-                contended_port = 0x4000 <= reg['BC'] < 0x8000
-                reg['BC'] = 0xC000 + reg['BC'] % 256
-            pages = (1, 3, 5, 7) if contended_port else (0, 2, 4, 6)
-            for page in pages:
-                self._run(cs, reg, addr, op, data, t, duration, exp_delay, page)
-        elif addr < 0x8000:
-            for page in (1, 3, 5, 7):
-                self._run(cs, registers, addr + 0x8000, op, data, t, duration, exp_delay, page)
-        else:
-            for page in (0, 2, 4, 6):
-                self._run(cs, registers, 0xC000, op, data, t, duration, exp_delay, page)
-
-    def _test_contention(self, machine, group):
+    def _test_contention(self, machine, cspec, ops, registers):
         assembler = Assembler()
         assembled = {}
-        cspec, ops, inputs = group
         cycles = cspec.split(',')
         duration = sum(int(c.split(':')[1]) for c in cycles)
         size = len(set(c.split(':')[0] for c in cycles if c.startswith('pc')))
         if machine == '48K':
-            cs = CMIOSimulator([0] * 65536)
-            contend_f = contend_48k
+            cs = CS48
             ct0 = 14335
             period = 224
             frame_duration = 69888
         else:
-            cs = CMIOSimulator(Memory())
+            cs = CS128
             cs.memory.roms = [[0] * 16384, [0] * 16384]
-            cs.memory.out7ffd(0)
-            contend_f = contend_128k
             ct0 = 14361
             period = 228
             frame_duration = 70908
         t_ranges = $t_ranges
-        for registers in inputs:
-            delays = {}
-            for addr in ADDRESSES[size]:
-                delays[addr] = get_times(contend_f, cycles, addr, assembler, assembled, ops, size, registers, t_ranges, ct0, period)
-            for op in ops:
-                data = assembled[op]
-                for addr, timings in delays.items():
-                    for t0, times in timings.items():
-                        for t, exp_delay in enumerate(times, t0):
-                            self._run(cs, registers, addr, op, data, t, duration, exp_delay)
-                            if machine == '128K':
-                                self._test_contention_128k(cs, registers, addr, cycles, op, data, t, duration, exp_delay)
-
+        cs_registers = []
+        for r, v in registers.items():
+            if r == 'SP':
+                cs_registers.append((12, v))
+            elif r == 'F':
+                cs_registers.append((1, v))
+            elif r == 'A':
+                cs_registers.append((0, v))
+            else:
+                cs_registers.extend(((REGISTERS[r], v // 256), (REGISTERS[r] + 1, v % 256)))
+        op_times = {}
+        for addr in ADDRESSES[size]:
+            if machine == '48K':
+                op_times[(addr, -1)] = get_times(contend_48k, cycles, duration, addr, assembler, assembled, ops, size, registers, t_ranges, ct0, period)
+            else:
+                op_times[(addr, 0)] = get_times(contend_128k, cycles, duration, addr, assembler, assembled, ops, size, registers, t_ranges, ct0, period, 0)
+                op_times[(addr, 1)] = get_times(contend_128k, cycles, duration, addr, assembler, assembled, ops, size, registers, t_ranges, ct0, period, 1)
+                for page in range(2, 8):
+                    op_times[(addr, page)] = op_times[(addr, page % 2)]
+        for op in ops:
+            data = assembled[op]
+            for (addr, page), timings in op_times.items():
+                for t0, times in timings.items():
+                    t = t0
+                    for exp_timing in times:
+                        if page >= 0:
+                            cs.memory.out7ffd(page)
+                        a = addr
+                        for b in data:
+                            cs.memory[a % 65536] = b
+                            a += 1
+                        for r, v in cs_registers:
+                            cs.registers[r] = v
+                        cs.registers[25] = t
+                        cs.run(addr)
+                        if cs.registers[25] - t != exp_timing:
+                            self.fail(f"Failed for '$${addr:04X} {op}' (T={t}, page={page}, registers={registers}): expected {exp_timing} T-states, was {cs.registers[25] - t}")
+                        t += 1
 $tests
 
 if __name__ == '__main__':
@@ -715,21 +777,11 @@ def print_tests(outfile, options):
     ops_line_max_len = 120
 
     groups = ['(']
-    tnames = []
-    test_names = []
-    for i, (name, ops, reg_sets) in enumerate(GROUPS):
-        tname = name.replace(',', '_').replace(':', '').replace('+1', 'n').replace('+2', 'nn').replace('+3', 'nnn').replace('-1', 'p').replace('-2', 'pp')
-        count = tnames.count(tname)
-        if count:
-            test_names.append(f'{tname}_{count + 1}')
-        else:
-            test_names.append(tname)
-        tnames.append(tname)
-
+    for i, (name, cspec, ops, reg_sets) in enumerate(GROUPS):
         if i:
             groups.append('')
         groups.append('    (')
-        groups.append(f"        '{name}',")
+        groups.append(f"        '{cspec}',")
 
         # Operations
         sorted_ops = sorted(ops)
@@ -757,20 +809,28 @@ def print_tests(outfile, options):
     if options.vfast:
         t_ranges = '[[ct0]]'
     elif options.fast:
-        t_ranges = '(list(range(ct0 - duration, ct0 + period)), list(range(ct0 + 191 * period, ct0 + 192 * period + 1)))'
+        t_ranges = '(list(range(ct0 - duration, ct0 + 8)), list(range(ct0 + 191 * period + 120, ct0 + 191 * period + 129)))'
     elif options.medium:
+        t_ranges = '(list(range(ct0 - duration, ct0 + period)), list(range(ct0 + 191 * period, ct0 + 192 * period + 1)))'
+    elif options.slow:
         t_ranges = '[list(range(ct0 - period, ct0 + 193 * period))]'
     else:
         t_ranges = '[list(range(frame_duration))]'
 
     tests = []
-    for index, tname in enumerate(test_names):
-        tests.append(f"""
-    def test_{tname}_48k(self):
-        self._test_contention('48K', GROUPS[{index}])
+    names = set()
+    for i, (name, cspec, ops, reg_sets) in enumerate(GROUPS):
+        if name in names:
+            print(f'ERROR: Duplicate test name: {name}', file=sys.stderr)
+            sys.exit(1)
+        names.add(name)
+        for j in range(len(reg_sets)):
+            tests.append(f"""
+    def test_{name}_{j:02}_48k(self):
+        self._test_contention('48K', GROUPS[{i}][0], GROUPS[{i}][1], GROUPS[{i}][2][{j}])
 
-    def test_{tname}_128k(self):
-        self._test_contention('128K', GROUPS[{index}])
+    def test_{name}_{j:02}_128k(self):
+        self._test_contention('128K', GROUPS[{i}][0], GROUPS[{i}][1], GROUPS[{i}][2][{j}])
 """.rstrip())
     tests = '\n'.join(tests)
 
@@ -793,8 +853,10 @@ if __name__ == '__main__':
     group.add_argument('--fast', action='store_true',
                        help="Test a small subset of contended T-states.")
     group.add_argument('--medium', action='store_true',
-                       help="Test all contended T-states.")
+                       help="Test a larger subset of contended T-states.")
     group.add_argument('--slow', action='store_true',
+                       help="Test all contended T-states.")
+    group.add_argument('--vslow', action='store_true',
                        help="Test all T-states. (This is the default.)")
     group.add_argument('--quiet', dest='verbose', action='store_false',
                        help="Be quiet.")

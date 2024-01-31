@@ -84,7 +84,7 @@ test-slow:
 
 .PHONY: test-cmio
 test-cmio:
-	tools/write-cmiosimulator-tests.py --quiet --slow
+	tools/write-cmiosimulator-tests.py --quiet --vslow
 	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) slow_test_cmiosimulator
 	rm slow_test_cmiosimulator.py
 
