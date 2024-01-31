@@ -1,4 +1,4 @@
-# Copyright 2009-2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -325,7 +325,7 @@ class CtlParser:
                 offset = i * interval
                 address = addr + offset
                 if address < max_address:
-                    self._multiline_comments[address] = (mlc_end + offset, comment, repeat)
+                    self._multiline_comments[address] = (mlc_end + offset, comment[:], repeat)
                 else:
                     break
 

@@ -50,6 +50,8 @@ Changelog
   interrupt is accepted
 * Fixed the bug that makes the ``--basic`` option of :ref:`snapinfo.py` fail
   when the value of PROG is 65535
+* Fixed the bug that prevents an :ref:`mDirective` from being repeated in a
+  :ref:`control file loop <ctlLoops>`
 
 9.0 (2023-11-04)
 ----------------

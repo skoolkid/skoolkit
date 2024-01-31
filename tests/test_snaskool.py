@@ -3190,6 +3190,26 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool([0] * 12, ctl, exp_skool)
 
+    def test_loop_repeats_multiline_comments(self):
+        ctl = """
+            b 00000 Two bytes and one word, times three
+            M 00000,4 Two bytes and one word
+            B 00000,2
+            W 00002
+            L 00000,4,3
+            i 00012
+        """
+        exp_skool = """
+            ; Two bytes and one word, times three
+            b00000 DEFB 0,0      ; {Two bytes and one word
+             00002 DEFW 0        ; }
+             00004 DEFB 0,0      ; {Two bytes and one word
+             00006 DEFW 0        ; }
+             00008 DEFB 0,0      ; {Two bytes and one word
+             00010 DEFW 0        ; }
+        """
+        self._test_write_skool([0] * 12, ctl, exp_skool)
+
     def test_loop_with_entries(self):
         ctl = """
             b 00000 A block of five pairs of bytes
