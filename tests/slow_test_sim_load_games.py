@@ -207,8 +207,8 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0001,0009,0000,053F',
                 "AF',BC',DE',HL'": 'FF81,0F21,0000,0000',
                 'PC,SP,IX,IY': '053F,FF50,8000,5C3A',
-                'IR,iff,im,border': '3F72,0,1,7',
-                'ram': '55a02bdd92a0e78c6668e9916dfa950c'
+                'IR,iff,im,border': '3F6A,0,1,7',
+                'ram': '935419fe52d5a0e629769e59a2472194'
             },
             '-c cmio=1 -c first-edge=30000 -c in-flags=1 -c finish-tape=1 --start 1343'
         )
