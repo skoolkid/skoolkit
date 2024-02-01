@@ -85,9 +85,8 @@ GROUPS = (
         'add_xy_rr_adc_sbc_hl_rr',
         'pc:4,pc+1:4,ir:1,ir:1,ir:1,ir:1,ir:1,ir:1,ir:1',
         (
-            'ADD IX,IX', 'ADD IY,IY',
-            *[f'ADD {rr1},{rr2}' for rr1 in ('IX', 'IY') for rr2 in ('BC', 'DE', 'SP')],
-            *[f'{op} HL,{rr}' for op in ('ADC', 'SBC') for rr in ('BC', 'DE', 'SP')]
+            *[f'ADD {rr1},{rr2}' for rr1 in ('IX', 'IY') for rr2 in ('BC', 'DE', rr1, 'SP')],
+            *[f'{op} HL,{rr}' for op in ('ADC', 'SBC') for rr in ('BC', 'DE', 'HL', 'SP')]
         ),
         [{'IR': ir} for ir in ADDRESSES[1]]
     ),
@@ -410,9 +409,9 @@ GROUPS = (
         [{'F': 0}]
     ),
 
-    # JR made
+    # JR
     (
-        'jr_jump_made',
+        'jr',
         'pc:4,pc+1:3,pc+1:1,pc+1:1,pc+1:1,pc+1:1,pc+1:1',
         ['JR 0'],
         [{}]
