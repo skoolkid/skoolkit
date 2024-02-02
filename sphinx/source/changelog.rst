@@ -1,7 +1,7 @@
 Changelog
 =========
 
-9.1b1
+9.1rc
 -----
 * Added support to :ref:`snapmod.py` for modifying SZX snapshots and 128K
   snapshots
