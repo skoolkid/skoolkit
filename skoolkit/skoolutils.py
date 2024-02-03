@@ -1,4 +1,4 @@
-# Copyright 2008-2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
