@@ -51,7 +51,7 @@ With SkoolKit you can:
 * use [skool2bin.py](https://skoolkid.github.io/skoolkit/commands.html#skool2bin-py)
   to convert a disassembly into a raw memory file
 * use [tap2sna.py](https://skoolkid.github.io/skoolkit/commands.html#tap2sna-py)
-  to convert a TAP or TZX file into a 'pristine' Z80 snapshot
+  to convert a TAP or TZX file into a 'pristine' Z80 or SZX snapshot
 * use [snapinfo.py](https://skoolkid.github.io/skoolkit/commands.html#snapinfo-py)
   to analyse a snapshot or raw memory file and list the BASIC program it
   contains, show register values, produce a call graph, find tile graphic data,
@@ -64,9 +64,9 @@ With SkoolKit you can:
 * use [bin2tap.py](https://skoolkid.github.io/skoolkit/commands.html#bin2tap-py)
   to convert a snapshot or raw memory file into a TAP file
 * use [bin2sna.py](https://skoolkid.github.io/skoolkit/commands.html#bin2sna-py)
-  to convert a raw memory file into a Z80 snapshot
+  to convert a raw memory file into a Z80 or SZX snapshot
 * use [snapmod.py](https://skoolkid.github.io/skoolkit/commands.html#snapmod-py)
-  to modify the register values or memory contents in a Z80 snapshot
+  to modify the register values or memory contents in a Z80 or SZX snapshot
 * use [sna2img.py](https://skoolkid.github.io/skoolkit/commands.html#sna2img-py)
   to convert graphic data in a disassembly, SCR file, snapshot or raw memory
   file into a PNG image
