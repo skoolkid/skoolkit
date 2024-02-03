@@ -1,6 +1,58 @@
 Changelog
 =========
 
+9.1 (2024-02-03)
+----------------
+* Added support to :ref:`snapmod.py` for modifying SZX snapshots and 128K
+  snapshots
+* Added support to :ref:`bin2sna.py` for writing 128K snapshots (by using the
+  ``--page`` and ``--bank`` options, or by providing a 128K input file)
+* Added support to :ref:`bin2tap.py` for writing 128K TAP files (by using the
+  ``--7ffd``, ``--banks`` and ``--loader`` options)
+* Added support to :ref:`bin2sna.py`, :ref:`snapmod.py`, :ref:`tap2sna.py` and
+  :ref:`trace.py` for modifying 128K RAM banks (via the ``--move``, ``--poke``,
+  ``--ram move`` and ``--ram poke`` options)
+* Added the :ref:`BANK` macro (for switching the RAM bank that is mapped to
+  49152-65535)
+* Added the :ref:`asm-bank` directive (for specifying the RAM bank that is
+  mapped to 49152-65535, and for populating a RAM bank from the contents of
+  another skool file)
+* Added the ``--banks`` option to :ref:`skool2bin.py` (for processing
+  :ref:`asm-bank` directives and writing RAM banks 0-7 to a 128K file)
+* Added the ``cmio`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to simulate memory
+  and I/O contention)
+* Added the ``--cmio`` option to :ref:`trace.py` (to enable simulation of
+  memory and I/O contention)
+* Added the ``cmio`` parameter to the :ref:`AUDIO`, :ref:`SIM` and
+  :ref:`TSTATES` macros (to specify whether to simulate memory and I/O
+  contention)
+* Added the ``execint`` parameter to the :ref:`AUDIO`, :ref:`SIM` and
+  :ref:`TSTATES` macros (to specify whether to simulate the execution of
+  interrupt routines)
+* Added the ``tstates`` parameter to the :ref:`SIM` macro (to set the value of
+  the simulator's clock)
+* Added the ``iff`` parameter to the :ref:`SIM` macro (to set whether
+  interrupts are enabled)
+* Added the ``im`` parameter to the :ref:`SIM` macro (to set the interrupt
+  mode)
+* Made the ``stop`` parameter of the :ref:`SIM` macro optional
+* Added support to the :ref:`AUDIO`, :ref:`SIM` and :ref:`TSTATES` macros for
+  executing code in a 128K memory snapshot
+* Fixed how :ref:`trace.py` handles the value of the SP register in a 128K SNA
+  file
+* Fixed how :ref:`tap2sna.py` and :ref:`trace.py` log timestamps when an
+  interrupt occurs
+* Fixed how interrupts are accepted when :ref:`tap2sna.py` and :ref:`trace.py`
+  execute code in a simulator
+* Fixed how the Z80 instruction set simulator updates bit 2 of the flags
+  register when executing an 'LD A,I' or 'LD A,R' instruction just before an
+  interrupt is accepted
+* Fixed the bug that makes the ``--basic`` option of :ref:`snapinfo.py` fail
+  when the value of PROG is 65535
+* Fixed the bug that prevents an :ref:`mDirective` from being repeated in a
+  :ref:`control file loop <ctlLoops>`
+
 9.0 (2023-11-04)
 ----------------
 * Dropped support for Python 3.7

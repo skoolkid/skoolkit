@@ -12,11 +12,16 @@ For example::
 
   $ bin2sna.py game.bin
 
-will create a file named `game.z80`. By default, the origin address (the
-address of the first byte of code or data), the start address (the first byte
-of code to run) and the stack pointer are set to 65536 minus the length of
-`game.bin`. These values can be changed by passing options to `bin2sna.py`. Run
-it with no arguments to see the list of available options::
+will create a file named `game.z80`.
+
+If the input file is 128K in length, it is assumed to hold the contents of RAM
+banks 0-7 in order, and `bin2sna.py` will write a corresponding 128K snapshot.
+Otherwise, the ``--page`` option is required to write a 128K snapshot, and the
+contents of individual RAM banks may be specified by ``--bank`` options. If the
+input file is less than 128K in length and no ``--page`` option is given, a 48K
+snapshot is written.
+
+Run `bin2sna.py` with no arguments to see the list of available options::
 
   usage: bin2sna.py [options] file.bin [OUTFILE]
 
@@ -26,17 +31,22 @@ it with no arguments to see the list of available options::
   'program.z80' if reading from standard input.
 
   Options:
+    --bank N,file         Load RAM bank N (0-7) from the named file. This option
+                          may be used multiple times.
     -b BORDER, --border BORDER
                           Set the border colour (default: 7).
     -o ORG, --org ORG     Set the origin address (default: 65536 minus the
                           length of file.bin).
+    --page N              Specify the RAM bank (N=0-7) mapped to 49152 (0xC000)
+                          in the main input file. This option creates a 128K
+                          snapshot.
     -p STACK, --stack STACK
                           Set the stack pointer (default: ORG).
-    -P a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
-                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
-                          with '^' to perform an XOR operation, or '+' to
-                          perform an ADD operation. This option may be used
-                          multiple times.
+    -P [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
+                          POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
+                          Prefix 'v' with '^' to perform an XOR operation, or
+                          '+' to perform an ADD operation. This option may be
+                          used multiple times.
     -r name=value, --reg name=value
                           Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
@@ -52,6 +62,10 @@ it with no arguments to see the list of available options::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.1     | Added the ``--bank`` and ``--page`` options and support for       |
+|         | writing 128K snapshots; the ``--poke`` option can modify specific |
+|         | RAM banks                                                         |
++---------+-------------------------------------------------------------------+
 | 9.0     | Added support for writing SZX snapshots; added the ``fe``         |
 |         | hardware state attribute                                          |
 +---------+-------------------------------------------------------------------+
@@ -90,12 +104,18 @@ it with no arguments to see the list of available options::
   input.
 
   Options:
+    --7ffd N              Add 128K RAM banks to the TAP file and write N to port
+                          0x7ffd after they've loaded.
+    --banks N[,N...]      Add only these 128K RAM banks to the TAP file
+                          (default: 0,1,3,4,6,7).
     -b BEGIN, --begin BEGIN
                           Begin conversion at this address (default: ORG for a
                           binary file, 16384 for a snapshot).
     -c N, --clear N       Use a 'CLEAR N' command in the BASIC loader and leave
                           the stack pointer alone.
     -e END, --end END     End conversion at this address.
+    --loader ADDR         Place the 128K RAM bank loader at this address
+                          (default: CLEAR address + 1).
     -o ORG, --org ORG     Set the origin address for a binary file (default:
                           65536 minus the length of FILE).
     -p STACK, --stack STACK
@@ -122,11 +142,39 @@ If the input file contains a program that returns to BASIC, you should use the
 ``--clear`` option to add a CLEAR command to the BASIC loader. This option
 leaves the stack pointer alone, enabling the program to return to BASIC without
 crashing. The lowest usable address with the ``--clear`` option on a bare 48K
-Spectrum is 23952 (0x5D90).
+Spectrum is 23972 (5DA4) if a loading screen is used, or 23952 (0x5D90)
+otherwise.
+
+To create a TAP file that loads a 128K game, use the ``--7ffd``, ``--begin``
+and ``--clear`` options along with a 128K snapshot or a 128K binary file as
+input, where:
+
+* ``--7ffd`` specifies the value to write to port 0x7FFD after all the RAM
+  banks have loaded and before starting the game
+* ``--begin`` specifies the start address of the code/data below 49152 (0xC000)
+  to include on the tape
+* ``--clear`` specifies the address of the CLEAR command in the BASIC loader
+
+By default, the 128K RAM bank loader (which is 39-45 bytes long, depending on
+the number of RAM banks to load) is placed one above the CLEAR address. Use the
+``--loader`` option to place it at an alternative address. The lowest usable
+address with the ``--clear`` option on a bare 128K Spectrum is 23977 (0x5DA9)
+if a loading screen is used, or 23957 (0x5D95) otherwise.
+
+By default, 128K RAM banks 0, 1, 3, 4, 6 and 7 are added to the TAP file. If
+one or more of these RAM banks are not required, use the ``--banks`` option to
+specify a smaller set of RAM banks to add. If none of these RAM banks are
+required, use ``,`` (a single comma) as the argument to the ``--banks`` option.
+The contents of RAM banks 5 and 2 - from the ``--begin`` address and up to but
+not including the ``--end`` address (if given) - are included in the main code
+block on the tape.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.1     | Added the ``--7ffd``, ``--banks`` and ``--loader`` options and    |
+|         | support for writing 128K TAP files                                |
++---------+-------------------------------------------------------------------+
 | 8.3     | Added the ``--begin`` option; the ``--end`` option applies to raw |
 |         | memory files as well as snapshots                                 |
 +---------+-------------------------------------------------------------------+
@@ -314,6 +362,8 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
   'file.bin' may be a regular file, or '-' for standard output.
 
   Options:
+    -B, --banks           Process @bank directives and write RAM banks 0-7 to a
+                          128K file.
     -b, --bfix            Apply @ofix and @bfix directives.
     -d, --data            Process @defb, @defs and @defw directives.
     -E ADDR, --end ADDR   Stop converting at this address.
@@ -355,6 +405,8 @@ This output shows that:
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.1     | Added the ``--banks`` option                                      |
++---------+-------------------------------------------------------------------+
 | 8.1     | Added the ``--data``, ``--rsub``, ``--rfix``, ``--verbose`` and   |
 |         | ``--no-warnings`` options                                         |
 +---------+-------------------------------------------------------------------+
@@ -1223,26 +1275,27 @@ Configuration parameters may also be set on the command line by using the
 
 snapmod.py
 ----------
-`snapmod.py` modifies the registers and RAM in a 48K Z80 snapshot. For
+`snapmod.py` modifies the registers and RAM in an SZX or Z80 snapshot. For
 example::
 
   $ snapmod.py --poke 32768,0 game.z80 poked.z80
 
 To list the options supported by `snapmod.py`, run it with no arguments::
 
-  usage: snapmod.py [options] in.z80 [out.z80]
+  usage: snapmod.py [options] infile [outfile]
 
-  Modify a 48K Z80 snapshot.
+  Modify an SZX or Z80 snapshot.
 
   Options:
-    -m src,size,dest, --move src,size,dest
-                          Move a block of bytes of the given size from src to
-                          dest. This option may be used multiple times.
-    -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
-                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
-                          with '^' to perform an XOR operation, or '+' to
-                          perform an ADD operation. This option may be used
-                          multiple times.
+    -m [s:]src,size,[d:]dest, --move [s:]src,size,[d:]dest
+                          Copy a block of bytes of the given size from src in
+                          RAM bank s to dest in RAM bank d. This option may be
+                          used multiple times.
+    -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
+                          POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
+                          Prefix 'v' with '^' to perform an XOR operation, or
+                          '+' to perform an ADD operation. This option may be
+                          used multiple times.
     -r name=value, --reg name=value
                           Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
@@ -1255,6 +1308,9 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.1     | Added support for modifying SZX snapshots and 128K snapshots; the |
+|         | ``--move`` and ``--poke`` options can modify specific RAM banks   |
++---------+-------------------------------------------------------------------+
 | 8.10    | Added the ``issue2`` hardware state attribute                     |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``tstates`` hardware state attribute                    |
@@ -1393,6 +1449,9 @@ parameters are:
   (``0``)
 * ``accelerator`` - a comma-separated list of tape-sampling loop accelerators
   to use (see :ref:`tap2sna-accelerators`)
+* ``cmio`` - enable simulation of memory contention and I/O contention delays
+  (``1``), or disable it (``0``); this is disabled by default to improve
+  performance, but some loaders may require it
 * ``fast-load`` - enable fast loading (``1``, the default), or disable it
   (``0``); fast loading significantly reduces the load time for many tapes, but
   can also cause some loaders to fail
@@ -1617,6 +1676,10 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.1     | The ``--ram move`` and ``--ram poke`` options can modify specific |
+|         | RAM banks; added the ``cmio`` simulated LOAD configuration        |
+|         | parameter                                                         |
++---------+-------------------------------------------------------------------+
 | 9.0     | A simulated LOAD is performed by default; an existing snapshot    |
 |         | will be overwritten by default; added the ``load``, ``machine``,  |
 |         | ``polarity`` and ``in-flags`` simulated LOAD configuration        |
@@ -1744,6 +1807,7 @@ To list the options supported by `trace.py`, run it with no arguments::
 
   Options:
     --audio               Show audio delays.
+    -c, --cmio            Simulate memory and I/O contention.
     --depth DEPTH         Simplify audio delays to this depth (default: 2).
     -D, --decimal         Show decimal values in verbose mode.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
@@ -1755,11 +1819,11 @@ To list the options supported by `trace.py`, run it with no arguments::
     -n, --no-interrupts   Don't execute interrupt routines.
     -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
                           file (default: 65536 - length).
-    -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
-                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
-                          with '^' to perform an XOR operation, or '+' to
-                          perform an ADD operation. This option may be used
-                          multiple times.
+    -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
+                          POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
+                          Prefix 'v' with '^' to perform an XOR operation, or
+                          '+' to perform an ADD operation. This option may be
+                          used multiple times.
     -r name=value, --reg name=value
                           Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
@@ -1843,6 +1907,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.1     | The ``--poke`` option can modify specific RAM banks; added the    |
+|         | ``--cmio`` option                                                 |
++---------+-------------------------------------------------------------------+
 | 9.0     | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--no-interrupts`` and ``--show-config`` options;     |
 |         | interrupt routines are executed by default; added support for     |

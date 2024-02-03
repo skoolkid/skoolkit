@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Ref files &#8212; SkoolKit 9.0 documentation</title>
+    <title>Ref files &#8212; SkoolKit 9.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
     </div>  
@@ -76,19 +76,21 @@ format:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>name=value
 </pre></div>
 </div>
-<p>Recognised parameters are:</p>
+<p>Recognised parameters and their default values are:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">ClockSpeed</span></code> - Z80 clock speed in cycles per second (default: 3500000)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ClockSpeed</span></code> - Z80 clock speed in cycles per second: 3500000 (48K) or
+3546900 (128K)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ContentionBegin</span></code> - when memory contention begins, in T-states from the
-start of a frame (default: 14334)</p></li>
+start of a frame: 14334 (48K) or 14361 (128K)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ContentionEnd</span></code> - when memory contention ends, in T-states from the start
-of a frame (default: 57248)</p></li>
+of a frame: 57248 (48K) or 58041 (128K)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ContentionFactor</span></code> - percentage slowdown when memory contention is in
-effect (default: 51)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">FrameDuration</span></code> - length of a frame in T-states (default: 69888)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">InterruptDelay</span></code> - delay in T-states caused by an interrupt routine
-(default: 942)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">SampleRate</span></code> - sample rate in Hz (default: 44100)</p></li>
+effect: 51</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FrameDuration</span></code> - length of a frame in T-states: 69888 (48K) or 70908
+(128K)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InterruptDelay</span></code> - delay in T-states caused by an interrupt routine: 942
+(48K) or 1584 (128K)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SampleRate</span></code> - sample rate in Hz: 44100</p></li>
 </ul>
 <table class="docutils align-default">
 <thead>
@@ -97,8 +99,8 @@ effect (default: 51)</p></li>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.8</p></td>
-<td><p>Removed the <code class="docutils literal notranslate"><span class="pre">MaxAmplitude</span></code> parameter</p></td>
+<tr class="row-even"><td><p>9.1</p></td>
+<td><p>Added default values for the 128K model</p></td>
 </tr>
 <tr class="row-odd"><td><p>8.7</p></td>
 <td><p>New</p></td>
@@ -1395,12 +1397,12 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Richard Dymond.
+        &#169; Copyright 2024, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>ASM modes and directives &#8212; SkoolKit 9.0 documentation</title>
+    <title>ASM modes and directives &#8212; SkoolKit 9.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">ASM modes and directives</a></li> 
       </ul>
     </div>  
@@ -234,6 +234,37 @@ ASM mode separately, and for switching off conversion entirely</p></td>
 arithmetic expressions</p></td>
 </tr>
 <tr class="row-even"><td><p>5.0</p></td>
+<td><p>New</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="bank">
+<span id="asm-bank"></span><h3>&#64;bank<a class="headerlink" href="#bank" title="Permalink to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;bank</span></code> directive either specifies the RAM bank that is mapped to
+49152-65535 (0xC000-0xFFFF) in the memory snapshot:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bank=page
+</pre></div>
+</div>
+<p>or populates a specific RAM bank in the memory snapshot from the contents of
+another skool file:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bank=page,fname
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">page</span></code> is the page number (0-7)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fname</span></code> is the name of the skool file</p></li>
+</ul>
+<p>When the first <code class="docutils literal notranslate"><span class="pre">&#64;bank</span></code> directive in a skool file is processed, the memory
+snapshot is converted from 48K to 128K and the 128K ROM is loaded.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>9.1</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1315,7 +1346,7 @@ removed in <a class="reference internal" href="#rfixmode"><span class="std std-r
 <section id="rom">
 <span id="id21"></span><h3>&#64;rom<a class="headerlink" href="#rom" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;rom</span></code> directive inserts a copy of the 48K ZX Spectrum ROM into the
-internal memory snapshot constructed from the contents of the skool file.</p>
+memory snapshot constructed from the contents of the skool file.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@rom
 </pre></div>
 </div>
@@ -1328,6 +1359,8 @@ otherwise) with the <a class="reference internal" href="skool-macros.html#sim"><
 <li><p>to gain access to the Spectrum character set at 0x3D00 for the purpose of
 creating images of text</p></li>
 </ul>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">&#64;rom</span></code> directive does nothing if the memory snapshot has
+already been converted to 128K by a <a class="reference internal" href="#asm-bank"><span class="std std-ref">&#64;bank</span></a> directive.</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
@@ -1570,6 +1603,7 @@ path</p></td>
 </li>
 <li><a class="reference internal" href="#asm-directives">ASM directives</a><ul>
 <li><a class="reference internal" href="#assemble">&#64;assemble</a></li>
+<li><a class="reference internal" href="#bank">&#64;bank</a></li>
 <li><a class="reference internal" href="#bfix">&#64;bfix</a></li>
 <li><a class="reference internal" href="#bfix-block-directives">&#64;bfix block directives</a></li>
 <li><a class="reference internal" href="#defb">&#64;defb</a></li>
@@ -1652,12 +1686,12 @@ path</p></td>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">ASM modes and directives</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Richard Dymond.
+        &#169; Copyright 2024, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>

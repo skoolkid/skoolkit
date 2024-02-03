@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Skool macros &#8212; SkoolKit 9.0 documentation</title>
+    <title>Skool macros &#8212; SkoolKit 9.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool macros</a></li> 
       </ul>
     </div>  
@@ -886,8 +886,8 @@ are stripped from the expanded value</p></li>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#AUDIO[flags,offset](fname)[(delays)]
 </pre></div>
 </div>
-<p>Or, when bit 2 of <code class="docutils literal notranslate"><span class="pre">flags</span></code> is set:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#AUDIO[flags,offset](fname)(start,stop)
+<p>Or, when executing code in a simulator (bit 2 of <code class="docutils literal notranslate"><span class="pre">flags</span></code> set):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#AUDIO[flags,offset](fname)(start,stop[,execint,cmio])
 </pre></div>
 </div>
 <ul class="simple">
@@ -900,10 +900,12 @@ enabled) first take effect</p></li>
 state changes; this parameter may contain skool macros (which are expanded
 first) and <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a> (which are replaced
 after any skool macros have been expanded)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">start</span></code> is the address at which to start executing code in a simulator
-(when bit 2 of <code class="docutils literal notranslate"><span class="pre">flags</span></code> is set)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">stop</span></code> is the address at which to stop executing code in a simulator (when
-bit 2 of <code class="docutils literal notranslate"><span class="pre">flags</span></code> is set)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">start</span></code> is the address at which to start executing code</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stop</span></code> is the address at which to stop executing code</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">execint</span></code> specifies whether to execute interrupt routines (1), or ignore
+interrupts (0, the default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cmio</span></code> specifies whether memory and I/O contention are simulated (1), or
+not simulated (0, the default)</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">flags</span></code> is the sum of the following values, chosen according to the desired
 outcome:</p>
@@ -920,9 +922,14 @@ section)</p></li>
 <li><p>4 (bit 2) - execute instructions from <code class="docutils literal notranslate"><span class="pre">start</span></code> to <code class="docutils literal notranslate"><span class="pre">stop</span></code> in a simulator to
 obtain the delays between speaker state changes</p></li>
 <li><p>8 (bit 3) - pass delays through a moving average filter; while this can
-produce higher quality audio (especially for multi-channel tunes), it is also
-quite slow</p></li>
+produce higher quality audio (especially for multi-channel tunes), it is
+slower than the default sampling algorithm</p></li>
 </ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">execint</span></code> is set to 1, make sure that bit 1 of <code class="docutils literal notranslate"><span class="pre">flags</span></code> is 0, otherwise
+interrupt delays may be applied twice: once during execution of the code, and
+again in post-processing. Similarly, if <code class="docutils literal notranslate"><span class="pre">cmio</span></code> is set to 1, make sure that
+bit 0 of <code class="docutils literal notranslate"><span class="pre">flags</span></code> is 0, otherwise memory and I/O contention delays may be
+applied twice.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">fname</span></code> starts with a ‘/’, the filename is taken to be relative to the
 root of the HTML disassembly. Otherwise the filename is taken to be relative to
 the audio directory (as defined by the <code class="docutils literal notranslate"><span class="pre">AudioPath</span></code> parameter in the
@@ -963,12 +970,12 @@ c32768 LD L,0
  32782 RET
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The simulator does not simulate memory contention, I/O contention, or
-interrupts. Use bits 0 and 1 of <code class="docutils literal notranslate"><span class="pre">flags</span></code> to approximate memory contention
-effects and interrupt delays if desired.</p>
-</div>
+<p>Before executing code in a simulator, the <code class="docutils literal notranslate"><span class="pre">#AUDIO</span></code> macro copies the simulator
+state as it was left by the most recent invocation of either the <code class="docutils literal notranslate"><span class="pre">#AUDIO</span></code> or
+the <a class="reference internal" href="#sim"><span class="std std-ref">#SIM</span></a> macro (if any).</p>
+<p>Note that code executed by the <code class="docutils literal notranslate"><span class="pre">#AUDIO</span></code> macro operates directly on the
+internal memory snapshot, and therefore can modify it. To avoid that, use the
+<a class="reference internal" href="#pushs"><span class="std std-ref">#PUSHS</span></a> and <a class="reference internal" href="#pops"><span class="std std-ref">#POPS</span></a> macros to operate on a copy of the snapshot.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">delays</span></code> or <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code> parameters are specified, but <code class="docutils literal notranslate"><span class="pre">fname</span></code>
 does not end with ‘.wav’, no audio file is written. This enables the parameters
 to be kept in place as a reminder of how an original WAV file was created by
@@ -986,8 +993,8 @@ written. This enables an original WAV file to be replaced by an alternative
 <code class="docutils literal notranslate"><span class="pre">#AUDIO</span></code> macro. The alternative audio file types that the <code class="docutils literal notranslate"><span class="pre">#AUDIO</span></code> macro
 looks for before writing a WAV file are specified by the <code class="docutils literal notranslate"><span class="pre">AudioFormats</span></code>
 parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">flags</span></code>, <code class="docutils literal notranslate"><span class="pre">offset</span></code>, <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code> parameters of the <code class="docutils literal notranslate"><span class="pre">#AUDIO</span></code>
-macro may contain <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
+<p>The integer parameters (i.e. all except <code class="docutils literal notranslate"><span class="pre">fname</span></code> and <code class="docutils literal notranslate"><span class="pre">delays</span></code>) of the
+<code class="docutils literal notranslate"><span class="pre">#AUDIO</span></code> macro may contain <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>The <a class="reference internal" href="html-templates.html#t-audio"><span class="std std-ref">audio</span></a> template is used to format the <code class="docutils literal notranslate"><span class="pre">&lt;audio&gt;</span></code> element.</p>
 <p>Audio file creation can be configured via the <a class="reference internal" href="ref-files.html#ref-audiowriter"><span class="std std-ref">[AudioWriter]</span></a> section.</p>
 <table class="docutils align-default">
@@ -997,17 +1004,53 @@ macro may contain <a class="reference internal" href="#replacementfields"><span 
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>9.0</p></td>
+<tr class="row-even"><td><p>9.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">cmio</span></code> and <code class="docutils literal notranslate"><span class="pre">execint</span></code> parameters; added support for
+executing code in a 128K memory snapshot</p></td>
+</tr>
+<tr class="row-odd"><td><p>9.0</p></td>
 <td><p>Added support for passing delays through a moving average filter</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.7</p></td>
+<tr class="row-even"><td><p>8.7</p></td>
+<td><p>New</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="bank">
+<span id="id15"></span><h3>#BANK<a class="headerlink" href="#bank" title="Permalink to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">#BANK</span></code> macro switches the RAM bank that is mapped to 49152-65535
+(0xC000-0xFFFF) in the memory snapshot:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#BANKpage
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">page</span></code> is the page number (0-7)</p></li>
+</ul>
+<p>For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; This is the UDG at 50000 in RAM bank 6: #BANK6 #UDG50000(udg)
+</pre></div>
+</div>
+<p>This instance of the <code class="docutils literal notranslate"><span class="pre">#BANK</span></code> macro maps RAM bank 6 to 49152-65535 in
+preparation for creating an image of the UDG at 50000 in that RAM bank.</p>
+<p>If the memory snapshot hasn’t already been converted from 48K to 128K by a
+<a class="reference internal" href="asm.html#asm-bank"><span class="std std-ref">&#64;bank</span></a> directive, it will be converted when the first <code class="docutils literal notranslate"><span class="pre">#BANK</span></code> macro
+in the skool file is expanded.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>9.1</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="call">
-<span id="id15"></span><h3>#CALL<a class="headerlink" href="#call" title="Permalink to this heading">¶</a></h3>
+<span id="id16"></span><h3>#CALL<a class="headerlink" href="#call" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro expands to the return value of a method on
 the <cite>HtmlWriter</cite> class or subclass that is being used to create the HTML
 disassembly (as defined by the <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> parameter in the
@@ -1061,7 +1104,7 @@ the documentation on <a class="reference internal" href="extending.html#extendin
 </table>
 </section>
 <section id="chr">
-<span id="id16"></span><h3>#CHR<a class="headerlink" href="#chr" title="Permalink to this heading">¶</a></h3>
+<span id="id17"></span><h3>#CHR<a class="headerlink" href="#chr" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#CHR</span></code> macro expands either to a numeric character
 reference, or to a unicode character in the UTF-8 encoding. In ASM mode, it
 always expands to a unicode character in the UTF-8 encoding.</p>
@@ -1115,7 +1158,7 @@ parameter string</p></td>
 </table>
 </section>
 <section id="d">
-<span id="id17"></span><h3>#D<a class="headerlink" href="#d" title="Permalink to this heading">¶</a></h3>
+<span id="id18"></span><h3>#D<a class="headerlink" href="#d" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#D</span></code> macro expands to the title of an entry (a routine or data block) in
 the memory map.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#Daddr
@@ -1152,7 +1195,7 @@ the memory map.</p>
 </table>
 </section>
 <section id="html">
-<span id="id18"></span><h3>#HTML<a class="headerlink" href="#html" title="Permalink to this heading">¶</a></h3>
+<span id="id19"></span><h3>#HTML<a class="headerlink" href="#html" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#HTML</span></code> macro expands to arbitrary text (in HTML mode) or to an empty
 string (in ASM mode).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#HTML(text)
@@ -1186,7 +1229,7 @@ be an upper case letter.</p>
 </table>
 </section>
 <section id="include">
-<span id="id19"></span><h3>#INCLUDE<a class="headerlink" href="#include" title="Permalink to this heading">¶</a></h3>
+<span id="id20"></span><h3>#INCLUDE<a class="headerlink" href="#include" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#INCLUDE</span></code> macro expands to the contents of one or more ref
 file sections. In ASM mode, it expands to an empty string.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#INCLUDE[paragraphs](pattern)
@@ -1234,7 +1277,7 @@ parameter</p></td>
 </table>
 </section>
 <section id="link">
-<span id="id20"></span><h3>#LINK<a class="headerlink" href="#link" title="Permalink to this heading">¶</a></h3>
+<span id="id21"></span><h3>#LINK<a class="headerlink" href="#link" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#LINK</span></code> macro expands to a hyperlink (<code class="docutils literal notranslate"><span class="pre">&lt;a&gt;</span></code> element) to
 another page.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#LINK:PageId[#name](link text)
@@ -1295,7 +1338,7 @@ HTML mode</p></td>
 </table>
 </section>
 <section id="list">
-<span id="id21"></span><h3>#LIST<a class="headerlink" href="#list" title="Permalink to this heading">¶</a></h3>
+<span id="id22"></span><h3>#LIST<a class="headerlink" href="#list" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#LIST</span></code> macro marks the beginning of a list of bulleted items; <code class="docutils literal notranslate"><span class="pre">LIST#</span></code>
 is used to mark the end. Between these markers, the list items are defined.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#LIST[(class[,bullet])][&lt;flag&gt;][items]LIST#
@@ -1354,7 +1397,7 @@ by one space; added the <code class="docutils literal notranslate"><span class="
 </table>
 </section>
 <section id="n">
-<span id="id22"></span><h3>#N<a class="headerlink" href="#n" title="Permalink to this heading">¶</a></h3>
+<span id="id23"></span><h3>#N<a class="headerlink" href="#n" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#N</span></code> macro renders a numeric value in either decimal or hexadecimal
 format depending on the options used with <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> or
 <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>. A hexadecimal number is rendered in lower case when the
@@ -1410,7 +1453,7 @@ format depending on the options used with <a class="reference internal" href="co
 </table>
 </section>
 <section id="r">
-<span id="id23"></span><h3>#R<a class="headerlink" href="#r" title="Permalink to this heading">¶</a></h3>
+<span id="id24"></span><h3>#R<a class="headerlink" href="#r" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#R</span></code> macro expands to a hyperlink (<code class="docutils literal notranslate"><span class="pre">&lt;a&gt;</span></code> element) to the
 disassembly page for a routine or data block, or to a line at a given address
 within that page.</p>
@@ -1489,7 +1532,7 @@ entry point in another disassembly when an appropriate
 </table>
 </section>
 <section id="raw">
-<span id="id24"></span><h3>#RAW<a class="headerlink" href="#raw" title="Permalink to this heading">¶</a></h3>
+<span id="id25"></span><h3>#RAW<a class="headerlink" href="#raw" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#RAW</span></code> macro expands to the exact value of its sole string argument,
 leaving any other macros (or macro-like tokens) it contains unexpanded.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#RAW(text)
@@ -1517,7 +1560,7 @@ be an upper case letter.</p>
 </table>
 </section>
 <section id="reg">
-<span id="id25"></span><h3>#REG<a class="headerlink" href="#reg" title="Permalink to this heading">¶</a></h3>
+<span id="id26"></span><h3>#REG<a class="headerlink" href="#reg" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#REG</span></code> macro expands to a styled <code class="docutils literal notranslate"><span class="pre">&lt;span&gt;</span></code> element
 containing a register name or arbitrary text (with case adjusted as
 appropriate).</p>
@@ -1567,14 +1610,15 @@ i r sp pc
 </table>
 </section>
 <section id="sim">
-<span id="id26"></span><h3>#SIM<a class="headerlink" href="#sim" title="Permalink to this heading">¶</a></h3>
+<span id="id27"></span><h3>#SIM<a class="headerlink" href="#sim" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#SIM</span></code> macro simulates the execution of machine code in the internal
 memory snapshot constructed from the contents of the skool file.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im,cmio]
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">stop</span></code> is the address at which to stop execution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stop</span></code> is the address at which to stop execution; if not given, no code is
+executed</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">start</span></code> is the address at which to start execution (default: <code class="docutils literal notranslate"><span class="pre">stop</span></code> from
 the previous invocation of the <code class="docutils literal notranslate"><span class="pre">#SIM</span></code> macro, or 0 if this is the first run)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">clear</span></code> is 0 to use the register values that resulted from the previous
@@ -1595,12 +1639,20 @@ default values (shown below)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">i</span></code> sets the value of the I register (default: 63)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">r</span></code> sets the value of the R register (default: 0)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sp</span></code> sets the value of the stack pointer (default: 23552)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">execint</span></code> specifies whether to execute interrupt routines (1), or ignore
+interrupts (0, the default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tstates</span></code> sets the value of the simulator’s clock (default: 0)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iff</span></code> sets whether interrupts are disabled (0, the default) or enabled (1)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">im</span></code> sets the interrupt mode (default: 1)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cmio</span></code> specifies whether memory and I/O contention are simulated (1), or
+not simulated (0, the default)</p></li>
 </ul>
 <p>The parameters of the <code class="docutils literal notranslate"><span class="pre">#SIM</span></code> macro may contain
-<a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a> and may also be given as keyword arguments.</p>
-<p>When execution stops, the simulator’s register and clock values are copied to
-the <code class="docutils literal notranslate"><span class="pre">sim</span></code> dictionary, where they are accessible via replacement fields with
-the following names:</p>
+<a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a> and may also be given as keyword
+arguments.</p>
+<p>When execution stops, the simulator’s register values are copied to the <code class="docutils literal notranslate"><span class="pre">sim</span></code>
+dictionary, where they are accessible via replacement fields with the following
+names:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">sim[A]</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sim[F]</span></code></p></li>
@@ -1619,6 +1671,17 @@ the following names:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">sim[SP]</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sim[PC]</span></code> - the program counter (equal to <code class="docutils literal notranslate"><span class="pre">stop</span></code>); this is used as the
 default value of <code class="docutils literal notranslate"><span class="pre">start</span></code> for the next invocation of the <code class="docutils literal notranslate"><span class="pre">#SIM</span></code> macro</p></li>
+</ul>
+<p>In addition, the simulator’s hardware state is copied to the <code class="docutils literal notranslate"><span class="pre">sim</span></code>
+dictionary, where it is accessible via replacement fields with the following
+names:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sim[7ffd]</span></code> - the value of the last OUT to port 0x7ffd</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sim[ay][N]</span></code> - the value of AY register N (0-15)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sim[fffd]</span></code> - the value of the last OUT to port 0xfffd</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sim[halted]</span></code> - 1 if the simulated CPU is halted, 0 otherwise</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sim[iff]</span></code> - 0 if interrupts are disabled, 1 if they’re enabled</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sim[im]</span></code> - interrupt mode (0, 1 or 2)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sim[tstates]</span></code> - the number of T-states elapsed</p></li>
 </ul>
 <p>For example:</p>
@@ -1640,13 +1703,18 @@ at 32773.</p>
 <p>After the <code class="docutils literal notranslate"><span class="pre">#EVAL</span></code> macros have been expanded, the second mid-block comment
 here is rendered as ‘At this point HL=13699’, and the third is rendered as ‘And
 now HL=14371’.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The simulator does not simulate memory contention, I/O contention, or
-interrupts. This means that <code class="docutils literal notranslate"><span class="pre">sim[tstates]</span></code> may not be accurate if the code
-being simulated runs in or accesses contended memory, or performs I/O
-operations, or runs while interrupts are enabled.</p>
-</div>
+<p>Note that, by default, the simulator does not simulate memory contention or
+I/O contention. This means that <code class="docutils literal notranslate"><span class="pre">sim[tstates]</span></code> may not be accurate if the
+code being simulated runs in or accesses contended memory, or performs I/O
+operations. To simulate memory and I/O contention, set the <code class="docutils literal notranslate"><span class="pre">cmio</span></code> parameter
+to 1.</p>
+<p>If the <code class="docutils literal notranslate"><span class="pre">stop</span></code> parameter is not given, no code is executed, but the
+simulator’s registers and hardware state may be updated by providing other
+parameters. This technique can be used to initialise the simulator for use by
+the <a class="reference internal" href="#audio"><span class="std std-ref">#AUDIO</span></a> or <a class="reference internal" href="#tstates"><span class="std std-ref">#TSTATES</span></a> macro.</p>
+<p>Before executing code, the <code class="docutils literal notranslate"><span class="pre">#SIM</span></code> macro copies the simulator state as it was
+left by the most recent invocation of either the <a class="reference internal" href="#audio"><span class="std std-ref">#AUDIO</span></a> or the <code class="docutils literal notranslate"><span class="pre">#SIM</span></code>
+macro (if any).</p>
 <p>Note that code executed by the <code class="docutils literal notranslate"><span class="pre">#SIM</span></code> macro operates directly on the internal
 memory snapshot, and therefore can modify it. To avoid that, use the
 <a class="reference internal" href="#pushs"><span class="std std-ref">#PUSHS</span></a> and <a class="reference internal" href="#pops"><span class="std std-ref">#POPS</span></a> macros to operate on a copy of the snapshot.</p>
@@ -1657,14 +1725,21 @@ memory snapshot, and therefore can modify it. To avoid that, use the
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.7</p></td>
+<tr class="row-even"><td><p>9.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">cmio</span></code>, <code class="docutils literal notranslate"><span class="pre">execint</span></code>, <code class="docutils literal notranslate"><span class="pre">iff</span></code>, <code class="docutils literal notranslate"><span class="pre">im</span></code> and <code class="docutils literal notranslate"><span class="pre">tstates</span></code>
+parameters; added support for executing code in a 128K memory
+snapshot; added the <code class="docutils literal notranslate"><span class="pre">7ffd</span></code>, <code class="docutils literal notranslate"><span class="pre">ay</span></code>, <code class="docutils literal notranslate"><span class="pre">fffd</span></code>, <code class="docutils literal notranslate"><span class="pre">halted</span></code>,
+<code class="docutils literal notranslate"><span class="pre">iff</span></code> and <code class="docutils literal notranslate"><span class="pre">im</span></code> fields to the <code class="docutils literal notranslate"><span class="pre">sim</span></code> dictionary; made the
+<code class="docutils literal notranslate"><span class="pre">stop</span></code> parameter optional</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.7</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="space">
-<span id="id27"></span><h3>#SPACE<a class="headerlink" href="#space" title="Permalink to this heading">¶</a></h3>
+<span id="id28"></span><h3>#SPACE<a class="headerlink" href="#space" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#SPACE</span></code> macro expands to one or more <code class="docutils literal notranslate"><span class="pre">&amp;#160;</span></code> expressions (in HTML
 mode) or spaces (in ASM mode).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#SPACE[num]
@@ -1712,7 +1787,7 @@ t49152 DEFM &quot;Score:     0&quot;
 </table>
 </section>
 <section id="table">
-<span id="id28"></span><h3>#TABLE<a class="headerlink" href="#table" title="Permalink to this heading">¶</a></h3>
+<span id="id29"></span><h3>#TABLE<a class="headerlink" href="#table" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#TABLE</span></code> macro marks the beginning of a table; <code class="docutils literal notranslate"><span class="pre">TABLE#</span></code> is used to mark
 the end. Between these markers, the rows of the table are defined.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#TABLE[([class[,class1[:w][,class2[:w]...]]])][&lt;flag&gt;][rows]TABLE#
@@ -1812,10 +1887,10 @@ comment and as a parameter of another macro</p></td>
 </table>
 </section>
 <section id="tstates">
-<span id="id29"></span><h3>#TSTATES<a class="headerlink" href="#tstates" title="Permalink to this heading">¶</a></h3>
+<span id="id30"></span><h3>#TSTATES<a class="headerlink" href="#tstates" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#TSTATES</span></code> macro expands to the time taken, in T-states, to execute one
 or more instructions.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#TSTATESstart[,stop,flags(text)]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#TSTATESstart[,stop,flags,execint,cmio(text)]
 </pre></div>
 </div>
 <ul class="simple">
@@ -1826,6 +1901,10 @@ or more instructions.</p>
 contain the placeholders <code class="docutils literal notranslate"><span class="pre">$min</span></code> and <code class="docutils literal notranslate"><span class="pre">$max</span></code> for the sums of the smaller
 and larger timing values of the instructions in the given range, or
 <code class="docutils literal notranslate"><span class="pre">$tstates</span></code> for the actual timing value when bit 2 of <code class="docutils literal notranslate"><span class="pre">flags</span></code> is set</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">execint</span></code> specifies whether to execute interrupt routines (1), or ignore
+interrupts (0, the default) when simulating code execution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cmio</span></code> specifies whether memory and I/O contention are simulated (1), or
+not simulated (0, the default)</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">flags</span></code> is the sum of the following values, chosen according to the desired
 outcome:</p>
@@ -1872,13 +1951,17 @@ that are repeated in a loop. For example:</p>
 </pre></div>
 </div>
 <p>This instance of the <code class="docutils literal notranslate"><span class="pre">#TSTATES</span></code> macro expands to ‘1703941’.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The simulator does not simulate memory contention, I/O contention, or
-interrupts. This means that <code class="docutils literal notranslate"><span class="pre">#TSTATES</span></code> may not provide accurate timing if
-the code being timed runs in or accesses contended memory, or performs I/O
-operations, or runs while interrupts are enabled.</p>
-</div>
+<p>Note that, by default, the simulator does not simulate memory contention or
+I/O contention. This means that the time reported by <code class="docutils literal notranslate"><span class="pre">#TSTATES</span></code> may not be
+accurate if the code being simulated runs in or accesses contended memory, or
+performs I/O operations. To obtain precise timing in such cases, set the
+<code class="docutils literal notranslate"><span class="pre">cmio</span></code> parameter to 1.</p>
+<p>Before executing code in a simulator, the <code class="docutils literal notranslate"><span class="pre">#TSTATES</span></code> macro copies the
+simulator state as it was left by the most recent invocation of the
+<a class="reference internal" href="#audio"><span class="std std-ref">#AUDIO</span></a> or <a class="reference internal" href="#sim"><span class="std std-ref">#SIM</span></a> macro (if any).</p>
+<p>However, unlike the <a class="reference internal" href="#audio"><span class="std std-ref">#AUDIO</span></a> and <a class="reference internal" href="#sim"><span class="std std-ref">#SIM</span></a> macros, code executed by the
+<code class="docutils literal notranslate"><span class="pre">#TSTATES</span></code> macro operates on a copy of the internal memory snapshot, and
+therefore does not modify it.</p>
 <p>The integer parameters of the <code class="docutils literal notranslate"><span class="pre">#TSTATES</span></code> macro may contain
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
@@ -1895,21 +1978,25 @@ timings in comment fields when disassembling a snapshot.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.7</p></td>
+<tr class="row-even"><td><p>9.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">cmio</span></code> and <code class="docutils literal notranslate"><span class="pre">execint</span></code> parameters; added support for
+executing code in a 128K memory snapshot</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.7</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="udgtable">
-<span id="id30"></span><h3>#UDGTABLE<a class="headerlink" href="#udgtable" title="Permalink to this heading">¶</a></h3>
+<span id="id31"></span><h3>#UDGTABLE<a class="headerlink" href="#udgtable" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#UDGTABLE</span></code> macro behaves in exactly the same way as the <code class="docutils literal notranslate"><span class="pre">#TABLE</span></code>
 macro, except that the resulting table will not be rendered in ASM mode. Its
 intended use is to contain images that will be rendered in HTML mode only.</p>
 <p>See <a class="reference internal" href="#table"><span class="std std-ref">#TABLE</span></a>, and also <a class="reference internal" href="#html"><span class="std std-ref">#HTML</span></a>.</p>
 </section>
 <section id="version">
-<span id="id31"></span><h3>#VERSION<a class="headerlink" href="#version" title="Permalink to this heading">¶</a></h3>
+<span id="id32"></span><h3>#VERSION<a class="headerlink" href="#version" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#VERSION</span></code> macro expands to the version of SkoolKit.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#VERSION
 </pre></div>
@@ -1947,7 +2034,7 @@ as follows:</p>
 </pre></div>
 </div>
 <section id="copy">
-<span id="id32"></span><h3>#COPY<a class="headerlink" href="#copy" title="Permalink to this heading">¶</a></h3>
+<span id="id33"></span><h3>#COPY<a class="headerlink" href="#copy" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#COPY</span></code> macro copies all or part of an existing frame into
 a new frame.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#COPY[x,y,width,height,scale,mask,tindex,alpha][{CROP}](old,new)
@@ -2004,7 +2091,7 @@ may contain <a class="reference internal" href="#replacementfields"><span class=
 </table>
 </section>
 <section id="font">
-<span id="id33"></span><h3>#FONT<a class="headerlink" href="#font" title="Permalink to this heading">¶</a></h3>
+<span id="id34"></span><h3>#FONT<a class="headerlink" href="#font" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#FONT</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for an image
 of text rendered in the game font.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#FONT[:(text)]addr[,chars,attr,scale,tindex,alpha][{CROP}][(fname)]
@@ -2085,7 +2172,7 @@ optional</p></td>
 </table>
 </section>
 <section id="over">
-<span id="id34"></span><h3>#OVER<a class="headerlink" href="#over" title="Permalink to this heading">¶</a></h3>
+<span id="id35"></span><h3>#OVER<a class="headerlink" href="#over" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#OVER</span></code> macro superimposes one frame (the foreground frame)
 on another (the background frame).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#OVERx,y[,xoffset,yoffset,rmode][(attr)][(byte)](bg,fg)
@@ -2162,7 +2249,7 @@ modified background frame.</p>
 </table>
 </section>
 <section id="plot">
-<span id="id35"></span><h3>#PLOT<a class="headerlink" href="#plot" title="Permalink to this heading">¶</a></h3>
+<span id="id36"></span><h3>#PLOT<a class="headerlink" href="#plot" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#PLOT</span></code> macro sets, resets or flips a pixel in a frame
 already created by one of the other image macros.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#PLOTx,y[,value](frame)
@@ -2199,7 +2286,7 @@ third row from the top in the frame created by the <code class="docutils literal
 </table>
 </section>
 <section id="scr">
-<span id="id36"></span><h3>#SCR<a class="headerlink" href="#scr" title="Permalink to this heading">¶</a></h3>
+<span id="id37"></span><h3>#SCR<a class="headerlink" href="#scr" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#SCR</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for an image
 constructed from the display file and attribute file (or suitably arranged
 graphic data and attribute bytes elsewhere in memory) of the current memory
@@ -2277,7 +2364,7 @@ parameters</p></td>
 </table>
 </section>
 <section id="udg">
-<span id="id37"></span><h3>#UDG<a class="headerlink" href="#udg" title="Permalink to this heading">¶</a></h3>
+<span id="id38"></span><h3>#UDG<a class="headerlink" href="#udg" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#UDG</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for the image
 of a UDG (an 8x8 block of pixels).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:MASK][{CROP}][(fname)]
@@ -2383,7 +2470,7 @@ added support for keyword arguments</p></td>
 </table>
 </section>
 <section id="udgarray">
-<span id="id38"></span><h3>#UDGARRAY<a class="headerlink" href="#udgarray" title="Permalink to this heading">¶</a></h3>
+<span id="id39"></span><h3>#UDGARRAY<a class="headerlink" href="#udgarray" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for the
 image of an array of UDGs (8x8 blocks of pixels).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha](SPEC1[;SPEC2;...])[@ATTRS1[;ATTRS2;...]][{CROP}](fname)
@@ -2546,7 +2633,7 @@ steps</p></td>
 </table>
 </section>
 <section id="udgs">
-<span id="id39"></span><h3>#UDGS<a class="headerlink" href="#udgs" title="Permalink to this heading">¶</a></h3>
+<span id="id40"></span><h3>#UDGS<a class="headerlink" href="#udgs" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#UDGS</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for the image
 of a rectangular array of UDGs (8x8 blocks of pixels).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGSwidth,height[,scale,flip,rotate,mask,tindex,alpha][{CROP}](fname)(uframe)
@@ -2607,7 +2694,7 @@ contain <a class="reference internal" href="#replacementfields"><span class="std
 </table>
 </section>
 <section id="filenames">
-<span id="id40"></span><h3>Filenames<a class="headerlink" href="#filenames" title="Permalink to this heading">¶</a></h3>
+<span id="id41"></span><h3>Filenames<a class="headerlink" href="#filenames" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">fname</span></code> parameter of the <a class="reference internal" href="#font"><span class="std std-ref">#FONT</span></a>, <a class="reference internal" href="#scr"><span class="std std-ref">#SCR</span></a>, <a class="reference internal" href="#udg"><span class="std std-ref">#UDG</span></a>,
 <a class="reference internal" href="#udgarray"><span class="std std-ref">#UDGARRAY</span></a> and <a class="reference internal" href="#udgs"><span class="std std-ref">#UDGS</span></a> macros can be used to specify not only an image
 filename, but also its exact location, the <code class="docutils literal notranslate"><span class="pre">alt</span></code> attribute of the <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code>
@@ -2638,7 +2725,7 @@ example:</p>
 ‘Screenshot 1’.</p>
 </section>
 <section id="animation">
-<span id="id41"></span><h3>Animation<a class="headerlink" href="#animation" title="Permalink to this heading">¶</a></h3>
+<span id="id42"></span><h3>Animation<a class="headerlink" href="#animation" title="Permalink to this heading">¶</a></h3>
 <p>The image macros may be used to create the frames of an animated image. To
 create a frame, the <code class="docutils literal notranslate"><span class="pre">fname</span></code> parameter must have one of the following forms:</p>
 <ul class="simple">
@@ -2705,7 +2792,7 @@ a frame specification</p></td>
 </table>
 </section>
 <section id="cropping">
-<span id="id42"></span><h3>Cropping<a class="headerlink" href="#cropping" title="Permalink to this heading">¶</a></h3>
+<span id="id43"></span><h3>Cropping<a class="headerlink" href="#cropping" title="Permalink to this heading">¶</a></h3>
 <p>The <a class="reference internal" href="#copy"><span class="std std-ref">#COPY</span></a>, <a class="reference internal" href="#font"><span class="std std-ref">#FONT</span></a>, <a class="reference internal" href="#scr"><span class="std std-ref">#SCR</span></a>, <a class="reference internal" href="#udg"><span class="std std-ref">#UDG</span></a>, <a class="reference internal" href="#udgarray"><span class="std std-ref">#UDGARRAY</span></a> and
 <a class="reference internal" href="#udgs"><span class="std std-ref">#UDGS</span></a> macros accept a cropping specification (<code class="docutils literal notranslate"><span class="pre">CROP</span></code>) which takes the
 form:</p>
@@ -2735,7 +2822,7 @@ columns and rightmost two columns of pixels removed.</p>
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 </section>
 <section id="masks">
-<span id="id43"></span><h3>Masks<a class="headerlink" href="#masks" title="Permalink to this heading">¶</a></h3>
+<span id="id44"></span><h3>Masks<a class="headerlink" href="#masks" title="Permalink to this heading">¶</a></h3>
 <p>The <a class="reference internal" href="#copy"><span class="std std-ref">#COPY</span></a>, <a class="reference internal" href="#udg"><span class="std std-ref">#UDG</span></a>, <a class="reference internal" href="#udgarray"><span class="std std-ref">#UDGARRAY</span></a> and <a class="reference internal" href="#udgs"><span class="std std-ref">#UDGS</span></a> macros accept a
 <code class="docutils literal notranslate"><span class="pre">mask</span></code> parameter that determines what kind of mask to apply to each UDG. The
 supported values are:</p>
@@ -2814,7 +2901,7 @@ masked images actually transparent, set <code class="docutils literal notranslat
 <a class="reference internal" href="ref-files.html#ref-imagewriter"><span class="std std-ref">[ImageWriter]</span></a> section.</p>
 </section>
 <section id="palette">
-<span id="id44"></span><h3>Palette<a class="headerlink" href="#palette" title="Permalink to this heading">¶</a></h3>
+<span id="id45"></span><h3>Palette<a class="headerlink" href="#palette" title="Permalink to this heading">¶</a></h3>
 <p>Images created by the image macros use colours drawn from a palette of 16
 entries:</p>
 <ul class="simple">
@@ -2858,7 +2945,7 @@ transparency (<code class="docutils literal notranslate"><span class="pre">alpha
 following sections) may be used to manipulate the memory snapshot that is built
 from the skool file. Each macro expands to an empty string.</p>
 <section id="pokes">
-<span id="id45"></span><h3>#POKES<a class="headerlink" href="#pokes" title="Permalink to this heading">¶</a></h3>
+<span id="id46"></span><h3>#POKES<a class="headerlink" href="#pokes" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#POKES</span></code> macro POKEs values into the current memory snapshot.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
 </pre></div>
@@ -2912,7 +2999,7 @@ parameter string</p></td>
 </table>
 </section>
 <section id="pops">
-<span id="id46"></span><h3>#POPS<a class="headerlink" href="#pops" title="Permalink to this heading">¶</a></h3>
+<span id="id47"></span><h3>#POPS<a class="headerlink" href="#pops" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#POPS</span></code> macro removes the current internal memory snapshot and replaces
 it with the one that was previously saved by a <code class="docutils literal notranslate"><span class="pre">#PUSHS</span></code> macro.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#POPS
@@ -2932,7 +3019,7 @@ it with the one that was previously saved by a <code class="docutils literal not
 </table>
 </section>
 <section id="pushs">
-<span id="id47"></span><h3>#PUSHS<a class="headerlink" href="#pushs" title="Permalink to this heading">¶</a></h3>
+<span id="id48"></span><h3>#PUSHS<a class="headerlink" href="#pushs" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#PUSHS</span></code> macro saves the current internal memory snapshot, and replaces
 it with an identical copy with a given name.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#PUSHS[name]
@@ -3067,6 +3154,7 @@ at 32768 like this:</p>
 </li>
 <li><a class="reference internal" href="#general-macros">General macros</a><ul>
 <li><a class="reference internal" href="#audio">#AUDIO</a></li>
+<li><a class="reference internal" href="#bank">#BANK</a></li>
 <li><a class="reference internal" href="#call">#CALL</a></li>
 <li><a class="reference internal" href="#chr">#CHR</a></li>
 <li><a class="reference internal" href="#d">#D</a></li>
@@ -3162,12 +3250,12 @@ at 32768 like this:</p>
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool macros</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Richard Dymond.
+        &#169; Copyright 2024, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>

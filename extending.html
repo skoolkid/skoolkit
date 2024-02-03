@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Extending SkoolKit &#8212; SkoolKit 9.0 documentation</title>
+    <title>Extending SkoolKit &#8212; SkoolKit 9.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Extending SkoolKit</a></li> 
       </ul>
     </div>  
@@ -562,9 +562,13 @@ It can be used with the <code class="xref py py-meth docutils literal notranslat
 </section>
 <section id="memory-snapshots">
 <h2>Memory snapshots<a class="headerlink" href="#memory-snapshots" title="Permalink to this heading">¶</a></h2>
-<p>The <cite>snapshot</cite> attribute on HtmlWriter and AsmWriter is a 65536-element list
-that represents the 64K of the Spectrum’s memory; it is populated when the
-skool file is being parsed.</p>
+<p>The <cite>snapshot</cite> attribute on HtmlWriter and AsmWriter is a list-like object that
+represents the Spectrum’s memory. It supports both indexing and slicing for
+addresses 0-65535 ($0000-$FFFF), and reports a length (via the <strong>len</strong>
+function) of either 65536 (for a 48K Spectrum) or 131072 (for a 128K Spectrum).</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 9.1: </span>The <cite>snapshot</cite> attribute is no longer a plain list object.</p>
+</div>
 <p>HtmlWriter and AsmWriter also provide methods for saving and restoring memory
 snapshots, which can be useful for temporarily changing graphic data or the
 contents of data tables.</p>
@@ -992,12 +996,12 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Extending SkoolKit</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Richard Dymond.
+        &#169; Copyright 2024, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>

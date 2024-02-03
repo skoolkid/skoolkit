@@ -826,9 +826,9 @@ In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
 
   #AUDIO[flags,offset](fname)[(delays)]
 
-Or, when bit 2 of ``flags`` is set::
+Or, when executing code in a simulator (bit 2 of ``flags`` set)::
 
-  #AUDIO[flags,offset](fname)(start,stop)
+  #AUDIO[flags,offset](fname)(start,stop[,execint,cmio])
 
 * ``flags`` controls various options (see below)
 * ``offset`` is the initial offset in T-states from the start of a frame
@@ -839,10 +839,12 @@ Or, when bit 2 of ``flags`` is set::
   state changes; this parameter may contain skool macros (which are expanded
   first) and :ref:`replacement fields <replacementFields>` (which are replaced
   after any skool macros have been expanded)
-* ``start`` is the address at which to start executing code in a simulator
-  (when bit 2 of ``flags`` is set)
-* ``stop`` is the address at which to stop executing code in a simulator (when
-  bit 2 of ``flags`` is set)
+* ``start`` is the address at which to start executing code
+* ``stop`` is the address at which to stop executing code
+* ``execint`` specifies whether to execute interrupt routines (1), or ignore
+  interrupts (0, the default)
+* ``cmio`` specifies whether memory and I/O contention are simulated (1), or
+  not simulated (0, the default)
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
@@ -859,8 +861,14 @@ outcome:
 * 4 (bit 2) - execute instructions from ``start`` to ``stop`` in a simulator to
   obtain the delays between speaker state changes
 * 8 (bit 3) - pass delays through a moving average filter; while this can
-  produce higher quality audio (especially for multi-channel tunes), it is also
-  quite slow
+  produce higher quality audio (especially for multi-channel tunes), it is
+  slower than the default sampling algorithm
+
+If ``execint`` is set to 1, make sure that bit 1 of ``flags`` is 0, otherwise
+interrupt delays may be applied twice: once during execution of the code, and
+again in post-processing. Similarly, if ``cmio`` is set to 1, make sure that
+bit 0 of ``flags`` is 0, otherwise memory and I/O contention delays may be
+applied twice.
 
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly. Otherwise the filename is taken to be relative to
@@ -905,10 +913,13 @@ example::
    32780 JR NZ,32771
    32782 RET
 
-.. note::
-   The simulator does not simulate memory contention, I/O contention, or
-   interrupts. Use bits 0 and 1 of ``flags`` to approximate memory contention
-   effects and interrupt delays if desired.
+Before executing code in a simulator, the ``#AUDIO`` macro copies the simulator
+state as it was left by the most recent invocation of either the ``#AUDIO`` or
+the :ref:`SIM` macro (if any).
+
+Note that code executed by the ``#AUDIO`` macro operates directly on the
+internal memory snapshot, and therefore can modify it. To avoid that, use the
+:ref:`PUSHS` and :ref:`POPS` macros to operate on a copy of the snapshot.
 
 If ``delays`` or ``start`` and ``stop`` parameters are specified, but ``fname``
 does not end with '.wav', no audio file is written. This enables the parameters
@@ -930,20 +941,51 @@ written. This enables an original WAV file to be replaced by an alternative
 looks for before writing a WAV file are specified by the ``AudioFormats``
 parameter in the :ref:`ref-game` section.
 
-The ``flags``, ``offset``, ``start`` and ``stop`` parameters of the ``#AUDIO``
-macro may contain :ref:`replacement fields <replacementFields>`.
+The integer parameters (i.e. all except ``fname`` and ``delays``) of the
+``#AUDIO`` macro may contain :ref:`replacement fields <replacementFields>`.
 
 The :ref:`t_audio` template is used to format the ``<audio>`` element.
 
 Audio file creation can be configured via the :ref:`ref-AudioWriter` section.
 
-+---------+------------------------------------------------------------------+
-| Version | Changes                                                          |
-+=========+==================================================================+
-| 9.0     | Added support for passing delays through a moving average filter |
-+---------+------------------------------------------------------------------+
-| 8.7     | New                                                              |
-+---------+------------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 9.1     | Added the ``cmio`` and ``execint`` parameters; added support for  |
+|         | executing code in a 128K memory snapshot                          |
++---------+-------------------------------------------------------------------+
+| 9.0     | Added support for passing delays through a moving average filter  |
++---------+-------------------------------------------------------------------+
+| 8.7     | New                                                               |
++---------+-------------------------------------------------------------------+
+
+.. _BANK:
+
+#BANK
+-----
+The ``#BANK`` macro switches the RAM bank that is mapped to 49152-65535
+(0xC000-0xFFFF) in the memory snapshot::
+
+  #BANKpage
+
+* ``page`` is the page number (0-7)
+
+For example::
+
+  ; This is the UDG at 50000 in RAM bank 6: #BANK6 #UDG50000(udg)
+
+This instance of the ``#BANK`` macro maps RAM bank 6 to 49152-65535 in
+preparation for creating an image of the UDG at 50000 in that RAM bank.
+
+If the memory snapshot hasn't already been converted from 48K to 128K by a
+:ref:`asm-bank` directive, it will be converted when the first ``#BANK`` macro
+in the skool file is expanded.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 9.1     | New     |
++---------+---------+
 
 .. _CALL:
 
@@ -1465,9 +1507,10 @@ For example:
 The ``#SIM`` macro simulates the execution of machine code in the internal
 memory snapshot constructed from the contents of the skool file. ::
 
-  #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp]
+  #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im,cmio]
 
-* ``stop`` is the address at which to stop execution
+* ``stop`` is the address at which to stop execution; if not given, no code is
+  executed
 * ``start`` is the address at which to start execution (default: ``stop`` from
   the previous invocation of the ``#SIM`` macro, or 0 if this is the first run)
 * ``clear`` is 0 to use the register values that resulted from the previous
@@ -1488,13 +1531,21 @@ memory snapshot constructed from the contents of the skool file. ::
 * ``i`` sets the value of the I register (default: 63)
 * ``r`` sets the value of the R register (default: 0)
 * ``sp`` sets the value of the stack pointer (default: 23552)
+* ``execint`` specifies whether to execute interrupt routines (1), or ignore
+  interrupts (0, the default)
+* ``tstates`` sets the value of the simulator's clock (default: 0)
+* ``iff`` sets whether interrupts are disabled (0, the default) or enabled (1)
+* ``im`` sets the interrupt mode (default: 1)
+* ``cmio`` specifies whether memory and I/O contention are simulated (1), or
+  not simulated (0, the default)
 
 The parameters of the ``#SIM`` macro may contain
-:ref:`replacement fields <replacementFields>` and may also be given as keyword arguments.
+:ref:`replacement fields <replacementFields>` and may also be given as keyword
+arguments.
 
-When execution stops, the simulator's register and clock values are copied to
-the ``sim`` dictionary, where they are accessible via replacement fields with
-the following names:
+When execution stops, the simulator's register values are copied to the ``sim``
+dictionary, where they are accessible via replacement fields with the following
+names:
 
 * ``sim[A]``
 * ``sim[F]``
@@ -1513,6 +1564,17 @@ the following names:
 * ``sim[SP]``
 * ``sim[PC]`` - the program counter (equal to ``stop``); this is used as the
   default value of ``start`` for the next invocation of the ``#SIM`` macro
+
+In addition, the simulator's hardware state is copied to the ``sim``
+dictionary, where it is accessible via replacement fields with the following
+names:
+
+* ``sim[7ffd]`` - the value of the last OUT to port 0x7ffd
+* ``sim[ay][N]`` - the value of AY register N (0-15)
+* ``sim[fffd]`` - the value of the last OUT to port 0xfffd
+* ``sim[halted]`` - 1 if the simulated CPU is halted, 0 otherwise
+* ``sim[iff]`` - 0 if interrupts are disabled, 1 if they're enabled
+* ``sim[im]`` - interrupt mode (0, 1 or 2)
 * ``sim[tstates]`` - the number of T-states elapsed
 
 For example::
@@ -1536,21 +1598,36 @@ After the ``#EVAL`` macros have been expanded, the second mid-block comment
 here is rendered as 'At this point HL=13699', and the third is rendered as 'And
 now HL=14371'.
 
-.. note::
-   The simulator does not simulate memory contention, I/O contention, or
-   interrupts. This means that ``sim[tstates]`` may not be accurate if the code
-   being simulated runs in or accesses contended memory, or performs I/O
-   operations, or runs while interrupts are enabled.
+Note that, by default, the simulator does not simulate memory contention or
+I/O contention. This means that ``sim[tstates]`` may not be accurate if the
+code being simulated runs in or accesses contended memory, or performs I/O
+operations. To simulate memory and I/O contention, set the ``cmio`` parameter
+to 1.
+
+If the ``stop`` parameter is not given, no code is executed, but the
+simulator's registers and hardware state may be updated by providing other
+parameters. This technique can be used to initialise the simulator for use by
+the :ref:`AUDIO` or :ref:`TSTATES` macro.
+
+Before executing code, the ``#SIM`` macro copies the simulator state as it was
+left by the most recent invocation of either the :ref:`AUDIO` or the ``#SIM``
+macro (if any).
 
 Note that code executed by the ``#SIM`` macro operates directly on the internal
 memory snapshot, and therefore can modify it. To avoid that, use the
 :ref:`PUSHS` and :ref:`POPS` macros to operate on a copy of the snapshot.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.7     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 9.1     | Added the ``cmio``, ``execint``, ``iff``, ``im`` and ``tstates``  |
+|         | parameters; added support for executing code in a 128K memory     |
+|         | snapshot; added the ``7ffd``, ``ay``, ``fffd``, ``halted``,       |
+|         | ``iff`` and ``im`` fields to the ``sim`` dictionary; made the     |
+|         | ``stop`` parameter optional                                       |
++---------+-------------------------------------------------------------------+
+| 8.7     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _SPACE:
 
@@ -1698,7 +1775,7 @@ See also :ref:`UDGTABLE`.
 The ``#TSTATES`` macro expands to the time taken, in T-states, to execute one
 or more instructions. ::
 
-  #TSTATESstart[,stop,flags(text)]
+  #TSTATESstart[,stop,flags,execint,cmio(text)]
 
 * ``start`` is the address of the instruction at which to start the clock
 * ``stop`` is the address of the instruction at which to stop the clock
@@ -1707,6 +1784,10 @@ or more instructions. ::
   contain the placeholders ``$min`` and ``$max`` for the sums of the smaller
   and larger timing values of the instructions in the given range, or
   ``$tstates`` for the actual timing value when bit 2 of ``flags`` is set
+* ``execint`` specifies whether to execute interrupt routines (1), or ignore
+  interrupts (0, the default) when simulating code execution
+* ``cmio`` specifies whether memory and I/O contention are simulated (1), or
+  not simulated (0, the default)
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
@@ -1758,11 +1839,19 @@ that are repeated in a loop. For example::
 
 This instance of the ``#TSTATES`` macro expands to '1703941'.
 
-.. note::
-   The simulator does not simulate memory contention, I/O contention, or
-   interrupts. This means that ``#TSTATES`` may not provide accurate timing if
-   the code being timed runs in or accesses contended memory, or performs I/O
-   operations, or runs while interrupts are enabled.
+Note that, by default, the simulator does not simulate memory contention or
+I/O contention. This means that the time reported by ``#TSTATES`` may not be
+accurate if the code being simulated runs in or accesses contended memory, or
+performs I/O operations. To obtain precise timing in such cases, set the
+``cmio`` parameter to 1.
+
+Before executing code in a simulator, the ``#TSTATES`` macro copies the
+simulator state as it was left by the most recent invocation of the
+:ref:`AUDIO` or :ref:`SIM` macro (if any).
+
+However, unlike the :ref:`AUDIO` and :ref:`SIM` macros, code executed by the
+``#TSTATES`` macro operates on a copy of the internal memory snapshot, and
+therefore does not modify it.
 
 The integer parameters of the ``#TSTATES`` macro may contain
 :ref:`replacement fields <replacementFields>`.
@@ -1777,11 +1866,14 @@ See also the ``Timings`` configuration parameter for
 :ref:`sna2skool.py <sna2skool-conf>`, which can be used to show instruction
 timings in comment fields when disassembling a snapshot.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.7     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 9.1     | Added the ``cmio`` and ``execint`` parameters; added support for  |
+|         | executing code in a 128K memory snapshot                          |
++---------+-------------------------------------------------------------------+
+| 8.7     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _UDGTABLE:
 
