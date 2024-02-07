@@ -2017,42 +2017,68 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile}: Failed to fast load block: unexpected end of tape')
         self.assertEqual(self.err.getvalue(), '')
 
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
-    def test_sim_load_with_tzx_block_type_0x15(self):
-        block = [
+    def test_sim_load_with_tzx_block_type_0x15_first_bit_0(self):
+        direct_recording_block = (
             21,          # Block ID
-            79, 0,       # T-states per sample
+            50, 0,       # T-states per sample
             0, 0,        # Pause
             8,           # Used bits in last byte
             3, 0, 0,     # Data length
-            1, 2, 3,     # Data
-        ]
-        tzxfile = self._write_tzx([block])
-        z80file = '{}/out.z80'.format(self.make_directory())
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'{tzxfile} {z80file}')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: TZX Direct Recording (0x15) not supported')
-        self.assertEqual(self.out.getvalue(), '')
-        self.assertEqual(self.err.getvalue(), '')
+            0b00000001,  # Data...
+            0b00000010,
+            0b00000011
+        )
+        tzxfile = self._write_tzx([direct_recording_block])
+        output, error = self.run_tap2sna(tzxfile)
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 1)
+        timings, data = load_tracer.blocks[0]
+        self.assertEqual([], data)
+        self.assertEqual([350, 50, 300, 50, 350, 100], timings.pulses)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
-    def test_sim_load_can_ignore_tzx_block_type_0x15(self):
+    def test_sim_load_with_tzx_block_type_0x15_first_bit_1(self):
         direct_recording_block = (
             21,          # Block ID
-            79, 0,       # T-states per sample
+            10, 0,       # T-states per sample
             0, 0,        # Pause
             8,           # Used bits in last byte
             3, 0, 0,     # Data length
-            1, 2, 3,     # Data
+            0b10000000,  # Data...
+            0b00000010,
+            0b00000011
         )
-        tzxfile = self._write_tzx((
-            direct_recording_block,
-            create_tzx_header_block()
-        ))
-        output, error = self.run_tap2sna(f'--tape-start 2 {tzxfile}')
+        tzxfile = self._write_tzx([direct_recording_block])
+        output, error = self.run_tap2sna(tzxfile)
         self.assertEqual(error, '')
         self.assertEqual(len(load_tracer.blocks), 1)
+        timings, data = load_tracer.blocks[0]
+        self.assertEqual([], data)
+        self.assertEqual([0, 10, 130, 10, 70, 20], timings.pulses)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_sim_load_with_tzx_block_type_0x15_unused_bits_in_last_byte(self):
+        direct_recording_block = (
+            21,          # Block ID
+            100, 0,      # T-states per sample
+            0, 0,        # Pause
+            4,           # Used bits in last byte
+            3, 0, 0,     # Data length
+            0b00000001,  # Data...
+            0b00000010,
+            0b11110000
+        )
+        tzxfile = self._write_tzx([direct_recording_block])
+        output, error = self.run_tap2sna(tzxfile)
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 1)
+        timings, data = load_tracer.blocks[0]
+        self.assertEqual([], data)
+        self.assertEqual([700, 100, 600, 100, 100, 400], timings.pulses)
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x18(self):

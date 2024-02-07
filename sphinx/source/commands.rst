@@ -1373,8 +1373,8 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
 
-Note that `tap2sna.py` cannot read data from TZX block types 0x15 (direct
-recording), 0x18 (CSW recording) or 0x19 (generalized data block).
+Note that `tap2sna.py` cannot read data from TZX block types 0x18 (CSW
+recording) or 0x19 (generalized data block).
 
 By default, `tap2sna.py` attempts to load a tape exactly as a 48K Spectrum
 would (see :ref:`tap2sna-sim-load`). If that doesn't work, the ``--ram`` option
@@ -1676,6 +1676,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.2     | Added support for TZX block type 0x15 (direct recording)          |
++---------+-------------------------------------------------------------------+
 | 9.1     | The ``--ram move`` and ``--ram poke`` options can modify specific |
 |         | RAM banks; added the ``cmio`` simulated LOAD configuration        |
 |         | parameter                                                         |

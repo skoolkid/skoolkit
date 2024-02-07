@@ -85,8 +85,8 @@ OPTIONS
 
 TZX SUPPORT
 ===========
-``tap2sna.py`` cannot read data from TZX block types 0x15 (direct recording),
-0x18 (CSW recording) or 0x19 (generalized data block).
+``tap2sna.py`` cannot read data from TZX block types 0x18 (CSW recording) or
+0x19 (generalized data block).
 
 SIMULATED LOAD
 ==============

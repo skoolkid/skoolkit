@@ -239,7 +239,7 @@ class TapeError(Exception):
     pass
 
 class TapeBlockTimings:
-    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0, used_bits=8, error=None):
+    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0, used_bits=8, pulses=(), error=None):
         self.pilot_len = pilot_len
         self.pilot = pilot
         self.sync = sync
@@ -247,6 +247,7 @@ class TapeBlockTimings:
         self.one = one
         self.pause = pause
         self.used_bits = used_bits
+        self.pulses = pulses
         self.error = error
 
 def get_tape_block_timings(first_byte, pause=3500000):
@@ -620,7 +621,33 @@ def _get_tzx_block(data, i, sim):
     elif block_id == 21:
         # Direct recording block
         if sim:
-            timings = TapeBlockTimings(error="TZX Direct Recording (0x15) not supported")
+            tape_data = []
+            tps = get_word(data, i)
+            pause = get_word(data, i + 2)
+            used_bits = data[i + 4]
+            num_bytes = get_word3(data, i + 5)
+            j = 0
+            pulses = []
+            prev_bit = data[i + 8] & 0x80
+            if prev_bit:
+                pulses.append(0)
+            bit_count = 0
+            for j, b in enumerate(data[i + 8:i + 8 + num_bytes], 1):
+                if j < num_bytes:
+                    num_bits = 8
+                else:
+                    num_bits = used_bits
+                for k in range(num_bits):
+                    bit = b & 0x80
+                    if bit == prev_bit:
+                        bit_count += 1
+                    else:
+                        pulses.append(bit_count * tps)
+                        prev_bit = bit
+                        bit_count = 1
+                    b *= 2
+            pulses.append(bit_count * tps)
+            timings = TapeBlockTimings(pause=pause, pulses=pulses)
         i += get_word3(data, i + 5) + 8
     elif block_id == 24:
         # CSW recording block

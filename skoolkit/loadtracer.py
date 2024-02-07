@@ -66,8 +66,8 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
             tstates += timings.pilot
             edges.append(tstates)
 
-        # Sync pulses
-        for s in timings.sync:
+        # Sync pulses / Pulse Sequence / Direct Recording
+        for s in timings.sync or timings.pulses:
             if analyse:
                 ear = (len(edges) - 1) % 2
                 print(f'{tstates:>10}  {ear:>3}  Pulse ({s} T-states)')
@@ -102,9 +102,10 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
                     b *= 2
             indexes.append((start, len(edges) - 1))
             data_blocks.append(data)
-        elif i == len(blocks) - 1: # pragma: no cover
-            # If the last block on the tape contains pulses but no data, add a
-            # dummy (empty) data block to ensure that the pulses are read
+        elif i == len(blocks) - 1 or timings.pulses: # pragma: no cover
+            # If this block contains a Direct Recording, or is the last block
+            # on the tape and contains a Pulse Sequence, add a dummy (empty)
+            # data block to ensure that the pulses are read
             indexes.append((len(edges) - 1, len(edges) - 1))
             data_blocks.append(())
 
@@ -241,8 +242,7 @@ class LoadTracer(PagingTracer):
                 write_line(f'Simulation stopped (PC at start address): PC={pc}')
                 break
 
-            if pc == 0x0556 and self.out7ffd & 0x10 and fast_load:
-                self.fast_load(simulator)
+            if pc == 0x0556 and self.out7ffd & 0x10 and fast_load and self.fast_load(simulator):
                 self.index = self.block_max_index
                 if self.index == max_index:
                     # Final block, so stop the tape
@@ -524,6 +524,11 @@ class LoadTracer(PagingTracer):
             block = self.blocks[self.block_index]
         else:
             raise SkoolKitError("Failed to fast load block: unexpected end of tape")
+        if not block:
+            # This block has no separately defined data (e.g. Direct Recording
+            # block), so it can't be fast-loaded
+            return False # pragma: no cover
+
         memory = simulator.memory
         ix = registers[IXl] + 256 * registers[IXh] # Start address
         de = registers[E] + 256 * registers[D] # Block length
@@ -593,3 +598,4 @@ class LoadTracer(PagingTracer):
 
         registers[PC] = 0x05E2
         self.announce_data = False
+        return True
