@@ -42,11 +42,6 @@ class ErrorTest(SnapshotTest):
         with self.assertRaisesRegex(SnapshotError, "{}: Unknown file type".format(snapshot_file)):
             get_snapshot(snapshot_file)
 
-    def test_bad_ram_size(self):
-        ram_size = 3
-        with self.assertRaisesRegex(SnapshotError, 'RAM size is {}'.format(ram_size)):
-            get_snapshot(self.write_bin_file([0] * (27 + ram_size), suffix='.sna'))
-
 class SNATest(SnapshotTest):
     def test_sna_48k(self):
         header = [0] * 27
@@ -144,6 +139,14 @@ class Z80Test(SnapshotTest):
         exp_ram += [128] * (49152 - len(exp_ram))
         self._test_z80(exp_ram, 1, True)
 
+    def test_z80v1_bad_ram_size(self):
+        header = [0] * 30
+        header[6] = 1 # PC
+        ram = [0] * 2
+        z80file = self.write_bin_file(header + ram, suffix='.z80')
+        with self.assertRaisesRegex(SnapshotError, r"RAM is 2 bytes \(should be 49152\)"):
+            get_snapshot(z80file)
+
     def test_z80v2_16k_compressed(self):
         exp_ram = [(n + 7) & 255 for n in range(16384)] + [0] * 32768
         self._test_z80(exp_ram, 2, True, modify=True)
@@ -160,6 +163,14 @@ class Z80Test(SnapshotTest):
     def test_z80v2_128k(self):
         exp_ram = [(n + 127) & 255 for n in range(49152)]
         self._test_z80(exp_ram, 2, False, machine_id=3)
+
+    def test_z80v2_bad_ram_page_size(self):
+        header = [0] * 55
+        header[30] = 23
+        ram_block = [3, 0, 4, 1, 2, 3]
+        z80file = self.write_bin_file(header + ram_block, suffix='.z80')
+        with self.assertRaisesRegex(SnapshotError, r"Page 1 is 3 bytes \(should be 16384\)"):
+            get_snapshot(z80file)
 
     def test_z80v3_16k(self):
         exp_ram = [(n + 7) & 255 for n in range(16384)] + [0] * 32768

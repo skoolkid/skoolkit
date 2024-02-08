@@ -1,4 +1,4 @@
-# Copyright 2013-2017, 2019-2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013-2017, 2019-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -20,38 +20,18 @@ from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, integer,
 from skoolkit.basic import BasicLister, VariableLister, get_char
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.opcodes import END, decode
-from skoolkit.snapshot import FRAME_DURATIONS, make_snapshot
+from skoolkit.snapshot import FRAME_DURATIONS, Snapshot, make_snapshot
 from skoolkit.sna2skool import get_ctl_parser
 from skoolkit.snaskool import Disassembly
 
 class Registers:
-    def __init__(self, a=0, f=0, bc=0, de=0, hl=0, a2=0, f2=0, bc2=0, de2=0, hl2=0,
-                 ix=0, iy=0, sp=0, i=0, r=0, pc=0, border=0, iff2=0, im=0,
-                 tstates=0, out7ffd=0, outfffd=0, ay=(0,) * 16, outfe=0):
-        self.a = a
-        self.f = f
-        self.bc = bc
-        self.de = de
-        self.hl = hl
-        self.a2 = a2
-        self.f2 = f2
-        self.bc2 = bc2
-        self.de2 = de2
-        self.hl2 = hl2
-        self.ix = ix
-        self.iy = iy
-        self.sp = sp
-        self.i = i
-        self.r = r
-        self.pc = pc
-        self.border = border
-        self.iff2 = iff2
-        self.im = im
-        self.tstates = tstates
-        self.out7ffd = out7ffd
-        self.outfffd = outfffd
-        self.ay = ay
-        self.outfe = outfe
+    def __init__(self, snapshot):
+        for r in (
+                'a', 'f', 'bc', 'de', 'hl', 'a2', 'f2', 'bc2', 'de2', 'hl2',
+                'ix', 'iy', 'sp', 'i', 'r', 'pc', 'border', 'iff1', 'iff2',
+                'im', 'tstates', 'out7ffd', 'outfffd', 'ay', 'outfe'
+        ):
+            setattr(self, r, getattr(snapshot, r))
         self.reg_map = {
             'b': 'bc', 'c': 'bc', 'b2': 'bc2', 'c2': 'bc2',
             'd': 'de', 'e': 'de', 'd2': 'de2', 'e2': 'de2',
@@ -150,56 +130,8 @@ MACHINES = {
 }
 
 def _parse_z80(z80file):
-    data = read_bin_file(z80file)
-
-    # Extract header and RAM block(s)
-    if get_word(data, 6) > 0:
-        version = 1
-        header = data[:30]
-        ram_blocks = data[30:]
-    else:
-        header_len = 32 + get_word(data, 30)
-        header = data[:header_len]
-        ram_blocks = data[header_len:]
-        version = 2 if header_len == 55 else 3
-
-    reg = Registers(
-        a=header[0],
-        f=header[1],
-        bc=get_word(header, 2),
-        hl=get_word(header, 4),
-        sp=get_word(header, 8),
-        i=header[10],
-        r=128 * (header[12] & 1) + (header[11] & 127),
-        de=get_word(header, 13),
-        bc2=get_word(header, 15),
-        de2=get_word(header, 17),
-        hl2=get_word(header, 19),
-        a2=header[21],
-        f2=header[22],
-        iy=get_word(header, 23),
-        ix=get_word(header, 25),
-        border=(header[12] // 2) % 8,
-        iff2=header[28],
-        im=header[29] & 3
-    )
-
-    if version == 1:
-        reg.pc = get_word(header, 6)
-    else:
-        reg.pc = get_word(header, 32)
-        reg.out7ffd = header[35]
-        reg.outfffd = header[38]
-        reg.ay = tuple(header[39:55])
-
-    if version == 3:
-        frame_duration = FRAME_DURATIONS[header[34] > 3]
-        qframe_duration = frame_duration // 4
-        t1 = (header[55] + 256 * header[56]) % qframe_duration
-        t2 = (2 - header[57]) % 4
-        reg.tstates = frame_duration - 1 - t2 * qframe_duration - t1
-
-    return header, reg, ram_blocks
+    snapshot = Snapshot.get(z80file)
+    return snapshot.header, Registers(snapshot), snapshot.tail
 
 def _analyse_z80(z80file, header, reg, ram_blocks):
     if get_word(header, 6) > 0:
@@ -226,7 +158,7 @@ def _analyse_z80(z80file, header, reg, ram_blocks):
             is128 = True
             block_dict = BLOCK_ADDRESSES_128K
     print('Machine: {}'.format(machine))
-    print('Interrupts: {}abled'.format('en' if reg.iff2 else 'dis'))
+    print('Interrupts: {}abled'.format('en' if reg.iff1 else 'dis'))
     print('Interrupt mode: {}'.format(reg.im))
     print('Issue 2 emulation: {}abled'.format('en' if header[29] & 4 else 'dis'))
     if version == 3:
@@ -283,54 +215,8 @@ SZX_MACHINES = {
 }
 
 def _parse_szx(szxfile):
-    szx = read_bin_file(szxfile)
-    magic = _get_block_id(szx, 0)
-    if magic != 'ZXST':
-        raise SkoolKitError("{} is not an SZX file".format(szxfile))
-
-    header = szx[:8]
-
-    reg = Registers()
-    blocks = []
-    i = 8
-    while i < len(szx):
-        block_id = _get_block_id(szx, i)
-        block_size = get_dword(szx, i + 4)
-        i += 8 + block_size
-        block = szx[i - block_size:i]
-        blocks.append((block_id, block))
-        if block_id == 'Z80R':
-            reg.f = block[0]
-            reg.a = block[1]
-            reg.bc = get_word(block, 2)
-            reg.de = get_word(block, 4)
-            reg.hl = get_word(block, 6)
-            reg.f2 = block[8]
-            reg.a2 = block[9]
-            reg.bc2 = get_word(block, 10)
-            reg.de2 = get_word(block, 12)
-            reg.hl2 = get_word(block, 14)
-            reg.ix = get_word(block, 16)
-            reg.iy = get_word(block, 18)
-            reg.sp = get_word(block, 20)
-            reg.pc = get_word(block, 22)
-            reg.i = block[24]
-            reg.r = block[25]
-            reg.iff2 = block[27]
-            reg.im = block[28]
-            reg.tstates = get_dword(block, 29)
-        elif block_id == 'SPCR':
-            reg.border = block[0]
-            reg.out7ffd = block[1]
-            reg.outfe = block[3]
-        elif block_id == 'AY':
-            reg.outfffd = block[1]
-            reg.ay = tuple(block[2:18])
-
-    return header, reg, blocks
-
-def _get_block_id(data, index):
-    return ''.join(chr(b) for b in data[index:index+ 4] if b)
+    snapshot = Snapshot.get(szxfile)
+    return snapshot.header, Registers(snapshot), snapshot.tail
 
 def _print_ay(block, reg):
     return [f'Current AY register: {reg.outfffd}']
@@ -366,7 +252,7 @@ def _print_spcr(block, reg):
 
 def _print_z80r(block, reg):
     lines = [
-        'Interrupts: {}abled'.format('en' if reg.iff2 else 'dis'),
+        'Interrupts: {}abled'.format('en' if reg.iff1 else 'dis'),
         f'Interrupt mode: {reg.im}',
         f'T-states: {reg.tstates}'
     ]
@@ -397,38 +283,8 @@ def _analyse_szx(header, reg, blocks):
 # https://worldofspectrum.net/features/faq/reference/formats.htm#SNA
 
 def _parse_sna(snafile):
-    sna = read_bin_file(snafile, 147488)
-    if len(sna) not in (49179, 131103, 147487):
-        raise SkoolKitError('{}: not a SNA file'.format(snafile))
-
-    reg = Registers(
-        i=sna[0],
-        hl2=get_word(sna, 1),
-        de2=get_word(sna, 3),
-        bc2=get_word(sna, 5),
-        f2=sna[7],
-        a2=sna[8],
-        hl=get_word(sna, 9),
-        de=get_word(sna, 11),
-        bc=get_word(sna, 13),
-        iy=get_word(sna, 15),
-        ix=get_word(sna, 17),
-        r=sna[20],
-        f=sna[21],
-        a=sna[22],
-        sp=get_word(sna, 23),
-        border=sna[26],
-        iff2=(sna[19] & 4) // 4,
-        im=sna[25]
-    )
-
-    if len(sna) > 49179:
-        reg.pc = get_word(sna, 49179)
-        reg.out7ffd = sna[49181]
-    else:
-        reg.pc = get_word(sna, reg.sp - 16357)
-
-    return sna[:27], reg, sna[27:]
+    snapshot = Snapshot.get(snafile)
+    return snapshot.header, Registers(snapshot), snapshot.tail
 
 def _print_ram_banks(sna):
     bank = sna[49154] & 7
@@ -441,7 +297,7 @@ def _print_ram_banks(sna):
 def _analyse_sna(header, reg, ram):
     is128 = len(ram) > 49152
     print('RAM: {}K'.format(128 if is128 else 48))
-    print('Interrupts: {}abled'.format('en' if reg.iff2 else 'dis'))
+    print('Interrupts: {}abled'.format('en' if reg.iff1 else 'dis'))
     print('Interrupt mode: {}'.format(reg.im))
     print('Border: {}'.format(header[26] & 7))
 

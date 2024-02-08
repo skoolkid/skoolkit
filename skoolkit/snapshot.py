@@ -1,4 +1,4 @@
-# Copyright 2009-2013, 2015-2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013, 2015-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -17,7 +17,7 @@
 import textwrap
 import zlib
 
-from skoolkit import SkoolKitError, get_dword, get_int_param, parse_int, read_bin_file
+from skoolkit import SkoolKitError, get_dword, get_word, get_int_param, parse_int, read_bin_file
 from skoolkit.components import get_snapshot_reader, get_value
 
 FRAME_DURATIONS = (69888, 70908)
@@ -129,6 +129,33 @@ class Memory:
         return self.banks[0] + self.banks[1] + self.banks[2] + self.banks[3] + self.banks[4] + self.banks[5] + self.banks[6] + self.banks[7]
 
 class Snapshot:
+    def __init__(self):
+        self.a = 0
+        self.f = 0
+        self.bc = 0
+        self.de = 0
+        self.hl = 0
+        self.a2 = 0
+        self.f2 = 0
+        self.bc2 = 0
+        self.de2 = 0
+        self.hl2 = 0
+        self.ix = 0
+        self.iy = 0
+        self.sp = 0
+        self.i = 0
+        self.r = 0
+        self.pc = 0
+        self.border = 0
+        self.iff1 = 0
+        self.iff2 = 0
+        self.im = 0
+        self.tstates = 0
+        self.out7ffd = 0
+        self.outfffd = 0
+        self.ay = (0,) * 16
+        self.outfe = 0
+
     @classmethod
     def get(cls, sfile):
         ext = sfile[-4:].lower()
@@ -152,23 +179,52 @@ class Snapshot:
 
 class SNA(Snapshot):
     def __init__(self, snafile):
+        super().__init__()
+        data = list(read_bin_file(snafile, 147488))
+        self.header = data[:27]
+        self.tail = data[27:]
+        if len(self.tail) not in (49152, 131076, 147460):
+            raise SnapshotError(f'{snafile}: not a SNA file')
+        self.i = self.header[0]
+        self.hl2 = get_word(self.header, 1)
+        self.de2 = get_word(self.header, 3)
+        self.bc2 = get_word(self.header, 5)
+        self.f2 = self.header[7]
+        self.a2 = self.header[8]
+        self.hl = get_word(self.header, 9)
+        self.de = get_word(self.header, 11)
+        self.bc = get_word(self.header, 13)
+        self.iy = get_word(self.header, 15)
+        self.ix = get_word(self.header, 17)
+        self.r = self.header[20]
+        self.f = self.header[21]
+        self.a = self.header[22]
+        self.sp = get_word(self.header, 23)
+        self.border = self.header[26]
+        self.iff1 = (self.header[19] & 4) // 4
+        self.iff2 = self.iff1
+        self.im = self.header[25]
         banks = [None] * 8
-        data = list(read_bin_file(snafile))
-        if len(data) > 49179:
-            page = data[49181] % 8
-            offset = 49183
-            for i in sorted(set(range(8)) - {5, 2, page}):
-                banks[i] = data[offset:offset + 16384]
-                offset += 16384
-        else:
+        if len(self.tail) == 49152:
+            if self.sp >= 16384:
+                self.pc = get_word(self.tail, self.sp - 16384)
             page = 0
-        banks[5] = data[27:16411]
-        banks[2] = data[16411:32795]
-        banks[page] = data[32795:49179]
+        else:
+            self.pc = get_word(self.tail, 49152)
+            self.out7ffd = self.tail[49154]
+            page = self.out7ffd % 8
+            offset = 49156
+            for i in sorted(set(range(8)) - {5, 2, page}):
+                banks[i] = self.tail[offset:offset + 16384]
+                offset += 16384
+        banks[5] = self.tail[:0x4000]
+        banks[2] = self.tail[0x4000:0x8000]
+        banks[page] = self.tail[0x8000:0xC000]
         self.memory = Memory(banks=banks, page=page)
 
 class SZX(Snapshot):
     def __init__(self, szxfile=None, ram=None):
+        super().__init__()
         if szxfile:
             self._read(szxfile)
         else:
@@ -189,6 +245,7 @@ class SZX(Snapshot):
             self.memory = Memory(banks=banks)
 
     def _read(self, szxfile):
+        self.tail = []
         self.blocks = {}
         banks = [None] * 8
         data = bytearray(read_bin_file(szxfile))
@@ -198,9 +255,12 @@ class SZX(Snapshot):
         page = 0
         i = 8
         while i + 8 <= len(data):
-            block_id = data[i:i + 4]
+            block_id = bytes(data[i:i + 4])
             block_len = get_dword(data, i + 4)
             if i + 8 + block_len <= len(data):
+                block_id_str = ''.join(chr(b) for b in block_id if b)
+                block = data[i + 8:i + 8 + block_len]
+                self.tail.append((block_id_str, block))
                 if block_id == b'RAMP':
                     bank = data[i + 10] % 8
                     ram = data[i + 11:i + 8 + block_len]
@@ -213,13 +273,39 @@ class SZX(Snapshot):
                         raise SnapshotError(f'Page {bank} is {len(ram)} bytes (should be 16384)')
                     banks[bank] = list(ram)
                 else:
-                    if block_id == b'SPCR':
-                        page = data[i + 9] % 8
-                    self.blocks[bytes(block_id)] = data[i + 8:i + 8 + block_len]
+                    self.blocks[block_id] = block
+                    if block_id == b'Z80R':
+                        self.f = block[0]
+                        self.a = block[1]
+                        self.bc = get_word(block, 2)
+                        self.de = get_word(block, 4)
+                        self.hl = get_word(block, 6)
+                        self.f2 = block[8]
+                        self.a2 = block[9]
+                        self.bc2 = get_word(block, 10)
+                        self.de2 = get_word(block, 12)
+                        self.hl2 = get_word(block, 14)
+                        self.ix = get_word(block, 16)
+                        self.iy = get_word(block, 18)
+                        self.sp = get_word(block, 20)
+                        self.pc = get_word(block, 22)
+                        self.i = block[24]
+                        self.r = block[25]
+                        self.iff1 = block[26]
+                        self.iff2 = block[27]
+                        self.im = block[28]
+                        self.tstates = get_dword(block, 29)
+                    elif block_id == b'SPCR':
+                        self.border = block[0]
+                        self.out7ffd = block[1]
+                        self.outfe = block[3]
+                    elif block_id == b'AY\x00\x00':
+                        self.outfffd = block[1]
+                        self.ay = tuple(block[2:18])
             i += 8 + block_len
         if self.header[6] > 1 and b'SPCR' not in self.blocks:
             raise SnapshotError("SPECREGS (SPCR) block not found")
-        self.memory = Memory(banks=banks, page=page)
+        self.memory = Memory(banks=banks, page=self.out7ffd % 8)
 
     def _add_zxstspecregs(self, state):
         spcr = self.blocks.setdefault(b'SPCR', bytearray([0] * 8))
@@ -321,6 +407,7 @@ class SZX(Snapshot):
 
 class Z80(Snapshot):
     def __init__(self, z80file=None, ram=(0,) * 49152):
+        super().__init__()
         if z80file:
             self._read(z80file)
         else:
@@ -345,10 +432,13 @@ class Z80(Snapshot):
             # Version 1
             page = 0
             self.header = data[:30]
+            self.pc = get_word(self.header, 6)
             if data[12] & 32:
                 ram = self._decompress(data[30:-4])
             else:
                 ram = data[30:]
+            if len(ram) != 49152:
+                raise SnapshotError(f'RAM is {len(ram)} bytes (should be 49152)')
             banks[5] = ram[0x0000:0x4000]
             banks[2] = ram[0x4000:0x8000]
             banks[0] = ram[0x8000:0xC000]
@@ -356,6 +446,17 @@ class Z80(Snapshot):
             page = None
             i = 32 + data[30]
             self.header = data[:i]
+            self.pc = get_word(self.header, 32)
+            self.out7ffd = self.header[35]
+            self.outfffd = self.header[38]
+            self.ay = tuple(self.header[39:55])
+            if i > 55:
+                # Version 3
+                frame_duration = FRAME_DURATIONS[self.header[34] > 3]
+                qframe_duration = frame_duration // 4
+                t1 = (self.header[55] + 256 * self.header[56]) % qframe_duration
+                t2 = (2 - self.header[57]) % 4
+                self.tstates = frame_duration - 1 - t2 * qframe_duration - t1
             if (i == 55 and data[34] > 2) or (i > 55 and data[34] > 3):
                 page = data[35] % 8 # 128K
             while i < len(data):
@@ -366,7 +467,29 @@ class Z80(Snapshot):
                     banks[bank] = data[i + 3:i + 3 + length]
                 else:
                     banks[bank] = self._decompress(data[i + 3:i + 3 + length])
+                if len(banks[bank]) != 16384:
+                    raise SnapshotError(f'Page {bank} is {len(banks[bank])} bytes (should be 16384)')
                 i += 3 + length
+        self.a = self.header[0]
+        self.f = self.header[1]
+        self.bc = get_word(self.header, 2)
+        self.hl = get_word(self.header, 4)
+        self.sp = get_word(self.header, 8)
+        self.i = self.header[10]
+        self.r = 128 * (self.header[12] % 2) + (self.header[11] % 128)
+        self.de = get_word(self.header, 13)
+        self.bc2 = get_word(self.header, 15)
+        self.de2 = get_word(self.header, 17)
+        self.hl2 = get_word(self.header, 19)
+        self.a2 = self.header[21]
+        self.f2 = self.header[22]
+        self.iy = get_word(self.header, 23)
+        self.ix = get_word(self.header, 25)
+        self.border = (self.header[12] // 2) % 8
+        self.iff1 = self.header[27]
+        self.iff2 = self.header[28]
+        self.im = self.header[29] % 4
+        self.tail = data[len(self.header):]
         self.memory = Memory(banks=banks, page=page)
 
     def _decompress(self, ramz):
@@ -526,9 +649,7 @@ def get_snapshot(fname, page=None):
     ram = Snapshot.get(fname).ram(page)
     if len(ram) == 49152:
         return [0] * 16384 + list(ram)
-    if len(ram) == 131072:
-        return list(ram)
-    raise SnapshotError(f'RAM size is {len(ram)}')
+    return list(ram)
 
 def make_snapshot(fname, org, start=None, end=65536, page=None):
     snapshot_reader = get_snapshot_reader()

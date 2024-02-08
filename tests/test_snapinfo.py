@@ -5,6 +5,7 @@ from unittest.mock import patch
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, components, snapinfo, VERSION
 from skoolkit.config import COMMANDS
+from skoolkit.snapshot import SnapshotError
 
 def mock_run(*args):
     global run_args
@@ -419,7 +420,7 @@ class SnapinfoTest(SkoolKitTestCase):
         header = list(range(48, 78))
         header[6:8] = [0, 0] # Version 2+
         header[12] = 14 # BORDER 7
-        header[28] = 0 # Interrupts disabled
+        header[27] = 0 # Interrupts disabled
         header[29] |= 4 # Issue 2 emulation enabled
         header.extend((54, 0)) # Remaining header length (version 3)
         header.extend((183, 201)) # PC=51639
@@ -837,7 +838,7 @@ class SnapinfoTest(SkoolKitTestCase):
 
     def test_szx_without_magic_number(self):
         non_szx = self.write_bin_file((1, 2, 3), suffix='.szx')
-        with self.assertRaisesRegex(SkoolKitError, '{} is not an SZX file$'.format(non_szx)):
+        with self.assertRaisesRegex(SnapshotError, f'{non_szx}: invalid SZX file$'):
             self.run_snapinfo(non_szx)
 
     def test_raw_memory_file(self):
