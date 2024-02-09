@@ -72,16 +72,6 @@ class Registers:
                 return word // 256
             return word % 256
 
-def parse_snapshot(infile):
-    snapshot_type = infile[-4:].lower()
-    if snapshot_type == '.sna':
-        return _parse_sna(infile)
-    if snapshot_type == '.z80':
-        return _parse_z80(infile)
-    if snapshot_type == '.szx':
-        return _parse_szx(infile)
-    return None, None, None
-
 ###############################################################################
 
 # https://worldofspectrum.net/features/faq/reference/z80format.htm
@@ -129,18 +119,15 @@ MACHINES = {
     128: ('TS2068', 'TS2068', False),
 }
 
-def _parse_z80(z80file):
-    snapshot = Snapshot.get(z80file)
-    return snapshot.header, Registers(snapshot), snapshot.tail
-
-def _analyse_z80(z80file, header, reg, ram_blocks):
-    if get_word(header, 6) > 0:
+def _analyse_z80(header, reg, ram_blocks):
+    if len(header) == 30:
         version = 1
+    elif len(header) == 55:
+        version = 2
     else:
-        version = 2 if len(header) == 55 else 3
+        version = 3
 
-    # Print file name, version, machine, interrupt status, border, port $7FFD
-    print('Z80 file: {}'.format(z80file))
+    # Print version, machine, interrupt status, border, port $7FFD
     print('Version: {}'.format(version))
     is128 = False
     if version == 1:
@@ -163,10 +150,10 @@ def _analyse_z80(z80file, header, reg, ram_blocks):
     print('Issue 2 emulation: {}abled'.format('en' if header[29] & 4 else 'dis'))
     if version == 3:
         print(f'T-states: {reg.tstates}')
-    print('Border: {}'.format((header[12] // 2) & 7))
+    print(f'Border: {reg.border}')
     if is128:
         print(f'Port $FFFD: {reg.outfffd}')
-        bank = header[35] & 7
+        bank = reg.out7ffd % 8
         print('Port $7FFD: {} - bank {} (block {}) paged into 49152-65535 C000-FFFF'.format(reg.out7ffd, bank, bank + 3))
 
     # Print register contents
@@ -213,10 +200,6 @@ SZX_MACHINES = {
     5: 'ZX Spectrum +3',
     6: 'ZX Spectrum +3e'
 }
-
-def _parse_szx(szxfile):
-    snapshot = Snapshot.get(szxfile)
-    return snapshot.header, Registers(snapshot), snapshot.tail
 
 def _print_ay(block, reg):
     return [f'Current AY register: {reg.outfffd}']
@@ -282,10 +265,6 @@ def _analyse_szx(header, reg, blocks):
 
 # https://worldofspectrum.net/features/faq/reference/formats.htm#SNA
 
-def _parse_sna(snafile):
-    snapshot = Snapshot.get(snafile)
-    return snapshot.header, Registers(snapshot), snapshot.tail
-
 def _print_ram_banks(sna):
     bank = sna[49154] & 7
     print('RAM bank 5 (16384 bytes: 16384-32767 4000-7FFF)')
@@ -294,12 +273,12 @@ def _print_ram_banks(sna):
     for b in sorted({0, 1, 3, 4, 6, 7} - {bank}):
         print('RAM bank {} (16384 bytes)'.format(b))
 
-def _analyse_sna(header, reg, ram):
+def _analyse_sna(reg, ram):
     is128 = len(ram) > 49152
     print('RAM: {}K'.format(128 if is128 else 48))
     print('Interrupts: {}abled'.format('en' if reg.iff1 else 'dis'))
     print('Interrupt mode: {}'.format(reg.im))
-    print('Border: {}'.format(header[26] & 7))
+    print('Border: {}'.format(reg.border))
 
     print('Registers:')
     for line in reg.get_lines():
@@ -445,13 +424,15 @@ def run(infile, options, config):
             if options.variables:
                 print(VariableLister().list_variables(snapshot))
     else:
-        snapshot_type = infile[-4:].lower()
-        if snapshot_type == '.sna':
-            _analyse_sna(*_parse_sna(infile))
-        elif snapshot_type == '.z80':
-            _analyse_z80(infile, *_parse_z80(infile))
-        elif snapshot_type == '.szx':
-            _analyse_szx(*_parse_szx(infile))
+        snapshot = Snapshot.get(infile)
+        if snapshot:
+            registers = Registers(snapshot)
+            if snapshot.type == 'SNA':
+                _analyse_sna(registers, snapshot.tail)
+            elif snapshot.type == 'Z80':
+                _analyse_z80(snapshot.header, registers, snapshot.tail)
+            elif snapshot.type == 'SZX':
+                _analyse_szx(snapshot.header, registers, snapshot.tail)
 
 def main(args):
     config = get_config('snapinfo')

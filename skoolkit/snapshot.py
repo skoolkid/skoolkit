@@ -130,6 +130,7 @@ class Memory:
 
 class Snapshot:
     def __init__(self):
+        self.type = None
         self.a = 0
         self.f = 0
         self.bc = 0
@@ -180,6 +181,7 @@ class Snapshot:
 class SNA(Snapshot):
     def __init__(self, snafile):
         super().__init__()
+        self.type = 'SNA'
         data = list(read_bin_file(snafile, 147488))
         self.header = data[:27]
         self.tail = data[27:]
@@ -200,7 +202,7 @@ class SNA(Snapshot):
         self.f = self.header[21]
         self.a = self.header[22]
         self.sp = get_word(self.header, 23)
-        self.border = self.header[26]
+        self.border = self.header[26] % 8
         self.iff1 = (self.header[19] & 4) // 4
         self.iff2 = self.iff1
         self.im = self.header[25]
@@ -225,6 +227,7 @@ class SNA(Snapshot):
 class SZX(Snapshot):
     def __init__(self, szxfile=None, ram=None):
         super().__init__()
+        self.type = 'SZX'
         if szxfile:
             self._read(szxfile)
         else:
@@ -296,7 +299,7 @@ class SZX(Snapshot):
                         self.im = block[28]
                         self.tstates = get_dword(block, 29)
                     elif block_id == b'SPCR':
-                        self.border = block[0]
+                        self.border = block[0] % 8
                         self.out7ffd = block[1]
                         self.outfe = block[3]
                     elif block_id == b'AY\x00\x00':
@@ -408,6 +411,7 @@ class SZX(Snapshot):
 class Z80(Snapshot):
     def __init__(self, z80file=None, ram=(0,) * 49152):
         super().__init__()
+        self.type = 'Z80'
         if z80file:
             self._read(z80file)
         else:

@@ -22,11 +22,9 @@ from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.pagingtracer import Memory, PagingTracer
-from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_snapshot
 from skoolkit.simulator import (Simulator, INT_ACTIVE, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
-from skoolkit.snapinfo import parse_snapshot
-from skoolkit.snapshot import FRAME_DURATIONS
+from skoolkit.snapshot import FRAME_DURATIONS, Snapshot, make_snapshot, poke, print_reg_help, write_snapshot
 from skoolkit.traceutils import Registers, disassemble
 
 class Tracer(PagingTracer):
@@ -94,26 +92,26 @@ class Tracer(PagingTracer):
                 self.spkr = value & 0x10
                 self.out_times.append(registers[T])
 
-def get_registers(sna_reg, specs):
-    if sna_reg:
+def get_registers(snapshot, specs):
+    if snapshot:
         registers = {
-            'A': sna_reg.a,
-            'F': sna_reg.f,
-            'BC': sna_reg.bc,
-            'DE': sna_reg.de,
-            'HL': sna_reg.hl,
-            'IXh': sna_reg.ix // 256,
-            'IXl': sna_reg.ix % 256,
-            'IYh': sna_reg.iy // 256,
-            'IYl': sna_reg.iy % 256,
-            'SP': sna_reg.sp,
-            'I': sna_reg.i,
-            'R': sna_reg.r,
-            '^A': sna_reg.a2,
-            '^F': sna_reg.f2,
-            '^BC': sna_reg.bc2,
-            '^DE': sna_reg.de2,
-            '^HL': sna_reg.hl2
+            'A': snapshot.a,
+            'F': snapshot.f,
+            'BC': snapshot.bc,
+            'DE': snapshot.de,
+            'HL': snapshot.hl,
+            'IXh': snapshot.ix // 256,
+            'IXl': snapshot.ix % 256,
+            'IYh': snapshot.iy // 256,
+            'IYl': snapshot.iy % 256,
+            'SP': snapshot.sp,
+            'I': snapshot.i,
+            'R': snapshot.r,
+            '^A': snapshot.a2,
+            '^F': snapshot.f2,
+            '^BC': snapshot.bc2,
+            '^DE': snapshot.de2,
+            '^HL': snapshot.hl2
         }
     else:
         registers = {}
@@ -160,25 +158,29 @@ def simplify(delays, depth):
     return ', '.join(s0)
 
 def run(snafile, options, config):
-    if snafile in ('48', '128'):
-        if snafile == '48':
-            memory = [0] * 0x10000
-        else:
-            memory = [0] * 0x20000
-        reg = None
-        org = 0
+    snapshot = None
+    org = 0
+    if snafile == '48':
+        memory = [0] * 0x10000
+    elif snafile == '128':
+        memory = [0] * 0x20000
     else:
-        memory, org = make_snapshot(snafile, options.org, page=-1)[:2]
-        reg = parse_snapshot(snafile)[1]
-        if snafile.lower()[-4:] == '.sna' and len(memory) == 65536:
-            reg.sp = (reg.sp + 2) % 65536
-    if reg:
-        state = {'im': reg.im, 'iff': reg.iff2, 'tstates': reg.tstates}
-        border = reg.border
-        out7ffd = reg.out7ffd
-        outfffd = reg.outfffd
-        ay = list(reg.ay)
-        outfe = reg.outfe
+        snapshot = Snapshot.get(snafile)
+        if snapshot:
+            memory = snapshot.ram(-1)
+            if len(memory) == 0xC000:
+                memory = [0] * 0x4000 + memory
+                if snapshot.type == 'SNA':
+                    snapshot.sp = (snapshot.sp + 2) % 65536
+        else:
+            memory, org = make_snapshot(snafile, options.org)[:2]
+    if snapshot:
+        state = {'im': snapshot.im, 'iff': snapshot.iff2, 'tstates': snapshot.tstates}
+        border = snapshot.border
+        out7ffd = snapshot.out7ffd
+        outfffd = snapshot.outfffd
+        ay = list(snapshot.ay)
+        outfe = snapshot.outfe
     else:
         state = {'im': 1, 'iff': 1, 'tstates': 0}
         border = 7
@@ -188,8 +190,8 @@ def run(snafile, options, config):
         outfe = 0
     start = options.start
     if start is None:
-        if reg:
-            start = reg.pc
+        if snapshot:
+            start = snapshot.pc
         elif options.org is not None:
             start = options.org
         else:
@@ -212,7 +214,7 @@ def run(snafile, options, config):
         simulator_cls = CMIOSimulator
     else:
         simulator_cls = Simulator
-    simulator = simulator_cls(memory, get_registers(reg, options.reg), state, sim_config)
+    simulator = simulator_cls(memory, get_registers(snapshot, options.reg), state, sim_config)
     tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe)
     simulator.set_tracer(tracer)
     if options.verbose:
