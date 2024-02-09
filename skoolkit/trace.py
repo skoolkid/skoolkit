@@ -175,7 +175,7 @@ def run(snafile, options, config):
         else:
             memory, org = make_snapshot(snafile, options.org)[:2]
     if snapshot:
-        state = {'im': snapshot.im, 'iff': snapshot.iff2, 'tstates': snapshot.tstates}
+        state = {'im': snapshot.im, 'iff': snapshot.iff1, 'tstates': snapshot.tstates}
         border = snapshot.border
         out7ffd = snapshot.out7ffd
         outfffd = snapshot.outfffd
