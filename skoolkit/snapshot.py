@@ -89,7 +89,10 @@ SZX_REGISTERS = {
 class Memory:
     def __init__(self, snapshot=None, banks=None, page=None):
         if banks:
-            self.banks = banks
+            if isinstance(banks, dict):
+                self.banks = [banks.get(i) for i in range(max(8, max(banks)))]
+            else:
+                self.banks = banks
             if page is None:
                 # Z80 48K
                 self.memory = [[0] * 0x4000, self.banks[5], self.banks[1], self.banks[2]]
@@ -250,7 +253,7 @@ class SZX(Snapshot):
     def _read(self, szxfile):
         self.tail = []
         self.blocks = {}
-        banks = [None] * 8
+        banks = {}
         data = bytearray(read_bin_file(szxfile))
         if len(data) < 8 or data[:4] != b'ZXST':
             raise SnapshotError(f'{szxfile}: invalid SZX file')
@@ -430,7 +433,7 @@ class Z80(Snapshot):
             self.memory = Memory(banks=banks)
 
     def _read(self, z80file):
-        banks = [None] * 8
+        banks = {}
         data = list(read_bin_file(z80file))
         if sum(data[6:8]) > 0:
             # Version 1
