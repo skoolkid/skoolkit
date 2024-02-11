@@ -89,62 +89,66 @@ BLOCK_ADDRESSES_128K = {
 }
 
 V2_MACHINES = {
-    0: ('48K Spectrum', '16K Spectrum', True),
-    1: ('48K Spectrum + IF1', '16K Spectrum + IF1', True),
-    2: ('SamRam', 'SamRam', False),
-    3: ('128K Spectrum', 'Spectrum +2', False),
-    4: ('128K Spectrum + IF1', 'Spectrum +2 + IF1', False)
+    0: ('48K Spectrum', '16K Spectrum'),
+    1: ('48K Spectrum + IF1', '16K Spectrum + IF1'),
+    2: ('SamRam', 'SamRam'),
+    3: ('128K Spectrum', 'Spectrum +2'),
+    4: ('128K Spectrum + IF1', 'Spectrum +2 + IF1')
 }
 
 V3_MACHINES = {
-    0: ('48K Spectrum', '16K Spectrum', True),
-    1: ('48K Spectrum + IF1', '16K Spectrum + IF1', True),
-    2: ('SamRam', 'SamRam', False),
-    3: ('48K Spectrum + MGT', '16K Spectrum + MGT', True),
-    4: ('128K Spectrum', 'Spectrum +2', False),
-    5: ('128K Spectrum + IF1', 'Spectrum +2 + IF1', False),
-    6: ('128K Spectrum + MGT', 'Spectrum +2 + MGT', False),
+    0: ('48K Spectrum', '16K Spectrum'),
+    1: ('48K Spectrum + IF1', '16K Spectrum + IF1'),
+    2: ('SamRam', 'SamRam'),
+    3: ('48K Spectrum + MGT', '16K Spectrum + MGT'),
+    4: ('128K Spectrum', 'Spectrum +2'),
+    5: ('128K Spectrum + IF1', 'Spectrum +2 + IF1'),
+    6: ('128K Spectrum + MGT', 'Spectrum +2 + MGT'),
 }
 
 MACHINES = {
-    7: ('Spectrum +3', 'Spectrum +2A', False),
-    8: ('Spectrum +3', 'Spectrum +2A', False),
-    9: ('Pentagon (128K)', 'Pentagon (128K)', False),
-    10: ('Scorpion (256K)', 'Scorpion (256K)', False),
-    11: ('Didaktik+Kompakt', 'Didaktik+Kompakt', False),
-    12: ('Spectrum +2', 'Spectrum +2', False),
-    13: ('Spectrum +2A', 'Spectrum +2A', False),
-    14: ('TC2048', 'TC2048', False),
-    15: ('TC2068', 'TC2068', False),
-    128: ('TS2068', 'TS2068', False),
+    7: ('Spectrum +3', 'Spectrum +2A'),
+    8: ('Spectrum +3', 'Spectrum +2A'),
+    9: ('Pentagon (128K)', 'Pentagon (128K)'),
+    10: ('Scorpion (256K)', 'Scorpion (256K)'),
+    11: ('Didaktik+Kompakt', 'Didaktik+Kompakt'),
+    12: ('Spectrum +2', 'Spectrum +2'),
+    13: ('Spectrum +2A', 'Spectrum +2A'),
+    14: ('TC2048', 'TC2048'),
+    15: ('TC2068', 'TC2068'),
+    128: ('TS2068', 'TS2068'),
 }
 
-def _analyse_z80(header, reg, ram_blocks):
-    if len(header) == 30:
-        version = 1
-    elif len(header) == 55:
-        version = 2
-    else:
-        version = 3
-
-    # Print version, machine, interrupt status, border, port $7FFD
-    print('Version: {}'.format(version))
-    is128 = False
+def get_z80_machine_type(header):
+    version = _get_z80_version(header)
     if version == 1:
-        machine = '48K Spectrum'
-        block_dict = BLOCK_ADDRESSES_48K
+        return '48K Spectrum'
+    if version == 2:
+        machine_dict = V2_MACHINES
     else:
-        machine_dict = V2_MACHINES if version == 2 else V3_MACHINES
-        machine_id = header[34]
-        index = header[37] // 128
-        machine_spec = machine_dict.get(machine_id, MACHINES.get(machine_id, ('Unknown', 'Unknown', True)))
-        machine = machine_spec[index]
-        if machine_spec[2]:
-            block_dict = BLOCK_ADDRESSES_48K
-        else:
-            is128 = True
-            block_dict = BLOCK_ADDRESSES_128K
-    print('Machine: {}'.format(machine))
+        machine_dict = V3_MACHINES
+    machine_id = header[34]
+    index = header[37] // 128
+    machine_spec = machine_dict.get(machine_id, MACHINES.get(machine_id, ('Unknown', 'Unknown')))
+    return machine_spec[index]
+
+def _get_z80_version(header):
+    if len(header) == 30:
+        return 1
+    if len(header) == 55:
+        return 2
+    return 3
+
+def _analyse_z80(header, reg, ram_blocks):
+    # Print version, machine, interrupt status, border, port $7FFD
+    version = _get_z80_version(header)
+    print('Version: {}'.format(version))
+    is128 = (version == 2 and header[34] > 1) or (version == 3 and header[34] not in (0, 1, 3))
+    if is128:
+        block_dict = BLOCK_ADDRESSES_128K
+    else:
+        block_dict = BLOCK_ADDRESSES_48K
+    print('Machine: {}'.format(get_z80_machine_type(header)))
     print('Interrupts: {}abled'.format('en' if reg.iff1 else 'dis'))
     print('Interrupt mode: {}'.format(reg.im))
     print('Issue 2 emulation: {}abled'.format('en' if header[29] & 4 else 'dis'))
@@ -198,8 +202,21 @@ SZX_MACHINES = {
     3: 'ZX Spectrum +2',
     4: 'ZX Spectrum +2A/+2B',
     5: 'ZX Spectrum +3',
-    6: 'ZX Spectrum +3e'
+    6: 'ZX Spectrum +3e',
+    7: 'Pentagon 128',
+    8: 'Timex Sinclair TC2048',
+    9: 'Timex Sinclair TC2068',
+    10: 'Scorpion ZS-256',
+    11: 'ZX Spectrum SE',
+    12: 'Timex Sinclair TS2068',
+    13: 'Pentagon 512',
+    14: 'Pentagon 1024',
+    15: '48K ZX Spectrum (NTSC)',
+    16: 'ZX Spectrum 128Ke'
 }
+
+def get_szx_machine_type(header):
+    return SZX_MACHINES.get(header[6], 'Unknown')
 
 def _print_ay(block, reg):
     return [f'Current AY register: {reg.outfffd}']
@@ -251,8 +268,8 @@ SZX_BLOCK_PRINTERS = {
 
 def _analyse_szx(header, reg, blocks):
     print('Version: {}.{}'.format(header[4], header[5]))
+    print('Machine: {}'.format(get_szx_machine_type(header)))
     reg.machine_id = header[6]
-    print('Machine: {}'.format(SZX_MACHINES.get(reg.machine_id, 'Unknown')))
 
     for block_id, block in blocks:
         print('{}: {} bytes'.format(block_id, len(block)))
