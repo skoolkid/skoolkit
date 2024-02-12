@@ -82,7 +82,7 @@ class RZXTracer:
     def read_port(self, registers, port):
         if self.readings:
             return self.readings.pop(0)
-        error(f'ERROR: Port readings exhausted for frame {self.frame_index}')
+        error(f'Port readings exhausted for frame {self.frame_index}')
 
     def halt(self, registers):
         # HALT
@@ -178,26 +178,38 @@ def draw(screen, memory, frame, pixel_rects, cell_rects, prev_scr):
                     px += 1
                 py += 1
 
-def supported(snapshot):
+def check_supported(snapshot, options):
     if snapshot is None:
-        return False
+        return 'Unsupported snapshot type'
+    if options.force:
+        return
     if snapshot.type == 'Z80':
         header = snapshot.header
         if len(header) == 30:
             # Version 1
-            return True
+            return
         machine_id = header[34]
         if len(header) == 55:
             # Version 2
-            return machine_id in (0, 3)
+            if machine_id not in (0, 3):
+                return 'Unsupported machine type'
         # Version 3
-        return machine_id in (0, 4, 12)
+        elif machine_id not in (0, 4, 12):
+            return 'Unsupported machine type'
     elif snapshot.type == 'SZX':
+        supported_blocks = {'AY', 'CRTR', 'KEYB', 'JOY', 'RAMP', 'SPCR', 'TAPE', 'Z80R'}
+        unsupported_blocks = set(b[0] for b in snapshot.tail) - supported_blocks
+        if unsupported_blocks:
+            return 'Unsupported block(s) ({}) in SZX snapshot'.format(', '.join(unsupported_blocks))
         machine_id = snapshot.header[6]
-        return machine_id < 4
-    return True
+        if machine_id > 3:
+            return 'Unsupported machine type'
 
 def run(infile, options):
+    snapshot, input_rec = parse_rzx(infile)[0]
+    error_msg = check_supported(snapshot, options)
+    if error_msg:
+        error(error_msg)
     if options.screen and pygame:
         print(pygame_io.getvalue())
         pygame.init()
@@ -210,9 +222,6 @@ def run(infile, options):
         clock = pygame.time.Clock()
     else:
         screen = None
-    snapshot, input_rec = parse_rzx(infile)[0]
-    if not supported(snapshot):
-        error('Snapshot or machine type not supported')
     simulator = Simulator.from_snapshot(snapshot)
     if len(simulator.memory) == 0x20000:
         tracer = RZXTracer128(simulator, input_rec.frames, input_rec.tstates, snapshot.out7ffd)
@@ -275,16 +284,18 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
 group = parser.add_argument_group('Options')
-group.add_argument('--trace', metavar='FILE',
-                   help="Log executed instructions to a file.")
+group.add_argument('--force', action='store_true',
+                   help="Force playback when unsupported hardware is detected.")
 group.add_argument('--fps', type=int, default=50,
                    help="Run at this many frames per second.")
 group.add_argument('--no-screen', dest='screen', action='store_false',
                    help="Run without a screen.")
-group.add_argument('--scale', metavar='SCALE', type=int, default=2, choices=(1, 2, 3, 4),
-                   help="Scale display up by this factor (1-4; default: 2).")
 group.add_argument('--quiet', action='store_true',
                    help="Don't print progress percentage.")
+group.add_argument('--scale', metavar='SCALE', type=int, default=2, choices=(1, 2, 3, 4),
+                   help="Scale display up by this factor (1-4; default: 2).")
+group.add_argument('--trace', metavar='FILE',
+                   help="Log executed instructions to a file.")
 namespace, unknown_args = parser.parse_known_args()
 if unknown_args or namespace.infile is None:
     parser.exit(2, parser.format_help())
