@@ -58,7 +58,7 @@ def _show_blocks(data, options):
             else:
                 if flags & 2:
                     sdata = zlib.decompress(sdata)
-                with tempfile.NamedTemporaryFile(suffix=f'.{ext}') as f:
+                with tempfile.NamedTemporaryFile(suffix=f'.{ext}', buffering=0) as f:
                     f.write(sdata)
                     snap = Snapshot.get(f.name)
                     machine = 'Unknown'

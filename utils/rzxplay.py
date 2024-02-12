@@ -116,7 +116,7 @@ def parse_rzx(rzxfile):
             sdata = data[i + 17:i + block_len]
             if flags & 2:
                 sdata = zlib.decompress(sdata)
-            with tempfile.NamedTemporaryFile(suffix=f'.{ext}') as f:
+            with tempfile.NamedTemporaryFile(suffix=f'.{ext}', buffering=0) as f:
                 f.write(sdata)
                 snapshot = Snapshot.get(f.name)
             contents.append([snapshot, None])
