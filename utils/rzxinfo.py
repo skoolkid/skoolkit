@@ -112,20 +112,47 @@ def _show_blocks(data, options):
             print(f'Unknown block ID: 0x{block_id:02X}')
         i += block_len
 
+def _extract_snapshots(data, prefix):
+    i = 10
+    s_count = 0
+    while i < len(data):
+        block_id = data[i]
+        block_len = get_dword(data, i + 1)
+        if block_id == 0x30:
+            flags = data[i + 5]
+            if flags & 1 == 0:
+                ext = _get_str(data, i + 9).lower()
+                sdata = data[i + 17:i + block_len]
+                if flags & 2:
+                    sdata = zlib.decompress(sdata)
+                s_count += 1
+                sfname = f'{prefix}.{s_count:03}.{ext}'
+                with open(sfname, 'wb') as f:
+                    f.write(sdata)
+                print(f'Extracted {sfname}')
+        i += block_len
+    if s_count == 0:
+        print('No snapshots found')
+
 def run(infile, options):
     with open(infile, 'rb') as f:
         data = f.read()
     if data[:4] != b'RZX!' or len(data) < 10:
         error('Not an RZX file')
-    _show_blocks(data, options)
+    if options.extract:
+        _extract_snapshots(data, os.path.basename(infile))
+    else:
+        _show_blocks(data, options)
 
 parser = argparse.ArgumentParser(
     usage='%(prog)s [options] FILE',
-    description="Show the blocks in an RZX file.",
+    description="Show the blocks in or extract snapshots from an RZX file.",
     add_help=False
 )
 parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
 group = parser.add_argument_group('Options')
+group.add_argument('--extract', action='store_true',
+                   help="Extract snapshots.")
 group.add_argument('--frames', action='store_true',
                    help="Show the contents of every frame.")
 namespace, unknown_args = parser.parse_known_args()
