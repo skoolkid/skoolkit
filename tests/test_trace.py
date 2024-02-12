@@ -1282,6 +1282,47 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_option_reg_with_snapshot(self):
+        data = [
+            0x3C  # INC A
+        ]
+        start, stop = 32768, 32769
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        z80reg = {
+            'A': 0xFF, 'F': 0xFF, 'B': 0xFF, 'C': 0xFF, 'D': 0xFF, 'E': 0xFF, 'H': 0xFF, 'L': 0xFF,
+            '^A': 0xFF, '^F': 0xFF, '^B': 0xFF, '^C': 0xFF, '^D': 0xFF, '^E': 0xFF, '^H': 0xFF, '^L': 0xFF,
+            'IXl': 0xFF, 'IXh': 0xFF, 'IYl': 0xFF, 'IYh': 0xFF,
+            'I': 0xFF, 'R': 0xFF, 'SP': 0xFFFF, 'PC': start
+        }
+        z80file = self.write_z80_file(None, ram, registers=z80reg)
+        registers = {
+            'A': 0x50,
+            'F': 0b01000001,
+            'BC': 0x1234,
+            'DE': 0x2345,
+            'HL': 0x3456,
+            'IX': 0x4567,
+            'IY': 0x5678,
+            'I': 0x67,
+            'R': 0x89,
+            '^A': 0x98,
+            '^F': 0b10101010,
+            '^BC': 0x8765,
+            '^DE': 0x7654,
+            '^HL': 0x6543,
+            'SP': 0x5432
+        }
+        reg_options = ' '.join(f'--reg {r}={v}' for r, v in registers.items())
+        output, error = self.run_trace(f'-n -S {stop} -vv {reg_options} {z80file}')
+        self.assertEqual(error, '')
+        exp_output = """
+            $8000 INC A            A=51  F=00000001  BC=1234  DE=2345  HL=3456  IX=4567 IY=5678
+                                   A'=98 F'=10101010 BC'=8765 DE'=7654 HL'=6543 SP=5432 IR=678A
+            Stopped at $8001
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     def test_option_reg_help(self):
         output, error = self.run_trace('--reg help')
         self.assertTrue(output.startswith('Usage: --reg name=value\n'))

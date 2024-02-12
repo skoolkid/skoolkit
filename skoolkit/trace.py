@@ -92,38 +92,6 @@ class Tracer(PagingTracer):
                 self.spkr = value & 0x10
                 self.out_times.append(registers[T])
 
-def get_registers(snapshot, specs):
-    if snapshot:
-        registers = {
-            'A': snapshot.a,
-            'F': snapshot.f,
-            'BC': snapshot.bc,
-            'DE': snapshot.de,
-            'HL': snapshot.hl,
-            'IXh': snapshot.ix // 256,
-            'IXl': snapshot.ix % 256,
-            'IYh': snapshot.iy // 256,
-            'IYl': snapshot.iy % 256,
-            'SP': snapshot.sp,
-            'I': snapshot.i,
-            'R': snapshot.r,
-            '^A': snapshot.a2,
-            '^F': snapshot.f2,
-            '^BC': snapshot.bc2,
-            '^DE': snapshot.de2,
-            '^HL': snapshot.hl2
-        }
-    else:
-        registers = {}
-    for spec in specs:
-        reg, sep, val = spec.upper().partition('=')
-        if sep:
-            try:
-                registers[reg] = get_int_param(val, True)
-            except ValueError:
-                raise SkoolKitError("Cannot parse register value: {}".format(spec))
-    return registers
-
 def rle(s, length):
     s2 = []
     count = 1
@@ -167,27 +135,47 @@ def run(snafile, options, config):
     else:
         snapshot = Snapshot.get(snafile)
         if snapshot:
-            memory = snapshot.ram(-1)
-            if len(memory) == 0xC000:
-                memory = [0] * 0x4000 + memory
-                if snapshot.type == 'SNA':
-                    snapshot.sp = (snapshot.sp + 2) % 65536
+            if snapshot.type == 'SNA' and len(snapshot.tail) == 0xC000:
+                snapshot.sp = (snapshot.sp + 2) % 65536
         else:
             memory, org = make_snapshot(snafile, options.org)[:2]
+    if options.cmio:
+        simulator_cls = CMIOSimulator
+    else:
+        simulator_cls = Simulator
+    registers = {}
+    for spec in options.reg:
+        reg, sep, val = spec.upper().partition('=')
+        if sep:
+            try:
+                registers[reg] = get_int_param(val, True)
+            except ValueError:
+                raise SkoolKitError("Cannot parse register value: {}".format(spec))
+    fast = options.verbose == 0 and not options.interrupts
+    sim_config = {'fast_djnz': fast, 'fast_ldir': fast}
     if snapshot:
-        state = {'im': snapshot.im, 'iff': snapshot.iff1, 'tstates': snapshot.tstates}
         border = snapshot.border
         out7ffd = snapshot.out7ffd
         outfffd = snapshot.outfffd
         ay = list(snapshot.ay)
         outfe = snapshot.outfe
+        simulator = simulator_cls.from_snapshot(snapshot, registers, sim_config, options.rom)
+        memory = simulator.memory
     else:
-        state = {'im': 1, 'iff': 1, 'tstates': 0}
         border = 7
         out7ffd = 0
         outfffd = 0
         ay = [0] * 16
         outfe = 0
+        if len(memory) == 65536:
+            rom = read_bin_file(options.rom or ROM48)
+            memory[:len(rom)] = rom
+        else:
+            banks = [memory[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
+            memory = Memory(banks, out7ffd)
+        state = {'im': 1, 'iff': 1, 'tstates': 0}
+        simulator = simulator_cls(memory, registers, state, sim_config)
+    t0 = simulator.registers[T]
     start = options.start
     if start is None:
         if snapshot:
@@ -196,25 +184,8 @@ def run(snafile, options, config):
             start = options.org
         else:
             start = org
-    fast = options.verbose == 0 and not options.interrupts
-    sim_config = {'fast_djnz': fast, 'fast_ldir': fast}
-    if options.rom:
-        rom = read_bin_file(options.rom)
-        memory[:len(rom)] = rom
-    elif len(memory) == 65536:
-        memory[:0x4000] = read_bin_file(ROM48)
-    else:
-        banks = [memory[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
-        memory = Memory(banks, out7ffd)
-        sim_config['frame_duration'] = FRAME_DURATIONS[1]
-        sim_config['int_active'] = INT_ACTIVE[1]
     for spec in options.pokes:
         poke(memory, spec)
-    if options.cmio:
-        simulator_cls = CMIOSimulator
-    else:
-        simulator_cls = Simulator
-    simulator = simulator_cls(memory, get_registers(snapshot, options.reg), state, sim_config)
     tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe)
     simulator.set_tracer(tracer)
     if options.verbose:
@@ -229,7 +200,7 @@ def run(snafile, options, config):
                options.interrupts, trace_line, prefix, byte_fmt, word_fmt)
     rt = time.time() - begin
     if options.stats:
-        z80t = simulator.registers[T] - state['tstates']
+        z80t = simulator.registers[T] - t0
         z80s = z80t / 3500000
         speed = z80s / (rt or 0.001) # Avoid division by zero
         print(f'Z80 execution time: {z80t} T-states ({z80s:.03f}s)')
@@ -250,7 +221,7 @@ def run(snafile, options, config):
             state.extend(f'ay[{n}]={v}' for n, v in enumerate(tracer.ay))
             state.extend((f'7ffd={tracer.out7ffd}', f'fffd={tracer.outfffd}'))
         else:
-            ram = memory[0x4000:]
+            ram = simulator.memory[0x4000:]
         r = simulator.registers
         registers = (
             f'a={r[A]}',

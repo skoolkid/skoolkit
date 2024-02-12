@@ -25,8 +25,8 @@ sys.path.insert(0, SKOOLKIT_HOME)
 
 from skoolkit import ROM48, error, get_dword, get_word, read_bin_file, write
 from skoolkit.pagingtracer import Memory
-from skoolkit.snapshot import Snapshot, FRAME_DURATIONS
-from skoolkit.simulator import Simulator, INT_ACTIVE, R1
+from skoolkit.snapshot import Snapshot
+from skoolkit.simulator import Simulator, R1
 from skoolkit.traceutils import disassemble
 
 if pygame:
@@ -178,43 +178,6 @@ def draw(screen, memory, frame, pixel_rects, cell_rects, prev_scr):
                     px += 1
                 py += 1
 
-def get_registers(snapshot):
-    return {
-        'A': snapshot.a,
-        'F': snapshot.f,
-        'BC': snapshot.bc,
-        'DE': snapshot.de,
-        'HL': snapshot.hl,
-        'IXh': snapshot.ix // 256,
-        'IXl': snapshot.ix % 256,
-        'IYh': snapshot.iy // 256,
-        'IYl': snapshot.iy % 256,
-        'SP': snapshot.sp,
-        'I': snapshot.i,
-        'R': snapshot.r,
-        '^A': snapshot.a2,
-        '^F': snapshot.f2,
-        '^BC': snapshot.bc2,
-        '^DE': snapshot.de2,
-        '^HL': snapshot.hl2,
-        'PC': snapshot.pc
-    }
-
-def get_simulator(snapshot, options):
-    memory = snapshot.ram(-1)
-    if len(memory) == 0x20000:
-        banks = [memory[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
-        memory = Memory(banks, snapshot.out7ffd)
-    else:
-        memory = list(read_bin_file(ROM48)) + memory
-    state = {'im': snapshot.im, 'iff': snapshot.iff1, 'tstates': snapshot.tstates}
-    registers = get_registers(snapshot)
-    config = {}
-    if len(memory) == 0x20000:
-        config['frame_duration'] = FRAME_DURATIONS[1]
-        config['int_active'] = INT_ACTIVE[1]
-    return Simulator(memory, registers, state, config)
-
 def supported(snapshot):
     if snapshot is None:
         return False
@@ -250,7 +213,7 @@ def run(infile, options):
     snapshot, input_rec = parse_rzx(infile)[0]
     if not supported(snapshot):
         error('Snapshot or machine type not supported')
-    simulator = get_simulator(snapshot, options)
+    simulator = Simulator.from_snapshot(snapshot)
     if len(simulator.memory) == 0x20000:
         tracer = RZXTracer128(simulator, input_rec.frames, input_rec.tstates, snapshot.out7ffd)
     else:

@@ -16,6 +16,9 @@
 
 from functools import partial
 
+from skoolkit import ROM48, read_bin_file
+from skoolkit.pagingtracer import Memory
+
 JR_OFFSETS = tuple(j + 2 if j < 128 else j - 254 for j in range(256))
 
 OFFSETS = tuple(d if d < 128 else d - 256 for d in range(256))
@@ -23,6 +26,8 @@ OFFSETS = tuple(d if d < 128 else d - 256 for d in range(256))
 R1 = tuple((r & 0x80) + ((r + 1) % 128) for r in range(256))
 
 R2 = tuple((r & 0x80) + ((r + 2) % 128) for r in range(256))
+
+FRAME_DURATIONS = (69888, 70908)
 
 INT_ACTIVE = (32, 36)
 
@@ -139,6 +144,49 @@ class Simulator:
         self.frame_duration = cfg['frame_duration']
         self.int_active = cfg['int_active']
         self.set_tracer(None)
+
+    @classmethod
+    def from_snapshot(cls, snapshot, registers=None, config=None, rom_file=None):
+        ram = snapshot.ram(-1)
+        if len(ram) == 0x20000:
+            banks = [ram[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
+            s_memory = Memory(banks, snapshot.out7ffd)
+        else:
+            s_memory = [0] * 16384 + ram
+            rom = read_bin_file(rom_file or ROM48)
+            s_memory[:len(rom)] = rom
+        s_registers = {
+            'A': snapshot.a,
+            'F': snapshot.f,
+            'BC': snapshot.bc,
+            'DE': snapshot.de,
+            'HL': snapshot.hl,
+            'IX': snapshot.ix,
+            'IY': snapshot.iy,
+            'SP': snapshot.sp,
+            'I': snapshot.i,
+            'R': snapshot.r,
+            '^A': snapshot.a2,
+            '^F': snapshot.f2,
+            '^BC': snapshot.bc2,
+            '^DE': snapshot.de2,
+            '^HL': snapshot.hl2,
+            'PC': snapshot.pc
+        }
+        if registers:
+            s_registers.update(registers)
+        s_state = {
+            'im': snapshot.im,
+            'iff': snapshot.iff1,
+            'tstates': snapshot.tstates
+        }
+        s_config = {
+            'frame_duration': FRAME_DURATIONS[len(ram) == 0x20000],
+            'int_active': INT_ACTIVE[len(ram) == 0x20000]
+        }
+        if config:
+            s_config.update(config)
+        return cls(s_memory, s_registers, s_state, s_config)
 
     def set_tracer(self, tracer, in_r_c=True, ini=True):
         self.in_a_n_tracer = None
