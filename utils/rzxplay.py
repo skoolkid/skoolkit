@@ -112,6 +112,8 @@ def parse_rzx(rzxfile):
         if block_id == 0x30:
             # Snapshot
             flags = data[i + 5]
+            if flags & 1:
+                error('Missing snapshot (external file)')
             ext = ''.join(chr(b) for b in data[i + 9:i + 13] if b)
             sdata = data[i + 17:i + block_len]
             if flags & 2:
@@ -126,8 +128,9 @@ def parse_rzx(rzxfile):
             tstates = get_dword(data, i + 10)
             flags = get_dword(data, i + 14)
             frames = []
-            if contents[-1][1] is None:
-                contents[-1][1] = InputRecording(tstates, frames)
+            if not contents or contents[-1][1] is not None:
+                error('Missing snapshot')
+            contents[-1][1] = InputRecording(tstates, frames)
             frames_data = data[i + 18:i + block_len]
             if flags & 2:
                 frames_data = zlib.decompress(frames_data)
@@ -144,6 +147,8 @@ def parse_rzx(rzxfile):
                     j += 4 + in_counter
                 frames.append(Frame(fetch_counter, port_readings))
         i += block_len
+    if not contents or contents[-1][1] is None:
+        error('Missing snapshot or input recording block')
     return contents
 
 def draw(screen, memory, frame, pixel_rects, cell_rects, prev_scr):
