@@ -243,6 +243,7 @@ def run(infile, options):
         tracefile = None
     frames = -1
     num_frames = len(input_rec.frames)
+    fnwidth = len(str(num_frames))
     prev_scr = [None] * 6912
     run = True
     while run:
@@ -260,7 +261,7 @@ def run(infile, options):
             ld_r_a = memory[pc] == 0xED and memory[(pc + 1) % 65536] == 0x4F
             if tracefile:
                 i = disassemble(memory, pc)[0]
-                tracefile.write(f'F:{frames:05} T:{registers[25] % frame_duration:05} C:{fetch_counter:05} I:{len(tracer.readings):05} ${pc:04X} {i}\n')
+                tracefile.write(f'F:{frames:0{fnwidth}} T:{registers[25]:05} C:{fetch_counter:05} I:{len(tracer.readings):05} ${pc:04X} {i}\n')
             opcodes[memory[pc]]()
             if ld_r_a:
                 fetch_counter -= 2
@@ -274,11 +275,14 @@ def run(infile, options):
                     run = False
             clock.tick(options.fps)
             prev_scr = memory[16384:23296]
+        registers[25] = 0
         if simulator.iff:
             if memory[pc] == 0x76:
                 # Advance PC if the CPU was halted
                 registers[24] = (registers[24] + 1) % 65536
-            simulator.accept_interrupt(registers, memory, pc)
+            # Always accept an interrupt at a frame boundary, even if the
+            # instruction just executed would normally block it
+            simulator.accept_interrupt(registers, memory, 0)
     if tracefile:
         tracefile.close()
 
