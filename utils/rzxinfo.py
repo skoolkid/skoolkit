@@ -53,7 +53,7 @@ def _show_blocks(data, options):
             print(f'  Size: {length} bytes')
             sdata = data[i + 17:i + block_len]
             if flags & 1:
-                ext_sname = ''.join(chr(b) for b in sdata[4:])
+                ext_sname = _get_str(sdata, 4)
                 print(f'  External snapshot: {ext_sname}')
             else:
                 if flags & 2:
