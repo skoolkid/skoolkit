@@ -12,7 +12,7 @@ from unittest import TestCase
 
 SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
-from skoolkit import (bin2sna, bin2tap, sna2img, skool2asm, skool2bin,
+from skoolkit import (bin2sna, bin2tap, rzxinfo, sna2img, skool2asm, skool2bin,
                       skool2ctl, skool2html, sna2ctl, sna2skool, snapinfo,
                       snapmod, tap2sna, tapinfo, trace)
 
@@ -23,6 +23,9 @@ Z80_REGISTERS = {
     '^l': 19, '^h': 20, '^a': 21, '^f': 22, 'iy': 23, 'ix': 25,
     'pc': 32
 }
+
+def as_dword(num):
+    return (num % 256, (num >> 8) % 256, (num >> 16) % 256, (num >> 24) % 256)
 
 def get_parity(data):
     parity = 0
@@ -239,6 +242,97 @@ class Z80:
                 block.append(b)
         return block
 
+class RZX:
+    def __init__(self, major=0, minor=13):
+        self.major = major
+        self.minor = minor
+        self.creator = ()
+        self.security = ()
+        self.signature = ()
+        self.snapshots = []
+
+    def set_creator(self, creator_id='Nobody', major=1, minor=0, custom_data=()):
+        b_len = 29 + len(custom_data)
+        creator_b = [ord(c) for c in creator_id[:20]]
+        creator_b += [0] * (20 - len(creator_b))
+        self.creator = [
+            0x10,             # Block ID
+            *as_dword(b_len), # Block length
+            *creator_b,       # Creator ID
+            major, 0,
+            minor, 0,
+            *custom_data
+        ]
+
+    def set_security(self, key_id=0, week_code=0):
+        self.security = [
+            0x20,                # Block ID
+            13, 0, 0, 0,         # Block length
+            *as_dword(key_id),
+            *as_dword(week_code)
+        ]
+
+    def set_signature(self, r=(), s=()):
+        b_len = 5 + len(r) + len(s)
+        self.signature = [
+            0x21,            # Block ID
+            *as_dword(b_len) # Block length
+        ]
+        self.signature.extend(r)
+        self.signature.extend(s)
+
+    def add_snapshot(self, data, ext, frames=None, flags=0, tstates=0, io_flags=2):
+        ext_b = [ord(c) for c in ext[:4]]
+        ext_b += [0] * (4 - len(ext_b))
+        s_len = len(data)
+        if flags & 2:
+            s_data = zlib.compress(bytes(data), 9)
+        else:
+            s_data = data
+        b_len = 17 + len(s_data)
+        s_block = [
+            0x30,             # Block ID
+            *as_dword(b_len), # Block length
+            *as_dword(flags), # Flags
+            *ext_b,
+            *as_dword(s_len)  # Uncompressed snapshot length
+        ]
+        s_block.extend(s_data)
+
+        io_frames = []
+        for nf, (fc, ic, readings) in enumerate(frames or [(1, 1, [0])], 1):
+            io_frames.extend((fc % 256, fc // 256, ic % 256, ic // 256))
+            io_frames.extend(readings)
+        if io_flags & 2:
+            io_frames = zlib.compress(bytes(io_frames), 9)
+        b_len = 18 + len(io_frames)
+        io_block = [
+            0x80,               # Block ID
+            *as_dword(b_len),   # Block length
+            *as_dword(nf),      # Number of frames
+            0,                  # Reserved
+            *as_dword(tstates), # Initial T-states
+            *as_dword(io_flags) # Flags
+        ]
+        io_block.extend(io_frames)
+
+        self.snapshots.append((s_block, io_block))
+
+    def data(self):
+        data = [
+            82, 90, 88, 33, # RZX!
+            self.major,
+            self.minor,
+            0, 0, 0, 0      # Flags
+        ]
+        data.extend(self.creator)
+        data.extend(self.security)
+        data.extend(self.signature)
+        for snapshot, input_recording in self.snapshots:
+            data.extend(snapshot)
+            data.extend(input_recording)
+        return data
+
 class SkoolKitTestCase(TestCase):
     stdout_binary = False
 
@@ -326,6 +420,9 @@ class SkoolKitTestCase(TestCase):
     def write_stdin(self, contents):
         sys.stdin = StdIn(contents)
 
+    def write_rzx_file(self, rzx):
+        return self.write_bin_file(rzx.data(), suffix='.rzx')
+
     def _get_z80_ram_block(self, data, compress, page=None):
         if compress:
             block = []
@@ -406,7 +503,7 @@ class SkoolKitTestCase(TestCase):
         header[28] = registers.get('iff2', 0)
         header[29] = (header[29] & 0xFC) | registers.get('im', 0)
 
-    def write_z80(self, ram, version=3, compress=False, machine_id=0, modify=False, out_7ffd=0, pages={}, header=None, registers=None, ay=None):
+    def write_z80(self, ram, version=3, compress=False, machine_id=0, modify=False, out_7ffd=0, pages={}, header=None, registers=None, ay=None, ret_data=False):
         model = 1
         if version == 1:
             if header is None:
@@ -451,10 +548,12 @@ class SkoolKitTestCase(TestCase):
                 self._set_z80_registers(z80, version, registers)
             for bank in sorted(banks):
                 z80 += self._get_z80_ram_block(banks[bank], compress, bank + 3)
+        if ret_data:
+            return model, z80
         return model, self.write_bin_file(z80, suffix='.z80')
 
-    def write_z80_file(self, header, ram, version=3, compress=False, machine_id=0, pages={}, registers=None, ay=None):
-        return self.write_z80(ram, version, compress, machine_id, pages=pages, header=header, registers=registers, ay=ay)[1]
+    def write_z80_file(self, header, ram, version=3, compress=False, machine_id=0, pages={}, registers=None, ay=None, ret_data=False):
+        return self.write_z80(ram, version, compress, machine_id, pages=pages, header=header, registers=registers, ay=ay, ret_data=ret_data)[1]
 
     def _get_szx_header(self, machine_id=1, ch7ffd=0, specregs=True, border=0):
         header = [90, 88, 83, 84] # ZXST
@@ -489,7 +588,7 @@ class SkoolKitTestCase(TestCase):
         ramp.extend(ram)
         return ramp
 
-    def write_szx(self, ram, compress=True, machine_id=1, ch7ffd=0, pages={}, registers=(), border=0, keyb=False, issue2=0, ay=None):
+    def write_szx(self, ram, compress=True, machine_id=1, ch7ffd=0, pages={}, registers=(), border=0, keyb=False, issue2=0, ay=None, ret_data=False):
         szx = self._get_szx_header(machine_id, ch7ffd, border=border)
         if keyb:
             szx.extend((75, 69, 89, 66)) # KEYB
@@ -521,6 +620,8 @@ class SkoolKitTestCase(TestCase):
                     rampages[bank] = self._get_zxstrampage(bank, compress, [0] * 16384)
         for bank in sorted(rampages):
             szx.extend(rampages[bank])
+        if ret_data:
+            return szx
         return self.write_bin_file(szx, suffix='.szx')
 
     def _run_skoolkit_command(self, cmd, args, catch_exit):
@@ -540,6 +641,9 @@ class SkoolKitTestCase(TestCase):
 
     def run_bin2tap(self, args='', catch_exit=None):
         return self._run_skoolkit_command(bin2tap.main, args, catch_exit)
+
+    def run_rzxinfo(self, args='', catch_exit=None):
+        return self._run_skoolkit_command(rzxinfo.main, args, catch_exit)
 
     def run_sna2img(self, args='', catch_exit=None):
         return self._run_skoolkit_command(sna2img.main, args, catch_exit)

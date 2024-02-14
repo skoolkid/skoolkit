@@ -1,26 +1,31 @@
-#!/usr/bin/env python3
+# Copyright 2024 Richard Dymond (rjdymond@gmail.com)
+#
+# This file is part of SkoolKit.
+#
+# SkoolKit is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# SkoolKit is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# SkoolKit. If not, see <http://www.gnu.org/licenses/>.
+
 import argparse
 import os
-import sys
 import tempfile
 import zlib
 
-SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
-if not SKOOLKIT_HOME:
-    sys.stderr.write('SKOOLKIT_HOME is not set; aborting\n')
-    sys.exit(1)
-if not os.path.isdir(SKOOLKIT_HOME):
-    sys.stderr.write(f'SKOOLKIT_HOME={SKOOLKIT_HOME}; directory not found\n')
-    sys.exit(1)
-sys.path.insert(0, SKOOLKIT_HOME)
-
-from skoolkit import error, get_dword, get_word
-from skoolkit.snapshot import Snapshot
+from skoolkit import VERSION, SkoolKitError, get_dword, get_word
 from skoolkit.snapinfo import get_szx_machine_type, get_z80_machine_type
+from skoolkit.snapshot import Snapshot
 
-def _get_str(data, i):
+def _get_str(data, i, max_len):
     s = ''
-    while data[i]:
+    while data[i] and len(s) < max_len:
         s += chr(data[i])
         i += 1
     return s
@@ -36,7 +41,7 @@ def _show_blocks(data, options):
         block_len = get_dword(data, i + 1)
         if block_id == 0x10:
             print('Creator information:')
-            creator_id = _get_str(data, i + 5)
+            creator_id = _get_str(data, i + 5, 20)
             vmajor = get_word(data, i + 25)
             vminor = get_word(data, i + 27)
             print(f'  ID: {creator_id} {vmajor}.{vminor}')
@@ -47,13 +52,13 @@ def _show_blocks(data, options):
         elif block_id == 0x30:
             print('Snapshot:')
             flags = data[i + 5]
-            ext = _get_str(data, i + 9)
+            ext = _get_str(data, i + 9, 4)
             length = get_dword(data, i + 13)
             print(f'  Filename extension: {ext}')
             print(f'  Size: {length} bytes')
             sdata = data[i + 17:i + block_len]
             if flags & 1:
-                ext_sname = _get_str(sdata, 4)
+                ext_sname = _get_str(sdata, 4, len(sdata) - 4)
                 print(f'  External snapshot: {ext_sname}')
             else:
                 if flags & 2:
@@ -61,19 +66,22 @@ def _show_blocks(data, options):
                 with tempfile.NamedTemporaryFile(suffix=f'.{ext}', buffering=0) as f:
                     f.write(sdata)
                     snap = Snapshot.get(f.name)
+                if snap:
+                    if snap.type == 'SNA':
+                        if len(snap.tail) > 0xC000:
+                            machine = '128K Spectrum'
+                        else:
+                            machine = '48K Spectrum'
+                    elif snap.type == 'SZX':
+                        machine = get_szx_machine_type(snap.header)
+                    elif snap.type == 'Z80':
+                        machine = get_z80_machine_type(snap.header)
+                    start_addr = snap.pc
+                else:
                     machine = 'Unknown'
-                    if snap:
-                        if snap.type == 'SNA':
-                            if len(snap.ram(-1)) == 0x20000:
-                                machine = '128K Spectrum'
-                            else:
-                                machine = '48K Spectrum'
-                        elif snap.type == 'SZX':
-                            machine = get_szx_machine_type(snap.header)
-                        elif snap.type == 'Z80':
-                            machine = get_z80_machine_type(snap.header)
+                    start_addr = 'Unknown'
                 print(f'  Machine: {machine}')
-                print(f'  Start address: {snap.pc}')
+                print(f'  Start address: {start_addr}')
         elif block_id == 0x80:
             print('Input recording')
             num_frames = get_dword(data, i + 5)
@@ -121,7 +129,7 @@ def _extract_snapshots(data, prefix):
         if block_id == 0x30:
             flags = data[i + 5]
             if flags & 1 == 0:
-                ext = _get_str(data, i + 9).lower()
+                ext = _get_str(data, i + 9, 4).lower()
                 sdata = data[i + 17:i + block_len]
                 if flags & 2:
                     sdata = zlib.decompress(sdata)
@@ -138,24 +146,27 @@ def run(infile, options):
     with open(infile, 'rb') as f:
         data = f.read()
     if data[:4] != b'RZX!' or len(data) < 10:
-        error('Not an RZX file')
+        raise SkoolKitError('Not an RZX file')
     if options.extract:
         _extract_snapshots(data, os.path.basename(infile))
     else:
         _show_blocks(data, options)
 
-parser = argparse.ArgumentParser(
-    usage='%(prog)s [options] FILE',
-    description="Show the blocks in or extract snapshots from an RZX file.",
-    add_help=False
-)
-parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
-group = parser.add_argument_group('Options')
-group.add_argument('--extract', action='store_true',
-                   help="Extract snapshots.")
-group.add_argument('--frames', action='store_true',
-                   help="Show the contents of every frame.")
-namespace, unknown_args = parser.parse_known_args()
-if unknown_args or namespace.infile is None:
-    parser.exit(2, parser.format_help())
-run(namespace.infile, namespace)
+def main(args):
+    parser = argparse.ArgumentParser(
+        usage='rzxinfo.py [options] FILE',
+        description="Show the blocks in or extract the snapshots from an RZX file.",
+        add_help=False
+    )
+    parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
+    group = parser.add_argument_group('Options')
+    group.add_argument('--extract', action='store_true',
+                       help="Extract snapshots.")
+    group.add_argument('--frames', action='store_true',
+                       help="Show the contents of every frame.")
+    group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit.')
+    namespace, unknown_args = parser.parse_known_args(args)
+    if unknown_args or namespace.infile is None:
+        parser.exit(2, parser.format_help())
+    run(namespace.infile, namespace)

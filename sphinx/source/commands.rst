@@ -196,6 +196,31 @@ block on the tape.
 | 1.3.1   | New                                                               |
 +---------+-------------------------------------------------------------------+
 
+.. _rzxinfo.py:
+
+rzxinfo.py
+----------
+`rzxinfo.py` shows the blocks in or extracts the snapshots from an RZX file.
+For example::
+
+  $ rzxinfo.py game.rzx
+
+To list the options supported by rzxinfo.py, run it with no arguments::
+
+  usage: rzxinfo.py [options] FILE
+
+  Show the blocks in or extract the snapshots from an RZX file.
+
+  Options:
+    --extract  Extract snapshots.
+    --frames   Show the contents of every frame.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 9.2     | New     |
++---------+---------+
+
 .. _skool2asm.py:
 
 skool2asm.py

@@ -225,6 +225,8 @@ man_pages = [
      'convert a binary file into an SZX or Z80 snapshot', _authors, 1),
     ('man/bin2tap.py', 'bin2tap.py',
      'convert a binary file or snapshot into a TAP file', _authors, 1),
+    ('man/rzxinfo.py', 'rzxinfo.py',
+     'show the blocks in or extract the snapshots from an RZX file', _authors, 1),
     ('man/skool2asm.py', 'skool2asm.py',
      'convert a skool file to ASM format', _authors, 1),
     ('man/skool2bin.py', 'skool2bin.py',
