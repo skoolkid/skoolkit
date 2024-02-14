@@ -256,11 +256,21 @@ class TapinfoTest(SkoolKitTestCase):
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x15(self):
-        block = [21] # Block ID
-        block.extend([0] * 5)
-        block.extend((2, 0, 0)) # Length of samples
-        block.extend((128, 12)) # Samples
-        exp_output = '1: Direct recording (0x15)'
+        block = (
+            21,      # Block ID
+            80, 0,   # T-states per sample
+            100, 0,  # Pause
+            4,       # Used bits in last byte
+            2, 0, 0, # Length of samples data
+            128, 12  # Samples
+        )
+        exp_output = """
+            1: Direct recording (0x15)
+              T-states per sample: 80
+              Pause: 100ms
+              Used bits in last byte: 4
+              Length: 2
+        """
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x18(self):

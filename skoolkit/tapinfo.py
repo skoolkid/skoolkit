@@ -1,4 +1,4 @@
-# Copyright 2013, 2015, 2017, 2020, 2022, 2023
+# Copyright 2013, 2015, 2017, 2020, 2022-2024
 # Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
@@ -305,7 +305,12 @@ def _get_block_info(data, i, block_num):
         i += length + 10
     elif block_id == 21:
         header = 'Direct recording'
-        i += get_word3(data, i + 5) + 8
+        info.append('T-states per sample: {}'.format(get_word(data, i)))
+        info.append('Pause: {}ms'.format(get_word(data, i + 2)))
+        info.append('Used bits in last byte: {}'.format(data[i + 4]))
+        samples_length = get_word3(data, i + 5)
+        info.append('Length: {}'.format(samples_length))
+        i += 8 + samples_length
     elif block_id == 24:
         header = 'CSW recording'
         i += get_dword(data, i) + 4
