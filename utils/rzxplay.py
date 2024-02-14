@@ -193,13 +193,15 @@ def check_supported(snapshot, options):
         if len(header) == 30:
             # Version 1
             return
+        if header[37] & 128:
+            return 'Unsupported machine type'
         machine_id = header[34]
         if len(header) == 55:
             # Version 2
             if machine_id not in (0, 3):
                 return 'Unsupported machine type'
         # Version 3
-        elif machine_id not in (0, 4, 12):
+        elif machine_id not in (0, 4):
             return 'Unsupported machine type'
     elif snapshot.type == 'SZX':
         supported_blocks = {'AY', 'CRTR', 'KEYB', 'JOY', 'RAMP', 'SPCR', 'TAPE', 'Z80R'}
@@ -207,7 +209,7 @@ def check_supported(snapshot, options):
         if unsupported_blocks:
             return 'Unsupported block(s) ({}) in SZX snapshot'.format(', '.join(unsupported_blocks))
         machine_id = snapshot.header[6]
-        if machine_id > 3:
+        if machine_id > 2:
             return 'Unsupported machine type'
 
 def run(infile, options):
