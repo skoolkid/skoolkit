@@ -259,7 +259,8 @@ def process_block(block, options, snapshot, screen, p_rectangles, c_rectangles, 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
-            clock.tick(options.fps)
+            if options.fps > 0:
+                clock.tick(options.fps)
             prev_scr = memory[16384:23296]
         registers[25] = 0
         if simulator.iff:
@@ -300,7 +301,8 @@ group = parser.add_argument_group('Options')
 group.add_argument('--force', action='store_true',
                    help="Force playback when unsupported hardware is detected.")
 group.add_argument('--fps', type=int, default=50,
-                   help="Run at this many frames per second.")
+                   help="Run at this many frames per second (default: 50). "
+                        "0 means maximum speed.")
 group.add_argument('--no-screen', dest='screen', action='store_false',
                    help="Run without a screen.")
 group.add_argument('--quiet', action='store_true',
