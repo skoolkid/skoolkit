@@ -212,8 +212,9 @@ To list the options supported by rzxinfo.py, run it with no arguments::
   Show the blocks in or extract the snapshots from an RZX file.
 
   Options:
-    --extract  Extract snapshots.
-    --frames   Show the contents of every frame.
+    --extract      Extract snapshots.
+    --frames       Show the contents of every frame.
+    -V, --version  Show SkoolKit version number and exit.
 
 +---------+---------+
 | Version | Changes |
