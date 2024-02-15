@@ -117,17 +117,14 @@ def parse_rzx(rzxfile):
             sdata = data[i + 17:i + block_len]
             if flags & 2:
                 sdata = zlib.decompress(sdata)
-            snapshot = Snapshot.get(sdata, ext)
-            contents.append([snapshot, None])
+            contents.append(Snapshot.get(sdata, ext))
         elif block_id == 0x80:
             # Input recording
             num_frames = get_dword(data, i + 5)
             tstates = get_dword(data, i + 10)
             flags = get_dword(data, i + 14)
             frames = []
-            if not contents or contents[-1][1] is not None:
-                error('Missing snapshot')
-            contents[-1][1] = InputRecording(tstates, frames)
+            contents.append(InputRecording(tstates, frames))
             frames_data = data[i + 18:i + block_len]
             if flags & 2:
                 frames_data = zlib.decompress(frames_data)
@@ -144,8 +141,6 @@ def parse_rzx(rzxfile):
                     j += 4 + in_counter
                 frames.append(Frame(fetch_counter, port_readings))
         i += block_len
-    if not contents or contents[-1][1] is None:
-        error('Missing snapshot or input recording block')
     return contents
 
 def draw(screen, memory, frame, pixel_rects, cell_rects, prev_scr):
@@ -181,8 +176,6 @@ def draw(screen, memory, frame, pixel_rects, cell_rects, prev_scr):
                 py += 1
 
 def check_supported(snapshot, options):
-    if snapshot is None:
-        return 'Unsupported snapshot type'
     if options.force:
         return
     if snapshot.type == 'Z80':
@@ -209,24 +202,18 @@ def check_supported(snapshot, options):
         if machine_id > 2:
             return 'Unsupported machine type'
 
-def run(infile, options):
-    snapshot, input_rec = parse_rzx(infile)[0]
-    error_msg = check_supported(snapshot, options)
-    if error_msg:
-        error(error_msg)
-    if options.screen and pygame:
-        print(pygame_io.getvalue())
-        pygame.init()
-        scale = options.scale
-        pygame.display.set_mode((256 * scale, 192 * scale))
-        pygame.display.set_caption(os.path.basename(infile))
-        p_rectangles = [[pygame.Rect(px * scale, py * scale, scale, scale) for py in range(192)] for px in range(256)]
-        c_rectangles = [[pygame.Rect(px * scale, py * scale, 8 * scale, 8 * scale) for py in range(0, 192, 8)] for px in range(0, 256, 8)]
-        screen = pygame.display.get_surface()
-        clock = pygame.time.Clock()
-    else:
-        screen = None
+def process_block(block, options, snapshot, screen, p_rectangles, c_rectangles, clock):
+    if block is None:
+        error('Unsupported snapshot type')
+    if isinstance(block, Snapshot):
+        error_msg = check_supported(block, options)
+        if error_msg:
+            error(error_msg)
+        return block
+    if snapshot is None:
+        return
     simulator = Simulator.from_snapshot(snapshot)
+    input_rec = block
     if len(simulator.memory) == 0x20000:
         tracer = RZXTracer128(simulator, input_rec.frames, input_rec.tstates, snapshot.out7ffd)
     else:
@@ -284,6 +271,24 @@ def run(infile, options):
             simulator.accept_interrupt(registers, memory, 0)
     if tracefile:
         tracefile.close()
+
+def run(infile, options):
+    if options.screen and pygame:
+        print(pygame_io.getvalue())
+        pygame.init()
+        scale = options.scale
+        pygame.display.set_mode((256 * scale, 192 * scale))
+        pygame.display.set_caption(os.path.basename(infile))
+        p_rectangles = [[pygame.Rect(px * scale, py * scale, scale, scale) for py in range(192)] for px in range(256)]
+        c_rectangles = [[pygame.Rect(px * scale, py * scale, 8 * scale, 8 * scale) for py in range(0, 192, 8)] for px in range(0, 256, 8)]
+        screen = pygame.display.get_surface()
+        clock = pygame.time.Clock()
+        context = (screen, p_rectangles, c_rectangles, clock)
+    else:
+        context = (None, None, None, None)
+    snapshot = None
+    for block in parse_rzx(infile):
+        snapshot = process_block(block, options, snapshot, *context)
 
 parser = argparse.ArgumentParser(
     usage='%(prog)s [options] FILE',
