@@ -10,6 +10,6 @@ def init_page(self, skoolkit, game):
         else:
             path = '{}/{:04X}.html'.format(asm_path, int(addr_str))
     root_path, sep, index = skoolkit['index_href'].rpartition('/')
-    skoolkit['AltPath'] = f'{root_path}{sep}../{game["alt_dir"]}/{path}'
+    skoolkit['AltPath'] = f'{root_path}{sep}../../{game['alt_dir']}/{game['Game']}/{path}'
 
 HtmlWriter.init_page = init_page
