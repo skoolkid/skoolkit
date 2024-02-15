@@ -161,14 +161,18 @@ class Snapshot:
         self.outfe = 0
 
     @classmethod
-    def get(cls, sfile):
-        ext = sfile[-4:].lower()
-        if ext == '.sna':
-            return SNA(sfile)
-        if ext == '.szx':
-            return SZX(sfile)
-        if ext == '.z80':
-            return Z80(sfile)
+    def get(cls, sfile, ext=None):
+        if ext is None:
+            ext = sfile.rpartition('.')[2]
+            data = read_bin_file(sfile)
+        else:
+            data = sfile
+        if ext.lower() == 'sna':
+            return SNA(data)
+        if ext.lower() == 'szx':
+            return SZX(data)
+        if ext.lower() == 'z80':
+            return Z80(data)
 
     def ram(self, page=None):
         return self.memory.ram(page)
@@ -182,14 +186,14 @@ class Snapshot:
             poke(self.memory, spec)
 
 class SNA(Snapshot):
-    def __init__(self, snafile):
+    def __init__(self, sna_data):
         super().__init__()
         self.type = 'SNA'
-        data = list(read_bin_file(snafile, 147488))
+        data = list(sna_data)
         self.header = data[:27]
         self.tail = data[27:]
         if len(self.tail) not in (49152, 131076, 147460):
-            raise SnapshotError(f'{snafile}: not a SNA file')
+            raise SnapshotError('Invalid SNA file')
         self.i = self.header[0]
         self.hl2 = get_word(self.header, 1)
         self.de2 = get_word(self.header, 3)
@@ -228,11 +232,11 @@ class SNA(Snapshot):
         self.memory = Memory(banks=banks, page=page)
 
 class SZX(Snapshot):
-    def __init__(self, szxfile=None, ram=None):
+    def __init__(self, szx_data=None, ram=None):
         super().__init__()
         self.type = 'SZX'
-        if szxfile:
-            self._read(szxfile)
+        if szx_data:
+            self._read(szx_data)
         else:
             self.header = bytearray(b'ZXST\x01\x04\x01\x00')
             self.blocks = {}
@@ -250,13 +254,13 @@ class SZX(Snapshot):
                 banks[0] = ram[0x8000:0xC000]
             self.memory = Memory(banks=banks)
 
-    def _read(self, szxfile):
+    def _read(self, szx_data):
         self.tail = []
         self.blocks = {}
         banks = {}
-        data = bytearray(read_bin_file(szxfile))
+        data = bytearray(szx_data)
         if len(data) < 8 or data[:4] != b'ZXST':
-            raise SnapshotError(f'{szxfile}: invalid SZX file')
+            raise SnapshotError('Invalid SZX file')
         self.header = data[:8]
         page = 0
         i = 8
@@ -412,11 +416,11 @@ class SZX(Snapshot):
                     f.write(self._get_zxstrampage(bank, data))
 
 class Z80(Snapshot):
-    def __init__(self, z80file=None, ram=(0,) * 49152):
+    def __init__(self, z80_data=None, ram=(0,) * 49152):
         super().__init__()
         self.type = 'Z80'
-        if z80file:
-            self._read(z80file)
+        if z80_data:
+            self._read(z80_data)
         else:
             self.header = [0] * 86
             self.header[30] = 54 # Version 3
@@ -432,9 +436,9 @@ class Z80(Snapshot):
                 banks[2] = ram[0x8000:0xC000]
             self.memory = Memory(banks=banks)
 
-    def _read(self, z80file):
+    def _read(self, z80_data):
         banks = {}
-        data = list(read_bin_file(z80file))
+        data = list(z80_data)
         if sum(data[6:8]) > 0:
             # Version 1
             page = 0

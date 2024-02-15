@@ -239,7 +239,7 @@ class SnapinfoTest(SkoolKitTestCase):
             infile = self.write_bin_file([0] * size, suffix='.sna')
             with self.assertRaises(SkoolKitError) as cm:
                 self.run_snapinfo(infile)
-            self.assertEqual(cm.exception.args[0], '{}: not a SNA file'.format(infile))
+            self.assertEqual(cm.exception.args[0], 'Invalid SNA file')
 
     def test_z80v1_uncompressed(self):
         header = list(range(16, 46))
@@ -838,7 +838,7 @@ class SnapinfoTest(SkoolKitTestCase):
 
     def test_szx_without_magic_number(self):
         non_szx = self.write_bin_file((1, 2, 3), suffix='.szx')
-        with self.assertRaisesRegex(SnapshotError, f'{non_szx}: invalid SZX file$'):
+        with self.assertRaisesRegex(SnapshotError, 'Invalid SZX file$'):
             self.run_snapinfo(non_szx)
 
     def test_raw_memory_file(self):

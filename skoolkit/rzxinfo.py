@@ -16,7 +16,6 @@
 
 import argparse
 import os
-import tempfile
 import zlib
 
 from skoolkit import VERSION, SkoolKitError, get_dword, get_word
@@ -63,9 +62,7 @@ def _show_blocks(data, options):
             else:
                 if flags & 2:
                     sdata = zlib.decompress(sdata)
-                with tempfile.NamedTemporaryFile(suffix=f'.{ext}', buffering=0) as f:
-                    f.write(sdata)
-                    snap = Snapshot.get(f.name)
+                snap = Snapshot.get(sdata, ext)
                 if snap:
                     if snap.type == 'SNA':
                         if len(snap.tail) > 0xC000:

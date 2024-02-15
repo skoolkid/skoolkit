@@ -5,7 +5,6 @@ from functools import partial
 import io
 import os
 import sys
-import tempfile
 import zlib
 
 with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
@@ -118,9 +117,7 @@ def parse_rzx(rzxfile):
             sdata = data[i + 17:i + block_len]
             if flags & 2:
                 sdata = zlib.decompress(sdata)
-            with tempfile.NamedTemporaryFile(suffix=f'.{ext}', buffering=0) as f:
-                f.write(sdata)
-                snapshot = Snapshot.get(f.name)
+            snapshot = Snapshot.get(sdata, ext)
             contents.append([snapshot, None])
         elif block_id == 0x80:
             # Input recording

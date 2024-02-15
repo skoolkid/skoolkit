@@ -171,7 +171,7 @@ class SnapmodTest(SkoolKitTestCase):
         infile = self.write_bin_file([0], suffix='.szx')
         with self.assertRaises(SkoolKitError) as cm:
             self.run_snapmod(f'-p 16384,0 {infile}')
-        self.assertEqual(cm.exception.args[0], f'{infile}: invalid SZX file')
+        self.assertEqual(cm.exception.args[0], 'Invalid SZX file')
 
     def test_mismatched_input_and_output_snapshot_types(self):
         with self.assertRaises(SkoolKitError) as cm:
