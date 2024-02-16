@@ -12,9 +12,9 @@ from unittest import TestCase
 
 SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
-from skoolkit import (bin2sna, bin2tap, rzxinfo, sna2img, skool2asm, skool2bin,
-                      skool2ctl, skool2html, sna2ctl, sna2skool, snapinfo,
-                      snapmod, tap2sna, tapinfo, trace)
+from skoolkit import (bin2sna, bin2tap, rzxinfo, rzxplay, sna2img, skool2asm,
+                      skool2bin, skool2ctl, skool2html, sna2ctl, sna2skool,
+                      snapinfo, snapmod, tap2sna, tapinfo, trace)
 
 Z80_REGISTERS = {
     'a': 0, 'f': 1, 'bc': 2, 'c': 2, 'b': 3, 'hl': 4, 'l': 4, 'h': 5,
@@ -282,22 +282,25 @@ class RZX:
         self.signature.extend(s)
 
     def add_snapshot(self, data, ext, frames=None, flags=0, tstates=0, io_flags=2):
-        ext_b = [ord(c) for c in ext[:4]]
-        ext_b += [0] * (4 - len(ext_b))
-        s_len = len(data)
-        if flags & 2:
-            s_data = zlib.compress(bytes(data), 9)
+        if data:
+            ext_b = [ord(c) for c in ext[:4]]
+            ext_b += [0] * (4 - len(ext_b))
+            s_len = len(data)
+            if flags & 2:
+                s_data = zlib.compress(bytes(data), 9)
+            else:
+                s_data = data
+            b_len = 17 + len(s_data)
+            s_block = [
+                0x30,             # Block ID
+                *as_dword(b_len), # Block length
+                *as_dword(flags), # Flags
+                *ext_b,
+                *as_dword(s_len)  # Uncompressed snapshot length
+            ]
+            s_block.extend(s_data)
         else:
-            s_data = data
-        b_len = 17 + len(s_data)
-        s_block = [
-            0x30,             # Block ID
-            *as_dword(b_len), # Block length
-            *as_dword(flags), # Flags
-            *ext_b,
-            *as_dword(s_len)  # Uncompressed snapshot length
-        ]
-        s_block.extend(s_data)
+            s_block = ()
 
         io_frames = []
         for nf, (fc, ic, readings) in enumerate(frames or [(1, 1, [0])], 1):
@@ -552,8 +555,8 @@ class SkoolKitTestCase(TestCase):
             return model, z80
         return model, self.write_bin_file(z80, suffix='.z80')
 
-    def write_z80_file(self, header, ram, version=3, compress=False, machine_id=0, pages={}, registers=None, ay=None, ret_data=False):
-        return self.write_z80(ram, version, compress, machine_id, pages=pages, header=header, registers=registers, ay=ay, ret_data=ret_data)[1]
+    def write_z80_file(self, header, ram, version=3, compress=False, machine_id=0, modify=False, out7ffd=0, pages={}, registers=None, ay=None, ret_data=False):
+        return self.write_z80(ram, version, compress, machine_id, modify, out7ffd, pages, header, registers, ay, ret_data)[1]
 
     def _get_szx_header(self, machine_id=1, ch7ffd=0, specregs=True, border=0):
         header = [90, 88, 83, 84] # ZXST
@@ -588,7 +591,7 @@ class SkoolKitTestCase(TestCase):
         ramp.extend(ram)
         return ramp
 
-    def write_szx(self, ram, compress=True, machine_id=1, ch7ffd=0, pages={}, registers=(), border=0, keyb=False, issue2=0, ay=None, ret_data=False):
+    def write_szx(self, ram, compress=True, machine_id=1, ch7ffd=0, pages={}, registers=(), border=0, keyb=False, issue2=0, ay=None, blocks=(), ret_data=False):
         szx = self._get_szx_header(machine_id, ch7ffd, border=border)
         if keyb:
             szx.extend((75, 69, 89, 66)) # KEYB
@@ -618,6 +621,8 @@ class SkoolKitTestCase(TestCase):
                     rampages[bank] = self._get_zxstrampage(bank, compress, data)
                 for bank in set(range(8)) - set(rampages):
                     rampages[bank] = self._get_zxstrampage(bank, compress, [0] * 16384)
+        for block in blocks:
+            szx.extend(block)
         for bank in sorted(rampages):
             szx.extend(rampages[bank])
         if ret_data:
@@ -644,6 +649,9 @@ class SkoolKitTestCase(TestCase):
 
     def run_rzxinfo(self, args='', catch_exit=None):
         return self._run_skoolkit_command(rzxinfo.main, args, catch_exit)
+
+    def run_rzxplay(self, args='', catch_exit=None):
+        return self._run_skoolkit_command(rzxplay.main, args, catch_exit)
 
     def run_sna2img(self, args='', catch_exit=None):
         return self._run_skoolkit_command(sna2img.main, args, catch_exit)

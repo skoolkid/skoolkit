@@ -3,6 +3,7 @@ Changelog
 
 9.2b1
 -----
+* Added the :ref:`rzxplay.py` command (for playing an RZX file)
 * Added the :ref:`rzxinfo.py` command (for showing the blocks in or extracting
   the snapshots from an RZX file)
 * Added support to :ref:`tap2sna.py` for TZX block type 0x15 (direct recording)

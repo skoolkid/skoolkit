@@ -1,0 +1,48 @@
+:orphan:
+
+==========
+rzxplay.py
+==========
+
+SYNOPSIS
+========
+``rzxplay.py`` [options] FILE
+
+DESCRIPTION
+===========
+``rzxplay.py`` plays an RZX file.
+
+OPTIONS
+=======
+--force
+  Force playback when unsupported hardware is detected.
+
+--fps FPS
+  Run at this many frames per second (default: 50). 0 means maximum speed.
+
+--no-screen
+  Run without a screen.
+
+--quiet
+  Don't print progress percentage during playback.
+
+--scale SCALE
+  Scale the display up by this factor (1-4; default: 2).
+
+--trace FILE
+  Log executed instructions to a file.
+
+-V, --version
+  Show the SkoolKit version number and exit.
+
+EXAMPLES
+========
+1. Play ``game.rzx``:
+
+|
+|   ``rzxplay.py game.rzx``
+
+2. Log the instructions executed while playing ``game.rzx``:
+
+|
+|   ``rzxplay.py --trace game.log game.rzx``

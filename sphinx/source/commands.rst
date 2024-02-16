@@ -205,7 +205,7 @@ For example::
 
   $ rzxinfo.py game.rzx
 
-To list the options supported by rzxinfo.py, run it with no arguments::
+To list the options supported by `rzxinfo.py`, run it with no arguments::
 
   usage: rzxinfo.py [options] FILE
 
@@ -214,6 +214,36 @@ To list the options supported by rzxinfo.py, run it with no arguments::
   Options:
     --extract      Extract snapshots.
     --frames       Show the contents of every frame.
+    -V, --version  Show SkoolKit version number and exit.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 9.2     | New     |
++---------+---------+
+
+.. _rzxplay.py:
+
+rzxplay.py
+----------
+`rzxplay.py` plays an RZX file. For example::
+
+  $ rzxplay.py game.rzx
+
+To list the options supported by `rzxplay.py`, run it with no arguments::
+
+  usage: rzxplay.py [options] FILE
+
+  Play an RZX file.
+
+  Options:
+    --force        Force playback when unsupported hardware is detected.
+    --fps FPS      Run at this many frames per second (default: 50). 0 means
+                   maximum speed.
+    --no-screen    Run without a screen.
+    --quiet        Don't print progress percentage.
+    --scale SCALE  Scale display up by this factor (1-4; default: 2).
+    --trace FILE   Log executed instructions to a file.
     -V, --version  Show SkoolKit version number and exit.
 
 +---------+---------+

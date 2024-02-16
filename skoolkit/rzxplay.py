@@ -1,34 +1,38 @@
-#!/usr/bin/env python3
+# Copyright 2024 Richard Dymond (rjdymond@gmail.com)
+#
+# This file is part of SkoolKit.
+#
+# SkoolKit is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# SkoolKit is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# SkoolKit. If not, see <http://www.gnu.org/licenses/>.
+
 import argparse
 import contextlib
 from functools import partial
 import io
 import os
-import sys
 import zlib
 
 with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
     try:
         import pygame
-    except ImportError:
+    except ImportError: # pragma: no cover
         pygame = None
 
-SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
-if not SKOOLKIT_HOME:
-    sys.stderr.write('SKOOLKIT_HOME is not set; aborting\n')
-    sys.exit(1)
-if not os.path.isdir(SKOOLKIT_HOME):
-    sys.stderr.write(f'SKOOLKIT_HOME={SKOOLKIT_HOME}; directory not found\n')
-    sys.exit(1)
-sys.path.insert(0, SKOOLKIT_HOME)
-
-from skoolkit import ROM48, error, get_dword, get_word, read_bin_file, write
-from skoolkit.pagingtracer import Memory
-from skoolkit.snapshot import Snapshot
+from skoolkit import VERSION, SkoolKitError, get_dword, get_word, read_bin_file, write
 from skoolkit.simulator import Simulator, R1
+from skoolkit.snapshot import Snapshot
 from skoolkit.traceutils import disassemble
 
-if pygame:
+if pygame: # pragma: no cover
     COLOURS = (
         pygame.Color(0x00, 0x00, 0x00), # Black
         pygame.Color(0x00, 0x00, 0xc5), # Blue
@@ -71,7 +75,7 @@ class RZXTracer:
 
     def next_frame(self):
         if self.readings:
-            error(f'{len(self.readings)} port reading(s) left for frame {self.frame_index}')
+            raise SkoolKitError(f'{len(self.readings)} port reading(s) left for frame {self.frame_index}')
         self.frame_index += 1
         if self.frame_index < len(self.frames):
             frame = self.frames[self.frame_index]
@@ -81,7 +85,7 @@ class RZXTracer:
     def read_port(self, registers, port):
         if self.readings:
             return self.readings.pop(0)
-        error(f'Port readings exhausted for frame {self.frame_index}')
+        raise SkoolKitError(f'Port readings exhausted for frame {self.frame_index}')
 
     def halt(self, registers):
         # HALT
@@ -99,10 +103,9 @@ class RZXTracer128(RZXTracer):
             self.out7ffd = value
 
 def parse_rzx(rzxfile):
-    with open(rzxfile, 'rb') as f:
-        data = f.read()
+    data = read_bin_file(rzxfile)
     if data[:4] != b'RZX!' or len(data) < 10:
-        error('Not an RZX file')
+        raise SkoolKitError('Not an RZX file')
     i = 10
     contents = []
     while i < len(data):
@@ -112,7 +115,7 @@ def parse_rzx(rzxfile):
             # Snapshot
             flags = data[i + 5]
             if flags & 1:
-                error('Missing snapshot (external file)')
+                raise SkoolKitError('Missing snapshot (external file)')
             ext = ''.join(chr(b) for b in data[i + 9:i + 13] if b)
             sdata = data[i + 17:i + block_len]
             if flags & 2:
@@ -143,7 +146,7 @@ def parse_rzx(rzxfile):
         i += block_len
     return contents
 
-def draw(screen, memory, frame, pixel_rects, cell_rects, prev_scr):
+def draw(screen, memory, frame, pixel_rects, cell_rects, prev_scr): # pragma: no cover
     current_scr = memory[16384:23296]
     flash_change = (frame % 16) == 0
     flash_switch = (frame // 16) % 2
@@ -204,11 +207,11 @@ def check_supported(snapshot, options):
 
 def process_block(block, options, snapshot, screen, p_rectangles, c_rectangles, clock):
     if block is None:
-        error('Unsupported snapshot type')
+        raise SkoolKitError('Unsupported snapshot type')
     if isinstance(block, Snapshot):
         error_msg = check_supported(block, options)
         if error_msg:
-            error(error_msg)
+            raise SkoolKitError(error_msg)
         return block
     if snapshot is None:
         return
@@ -253,7 +256,7 @@ def process_block(block, options, snapshot, screen, p_rectangles, c_rectangles, 
                 fetch_counter -= 2
             else:
                 fetch_counter -= 2 - ((registers[15] ^ r0) % 2)
-        if screen:
+        if screen: # pragma: no cover
             draw(screen, memory, frames, p_rectangles, c_rectangles, prev_scr)
             pygame.display.update()
             for event in pygame.event.get():
@@ -274,7 +277,7 @@ def process_block(block, options, snapshot, screen, p_rectangles, c_rectangles, 
         tracefile.close()
 
 def run(infile, options):
-    if options.screen and pygame:
+    if options.screen and pygame: # pragma: no cover
         print(pygame_io.getvalue())
         pygame.init()
         scale = options.scale
@@ -291,27 +294,30 @@ def run(infile, options):
     for block in parse_rzx(infile):
         snapshot = process_block(block, options, snapshot, *context)
 
-parser = argparse.ArgumentParser(
-    usage='%(prog)s [options] FILE',
-    description="Play an RZX file.",
-    add_help=False
-)
-parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
-group = parser.add_argument_group('Options')
-group.add_argument('--force', action='store_true',
-                   help="Force playback when unsupported hardware is detected.")
-group.add_argument('--fps', type=int, default=50,
-                   help="Run at this many frames per second (default: 50). "
-                        "0 means maximum speed.")
-group.add_argument('--no-screen', dest='screen', action='store_false',
-                   help="Run without a screen.")
-group.add_argument('--quiet', action='store_true',
-                   help="Don't print progress percentage.")
-group.add_argument('--scale', metavar='SCALE', type=int, default=2, choices=(1, 2, 3, 4),
-                   help="Scale display up by this factor (1-4; default: 2).")
-group.add_argument('--trace', metavar='FILE',
-                   help="Log executed instructions to a file.")
-namespace, unknown_args = parser.parse_known_args()
-if unknown_args or namespace.infile is None:
-    parser.exit(2, parser.format_help())
-run(namespace.infile, namespace)
+def main(args):
+    parser = argparse.ArgumentParser(
+        usage='rzxplay.py [options] FILE',
+        description="Play an RZX file.",
+        add_help=False
+    )
+    parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
+    group = parser.add_argument_group('Options')
+    group.add_argument('--force', action='store_true',
+                       help="Force playback when unsupported hardware is detected.")
+    group.add_argument('--fps', type=int, default=50,
+                       help="Run at this many frames per second (default: 50). "
+                            "0 means maximum speed.")
+    group.add_argument('--no-screen', dest='screen', action='store_false',
+                       help="Run without a screen.")
+    group.add_argument('--quiet', action='store_true',
+                       help="Don't print progress percentage.")
+    group.add_argument('--scale', metavar='SCALE', type=int, default=2, choices=(1, 2, 3, 4),
+                       help="Scale display up by this factor (1-4; default: 2).")
+    group.add_argument('--trace', metavar='FILE',
+                       help="Log executed instructions to a file.")
+    group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit.')
+    namespace, unknown_args = parser.parse_known_args(args)
+    if unknown_args or namespace.infile is None:
+        parser.exit(2, parser.format_help())
+    run(namespace.infile, namespace)
