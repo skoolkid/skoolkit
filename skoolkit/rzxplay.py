@@ -102,6 +102,18 @@ class RZXTracer128(RZXTracer):
             self.simulator.memory.out7ffd(value)
             self.out7ffd = value
 
+class RZXContext:
+    def __init__(self, screen=None, p_rectangles=None, c_rectangles=None, clock=None):
+        self.screen = screen
+        self.p_rectangles = p_rectangles
+        self.c_rectangles = c_rectangles
+        self.clock = clock
+        self.tracefile = None
+        self.snapshot = None
+        self.simulator = None
+        self.frame_count = 0
+        self.stop = False
+
 def parse_rzx(rzxfile):
     data = read_bin_file(rzxfile)
     if data[:4] != b'RZX!' or len(data) < 10:
@@ -205,14 +217,16 @@ def check_supported(snapshot, options):
         if machine_id > 2:
             return 'Unsupported machine type'
 
-def process_block(block, options, snapshot, screen, p_rectangles, c_rectangles, clock):
+def process_block(block, options, context):
     if block is None:
         raise SkoolKitError('Unsupported snapshot type')
     if isinstance(block, Snapshot):
         error_msg = check_supported(block, options)
         if error_msg:
             raise SkoolKitError(error_msg)
-        return block
+        context.snapshot = block
+        return
+    snapshot = context.snapshot
     if snapshot is None:
         return
     simulator = Simulator.from_snapshot(snapshot)
@@ -222,25 +236,32 @@ def process_block(block, options, snapshot, screen, p_rectangles, c_rectangles, 
     else:
         tracer = RZXTracer(simulator, input_rec.frames, input_rec.tstates)
     simulator.set_tracer(tracer)
+    context.simulator = simulator
     opcodes = simulator.opcodes
     memory = simulator.memory
     registers = simulator.registers
     frame_duration = simulator.frame_duration
-    if options.trace:
-        tracefile = open(options.trace, 'w')
-    else:
-        tracefile = None
     frames = -1
     num_frames = len(input_rec.frames)
     fnwidth = len(str(num_frames))
     prev_scr = [None] * 6912
+    show_progress = not options.quiet
+    fps = options.fps
+    stop = options.stop
+    tracefile = context.tracefile
+    frame_count = context.frame_count
+    screen = context.screen
+    if screen: # pragma: no cover
+        p_rectangles = context.p_rectangles
+        c_rectangles = context.c_rectangles
+        clock = context.clock
     run = True
     while run:
         fetch_counter = tracer.next_frame()
         if fetch_counter is None:
             break
         frames += 1
-        if not options.quiet:
+        if show_progress:
             p = (frames / num_frames) * 100
             msg = f'[{p:0.1f}%]'
             write(msg + chr(8) * len(msg))
@@ -262,8 +283,8 @@ def process_block(block, options, snapshot, screen, p_rectangles, c_rectangles, 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
-            if options.fps > 0:
-                clock.tick(options.fps)
+            if fps > 0:
+                clock.tick(fps)
             prev_scr = memory[16384:23296]
         registers[25] = 0
         if simulator.iff:
@@ -273,8 +294,11 @@ def process_block(block, options, snapshot, screen, p_rectangles, c_rectangles, 
             # Always accept an interrupt at a frame boundary, even if the
             # instruction just executed would normally block it
             simulator.accept_interrupt(registers, memory, 0)
-    if tracefile:
-        tracefile.close()
+        frame_count += 1
+        if frame_count == stop:
+            context.stop = True
+            break
+    context.frame_count = frame_count
 
 def run(infile, options):
     if options.screen and pygame: # pragma: no cover
@@ -287,12 +311,17 @@ def run(infile, options):
         c_rectangles = [[pygame.Rect(px * scale, py * scale, 8 * scale, 8 * scale) for py in range(0, 192, 8)] for px in range(0, 256, 8)]
         screen = pygame.display.get_surface()
         clock = pygame.time.Clock()
-        context = (screen, p_rectangles, c_rectangles, clock)
+        context = RZXContext(screen, p_rectangles, c_rectangles, clock)
     else:
-        context = (None, None, None, None)
-    snapshot = None
+        context = RZXContext()
+    if options.trace:
+        context.tracefile = open(options.trace, 'w')
     for block in parse_rzx(infile):
-        snapshot = process_block(block, options, snapshot, *context)
+        process_block(block, options, context)
+        if context.stop:
+            break
+    if context.tracefile:
+        context.tracefile.close()
 
 def main(args):
     parser = argparse.ArgumentParser(
@@ -313,6 +342,8 @@ def main(args):
                        help="Don't print progress percentage.")
     group.add_argument('--scale', metavar='SCALE', type=int, default=2, choices=(1, 2, 3, 4),
                        help="Scale display up by this factor (1-4; default: 2).")
+    group.add_argument('--stop', metavar='FRAMES', type=int,
+                       help="Stop after playing this many frames.")
     group.add_argument('--trace', metavar='FILE',
                        help="Log executed instructions to a file.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),

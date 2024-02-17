@@ -148,6 +148,30 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = ''
         self._test_rzx(rzx, exp_output, '--quiet --no-screen')
 
+    def test_multiple_snapshots(self):
+        pc = 0xC000
+        code = (
+            [0xAF], # XOR A
+            [0xA8], # XOR B
+        )
+        frames = (
+            [(1, 0, [])],
+            [(1, 0, [])]
+        )
+        rzx = RZX()
+        for c, f in zip(code, frames):
+            ram = [0] * 0xC000
+            ram[pc - 0x4000:pc - 0x4000 + len(c)] = c
+            registers = {'PC': pc, 'iff1': 1}
+            z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+            rzx.add_snapshot(z80data, 'z80', f)
+        exp_output = ''
+        exp_trace = """
+            F:0 T:00000 C:00001 I:00000 $C000 XOR A
+            F:0 T:00000 C:00001 I:00000 $C000 XOR B
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
     def test_halt_waits_for_rzx_frame_boundary(self):
         ram = [0] * 0xC000
         pc = 0xC000
@@ -424,6 +448,27 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         self._test_rzx(rzx, exp_output, '--force --quiet --no-screen')
+
+    def test_option_stop(self):
+        ram = [0] * 0xC000
+        pc = 0xF000
+        code = (
+            0xAF, # XOR A
+            0xA8, # XOR B
+            0xA9, # XOR C
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, []), (1, 0, []), (1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 T:00000 C:00001 I:00000 $F000 XOR A
+            F:1 T:00000 C:00001 I:00000 $F001 XOR B
+        """
+        self._test_rzx(rzx, exp_output, '--stop 2 --quiet --no-screen', exp_trace)
 
     def test_option_V(self):
         for option in ('-V', '--version'):

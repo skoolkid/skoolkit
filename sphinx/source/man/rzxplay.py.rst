@@ -29,6 +29,9 @@ OPTIONS
 --scale SCALE
   Scale the display up by this factor (1-4; default: 2).
 
+--stop FRAMES
+  Stop after playing this many frames.
+
 --trace FILE
   Log executed instructions to a file.
 

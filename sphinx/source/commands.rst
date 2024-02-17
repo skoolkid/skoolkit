@@ -243,6 +243,7 @@ To list the options supported by `rzxplay.py`, run it with no arguments::
     --no-screen    Run without a screen.
     --quiet        Don't print progress percentage.
     --scale SCALE  Scale display up by this factor (1-4; default: 2).
+    --stop FRAMES  Stop after playing this many frames.
     --trace FILE   Log executed instructions to a file.
     -V, --version  Show SkoolKit version number and exit.
 
