@@ -1997,30 +1997,30 @@ class TraceTest(SkoolKitTestCase):
             Stopped at ${stop:04X}
             Wrote {outfile}
         """
-        exp_reg = (
-            'a=1',
-            'f=16',
-            'bc=61223',
-            'de=5112',
-            'hl=32119',
-            'ix=3442',
-            'iy=10030',
-            'sp=48873',
-            'i=255',
-            'r=143',
-            '^a=255',
-            '^f=187',
-            '^bc=4232',
-            '^de=21432',
-            '^hl=25431',
-            f'pc={stop}'
-        )
-        exp_state = ['border=1', 'fe=1', 'iff=0', 'im=2', 'tstates=166']
+        exp_reg = [
+            'A=1',
+            'F=16',
+            'BC=61223',
+            'DE=5112',
+            'HL=32119',
+            'IX=3442',
+            'IY=10030',
+            'SP=48873',
+            'I=255',
+            'R=143',
+            '^A=255',
+            '^F=187',
+            '^BC=4232',
+            '^DE=21432',
+            '^HL=25431',
+            f'PC={stop}'
+        ]
+        exp_state = {'border=1', 'fe=1', 'iff=0', 'im=2', 'tstates=166'}
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         self.assertEqual(s_fname, outfile)
         self.assertEqual(data, s_memory[start:stop])
         self.assertEqual(exp_reg, s_reg)
-        self.assertEqual(exp_state, s_state)
+        self.assertEqual(exp_state, set(s_state))
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_write_z80_128k(self):
@@ -2060,32 +2060,32 @@ class TraceTest(SkoolKitTestCase):
             Stopped at ${stop:04X}
             Wrote {outfile}
         """
-        exp_reg = (
-            'a=1',
-            'f=16',
-            'bc=61223',
-            'de=5112',
-            'hl=32119',
-            'ix=3442',
-            'iy=10030',
-            'sp=48873',
-            'i=255',
-            'r=145',
-            '^a=255',
-            '^f=187',
-            '^bc=32765',
-            '^de=21432',
-            '^hl=25431',
-            f'pc={stop}'
-        )
-        exp_state = [f'ay[{n}]=0' for n in range(16)]
-        exp_state.extend(('7ffd=1', 'fffd=0', 'border=1', 'fe=1', 'iff=0', 'im=2', 'tstates=178'))
+        exp_reg = [
+            'A=1',
+            'F=16',
+            'BC=61223',
+            'DE=5112',
+            'HL=32119',
+            'IX=3442',
+            'IY=10030',
+            'SP=48873',
+            'I=255',
+            'R=145',
+            '^A=255',
+            '^F=187',
+            '^BC=32765',
+            '^DE=21432',
+            '^HL=25431',
+            f'PC={stop}'
+        ]
+        exp_state = {f'ay[{n}]=0' for n in range(16)}
+        exp_state.update(('7ffd=1', 'fffd=0', 'border=1', 'fe=1', 'iff=0', 'im=2', 'tstates=178'))
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         self.assertEqual(s_fname, outfile)
         self.assertEqual(code, s_memory[start:stop])
         self.assertTrue(all(b == 1 for b in s_memory[0xC000:0x10000]))
         self.assertEqual(exp_reg, s_reg)
-        self.assertEqual(exp_state, s_state)
+        self.assertEqual(exp_state, set(s_state))
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_ay_tracing_from_z80(self):

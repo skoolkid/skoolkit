@@ -215,39 +215,7 @@ def run(snafile, options, config):
         lines = textwrap.wrap(simplify(delays, options.depth), 78)
         print('Delays:\n {}'.format('\n '.join(lines)))
     if options.dump:
-        state = []
-        if isinstance(memory, Memory):
-            ram = memory.banks
-            state.extend(f'ay[{n}]={v}' for n, v in enumerate(tracer.ay))
-            state.extend((f'7ffd={tracer.out7ffd}', f'fffd={tracer.outfffd}'))
-        else:
-            ram = simulator.memory[0x4000:]
-        r = simulator.registers
-        registers = (
-            f'a={r[A]}',
-            f'f={r[F]}',
-            f'bc={r[C] + 256 * r[B]}',
-            f'de={r[E] + 256 * r[D]}',
-            f'hl={r[L] + 256 * r[H]}',
-            f'ix={r[IXl] + 256 * r[IXh]}',
-            f'iy={r[IYl] + 256 * r[IYh]}',
-            f'sp={r[SP]}',
-            f'i={r[I]}',
-            f'r={r[R]}',
-            f'^a={r[xA]}',
-            f'^f={r[xF]}',
-            f'^bc={r[xC] + 256 * r[xB]}',
-            f'^de={r[xE] + 256 * r[xD]}',
-            f'^hl={r[xL] + 256 * r[xH]}',
-            f'pc={r[PC]}'
-        )
-        state.extend((
-            f'border={tracer.border}',
-            f'fe={tracer.outfe}',
-            f'iff={simulator.iff}',
-            f'im={simulator.imode}',
-            f'tstates={r[T]}'
-        ))
+        ram, registers, state = simulator.state()
         write_snapshot(options.dump, ram, registers, state)
         print(f'Wrote {options.dump}')
 

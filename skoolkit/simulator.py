@@ -188,7 +188,43 @@ class Simulator:
             s_config.update(config)
         return cls(s_memory, s_registers, s_state, s_config)
 
+    def state(self, tstates=True):
+        registers = [
+            f'A={self.registers[A]}',
+            f'F={self.registers[F]}',
+            f'BC={self.registers[C] + 256 * self.registers[B]}',
+            f'DE={self.registers[E] + 256 * self.registers[D]}',
+            f'HL={self.registers[L] + 256 * self.registers[H]}',
+            f'IX={self.registers[IXl] + 256 * self.registers[IXh]}',
+            f'IY={self.registers[IYl] + 256 * self.registers[IYh]}',
+            f'SP={self.registers[SP]}',
+            f'I={self.registers[I]}',
+            f'R={self.registers[R]}',
+            f'^A={self.registers[xA]}',
+            f'^F={self.registers[xF]}',
+            f'^BC={self.registers[xC] + 256 * self.registers[xB]}',
+            f'^DE={self.registers[xE] + 256 * self.registers[xD]}',
+            f'^HL={self.registers[xL] + 256 * self.registers[xH]}',
+            f'PC={self.registers[PC]}'
+        ]
+        state = [
+            f'border={self.tracer.border}',
+            f'fe={self.tracer.outfe}',
+            f'iff={self.iff}',
+            f'im={self.imode}'
+        ]
+        if tstates:
+            state.append(f'tstates={self.registers[T]}')
+        if isinstance(self.memory, Memory):
+            ram = self.memory.banks
+            state.extend(f'ay[{n}]={v}' for n, v in enumerate(self.tracer.ay))
+            state.extend((f'7ffd={self.tracer.out7ffd}', f'fffd={self.tracer.outfffd}'))
+        else:
+            ram = self.memory[0x4000:]
+        return ram, registers, state
+
     def set_tracer(self, tracer, in_r_c=True, ini=True):
+        self.tracer = tracer
         self.in_a_n_tracer = None
         self.in_r_c_tracer = None
         self.ini_tracer = None

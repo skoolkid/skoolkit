@@ -35,6 +35,12 @@ class MockSimulator:
             self.stop = max(a for a in range(49152, 65536) if self.memory[a]) + 2
         simulator = self
 
+    def state(self, tstates):
+        ram = []
+        registers = []
+        state = []
+        return ram, registers, state
+
     def set_tracer(self, tracer, *args, **kwargs):
         self.tracer = tracer
         self.set_tracer_args = args
@@ -1603,7 +1609,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         self.assertEqual(code2, snapshot[code2_start:code2_end])
         self.assertEqual(snapshot[code2_end], code2_data_block[-1])
-        exp_reg = set(('^F=187', 'SP=65344', f'IX={code2_end+1}', 'E=3', 'D=0', 'IY=23610', 'PC=49152', 'F=64'))
+        exp_reg = {'^F=187', 'SP=65344', f'IX={code2_end+1}', 'DE=3', 'IY=23610', 'PC=49152', 'F=64'}
         self.assertLessEqual(exp_reg, set(options.reg))
 
         out_lines = output.strip().split('\n')
@@ -1868,7 +1874,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         self.assertEqual(code2, snapshot[49152:49152 + len(code2)])
-        exp_reg = set(('^F=187', 'D=0', 'SP=65344', 'IX=49154', 'IY=23610', 'PC=32784'))
+        exp_reg = {'^F=187', 'DE=0', 'SP=65344', 'IX=49154', 'IY=23610', 'PC=32784'}
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)

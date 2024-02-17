@@ -456,45 +456,10 @@ def sim_load(blocks, options, config):
     if tracefile:
         tracefile.close()
 
-    sim_registers = simulator.registers
-    registers = {
-        'A': sim_registers[A],
-        'F': sim_registers[F],
-        'B': sim_registers[B],
-        'C': sim_registers[C],
-        'D': sim_registers[D],
-        'E': sim_registers[E],
-        'H': sim_registers[H],
-        'L': sim_registers[L],
-        'IX': sim_registers[IXl] + 256 * sim_registers[IXh],
-        'IY': sim_registers[IYl] + 256 * sim_registers[IYh],
-        'I': sim_registers[I],
-        'R': sim_registers[R],
-        'SP': sim_registers[SP],
-        '^A': sim_registers[xA],
-        '^F': sim_registers[xF],
-        '^B': sim_registers[xB],
-        '^C': sim_registers[xC],
-        '^D': sim_registers[xD],
-        '^E': sim_registers[xE],
-        '^H': sim_registers[xH],
-        '^L': sim_registers[xL],
-        'PC': sim_registers[PC]
-    }
-    options.reg = [f'{r}={v}' for r, v in registers.items()] + options.reg
-    state = [
-        f'im={simulator.imode}',
-        f'iff={simulator.iff}',
-        f'border={tracer.border}',
-        f'7ffd={tracer.out7ffd}',
-        f'fffd={tracer.outfffd}',
-        f'fe={tracer.outfe}'
-    ]
-    state.extend(f'ay[{r}]={v}' for r, v in enumerate(tracer.ay))
+    ram, registers, state = simulator.state(False)
+    options.reg = registers + options.reg
     options.state = state + options.state
-    if isinstance(memory, Memory):
-        return memory.banks
-    return memory[0x4000:]
+    return ram
 
 def _get_load_params(param_str):
     params = []
