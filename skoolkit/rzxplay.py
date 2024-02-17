@@ -28,8 +28,9 @@ with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
         pygame = None
 
 from skoolkit import VERSION, SkoolKitError, get_dword, get_word, read_bin_file, write
+from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import Simulator, R1
-from skoolkit.snapshot import Snapshot
+from skoolkit.snapshot import Snapshot, write_snapshot
 from skoolkit.traceutils import disassemble
 
 if pygame: # pragma: no cover
@@ -64,14 +65,19 @@ class Frame:
         self.fetch_counter = fetch_counter
         self.port_readings = port_readings
 
-class RZXTracer:
-    def __init__(self, simulator, frames, tstates):
+class RZXTracer(PagingTracer):
+    def __init__(self, simulator, input_rec, snapshot):
         self.simulator = simulator
-        self.frames = frames
+        self.frames = input_rec.frames
         self.frame_index = -1
         self.readings = None
-        simulator.registers[25] = tstates
+        simulator.registers[25] = input_rec.tstates
         simulator.opcodes[0x76] = partial(self.halt, simulator.registers)
+        self.border = snapshot.border
+        self.out7ffd = snapshot.out7ffd
+        self.outfffd = snapshot.outfffd
+        self.ay = list(snapshot.ay)
+        self.outfe = snapshot.outfe
 
     def next_frame(self):
         if self.readings:
@@ -91,16 +97,6 @@ class RZXTracer:
         # HALT
         registers[25] += 4 # T-states
         registers[15] = R1[registers[15]] # R
-
-class RZXTracer128(RZXTracer):
-    def __init__(self, simulator, frames, tstates, out7ffd):
-        super().__init__(simulator, frames, tstates)
-        self.out7ffd = out7ffd
-
-    def write_port(self, registers, port, value):
-        if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
-            self.simulator.memory.out7ffd(value)
-            self.out7ffd = value
 
 class RZXContext:
     def __init__(self, screen=None, p_rectangles=None, c_rectangles=None, clock=None):
@@ -231,10 +227,7 @@ def process_block(block, options, context):
         return
     simulator = Simulator.from_snapshot(snapshot)
     input_rec = block
-    if len(simulator.memory) == 0x20000:
-        tracer = RZXTracer128(simulator, input_rec.frames, input_rec.tstates, snapshot.out7ffd)
-    else:
-        tracer = RZXTracer(simulator, input_rec.frames, input_rec.tstates)
+    tracer = RZXTracer(simulator, input_rec, snapshot)
     simulator.set_tracer(tracer)
     context.simulator = simulator
     opcodes = simulator.opcodes
@@ -322,14 +315,20 @@ def run(infile, options):
             break
     if context.tracefile:
         context.tracefile.close()
+    if options.dump:
+        ram, registers, state = context.simulator.state()
+        write_snapshot(options.dump, ram, registers, state)
+        print(f'Wrote {options.dump}')
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='rzxplay.py [options] FILE',
-        description="Play an RZX file.",
+        usage='rzxplay.py [options] FILE [OUTFILE]',
+        description="Play an RZX file. "
+                    "If 'OUTFILE' is given, an SZX or Z80 snapshot is written after playback has completed.",
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
+    parser.add_argument('dump', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('--force', action='store_true',
                        help="Force playback when unsupported hardware is detected.")

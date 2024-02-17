@@ -232,9 +232,10 @@ rzxplay.py
 
 To list the options supported by `rzxplay.py`, run it with no arguments::
 
-  usage: rzxplay.py [options] FILE
+  usage: rzxplay.py [options] FILE [OUTFILE]
 
-  Play an RZX file.
+  Play an RZX file. If 'OUTFILE' is given, an SZX or Z80 snapshot is written
+  after playback has completed.
 
   Options:
     --force        Force playback when unsupported hardware is detected.

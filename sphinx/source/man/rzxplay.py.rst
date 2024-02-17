@@ -6,11 +6,12 @@ rzxplay.py
 
 SYNOPSIS
 ========
-``rzxplay.py`` [options] FILE
+``rzxplay.py`` [options] FILE [OUTFILE]
 
 DESCRIPTION
 ===========
-``rzxplay.py`` plays an RZX file.
+``rzxplay.py`` plays an RZX file. If 'OUTFILE' is given, an SZX or Z80 snapshot
+is written after playback has completed.
 
 OPTIONS
 =======

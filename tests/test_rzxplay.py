@@ -1,16 +1,41 @@
 import os
 from textwrap import dedent
+from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase, RZX
-from skoolkit import VERSION, SkoolKitError
+from skoolkit import VERSION, SkoolKitError, rzxplay
+
+def mock_run(*args):
+    global run_args
+    run_args = args
+
+def mock_write_snapshot(fname, ram, registers, state):
+    global s_fname, s_memory, s_banks, s_reg, s_state
+    s_fname = fname
+    if len(ram) == 8:
+        s_banks = ram
+        page = 0
+        for spec in state:
+            if spec.startswith('7ffd='):
+                page = int(spec[5:]) % 8
+                break
+        s_memory = [0] * 16384 + ram[5] + ram[2] + ram[page]
+    else:
+        s_banks = None
+        s_memory = [0] * 16384 + ram
+    s_reg = registers
+    s_state = state
 
 class RzxplayTest(SkoolKitTestCase):
-    def _test_rzx(self, rzx, exp_output, options='', exp_trace=None):
+    def _test_rzx(self, rzx, exp_output, options='', exp_trace=None, outfile=None):
         rzxfile = self.write_rzx_file(rzx)
         logfile = 'trace.log'
         if exp_trace:
             options += f' --trace {logfile}'
-        output, error = self.run_rzxplay(f'{options} {rzxfile}')
+        args = f'{options} {rzxfile}'
+        if outfile:
+            args += f' {outfile}'
+        output, error = self.run_rzxplay(args)
         self.assertEqual(error, '')
         self.assertEqual(dedent(exp_output).lstrip(), output)
         if exp_trace:
@@ -18,6 +43,19 @@ class RzxplayTest(SkoolKitTestCase):
             with open(logfile) as f:
                 trace = f.read()
             self.assertEqual(dedent(exp_trace).lstrip(), trace)
+
+    @patch.object(rzxplay, 'run', mock_run)
+    def test_default_option_values(self):
+        rzxplay.main(['test.rzx'])
+        rzxfile, options = run_args
+        self.assertEqual(rzxfile, 'test.rzx')
+        self.assertFalse(options.force)
+        self.assertEqual(options.fps, 50)
+        self.assertTrue(options.screen)
+        self.assertFalse(options.quiet)
+        self.assertEqual(options.scale, 2)
+        self.assertIsNone(options.stop)
+        self.assertIsNone(options.trace)
 
     def test_sna(self):
         ram = [0] * 0xC000
@@ -272,6 +310,29 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = "[0.0%]\x08\x08\x08\x08\x08\x08[50.0%]\x08\x08\x08\x08\x08\x08\x08"
         self._test_rzx(rzx, exp_output, '--no-screen')
+
+    @patch.object(rzxplay, 'write_snapshot', mock_write_snapshot)
+    def test_write_snapshot(self):
+        ram = [0] * 0xC000
+        pc = 0xF000
+        code = [
+            0xDB, 0xFE, # IN A,($FE)
+        ]
+        end = pc + len(code)
+        ram[pc - 0x4000:end - 0x4000] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 1, [191])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        outfile = 'out.z80'
+        exp_output = f'Wrote {outfile}\n'
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', outfile=outfile)
+        self.assertEqual(s_fname, outfile)
+        self.assertLessEqual({'A=191', f'PC={end}'}, set(s_reg))
+        self.assertIn('tstates=0', s_state)
+        self.assertIsNone(s_banks)
+        self.assertEqual(code, s_memory[pc:end])
 
     def test_z80v2_unsupported_machine(self):
         ram = [0] * 0xC000
