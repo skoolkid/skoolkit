@@ -11,7 +11,7 @@ SYNOPSIS
 DESCRIPTION
 ===========
 ``rzxplay.py`` plays an RZX file. If 'OUTFILE' is given, an SZX or Z80 snapshot
-is written after playback has completed.
+or an RZX file is written after playback has completed.
 
 OPTIONS
 =======
@@ -50,3 +50,8 @@ EXAMPLES
 
 |
 |   ``rzxplay.py --trace game.log game.rzx``
+
+3. Play only 100 frames of ``game.rzx`` and then write ``game-100.rzx``:
+
+|
+|   ``rzxplay.py --stop 100 game.rzx game-100.rzx``

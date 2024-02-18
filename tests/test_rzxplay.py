@@ -28,7 +28,10 @@ def mock_write_snapshot(fname, ram, registers, state):
 
 class RzxplayTest(SkoolKitTestCase):
     def _test_rzx(self, rzx, exp_output, options='', exp_trace=None, outfile=None):
-        rzxfile = self.write_rzx_file(rzx)
+        if isinstance(rzx, str):
+            rzxfile = rzx
+        else:
+            rzxfile = self.write_rzx_file(rzx)
         logfile = 'trace.log'
         if exp_trace:
             options += f' --trace {logfile}'
@@ -333,6 +336,60 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertIn('tstates=0', s_state)
         self.assertIsNone(s_banks)
         self.assertEqual(code, s_memory[pc:end])
+
+    def test_write_rzx_file(self):
+        pc = 0xF000
+        code = (
+            (
+                0xAF, # XOR A
+                0xA8, # XOR B
+            ),
+            (
+                0xA9, # XOR C
+            )
+        )
+        frames = (
+            [(1, 0, []), (1, 0, [])],
+            [(1, 0, [])]
+        )
+        rzx = RZX()
+        for c, f in zip(code, frames):
+            ram = [0] * 0xC000
+            ram[pc - 0x4000:pc - 0x4000 + len(c)] = c
+            registers = {'PC': pc}
+            z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+            rzx.add_snapshot(z80data, 'z80', f)
+
+        outfile = 'out.rzx'
+        exp_output = f'Wrote {outfile}\n'
+        exp_trace = """
+            F:0 T:00000 C:00001 I:00000 $F000 XOR A
+        """
+        self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
+
+        exp_output = ''
+        exp_trace = """
+            F:0 T:00000 C:00001 I:00000 $F001 XOR B
+            F:0 T:00000 C:00001 I:00000 $F000 XOR C
+        """
+        self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_write_unsupported_file_type(self):
+        ram = [0] * 0xC000
+        pc = 0x6000
+        code = (
+            0xDB, 0xFE # IN A,($FE)
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 1, [191])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--quiet --no-screen {rzxfile} out.slt')
+        self.assertEqual(cm.exception.args[0], 'Unknown file type: slt')
 
     def test_z80v2_unsupported_machine(self):
         ram = [0] * 0xC000

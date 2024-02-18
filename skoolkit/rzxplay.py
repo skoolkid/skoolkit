@@ -19,6 +19,7 @@ import contextlib
 from functools import partial
 import io
 import os
+import re
 import zlib
 
 with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
@@ -30,7 +31,7 @@ with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
 from skoolkit import VERSION, SkoolKitError, get_dword, get_word, read_bin_file, write
 from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import Simulator, R1
-from skoolkit.snapshot import Snapshot, write_snapshot
+from skoolkit.snapshot import Snapshot, Z80, write_snapshot
 from skoolkit.traceutils import disassemble
 
 if pygame: # pragma: no cover
@@ -54,6 +55,11 @@ if pygame: # pragma: no cover
     )
 
 CELLS = tuple((x, y, 2048 * (y // 8) + 32 * (y % 8) + x, 6144 + 32 * y + x) for x in range(32) for y in range(24))
+
+class RZXBlock:
+    def __init__(self, data, obj):
+        self.data = data
+        self.obj = obj
 
 class InputRecording:
     def __init__(self, tstates, frames):
@@ -110,6 +116,66 @@ class RZXContext:
         self.frame_count = 0
         self.stop = False
 
+def as_dword(num):
+    return (num % 256, (num >> 8) % 256, (num >> 16) % 256, (num >> 24) % 256)
+
+def write_rzx(fname, context, rzx_blocks):
+    creator_b = (83, 107, 111, 111, 108, 75, 105, 116, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    major, minor = re.match('([0-9]+).([0-9]+)', VERSION).groups()
+    rzx_data = bytearray((
+        82, 90, 88, 33,   # RZX!
+        0, 13,            # Version 0.13
+        0, 0, 0, 0,       # Flags
+        0x10,             # Block ID (Creator)
+        29, 0, 0, 0,      # Block length
+        *creator_b,       # Creator ID (SkoolKit)
+        int(major), 0,
+        int(minor), 0
+    ))
+
+    ram, registers, state = context.simulator.state()
+    z80 = Z80(ram=ram)
+    z80.set_registers_and_state(registers, state)
+    z80_data = z80.data()
+    z80_data_z = zlib.compress(z80_data, 9)
+    s_len = len(z80_data)
+    b_len = 17 + len(z80_data_z)
+    rzx_data.extend((
+        0x30,             # Block ID (Snapshot)
+        *as_dword(b_len), # Block length
+        2, 0, 0, 0,       # Flags
+        122, 56, 48, 0,   # z80
+        *as_dword(s_len)  # Uncompressed snapshot length
+    ))
+    rzx_data.extend(z80_data_z)
+
+    tracer = context.simulator.tracer
+    frames = tracer.frames[tracer.frame_index + 1:]
+    nf = len(frames)
+    io_frames = bytearray()
+    for frame in frames:
+        fc = frame.fetch_counter
+        ic = len(frame.port_readings)
+        io_frames.extend((fc % 256, fc // 256, ic % 256, ic // 256))
+        io_frames.extend(frame.port_readings)
+    io_frames = zlib.compress(io_frames, 9)
+    b_len = 18 + len(io_frames)
+    rzx_data.extend((
+        0x80,             # Block ID (Input recording)
+        *as_dword(b_len), # Block length
+        *as_dword(nf),    # Number of frames
+        0,                # Reserved
+        0, 0, 0, 0,       # Initial T-states
+        2, 0, 0, 0        # Flags
+    ))
+    rzx_data.extend(io_frames)
+
+    for rzx_block in rzx_blocks:
+        rzx_data.extend(rzx_block.data)
+
+    with open(fname, 'wb') as f:
+        f.write(rzx_data)
+
 def parse_rzx(rzxfile):
     data = read_bin_file(rzxfile)
     if data[:4] != b'RZX!' or len(data) < 10:
@@ -128,14 +194,14 @@ def parse_rzx(rzxfile):
             sdata = data[i + 17:i + block_len]
             if flags & 2:
                 sdata = zlib.decompress(sdata)
-            contents.append(Snapshot.get(sdata, ext))
+            contents.append(RZXBlock(data[i:i + block_len], Snapshot.get(sdata, ext)))
         elif block_id == 0x80:
             # Input recording
             num_frames = get_dword(data, i + 5)
             tstates = get_dword(data, i + 10)
             flags = get_dword(data, i + 14)
             frames = []
-            contents.append(InputRecording(tstates, frames))
+            contents.append(RZXBlock(data[i:i + block_len], InputRecording(tstates, frames)))
             frames_data = data[i + 18:i + block_len]
             if flags & 2:
                 frames_data = zlib.decompress(frames_data)
@@ -309,22 +375,29 @@ def run(infile, options):
         context = RZXContext()
     if options.trace:
         context.tracefile = open(options.trace, 'w')
-    for block in parse_rzx(infile):
-        process_block(block, options, context)
+    rzx_blocks = parse_rzx(infile)
+    while rzx_blocks:
+        process_block(rzx_blocks.pop(0).obj, options, context)
         if context.stop:
             break
     if context.tracefile:
         context.tracefile.close()
     if options.dump:
-        ram, registers, state = context.simulator.state()
-        write_snapshot(options.dump, ram, registers, state)
+        ext = options.dump.lower().rpartition('.')[2]
+        if ext in ('szx', 'z80'):
+            ram, registers, state = context.simulator.state()
+            write_snapshot(options.dump, ram, registers, state)
+        elif ext == 'rzx':
+            write_rzx(options.dump, context, rzx_blocks)
+        else:
+            raise SkoolKitError(f'Unknown file type: {ext}')
         print(f'Wrote {options.dump}')
 
 def main(args):
     parser = argparse.ArgumentParser(
         usage='rzxplay.py [options] FILE [OUTFILE]',
         description="Play an RZX file. "
-                    "If 'OUTFILE' is given, an SZX or Z80 snapshot is written after playback has completed.",
+                    "If 'OUTFILE' is given, an SZX or Z80 snapshot or an RZX file is written after playback has completed.",
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')

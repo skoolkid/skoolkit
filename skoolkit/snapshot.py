@@ -619,19 +619,24 @@ class Z80(Snapshot):
         self._set_registers(registers)
         self._set_state(state)
 
+    def data(self):
+        z80 = bytearray()
+        if len(self.header) == 30:
+            # Version 1
+            self.header[12] |= 32 # RAM is compressed
+            z80.extend(self.header)
+            ram = self.memory.banks[5] + self.memory.banks[2] + self.memory.banks[0]
+            z80.extend(self._make_z80_ram_block(ram))
+        else:
+            z80.extend(self.header)
+            for bank, data in enumerate(self.memory.banks, 3):
+                if data:
+                    z80.extend(self._make_z80_ram_block(data, bank))
+        return z80
+
     def write(self, z80file):
         with open(z80file, 'wb') as f:
-            if len(self.header) == 30:
-                # Version 1
-                self.header[12] |= 32 # RAM is compressed
-                f.write(bytes(self.header))
-                ram = self.memory.banks[5] + self.memory.banks[2] + self.memory.banks[0]
-                f.write(self._make_z80_ram_block(ram))
-            else:
-                f.write(bytes(self.header))
-                for bank, data in enumerate(self.memory.banks, 3):
-                    if data:
-                        f.write(self._make_z80_ram_block(data, bank))
+            f.write(self.data())
 
 # Component API
 def can_read(fname):
