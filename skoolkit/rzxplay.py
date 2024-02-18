@@ -91,7 +91,7 @@ class RZXTracer(PagingTracer):
 
     def next_frame(self):
         if self.readings:
-            raise SkoolKitError(f'{len(self.readings)} port reading(s) left for frame {self.context.frame_count}')
+            raise SkoolKitError(f'{len(self.readings)} port reading(s) left for frame {self.context.frame_count - 1}')
         self.frame_index += 1
         if self.frame_index < len(self.frames):
             frame = self.frames[self.frame_index]
@@ -308,7 +308,6 @@ def process_block(block, options, context):
     opcodes = simulator.opcodes
     memory = simulator.memory
     registers = simulator.registers
-    frame_duration = simulator.frame_duration
     total_frames = context.total_frames
     fnwidth = len(str(total_frames))
     prev_scr = [None] * 6912
@@ -316,7 +315,6 @@ def process_block(block, options, context):
     fps = options.fps
     stop = options.stop
     tracefile = context.tracefile
-    frame_count = context.frame_count
     screen = context.screen
     if screen: # pragma: no cover
         p_rectangles = context.p_rectangles
@@ -333,14 +331,14 @@ def process_block(block, options, context):
             ld_r_a = memory[pc] == 0xED and memory[(pc + 1) % 65536] == 0x4F
             if tracefile:
                 i = disassemble(memory, pc)[0]
-                tracefile.write(f'F:{frame_count:0{fnwidth}} T:{registers[25]:05} C:{fetch_counter:05} I:{len(tracer.readings):05} ${pc:04X} {i}\n')
+                tracefile.write(f'F:{context.frame_count:0{fnwidth}} T:{registers[25]:05} C:{fetch_counter:05} I:{len(tracer.readings):05} ${pc:04X} {i}\n')
             opcodes[memory[pc]]()
             if ld_r_a:
                 fetch_counter -= 2
             else:
                 fetch_counter -= 2 - ((registers[15] ^ r0) % 2)
         if screen: # pragma: no cover
-            draw(screen, memory, frames, p_rectangles, c_rectangles, prev_scr)
+            draw(screen, memory, context.frame_count, p_rectangles, c_rectangles, prev_scr)
             pygame.display.update()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -356,14 +354,13 @@ def process_block(block, options, context):
             # Always accept an interrupt at a frame boundary, even if the
             # instruction just executed would normally block it
             simulator.accept_interrupt(registers, memory, 0)
-        frame_count += 1
+        context.frame_count += 1
         if show_progress:
-            p = (frame_count / total_frames) * 100
+            p = (context.frame_count / total_frames) * 100
             write(f'[{p:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')
-        if frame_count == stop:
+        if context.frame_count == stop:
             context.stop = True
             break
-    context.frame_count = frame_count
 
 def run(infile, options):
     if options.screen and pygame: # pragma: no cover
@@ -387,6 +384,8 @@ def run(infile, options):
     for block in rzx_blocks:
         if isinstance(block.obj, InputRecording):
             context.total_frames += len(block.obj.frames)
+    if options.stop and options.stop > 0:
+        context.total_frames = min(options.stop, context.total_frames)
     while rzx_blocks:
         process_block(rzx_blocks.pop(0).obj, options, context)
         if context.stop:
