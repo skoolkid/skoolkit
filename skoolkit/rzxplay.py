@@ -382,6 +382,8 @@ def run(infile, options):
     if options.trace:
         context.tracefile = open(options.trace, 'w')
     rzx_blocks = parse_rzx(infile)
+    while rzx_blocks and isinstance(rzx_blocks[-1].obj, Snapshot):
+        rzx_blocks.pop()
     for block in rzx_blocks:
         if isinstance(block.obj, InputRecording):
             context.total_frames += len(block.obj.frames)

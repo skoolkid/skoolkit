@@ -241,6 +241,25 @@ class RzxplayTest(SkoolKitTestCase):
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
+    def test_unsupported_snapshot_at_end_of_file_is_ignored(self):
+        ram1 = [0] * 0xC000
+        pc = 0xF000
+        code = (
+            0xDB, 0xFE # IN A,($FE)
+        )
+        ram1[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram1, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames1 = [(1, 1, [191])]
+        rzx.add_snapshot(z80data, 'z80', frames1)
+        ram2 = [0] * 0xC000
+        szxdata = self.write_szx(ram2, machine_id=6, ret_data=True)
+        frames2 = ()
+        rzx.add_snapshot(szxdata, 'szx', frames2)
+        exp_output = ''
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen')
+
     def test_halt_waits_for_rzx_frame_boundary(self):
         ram = [0] * 0xC000
         pc = 0xC000

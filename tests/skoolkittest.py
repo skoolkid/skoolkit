@@ -302,22 +302,27 @@ class RZX:
         else:
             s_block = ()
 
-        io_frames = []
-        for nf, (fc, ic, readings) in enumerate(frames or [(1, 1, [0])], 1):
-            io_frames.extend((fc % 256, fc // 256, ic % 256, ic // 256))
-            io_frames.extend(readings)
-        if io_flags & 2:
-            io_frames = zlib.compress(bytes(io_frames), 9)
-        b_len = 18 + len(io_frames)
-        io_block = [
-            0x80,               # Block ID
-            *as_dword(b_len),   # Block length
-            *as_dword(nf),      # Number of frames
-            0,                  # Reserved
-            *as_dword(tstates), # Initial T-states
-            *as_dword(io_flags) # Flags
-        ]
-        io_block.extend(io_frames)
+        if frames is None:
+            frames = [(1, 1, [0])]
+        if frames:
+            io_frames = []
+            for nf, (fc, ic, readings) in enumerate(frames, 1):
+                io_frames.extend((fc % 256, fc // 256, ic % 256, ic // 256))
+                io_frames.extend(readings)
+            if io_flags & 2:
+                io_frames = zlib.compress(bytes(io_frames), 9)
+            b_len = 18 + len(io_frames)
+            io_block = [
+                0x80,               # Block ID
+                *as_dword(b_len),   # Block length
+                *as_dword(nf),      # Number of frames
+                0,                  # Reserved
+                *as_dword(tstates), # Initial T-states
+                *as_dword(io_flags) # Flags
+            ]
+            io_block.extend(io_frames)
+        else:
+            io_block = ()
 
         self.snapshots.append((s_block, io_block))
 
