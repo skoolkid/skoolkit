@@ -72,22 +72,26 @@ class Frame:
         self.port_readings = port_readings
 
 class RZXTracer(PagingTracer):
-    def __init__(self, simulator, input_rec, snapshot):
-        self.simulator = simulator
+    def __init__(self, context, input_rec):
+        self.context = context
+        self.set_input_rec(input_rec)
+        self.simulator = context.simulator
+        self.simulator.registers[25] = input_rec.tstates
+        self.simulator.opcodes[0x76] = partial(self.halt, self.simulator.registers)
+        self.border = context.snapshot.border
+        self.out7ffd = context.snapshot.out7ffd
+        self.outfffd = context.snapshot.outfffd
+        self.ay = list(context.snapshot.ay)
+        self.outfe = context.snapshot.outfe
+
+    def set_input_rec(self, input_rec):
         self.frames = input_rec.frames
         self.frame_index = -1
         self.readings = None
-        simulator.registers[25] = input_rec.tstates
-        simulator.opcodes[0x76] = partial(self.halt, simulator.registers)
-        self.border = snapshot.border
-        self.out7ffd = snapshot.out7ffd
-        self.outfffd = snapshot.outfffd
-        self.ay = list(snapshot.ay)
-        self.outfe = snapshot.outfe
 
     def next_frame(self):
         if self.readings:
-            raise SkoolKitError(f'{len(self.readings)} port reading(s) left for frame {self.frame_index}')
+            raise SkoolKitError(f'{len(self.readings)} port reading(s) left for frame {self.context.frame_count}')
         self.frame_index += 1
         if self.frame_index < len(self.frames):
             frame = self.frames[self.frame_index]
@@ -97,7 +101,7 @@ class RZXTracer(PagingTracer):
     def read_port(self, registers, port):
         if self.readings:
             return self.readings.pop(0)
-        raise SkoolKitError(f'Port readings exhausted for frame {self.frame_index}')
+        raise SkoolKitError(f'Port readings exhausted for frame {self.context.frame_count}')
 
     def halt(self, registers):
         # HALT
@@ -113,6 +117,7 @@ class RZXContext:
         self.tracefile = None
         self.snapshot = None
         self.simulator = None
+        self.total_frames = 0
         self.frame_count = 0
         self.stop = False
 
@@ -287,22 +292,25 @@ def process_block(block, options, context):
         if error_msg:
             raise SkoolKitError(error_msg)
         context.snapshot = block
+        context.simulator = None
         return
-    snapshot = context.snapshot
-    if snapshot is None:
+    if context.snapshot is None:
         return
-    simulator = Simulator.from_snapshot(snapshot)
-    input_rec = block
-    tracer = RZXTracer(simulator, input_rec, snapshot)
-    simulator.set_tracer(tracer)
-    context.simulator = simulator
+    if context.simulator:
+        simulator = context.simulator
+        tracer = simulator.tracer
+        tracer.set_input_rec(block)
+    else:
+        simulator = Simulator.from_snapshot(context.snapshot)
+        context.simulator = simulator
+        tracer = RZXTracer(context, block)
+        simulator.set_tracer(tracer)
     opcodes = simulator.opcodes
     memory = simulator.memory
     registers = simulator.registers
     frame_duration = simulator.frame_duration
-    frames = -1
-    num_frames = len(input_rec.frames)
-    fnwidth = len(str(num_frames))
+    total_frames = context.total_frames
+    fnwidth = len(str(total_frames))
     prev_scr = [None] * 6912
     show_progress = not options.quiet
     fps = options.fps
@@ -319,18 +327,13 @@ def process_block(block, options, context):
         fetch_counter = tracer.next_frame()
         if fetch_counter is None:
             break
-        frames += 1
-        if show_progress:
-            p = (frames / num_frames) * 100
-            msg = f'[{p:0.1f}%]'
-            write(msg + chr(8) * len(msg))
         while fetch_counter > 0:
             pc = registers[24]
             r0 = registers[15]
             ld_r_a = memory[pc] == 0xED and memory[(pc + 1) % 65536] == 0x4F
             if tracefile:
                 i = disassemble(memory, pc)[0]
-                tracefile.write(f'F:{frames:0{fnwidth}} T:{registers[25]:05} C:{fetch_counter:05} I:{len(tracer.readings):05} ${pc:04X} {i}\n')
+                tracefile.write(f'F:{frame_count:0{fnwidth}} T:{registers[25]:05} C:{fetch_counter:05} I:{len(tracer.readings):05} ${pc:04X} {i}\n')
             opcodes[memory[pc]]()
             if ld_r_a:
                 fetch_counter -= 2
@@ -354,6 +357,9 @@ def process_block(block, options, context):
             # instruction just executed would normally block it
             simulator.accept_interrupt(registers, memory, 0)
         frame_count += 1
+        if show_progress:
+            p = (frame_count / total_frames) * 100
+            write(f'[{p:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')
         if frame_count == stop:
             context.stop = True
             break
@@ -376,6 +382,9 @@ def run(infile, options):
     if options.trace:
         context.tracefile = open(options.trace, 'w')
     rzx_blocks = parse_rzx(infile)
+    for block in rzx_blocks:
+        if isinstance(block.obj, InputRecording):
+            context.total_frames += len(block.obj.frames)
     while rzx_blocks:
         process_block(rzx_blocks.pop(0).obj, options, context)
         if context.stop:

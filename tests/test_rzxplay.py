@@ -209,7 +209,35 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = ''
         exp_trace = """
             F:0 T:00000 C:00001 I:00000 $C000 XOR A
-            F:0 T:00000 C:00001 I:00000 $C000 XOR B
+            F:1 T:00000 C:00001 I:00000 $C000 XOR B
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_sequence_of_input_recording_blocks(self):
+        pc = 0x7000
+        code = (
+            0xAF,       # XOR A
+            0xDB, 0xFE, # IN A,($FE)
+            0xA8,       # XOR B
+        )
+        rzx = RZX()
+        ram = [0] * 0xC000
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        input_recs = (
+            [(1, 0, [])],
+            [(1, 1, [191])],
+            [(1, 0, [])]
+        )
+        rzx.add_snapshot(z80data, 'z80', input_recs[0])
+        rzx.add_snapshot(frames=input_recs[1])
+        rzx.add_snapshot(frames=input_recs[2])
+        exp_output = ''
+        exp_trace = """
+            F:0 T:00000 C:00001 I:00000 $7000 XOR A
+            F:1 T:00000 C:00001 I:00001 $7001 IN A,($FE)
+            F:2 T:00000 C:00001 I:00000 $7003 XOR B
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -311,7 +339,7 @@ class RzxplayTest(SkoolKitTestCase):
         rzx = RZX()
         frames = [(1, 0, []), (1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
-        exp_output = "[0.0%]\x08\x08\x08\x08\x08\x08[50.0%]\x08\x08\x08\x08\x08\x08\x08"
+        exp_output = "[ 50.0%]\x08\x08\x08\x08\x08\x08\x08\x08[100.0%]\x08\x08\x08\x08\x08\x08\x08\x08"
         self._test_rzx(rzx, exp_output, '--no-screen')
 
     @patch.object(rzxplay, 'write_snapshot', mock_write_snapshot)
@@ -370,7 +398,7 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = ''
         exp_trace = """
             F:0 T:00000 C:00001 I:00000 $F001 XOR B
-            F:0 T:00000 C:00001 I:00000 $F000 XOR C
+            F:1 T:00000 C:00001 I:00000 $F000 XOR C
         """
         self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -499,6 +527,29 @@ class RzxplayTest(SkoolKitTestCase):
             self.run_rzxplay(f'--quiet --no-screen {rzxfile}')
         self.assertEqual(cm.exception.args[0], '1 port reading(s) left for frame 0')
 
+    def test_too_many_port_readings_with_sequence_of_input_recording_blocks(self):
+        ram = [0] * 0xC000
+        pc = 0xC000
+        code = (
+            0xDB, 0xFE, # IN A,($FE) ; Frame 0
+            0xDB, 0xFE, # IN A,($FE) ; Frame 1
+            0x00,       # NOP
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        input_recs = (
+            [(1, 1, [191])],     # Frame 0
+            [(2, 2, [191, 191])] # Frame 1
+        )
+        rzx.add_snapshot(z80data, 'z80', input_recs[0])
+        rzx.add_snapshot(frames=input_recs[1])
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--quiet --no-screen {rzxfile}')
+        self.assertEqual(cm.exception.args[0], '1 port reading(s) left for frame 1')
+
     def test_too_few_port_readings(self):
         ram = [0] * 0xC000
         pc = 0xC000
@@ -516,6 +567,29 @@ class RzxplayTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_rzxplay(f'--quiet --no-screen {rzxfile}')
         self.assertEqual(cm.exception.args[0], 'Port readings exhausted for frame 0')
+
+    def test_too_few_port_readings_with_sequence_of_input_recording_blocks(self):
+        ram = [0] * 0xC000
+        pc = 0xC000
+        code = (
+            0xAF,       # XOR A      ; Frame 0
+            0xDB, 0xFE, # IN A,($FE) ; Frame 1
+            0xDB, 0xFE, # IN A,($FE)
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        input_recs = (
+            [(1, 0, [])],   # Frame 0
+            [(2, 1, [191])] # Frame 1
+        )
+        rzx.add_snapshot(z80data, 'z80', input_recs[0])
+        rzx.add_snapshot(frames=input_recs[1])
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--quiet --no-screen {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'Port readings exhausted for frame 1')
 
     def test_invalid_rzx_file(self):
         data = [0, 1, 2, 4]

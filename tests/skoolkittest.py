@@ -281,7 +281,7 @@ class RZX:
         self.signature.extend(r)
         self.signature.extend(s)
 
-    def add_snapshot(self, data, ext, frames=None, flags=0, tstates=0, io_flags=2):
+    def add_snapshot(self, data=None, ext=None, frames=None, flags=0, tstates=0, io_flags=2):
         if data:
             ext_b = [ord(c) for c in ext[:4]]
             ext_b += [0] * (4 - len(ext_b))
