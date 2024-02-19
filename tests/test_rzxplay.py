@@ -517,17 +517,17 @@ class RzxplayTest(SkoolKitTestCase):
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = [0] * 37
         registers[22:24] = (pc % 256, pc // 256)
-        if1 = [0] * 19
-        if1[:3] = [ord(c) for c in 'IF1']
-        if1[4] = 11 # Block size
-        szxdata = self.write_szx(ram, machine_id=4, registers=registers, blocks=[if1], ret_data=True)
+        covx = [0] * 12
+        covx[:4] = [ord(c) for c in 'COVX']
+        covx[4] = 4 # Block size
+        szxdata = self.write_szx(ram, machine_id=3, registers=registers, blocks=[covx], ret_data=True)
         rzx = RZX()
         frames = [(1, 1, [191])]
         rzx.add_snapshot(szxdata, 'szx', frames)
         rzxfile = self.write_rzx_file(rzx)
         with self.assertRaises(SkoolKitError) as cm:
             self.run_rzxplay(f'--no-screen {rzxfile}')
-        self.assertEqual(cm.exception.args[0], 'Unsupported block(s) (IF1) in SZX snapshot')
+        self.assertEqual(cm.exception.args[0], 'Unsupported block(s) (COVX) in SZX snapshot')
 
     def test_szx_unsupported_machine(self):
         ram = [0] * 0xC000

@@ -16,7 +16,7 @@
 
 from functools import partial
 
-from skoolkit import ROM48, read_bin_file
+from skoolkit import read_bin_file
 from skoolkit.pagingtracer import Memory
 
 JR_OFFSETS = tuple(j + 2 if j < 128 else j - 254 for j in range(256))
@@ -150,10 +150,10 @@ class Simulator:
         ram = snapshot.ram(-1)
         if len(ram) == 0x20000:
             banks = [ram[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
-            s_memory = Memory(banks, snapshot.out7ffd)
+            s_memory = Memory(banks, snapshot.out7ffd, snapshot.rom)
         else:
             s_memory = [0] * 16384 + ram
-            rom = read_bin_file(rom_file or ROM48)
+            rom = read_bin_file(rom_file or snapshot.rom)
             s_memory[:len(rom)] = rom
         s_registers = {
             'A': snapshot.a,

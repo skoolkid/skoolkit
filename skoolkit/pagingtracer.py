@@ -17,9 +17,9 @@
 from skoolkit import ROM128, read_bin_file
 
 class Memory:
-    def __init__(self, banks=None, out7ffd=0):
+    def __init__(self, banks=None, out7ffd=0, roms=None):
         self.banks = banks or tuple([0] * 16384 for b in range(8))
-        self.roms = tuple(read_bin_file(r) for r in ROM128)
+        self.roms = tuple(read_bin_file(r) for r in roms or ROM128)
         self.memory = [None, self.banks[5], self.banks[2], None]
         self.out7ffd(out7ffd)
 

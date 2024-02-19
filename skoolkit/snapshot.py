@@ -17,7 +17,7 @@
 import textwrap
 import zlib
 
-from skoolkit import SkoolKitError, get_dword, get_word, get_int_param, parse_int, read_bin_file
+from skoolkit import ROM48, ROM128, ROM_PLUS2, SkoolKitError, get_dword, get_word, get_int_param, parse_int, read_bin_file
 from skoolkit.components import get_snapshot_reader, get_value
 
 FRAME_DURATIONS = (69888, 70908)
@@ -159,6 +159,7 @@ class Snapshot:
         self.outfffd = 0
         self.ay = (0,) * 16
         self.outfe = 0
+        self.rom = None
 
     @classmethod
     def get(cls, sfile, ext=None):
@@ -218,6 +219,7 @@ class SNA(Snapshot):
             if self.sp >= 16384:
                 self.pc = get_word(self.tail, self.sp - 16384)
             page = 0
+            self.rom = ROM48
         else:
             self.pc = get_word(self.tail, 49152)
             self.out7ffd = self.tail[49154]
@@ -226,6 +228,7 @@ class SNA(Snapshot):
             for i in sorted(set(range(8)) - {5, 2, page}):
                 banks[i] = self.tail[offset:offset + 16384]
                 offset += 16384
+            self.rom = ROM128
         banks[5] = self.tail[:0x4000]
         banks[2] = self.tail[0x4000:0x8000]
         banks[page] = self.tail[0x8000:0xC000]
@@ -262,6 +265,13 @@ class SZX(Snapshot):
         if len(data) < 8 or data[:4] != b'ZXST':
             raise SnapshotError('Invalid SZX file')
         self.header = data[:8]
+        machine_id = self.header[6]
+        if machine_id < 2:
+            self.rom = ROM48
+        elif machine_id == 2:
+            self.rom = ROM128
+        elif machine_id == 3:
+            self.rom = ROM_PLUS2
         page = 0
         i = 8
         while i + 8 <= len(data):
@@ -453,6 +463,7 @@ class Z80(Snapshot):
             banks[5] = ram[0x0000:0x4000]
             banks[2] = ram[0x4000:0x8000]
             banks[0] = ram[0x8000:0xC000]
+            self.rom = ROM48
         else:
             page = None
             i = 32 + data[30]
@@ -461,6 +472,7 @@ class Z80(Snapshot):
             self.out7ffd = self.header[35]
             self.outfffd = self.header[38]
             self.ay = tuple(self.header[39:55])
+            machine_id = (self.header[34], self.header[37] // 128)
             if i > 55:
                 # Version 3
                 frame_duration = FRAME_DURATIONS[self.header[34] > 3]
@@ -468,7 +480,20 @@ class Z80(Snapshot):
                 t1 = (self.header[55] + 256 * self.header[56]) % qframe_duration
                 t2 = (2 - self.header[57]) % 4
                 self.tstates = frame_duration - 1 - t2 * qframe_duration - t1
-            if (i == 55 and data[34] > 2) or (i > 55 and data[34] > 3):
+                m48_ids = (0, 1, 3)
+                m128_ids = (4, 5, 6)
+            else:
+                # Version 2
+                m48_ids = (0, 1)
+                m128_ids = (3, 4)
+            if machine_id[0] in m48_ids:
+                self.rom = ROM48
+            elif machine_id[0] in m128_ids:
+                if machine_id[1] == 1:
+                    self.rom = ROM_PLUS2
+                else:
+                    self.rom = ROM128
+            if (i == 55 and machine_id[0] > 2) or (i > 55 and machine_id[0] > 3):
                 page = data[35] % 8 # 128K
             while i < len(data):
                 length = data[i] + 256 * data[i + 1]
