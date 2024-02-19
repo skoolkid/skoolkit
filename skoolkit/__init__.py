@@ -42,6 +42,11 @@ ROM128 = (
     os.path.join(PACKAGE_DIR, 'resources', '128-1.rom')
 )
 
+ROM_PLUS2 = (
+    os.path.join(PACKAGE_DIR, 'resources', 'plus2-0.rom'),
+    os.path.join(PACKAGE_DIR, 'resources', 'plus2-1.rom')
+)
+
 def error(msg):
     sys.stderr.write('ERROR: {0}\n'.format(msg))
     sys.exit(1)

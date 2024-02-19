@@ -203,7 +203,7 @@ _check_resources() {
   rootdir=$1
   logdir=$2
 
-  _check_files resources $rootdir $logdir skoolkit{,-dark,-green,-plum,-wide}.css {128-{0,1},48}.rom
+  _check_files resources $rootdir $logdir skoolkit{,-dark,-green,-plum,-wide}.css {{128,plus2}-{0,1},48}.rom
 }
 
 _check_examples() {
