@@ -93,12 +93,18 @@ class RZXTracer(PagingTracer):
 
     def next_frame(self):
         if self.readings:
-            raise SkoolKitError(f'{len(self.readings)} port reading(s) left for frame {self.context.frame_count - 1}')
+            raise SkoolKitError(f'{len(self.readings)} port reading(s) left for frame {self.context.frame_count}')
         self.frame_index += 1
-        if self.frame_index < len(self.frames):
+        if self.frame_index > 0:
+            self.context.frame_count += 1
+        while self.frame_index < len(self.frames):
             frame = self.frames[self.frame_index]
-            self.readings = frame.port_readings
-            return frame.fetch_counter
+            if frame.fetch_counter > 0:
+                self.readings = frame.port_readings
+                return frame.fetch_counter
+            self.frame_index += 1
+            self.context.frame_count += 1
+        return -1
 
     def read_port(self, registers, port):
         if self.readings:
@@ -166,7 +172,7 @@ def write_rzx(fname, context, rzx_blocks):
     rzx_data.extend(z80_data_z)
 
     tracer = context.simulator.tracer
-    frames = tracer.frames[tracer.frame_index + 1:]
+    frames = tracer.frames[tracer.frame_index:]
     nf = len(frames)
     io_frames = bytearray()
     for frame in frames:
@@ -323,10 +329,10 @@ def process_block(block, options, context):
         p_rectangles = context.p_rectangles
         c_rectangles = context.c_rectangles
         clock = context.clock
+    fetch_counter = tracer.next_frame()
     run = True
     while run:
-        fetch_counter = tracer.next_frame()
-        if fetch_counter is None:
+        if fetch_counter < 0:
             break
         while fetch_counter > 0:
             pc = registers[24]
@@ -350,6 +356,7 @@ def process_block(block, options, context):
                 clock.tick(fps)
             prev_scr = memory[16384:23296]
         registers[25] = 0
+        fetch_counter = tracer.next_frame()
         if simulator.iff:
             if memory[pc] == 0x76:
                 # Advance PC if the CPU was halted
@@ -357,10 +364,12 @@ def process_block(block, options, context):
             elif memory[pc] == 0xED and memory[(pc + 1) % 65536] in (0x57, 0x5F):
                 # Reset bit 2 of F if the last instruction was LD A,I/R
                 registers[1] &= 0b11111011
-            # Always accept an interrupt at a frame boundary, even if the
-            # instruction just executed would normally block it
-            simulator.accept_interrupt(registers, memory, 0)
-        context.frame_count += 1
+            if fetch_counter >= 2:
+                # If the next frame is not a short one (used by some emulators
+                # to indicate that an interrupt is blocked), accept an
+                # interrupt now, even if the instruction just executed would
+                # normally block it (e.g. EI)
+                simulator.accept_interrupt(registers, memory, 0)
         if show_progress:
             p = (context.frame_count / total_frames) * 100
             write(f'[{p:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')

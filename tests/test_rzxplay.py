@@ -271,13 +271,14 @@ class RzxplayTest(SkoolKitTestCase):
         registers = {'PC': pc, 'iff1': 1}
         z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
         rzx = RZX()
-        frames = [(2, 0, []), (1, 0, [])]
+        frames = [(2, 0, []), (2, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames, tstates=69886)
         exp_output = ''
         exp_trace = """
             F:0 T:69886 C:00002 I:00000 $C000 HALT
             F:0 T:69890 C:00001 I:00000 $C000 HALT
-            F:1 T:00013 C:00001 I:00000 $0038 PUSH AF
+            F:1 T:00013 C:00002 I:00000 $0038 PUSH AF
+            F:1 T:00024 C:00001 I:00000 $0039 PUSH HL
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -340,12 +341,135 @@ class RzxplayTest(SkoolKitTestCase):
         registers = {'PC': pc}
         z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
         rzx = RZX()
-        frames = [(1, 0, []), (1, 0, [])]
+        frames = [(1, 0, []), (2, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
             F:0 T:00000 C:00001 I:00000 $C000 EI
-            F:1 T:00013 C:00001 I:00000 $0038 PUSH AF
+            F:1 T:00013 C:00002 I:00000 $0038 PUSH AF
+            F:1 T:00024 C:00001 I:00000 $0039 PUSH HL
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_interrupt_blocked_by_short_frame(self):
+        ram = [0] * 0xC000
+        pc = 0xC000
+        code = (
+            0xFB, # EI
+            0xAF, # XOR A
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, []), (1, 0, []), (2, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 T:00000 C:00001 I:00000 $C000 EI
+            F:1 T:00000 C:00001 I:00000 $C001 XOR A
+            F:2 T:00013 C:00002 I:00000 $0038 PUSH AF
+            F:2 T:00024 C:00001 I:00000 $0039 PUSH HL
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_empty_frame_at_start_of_input_recording_block(self):
+        ram = [0] * 0xC000
+        pc = 0x8000
+        code = (
+            0xAF, # XOR A
+            0xA8, # XOR B
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(0, 0, []), (1, 0, []), (1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:1 T:00000 C:00001 I:00000 $8000 XOR A
+            F:2 T:00000 C:00001 I:00000 $8001 XOR B
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_empty_frame_in_middle_of_input_recording_block(self):
+        ram = [0] * 0xC000
+        pc = 0x8000
+        code = (
+            0xAF, # XOR A
+            0xA8, # XOR B
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, []), (0, 0, []), (1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 T:00000 C:00001 I:00000 $8000 XOR A
+            F:2 T:00000 C:00001 I:00000 $8001 XOR B
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_empty_frame_at_end_of_input_recording_block(self):
+        ram = [0] * 0xC000
+        pc = 0x8000
+        code = (
+            0xAF, # XOR A
+            0xA8, # XOR B
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, []), (1, 0, []), (0, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 T:00000 C:00001 I:00000 $8000 XOR A
+            F:1 T:00000 C:00001 I:00000 $8001 XOR B
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_empty_frames_throughout_input_recording_block(self):
+        ram = [0] * 0xC000
+        pc = 0x9000
+        code = (
+            0xAF, # XOR A
+            0xA8, # XOR B
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(0, 0, [])] * 3
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = ''
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_empty_frame_does_not_block_interrupt(self):
+        ram = [0] * 0xC000
+        pc = 0xFEFD
+        code = (
+            0x76,       # $FEFD HALT
+            0xAF,       # $FEFE XOR A
+            0x01, 0xFF, # $FEFF DEFW $FF01 ; Interrupt vector
+            0xC9,       # $FF01 RET        ; Interrupt routine
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, []), (0, 0, []), (2, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 T:00000 C:00001 I:00000 $FEFD HALT
+            F:2 T:00019 C:00002 I:00000 $FF01 RET
+            F:2 T:00029 C:00001 I:00000 $FEFE XOR A
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
