@@ -281,6 +281,54 @@ class RzxplayTest(SkoolKitTestCase):
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
+    def test_ld_a_i_at_frame_boundary(self):
+        ram = [0] * 0xC000
+        pc = 0xFEFA
+        code = (
+            0xED, 0x57,       # $FEFA LD A,I      ; Reset bit 2 of F
+            0xE2, 0xFA, 0xFE, # $FEFC JP PO,$FEFA ; This jump is made
+            0x01, 0xFF,       # $FEFF DEFW $FF01  ; Interrupt vector
+            0xC9,             # $FF01 RET         ; Interrupt routine
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, []), (3, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 T:00000 C:00001 I:00000 $FEFA LD A,I
+            F:1 T:00019 C:00003 I:00000 $FF01 RET
+            F:1 T:00029 C:00002 I:00000 $FEFC JP PO,$FEFA
+            F:1 T:00039 C:00001 I:00000 $FEFA LD A,I
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_ld_a_r_at_frame_boundary(self):
+        ram = [0] * 0xC000
+        pc = 0xFEFA
+        code = (
+            0xED, 0x5F,       # $FEFA LD A,R      ; Reset bit 2 of F
+            0xE2, 0xFA, 0xFE, # $FEFC JP PO,$FEFA ; This jump is made
+            0x01, 0xFF,       # $FEFF DEFW $FF01  ; Interrupt vector
+            0xC9,             # $FF01 RET         ; Interrupt routine
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, []), (3, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 T:00000 C:00001 I:00000 $FEFA LD A,R
+            F:1 T:00019 C:00003 I:00000 $FF01 RET
+            F:1 T:00029 C:00002 I:00000 $FEFC JP PO,$FEFA
+            F:1 T:00039 C:00001 I:00000 $FEFA LD A,R
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
     def test_ei_does_not_block_interrupt(self):
         ram = [0] * 0xC000
         pc = 0xC000

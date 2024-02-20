@@ -30,7 +30,7 @@ with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
 
 from skoolkit import VERSION, SkoolKitError, get_dword, get_word, read_bin_file, write
 from skoolkit.pagingtracer import PagingTracer
-from skoolkit.simulator import Simulator, R1
+from skoolkit.simulator import Simulator, I, R, R1, R2
 from skoolkit.snapshot import Snapshot, Z80, write_snapshot
 from skoolkit.traceutils import disassemble
 
@@ -78,6 +78,8 @@ class RZXTracer(PagingTracer):
         self.simulator = context.simulator
         self.simulator.registers[25] = input_rec.tstates
         self.simulator.opcodes[0x76] = partial(self.halt, self.simulator.registers)
+        self.simulator.after_ED[0x57] = partial(self.ld_a_ir, self.simulator.registers, I)
+        self.simulator.after_ED[0x5F] = partial(self.ld_a_ir, self.simulator.registers, R)
         self.border = context.snapshot.border
         self.out7ffd = context.snapshot.out7ffd
         self.outfffd = context.snapshot.outfffd
@@ -107,6 +109,15 @@ class RZXTracer(PagingTracer):
         # HALT
         registers[25] += 4 # T-states
         registers[15] = R1[registers[15]] # R
+
+    def ld_a_ir(self, registers, r):
+        # LD A,I/R
+        registers[15] = R2[registers[15]] # R
+        a = registers[r]
+        registers[0] = a
+        registers[25] += 9 # T-states
+        registers[1] = (a & 0xA8) + (a == 0) * 0x40 + self.simulator.iff * 0x04 + (registers[1] % 2)
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
 class RZXContext:
     def __init__(self, screen=None, p_rectangles=None, c_rectangles=None, clock=None):
@@ -343,6 +354,9 @@ def process_block(block, options, context):
             if memory[pc] == 0x76:
                 # Advance PC if the CPU was halted
                 registers[24] = (registers[24] + 1) % 65536
+            elif memory[pc] == 0xED and memory[(pc + 1) % 65536] in (0x57, 0x5F):
+                # Reset bit 2 of F if the last instruction was LD A,I/R
+                registers[1] &= 0b11111011
             # Always accept an interrupt at a frame boundary, even if the
             # instruction just executed would normally block it
             simulator.accept_interrupt(registers, memory, 0)
