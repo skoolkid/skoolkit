@@ -28,7 +28,7 @@ with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
     except ImportError: # pragma: no cover
         pygame = None
 
-from skoolkit import VERSION, SkoolKitError, get_dword, get_word, read_bin_file, write
+from skoolkit import VERSION, SkoolKitError, get_dword, get_word, read_bin_file, warn, write
 from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import Simulator, I, R, R1, R2
 from skoolkit.snapshot import Snapshot, Z80, write_snapshot
@@ -291,7 +291,7 @@ def check_supported(snapshot, options):
         supported_blocks = {'AY', 'CRTR', 'KEYB', 'JOY', 'RAMP', 'SPCR', 'TAPE', 'Z80R'}
         unsupported_blocks = set(b[0] for b in snapshot.tail) - supported_blocks
         if unsupported_blocks:
-            return 'Unsupported block(s) ({}) in SZX snapshot'.format(', '.join(unsupported_blocks))
+            warn('Unsupported block(s) ({}) in SZX snapshot'.format(', '.join(sorted(unsupported_blocks))))
 
 def process_block(block, options, context):
     if block is None:

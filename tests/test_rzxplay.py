@@ -27,7 +27,7 @@ def mock_write_snapshot(fname, ram, registers, state):
     s_state = state
 
 class RzxplayTest(SkoolKitTestCase):
-    def _test_rzx(self, rzx, exp_output, options='', exp_trace=None, outfile=None):
+    def _test_rzx(self, rzx, exp_output, options='', exp_trace=None, outfile=None, exp_error=''):
         if isinstance(rzx, str):
             rzxfile = rzx
         else:
@@ -39,7 +39,7 @@ class RzxplayTest(SkoolKitTestCase):
         if outfile:
             args += f' {outfile}'
         output, error = self.run_rzxplay(args)
-        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_error).lstrip(), error)
         self.assertEqual(dedent(exp_output).lstrip(), output)
         if exp_trace:
             self.assertTrue(os.path.isfile(logfile))
@@ -138,6 +138,49 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(szxdata, 'szx', frames)
         exp_output = ''
         self._test_rzx(rzx, exp_output, '--quiet --no-screen')
+
+    def test_szx_unsupported_block(self):
+        ram = [0] * 0xC000
+        pc = 0xC000
+        code = (
+            0xDB, 0xFE # IN A,($FE)
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = [0] * 37
+        registers[22:24] = (pc % 256, pc // 256)
+        covx = [0] * 12
+        covx[:4] = [ord(c) for c in 'COVX']
+        covx[4] = 4 # Block size
+        szxdata = self.write_szx(ram, machine_id=3, registers=registers, blocks=[covx], ret_data=True)
+        rzx = RZX()
+        frames = [(1, 1, [191])]
+        rzx.add_snapshot(szxdata, 'szx', frames)
+        exp_output = ''
+        exp_error = 'WARNING: Unsupported block(s) (COVX) in SZX snapshot\n'
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_error=exp_error)
+
+    def test_szx_unsupported_blocks(self):
+        ram = [0] * 0xC000
+        pc = 0xC000
+        code = (
+            0xDB, 0xFE # IN A,($FE)
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = [0] * 37
+        registers[22:24] = (pc % 256, pc // 256)
+        if1 = [0] * 24
+        if1[:3] = [ord(c) for c in 'IF1']
+        if1[4] = 16 # Block size
+        covx = [0] * 12
+        covx[:4] = [ord(c) for c in 'COVX']
+        covx[4] = 4 # Block size
+        szxdata = self.write_szx(ram, machine_id=3, registers=registers, blocks=[if1, covx], ret_data=True)
+        rzx = RZX()
+        frames = [(1, 1, [191])]
+        rzx.add_snapshot(szxdata, 'szx', frames)
+        exp_output = ''
+        exp_error = 'WARNING: Unsupported block(s) (COVX, IF1) in SZX snapshot\n'
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_error=exp_error)
 
     def test_compressed_snapshot(self):
         ram = [0] * 0xC000
@@ -679,27 +722,6 @@ class RzxplayTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_rzxplay(f'--no-screen {rzxfile}')
         self.assertEqual(cm.exception.args[0], 'Unsupported machine type')
-
-    def test_szx_unsupported_block(self):
-        ram = [0] * 0xC000
-        pc = 0xC000
-        code = (
-            0xDB, 0xFE # IN A,($FE)
-        )
-        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
-        registers = [0] * 37
-        registers[22:24] = (pc % 256, pc // 256)
-        covx = [0] * 12
-        covx[:4] = [ord(c) for c in 'COVX']
-        covx[4] = 4 # Block size
-        szxdata = self.write_szx(ram, machine_id=3, registers=registers, blocks=[covx], ret_data=True)
-        rzx = RZX()
-        frames = [(1, 1, [191])]
-        rzx.add_snapshot(szxdata, 'szx', frames)
-        rzxfile = self.write_rzx_file(rzx)
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_rzxplay(f'--no-screen {rzxfile}')
-        self.assertEqual(cm.exception.args[0], 'Unsupported block(s) (COVX) in SZX snapshot')
 
     def test_szx_unsupported_machine(self):
         ram = [0] * 0xC000
