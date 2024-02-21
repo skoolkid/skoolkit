@@ -21,7 +21,7 @@ class RzxinfoTest(SkoolKitTestCase):
             Version: 0.13
             Signed: No
             Creator information:
-              ID: SkoolKit 9.2
+              ID: SkoolKit 9.2 (0.9.0.2)
             Snapshot:
               Filename extension: sna
               Size: 49179 bytes
@@ -42,7 +42,7 @@ class RzxinfoTest(SkoolKitTestCase):
             Version: 0.13
             Signed: No
             Creator information:
-              ID: SkoolKit 9.2
+              ID: SkoolKit 9.2 (0.9.0.2)
             Snapshot:
               Filename extension: sna
               Size: 131103 bytes
@@ -64,7 +64,7 @@ class RzxinfoTest(SkoolKitTestCase):
             Version: 0.13
             Signed: No
             Creator information:
-              ID: SkoolKit 9.2
+              ID: SkoolKit 9.2 (0.9.0.2)
             Snapshot:
               Filename extension: z80
               Size: 49247 bytes
@@ -86,7 +86,7 @@ class RzxinfoTest(SkoolKitTestCase):
             Version: 0.13
             Signed: No
             Creator information:
-              ID: SkoolKit 9.2
+              ID: SkoolKit 9.2 (0.9.0.2)
             Snapshot:
               Filename extension: szx
               Size: 174 bytes
@@ -107,7 +107,7 @@ class RzxinfoTest(SkoolKitTestCase):
             Version: 0.13
             Signed: No
             Creator information:
-              ID: SkoolKit 9.2
+              ID: SkoolKit 9.2 (0.9.0.2)
             Snapshot:
               Filename extension: sna
               Size: 49179 bytes
@@ -130,11 +130,34 @@ class RzxinfoTest(SkoolKitTestCase):
             Version: 0.13
             Signed: No
             Creator information:
-              ID: SkoolKit 9.2
+              ID: SkoolKit 9.2 (0.9.0.2)
             Snapshot:
               Filename extension: sna
               Size: 13 bytes
               External snapshot: game.sna
+            Input recording
+              Number of frames: 1 (0h00m00s)
+              T-states: 0
+              Encrypted: No
+        """
+        self._test_rzx(rzx, exp_output)
+
+    def test_creator_canonical_version_number(self):
+        ram = [0] * 49152
+        szxdata = self.write_szx(ram, ret_data=True)
+        rzx = RZX()
+        rzx.set_creator('Fuse', 261, 1792)
+        rzx.add_snapshot(szxdata, 'szx')
+        exp_output = """
+            Version: 0.13
+            Signed: No
+            Creator information:
+              ID: Fuse 261.1792 (1.5.7.0)
+            Snapshot:
+              Filename extension: szx
+              Size: 174 bytes
+              Machine: 48K ZX Spectrum
+              Start address: 0
             Input recording
               Number of frames: 1 (0h00m00s)
               T-states: 0
@@ -150,7 +173,7 @@ class RzxinfoTest(SkoolKitTestCase):
             Version: 0.13
             Signed: No
             Creator information:
-              ID: SkoolKit 9.2
+              ID: SkoolKit 9.2 (0.9.0.2)
             Security information
             Security signature
         """
@@ -163,7 +186,7 @@ class RzxinfoTest(SkoolKitTestCase):
             Version: 0.13
             Signed: No
             Creator information:
-              ID: SkoolKit 9.2
+              ID: SkoolKit 9.2 (0.9.0.2)
             Snapshot:
               Filename extension: ust
               Size: 10 bytes
@@ -185,7 +208,7 @@ class RzxinfoTest(SkoolKitTestCase):
             Version: 0.13
             Signed: No
             Creator information:
-              ID: SkoolKit 9.2
+              ID: SkoolKit 9.2 (0.9.0.2)
             Security information
             Unknown block ID: 0xFF
         """
@@ -250,7 +273,7 @@ class RzxinfoTest(SkoolKitTestCase):
             Version: 0.13
             Signed: No
             Creator information:
-              ID: SkoolKit 9.2
+              ID: SkoolKit 9.2 (0.9.0.2)
             Snapshot:
               Filename extension: sna
               Size: 49179 bytes

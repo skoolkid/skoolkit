@@ -43,7 +43,8 @@ def _show_blocks(data, options):
             creator_id = _get_str(data, i + 5, 20)
             vmajor = get_word(data, i + 25)
             vminor = get_word(data, i + 27)
-            print(f'  ID: {creator_id} {vmajor}.{vminor}')
+            vcanonical = '.'.join(str(data[i + d]) for d in (26, 25, 28, 27))
+            print(f'  ID: {creator_id} {vmajor}.{vminor} ({vcanonical})')
         elif block_id == 0x20:
             print('Security information')
         elif block_id == 0x21:

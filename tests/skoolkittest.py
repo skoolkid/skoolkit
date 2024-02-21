@@ -259,8 +259,8 @@ class RZX:
             0x10,             # Block ID
             *as_dword(b_len), # Block length
             *creator_b,       # Creator ID
-            major, 0,
-            minor, 0,
+            major % 256, major // 256,
+            minor % 256, minor // 256,
             *custom_data
         ]
 
