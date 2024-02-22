@@ -873,6 +873,35 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = ''
         self._test_rzx(rzx, exp_output, '--force --quiet --no-screen')
 
+    def test_option_map(self):
+        ram = [0] * 0xC000
+        pc = 0xFF00
+        code = (
+            0x06, 0x02,       # $FF00 LD B,2
+            0xCD, 0x52, 0x00, # $FF02 CALL $0052
+            0x10, 0xFB,       # $FF05 DJNZ $FF02
+            0x18, 0xF7,       # $FF07 JR $FF00
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(9, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        mapfile = 'out.map'
+        self._test_rzx(rzx, exp_output, f'--map {mapfile} --quiet --no-screen')
+        exp_map = """
+            $0052
+            $FF00
+            $FF02
+            $FF05
+            $FF07
+        """
+        with open(mapfile) as f:
+            map_contents = f.read()
+        self.assertEqual(dedent(exp_map).lstrip(), map_contents)
+
     def test_option_stop(self):
         ram = [0] * 0xC000
         pc = 0xF000

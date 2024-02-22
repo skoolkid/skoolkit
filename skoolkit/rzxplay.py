@@ -131,6 +131,7 @@ class RZXContext:
         self.p_rectangles = p_rectangles
         self.c_rectangles = c_rectangles
         self.clock = clock
+        self.exec_map = None
         self.tracefile = None
         self.snapshot = None
         self.simulator = None
@@ -323,6 +324,7 @@ def process_block(block, options, context):
     show_progress = not options.quiet
     fps = options.fps
     stop = options.stop
+    exec_map = context.exec_map
     tracefile = context.tracefile
     screen = context.screen
     if screen: # pragma: no cover
@@ -341,6 +343,8 @@ def process_block(block, options, context):
             if tracefile:
                 i = disassemble(memory, pc)[0]
                 tracefile.write(f'F:{context.frame_count:0{fnwidth}} T:{registers[25]:05} C:{fetch_counter:05} I:{len(tracer.readings):05} ${pc:04X} {i}\n')
+            if exec_map is not None:
+                exec_map.add(pc)
             opcodes[memory[pc]]()
             if ld_r_a:
                 fetch_counter -= 2
@@ -391,6 +395,8 @@ def run(infile, options):
         context = RZXContext(screen, p_rectangles, c_rectangles, clock)
     else:
         context = RZXContext()
+    if options.map:
+        context.exec_map = set()
     if options.trace:
         context.tracefile = open(options.trace, 'w')
     rzx_blocks = parse_rzx(infile)
@@ -405,6 +411,10 @@ def run(infile, options):
         process_block(rzx_blocks.pop(0).obj, options, context)
         if context.stop:
             break
+    if options.map:
+        with open(options.map, 'w') as f:
+            for addr in sorted(context.exec_map):
+                f.write(f'${addr:04X}\n')
     if context.tracefile:
         context.tracefile.close()
     if options.dump:
@@ -433,6 +443,8 @@ def main(args):
     group.add_argument('--fps', type=int, default=50,
                        help="Run at this many frames per second (default: 50). "
                             "0 means maximum speed.")
+    group.add_argument('--map', metavar='FILE',
+                       help="Log addresses of executed instructions to a file.")
     group.add_argument('--no-screen', dest='screen', action='store_false',
                        help="Run without a screen.")
     group.add_argument('--quiet', action='store_true',
