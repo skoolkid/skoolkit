@@ -261,6 +261,17 @@ to change the frame rate. Specifying ``--fps 0`` makes `rzxplay.py` run at
 maximum speed. To disable the screen and make `rzxplay.py` run even faster, use
 the ``--no-screen`` option.
 
+The ``--map`` option can be used to log the addresses of instructions executed
+during playback to a file. This file can then be used by :ref:`sna2ctl.py` to
+produce a control file.
+
+If ``OUTFILE`` is given, and ends with either '.z80' or '.szx', then a snapshot
+in the corresponding format is written when playback ends. Similarly, if
+``OUTFILE`` ends with '.rzx', then an RZX file is written when playback ends.
+However, this makes sense only if ``--stop`` is used to end playback somewhere
+in the middle of the input RZX file, otherwise the output RZX file will be
+empty (i.e. contain no frames).
+
 .. _pygame: https://pygame.org/
 
 +---------+---------+
@@ -873,6 +884,7 @@ to be a binary file.
 The ``-m`` option may be used to specify a code execution map to use when
 generating a control file. The supported file formats are:
 
+* Files created by the ``--map`` option of :ref:`rzxplay.py`
 * Profiles created by the Fuse emulator
 * Code execution logs created by the SpecEmu, Spud and Zero emulators
 * Map files created by the SpecEmu and Z80 emulators
@@ -917,6 +929,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.2     | Added support for reading code execution maps produced by         |
+|         | :ref:`rzxplay.py`                                                 |
++---------+-------------------------------------------------------------------+
 | 7.2     | Added the ``Dictionary`` configuration parameter                  |
 +---------+-------------------------------------------------------------------+
 | 7.1     | Configuration is read from `skoolkit.ini` if present; added the   |

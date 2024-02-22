@@ -1,4 +1,4 @@
-# Copyright 2009-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2021, 2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -93,7 +93,10 @@ def _get_addresses(f, fname, size, start, end):
         if s_line:
             break
 
-    if s_line.startswith('0x'):
+    if s_line.startswith('$'):
+        # rzxplay.py map
+        address_f = lambda s_line: s_line[1:5]
+    elif s_line.startswith('0x'):
         # Fuse profile
         address_f = lambda s_line: s_line[2:6]
     elif s_line.startswith('PC = '):

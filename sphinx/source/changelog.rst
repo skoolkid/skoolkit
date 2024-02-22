@@ -6,6 +6,8 @@ Changelog
 * Added the :ref:`rzxplay.py` command (for playing an RZX file)
 * Added the :ref:`rzxinfo.py` command (for showing the blocks in or extracting
   the snapshots from an RZX file)
+* Added support to :ref:`sna2ctl.py` for reading code execution maps produced
+  by :ref:`rzxplay.py`
 * Added support to :ref:`tap2sna.py` for TZX block type 0x15 (direct recording)
 * :ref:`tapinfo.py` now shows info for TZX block type 0x15 (direct recording)
 

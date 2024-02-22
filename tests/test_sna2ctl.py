@@ -160,6 +160,12 @@ class MockControlFileGenerator:
         return {0: 'i'}
 
 class Sna2CtlTest(SkoolKitTestCase):
+    def _create_rzxplay_map(self, addresses):
+        profile = []
+        for a in addresses:
+            profile.append(f'${a:04X}')
+        return profile
+
     def _create_z80_map(self, addresses):
         bits = []
         map_data = []
@@ -907,6 +913,9 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertIsNotNone(match)
         self.assertEqual(match.group(), error)
         self.assertEqual(TEST_MAP_CTL_G, output)
+
+    def test_option_m_rzxplay(self):
+        self._test_option_m(self._create_rzxplay_map(TEST_MAP), '--map')
 
     def test_option_m_z80(self):
         self._test_option_m(self._create_z80_map(TEST_MAP), '-m', True)

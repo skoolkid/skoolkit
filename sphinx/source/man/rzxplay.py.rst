@@ -58,6 +58,21 @@ to change the frame rate. Specifying ``--fps 0`` makes ``rzxplay.py`` run at
 maximum speed. To disable the screen and make ``rzxplay.py`` run even faster,
 use the ``--no-screen`` option.
 
+CODE EXECUTION MAP
+==================
+The ``-map`` option can be used to log the addresses of instructions executed
+during playback to a file. This file can then be used by ``sna2ctl.py`` to
+produce a control file.
+
+OUTPUT FILE
+===========
+If ``OUTFILE`` is given, and ends with either '.z80' or '.szx', then a snapshot
+in the corresponding format is written when playback ends. Similarly, if
+``OUTFILE`` ends with '.rzx', then an RZX file is written when playback ends.
+However, this makes sense only if ``--stop`` is used to end playback somewhere
+in the middle of the input RZX file, otherwise the output RZX file will be
+empty (i.e. contain no frames).
+
 EXAMPLES
 ========
 1. Play ``game.rzx``:
