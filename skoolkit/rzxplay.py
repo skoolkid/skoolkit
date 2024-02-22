@@ -339,7 +339,7 @@ def process_block(block, options, context):
             ld_r_a = memory[pc] == 0xED and memory[(pc + 1) % 65536] == 0x4F
             if tracefile:
                 i = disassemble(memory, pc)[0]
-                tracefile.write(f'F:{context.frame_count:0{fnwidth}} T:{registers[25]:05} C:{fetch_counter:05} I:{len(tracer.readings):05} ${pc:04X} {i}\n')
+                tracefile.write(f'F:{context.frame_count:0{fnwidth}} C:{fetch_counter:05} I:{len(tracer.readings):05} ${pc:04X} {i}\n')
             if exec_map is not None:
                 exec_map.add(pc)
             opcodes[memory[pc]]()

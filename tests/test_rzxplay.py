@@ -235,8 +235,8 @@ class RzxplayTest(SkoolKitTestCase):
             rzx.add_snapshot(z80data, 'z80', f)
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00001 I:00000 $C000 XOR A
-            F:1 T:00000 C:00001 I:00000 $C000 XOR B
+            F:0 C:00001 I:00000 $C000 XOR A
+            F:1 C:00001 I:00000 $C000 XOR B
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -262,9 +262,9 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(frames=input_recs[2])
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00001 I:00000 $7000 XOR A
-            F:1 T:00000 C:00001 I:00001 $7001 IN A,($FE)
-            F:2 T:00000 C:00001 I:00000 $7003 XOR B
+            F:0 C:00001 I:00000 $7000 XOR A
+            F:1 C:00001 I:00001 $7001 IN A,($FE)
+            F:2 C:00001 I:00000 $7003 XOR B
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -302,10 +302,10 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames, tstates=69886)
         exp_output = ''
         exp_trace = """
-            F:0 T:69886 C:00002 I:00000 $C000 HALT
-            F:0 T:69890 C:00001 I:00000 $C000 HALT
-            F:1 T:00013 C:00002 I:00000 $0038 PUSH AF
-            F:1 T:00024 C:00001 I:00000 $0039 PUSH HL
+            F:0 C:00002 I:00000 $C000 HALT
+            F:0 C:00001 I:00000 $C000 HALT
+            F:1 C:00002 I:00000 $0038 PUSH AF
+            F:1 C:00001 I:00000 $0039 PUSH HL
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -326,10 +326,10 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00001 I:00000 $FEFA LD A,I
-            F:1 T:00019 C:00003 I:00000 $FF01 RET
-            F:1 T:00029 C:00002 I:00000 $FEFC JP PO,$FEFA
-            F:1 T:00039 C:00001 I:00000 $FEFA LD A,I
+            F:0 C:00001 I:00000 $FEFA LD A,I
+            F:1 C:00003 I:00000 $FF01 RET
+            F:1 C:00002 I:00000 $FEFC JP PO,$FEFA
+            F:1 C:00001 I:00000 $FEFA LD A,I
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -350,10 +350,10 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00001 I:00000 $FEFA LD A,R
-            F:1 T:00019 C:00003 I:00000 $FF01 RET
-            F:1 T:00029 C:00002 I:00000 $FEFC JP PO,$FEFA
-            F:1 T:00039 C:00001 I:00000 $FEFA LD A,R
+            F:0 C:00001 I:00000 $FEFA LD A,R
+            F:1 C:00003 I:00000 $FF01 RET
+            F:1 C:00002 I:00000 $FEFC JP PO,$FEFA
+            F:1 C:00001 I:00000 $FEFA LD A,R
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -372,9 +372,9 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00001 I:00000 $C000 EI
-            F:1 T:00013 C:00002 I:00000 $0038 PUSH AF
-            F:1 T:00024 C:00001 I:00000 $0039 PUSH HL
+            F:0 C:00001 I:00000 $C000 EI
+            F:1 C:00002 I:00000 $0038 PUSH AF
+            F:1 C:00001 I:00000 $0039 PUSH HL
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -393,10 +393,10 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00001 I:00000 $C000 EI
-            F:1 T:00000 C:00001 I:00000 $C001 XOR A
-            F:2 T:00013 C:00002 I:00000 $0038 PUSH AF
-            F:2 T:00024 C:00001 I:00000 $0039 PUSH HL
+            F:0 C:00001 I:00000 $C000 EI
+            F:1 C:00001 I:00000 $C001 XOR A
+            F:2 C:00002 I:00000 $0038 PUSH AF
+            F:2 C:00001 I:00000 $0039 PUSH HL
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -415,8 +415,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:1 T:00000 C:00001 I:00000 $8000 XOR A
-            F:2 T:00000 C:00001 I:00000 $8001 XOR B
+            F:1 C:00001 I:00000 $8000 XOR A
+            F:2 C:00001 I:00000 $8001 XOR B
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -435,8 +435,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00001 I:00000 $8000 XOR A
-            F:2 T:00000 C:00001 I:00000 $8001 XOR B
+            F:0 C:00001 I:00000 $8000 XOR A
+            F:2 C:00001 I:00000 $8001 XOR B
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -455,8 +455,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00001 I:00000 $8000 XOR A
-            F:1 T:00000 C:00001 I:00000 $8001 XOR B
+            F:0 C:00001 I:00000 $8000 XOR A
+            F:1 C:00001 I:00000 $8001 XOR B
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -494,9 +494,9 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00001 I:00000 $FEFD HALT
-            F:2 T:00019 C:00002 I:00000 $FF01 RET
-            F:2 T:00029 C:00001 I:00000 $FEFE XOR A
+            F:0 C:00001 I:00000 $FEFD HALT
+            F:2 C:00002 I:00000 $FF01 RET
+            F:2 C:00001 I:00000 $FEFE XOR A
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -516,8 +516,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00003 I:00000 $C000 LD R,A
-            F:0 T:00009 C:00001 I:00000 $C002 XOR A
+            F:0 C:00003 I:00000 $C000 LD R,A
+            F:0 C:00001 I:00000 $C002 XOR A
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -539,8 +539,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00003 I:00000 $BFFE OUT (C),A
-            F:0 T:00012 C:00001 I:00000 $C000 XOR A
+            F:0 C:00003 I:00000 $BFFE OUT (C),A
+            F:0 C:00001 I:00000 $C000 XOR A
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -628,14 +628,14 @@ class RzxplayTest(SkoolKitTestCase):
         outfile = 'out.rzx'
         exp_output = f'Wrote {outfile}\n'
         exp_trace = """
-            F:0 T:00000 C:00001 I:00000 $F000 XOR A
+            F:0 C:00001 I:00000 $F000 XOR A
         """
         self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
 
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00001 I:00000 $F001 XOR B
-            F:1 T:00000 C:00001 I:00000 $F000 XOR C
+            F:0 C:00001 I:00000 $F001 XOR B
+            F:1 C:00001 I:00000 $F000 XOR C
         """
         self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -920,8 +920,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(esdata, 'z80', frames, flags=1)
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00002 I:00000 $9000 XOR A
-            F:0 T:00004 C:00001 I:00000 $9001 XOR B
+            F:0 C:00002 I:00000 $9000 XOR A
+            F:0 C:00001 I:00000 $9001 XOR B
         """
         self._test_rzx(rzx, exp_output, f'--snapshot {z80file} --quiet --no-screen', exp_trace)
 
@@ -951,8 +951,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 T:00000 C:00001 I:00000 $F000 XOR A
-            F:1 T:00000 C:00001 I:00000 $F001 XOR B
+            F:0 C:00001 I:00000 $F000 XOR A
+            F:1 C:00001 I:00000 $F001 XOR B
         """
         self._test_rzx(rzx, exp_output, '--stop 2 --quiet --no-screen', exp_trace)
 
