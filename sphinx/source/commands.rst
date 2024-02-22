@@ -238,16 +238,17 @@ To list the options supported by `rzxplay.py`, run it with no arguments::
   is written after playback has completed.
 
   Options:
-    --force        Force playback when unsupported hardware is detected.
-    --fps FPS      Run at this many frames per second (default: 50). 0 means
-                   maximum speed.
-    --map FILE     Log addresses of executed instructions to a file.
-    --no-screen    Run without a screen.
-    --quiet        Don't print progress percentage.
-    --scale SCALE  Scale display up by this factor (1-4; default: 2).
-    --stop FRAMES  Stop after playing this many frames.
-    --trace FILE   Log executed instructions to a file.
-    -V, --version  Show SkoolKit version number and exit.
+    --force          Force playback when unsupported hardware is detected.
+    --fps FPS        Run at this many frames per second (default: 50). 0 means
+                     maximum speed.
+    --map FILE       Log addresses of executed instructions to a file.
+    --no-screen      Run without a screen.
+    --quiet          Don't print progress percentage.
+    --scale SCALE    Scale display up by this factor (1-4; default: 2).
+    --snapshot FILE  Specify an external snapshot file to start with.
+    --stop FRAMES    Stop after playing this many frames.
+    --trace FILE     Log executed instructions to a file.
+    -V, --version    Show SkoolKit version number and exit.
 
 `rzxplay.py` can play RZX files that were recorded in 48K, 128K or +2 mode with
 no peripherals (e.g. Interface 1) attached. The ``--force`` option can be used

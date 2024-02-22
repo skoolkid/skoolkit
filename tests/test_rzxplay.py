@@ -216,22 +216,6 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = ''
         self._test_rzx(rzx, exp_output, '--quiet --no-screen')
 
-    def test_input_recording_before_snapshot(self):
-        ram = [0] * 0xC000
-        pc = 0xC000
-        code = (
-            0xDB, 0xFE # IN A,($FE)
-        )
-        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
-        registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
-        rzx = RZX()
-        rzx.add_snapshot(None, None)
-        frames = [(1, 1, [191])]
-        rzx.add_snapshot(z80data, 'z80', frames)
-        exp_output = ''
-        self._test_rzx(rzx, exp_output, '--quiet --no-screen')
-
     def test_multiple_snapshots(self):
         pc = 0xC000
         code = (
@@ -842,7 +826,25 @@ class RzxplayTest(SkoolKitTestCase):
         rzxfile = self.write_rzx_file(rzx)
         with self.assertRaises(SkoolKitError) as cm:
             self.run_rzxplay(f'--quiet --no-screen {rzxfile}')
-        self.assertEqual(cm.exception.args[0], 'Missing snapshot (external file)')
+        self.assertEqual(cm.exception.args[0], 'Missing snapshot')
+
+    def test_input_recording_before_snapshot(self):
+        ram = [0] * 0xC000
+        pc = 0xC000
+        code = (
+            0xDB, 0xFE # IN A,($FE)
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        rzx.add_snapshot(None, None)
+        frames = [(1, 1, [191])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--quiet --no-screen {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'Missing snapshot')
 
     def test_unsupported_snapshot(self):
         rzx = RZX()
@@ -901,6 +903,37 @@ class RzxplayTest(SkoolKitTestCase):
         with open(mapfile) as f:
             map_contents = f.read()
         self.assertEqual(dedent(exp_map).lstrip(), map_contents)
+
+    def test_option_snapshot(self):
+        ram = [0] * 0xC000
+        pc = 0x9000
+        code = (
+            0xAF, # XOR A
+            0xA8, # XOR B
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        rzx = RZX()
+        esdata = [0] * 4 + [ord(c) for c in 'external.z80'] + [0]
+        frames = [(2, 0, [])]
+        rzx.add_snapshot(esdata, 'z80', frames, flags=1)
+        exp_output = ''
+        exp_trace = """
+            F:0 T:00000 C:00002 I:00000 $9000 XOR A
+            F:0 T:00004 C:00001 I:00000 $9001 XOR B
+        """
+        self._test_rzx(rzx, exp_output, f'--snapshot {z80file} --quiet --no-screen', exp_trace)
+
+    def test_option_snapshot_with_unsupported_snapshot(self):
+        sltfile = self.write_bin_file([0], suffix='.slt')
+        rzx = RZX()
+        esdata = [0] * 4 + [ord(c) for c in 'external.slt'] + [0]
+        rzx.add_snapshot(esdata, 'slt', flags=1)
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--snapshot {sltfile} --quiet --no-screen {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'Unsupported snapshot type')
 
     def test_option_stop(self):
         ram = [0] * 0xC000

@@ -211,13 +211,12 @@ def parse_rzx(rzxfile):
         if block_id == 0x30:
             # Snapshot
             flags = data[i + 5]
-            if flags & 1:
-                raise SkoolKitError('Missing snapshot (external file)')
-            ext = ''.join(chr(b) for b in data[i + 9:i + 13] if b)
-            sdata = data[i + 17:i + block_len]
-            if flags & 2:
-                sdata = zlib.decompress(sdata)
-            contents.append(RZXBlock(data[i:i + block_len], Snapshot.get(sdata, ext)))
+            if flags & 1 == 0:
+                ext = ''.join(chr(b) for b in data[i + 9:i + 13] if b)
+                sdata = data[i + 17:i + block_len]
+                if flags & 2:
+                    sdata = zlib.decompress(sdata)
+                contents.append(RZXBlock(data[i:i + block_len], Snapshot.get(sdata, ext)))
         elif block_id == 0x80:
             # Input recording
             num_frames = get_dword(data, i + 5)
@@ -303,8 +302,6 @@ def process_block(block, options, context):
             raise SkoolKitError(error_msg)
         context.snapshot = block
         context.simulator = None
-        return
-    if context.snapshot is None:
         return
     if context.simulator:
         simulator = context.simulator
@@ -400,8 +397,12 @@ def run(infile, options):
     if options.trace:
         context.tracefile = open(options.trace, 'w')
     rzx_blocks = parse_rzx(infile)
+    if options.snapshot:
+        rzx_blocks.insert(0, RZXBlock(None, Snapshot.get(options.snapshot)))
     while rzx_blocks and isinstance(rzx_blocks[-1].obj, Snapshot):
         rzx_blocks.pop()
+    if rzx_blocks and isinstance(rzx_blocks[0].obj, InputRecording):
+        raise SkoolKitError('Missing snapshot')
     for block in rzx_blocks:
         if isinstance(block.obj, InputRecording):
             context.total_frames += len(block.obj.frames)
@@ -451,6 +452,8 @@ def main(args):
                        help="Don't print progress percentage.")
     group.add_argument('--scale', metavar='SCALE', type=int, default=2, choices=(1, 2, 3, 4),
                        help="Scale display up by this factor (1-4; default: 2).")
+    group.add_argument('--snapshot', metavar='FILE',
+                       help="Specify an external snapshot file to start with.")
     group.add_argument('--stop', metavar='FRAMES', type=int,
                        help="Stop after playing this many frames.")
     group.add_argument('--trace', metavar='FILE',

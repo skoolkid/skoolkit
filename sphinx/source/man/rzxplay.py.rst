@@ -33,6 +33,9 @@ OPTIONS
 --scale SCALE
   Scale the display up by this factor (1-4; default: 2).
 
+--snapshot FILE
+  Specify an external snapshot file to start with.
+
 --stop FRAMES
   Stop after playing this many frames.
 
