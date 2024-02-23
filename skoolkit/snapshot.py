@@ -481,15 +481,15 @@ class Z80(Snapshot):
                 t2 = (2 - self.header[57]) % 4
                 self.tstates = frame_duration - 1 - t2 * qframe_duration - t1
                 m48_ids = (0, 1, 3)
-                m128_ids = (4, 5, 6)
+                m128_ids = (4, 5, 6, 12)
             else:
                 # Version 2
                 m48_ids = (0, 1)
-                m128_ids = (3, 4)
+                m128_ids = (3, 4, 12)
             if machine_id[0] in m48_ids:
                 self.rom = ROM48
             elif machine_id[0] in m128_ids:
-                if machine_id[1] == 1:
+                if machine_id[0] == 12 or machine_id[1] == 1:
                     self.rom = ROM_PLUS2
                 else:
                     self.rom = ROM128

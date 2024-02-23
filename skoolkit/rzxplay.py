@@ -284,7 +284,7 @@ def check_supported(snapshot, options):
         if len(header) == 55 and header[34] not in (0, 3):
             # Version 2
             return 'Unsupported machine type'
-        if len(header) > 55 and header[34] not in (0, 4):
+        if len(header) > 55 and header[34] not in (0, 4, 12):
             # Version 3
             return 'Unsupported machine type'
     elif snapshot.type == 'SZX':
