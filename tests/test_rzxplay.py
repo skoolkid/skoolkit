@@ -9,8 +9,8 @@ def mock_run(*args):
     global run_args
     run_args = args
 
-def mock_write_snapshot(fname, ram, registers, state):
-    global s_fname, s_memory, s_banks, s_reg, s_state
+def mock_write_snapshot(fname, ram, registers, state, rom0):
+    global s_fname, s_memory, s_banks, s_reg, s_state, s_rom0
     s_fname = fname
     if len(ram) == 8:
         s_banks = ram
@@ -25,6 +25,7 @@ def mock_write_snapshot(fname, ram, registers, state):
         s_memory = [0] * 16384 + ram
     s_reg = registers
     s_state = state
+    s_rom0 = rom0
 
 class RzxplayTest(SkoolKitTestCase):
     def _test_rzx(self, rzx, exp_output, options='', exp_trace=None, outfile=None, exp_error=''):
@@ -580,7 +581,7 @@ class RzxplayTest(SkoolKitTestCase):
         self._test_rzx(rzx, exp_output, '--stop 3 --no-screen')
 
     @patch.object(rzxplay, 'write_snapshot', mock_write_snapshot)
-    def test_write_snapshot(self):
+    def test_write_48k_snapshot(self):
         ram = [0] * 0xC000
         pc = 0xF000
         code = [
@@ -600,6 +601,54 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertLessEqual({'A=191', f'PC={end}'}, set(s_reg))
         self.assertIn('tstates=0', s_state)
         self.assertIsNone(s_banks)
+        self.assertEqual(code, s_memory[pc:end])
+
+    @patch.object(rzxplay, 'write_snapshot', mock_write_snapshot)
+    def test_write_128k_snapshot(self):
+        ram = [0] * 0xC000
+        pc = 0xF000
+        code = [
+            0xDB, 0xFE, # IN A,($FE)
+        ]
+        end = pc + len(code)
+        ram[pc - 0x4000:end - 0x4000] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, machine_id=4, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 1, [191])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        outfile = 'out.z80'
+        exp_output = f'Wrote {outfile}\n'
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', outfile=outfile)
+        self.assertEqual(s_fname, outfile)
+        self.assertLessEqual({'A=191', f'PC={end}'}, set(s_reg))
+        self.assertIn('tstates=0', s_state)
+        self.assertIsNotNone(s_banks)
+        self.assertEqual(s_rom0[0x3FFD], 0x4D)
+        self.assertEqual(code, s_memory[pc:end])
+
+    @patch.object(rzxplay, 'write_snapshot', mock_write_snapshot)
+    def test_write_plus2_snapshot(self):
+        ram = [0] * 0xC000
+        pc = 0xF000
+        code = [
+            0xDB, 0xFE, # IN A,($FE)
+        ]
+        end = pc + len(code)
+        ram[pc - 0x4000:end - 0x4000] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, machine_id=4, modify=True, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 1, [191])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        outfile = 'out.z80'
+        exp_output = f'Wrote {outfile}\n'
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', outfile=outfile)
+        self.assertEqual(s_fname, outfile)
+        self.assertLessEqual({'A=191', f'PC={end}'}, set(s_reg))
+        self.assertIn('tstates=0', s_state)
+        self.assertIsNotNone(s_banks)
+        self.assertEqual(s_rom0[0x3FFD], 0)
         self.assertEqual(code, s_memory[pc:end])
 
     def test_write_rzx_file(self):
@@ -636,6 +685,70 @@ class RzxplayTest(SkoolKitTestCase):
         exp_trace = """
             F:0 C:00001 I:00000 $F001 XOR B
             F:1 C:00001 I:00000 $F000 XOR C
+        """
+        self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_write_rzx_file_containing_128k_snapshot(self):
+        pc = 0xD000
+        code = (
+            0x21, 0xFD, 0x3F, # LD HL,$3FFD
+            0x7E,             # LD A,(HL)
+            0xB7,             # OR A
+            0xC2, 0x9A, 0x00, # JP NZ,$009A
+        )
+        rzx = RZX()
+        ram = [0] * 0xC000
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, machine_id=4, registers=registers, ret_data=True)
+        frames = [(1, 0, []), (4, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+
+        outfile = 'out.rzx'
+        exp_output = f'Wrote {outfile}\n'
+        exp_trace = """
+            F:0 C:00001 I:00000 $D000 LD HL,$3FFD
+        """
+        self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
+
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00004 I:00000 $D003 LD A,(HL)
+            F:0 C:00003 I:00000 $D004 OR A
+            F:0 C:00002 I:00000 $D005 JP NZ,$009A
+            F:0 C:00001 I:00000 $009A LD HL,$06D8
+        """
+        self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_write_rzx_file_containing_plus2_snapshot(self):
+        pc = 0xD000
+        code = (
+            0x21, 0xFD, 0x3F, # LD HL,$3FFD
+            0x7E,             # LD A,(HL)
+            0xB7,             # OR A
+            0xCA, 0x9A, 0x00, # JP Z,$009A
+        )
+        rzx = RZX()
+        ram = [0] * 0xC000
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, machine_id=4, modify=True, registers=registers, ret_data=True)
+        frames = [(1, 0, []), (4, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+
+        outfile = 'out.rzx'
+        exp_output = f'Wrote {outfile}\n'
+        exp_trace = """
+            F:0 C:00001 I:00000 $D000 LD HL,$3FFD
+        """
+        self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
+
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00004 I:00000 $D003 LD A,(HL)
+            F:0 C:00003 I:00000 $D004 OR A
+            F:0 C:00002 I:00000 $D005 JP Z,$009A
+            F:0 C:00001 I:00000 $009A LD HL,$06F7
         """
         self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
 

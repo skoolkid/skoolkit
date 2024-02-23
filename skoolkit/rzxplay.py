@@ -157,7 +157,11 @@ def write_rzx(fname, context, rzx_blocks):
     ))
 
     ram, registers, state = context.simulator.state()
-    z80 = Z80(ram=ram)
+    if len(ram) == 8:
+        rom0 = context.simulator.memory.roms[0]
+    else:
+        rom0 = None
+    z80 = Z80(ram=ram, rom0=rom0)
     z80.set_registers_and_state(registers, state)
     z80_data = z80.data()
     z80_data_z = zlib.compress(z80_data, 9)
@@ -422,7 +426,11 @@ def run(infile, options):
         ext = options.dump.lower().rpartition('.')[2]
         if ext in ('szx', 'z80'):
             ram, registers, state = context.simulator.state()
-            write_snapshot(options.dump, ram, registers, state)
+            if len(ram) == 8:
+                rom0 = context.simulator.memory.roms[0]
+            else:
+                rom0 = None
+            write_snapshot(options.dump, ram, registers, state, rom0)
         elif ext == 'rzx':
             write_rzx(options.dump, context, rzx_blocks)
         else:
