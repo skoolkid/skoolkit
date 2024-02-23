@@ -235,7 +235,7 @@ class SNA(Snapshot):
         self.memory = Memory(banks=banks, page=page)
 
 class SZX(Snapshot):
-    def __init__(self, szx_data=None, ram=None):
+    def __init__(self, szx_data=None, ram=None, rom0=None):
         super().__init__()
         self.type = 'SZX'
         if szx_data:
@@ -245,7 +245,10 @@ class SZX(Snapshot):
             self.blocks = {}
             if len(ram) == 8:
                 # 128K
-                self.header[6] = 2
+                if rom0 and rom0[0x3FFD] == 0:
+                    self.header[6] = 3 # +2
+                else:
+                    self.header[6] = 2 # 128K
                 self.blocks[b'AY\x00\x00'] = bytearray([0] * 18)
                 banks = ram
             else:
@@ -426,7 +429,7 @@ class SZX(Snapshot):
                     f.write(self._get_zxstrampage(bank, data))
 
 class Z80(Snapshot):
-    def __init__(self, z80_data=None, ram=(0,) * 49152):
+    def __init__(self, z80_data=None, ram=(0,) * 49152, rom0=None):
         super().__init__()
         self.type = 'Z80'
         if z80_data:
@@ -437,6 +440,8 @@ class Z80(Snapshot):
             if len(ram) == 8:
                 # 128K
                 self.header[34] = 4
+                if rom0 and rom0[0x3FFD] == 0:
+                    self.header[37] |= 0x80 # +2
                 banks = ram
             else:
                 # 48K
@@ -707,13 +712,13 @@ def make_snapshot(fname, org, start=None, end=65536, page=None):
     mem[org:org + len(ram)] = ram
     return mem, max(org, start), min(end, org + len(ram))
 
-def write_snapshot(fname, ram, registers, state):
+def write_snapshot(fname, ram, registers, state, rom0=None):
     snapshot_type = fname[-4:].lower()
     if snapshot_type == '.z80':
-        snapshot = Z80(ram=ram)
+        snapshot = Z80(ram=ram, rom0=rom0)
         registers = ('i=63', 'iy=23610', *registers)
     elif snapshot_type == '.szx':
-        snapshot = SZX(ram=ram)
+        snapshot = SZX(ram=ram, rom0=rom0)
     else:
         raise SnapshotError(f'{fname}: Unsupported snapshot type')
     snapshot.set_registers_and_state(registers, ('iff=1', 'im=1', 'tstates=34943', *state))

@@ -596,15 +596,21 @@ class WriteSZXTest(WriteSnapshotTest):
         for i in range(16):
             self.assertEqual(ay[2 + i], exp_state[f'ay[{i}]'] % 256)
 
-    def _test_szx(self, ram, registers, state):
+    def _test_szx(self, ram, registers, state, rom0=None):
         fname = '{}/test.szx'.format(self.make_directory())
-        write_snapshot(fname, ram, [f'{k}={v}' for k, v in registers.items()], [f'{k}={v}' for k, v in state.items()])
+        write_snapshot(fname, ram, [f'{k}={v}' for k, v in registers.items()], [f'{k}={v}' for k, v in state.items()], rom0)
         with open(fname, 'rb') as f:
             szx = tuple(f.read())
         self.assertTrue(len(szx) > 8)
         self.assertEqual(bytes(szx[:4]), b'ZXST')
         is128k = len(ram) == 8
-        machine_id = 2 if is128k else 1
+        if is128k:
+            if rom0 and rom0[0x3FFD] == 0:
+                machine_id = 3
+            else:
+                machine_id = 2
+        else:
+            machine_id = 1
         self.assertEqual((1, 4, machine_id, 0), szx[4:8])
 
         blocks = defaultdict(list)
@@ -715,6 +721,54 @@ class WriteSZXTest(WriteSnapshotTest):
         }
         self._test_szx(ram, registers, state)
 
+    def test_write_szx_plus2(self):
+        ram = [[(i + j) % 256 for i in range(16384)] for j in range(8)]
+        registers = {
+            'a': 1,
+            'bc': 2300,
+            'de': 4500,
+            'f': 6,
+            'hl': 7800,
+            'i': 9,
+            'ix': 10,
+            'iy': 11,
+            'pc': 1200,
+            'r': 13,
+            'sp': 14,
+            '^a': 15,
+            '^bc': 1617,
+            '^de': 1819,
+            '^f': 20,
+            '^hl': 2122
+        }
+        state = {
+            '7ffd': 17,
+            'ay[0]': 1,
+            'ay[1]': 2,
+            'ay[2]': 3,
+            'ay[3]': 4,
+            'ay[4]': 5,
+            'ay[5]': 6,
+            'ay[6]': 7,
+            'ay[7]': 8,
+            'ay[8]': 9,
+            'ay[9]': 10,
+            'ay[10]': 11,
+            'ay[11]': 12,
+            'ay[12]': 13,
+            'ay[13]': 14,
+            'ay[14]': 15,
+            'ay[15]': 16,
+            'border': 1,
+            'fffd': 3,
+            'iff': 0,
+            'im': 2,
+            'issue2': 1,
+            'tstates': 12345
+        }
+        rom0 = [0] * 16384
+        self._test_szx(ram, registers, state, rom0)
+
     def test_default_registers_and_state_48k(self):
         ram = [0] * 49152
         registers = {}
@@ -774,8 +828,9 @@ class WriteZ80Test(WriteSnapshotTest):
         for n, ram in exp_pages.items():
             self.assertEqual(ram, pages[n])
 
-    def _check_header(self, z80, ram, exp_registers, exp_state):
+    def _check_header(self, z80, ram, exp_registers, exp_state, rom0):
         is128k = len(ram) == 8
+        hw_mod = 128 if is128k and rom0 and rom0[0x3FFD] == 0 else 0
         self.assertEqual(z80[0], exp_registers['a'])
         self.assertEqual(z80[1], exp_registers['f'])
         self.assertEqual(z80[2], exp_registers['c'])
@@ -806,7 +861,8 @@ class WriteZ80Test(WriteSnapshotTest):
         self.assertEqual(z80[32] + 256 * z80[33], exp_registers['pc'])
         self.assertEqual(z80[34], 4 if is128k else 0) # Hardware mode
         self.assertEqual(z80[35], exp_state['7ffd'] % 256)
-        self.assertEqual(z80[36:38], (0, 0)) # Various flags
+        self.assertEqual(z80[36], 0) # Various flags
+        self.assertEqual(z80[37], hw_mod) # Hardware modifier
         self.assertEqual(z80[38], exp_state['fffd'] % 256)
         for i in range(16):
             self.assertEqual(z80[39 + i], exp_state[f'ay[{i}]'])
@@ -818,12 +874,12 @@ class WriteZ80Test(WriteSnapshotTest):
         self.assertEqual(tstates, exp_state['tstates'] % frame_duration)
         self.assertEqual(z80[58:86], (0,) * 28) # Various flags
 
-    def _test_z80(self, ram, registers, state):
+    def _test_z80(self, ram, registers, state, rom0=None):
         fname = '{}/test.z80'.format(self.make_directory())
-        write_snapshot(fname, ram, [f'{k}={v}' for k, v in registers.items()], [f'{k}={v}' for k, v in state.items()])
+        write_snapshot(fname, ram, [f'{k}={v}' for k, v in registers.items()], [f'{k}={v}' for k, v in state.items()], rom0)
         with open(fname, 'rb') as f:
             z80 = tuple(f.read())
-        self._check_header(z80, ram, self._normalise_registers(registers), self._fill_state(state))
+        self._check_header(z80, ram, self._normalise_registers(registers), self._fill_state(state), rom0)
         self._check_ram(z80, ram)
 
     def _test_bad_spec(self, exp_error, ram, registers=(), state=()):
@@ -913,6 +969,54 @@ class WriteZ80Test(WriteSnapshotTest):
             'tstates': 12345
         }
         self._test_z80(ram, registers, state)
+
+    def test_write_z80_plus2(self):
+        ram = [[(i + j) % 256 for i in range(16384)] for j in range(8)]
+        registers = {
+            'a': 1,
+            'bc': 2300,
+            'de': 4500,
+            'f': 6,
+            'hl': 7800,
+            'i': 9,
+            'ix': 1000,
+            'iy': 1100,
+            'pc': 1200,
+            'r': 131,
+            'sp': 14,
+            '^a': 15,
+            '^bc': 1617,
+            '^de': 1819,
+            '^f': 20,
+            '^hl': 2122
+        }
+        state = {
+            '7ffd': 17,
+            'ay[0]': 1,
+            'ay[1]': 2,
+            'ay[2]': 3,
+            'ay[3]': 4,
+            'ay[4]': 5,
+            'ay[5]': 6,
+            'ay[6]': 7,
+            'ay[7]': 8,
+            'ay[8]': 9,
+            'ay[9]': 10,
+            'ay[10]': 11,
+            'ay[11]': 12,
+            'ay[12]': 13,
+            'ay[13]': 14,
+            'ay[14]': 15,
+            'ay[15]': 16,
+            'border': 1,
+            'fffd': 3,
+            'iff': 0,
+            'im': 2,
+            'issue2': 1,
+            'tstates': 12345
+        }
+        rom0 = [0] * 16384
+        self._test_z80(ram, registers, state, rom0)
 
     def test_invalid_state(self):
         self._test_invalid_state()
