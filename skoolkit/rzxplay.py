@@ -287,10 +287,10 @@ def check_supported(snapshot, options):
         header = snapshot.header
         if len(header) == 55 and header[34] not in (0, 3):
             # Version 2
-            return 'Unsupported machine type'
-        if len(header) > 55 and header[34] not in (0, 4, 12):
+            warn('Unsupported hardware (IF1)')
+        elif len(header) > 55 and header[34] not in (0, 4, 12):
             # Version 3
-            return 'Unsupported machine type'
+            warn('Unsupported hardware (IF1 or MGT)')
     elif snapshot.type == 'SZX':
         supported_blocks = {'AY', 'CRTR', 'KEYB', 'JOY', 'RAMP', 'SPCR', 'TAPE', 'Z80R'}
         unsupported_blocks = set(b[0] for b in snapshot.tail) - supported_blocks

@@ -140,6 +140,54 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = ''
         self._test_rzx(rzx, exp_output, '--quiet --no-screen')
 
+    def test_z80v2_unsupported_hardware(self):
+        ram = [0] * 0xC000
+        pc = 0xC000
+        code = (
+            0xDB, 0xFE # IN A,($FE)
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, version=2, machine_id=4, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 1, [191])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_error = 'WARNING: Unsupported hardware (IF1)\n'
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_error=exp_error)
+
+    def test_z80v3_unsupported_hardware(self):
+        ram = [0] * 0xC000
+        pc = 0xC000
+        code = (
+            0xDB, 0xFE # IN A,($FE)
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, version=3, machine_id=5, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 1, [191])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_error = 'WARNING: Unsupported hardware (IF1 or MGT)\n'
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_error=exp_error)
+
+    def test_z80v3_unsupported_hardware_with_hardware_modifier(self):
+        ram = [0] * 0xC000
+        pc = 0xC000
+        code = (
+            0xDB, 0xFE # IN A,($FE)
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, version=3, machine_id=5, modify=True, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 1, [191])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_error = 'WARNING: Unsupported hardware (IF1 or MGT)\n'
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_error=exp_error)
+
     def test_szx_unsupported_block(self):
         ram = [0] * 0xC000
         pc = 0xC000
@@ -768,57 +816,6 @@ class RzxplayTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_rzxplay(f'--quiet --no-screen {rzxfile} out.slt')
         self.assertEqual(cm.exception.args[0], 'Unknown file type: slt')
-
-    def test_z80v2_unsupported_machine(self):
-        ram = [0] * 0xC000
-        pc = 0xC000
-        code = (
-            0xDB, 0xFE # IN A,($FE)
-        )
-        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
-        registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, version=2, machine_id=4, registers=registers, ret_data=True)
-        rzx = RZX()
-        frames = [(1, 1, [191])]
-        rzx.add_snapshot(z80data, 'z80', frames)
-        rzxfile = self.write_rzx_file(rzx)
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_rzxplay(f'--no-screen {rzxfile}')
-        self.assertEqual(cm.exception.args[0], 'Unsupported machine type')
-
-    def test_z80v3_unsupported_machine(self):
-        ram = [0] * 0xC000
-        pc = 0xC000
-        code = (
-            0xDB, 0xFE # IN A,($FE)
-        )
-        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
-        registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, version=3, machine_id=5, registers=registers, ret_data=True)
-        rzx = RZX()
-        frames = [(1, 1, [191])]
-        rzx.add_snapshot(z80data, 'z80', frames)
-        rzxfile = self.write_rzx_file(rzx)
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_rzxplay(f'--no-screen {rzxfile}')
-        self.assertEqual(cm.exception.args[0], 'Unsupported machine type')
-
-    def test_z80v3_unsupported_machine_with_hardware_modifier(self):
-        ram = [0] * 0xC000
-        pc = 0xC000
-        code = (
-            0xDB, 0xFE # IN A,($FE)
-        )
-        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
-        registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, version=3, machine_id=5, modify=True, registers=registers, ret_data=True)
-        rzx = RZX()
-        frames = [(1, 1, [191])]
-        rzx.add_snapshot(z80data, 'z80', frames)
-        rzxfile = self.write_rzx_file(rzx)
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_rzxplay(f'--no-screen {rzxfile}')
-        self.assertEqual(cm.exception.args[0], 'Unsupported machine type')
 
     def test_szx_unsupported_machine(self):
         ram = [0] * 0xC000
