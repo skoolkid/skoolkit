@@ -427,28 +427,6 @@ class RzxplayTest(SkoolKitTestCase):
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
-    def test_interrupt_blocked_by_short_frame(self):
-        ram = [0] * 0xC000
-        pc = 0xC000
-        code = (
-            0xFB, # EI
-            0xAF, # XOR A
-        )
-        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
-        registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
-        rzx = RZX()
-        frames = [(1, 0, []), (1, 0, []), (2, 0, [])]
-        rzx.add_snapshot(z80data, 'z80', frames)
-        exp_output = ''
-        exp_trace = """
-            F:0 C:00001 I:00000 $C000 EI
-            F:1 C:00001 I:00000 $C001 XOR A
-            F:2 C:00002 I:00000 $0038 PUSH AF
-            F:2 C:00001 I:00000 $0039 PUSH HL
-        """
-        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
-
     def test_empty_frame_at_start_of_input_recording_block(self):
         ram = [0] * 0xC000
         pc = 0x8000

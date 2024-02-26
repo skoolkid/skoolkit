@@ -369,12 +369,9 @@ def process_block(block, options, context):
             elif memory[pc] == 0xED and memory[(pc + 1) % 65536] in (0x57, 0x5F):
                 # Reset bit 2 of F if the last instruction was LD A,I/R
                 registers[1] &= 0b11111011
-            if fetch_counter >= 2:
-                # If the next frame is not a short one (used by some emulators
-                # to indicate that an interrupt is blocked), accept an
-                # interrupt now, even if the instruction just executed would
-                # normally block it (e.g. EI)
-                simulator.accept_interrupt(registers, memory, 0)
+            # Always accept an interrupt at a frame boundary, even if the
+            # instruction just executed would normally block it (e.g. EI)
+            simulator.accept_interrupt(registers, memory, 0)
         if show_progress:
             p = (context.frame_count / total_frames) * 100
             write(f'[{p:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')
