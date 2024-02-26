@@ -157,24 +157,22 @@ def write_rzx(fname, context, rzx_blocks):
     ))
 
     ram, registers, state = context.simulator.state()
-    if len(ram) == 8:
-        rom0 = context.simulator.memory.roms[0]
-    else:
-        rom0 = None
-    z80 = Z80(ram=ram, rom0=rom0)
-    z80.set_registers_and_state(registers, state)
-    z80_data = z80.data()
-    z80_data_z = zlib.compress(z80_data, 9)
-    s_len = len(z80_data)
-    b_len = 17 + len(z80_data_z)
+    snapshot = context.snapshot
+    snapshot.set_ram(ram)
+    snapshot.set_registers_and_state(registers, state)
+    snapshot_data = snapshot.data()
+    snapshot_data_z = zlib.compress(snapshot_data, 9)
+    snapshot_ext = [ord(c) for c in snapshot.type.lower()] + [0]
+    s_len = len(snapshot_data)
+    b_len = 17 + len(snapshot_data_z)
     rzx_data.extend((
         0x30,             # Block ID (Snapshot)
         *as_dword(b_len), # Block length
         2, 0, 0, 0,       # Flags
-        122, 56, 48, 0,   # z80
+        *snapshot_ext,    # z80/szx
         *as_dword(s_len)  # Uncompressed snapshot length
     ))
-    rzx_data.extend(z80_data_z)
+    rzx_data.extend(snapshot_data_z)
 
     tracer = context.simulator.tracer
     frames = tracer.frames[tracer.frame_index:]

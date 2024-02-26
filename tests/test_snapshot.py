@@ -3,7 +3,7 @@ import zlib
 
 from skoolkittest import SkoolKitTestCase, Z80 as Z80Reader
 from skoolkit import SkoolKitError, get_dword
-from skoolkit.snapshot import Z80, get_snapshot, write_snapshot, SnapshotError
+from skoolkit.snapshot import Snapshot, Z80, get_snapshot, write_snapshot, SnapshotError
 
 class SnapshotTest(SkoolKitTestCase):
     def _check_ram(self, ram, exp_ram, model, out_7ffd, pages, page):
@@ -266,6 +266,22 @@ class Z80StateTest(SkoolKitTestCase):
             z80.set_registers_and_state((), [f'border={border}'])
             self.assertEqual(z80.header[12], 241 + border * 2)
 
+    def test_tstates_is_ignored_v1(self):
+        ram = [0] * 0xC000
+        z80file = self.write_z80_file(None, ram, version=1)
+        z80 = Snapshot.get(z80file)
+        exp_header = list(z80.header)
+        z80.set_registers_and_state((), ['tstates=50000'])
+        self.assertEqual(exp_header, z80.header)
+
+    def test_tstates_is_ignored_v2(self):
+        ram = [0] * 0xC000
+        z80file = self.write_z80_file(None, ram, version=2)
+        z80 = Snapshot.get(z80file)
+        exp_header = list(z80.header)
+        z80.set_registers_and_state((), ['tstates=50000'])
+        self.assertEqual(exp_header, z80.header)
+
     def test_tstates_48k(self):
         z80 = Z80()
         z80.header[34] = 0 # 48K
@@ -293,15 +309,47 @@ class Z80StateTest(SkoolKitTestCase):
             z80.set_registers_and_state((), [f'issue2={issue2}'])
             self.assertEqual(z80.header[29], 251 + issue2 * 4)
 
+    def test_7ffd_is_ignored_v1(self):
+        ram = [0] * 0xC000
+        z80file = self.write_z80_file(None, ram, version=1)
+        z80 = Snapshot.get(z80file)
+        exp_header = list(z80.header)
+        z80.set_registers_and_state((), ['7ffd=7'])
+        self.assertEqual(exp_header, z80.header)
+
+    def test_fffd_is_ignored_v1(self):
+        ram = [0] * 0xC000
+        z80file = self.write_z80_file(None, ram, version=1)
+        z80 = Snapshot.get(z80file)
+        exp_header = list(z80.header)
+        z80.set_registers_and_state((), ['fffd=8'])
+        self.assertEqual(exp_header, z80.header)
+
+    def test_ay_is_ignored_v1(self):
+        ram = [0] * 0xC000
+        z80file = self.write_z80_file(None, ram, version=1)
+        z80 = Snapshot.get(z80file)
+        exp_header = list(z80.header)
+        z80.set_registers_and_state((), ('ay[0]=1', 'ay[15]=15'))
+        self.assertEqual(exp_header, z80.header)
+
     def test_all(self):
         z80 = Z80()
         z80.header[12:58] = [255] * 46
-        z80.header[34] = 0 # 48K
-        z80.set_registers_and_state((), ('iff=0', 'im=2', 'border=3', 'tstates=17471', 'issue2=0'))
+        z80.header[34] = 4 # 128K
+        state = (
+            'iff=0', 'im=2', 'border=3', 'tstates=17726', 'issue2=0',
+            '7ffd=1', 'fffd=2', 'ay[0]=3', 'ay[15]=4'
+        )
+        z80.set_registers_and_state((), state)
+        self.assertEqual(z80.header[12], 247) # Border (bits 1-3)
         self.assertEqual(z80.header[27], 0) # IFF1
         self.assertEqual(z80.header[28], 0) # IFF2
         self.assertEqual(z80.header[29], 250) # IM (bits 0-1), issue 2 (bit 2)
-        self.assertEqual(z80.header[12], 247) # Border (bits 1-3)
+        self.assertEqual(z80.header[35], 1) # Port 0x7ffd
+        self.assertEqual(z80.header[38], 2) # Port 0xfffd
+        self.assertEqual(z80.header[39], 3) # AY register 0
+        self.assertEqual(z80.header[54], 4) # AY register 15
         self.assertEqual([0, 0, 3], z80.header[55:58]) # T-states
 
 class Z80RegistersTest(SkoolKitTestCase):

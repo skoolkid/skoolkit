@@ -1,6 +1,7 @@
 import os
 from textwrap import dedent
 from unittest.mock import patch
+import zlib
 
 from skoolkittest import SkoolKitTestCase, RZX
 from skoolkit import VERSION, SkoolKitError, rzxplay
@@ -47,6 +48,22 @@ class RzxplayTest(SkoolKitTestCase):
             with open(logfile) as f:
                 trace = f.read()
             self.assertEqual(dedent(exp_trace).lstrip(), trace)
+
+    def _check_rzx_snapshot(self, rzxfile):
+        with open(rzxfile, 'rb') as f:
+            data = f.read()
+        i = 10
+        ext, sdata = None, None
+        while i < len(data):
+            block_id = data[i]
+            block_len = data[i + 1] + 256 * data[i + 2] + 65536 * data[i + 3] + 16777216 * data[i + 4]
+            if block_id == 0x30:
+                # Snapshot
+                ext = ''.join(chr(b) for b in data[i + 9:i + 13] if b)
+                sdata = zlib.decompress(data[i + 17:i + block_len])
+                break
+            i += block_len
+        return ext, sdata
 
     @patch.object(rzxplay, 'run', mock_run)
     def test_default_option_values(self):
@@ -714,6 +731,69 @@ class RzxplayTest(SkoolKitTestCase):
         """
         self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
 
+    def test_write_rzx_file_containing_z80v1_snapshot(self):
+        pc = 0xD000
+        code = (
+            0xB7, # OR A
+            0xB0, # OR B
+        )
+        rzx = RZX()
+        ram = [0] * 0xC000
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, version=1, registers=registers, ret_data=True)
+        frames = [(1, 0, []), (1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+
+        outfile = 'out.rzx'
+        exp_output = f'Wrote {outfile}\n'
+        exp_trace = """
+            F:0 C:00001 I:00000 $D000 OR A
+        """
+        self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
+
+        ext, sdata = self._check_rzx_snapshot(outfile)
+        self.assertEqual(ext, 'z80')
+        self.assertEqual(sdata[6] + 256 * sdata[7], pc + 1) # PC
+
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00001 I:00000 $D001 OR B
+        """
+        self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_write_rzx_file_containing_z80v2_snapshot(self):
+        pc = 0xD000
+        code = (
+            0xB7, # OR A
+            0xB0, # OR B
+        )
+        rzx = RZX()
+        ram = [0] * 0xC000
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, version=2, registers=registers, ret_data=True)
+        frames = [(1, 0, []), (1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+
+        outfile = 'out.rzx'
+        exp_output = f'Wrote {outfile}\n'
+        exp_trace = """
+            F:0 C:00001 I:00000 $D000 OR A
+        """
+        self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
+
+        ext, sdata = self._check_rzx_snapshot(outfile)
+        self.assertEqual(ext, 'z80')
+        self.assertEqual(sdata[6] + sdata[7], 0)
+        self.assertEqual(sdata[30], 23) # Version 2
+
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00001 I:00000 $D001 OR B
+        """
+        self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
+
     def test_write_rzx_file_containing_128k_snapshot(self):
         pc = 0xD000
         code = (
@@ -777,6 +857,96 @@ class RzxplayTest(SkoolKitTestCase):
             F:0 C:00001 I:00000 $009A LD HL,$06F7
         """
         self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_write_rzx_file_containing_z80_snapshot_with_unsupported_hardware(self):
+        pc = 0xD000
+        code = (
+            0xB7, # OR A
+            0xB0, # OR B
+        )
+        rzx = RZX()
+        ram = [0] * 0xC000
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, machine_id=1, registers=registers, ret_data=True)
+        frames = [(1, 0, []), (1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+
+        outfile = 'out.rzx'
+        exp_output = f'Wrote {outfile}\n'
+        exp_error = 'WARNING: Unsupported hardware (IF1 or MGT)\n'
+        self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', outfile=outfile, exp_error=exp_error)
+
+        ext, sdata = self._check_rzx_snapshot(outfile)
+        self.assertEqual(ext, 'z80')
+        self.assertEqual(sdata[34], 1) # Machine ID
+
+    def test_write_rzx_file_containing_szx_snapshot(self):
+        pc = 0xD000
+        code = (
+            0xB7, # OR A
+            0xB0, # OR B
+        )
+        rzx = RZX()
+        ram = [0] * 0xC000
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = [0] * 37
+        registers[22:24] = (pc % 256, pc // 256)
+        szxdata = self.write_szx(ram, registers=registers, ret_data=True)
+        frames = [(1, 0, []), (1, 0, [])]
+        rzx.add_snapshot(szxdata, 'szx', frames)
+
+        outfile = 'out.rzx'
+        exp_output = f'Wrote {outfile}\n'
+        exp_trace = """
+            F:0 C:00001 I:00000 $D000 OR A
+        """
+        self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
+
+        ext, sdata = self._check_rzx_snapshot(outfile)
+        self.assertEqual(ext, 'szx')
+
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00001 I:00000 $D001 OR B
+        """
+        self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_write_rzx_file_containing_szx_snapshot_with_unsupported_hardware(self):
+        pc = 0xD000
+        code = (
+            0xB7, # OR A
+            0xB0, # OR B
+        )
+        rzx = RZX()
+        ram = [0] * 0xC000
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = [0] * 37
+        registers[22:24] = (pc % 256, pc // 256)
+        covx = [0] * 12
+        covx[:4] = [ord(c) for c in 'COVX']
+        covx[4] = 4 # Block size
+        szxdata = self.write_szx(ram, registers=registers, blocks=[covx], ret_data=True)
+        frames = [(1, 0, [])]
+        rzx.add_snapshot(szxdata, 'szx', frames)
+
+        outfile = 'out.rzx'
+        exp_output = f'Wrote {outfile}\n'
+        exp_error = 'WARNING: Unsupported block(s) (COVX) in SZX snapshot\n'
+        self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', outfile=outfile, exp_error=exp_error)
+
+        ext, sdata = self._check_rzx_snapshot(outfile)
+        self.assertEqual(ext, 'szx')
+        i = 8
+        found_covx = False
+        while i + 8 <= len(sdata):
+            block_id = sdata[i:i + 4]
+            if block_id == b'COVX':
+                found_covx = True
+                break
+            block_len = sdata[i + 4] + 256 * sdata[i + 5] + 65536 * sdata[i + 6] + 16777216 * sdata[i + 7]
+            i += 8 + block_len
+        self.assertTrue(found_covx)
 
     def test_write_unsupported_file_type(self):
         ram = [0] * 0xC000

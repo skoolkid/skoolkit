@@ -250,15 +250,10 @@ class SZX(Snapshot):
                 else:
                     self.header[6] = 2 # 128K
                 self.blocks[b'AY\x00\x00'] = bytearray([0] * 18)
-                banks = ram
             else:
                 # 48K
                 self.blocks[b'KEYB'] = bytearray([0] * 5)
-                banks = [None] * 8
-                banks[5] = ram[0x0000:0x4000]
-                banks[2] = ram[0x4000:0x8000]
-                banks[0] = ram[0x8000:0xC000]
-            self.memory = Memory(banks=banks)
+            self.set_ram(ram)
 
     def _read(self, szx_data):
         self.tail = []
@@ -408,6 +403,18 @@ class SZX(Snapshot):
         ramp.extend(ram)
         return ramp
 
+    def set_ram(self, ram):
+        if len(ram) == 8:
+            # 128K
+            banks = ram
+        else:
+            # 48K
+            banks = [None] * 8
+            banks[5] = ram[0x0000:0x4000]
+            banks[2] = ram[0x4000:0x8000]
+            banks[0] = ram[0x8000:0xC000]
+        self.memory = Memory(banks=banks)
+
     def set_registers_and_state(self, registers, state):
         self._add_zxstspecregs(state)
         self._add_zxstz80regs(registers, state)
@@ -416,17 +423,22 @@ class SZX(Snapshot):
         if any(spec.startswith('issue2=') for spec in state) and self.header[6] < 2:
             self._add_zxstkeyboard(state)
 
+    def data(self):
+        szx = bytearray()
+        szx.extend(self.header)
+        for block_id, block_data in self.blocks.items():
+            szx.extend(block_id)
+            size = len(block_data)
+            szx.extend((size % 256, (size >> 8) % 256, (size >> 16) % 256, (size >> 24) % 256))
+            szx.extend(block_data)
+        for bank, data in enumerate(self.memory.banks):
+            if data:
+                szx.extend(self._get_zxstrampage(bank, data))
+        return szx
+
     def write(self, szxfile):
         with open(szxfile, 'wb') as f:
-            f.write(self.header)
-            for block_id, block_data in self.blocks.items():
-                f.write(block_id)
-                size = len(block_data)
-                f.write(bytes((size % 256, (size >> 8) % 256, (size >> 16) % 256, (size >> 24) % 256)))
-                f.write(block_data)
-            for bank, data in enumerate(self.memory.banks):
-                if data:
-                    f.write(self._get_zxstrampage(bank, data))
+            f.write(self.data())
 
 class Z80(Snapshot):
     def __init__(self, z80_data=None, ram=(0,) * 49152, rom0=None):
@@ -442,14 +454,7 @@ class Z80(Snapshot):
                 self.header[34] = 4
                 if rom0 and rom0[0x3FFD] == 0:
                     self.header[37] |= 0x80 # +2
-                banks = ram
-            else:
-                # 48K
-                banks = [None] * 8
-                banks[5] = ram[0x0000:0x4000]
-                banks[1] = ram[0x4000:0x8000]
-                banks[2] = ram[0x8000:0xC000]
-            self.memory = Memory(banks=banks)
+            self.set_ram(ram)
 
     def _read(self, z80_data):
         banks = {}
@@ -600,18 +605,22 @@ class Z80(Snapshot):
                     self.header[12] &= 241 # Clear bits 1-3
                     self.header[12] |= (get_int_param(val) & 7) * 2 # Border colour
                 elif name == 'tstates':
-                    frame_duration = FRAME_DURATIONS[self.header[34] > 3]
-                    qframe_duration = frame_duration // 4
-                    t = frame_duration - 1 - (get_int_param(val) % frame_duration)
-                    t1, t2 = t % qframe_duration, t // qframe_duration
-                    self.header[55:58] = (t1 % 256, t1 // 256, (2 - t2) % 4)
+                    if len(self.header) > 58:
+                        frame_duration = FRAME_DURATIONS[self.header[34] > 3]
+                        qframe_duration = frame_duration // 4
+                        t = frame_duration - 1 - (get_int_param(val) % frame_duration)
+                        t1, t2 = t % qframe_duration, t // qframe_duration
+                        self.header[55:58] = (t1 % 256, t1 // 256, (2 - t2) % 4)
                 elif name == '7ffd':
-                    self.header[35] = get_int_param(val) & 255
+                    if len(self.header) > 35:
+                        self.header[35] = get_int_param(val) & 255
                 elif name == 'fffd':
-                    self.header[38] = get_int_param(val) & 255
+                    if len(self.header) > 38:
+                        self.header[38] = get_int_param(val) & 255
                 elif name.startswith('ay[') and name.endswith(']'):
-                    r = get_int_param(name[3:-1]) & 15
-                    self.header[39 + r] = get_int_param(val) & 255
+                    if len(self.header) > 54:
+                        r = get_int_param(name[3:-1]) & 15
+                        self.header[39 + r] = get_int_param(val) & 255
             except ValueError:
                 raise SkoolKitError("Cannot parse integer: {}".format(spec))
 
@@ -644,6 +653,23 @@ class Z80(Snapshot):
             return bytes(block + [0, 237, 237, 0])
         length = len(block)
         return bytes([length % 256, length // 256, page] + block)
+
+    def set_ram(self, ram):
+        if len(ram) == 8:
+            # 128K
+            banks = ram
+        else:
+            # 48K
+            banks = [None] * 8
+            banks[5] = ram[0x0000:0x4000]
+            if len(self.header) == 30:
+                # Version 1
+                banks[2] = ram[0x4000:0x8000]
+                banks[0] = ram[0x8000:0xC000]
+            else:
+                banks[1] = ram[0x4000:0x8000]
+                banks[2] = ram[0x8000:0xC000]
+        self.memory = Memory(banks=banks)
 
     def set_registers_and_state(self, registers, state):
         self._set_registers(registers)
