@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import array
 from collections import defaultdict
 import os
 import sys
@@ -19,6 +20,13 @@ from skoolkit import ROM48, integer, read_bin_file
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.simulator import Simulator, A, PC, T
 from skoolkit.tap2sna import get_tap_blocks, sim_load
+
+try:
+    from skoolkit.csimulator import CSimulator
+except ImportError:
+    CSimulator = None
+
+STOP = 0x8094
 
 class Options:
     start = None
@@ -42,43 +50,39 @@ class Options:
 
 class Tracer:
     def __init__(self):
-        self.count = 0
         self.failed = False
+        self.msg = ''
 
     def run(self, simulator):
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
         pc = registers[PC]
-        count = 0
-        msg = ''
 
         while True:
             opcodes[memory[pc]]()
             pc = registers[24]
-            count += 1
             if pc == 16:
-                a = registers[0]
-                if a >= 32:
-                    msg += chr(a)
-                elif a == 13:
-                    if msg.strip():
-                        print(msg)
-                        if msg.endswith(' tests failed.'):
-                            self.failed = True
-                            self.count = count
-                            break
-                        if msg.endswith('all tests passed.'):
-                            self.count = count
-                            break
-                    else:
-                        print()
-                    msg = ''
+                self.rst16_cb(registers[0])
+            elif pc == STOP:
+                break
 
     def read_port(self, registers, port):
         if port % 256 == 0xFE:
             return 0xBF
         return 0xFF
+
+    def rst16_cb(self, a):
+        if a >= 32:
+            self.msg += chr(a)
+        elif a == 13:
+            if self.msg.strip():
+                print(self.msg)
+                if self.msg.endswith(' tests failed.'):
+                    self.failed = True
+            else:
+                print()
+            self.msg = ''
 
 def load_tap(tapfile):
     tap_blocks = get_tap_blocks(read_bin_file(tapfile))
@@ -106,16 +110,28 @@ def run(tapfile, options):
         snapshot[test_addr:test_addr + 2] = (0, 0)
     simulator_cls = CMIOSimulator if options.cmio else Simulator
     simulator = simulator_cls(snapshot, {'PC': start})
+    if options.csim:
+        if CSimulator is None:
+            sys.stderr.write('ERROR: CSimulator is not available\n')
+            sys.exit(1)
+        simulator.memory = bytearray(simulator.memory)
+        simulator.registers = array.array('I', simulator.registers)
     if options.quiet:
         tracer = None
         print('Running tests')
         begin = time.time()
-        simulator.run(stop=32850)
+        if options.csim:
+            CSimulator(simulator).exec_all(STOP)
+        else:
+            simulator.run(stop=STOP)
     else:
         tracer = Tracer()
         simulator.set_tracer(tracer)
         begin = time.time()
-        tracer.run(simulator)
+        if options.csim:
+            CSimulator(simulator).exec_all(STOP, tracer.rst16_cb)
+        else:
+            tracer.run(simulator)
     rt = time.time() - begin
     if tracer:
         failed = tracer.failed
@@ -142,6 +158,8 @@ if __name__ == '__main__':
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--cmio', action='store_true',
                        help="Run tests with CMIOSimulator.")
+    group.add_argument('-C', '--csim', action='store_true',
+                       help="Run tests with CSimulator.")
     group.add_argument('-t', '--test', metavar='TEST', type=int, default=0,
                        help='Start at this test (default: 0).')
     group.add_argument('-T', '--stop', metavar='TEST', type=int, default=0,
