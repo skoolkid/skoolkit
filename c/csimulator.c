@@ -60,7 +60,6 @@ typedef struct {
     int args[7];
 } OpcodeFunction;
 
-static const int N = -1;
 static const int A = 0;
 static const int F = 1;
 static const int B = 2;
@@ -69,13 +68,7 @@ static const int D = 4;
 static const int E = 5;
 static const int H = 6;
 static const int L = 7;
-static const int IXh = 8;
-static const int IXl = 9;
-static const int IYh = 10;
-static const int IYl = 11;
 static const int SP = 12;
-static const int SP2 = 13;
-static const int I = 14;
 static const int R = 15;
 static const int xA = 16;
 static const int xF = 17;
@@ -1221,7 +1214,7 @@ static void halt(CSimulatorObject* self, void* lookup, int args[]) {
     long fd_long = PyLong_AsLong(frame_duration);
     Py_XDECREF(frame_duration);
     PyObject* int_active = PyObject_GetAttrString(self->simulator, "int_active");
-    long ia_long = PyLong_AsLong(int_active);
+    unsigned ia_long = PyLong_AsLong(int_active);
     Py_XDECREF(int_active);
     PyObject* iff = PyObject_GetAttrString(self->simulator, "iff");
     long iff_long = PyLong_AsLong(iff);
@@ -1336,12 +1329,12 @@ static void ini(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned hl = REG(L) + 256 * REG(H);
     unsigned b = REG(B);
     unsigned c = REG(C);
-    long value = 191;
+    byte value = 191;
     if (self->ini_tracer) {
         PyObject* port = PyLong_FromLong(c + 256 * b);
         PyObject* rv = PyObject_CallOneArg(self->ini_tracer, port);
         if (rv) {
-            value = PyLong_AsLong(rv);
+            value = (byte)PyLong_AsLong(rv);
             Py_DECREF(rv);
         }
         Py_XDECREF(port);
@@ -1438,7 +1431,7 @@ static void ld_a_ir(CSimulatorObject* self, void* lookup, int args[]) {
     long fd_long = PyLong_AsLong(frame_duration);
     Py_XDECREF(frame_duration);
     PyObject* int_active = PyObject_GetAttrString(self->simulator, "int_active");
-    long ia_long = PyLong_AsLong(int_active);
+    unsigned ia_long = PyLong_AsLong(int_active);
     Py_XDECREF(int_active);
     PyObject* iff = PyObject_GetAttrString(self->simulator, "iff");
     long iff_long = PyLong_AsLong(iff);
@@ -2180,520 +2173,520 @@ static void set_xy(CSimulatorObject* self, void* lookup, int args[]) {
 
 static OpcodeFunction opcodes[256] = {
     {nop, NULL, {1, 4, 1}},                         // 00 NOP
-    {ld_rr_nn, NULL, {1, 10, 3, B, C}},             // 01 LD BC,nn
-    {ld_rr_r, NULL, {B, C, A}},                     // 02 LD (BC),A
-    {inc_dec_rr, NULL, {1, 6, 1, 1, B, C}},         // 03 INC BC
-    {fc_r, INC, {1, 4, 1, B}},                      // 04 INC B
-    {fc_r, DEC, {1, 4, 1, B}},                      // 05 DEC B
-    {ld_r_n, NULL, {1, 7, 2, B}},                   // 06 LD B,n
-    {af_r, RLCA, {1, 4, 1, F}},                     // 07 RLCA
-    {ex_af, NULL, {}},                              // 08 EX AF,AF'
-    {add_rr, NULL, {1, 11, 1, H, L, B, C}},         // 09 ADD HL,BC
-    {ld_r_rr, NULL, {A, B, C}},                     // 0A LD A,(BC)
-    {inc_dec_rr, NULL, {1, 6, 1, -1, B, C}},        // 0B DEC BC
-    {fc_r, INC, {1, 4, 1, C}},                      // 0C INC C
-    {fc_r, DEC, {1, 4, 1, C}},                      // 0D DEC C
-    {ld_r_n, NULL, {1, 7, 2, C}},                   // 0E LD C,n
-    {af_r, RRCA, {1, 4, 1, F}},                     // 0F RRCA
-    {djnz, NULL, {}},                               // 10 DJNZ nn
-    {ld_rr_nn, NULL, {1, 10, 3, D, E}},             // 11 LD DE,nn
-    {ld_rr_r, NULL, {D, E, A}},                     // 12 LD (DE),A
-    {inc_dec_rr, NULL, {1, 6, 1, 1, D, E}},         // 13 INC DE
-    {fc_r, INC, {1, 4, 1, D}},                      // 14 INC D
-    {fc_r, DEC, {1, 4, 1, D}},                      // 15 DEC D
-    {ld_r_n, NULL, {1, 7, 2, D}},                   // 16 LD D,n
-    {af_r, RLA, {1, 4, 1, F}},                      // 17 RLA
+    {ld_rr_nn, NULL, {1, 10, 3, 2, 3}},             // 01 LD BC,nn
+    {ld_rr_r, NULL, {2, 3, 0}},                     // 02 LD (BC),A
+    {inc_dec_rr, NULL, {1, 6, 1, 1, 2, 3}},         // 03 INC BC
+    {fc_r, INC, {1, 4, 1, 2}},                      // 04 INC B
+    {fc_r, DEC, {1, 4, 1, 2}},                      // 05 DEC B
+    {ld_r_n, NULL, {1, 7, 2, 2}},                   // 06 LD B,n
+    {af_r, RLCA, {1, 4, 1, 1}},                     // 07 RLCA
+    {ex_af, NULL, {0}},                             // 08 EX AF,AF'
+    {add_rr, NULL, {1, 11, 1, 6, 7, 2, 3}},         // 09 ADD HL,BC
+    {ld_r_rr, NULL, {0, 2, 3}},                     // 0A LD A,(BC)
+    {inc_dec_rr, NULL, {1, 6, 1, -1, 2, 3}},        // 0B DEC BC
+    {fc_r, INC, {1, 4, 1, 3}},                      // 0C INC C
+    {fc_r, DEC, {1, 4, 1, 3}},                      // 0D DEC C
+    {ld_r_n, NULL, {1, 7, 2, 3}},                   // 0E LD C,n
+    {af_r, RRCA, {1, 4, 1, 1}},                     // 0F RRCA
+    {djnz, NULL, {0}},                              // 10 DJNZ nn
+    {ld_rr_nn, NULL, {1, 10, 3, 4, 5}},             // 11 LD DE,nn
+    {ld_rr_r, NULL, {4, 5, 0}},                     // 12 LD (DE),A
+    {inc_dec_rr, NULL, {1, 6, 1, 1, 4, 5}},         // 13 INC DE
+    {fc_r, INC, {1, 4, 1, 4}},                      // 14 INC D
+    {fc_r, DEC, {1, 4, 1, 4}},                      // 15 DEC D
+    {ld_r_n, NULL, {1, 7, 2, 4}},                   // 16 LD D,n
+    {af_r, RLA, {1, 4, 1, 1}},                      // 17 RLA
     {jr, NULL, {0, 0}},                             // 18 JR nn
-    {add_rr, NULL, {1, 11, 1, H, L, D, E}},         // 19 ADD HL,DE
-    {ld_r_rr, NULL, {A, D, E}},                     // 1A LD A,(DE)
-    {inc_dec_rr, NULL, {1, 6, 1, -1, D, E}},        // 1B DEC DE
-    {fc_r, INC, {1, 4, 1, E}},                      // 1C INC E
-    {fc_r, DEC, {1, 4, 1, E}},                      // 1D DEC E
-    {ld_r_n, NULL, {1, 7, 2, E}},                   // 1E LD E,n
-    {af_r, RRA, {1, 4, 1, F}},                      // 1F RRA
+    {add_rr, NULL, {1, 11, 1, 6, 7, 4, 5}},         // 19 ADD HL,DE
+    {ld_r_rr, NULL, {0, 4, 5}},                     // 1A LD A,(DE)
+    {inc_dec_rr, NULL, {1, 6, 1, -1, 4, 5}},        // 1B DEC DE
+    {fc_r, INC, {1, 4, 1, 5}},                      // 1C INC E
+    {fc_r, DEC, {1, 4, 1, 5}},                      // 1D DEC E
+    {ld_r_n, NULL, {1, 7, 2, 5}},                   // 1E LD E,n
+    {af_r, RRA, {1, 4, 1, 1}},                      // 1F RRA
     {jr, NULL, {64, 0}},                            // 20 JR NZ,nn
-    {ld_rr_nn, NULL, {1, 10, 3, H, L}},             // 21 LD HL,nn
-    {ld_mm_rr, NULL, {1, 16, 3, H, L}},             // 22 LD (nn),HL
-    {inc_dec_rr, NULL, {1, 6, 1, 1, H, L}},         // 23 INC HL
-    {fc_r, INC, {1, 4, 1, H}},                      // 24 INC H
-    {fc_r, DEC, {1, 4, 1, H}},                      // 25 DEC H
-    {ld_r_n, NULL, {1, 7, 2, H}},                   // 26 LD H,n
-    {af_r, DAA, {1, 4, 1, F}},                      // 27 DAA
+    {ld_rr_nn, NULL, {1, 10, 3, 6, 7}},             // 21 LD HL,nn
+    {ld_mm_rr, NULL, {1, 16, 3, 6, 7}},             // 22 LD (nn),HL
+    {inc_dec_rr, NULL, {1, 6, 1, 1, 6, 7}},         // 23 INC HL
+    {fc_r, INC, {1, 4, 1, 6}},                      // 24 INC H
+    {fc_r, DEC, {1, 4, 1, 6}},                      // 25 DEC H
+    {ld_r_n, NULL, {1, 7, 2, 6}},                   // 26 LD H,n
+    {af_r, DAA, {1, 4, 1, 1}},                      // 27 DAA
     {jr, NULL, {64, 64}},                           // 28 JR Z,nn
-    {add_rr, NULL, {1, 11, 1, H, L, H, L}},         // 29 ADD HL,HL
-    {ld_rr_mm, NULL, {1, 16, 3, H, L}},             // 2A LD HL,(nn)
-    {inc_dec_rr, NULL, {1, 6, 1, -1, H, L}},        // 2B DEC HL
-    {fc_r, INC, {1, 4, 1, L}},                      // 2C INC L
-    {fc_r, DEC, {1, 4, 1, L}},                      // 2D DEC L
-    {ld_r_n, NULL, {1, 7, 2, L}},                   // 2E LD L,n
-    {af_r, CPL, {1, 4, 1, F}},                      // 2F CPL
+    {add_rr, NULL, {1, 11, 1, 6, 7, 6, 7}},         // 29 ADD HL,HL
+    {ld_rr_mm, NULL, {1, 16, 3, 6, 7}},             // 2A LD HL,(nn)
+    {inc_dec_rr, NULL, {1, 6, 1, -1, 6, 7}},        // 2B DEC HL
+    {fc_r, INC, {1, 4, 1, 7}},                      // 2C INC L
+    {fc_r, DEC, {1, 4, 1, 7}},                      // 2D DEC L
+    {ld_r_n, NULL, {1, 7, 2, 7}},                   // 2E LD L,n
+    {af_r, CPL, {1, 4, 1, 1}},                      // 2F CPL
     {jr, NULL, {1, 0}},                             // 30 JR NC,nn
-    {ld_rr_nn, NULL, {1, 10, 3, SP2, SP}},          // 31 LD SP,nn
-    {ld_m_a, NULL, {}},                             // 32 LD (nn),A
-    {inc_dec_rr, NULL, {1, 6, 1, 1, SP2, SP}},      // 33 INC SP
+    {ld_rr_nn, NULL, {1, 10, 3, 13, 12}},           // 31 LD SP,nn
+    {ld_m_a, NULL, {0}},                            // 32 LD (nn),A
+    {inc_dec_rr, NULL, {1, 6, 1, 1, 13, 12}},       // 33 INC SP
     {fc_hl, INC, {1, 11, 1}},                       // 34 INC (HL)
     {fc_hl, DEC, {1, 11, 1}},                       // 35 DEC (HL)
-    {ld_hl_n, NULL, {}},                            // 36 LD (HL),n
-    {cf, SCF, {}},                                  // 37 SCF
+    {ld_hl_n, NULL, {0}},                           // 36 LD (HL),n
+    {cf, SCF, {0}},                                 // 37 SCF
     {jr, NULL, {1, 1}},                             // 38 JR C,nn
-    {add_rr, NULL, {1, 11, 1, H, L, SP2, SP}},      // 39 ADD HL,SP
-    {ld_a_m, NULL, {}},                             // 3A LD A,(nn)
-    {inc_dec_rr, NULL, {1, 6, 1, -1, SP2, SP}},     // 3B DEC SP
-    {fc_r, INC, {1, 4, 1, A}},                      // 3C INC A
-    {fc_r, DEC, {1, 4, 1, A}},                      // 3D DEC A
-    {ld_r_n, NULL, {1, 7, 2, A}},                   // 3E LD A,n
-    {cf, CCF, {}},                                  // 3F CCF
+    {add_rr, NULL, {1, 11, 1, 6, 7, 13, 12}},       // 39 ADD HL,SP
+    {ld_a_m, NULL, {0}},                            // 3A LD A,(nn)
+    {inc_dec_rr, NULL, {1, 6, 1, -1, 13, 12}},      // 3B DEC SP
+    {fc_r, INC, {1, 4, 1, 0}},                      // 3C INC A
+    {fc_r, DEC, {1, 4, 1, 0}},                      // 3D DEC A
+    {ld_r_n, NULL, {1, 7, 2, 0}},                   // 3E LD A,n
+    {cf, CCF, {0}},                                 // 3F CCF
     {nop, NULL, {1, 4, 1}},                         // 40 LD B,B
-    {ld_r_r, NULL, {1, 4, 1, B, C}},                // 41 LD B,C
-    {ld_r_r, NULL, {1, 4, 1, B, D}},                // 42 LD B,D
-    {ld_r_r, NULL, {1, 4, 1, B, E}},                // 43 LD B,E
-    {ld_r_r, NULL, {1, 4, 1, B, H}},                // 44 LD B,H
-    {ld_r_r, NULL, {1, 4, 1, B, L}},                // 45 LD B,L
-    {ld_r_rr, NULL, {B, H, L}},                     // 46 LD B,(HL)
-    {ld_r_r, NULL, {1, 4, 1, B, A}},                // 47 LD B,A
-    {ld_r_r, NULL, {1, 4, 1, C, B}},                // 48 LD C,B
+    {ld_r_r, NULL, {1, 4, 1, 2, 3}},                // 41 LD B,C
+    {ld_r_r, NULL, {1, 4, 1, 2, 4}},                // 42 LD B,D
+    {ld_r_r, NULL, {1, 4, 1, 2, 5}},                // 43 LD B,E
+    {ld_r_r, NULL, {1, 4, 1, 2, 6}},                // 44 LD B,H
+    {ld_r_r, NULL, {1, 4, 1, 2, 7}},                // 45 LD B,L
+    {ld_r_rr, NULL, {2, 6, 7}},                     // 46 LD B,(HL)
+    {ld_r_r, NULL, {1, 4, 1, 2, 0}},                // 47 LD B,A
+    {ld_r_r, NULL, {1, 4, 1, 3, 2}},                // 48 LD C,B
     {nop, NULL, {1, 4, 1}},                         // 49 LD C,C
-    {ld_r_r, NULL, {1, 4, 1, C, D}},                // 4A LD C,D
-    {ld_r_r, NULL, {1, 4, 1, C, E}},                // 4B LD C,E
-    {ld_r_r, NULL, {1, 4, 1, C, H}},                // 4C LD C,H
-    {ld_r_r, NULL, {1, 4, 1, C, L}},                // 4D LD C,L
-    {ld_r_rr, NULL, {C, H, L}},                     // 4E LD C,(HL)
-    {ld_r_r, NULL, {1, 4, 1, C, A}},                // 4F LD C,A
-    {ld_r_r, NULL, {1, 4, 1, D, B}},                // 50 LD D,B
-    {ld_r_r, NULL, {1, 4, 1, D, C}},                // 51 LD D,C
+    {ld_r_r, NULL, {1, 4, 1, 3, 4}},                // 4A LD C,D
+    {ld_r_r, NULL, {1, 4, 1, 3, 5}},                // 4B LD C,E
+    {ld_r_r, NULL, {1, 4, 1, 3, 6}},                // 4C LD C,H
+    {ld_r_r, NULL, {1, 4, 1, 3, 7}},                // 4D LD C,L
+    {ld_r_rr, NULL, {3, 6, 7}},                     // 4E LD C,(HL)
+    {ld_r_r, NULL, {1, 4, 1, 3, 0}},                // 4F LD C,A
+    {ld_r_r, NULL, {1, 4, 1, 4, 2}},                // 50 LD D,B
+    {ld_r_r, NULL, {1, 4, 1, 4, 3}},                // 51 LD D,C
     {nop, NULL, {1, 4, 1}},                         // 52 LD D,D
-    {ld_r_r, NULL, {1, 4, 1, D, E}},                // 53 LD D,E
-    {ld_r_r, NULL, {1, 4, 1, D, H}},                // 54 LD D,H
-    {ld_r_r, NULL, {1, 4, 1, D, L}},                // 55 LD D,L
-    {ld_r_rr, NULL, {D, H, L}},                     // 56 LD D,(HL)
-    {ld_r_r, NULL, {1, 4, 1, D, A}},                // 57 LD D,A
-    {ld_r_r, NULL, {1, 4, 1, E, B}},                // 58 LD E,B
-    {ld_r_r, NULL, {1, 4, 1, E, C}},                // 59 LD E,C
-    {ld_r_r, NULL, {1, 4, 1, E, D}},                // 5A LD E,D
+    {ld_r_r, NULL, {1, 4, 1, 4, 5}},                // 53 LD D,E
+    {ld_r_r, NULL, {1, 4, 1, 4, 6}},                // 54 LD D,H
+    {ld_r_r, NULL, {1, 4, 1, 4, 7}},                // 55 LD D,L
+    {ld_r_rr, NULL, {4, 6, 7}},                     // 56 LD D,(HL)
+    {ld_r_r, NULL, {1, 4, 1, 4, 0}},                // 57 LD D,A
+    {ld_r_r, NULL, {1, 4, 1, 5, 2}},                // 58 LD E,B
+    {ld_r_r, NULL, {1, 4, 1, 5, 3}},                // 59 LD E,C
+    {ld_r_r, NULL, {1, 4, 1, 5, 4}},                // 5A LD E,D
     {nop, NULL, {1, 4, 1}},                         // 5B LD E,E
-    {ld_r_r, NULL, {1, 4, 1, E, H}},                // 5C LD E,H
-    {ld_r_r, NULL, {1, 4, 1, E, L}},                // 5D LD E,L
-    {ld_r_rr, NULL, {E, H, L}},                     // 5E LD E,(HL)
-    {ld_r_r, NULL, {1, 4, 1, E, A}},                // 5F LD E,A
-    {ld_r_r, NULL, {1, 4, 1, H, B}},                // 60 LD H,B
-    {ld_r_r, NULL, {1, 4, 1, H, C}},                // 61 LD H,C
-    {ld_r_r, NULL, {1, 4, 1, H, D}},                // 62 LD H,D
-    {ld_r_r, NULL, {1, 4, 1, H, E}},                // 63 LD H,E
+    {ld_r_r, NULL, {1, 4, 1, 5, 6}},                // 5C LD E,H
+    {ld_r_r, NULL, {1, 4, 1, 5, 7}},                // 5D LD E,L
+    {ld_r_rr, NULL, {5, 6, 7}},                     // 5E LD E,(HL)
+    {ld_r_r, NULL, {1, 4, 1, 5, 0}},                // 5F LD E,A
+    {ld_r_r, NULL, {1, 4, 1, 6, 2}},                // 60 LD H,B
+    {ld_r_r, NULL, {1, 4, 1, 6, 3}},                // 61 LD H,C
+    {ld_r_r, NULL, {1, 4, 1, 6, 4}},                // 62 LD H,D
+    {ld_r_r, NULL, {1, 4, 1, 6, 5}},                // 63 LD H,E
     {nop, NULL, {1, 4, 1}},                         // 64 LD H,H
-    {ld_r_r, NULL, {1, 4, 1, H, L}},                // 65 LD H,L
-    {ld_r_rr, NULL, {H, H, L}},                     // 66 LD H,(HL)
-    {ld_r_r, NULL, {1, 4, 1, H, A}},                // 67 LD H,A
-    {ld_r_r, NULL, {1, 4, 1, L, B}},                // 68 LD L,B
-    {ld_r_r, NULL, {1, 4, 1, L, C}},                // 69 LD L,C
-    {ld_r_r, NULL, {1, 4, 1, L, D}},                // 6A LD L,D
-    {ld_r_r, NULL, {1, 4, 1, L, E}},                // 6B LD L,E
-    {ld_r_r, NULL, {1, 4, 1, L, H}},                // 6C LD L,H
+    {ld_r_r, NULL, {1, 4, 1, 6, 7}},                // 65 LD H,L
+    {ld_r_rr, NULL, {6, 6, 7}},                     // 66 LD H,(HL)
+    {ld_r_r, NULL, {1, 4, 1, 6, 0}},                // 67 LD H,A
+    {ld_r_r, NULL, {1, 4, 1, 7, 2}},                // 68 LD L,B
+    {ld_r_r, NULL, {1, 4, 1, 7, 3}},                // 69 LD L,C
+    {ld_r_r, NULL, {1, 4, 1, 7, 4}},                // 6A LD L,D
+    {ld_r_r, NULL, {1, 4, 1, 7, 5}},                // 6B LD L,E
+    {ld_r_r, NULL, {1, 4, 1, 7, 6}},                // 6C LD L,H
     {nop, NULL, {1, 4, 1}},                         // 6D LD L,L
-    {ld_r_rr, NULL, {L, H, L}},                     // 6E LD L,(HL)
-    {ld_r_r, NULL, {1, 4, 1, L, A}},                // 6F LD L,A
-    {ld_rr_r, NULL, {H, L, B}},                     // 70 LD (HL),B
-    {ld_rr_r, NULL, {H, L, C}},                     // 71 LD (HL),C
-    {ld_rr_r, NULL, {H, L, D}},                     // 72 LD (HL),D
-    {ld_rr_r, NULL, {H, L, E}},                     // 73 LD (HL),E
-    {ld_rr_r, NULL, {H, L, H}},                     // 74 LD (HL),H
-    {ld_rr_r, NULL, {H, L, L}},                     // 75 LD (HL),L
-    {halt, NULL, {}},                               // 76 HALT
-    {ld_rr_r, NULL, {H, L, A}},                     // 77 LD (HL),A
-    {ld_r_r, NULL, {1, 4, 1, A, B}},                // 78 LD A,B
-    {ld_r_r, NULL, {1, 4, 1, A, C}},                // 79 LD A,C
-    {ld_r_r, NULL, {1, 4, 1, A, D}},                // 7A LD A,D
-    {ld_r_r, NULL, {1, 4, 1, A, E}},                // 7B LD A,E
-    {ld_r_r, NULL, {1, 4, 1, A, H}},                // 7C LD A,H
-    {ld_r_r, NULL, {1, 4, 1, A, L}},                // 7D LD A,L
-    {ld_r_rr, NULL, {A, H, L}},                     // 7E LD A,(HL)
+    {ld_r_rr, NULL, {7, 6, 7}},                     // 6E LD L,(HL)
+    {ld_r_r, NULL, {1, 4, 1, 7, 0}},                // 6F LD L,A
+    {ld_rr_r, NULL, {6, 7, 2}},                     // 70 LD (HL),B
+    {ld_rr_r, NULL, {6, 7, 3}},                     // 71 LD (HL),C
+    {ld_rr_r, NULL, {6, 7, 4}},                     // 72 LD (HL),D
+    {ld_rr_r, NULL, {6, 7, 5}},                     // 73 LD (HL),E
+    {ld_rr_r, NULL, {6, 7, 6}},                     // 74 LD (HL),H
+    {ld_rr_r, NULL, {6, 7, 7}},                     // 75 LD (HL),L
+    {halt, NULL, {0}},                              // 76 HALT
+    {ld_rr_r, NULL, {6, 7, 0}},                     // 77 LD (HL),A
+    {ld_r_r, NULL, {1, 4, 1, 0, 2}},                // 78 LD A,B
+    {ld_r_r, NULL, {1, 4, 1, 0, 3}},                // 79 LD A,C
+    {ld_r_r, NULL, {1, 4, 1, 0, 4}},                // 7A LD A,D
+    {ld_r_r, NULL, {1, 4, 1, 0, 5}},                // 7B LD A,E
+    {ld_r_r, NULL, {1, 4, 1, 0, 6}},                // 7C LD A,H
+    {ld_r_r, NULL, {1, 4, 1, 0, 7}},                // 7D LD A,L
+    {ld_r_rr, NULL, {0, 6, 7}},                     // 7E LD A,(HL)
     {nop, NULL, {1, 4, 1}},                         // 7F LD A,A
-    {af_r, ADD, {1, 4, 1, B}},                      // 80 ADD A,B
-    {af_r, ADD, {1, 4, 1, C}},                      // 81 ADD A,C
-    {af_r, ADD, {1, 4, 1, D}},                      // 82 ADD A,D
-    {af_r, ADD, {1, 4, 1, E}},                      // 83 ADD A,E
-    {af_r, ADD, {1, 4, 1, H}},                      // 84 ADD A,H
-    {af_r, ADD, {1, 4, 1, L}},                      // 85 ADD A,L
-    {af_hl, ADD, {}},                               // 86 ADD A,(HL)
-    {af_r, ADD, {1, 4, 1, A}},                      // 87 ADD A,A
-    {afc_r, ADC, {1, 4, 1, B}},                     // 88 ADC A,B
-    {afc_r, ADC, {1, 4, 1, C}},                     // 89 ADC A,C
-    {afc_r, ADC, {1, 4, 1, D}},                     // 8A ADC A,D
-    {afc_r, ADC, {1, 4, 1, E}},                     // 8B ADC A,E
-    {afc_r, ADC, {1, 4, 1, H}},                     // 8C ADC A,H
-    {afc_r, ADC, {1, 4, 1, L}},                     // 8D ADC A,L
-    {afc_hl, ADC, {}},                              // 8E ADC A,(HL)
-    {fc_r, ADC_A_A, {1, 4, 1, A}},                  // 8F ADC A,A
-    {af_r, SUB, {1, 4, 1, B}},                      // 90 SUB B
-    {af_r, SUB, {1, 4, 1, C}},                      // 91 SUB C
-    {af_r, SUB, {1, 4, 1, D}},                      // 92 SUB D
-    {af_r, SUB, {1, 4, 1, E}},                      // 93 SUB E
-    {af_r, SUB, {1, 4, 1, H}},                      // 94 SUB H
-    {af_r, SUB, {1, 4, 1, L}},                      // 95 SUB L
-    {af_hl, SUB, {}},                               // 96 SUB (HL)
-    {af_r, SUB, {1, 4, 1, A}},                      // 97 SUB A
-    {afc_r, SBC, {1, 4, 1, B}},                     // 98 SBC A,B
-    {afc_r, SBC, {1, 4, 1, C}},                     // 99 SBC A,C
-    {afc_r, SBC, {1, 4, 1, D}},                     // 9A SBC A,D
-    {afc_r, SBC, {1, 4, 1, E}},                     // 9B SBC A,E
-    {afc_r, SBC, {1, 4, 1, H}},                     // 9C SBC A,H
-    {afc_r, SBC, {1, 4, 1, L}},                     // 9D SBC A,L
-    {afc_hl, SBC, {}},                              // 9E SBC A,(HL)
-    {fc_r, SBC_A_A, {1, 4, 1, A}},                  // 9F SBC A,A
-    {af_r, AND, {1, 4, 1, B}},                      // A0 AND B
-    {af_r, AND, {1, 4, 1, C}},                      // A1 AND C
-    {af_r, AND, {1, 4, 1, D}},                      // A2 AND D
-    {af_r, AND, {1, 4, 1, E}},                      // A3 AND E
-    {af_r, AND, {1, 4, 1, H}},                      // A4 AND H
-    {af_r, AND, {1, 4, 1, L}},                      // A5 AND L
-    {af_hl, AND, {}},                               // A6 AND (HL)
-    {af_r, AND, {1, 4, 1, A}},                      // A7 AND A
-    {af_r, XOR, {1, 4, 1, B}},                      // A8 XOR B
-    {af_r, XOR, {1, 4, 1, C}},                      // A9 XOR C
-    {af_r, XOR, {1, 4, 1, D}},                      // AA XOR D
-    {af_r, XOR, {1, 4, 1, E}},                      // AB XOR E
-    {af_r, XOR, {1, 4, 1, H}},                      // AC XOR H
-    {af_r, XOR, {1, 4, 1, L}},                      // AD XOR L
-    {af_hl, XOR, {}},                               // AE XOR (HL)
-    {af_r, XOR, {1, 4, 1, A}},                      // AF XOR A
-    {af_r, OR, {1, 4, 1, B}},                       // B0 OR B
-    {af_r, OR, {1, 4, 1, C}},                       // B1 OR C
-    {af_r, OR, {1, 4, 1, D}},                       // B2 OR D
-    {af_r, OR, {1, 4, 1, E}},                       // B3 OR E
-    {af_r, OR, {1, 4, 1, H}},                       // B4 OR H
-    {af_r, OR, {1, 4, 1, L}},                       // B5 OR L
-    {af_hl, OR, {}},                                // B6 OR (HL)
-    {af_r, OR, {1, 4, 1, A}},                       // B7 OR A
-    {af_r, CP, {1, 4, 1, B}},                       // B8 CP B
-    {af_r, CP, {1, 4, 1, C}},                       // B9 CP C
-    {af_r, CP, {1, 4, 1, D}},                       // BA CP D
-    {af_r, CP, {1, 4, 1, E}},                       // BB CP E
-    {af_r, CP, {1, 4, 1, H}},                       // BC CP H
-    {af_r, CP, {1, 4, 1, L}},                       // BD CP L
-    {af_hl, CP, {}},                                // BE CP (HL)
-    {af_r, CP, {1, 4, 1, A}},                       // BF CP A
+    {af_r, ADD, {1, 4, 1, 2}},                      // 80 ADD A,B
+    {af_r, ADD, {1, 4, 1, 3}},                      // 81 ADD A,C
+    {af_r, ADD, {1, 4, 1, 4}},                      // 82 ADD A,D
+    {af_r, ADD, {1, 4, 1, 5}},                      // 83 ADD A,E
+    {af_r, ADD, {1, 4, 1, 6}},                      // 84 ADD A,H
+    {af_r, ADD, {1, 4, 1, 7}},                      // 85 ADD A,L
+    {af_hl, ADD, {0}},                              // 86 ADD A,(HL)
+    {af_r, ADD, {1, 4, 1, 0}},                      // 87 ADD A,A
+    {afc_r, ADC, {1, 4, 1, 2}},                     // 88 ADC A,B
+    {afc_r, ADC, {1, 4, 1, 3}},                     // 89 ADC A,C
+    {afc_r, ADC, {1, 4, 1, 4}},                     // 8A ADC A,D
+    {afc_r, ADC, {1, 4, 1, 5}},                     // 8B ADC A,E
+    {afc_r, ADC, {1, 4, 1, 6}},                     // 8C ADC A,H
+    {afc_r, ADC, {1, 4, 1, 7}},                     // 8D ADC A,L
+    {afc_hl, ADC, {0}},                             // 8E ADC A,(HL)
+    {fc_r, ADC_A_A, {1, 4, 1, 0}},                  // 8F ADC A,A
+    {af_r, SUB, {1, 4, 1, 2}},                      // 90 SUB B
+    {af_r, SUB, {1, 4, 1, 3}},                      // 91 SUB C
+    {af_r, SUB, {1, 4, 1, 4}},                      // 92 SUB D
+    {af_r, SUB, {1, 4, 1, 5}},                      // 93 SUB E
+    {af_r, SUB, {1, 4, 1, 6}},                      // 94 SUB H
+    {af_r, SUB, {1, 4, 1, 7}},                      // 95 SUB L
+    {af_hl, SUB, {0}},                              // 96 SUB (HL)
+    {af_r, SUB, {1, 4, 1, 0}},                      // 97 SUB A
+    {afc_r, SBC, {1, 4, 1, 2}},                     // 98 SBC A,B
+    {afc_r, SBC, {1, 4, 1, 3}},                     // 99 SBC A,C
+    {afc_r, SBC, {1, 4, 1, 4}},                     // 9A SBC A,D
+    {afc_r, SBC, {1, 4, 1, 5}},                     // 9B SBC A,E
+    {afc_r, SBC, {1, 4, 1, 6}},                     // 9C SBC A,H
+    {afc_r, SBC, {1, 4, 1, 7}},                     // 9D SBC A,L
+    {afc_hl, SBC, {0}},                             // 9E SBC A,(HL)
+    {fc_r, SBC_A_A, {1, 4, 1, 0}},                  // 9F SBC A,A
+    {af_r, AND, {1, 4, 1, 2}},                      // A0 AND B
+    {af_r, AND, {1, 4, 1, 3}},                      // A1 AND C
+    {af_r, AND, {1, 4, 1, 4}},                      // A2 AND D
+    {af_r, AND, {1, 4, 1, 5}},                      // A3 AND E
+    {af_r, AND, {1, 4, 1, 6}},                      // A4 AND H
+    {af_r, AND, {1, 4, 1, 7}},                      // A5 AND L
+    {af_hl, AND, {0}},                              // A6 AND (HL)
+    {af_r, AND, {1, 4, 1, 0}},                      // A7 AND A
+    {af_r, XOR, {1, 4, 1, 2}},                      // A8 XOR B
+    {af_r, XOR, {1, 4, 1, 3}},                      // A9 XOR C
+    {af_r, XOR, {1, 4, 1, 4}},                      // AA XOR D
+    {af_r, XOR, {1, 4, 1, 5}},                      // AB XOR E
+    {af_r, XOR, {1, 4, 1, 6}},                      // AC XOR H
+    {af_r, XOR, {1, 4, 1, 7}},                      // AD XOR L
+    {af_hl, XOR, {0}},                              // AE XOR (HL)
+    {af_r, XOR, {1, 4, 1, 0}},                      // AF XOR A
+    {af_r, OR, {1, 4, 1, 2}},                       // B0 OR B
+    {af_r, OR, {1, 4, 1, 3}},                       // B1 OR C
+    {af_r, OR, {1, 4, 1, 4}},                       // B2 OR D
+    {af_r, OR, {1, 4, 1, 5}},                       // B3 OR E
+    {af_r, OR, {1, 4, 1, 6}},                       // B4 OR H
+    {af_r, OR, {1, 4, 1, 7}},                       // B5 OR L
+    {af_hl, OR, {0}},                               // B6 OR (HL)
+    {af_r, OR, {1, 4, 1, 0}},                       // B7 OR A
+    {af_r, CP, {1, 4, 1, 2}},                       // B8 CP B
+    {af_r, CP, {1, 4, 1, 3}},                       // B9 CP C
+    {af_r, CP, {1, 4, 1, 4}},                       // BA CP D
+    {af_r, CP, {1, 4, 1, 5}},                       // BB CP E
+    {af_r, CP, {1, 4, 1, 6}},                       // BC CP H
+    {af_r, CP, {1, 4, 1, 7}},                       // BD CP L
+    {af_hl, CP, {0}},                               // BE CP (HL)
+    {af_r, CP, {1, 4, 1, 0}},                       // BF CP A
     {ret, NULL, {64, 64}},                          // C0 RET NZ
-    {pop, NULL, {1, 10, 1, B, C}},                  // C1 POP BC
+    {pop, NULL, {1, 10, 1, 2, 3}},                  // C1 POP BC
     {jp, NULL, {64, 0}},                            // C2 JP NZ,nn
     {jp, NULL, {0, 0}},                             // C3 JP nn
     {call, NULL, {64, 64}},                         // C4 CALL NZ,nn
-    {push, NULL, {1, 11, 1, B, C}},                 // C5 PUSH BC
-    {af_n, ADD, {}},                                // C6 ADD A,n
+    {push, NULL, {1, 11, 1, 2, 3}},                 // C5 PUSH BC
+    {af_n, ADD, {0}},                               // C6 ADD A,n
     {rst, NULL, {0}},                               // C7 RST $00
     {ret, NULL, {64, 0}},                           // C8 RET Z
     {ret, NULL, {0, 0}},                            // C9 RET
     {jp, NULL, {64, 64}},                           // CA JP Z,nn
-    {NULL, NULL, {}},                               // CB prefix
+    {NULL, NULL, {0}},                              // CB prefix
     {call, NULL, {64, 0}},                          // CC CALL Z,nn
     {call, NULL, {0, 0}},                           // CD CALL nn
-    {afc_n, ADC, {}},                               // CE ADC A,n
+    {afc_n, ADC, {0}},                              // CE ADC A,n
     {rst, NULL, {8}},                               // CF RST $08
     {ret, NULL, {1, 1}},                            // D0 RET NC
-    {pop, NULL, {1, 10, 1, D, E}},                  // D1 POP DE
+    {pop, NULL, {1, 10, 1, 4, 5}},                  // D1 POP DE
     {jp, NULL, {1, 0}},                             // D2 JP NC,nn
-    {out_a, NULL, {}},                              // D3 OUT (n),A
+    {out_a, NULL, {0}},                             // D3 OUT (n),A
     {call, NULL, {1, 1}},                           // D4 CALL NC,nn
-    {push, NULL, {1, 11, 1, D, E}},                 // D5 PUSH DE
-    {af_n, SUB, {}},                                // D6 SUB n
+    {push, NULL, {1, 11, 1, 4, 5}},                 // D5 PUSH DE
+    {af_n, SUB, {0}},                               // D6 SUB n
     {rst, NULL, {16}},                              // D7 RST $10
     {ret, NULL, {1, 0}},                            // D8 RET C
-    {exx, NULL, {}},                                // D9 EXX
+    {exx, NULL, {0}},                               // D9 EXX
     {jp, NULL, {1, 1}},                             // DA JP C,nn
-    {in_a, NULL, {}},                               // DB IN A,(n)
+    {in_a, NULL, {0}},                              // DB IN A,(n)
     {call, NULL, {1, 0}},                           // DC CALL C,nn
-    {NULL, NULL, {}},                               // DD prefix
-    {afc_n, SBC, {}},                               // DE SBC A,n
+    {NULL, NULL, {0}},                              // DD prefix
+    {afc_n, SBC, {0}},                              // DE SBC A,n
     {rst, NULL, {24}},                              // DF RST $18
     {ret, NULL, {4, 4}},                            // E0 RET PO
-    {pop, NULL, {1, 10, 1, H, L}},                  // E1 POP HL
+    {pop, NULL, {1, 10, 1, 6, 7}},                  // E1 POP HL
     {jp, NULL, {4, 0}},                             // E2 JP PO,nn
-    {ex_sp, NULL, {1, 19, 1, H, L}},                // E3 EX (SP),HL
+    {ex_sp, NULL, {1, 19, 1, 6, 7}},                // E3 EX (SP),HL
     {call, NULL, {4, 4}},                           // E4 CALL PO,nn
-    {push, NULL, {1, 11, 1, H, L}},                 // E5 PUSH HL
-    {af_n, AND, {}},                                // E6 AND n
+    {push, NULL, {1, 11, 1, 6, 7}},                 // E5 PUSH HL
+    {af_n, AND, {0}},                               // E6 AND n
     {rst, NULL, {32}},                              // E7 RST $20
     {ret, NULL, {4, 0}},                            // E8 RET PE
-    {jp_rr, NULL, {1, 4, H, L}},                    // E9 JP (HL)
+    {jp_rr, NULL, {1, 4, 6, 7}},                    // E9 JP (HL)
     {jp, NULL, {4, 4}},                             // EA JP PE,nn
-    {ex_de_hl, NULL, {}},                           // EB EX DE,HL
+    {ex_de_hl, NULL, {0}},                          // EB EX DE,HL
     {call, NULL, {4, 0}},                           // EC CALL PE,nn
-    {NULL, NULL, {}},                               // ED prefix
-    {af_n, XOR, {}},                                // EE XOR n
+    {NULL, NULL, {0}},                              // ED prefix
+    {af_n, XOR, {0}},                               // EE XOR n
     {rst, NULL, {40}},                              // EF RST $28
     {ret, NULL, {128, 128}},                        // F0 RET P
-    {pop, NULL, {1, 10, 1, A, F}},                  // F1 POP AF
+    {pop, NULL, {1, 10, 1, 0, 1}},                  // F1 POP AF
     {jp, NULL, {128, 0}},                           // F2 JP P,nn
     {di_ei, NULL, {0}},                             // F3 DI
     {call, NULL, {128, 128}},                       // F4 CALL P,nn
-    {push, NULL, {1, 11, 1, A, F}},                 // F5 PUSH AF
-    {af_n, OR, {}},                                 // F6 OR n
+    {push, NULL, {1, 11, 1, 0, 1}},                 // F5 PUSH AF
+    {af_n, OR, {0}},                                // F6 OR n
     {rst, NULL, {48}},                              // F7 RST $30
     {ret, NULL, {128, 0}},                          // F8 RET M
-    {ld_sp_rr, NULL, {1, 6, 1, H, L}},              // F9 LD SP,HL
+    {ld_sp_rr, NULL, {1, 6, 1, 6, 7}},              // F9 LD SP,HL
     {jp, NULL, {128, 128}},                         // FA JP M,nn
     {di_ei, NULL, {1}},                             // FB EI
     {call, NULL, {128, 0}},                         // FC CALL M,nn
-    {NULL, NULL, {}},                               // FD prefix
-    {af_n, CP, {}},                                 // FE CP n
+    {NULL, NULL, {0}},                              // FD prefix
+    {af_n, CP, {0}},                                // FE CP n
     {rst, NULL, {56}},                              // FF RST $38
 };
 
 static OpcodeFunction after_CB[256] = {
-    {f_r, RLC, {B}},                                // CB00 RLC B
-    {f_r, RLC, {C}},                                // CB01 RLC C
-    {f_r, RLC, {D}},                                // CB02 RLC D
-    {f_r, RLC, {E}},                                // CB03 RLC E
-    {f_r, RLC, {H}},                                // CB04 RLC H
-    {f_r, RLC, {L}},                                // CB05 RLC L
-    {f_hl, RLC, {}},                                // CB06 RLC (HL)
-    {f_r, RLC, {A}},                                // CB07 RLC A
-    {f_r, RRC, {B}},                                // CB08 RRC B
-    {f_r, RRC, {C}},                                // CB09 RRC C
-    {f_r, RRC, {D}},                                // CB0A RRC D
-    {f_r, RRC, {E}},                                // CB0B RRC E
-    {f_r, RRC, {H}},                                // CB0C RRC H
-    {f_r, RRC, {L}},                                // CB0D RRC L
-    {f_hl, RRC, {}},                                // CB0E RRC (HL)
-    {f_r, RRC, {A}},                                // CB0F RRC A
-    {fc_r, RL, {2, 8, 2, B}},                       // CB10 RL B
-    {fc_r, RL, {2, 8, 2, C}},                       // CB11 RL C
-    {fc_r, RL, {2, 8, 2, D}},                       // CB12 RL D
-    {fc_r, RL, {2, 8, 2, E}},                       // CB13 RL E
-    {fc_r, RL, {2, 8, 2, H}},                       // CB14 RL H
-    {fc_r, RL, {2, 8, 2, L}},                       // CB15 RL L
+    {f_r, RLC, {2}},                                // CB00 RLC B
+    {f_r, RLC, {3}},                                // CB01 RLC C
+    {f_r, RLC, {4}},                                // CB02 RLC D
+    {f_r, RLC, {5}},                                // CB03 RLC E
+    {f_r, RLC, {6}},                                // CB04 RLC H
+    {f_r, RLC, {7}},                                // CB05 RLC L
+    {f_hl, RLC, {0}},                               // CB06 RLC (HL)
+    {f_r, RLC, {0}},                                // CB07 RLC A
+    {f_r, RRC, {2}},                                // CB08 RRC B
+    {f_r, RRC, {3}},                                // CB09 RRC C
+    {f_r, RRC, {4}},                                // CB0A RRC D
+    {f_r, RRC, {5}},                                // CB0B RRC E
+    {f_r, RRC, {6}},                                // CB0C RRC H
+    {f_r, RRC, {7}},                                // CB0D RRC L
+    {f_hl, RRC, {0}},                               // CB0E RRC (HL)
+    {f_r, RRC, {0}},                                // CB0F RRC A
+    {fc_r, RL, {2, 8, 2, 2}},                       // CB10 RL B
+    {fc_r, RL, {2, 8, 2, 3}},                       // CB11 RL C
+    {fc_r, RL, {2, 8, 2, 4}},                       // CB12 RL D
+    {fc_r, RL, {2, 8, 2, 5}},                       // CB13 RL E
+    {fc_r, RL, {2, 8, 2, 6}},                       // CB14 RL H
+    {fc_r, RL, {2, 8, 2, 7}},                       // CB15 RL L
     {fc_hl, RL, {2, 15, 2}},                        // CB16 RL (HL)
-    {fc_r, RL, {2, 8, 2, A}},                       // CB17 RL A
-    {fc_r, RR, {2, 8, 2, B}},                       // CB18 RR B
-    {fc_r, RR, {2, 8, 2, C}},                       // CB19 RR C
-    {fc_r, RR, {2, 8, 2, D}},                       // CB1A RR D
-    {fc_r, RR, {2, 8, 2, E}},                       // CB1B RR E
-    {fc_r, RR, {2, 8, 2, H}},                       // CB1C RR H
-    {fc_r, RR, {2, 8, 2, L}},                       // CB1D RR L
+    {fc_r, RL, {2, 8, 2, 0}},                       // CB17 RL A
+    {fc_r, RR, {2, 8, 2, 2}},                       // CB18 RR B
+    {fc_r, RR, {2, 8, 2, 3}},                       // CB19 RR C
+    {fc_r, RR, {2, 8, 2, 4}},                       // CB1A RR D
+    {fc_r, RR, {2, 8, 2, 5}},                       // CB1B RR E
+    {fc_r, RR, {2, 8, 2, 6}},                       // CB1C RR H
+    {fc_r, RR, {2, 8, 2, 7}},                       // CB1D RR L
     {fc_hl, RR, {2, 15, 2}},                        // CB1E RR (HL)
-    {fc_r, RR, {2, 8, 2, A}},                       // CB1F RR A
-    {f_r, SLA, {B}},                                // CB20 SLA B
-    {f_r, SLA, {C}},                                // CB21 SLA C
-    {f_r, SLA, {D}},                                // CB22 SLA D
-    {f_r, SLA, {E}},                                // CB23 SLA E
-    {f_r, SLA, {H}},                                // CB24 SLA H
-    {f_r, SLA, {L}},                                // CB25 SLA L
-    {f_hl, SLA, {}},                                // CB26 SLA (HL)
-    {f_r, SLA, {A}},                                // CB27 SLA A
-    {f_r, SRA, {B}},                                // CB28 SRA B
-    {f_r, SRA, {C}},                                // CB29 SRA C
-    {f_r, SRA, {D}},                                // CB2A SRA D
-    {f_r, SRA, {E}},                                // CB2B SRA E
-    {f_r, SRA, {H}},                                // CB2C SRA H
-    {f_r, SRA, {L}},                                // CB2D SRA L
-    {f_hl, SRA, {}},                                // CB2E SRA (HL)
-    {f_r, SRA, {A}},                                // CB2F SRA A
-    {f_r, SLL, {B}},                                // CB30 SLL B
-    {f_r, SLL, {C}},                                // CB31 SLL C
-    {f_r, SLL, {D}},                                // CB32 SLL D
-    {f_r, SLL, {E}},                                // CB33 SLL E
-    {f_r, SLL, {H}},                                // CB34 SLL H
-    {f_r, SLL, {L}},                                // CB35 SLL L
-    {f_hl, SLL, {}},                                // CB36 SLL (HL)
-    {f_r, SLL, {A}},                                // CB37 SLL A
-    {f_r, SRL, {B}},                                // CB38 SRL B
-    {f_r, SRL, {C}},                                // CB39 SRL C
-    {f_r, SRL, {D}},                                // CB3A SRL D
-    {f_r, SRL, {E}},                                // CB3B SRL E
-    {f_r, SRL, {H}},                                // CB3C SRL H
-    {f_r, SRL, {L}},                                // CB3D SRL L
-    {f_hl, SRL, {}},                                // CB3E SRL (HL)
-    {f_r, SRL, {A}},                                // CB3F SRL A
-    {bit_r, NULL, {0, B}},                          // CB40 BIT 0,B
-    {bit_r, NULL, {0, C}},                          // CB41 BIT 0,C
-    {bit_r, NULL, {0, D}},                          // CB42 BIT 0,D
-    {bit_r, NULL, {0, E}},                          // CB43 BIT 0,E
-    {bit_r, NULL, {0, H}},                          // CB44 BIT 0,H
-    {bit_r, NULL, {0, L}},                          // CB45 BIT 0,L
+    {fc_r, RR, {2, 8, 2, 0}},                       // CB1F RR A
+    {f_r, SLA, {2}},                                // CB20 SLA B
+    {f_r, SLA, {3}},                                // CB21 SLA C
+    {f_r, SLA, {4}},                                // CB22 SLA D
+    {f_r, SLA, {5}},                                // CB23 SLA E
+    {f_r, SLA, {6}},                                // CB24 SLA H
+    {f_r, SLA, {7}},                                // CB25 SLA L
+    {f_hl, SLA, {0}},                               // CB26 SLA (HL)
+    {f_r, SLA, {0}},                                // CB27 SLA A
+    {f_r, SRA, {2}},                                // CB28 SRA B
+    {f_r, SRA, {3}},                                // CB29 SRA C
+    {f_r, SRA, {4}},                                // CB2A SRA D
+    {f_r, SRA, {5}},                                // CB2B SRA E
+    {f_r, SRA, {6}},                                // CB2C SRA H
+    {f_r, SRA, {7}},                                // CB2D SRA L
+    {f_hl, SRA, {0}},                               // CB2E SRA (HL)
+    {f_r, SRA, {0}},                                // CB2F SRA A
+    {f_r, SLL, {2}},                                // CB30 SLL B
+    {f_r, SLL, {3}},                                // CB31 SLL C
+    {f_r, SLL, {4}},                                // CB32 SLL D
+    {f_r, SLL, {5}},                                // CB33 SLL E
+    {f_r, SLL, {6}},                                // CB34 SLL H
+    {f_r, SLL, {7}},                                // CB35 SLL L
+    {f_hl, SLL, {0}},                               // CB36 SLL (HL)
+    {f_r, SLL, {0}},                                // CB37 SLL A
+    {f_r, SRL, {2}},                                // CB38 SRL B
+    {f_r, SRL, {3}},                                // CB39 SRL C
+    {f_r, SRL, {4}},                                // CB3A SRL D
+    {f_r, SRL, {5}},                                // CB3B SRL E
+    {f_r, SRL, {6}},                                // CB3C SRL H
+    {f_r, SRL, {7}},                                // CB3D SRL L
+    {f_hl, SRL, {0}},                               // CB3E SRL (HL)
+    {f_r, SRL, {0}},                                // CB3F SRL A
+    {bit_r, NULL, {0, 2}},                          // CB40 BIT 0,B
+    {bit_r, NULL, {0, 3}},                          // CB41 BIT 0,C
+    {bit_r, NULL, {0, 4}},                          // CB42 BIT 0,D
+    {bit_r, NULL, {0, 5}},                          // CB43 BIT 0,E
+    {bit_r, NULL, {0, 6}},                          // CB44 BIT 0,H
+    {bit_r, NULL, {0, 7}},                          // CB45 BIT 0,L
     {bit_hl, NULL, {0}},                            // CB46 BIT 0,(HL)
-    {bit_r, NULL, {0, A}},                          // CB47 BIT 0,A
-    {bit_r, NULL, {1, B}},                          // CB48 BIT 1,B
-    {bit_r, NULL, {1, C}},                          // CB49 BIT 1,C
-    {bit_r, NULL, {1, D}},                          // CB4A BIT 1,D
-    {bit_r, NULL, {1, E}},                          // CB4B BIT 1,E
-    {bit_r, NULL, {1, H}},                          // CB4C BIT 1,H
-    {bit_r, NULL, {1, L}},                          // CB4D BIT 1,L
+    {bit_r, NULL, {0, 0}},                          // CB47 BIT 0,A
+    {bit_r, NULL, {1, 2}},                          // CB48 BIT 1,B
+    {bit_r, NULL, {1, 3}},                          // CB49 BIT 1,C
+    {bit_r, NULL, {1, 4}},                          // CB4A BIT 1,D
+    {bit_r, NULL, {1, 5}},                          // CB4B BIT 1,E
+    {bit_r, NULL, {1, 6}},                          // CB4C BIT 1,H
+    {bit_r, NULL, {1, 7}},                          // CB4D BIT 1,L
     {bit_hl, NULL, {1}},                            // CB4E BIT 1,(HL)
-    {bit_r, NULL, {1, A}},                          // CB4F BIT 1,A
-    {bit_r, NULL, {2, B}},                          // CB50 BIT 2,B
-    {bit_r, NULL, {2, C}},                          // CB51 BIT 2,C
-    {bit_r, NULL, {2, D}},                          // CB52 BIT 2,D
-    {bit_r, NULL, {2, E}},                          // CB53 BIT 2,E
-    {bit_r, NULL, {2, H}},                          // CB54 BIT 2,H
-    {bit_r, NULL, {2, L}},                          // CB55 BIT 2,L
+    {bit_r, NULL, {1, 0}},                          // CB4F BIT 1,A
+    {bit_r, NULL, {2, 2}},                          // CB50 BIT 2,B
+    {bit_r, NULL, {2, 3}},                          // CB51 BIT 2,C
+    {bit_r, NULL, {2, 4}},                          // CB52 BIT 2,D
+    {bit_r, NULL, {2, 5}},                          // CB53 BIT 2,E
+    {bit_r, NULL, {2, 6}},                          // CB54 BIT 2,H
+    {bit_r, NULL, {2, 7}},                          // CB55 BIT 2,L
     {bit_hl, NULL, {2}},                            // CB56 BIT 2,(HL)
-    {bit_r, NULL, {2, A}},                          // CB57 BIT 2,A
-    {bit_r, NULL, {3, B}},                          // CB58 BIT 3,B
-    {bit_r, NULL, {3, C}},                          // CB59 BIT 3,C
-    {bit_r, NULL, {3, D}},                          // CB5A BIT 3,D
-    {bit_r, NULL, {3, E}},                          // CB5B BIT 3,E
-    {bit_r, NULL, {3, H}},                          // CB5C BIT 3,H
-    {bit_r, NULL, {3, L}},                          // CB5D BIT 3,L
+    {bit_r, NULL, {2, 0}},                          // CB57 BIT 2,A
+    {bit_r, NULL, {3, 2}},                          // CB58 BIT 3,B
+    {bit_r, NULL, {3, 3}},                          // CB59 BIT 3,C
+    {bit_r, NULL, {3, 4}},                          // CB5A BIT 3,D
+    {bit_r, NULL, {3, 5}},                          // CB5B BIT 3,E
+    {bit_r, NULL, {3, 6}},                          // CB5C BIT 3,H
+    {bit_r, NULL, {3, 7}},                          // CB5D BIT 3,L
     {bit_hl, NULL, {3}},                            // CB5E BIT 3,(HL)
-    {bit_r, NULL, {3, A}},                          // CB5F BIT 3,A
-    {bit_r, NULL, {4, B}},                          // CB60 BIT 4,B
-    {bit_r, NULL, {4, C}},                          // CB61 BIT 4,C
-    {bit_r, NULL, {4, D}},                          // CB62 BIT 4,D
-    {bit_r, NULL, {4, E}},                          // CB63 BIT 4,E
-    {bit_r, NULL, {4, H}},                          // CB64 BIT 4,H
-    {bit_r, NULL, {4, L}},                          // CB65 BIT 4,L
+    {bit_r, NULL, {3, 0}},                          // CB5F BIT 3,A
+    {bit_r, NULL, {4, 2}},                          // CB60 BIT 4,B
+    {bit_r, NULL, {4, 3}},                          // CB61 BIT 4,C
+    {bit_r, NULL, {4, 4}},                          // CB62 BIT 4,D
+    {bit_r, NULL, {4, 5}},                          // CB63 BIT 4,E
+    {bit_r, NULL, {4, 6}},                          // CB64 BIT 4,H
+    {bit_r, NULL, {4, 7}},                          // CB65 BIT 4,L
     {bit_hl, NULL, {4}},                            // CB66 BIT 4,(HL)
-    {bit_r, NULL, {4, A}},                          // CB67 BIT 4,A
-    {bit_r, NULL, {5, B}},                          // CB68 BIT 5,B
-    {bit_r, NULL, {5, C}},                          // CB69 BIT 5,C
-    {bit_r, NULL, {5, D}},                          // CB6A BIT 5,D
-    {bit_r, NULL, {5, E}},                          // CB6B BIT 5,E
-    {bit_r, NULL, {5, H}},                          // CB6C BIT 5,H
-    {bit_r, NULL, {5, L}},                          // CB6D BIT 5,L
+    {bit_r, NULL, {4, 0}},                          // CB67 BIT 4,A
+    {bit_r, NULL, {5, 2}},                          // CB68 BIT 5,B
+    {bit_r, NULL, {5, 3}},                          // CB69 BIT 5,C
+    {bit_r, NULL, {5, 4}},                          // CB6A BIT 5,D
+    {bit_r, NULL, {5, 5}},                          // CB6B BIT 5,E
+    {bit_r, NULL, {5, 6}},                          // CB6C BIT 5,H
+    {bit_r, NULL, {5, 7}},                          // CB6D BIT 5,L
     {bit_hl, NULL, {5}},                            // CB6E BIT 5,(HL)
-    {bit_r, NULL, {5, A}},                          // CB6F BIT 5,A
-    {bit_r, NULL, {6, B}},                          // CB70 BIT 6,B
-    {bit_r, NULL, {6, C}},                          // CB71 BIT 6,C
-    {bit_r, NULL, {6, D}},                          // CB72 BIT 6,D
-    {bit_r, NULL, {6, E}},                          // CB73 BIT 6,E
-    {bit_r, NULL, {6, H}},                          // CB74 BIT 6,H
-    {bit_r, NULL, {6, L}},                          // CB75 BIT 6,L
+    {bit_r, NULL, {5, 0}},                          // CB6F BIT 5,A
+    {bit_r, NULL, {6, 2}},                          // CB70 BIT 6,B
+    {bit_r, NULL, {6, 3}},                          // CB71 BIT 6,C
+    {bit_r, NULL, {6, 4}},                          // CB72 BIT 6,D
+    {bit_r, NULL, {6, 5}},                          // CB73 BIT 6,E
+    {bit_r, NULL, {6, 6}},                          // CB74 BIT 6,H
+    {bit_r, NULL, {6, 7}},                          // CB75 BIT 6,L
     {bit_hl, NULL, {6}},                            // CB76 BIT 6,(HL)
-    {bit_r, NULL, {6, A}},                          // CB77 BIT 6,A
-    {bit_r, NULL, {7, B}},                          // CB78 BIT 7,B
-    {bit_r, NULL, {7, C}},                          // CB79 BIT 7,C
-    {bit_r, NULL, {7, D}},                          // CB7A BIT 7,D
-    {bit_r, NULL, {7, E}},                          // CB7B BIT 7,E
-    {bit_r, NULL, {7, H}},                          // CB7C BIT 7,H
-    {bit_r, NULL, {7, L}},                          // CB7D BIT 7,L
+    {bit_r, NULL, {6, 0}},                          // CB77 BIT 6,A
+    {bit_r, NULL, {7, 2}},                          // CB78 BIT 7,B
+    {bit_r, NULL, {7, 3}},                          // CB79 BIT 7,C
+    {bit_r, NULL, {7, 4}},                          // CB7A BIT 7,D
+    {bit_r, NULL, {7, 5}},                          // CB7B BIT 7,E
+    {bit_r, NULL, {7, 6}},                          // CB7C BIT 7,H
+    {bit_r, NULL, {7, 7}},                          // CB7D BIT 7,L
     {bit_hl, NULL, {7}},                            // CB7E BIT 7,(HL)
-    {bit_r, NULL, {7, A}},                          // CB7F BIT 7,A
-    {res_r, NULL, {254, B}},                        // CB80 RES 0,B
-    {res_r, NULL, {254, C}},                        // CB81 RES 0,C
-    {res_r, NULL, {254, D}},                        // CB82 RES 0,D
-    {res_r, NULL, {254, E}},                        // CB83 RES 0,E
-    {res_r, NULL, {254, H}},                        // CB84 RES 0,H
-    {res_r, NULL, {254, L}},                        // CB85 RES 0,L
+    {bit_r, NULL, {7, 0}},                          // CB7F BIT 7,A
+    {res_r, NULL, {254, 2}},                        // CB80 RES 0,B
+    {res_r, NULL, {254, 3}},                        // CB81 RES 0,C
+    {res_r, NULL, {254, 4}},                        // CB82 RES 0,D
+    {res_r, NULL, {254, 5}},                        // CB83 RES 0,E
+    {res_r, NULL, {254, 6}},                        // CB84 RES 0,H
+    {res_r, NULL, {254, 7}},                        // CB85 RES 0,L
     {res_hl, NULL, {254}},                          // CB86 RES 0,(HL)
-    {res_r, NULL, {254, A}},                        // CB87 RES 0,A
-    {res_r, NULL, {253, B}},                        // CB88 RES 1,B
-    {res_r, NULL, {253, C}},                        // CB89 RES 1,C
-    {res_r, NULL, {253, D}},                        // CB8A RES 1,D
-    {res_r, NULL, {253, E}},                        // CB8B RES 1,E
-    {res_r, NULL, {253, H}},                        // CB8C RES 1,H
-    {res_r, NULL, {253, L}},                        // CB8D RES 1,L
+    {res_r, NULL, {254, 0}},                        // CB87 RES 0,A
+    {res_r, NULL, {253, 2}},                        // CB88 RES 1,B
+    {res_r, NULL, {253, 3}},                        // CB89 RES 1,C
+    {res_r, NULL, {253, 4}},                        // CB8A RES 1,D
+    {res_r, NULL, {253, 5}},                        // CB8B RES 1,E
+    {res_r, NULL, {253, 6}},                        // CB8C RES 1,H
+    {res_r, NULL, {253, 7}},                        // CB8D RES 1,L
     {res_hl, NULL, {253}},                          // CB8E RES 1,(HL)
-    {res_r, NULL, {253, A}},                        // CB8F RES 1,A
-    {res_r, NULL, {251, B}},                        // CB90 RES 2,B
-    {res_r, NULL, {251, C}},                        // CB91 RES 2,C
-    {res_r, NULL, {251, D}},                        // CB92 RES 2,D
-    {res_r, NULL, {251, E}},                        // CB93 RES 2,E
-    {res_r, NULL, {251, H}},                        // CB94 RES 2,H
-    {res_r, NULL, {251, L}},                        // CB95 RES 2,L
+    {res_r, NULL, {253, 0}},                        // CB8F RES 1,A
+    {res_r, NULL, {251, 2}},                        // CB90 RES 2,B
+    {res_r, NULL, {251, 3}},                        // CB91 RES 2,C
+    {res_r, NULL, {251, 4}},                        // CB92 RES 2,D
+    {res_r, NULL, {251, 5}},                        // CB93 RES 2,E
+    {res_r, NULL, {251, 6}},                        // CB94 RES 2,H
+    {res_r, NULL, {251, 7}},                        // CB95 RES 2,L
     {res_hl, NULL, {251}},                          // CB96 RES 2,(HL)
-    {res_r, NULL, {251, A}},                        // CB97 RES 2,A
-    {res_r, NULL, {247, B}},                        // CB98 RES 3,B
-    {res_r, NULL, {247, C}},                        // CB99 RES 3,C
-    {res_r, NULL, {247, D}},                        // CB9A RES 3,D
-    {res_r, NULL, {247, E}},                        // CB9B RES 3,E
-    {res_r, NULL, {247, H}},                        // CB9C RES 3,H
-    {res_r, NULL, {247, L}},                        // CB9D RES 3,L
+    {res_r, NULL, {251, 0}},                        // CB97 RES 2,A
+    {res_r, NULL, {247, 2}},                        // CB98 RES 3,B
+    {res_r, NULL, {247, 3}},                        // CB99 RES 3,C
+    {res_r, NULL, {247, 4}},                        // CB9A RES 3,D
+    {res_r, NULL, {247, 5}},                        // CB9B RES 3,E
+    {res_r, NULL, {247, 6}},                        // CB9C RES 3,H
+    {res_r, NULL, {247, 7}},                        // CB9D RES 3,L
     {res_hl, NULL, {247}},                          // CB9E RES 3,(HL)
-    {res_r, NULL, {247, A}},                        // CB9F RES 3,A
-    {res_r, NULL, {239, B}},                        // CBA0 RES 4,B
-    {res_r, NULL, {239, C}},                        // CBA1 RES 4,C
-    {res_r, NULL, {239, D}},                        // CBA2 RES 4,D
-    {res_r, NULL, {239, E}},                        // CBA3 RES 4,E
-    {res_r, NULL, {239, H}},                        // CBA4 RES 4,H
-    {res_r, NULL, {239, L}},                        // CBA5 RES 4,L
+    {res_r, NULL, {247, 0}},                        // CB9F RES 3,A
+    {res_r, NULL, {239, 2}},                        // CBA0 RES 4,B
+    {res_r, NULL, {239, 3}},                        // CBA1 RES 4,C
+    {res_r, NULL, {239, 4}},                        // CBA2 RES 4,D
+    {res_r, NULL, {239, 5}},                        // CBA3 RES 4,E
+    {res_r, NULL, {239, 6}},                        // CBA4 RES 4,H
+    {res_r, NULL, {239, 7}},                        // CBA5 RES 4,L
     {res_hl, NULL, {239}},                          // CBA6 RES 4,(HL)
-    {res_r, NULL, {239, A}},                        // CBA7 RES 4,A
-    {res_r, NULL, {223, B}},                        // CBA8 RES 5,B
-    {res_r, NULL, {223, C}},                        // CBA9 RES 5,C
-    {res_r, NULL, {223, D}},                        // CBAA RES 5,D
-    {res_r, NULL, {223, E}},                        // CBAB RES 5,E
-    {res_r, NULL, {223, H}},                        // CBAC RES 5,H
-    {res_r, NULL, {223, L}},                        // CBAD RES 5,L
+    {res_r, NULL, {239, 0}},                        // CBA7 RES 4,A
+    {res_r, NULL, {223, 2}},                        // CBA8 RES 5,B
+    {res_r, NULL, {223, 3}},                        // CBA9 RES 5,C
+    {res_r, NULL, {223, 4}},                        // CBAA RES 5,D
+    {res_r, NULL, {223, 5}},                        // CBAB RES 5,E
+    {res_r, NULL, {223, 6}},                        // CBAC RES 5,H
+    {res_r, NULL, {223, 7}},                        // CBAD RES 5,L
     {res_hl, NULL, {223}},                          // CBAE RES 5,(HL)
-    {res_r, NULL, {223, A}},                        // CBAF RES 5,A
-    {res_r, NULL, {191, B}},                        // CBB0 RES 6,B
-    {res_r, NULL, {191, C}},                        // CBB1 RES 6,C
-    {res_r, NULL, {191, D}},                        // CBB2 RES 6,D
-    {res_r, NULL, {191, E}},                        // CBB3 RES 6,E
-    {res_r, NULL, {191, H}},                        // CBB4 RES 6,H
-    {res_r, NULL, {191, L}},                        // CBB5 RES 6,L
+    {res_r, NULL, {223, 0}},                        // CBAF RES 5,A
+    {res_r, NULL, {191, 2}},                        // CBB0 RES 6,B
+    {res_r, NULL, {191, 3}},                        // CBB1 RES 6,C
+    {res_r, NULL, {191, 4}},                        // CBB2 RES 6,D
+    {res_r, NULL, {191, 5}},                        // CBB3 RES 6,E
+    {res_r, NULL, {191, 6}},                        // CBB4 RES 6,H
+    {res_r, NULL, {191, 7}},                        // CBB5 RES 6,L
     {res_hl, NULL, {191}},                          // CBB6 RES 6,(HL)
-    {res_r, NULL, {191, A}},                        // CBB7 RES 6,A
-    {res_r, NULL, {127, B}},                        // CBB8 RES 7,B
-    {res_r, NULL, {127, C}},                        // CBB9 RES 7,C
-    {res_r, NULL, {127, D}},                        // CBBA RES 7,D
-    {res_r, NULL, {127, E}},                        // CBBB RES 7,E
-    {res_r, NULL, {127, H}},                        // CBBC RES 7,H
-    {res_r, NULL, {127, L}},                        // CBBD RES 7,L
+    {res_r, NULL, {191, 0}},                        // CBB7 RES 6,A
+    {res_r, NULL, {127, 2}},                        // CBB8 RES 7,B
+    {res_r, NULL, {127, 3}},                        // CBB9 RES 7,C
+    {res_r, NULL, {127, 4}},                        // CBBA RES 7,D
+    {res_r, NULL, {127, 5}},                        // CBBB RES 7,E
+    {res_r, NULL, {127, 6}},                        // CBBC RES 7,H
+    {res_r, NULL, {127, 7}},                        // CBBD RES 7,L
     {res_hl, NULL, {127}},                          // CBBE RES 7,(HL)
-    {res_r, NULL, {127, A}},                        // CBBF RES 7,A
-    {set_r, NULL, {1, B}},                          // CBC0 SET 0,B
-    {set_r, NULL, {1, C}},                          // CBC1 SET 0,C
-    {set_r, NULL, {1, D}},                          // CBC2 SET 0,D
-    {set_r, NULL, {1, E}},                          // CBC3 SET 0,E
-    {set_r, NULL, {1, H}},                          // CBC4 SET 0,H
-    {set_r, NULL, {1, L}},                          // CBC5 SET 0,L
+    {res_r, NULL, {127, 0}},                        // CBBF RES 7,A
+    {set_r, NULL, {1, 2}},                          // CBC0 SET 0,B
+    {set_r, NULL, {1, 3}},                          // CBC1 SET 0,C
+    {set_r, NULL, {1, 4}},                          // CBC2 SET 0,D
+    {set_r, NULL, {1, 5}},                          // CBC3 SET 0,E
+    {set_r, NULL, {1, 6}},                          // CBC4 SET 0,H
+    {set_r, NULL, {1, 7}},                          // CBC5 SET 0,L
     {set_hl, NULL, {1}},                            // CBC6 SET 0,(HL)
-    {set_r, NULL, {1, A}},                          // CBC7 SET 0,A
-    {set_r, NULL, {2, B}},                          // CBC8 SET 1,B
-    {set_r, NULL, {2, C}},                          // CBC9 SET 1,C
-    {set_r, NULL, {2, D}},                          // CBCA SET 1,D
-    {set_r, NULL, {2, E}},                          // CBCB SET 1,E
-    {set_r, NULL, {2, H}},                          // CBCC SET 1,H
-    {set_r, NULL, {2, L}},                          // CBCD SET 1,L
+    {set_r, NULL, {1, 0}},                          // CBC7 SET 0,A
+    {set_r, NULL, {2, 2}},                          // CBC8 SET 1,B
+    {set_r, NULL, {2, 3}},                          // CBC9 SET 1,C
+    {set_r, NULL, {2, 4}},                          // CBCA SET 1,D
+    {set_r, NULL, {2, 5}},                          // CBCB SET 1,E
+    {set_r, NULL, {2, 6}},                          // CBCC SET 1,H
+    {set_r, NULL, {2, 7}},                          // CBCD SET 1,L
     {set_hl, NULL, {2}},                            // CBCE SET 1,(HL)
-    {set_r, NULL, {2, A}},                          // CBCF SET 1,A
-    {set_r, NULL, {4, B}},                          // CBD0 SET 2,B
-    {set_r, NULL, {4, C}},                          // CBD1 SET 2,C
-    {set_r, NULL, {4, D}},                          // CBD2 SET 2,D
-    {set_r, NULL, {4, E}},                          // CBD3 SET 2,E
-    {set_r, NULL, {4, H}},                          // CBD4 SET 2,H
-    {set_r, NULL, {4, L}},                          // CBD5 SET 2,L
+    {set_r, NULL, {2, 0}},                          // CBCF SET 1,A
+    {set_r, NULL, {4, 2}},                          // CBD0 SET 2,B
+    {set_r, NULL, {4, 3}},                          // CBD1 SET 2,C
+    {set_r, NULL, {4, 4}},                          // CBD2 SET 2,D
+    {set_r, NULL, {4, 5}},                          // CBD3 SET 2,E
+    {set_r, NULL, {4, 6}},                          // CBD4 SET 2,H
+    {set_r, NULL, {4, 7}},                          // CBD5 SET 2,L
     {set_hl, NULL, {4}},                            // CBD6 SET 2,(HL)
-    {set_r, NULL, {4, A}},                          // CBD7 SET 2,A
-    {set_r, NULL, {8, B}},                          // CBD8 SET 3,B
-    {set_r, NULL, {8, C}},                          // CBD9 SET 3,C
-    {set_r, NULL, {8, D}},                          // CBDA SET 3,D
-    {set_r, NULL, {8, E}},                          // CBDB SET 3,E
-    {set_r, NULL, {8, H}},                          // CBDC SET 3,H
-    {set_r, NULL, {8, L}},                          // CBDD SET 3,L
+    {set_r, NULL, {4, 0}},                          // CBD7 SET 2,A
+    {set_r, NULL, {8, 2}},                          // CBD8 SET 3,B
+    {set_r, NULL, {8, 3}},                          // CBD9 SET 3,C
+    {set_r, NULL, {8, 4}},                          // CBDA SET 3,D
+    {set_r, NULL, {8, 5}},                          // CBDB SET 3,E
+    {set_r, NULL, {8, 6}},                          // CBDC SET 3,H
+    {set_r, NULL, {8, 7}},                          // CBDD SET 3,L
     {set_hl, NULL, {8}},                            // CBDE SET 3,(HL)
-    {set_r, NULL, {8, A}},                          // CBDF SET 3,A
-    {set_r, NULL, {16, B}},                         // CBE0 SET 4,B
-    {set_r, NULL, {16, C}},                         // CBE1 SET 4,C
-    {set_r, NULL, {16, D}},                         // CBE2 SET 4,D
-    {set_r, NULL, {16, E}},                         // CBE3 SET 4,E
-    {set_r, NULL, {16, H}},                         // CBE4 SET 4,H
-    {set_r, NULL, {16, L}},                         // CBE5 SET 4,L
+    {set_r, NULL, {8, 0}},                          // CBDF SET 3,A
+    {set_r, NULL, {16, 2}},                         // CBE0 SET 4,B
+    {set_r, NULL, {16, 3}},                         // CBE1 SET 4,C
+    {set_r, NULL, {16, 4}},                         // CBE2 SET 4,D
+    {set_r, NULL, {16, 5}},                         // CBE3 SET 4,E
+    {set_r, NULL, {16, 6}},                         // CBE4 SET 4,H
+    {set_r, NULL, {16, 7}},                         // CBE5 SET 4,L
     {set_hl, NULL, {16}},                           // CBE6 SET 4,(HL)
-    {set_r, NULL, {16, A}},                         // CBE7 SET 4,A
-    {set_r, NULL, {32, B}},                         // CBE8 SET 5,B
-    {set_r, NULL, {32, C}},                         // CBE9 SET 5,C
-    {set_r, NULL, {32, D}},                         // CBEA SET 5,D
-    {set_r, NULL, {32, E}},                         // CBEB SET 5,E
-    {set_r, NULL, {32, H}},                         // CBEC SET 5,H
-    {set_r, NULL, {32, L}},                         // CBED SET 5,L
+    {set_r, NULL, {16, 0}},                         // CBE7 SET 4,A
+    {set_r, NULL, {32, 2}},                         // CBE8 SET 5,B
+    {set_r, NULL, {32, 3}},                         // CBE9 SET 5,C
+    {set_r, NULL, {32, 4}},                         // CBEA SET 5,D
+    {set_r, NULL, {32, 5}},                         // CBEB SET 5,E
+    {set_r, NULL, {32, 6}},                         // CBEC SET 5,H
+    {set_r, NULL, {32, 7}},                         // CBED SET 5,L
     {set_hl, NULL, {32}},                           // CBEE SET 5,(HL)
-    {set_r, NULL, {32, A}},                         // CBEF SET 5,A
-    {set_r, NULL, {64, B}},                         // CBF0 SET 6,B
-    {set_r, NULL, {64, C}},                         // CBF1 SET 6,C
-    {set_r, NULL, {64, D}},                         // CBF2 SET 6,D
-    {set_r, NULL, {64, E}},                         // CBF3 SET 6,E
-    {set_r, NULL, {64, H}},                         // CBF4 SET 6,H
-    {set_r, NULL, {64, L}},                         // CBF5 SET 6,L
+    {set_r, NULL, {32, 0}},                         // CBEF SET 5,A
+    {set_r, NULL, {64, 2}},                         // CBF0 SET 6,B
+    {set_r, NULL, {64, 3}},                         // CBF1 SET 6,C
+    {set_r, NULL, {64, 4}},                         // CBF2 SET 6,D
+    {set_r, NULL, {64, 5}},                         // CBF3 SET 6,E
+    {set_r, NULL, {64, 6}},                         // CBF4 SET 6,H
+    {set_r, NULL, {64, 7}},                         // CBF5 SET 6,L
     {set_hl, NULL, {64}},                           // CBF6 SET 6,(HL)
-    {set_r, NULL, {64, A}},                         // CBF7 SET 6,A
-    {set_r, NULL, {128, B}},                        // CBF8 SET 7,B
-    {set_r, NULL, {128, C}},                        // CBF9 SET 7,C
-    {set_r, NULL, {128, D}},                        // CBFA SET 7,D
-    {set_r, NULL, {128, E}},                        // CBFB SET 7,E
-    {set_r, NULL, {128, H}},                        // CBFC SET 7,H
-    {set_r, NULL, {128, L}},                        // CBFD SET 7,L
+    {set_r, NULL, {64, 0}},                         // CBF7 SET 6,A
+    {set_r, NULL, {128, 2}},                        // CBF8 SET 7,B
+    {set_r, NULL, {128, 3}},                        // CBF9 SET 7,C
+    {set_r, NULL, {128, 4}},                        // CBFA SET 7,D
+    {set_r, NULL, {128, 5}},                        // CBFB SET 7,E
+    {set_r, NULL, {128, 6}},                        // CBFC SET 7,H
+    {set_r, NULL, {128, 7}},                        // CBFD SET 7,L
     {set_hl, NULL, {128}},                          // CBFE SET 7,(HL)
-    {set_r, NULL, {128, A}},                        // CBFF SET 7,A
+    {set_r, NULL, {128, 0}},                        // CBFF SET 7,A
 };
 
 static OpcodeFunction after_ED[256] = {
@@ -2761,68 +2754,68 @@ static OpcodeFunction after_ED[256] = {
     {nop, NULL, {2, 8, 2}},                         // ED3D
     {nop, NULL, {2, 8, 2}},                         // ED3E
     {nop, NULL, {2, 8, 2}},                         // ED3F
-    {in_c, NULL, {B}},                              // ED40 IN B,(C)
-    {out_c, NULL, {B}},                             // ED41 OUT (C),B
-    {sbc_hl, NULL, {B, C}},                         // ED42 SBC HL,BC
-    {ld_mm_rr, NULL, {2, 20, 4, B, C}},             // ED43 LD (nn),BC
-    {neg, NULL, {}},                                // ED44 NEG
-    {reti, NULL, {}},                               // ED45 RETN
+    {in_c, NULL, {2}},                              // ED40 IN B,(C)
+    {out_c, NULL, {2}},                             // ED41 OUT (C),B
+    {sbc_hl, NULL, {2, 3}},                         // ED42 SBC HL,BC
+    {ld_mm_rr, NULL, {2, 20, 4, 2, 3}},             // ED43 LD (nn),BC
+    {neg, NULL, {0}},                               // ED44 NEG
+    {reti, NULL, {0}},                              // ED45 RETN
     {im, NULL, {0}},                                // ED46 IM 0
-    {ld_r_r, NULL, {2, 9, 2, I, A}},                // ED47 LD I,A
-    {in_c, NULL, {C}},                              // ED48 IN C,(C)
-    {out_c, NULL, {C}},                             // ED49 OUT (C),C
-    {adc_hl, NULL, {B, C}},                         // ED4A ADC HL,BC
-    {ld_rr_mm, NULL, {2, 20, 4, B, C}},             // ED4B LD BC,(nn)
-    {neg, NULL, {}},                                // ED4C NEG
-    {reti, NULL, {}},                               // ED4D RETI
+    {ld_r_r, NULL, {2, 9, 2, 14, 0}},               // ED47 LD I,A
+    {in_c, NULL, {3}},                              // ED48 IN C,(C)
+    {out_c, NULL, {3}},                             // ED49 OUT (C),C
+    {adc_hl, NULL, {2, 3}},                         // ED4A ADC HL,BC
+    {ld_rr_mm, NULL, {2, 20, 4, 2, 3}},             // ED4B LD BC,(nn)
+    {neg, NULL, {0}},                               // ED4C NEG
+    {reti, NULL, {0}},                              // ED4D RETI
     {im, NULL, {0}},                                // ED4E IM 0
-    {ld_r_r, NULL, {2, 9, 2, R, A}},                // ED4F LD R,A
-    {in_c, NULL, {D}},                              // ED50 IN D,(C)
-    {out_c, NULL, {D}},                             // ED51 OUT (C),D
-    {sbc_hl, NULL, {D, E}},                         // ED52 SBC HL,DE
-    {ld_mm_rr, NULL, {2, 20, 4, D, E}},             // ED53 LD (nn),DE
-    {neg, NULL, {}},                                // ED54 NEG
-    {reti, NULL, {}},                               // ED55 RETN
+    {ld_r_r, NULL, {2, 9, 2, 15, 0}},               // ED4F LD R,A
+    {in_c, NULL, {4}},                              // ED50 IN D,(C)
+    {out_c, NULL, {4}},                             // ED51 OUT (C),D
+    {sbc_hl, NULL, {4, 5}},                         // ED52 SBC HL,DE
+    {ld_mm_rr, NULL, {2, 20, 4, 4, 5}},             // ED53 LD (nn),DE
+    {neg, NULL, {0}},                               // ED54 NEG
+    {reti, NULL, {0}},                              // ED55 RETN
     {im, NULL, {1}},                                // ED56 IM 1
-    {ld_a_ir, NULL, {I}},                           // ED57 LD A,I
-    {in_c, NULL, {E}},                              // ED58 IN E,(C)
-    {out_c, NULL, {E}},                             // ED59 OUT (C),E
-    {adc_hl, NULL, {D, E}},                         // ED5A ADC HL,DE
-    {ld_rr_mm, NULL, {2, 20, 4, D, E}},             // ED5B LD DE,(nn)
-    {neg, NULL, {}},                                // ED5C NEG
-    {reti, NULL, {}},                               // ED5D RETN
+    {ld_a_ir, NULL, {14}},                          // ED57 LD A,I
+    {in_c, NULL, {5}},                              // ED58 IN E,(C)
+    {out_c, NULL, {5}},                             // ED59 OUT (C),E
+    {adc_hl, NULL, {4, 5}},                         // ED5A ADC HL,DE
+    {ld_rr_mm, NULL, {2, 20, 4, 4, 5}},             // ED5B LD DE,(nn)
+    {neg, NULL, {0}},                               // ED5C NEG
+    {reti, NULL, {0}},                              // ED5D RETN
     {im, NULL, {2}},                                // ED5E IM 2
-    {ld_a_ir, NULL, {R}},                           // ED5F LD A,R
-    {in_c, NULL, {H}},                              // ED60 IN H,(C)
-    {out_c, NULL, {H}},                             // ED61 OUT (C),H
-    {sbc_hl, NULL, {H, L}},                         // ED62 SBC HL,HL
-    {ld_mm_rr, NULL, {2, 20, 4, H, L}},             // ED63 LD (nn),HL
-    {neg, NULL, {}},                                // ED64 NEG
-    {reti, NULL, {}},                               // ED65 RETN
+    {ld_a_ir, NULL, {15}},                          // ED5F LD A,R
+    {in_c, NULL, {6}},                              // ED60 IN H,(C)
+    {out_c, NULL, {6}},                             // ED61 OUT (C),H
+    {sbc_hl, NULL, {6, 7}},                         // ED62 SBC HL,HL
+    {ld_mm_rr, NULL, {2, 20, 4, 6, 7}},             // ED63 LD (nn),HL
+    {neg, NULL, {0}},                               // ED64 NEG
+    {reti, NULL, {0}},                              // ED65 RETN
     {im, NULL, {0}},                                // ED66 IM 0
-    {rrd, NULL, {}},                                // ED67 RRD
-    {in_c, NULL, {L}},                              // ED68 IN L,(C)
-    {out_c, NULL, {L}},                             // ED69 OUT (C),L
-    {adc_hl, NULL, {H, L}},                         // ED6A ADC HL,HL
-    {ld_rr_mm, NULL, {2, 20, 4, H, L}},             // ED6B LD HL,(nn)
-    {neg, NULL, {}},                                // ED6C NEG
-    {reti, NULL, {}},                               // ED6D RETN
+    {rrd, NULL, {0}},                               // ED67 RRD
+    {in_c, NULL, {7}},                              // ED68 IN L,(C)
+    {out_c, NULL, {7}},                             // ED69 OUT (C),L
+    {adc_hl, NULL, {6, 7}},                         // ED6A ADC HL,HL
+    {ld_rr_mm, NULL, {2, 20, 4, 6, 7}},             // ED6B LD HL,(nn)
+    {neg, NULL, {0}},                               // ED6C NEG
+    {reti, NULL, {0}},                              // ED6D RETN
     {im, NULL, {0}},                                // ED6E IM 0
-    {rld, NULL, {}},                                // ED6F RLD
-    {in_c, NULL, {F}},                              // ED70 IN F,(C)
-    {out_c, NULL, {N}},                             // ED71 OUT (C),0
-    {sbc_hl, NULL, {SP2, SP}},                      // ED72 SBC HL,SP
-    {ld_mm_rr, NULL, {2, 20, 4, SP2, SP}},          // ED73 LD (nn),SP
-    {neg, NULL, {}},                                // ED74 NEG
-    {reti, NULL, {}},                               // ED75 RETN
+    {rld, NULL, {0}},                               // ED6F RLD
+    {in_c, NULL, {1}},                              // ED70 IN F,(C)
+    {out_c, NULL, {-1}},                            // ED71 OUT (C),0
+    {sbc_hl, NULL, {13, 12}},                       // ED72 SBC HL,SP
+    {ld_mm_rr, NULL, {2, 20, 4, 13, 12}},           // ED73 LD (nn),SP
+    {neg, NULL, {0}},                               // ED74 NEG
+    {reti, NULL, {0}},                              // ED75 RETN
     {im, NULL, {1}},                                // ED76 IM 1
     {nop, NULL, {2, 8, 2}},                         // ED77
-    {in_c, NULL, {A}},                              // ED78 IN A,(C)
-    {out_c, NULL, {A}},                             // ED79 OUT (C),A
-    {adc_hl, NULL, {SP2, SP}},                      // ED7A ADC HL,SP
-    {ld_rr_mm, NULL, {2, 20, 4, SP2, SP}},          // ED7B LD SP,(nn)
-    {neg, NULL, {}},                                // ED7C NEG
-    {reti, NULL, {}},                               // ED7D RETN
+    {in_c, NULL, {0}},                              // ED78 IN A,(C)
+    {out_c, NULL, {0}},                             // ED79 OUT (C),A
+    {adc_hl, NULL, {13, 12}},                       // ED7A ADC HL,SP
+    {ld_rr_mm, NULL, {2, 20, 4, 13, 12}},           // ED7B LD SP,(nn)
+    {neg, NULL, {0}},                               // ED7C NEG
+    {reti, NULL, {0}},                              // ED7D RETN
     {im, NULL, {2}},                                // ED7E IM 2
     {nop, NULL, {2, 8, 2}},                         // ED7F
     {nop, NULL, {2, 8, 2}},                         // ED80
@@ -2965,7 +2958,7 @@ static OpcodeFunction after_DD[256] = {
     {nop, NULL, {1, 4, 1}},                         // DD06
     {nop, NULL, {1, 4, 1}},                         // DD07
     {nop, NULL, {1, 4, 1}},                         // DD08
-    {add_rr, NULL, {2, 15, 2, IXh, IXl, B, C}},     // DD09 ADD IX,BC
+    {add_rr, NULL, {2, 15, 2, 8, 9, 2, 3}},         // DD09 ADD IX,BC
     {nop, NULL, {1, 4, 1}},                         // DD0A
     {nop, NULL, {1, 4, 1}},                         // DD0B
     {nop, NULL, {1, 4, 1}},                         // DD0C
@@ -2981,7 +2974,7 @@ static OpcodeFunction after_DD[256] = {
     {nop, NULL, {1, 4, 1}},                         // DD16
     {nop, NULL, {1, 4, 1}},                         // DD17
     {nop, NULL, {1, 4, 1}},                         // DD18
-    {add_rr, NULL, {2, 15, 2, IXh, IXl, D, E}},     // DD19 ADD IX,DE
+    {add_rr, NULL, {2, 15, 2, 8, 9, 4, 5}},         // DD19 ADD IX,DE
     {nop, NULL, {1, 4, 1}},                         // DD1A
     {nop, NULL, {1, 4, 1}},                         // DD1B
     {nop, NULL, {1, 4, 1}},                         // DD1C
@@ -2989,31 +2982,31 @@ static OpcodeFunction after_DD[256] = {
     {nop, NULL, {1, 4, 1}},                         // DD1E
     {nop, NULL, {1, 4, 1}},                         // DD1F
     {nop, NULL, {1, 4, 1}},                         // DD20
-    {ld_rr_nn, NULL, {2, 14, 4, IXh, IXl}},         // DD21 LD IX,nn
-    {ld_mm_rr, NULL, {2, 20, 4, IXh, IXl}},         // DD22 LD (nn),IX
-    {inc_dec_rr, NULL, {2, 10, 2, 1, IXh, IXl}},    // DD23 INC IX
-    {fc_r, INC, {2, 8, 2, IXh}},                    // DD24 INC IXh
-    {fc_r, DEC, {2, 8, 2, IXh}},                    // DD25 DEC IXh
-    {ld_r_n, NULL, {2, 11, 3, IXh}},                // DD26 LD IXh,n
+    {ld_rr_nn, NULL, {2, 14, 4, 8, 9}},             // DD21 LD IX,nn
+    {ld_mm_rr, NULL, {2, 20, 4, 8, 9}},             // DD22 LD (nn),IX
+    {inc_dec_rr, NULL, {2, 10, 2, 1, 8, 9}},        // DD23 INC IX
+    {fc_r, INC, {2, 8, 2, 8}},                      // DD24 INC IXh
+    {fc_r, DEC, {2, 8, 2, 8}},                      // DD25 DEC IXh
+    {ld_r_n, NULL, {2, 11, 3, 8}},                  // DD26 LD IXh,n
     {nop, NULL, {1, 4, 1}},                         // DD27
     {nop, NULL, {1, 4, 1}},                         // DD28
-    {add_rr, NULL, {2, 15, 2, IXh, IXl, IXh, IXl}}, // DD29 ADD IX,IX
-    {ld_rr_mm, NULL, {2, 20, 4, IXh, IXl}},         // DD2A LD IX,(nn)
-    {inc_dec_rr, NULL, {2, 10, 2, -1, IXh, IXl}},   // DD2B DEC IX
-    {fc_r, INC, {2, 8, 2, IXl}},                    // DD2C INC IXl
-    {fc_r, DEC, {2, 8, 2, IXl}},                    // DD2D DEC IXl
-    {ld_r_n, NULL, {2, 11, 3, IXl}},                // DD2E LD IXl,n
+    {add_rr, NULL, {2, 15, 2, 8, 9, 8, 9}},         // DD29 ADD IX,IX
+    {ld_rr_mm, NULL, {2, 20, 4, 8, 9}},             // DD2A LD IX,(nn)
+    {inc_dec_rr, NULL, {2, 10, 2, -1, 8, 9}},       // DD2B DEC IX
+    {fc_r, INC, {2, 8, 2, 9}},                      // DD2C INC IXl
+    {fc_r, DEC, {2, 8, 2, 9}},                      // DD2D DEC IXl
+    {ld_r_n, NULL, {2, 11, 3, 9}},                  // DD2E LD IXl,n
     {nop, NULL, {1, 4, 1}},                         // DD2F
     {nop, NULL, {1, 4, 1}},                         // DD30
     {nop, NULL, {1, 4, 1}},                         // DD31
     {nop, NULL, {1, 4, 1}},                         // DD32
     {nop, NULL, {1, 4, 1}},                         // DD33
-    {fc_xy, INC, {3, IXh, IXl, N}},                 // DD34 INC (IX+d)
-    {fc_xy, DEC, {3, IXh, IXl, N}},                 // DD35 DEC (IX+d)
-    {ld_xy_n, NULL, {IXh, IXl}},                    // DD36 LD (IX+d),n
+    {fc_xy, INC, {3, 8, 9, -1}},                    // DD34 INC (IX+d)
+    {fc_xy, DEC, {3, 8, 9, -1}},                    // DD35 DEC (IX+d)
+    {ld_xy_n, NULL, {8, 9}},                        // DD36 LD (IX+d),n
     {nop, NULL, {1, 4, 1}},                         // DD37
     {nop, NULL, {1, 4, 1}},                         // DD38
-    {add_rr, NULL, {2, 15, 2, IXh, IXl, SP2, SP}},  // DD39 ADD IX,SP
+    {add_rr, NULL, {2, 15, 2, 8, 9, 13, 12}},       // DD39 ADD IX,SP
     {nop, NULL, {1, 4, 1}},                         // DD3A
     {nop, NULL, {1, 4, 1}},                         // DD3B
     {nop, NULL, {1, 4, 1}},                         // DD3C
@@ -3024,129 +3017,129 @@ static OpcodeFunction after_DD[256] = {
     {nop, NULL, {1, 4, 1}},                         // DD41
     {nop, NULL, {1, 4, 1}},                         // DD42
     {nop, NULL, {1, 4, 1}},                         // DD43
-    {ld_r_r, NULL, {2, 8, 2, B, IXh}},              // DD44 LD B,IXh
-    {ld_r_r, NULL, {2, 8, 2, B, IXl}},              // DD45 LD B,IXl
-    {ld_r_xy, NULL, {B, IXh, IXl}},                 // DD46 LD B,(IX+d)
+    {ld_r_r, NULL, {2, 8, 2, 2, 8}},                // DD44 LD B,IXh
+    {ld_r_r, NULL, {2, 8, 2, 2, 9}},                // DD45 LD B,IXl
+    {ld_r_xy, NULL, {2, 8, 9}},                     // DD46 LD B,(IX+d)
     {nop, NULL, {1, 4, 1}},                         // DD47
     {nop, NULL, {1, 4, 1}},                         // DD48
     {nop, NULL, {1, 4, 1}},                         // DD49
     {nop, NULL, {1, 4, 1}},                         // DD4A
     {nop, NULL, {1, 4, 1}},                         // DD4B
-    {ld_r_r, NULL, {2, 8, 2, C, IXh}},              // DD4C LD C,IXh
-    {ld_r_r, NULL, {2, 8, 2, C, IXl}},              // DD4D LD C,IXl
-    {ld_r_xy, NULL, {C, IXh, IXl}},                 // DD4E LD C,(IX+d)
+    {ld_r_r, NULL, {2, 8, 2, 3, 8}},                // DD4C LD C,IXh
+    {ld_r_r, NULL, {2, 8, 2, 3, 9}},                // DD4D LD C,IXl
+    {ld_r_xy, NULL, {3, 8, 9}},                     // DD4E LD C,(IX+d)
     {nop, NULL, {1, 4, 1}},                         // DD4F
     {nop, NULL, {1, 4, 1}},                         // DD50
     {nop, NULL, {1, 4, 1}},                         // DD51
     {nop, NULL, {1, 4, 1}},                         // DD52
     {nop, NULL, {1, 4, 1}},                         // DD53
-    {ld_r_r, NULL, {2, 8, 2, D, IXh}},              // DD54 LD D,IXh
-    {ld_r_r, NULL, {2, 8, 2, D, IXl}},              // DD55 LD D,IXl
-    {ld_r_xy, NULL, {D, IXh, IXl}},                 // DD56 LD D,(IX+d)
+    {ld_r_r, NULL, {2, 8, 2, 4, 8}},                // DD54 LD D,IXh
+    {ld_r_r, NULL, {2, 8, 2, 4, 9}},                // DD55 LD D,IXl
+    {ld_r_xy, NULL, {4, 8, 9}},                     // DD56 LD D,(IX+d)
     {nop, NULL, {1, 4, 1}},                         // DD57
     {nop, NULL, {1, 4, 1}},                         // DD58
     {nop, NULL, {1, 4, 1}},                         // DD59
     {nop, NULL, {1, 4, 1}},                         // DD5A
     {nop, NULL, {1, 4, 1}},                         // DD5B
-    {ld_r_r, NULL, {2, 8, 2, E, IXh}},              // DD5C LD E,IXh
-    {ld_r_r, NULL, {2, 8, 2, E, IXl}},              // DD5D LD E,IXl
-    {ld_r_xy, NULL, {E, IXh, IXl}},                 // DD5E LD E,(IX+d)
+    {ld_r_r, NULL, {2, 8, 2, 5, 8}},                // DD5C LD E,IXh
+    {ld_r_r, NULL, {2, 8, 2, 5, 9}},                // DD5D LD E,IXl
+    {ld_r_xy, NULL, {5, 8, 9}},                     // DD5E LD E,(IX+d)
     {nop, NULL, {1, 4, 1}},                         // DD5F
-    {ld_r_r, NULL, {2, 8, 2, IXh, B}},              // DD60 LD IXh,B
-    {ld_r_r, NULL, {2, 8, 2, IXh, C}},              // DD61 LD IXh,C
-    {ld_r_r, NULL, {2, 8, 2, IXh, D}},              // DD62 LD IXh,D
-    {ld_r_r, NULL, {2, 8, 2, IXh, E}},              // DD63 LD IXh,E
+    {ld_r_r, NULL, {2, 8, 2, 8, 2}},                // DD60 LD IXh,B
+    {ld_r_r, NULL, {2, 8, 2, 8, 3}},                // DD61 LD IXh,C
+    {ld_r_r, NULL, {2, 8, 2, 8, 4}},                // DD62 LD IXh,D
+    {ld_r_r, NULL, {2, 8, 2, 8, 5}},                // DD63 LD IXh,E
     {nop, NULL, {2, 8, 2}},                         // DD64 LD IXh,IXh
-    {ld_r_r, NULL, {2, 8, 2, IXh, IXl}},            // DD65 LD IXh,IXl
-    {ld_r_xy, NULL, {H, IXh, IXl}},                 // DD66 LD H,(IX+d)
-    {ld_r_r, NULL, {2, 8, 2, IXh, A}},              // DD67 LD IXh,A
-    {ld_r_r, NULL, {2, 8, 2, IXl, B}},              // DD68 LD IXl,B
-    {ld_r_r, NULL, {2, 8, 2, IXl, C}},              // DD69 LD IXl,C
-    {ld_r_r, NULL, {2, 8, 2, IXl, D}},              // DD6A LD IXl,D
-    {ld_r_r, NULL, {2, 8, 2, IXl, E}},              // DD6B LD IXl,E
-    {ld_r_r, NULL, {2, 8, 2, IXl, IXh}},            // DD6C LD IXl,IXh
+    {ld_r_r, NULL, {2, 8, 2, 8, 9}},                // DD65 LD IXh,IXl
+    {ld_r_xy, NULL, {6, 8, 9}},                     // DD66 LD H,(IX+d)
+    {ld_r_r, NULL, {2, 8, 2, 8, 0}},                // DD67 LD IXh,A
+    {ld_r_r, NULL, {2, 8, 2, 9, 2}},                // DD68 LD IXl,B
+    {ld_r_r, NULL, {2, 8, 2, 9, 3}},                // DD69 LD IXl,C
+    {ld_r_r, NULL, {2, 8, 2, 9, 4}},                // DD6A LD IXl,D
+    {ld_r_r, NULL, {2, 8, 2, 9, 5}},                // DD6B LD IXl,E
+    {ld_r_r, NULL, {2, 8, 2, 9, 8}},                // DD6C LD IXl,IXh
     {nop, NULL, {2, 8, 2}},                         // DD6D LD IXl,IXl
-    {ld_r_xy, NULL, {L, IXh, IXl}},                 // DD6E LD L,(IX+d)
-    {ld_r_r, NULL, {2, 8, 2, IXl, A}},              // DD6F LD IXl,A
-    {ld_xy_r, NULL, {IXh, IXl, B}},                 // DD70 LD (IX+d),B
-    {ld_xy_r, NULL, {IXh, IXl, C}},                 // DD71 LD (IX+d),C
-    {ld_xy_r, NULL, {IXh, IXl, D}},                 // DD72 LD (IX+d),D
-    {ld_xy_r, NULL, {IXh, IXl, E}},                 // DD73 LD (IX+d),E
-    {ld_xy_r, NULL, {IXh, IXl, H}},                 // DD74 LD (IX+d),H
-    {ld_xy_r, NULL, {IXh, IXl, L}},                 // DD75 LD (IX+d),L
+    {ld_r_xy, NULL, {7, 8, 9}},                     // DD6E LD L,(IX+d)
+    {ld_r_r, NULL, {2, 8, 2, 9, 0}},                // DD6F LD IXl,A
+    {ld_xy_r, NULL, {8, 9, 2}},                     // DD70 LD (IX+d),B
+    {ld_xy_r, NULL, {8, 9, 3}},                     // DD71 LD (IX+d),C
+    {ld_xy_r, NULL, {8, 9, 4}},                     // DD72 LD (IX+d),D
+    {ld_xy_r, NULL, {8, 9, 5}},                     // DD73 LD (IX+d),E
+    {ld_xy_r, NULL, {8, 9, 6}},                     // DD74 LD (IX+d),H
+    {ld_xy_r, NULL, {8, 9, 7}},                     // DD75 LD (IX+d),L
     {nop, NULL, {1, 4, 1}},                         // DD76
-    {ld_xy_r, NULL, {IXh, IXl, A}},                 // DD77 LD (IX+d),A
+    {ld_xy_r, NULL, {8, 9, 0}},                     // DD77 LD (IX+d),A
     {nop, NULL, {1, 4, 1}},                         // DD78
     {nop, NULL, {1, 4, 1}},                         // DD79
     {nop, NULL, {1, 4, 1}},                         // DD7A
     {nop, NULL, {1, 4, 1}},                         // DD7B
-    {ld_r_r, NULL, {2, 8, 2, A, IXh}},              // DD7C LD A,IXh
-    {ld_r_r, NULL, {2, 8, 2, A, IXl}},              // DD7D LD A,IXl
-    {ld_r_xy, NULL, {A, IXh, IXl}},                 // DD7E LD A,(IX+d)
+    {ld_r_r, NULL, {2, 8, 2, 0, 8}},                // DD7C LD A,IXh
+    {ld_r_r, NULL, {2, 8, 2, 0, 9}},                // DD7D LD A,IXl
+    {ld_r_xy, NULL, {0, 8, 9}},                     // DD7E LD A,(IX+d)
     {nop, NULL, {1, 4, 1}},                         // DD7F
     {nop, NULL, {1, 4, 1}},                         // DD80
     {nop, NULL, {1, 4, 1}},                         // DD81
     {nop, NULL, {1, 4, 1}},                         // DD82
     {nop, NULL, {1, 4, 1}},                         // DD83
-    {af_r, ADD, {2, 8, 2, IXh}},                    // DD84 ADD A,IXh
-    {af_r, ADD, {2, 8, 2, IXl}},                    // DD85 ADD A,IXl
-    {af_xy, ADD, {IXh, IXl}},                       // DD86 ADD A,(IX+d)
+    {af_r, ADD, {2, 8, 2, 8}},                      // DD84 ADD A,IXh
+    {af_r, ADD, {2, 8, 2, 9}},                      // DD85 ADD A,IXl
+    {af_xy, ADD, {8, 9}},                           // DD86 ADD A,(IX+d)
     {nop, NULL, {1, 4, 1}},                         // DD87
     {nop, NULL, {1, 4, 1}},                         // DD88
     {nop, NULL, {1, 4, 1}},                         // DD89
     {nop, NULL, {1, 4, 1}},                         // DD8A
     {nop, NULL, {1, 4, 1}},                         // DD8B
-    {afc_r, ADC, {2, 8, 2, IXh}},                   // DD8C ADC A,IXh
-    {afc_r, ADC, {2, 8, 2, IXl}},                   // DD8D ADC A,IXl
-    {afc_xy, ADC, {IXh, IXl}},                      // DD8E ADC A,(IX+d)
+    {afc_r, ADC, {2, 8, 2, 8}},                     // DD8C ADC A,IXh
+    {afc_r, ADC, {2, 8, 2, 9}},                     // DD8D ADC A,IXl
+    {afc_xy, ADC, {8, 9}},                          // DD8E ADC A,(IX+d)
     {nop, NULL, {1, 4, 1}},                         // DD8F
     {nop, NULL, {1, 4, 1}},                         // DD90
     {nop, NULL, {1, 4, 1}},                         // DD91
     {nop, NULL, {1, 4, 1}},                         // DD92
     {nop, NULL, {1, 4, 1}},                         // DD93
-    {af_r, SUB, {2, 8, 2, IXh}},                    // DD94 SUB IXh
-    {af_r, SUB, {2, 8, 2, IXl}},                    // DD95 SUB IXl
-    {af_xy, SUB, {IXh, IXl}},                       // DD96 SUB (IX+d)
+    {af_r, SUB, {2, 8, 2, 8}},                      // DD94 SUB IXh
+    {af_r, SUB, {2, 8, 2, 9}},                      // DD95 SUB IXl
+    {af_xy, SUB, {8, 9}},                           // DD96 SUB (IX+d)
     {nop, NULL, {1, 4, 1}},                         // DD97
     {nop, NULL, {1, 4, 1}},                         // DD98
     {nop, NULL, {1, 4, 1}},                         // DD99
     {nop, NULL, {1, 4, 1}},                         // DD9A
     {nop, NULL, {1, 4, 1}},                         // DD9B
-    {afc_r, SBC, {2, 8, 2, IXh}},                   // DD9C SBC A,IXh
-    {afc_r, SBC, {2, 8, 2, IXl}},                   // DD9D SBC A,IXl
-    {afc_xy, SBC, {IXh, IXl}},                      // DD9E SBC A,(IX+d)
+    {afc_r, SBC, {2, 8, 2, 8}},                     // DD9C SBC A,IXh
+    {afc_r, SBC, {2, 8, 2, 9}},                     // DD9D SBC A,IXl
+    {afc_xy, SBC, {8, 9}},                          // DD9E SBC A,(IX+d)
     {nop, NULL, {1, 4, 1}},                         // DD9F
     {nop, NULL, {1, 4, 1}},                         // DDA0
     {nop, NULL, {1, 4, 1}},                         // DDA1
     {nop, NULL, {1, 4, 1}},                         // DDA2
     {nop, NULL, {1, 4, 1}},                         // DDA3
-    {af_r, AND, {2, 8, 2, IXh}},                    // DDA4 AND IXh
-    {af_r, AND, {2, 8, 2, IXl}},                    // DDA5 AND IXl
-    {af_xy, AND, {IXh, IXl}},                       // DDA6 AND (IX+d)
+    {af_r, AND, {2, 8, 2, 8}},                      // DDA4 AND IXh
+    {af_r, AND, {2, 8, 2, 9}},                      // DDA5 AND IXl
+    {af_xy, AND, {8, 9}},                           // DDA6 AND (IX+d)
     {nop, NULL, {1, 4, 1}},                         // DDA7
     {nop, NULL, {1, 4, 1}},                         // DDA8
     {nop, NULL, {1, 4, 1}},                         // DDA9
     {nop, NULL, {1, 4, 1}},                         // DDAA
     {nop, NULL, {1, 4, 1}},                         // DDAB
-    {af_r, XOR, {2, 8, 2, IXh}},                    // DDAC XOR IXh
-    {af_r, XOR, {2, 8, 2, IXl}},                    // DDAD XOR IXl
-    {af_xy, XOR, {IXh, IXl}},                       // DDAE XOR (IX+d)
+    {af_r, XOR, {2, 8, 2, 8}},                      // DDAC XOR IXh
+    {af_r, XOR, {2, 8, 2, 9}},                      // DDAD XOR IXl
+    {af_xy, XOR, {8, 9}},                           // DDAE XOR (IX+d)
     {nop, NULL, {1, 4, 1}},                         // DDAF
     {nop, NULL, {1, 4, 1}},                         // DDB0
     {nop, NULL, {1, 4, 1}},                         // DDB1
     {nop, NULL, {1, 4, 1}},                         // DDB2
     {nop, NULL, {1, 4, 1}},                         // DDB3
-    {af_r, OR, {2, 8, 2, IXh}},                     // DDB4 OR IXh
-    {af_r, OR, {2, 8, 2, IXl}},                     // DDB5 OR IXl
-    {af_xy, OR, {IXh, IXl}},                        // DDB6 OR (IX+d)
+    {af_r, OR, {2, 8, 2, 8}},                       // DDB4 OR IXh
+    {af_r, OR, {2, 8, 2, 9}},                       // DDB5 OR IXl
+    {af_xy, OR, {8, 9}},                            // DDB6 OR (IX+d)
     {nop, NULL, {1, 4, 1}},                         // DDB7
     {nop, NULL, {1, 4, 1}},                         // DDB8
     {nop, NULL, {1, 4, 1}},                         // DDB9
     {nop, NULL, {1, 4, 1}},                         // DDBA
     {nop, NULL, {1, 4, 1}},                         // DDBB
-    {af_r, CP, {2, 8, 2, IXh}},                     // DDBC CP IXh
-    {af_r, CP, {2, 8, 2, IXl}},                     // DDBD CP IXl
-    {af_xy, CP, {IXh, IXl}},                        // DDBE CP (IX+d)
+    {af_r, CP, {2, 8, 2, 8}},                       // DDBC CP IXh
+    {af_r, CP, {2, 8, 2, 9}},                       // DDBD CP IXl
+    {af_xy, CP, {8, 9}},                            // DDBE CP (IX+d)
     {nop, NULL, {1, 4, 1}},                         // DDBF
     {nop, NULL, {1, 4, 1}},                         // DDC0
     {nop, NULL, {1, 4, 1}},                         // DDC1
@@ -3159,7 +3152,7 @@ static OpcodeFunction after_DD[256] = {
     {nop, NULL, {1, 4, 1}},                         // DDC8
     {nop, NULL, {1, 4, 1}},                         // DDC9
     {nop, NULL, {1, 4, 1}},                         // DDCA
-    {NULL, NULL, {}},                               // DDCB prefix
+    {NULL, NULL, {0}},                              // DDCB prefix
     {nop, NULL, {1, 4, 1}},                         // DDCC
     {nop, NULL, {1, 4, 1}},                         // DDCD
     {nop, NULL, {1, 4, 1}},                         // DDCE
@@ -3181,15 +3174,15 @@ static OpcodeFunction after_DD[256] = {
     {nop, NULL, {1, 4, 1}},                         // DDDE
     {nop, NULL, {1, 4, 1}},                         // DDDF
     {nop, NULL, {1, 4, 1}},                         // DDE0
-    {pop, NULL, {2, 14, 2, IXh, IXl}},              // DDE1 POP IX
+    {pop, NULL, {2, 14, 2, 8, 9}},                  // DDE1 POP IX
     {nop, NULL, {1, 4, 1}},                         // DDE2
-    {ex_sp, NULL, {2, 23, 2, IXh, IXl}},            // DDE3 EX (SP),IX
+    {ex_sp, NULL, {2, 23, 2, 8, 9}},                // DDE3 EX (SP),IX
     {nop, NULL, {1, 4, 1}},                         // DDE4
-    {push, NULL, {2, 15, 2, IXh, IXl}},             // DDE5 PUSH IX
+    {push, NULL, {2, 15, 2, 8, 9}},                 // DDE5 PUSH IX
     {nop, NULL, {1, 4, 1}},                         // DDE6
     {nop, NULL, {1, 4, 1}},                         // DDE7
     {nop, NULL, {1, 4, 1}},                         // DDE8
-    {jp_rr, NULL, {2, 8, IXh, IXl}},                // DDE9 JP (IX)
+    {jp_rr, NULL, {2, 8, 8, 9}},                    // DDE9 JP (IX)
     {nop, NULL, {1, 4, 1}},                         // DDEA
     {nop, NULL, {1, 4, 1}},                         // DDEB
     {nop, NULL, {1, 4, 1}},                         // DDEC
@@ -3205,7 +3198,7 @@ static OpcodeFunction after_DD[256] = {
     {nop, NULL, {1, 4, 1}},                         // DDF6
     {nop, NULL, {1, 4, 1}},                         // DDF7
     {nop, NULL, {1, 4, 1}},                         // DDF8
-    {ld_sp_rr, NULL, {2, 10, 2, IXh, IXl}},         // DDF9 LD SP,IX
+    {ld_sp_rr, NULL, {2, 10, 2, 8, 9}},             // DDF9 LD SP,IX
     {nop, NULL, {1, 4, 1}},                         // DDFA
     {nop, NULL, {1, 4, 1}},                         // DDFB
     {nop, NULL, {1, 4, 1}},                         // DDFC
@@ -3224,7 +3217,7 @@ static OpcodeFunction after_FD[256] = {
     {nop, NULL, {1, 4, 1}},                         // FD06
     {nop, NULL, {1, 4, 1}},                         // FD07
     {nop, NULL, {1, 4, 1}},                         // FD08
-    {add_rr, NULL, {2, 15, 2, IYh, IYl, B, C}},     // FD09 ADD IY,BC
+    {add_rr, NULL, {2, 15, 2, 10, 11, 2, 3}},       // FD09 ADD IY,BC
     {nop, NULL, {1, 4, 1}},                         // FD0A
     {nop, NULL, {1, 4, 1}},                         // FD0B
     {nop, NULL, {1, 4, 1}},                         // FD0C
@@ -3240,7 +3233,7 @@ static OpcodeFunction after_FD[256] = {
     {nop, NULL, {1, 4, 1}},                         // FD16
     {nop, NULL, {1, 4, 1}},                         // FD17
     {nop, NULL, {1, 4, 1}},                         // FD18
-    {add_rr, NULL, {2, 15, 2, IYh, IYl, D, E}},     // FD19 ADD IY,DE
+    {add_rr, NULL, {2, 15, 2, 10, 11, 4, 5}},       // FD19 ADD IY,DE
     {nop, NULL, {1, 4, 1}},                         // FD1A
     {nop, NULL, {1, 4, 1}},                         // FD1B
     {nop, NULL, {1, 4, 1}},                         // FD1C
@@ -3248,31 +3241,31 @@ static OpcodeFunction after_FD[256] = {
     {nop, NULL, {1, 4, 1}},                         // FD1E
     {nop, NULL, {1, 4, 1}},                         // FD1F
     {nop, NULL, {1, 4, 1}},                         // FD20
-    {ld_rr_nn, NULL, {2, 14, 4, IYh, IYl}},         // FD21 LD IY,nn
-    {ld_mm_rr, NULL, {2, 20, 4, IYh, IYl}},         // FD22 LD (nn),IY
-    {inc_dec_rr, NULL, {2, 10, 2, 1, IYh, IYl}},    // FD23 INC IY
-    {fc_r, INC, {2, 8, 2, IYh}},                    // FD24 INC IYh
-    {fc_r, DEC, {2, 8, 2, IYh}},                    // FD25 DEC IYh
-    {ld_r_n, NULL, {2, 11, 3, IYh}},                // FD26 LD IYh,n
+    {ld_rr_nn, NULL, {2, 14, 4, 10, 11}},           // FD21 LD IY,nn
+    {ld_mm_rr, NULL, {2, 20, 4, 10, 11}},           // FD22 LD (nn),IY
+    {inc_dec_rr, NULL, {2, 10, 2, 1, 10, 11}},      // FD23 INC IY
+    {fc_r, INC, {2, 8, 2, 10}},                     // FD24 INC IYh
+    {fc_r, DEC, {2, 8, 2, 10}},                     // FD25 DEC IYh
+    {ld_r_n, NULL, {2, 11, 3, 10}},                 // FD26 LD IYh,n
     {nop, NULL, {1, 4, 1}},                         // FD27
     {nop, NULL, {1, 4, 1}},                         // FD28
-    {add_rr, NULL, {2, 15, 2, IYh, IYl, IYh, IYl}}, // FD29 ADD IY,IY
-    {ld_rr_mm, NULL, {2, 20, 4, IYh, IYl}},         // FD2A LD IY,(nn)
-    {inc_dec_rr, NULL, {2, 10, 2, -1, IYh, IYl}},   // FD2B DEC IY
-    {fc_r, INC, {2, 8, 2, IYl}},                    // FD2C INC IYl
-    {fc_r, DEC, {2, 8, 2, IYl}},                    // FD2D DEC IYl
-    {ld_r_n, NULL, {2, 11, 3, IYl}},                // FD2E LD IYl,n
+    {add_rr, NULL, {2, 15, 2, 10, 11, 10, 11}},     // FD29 ADD IY,IY
+    {ld_rr_mm, NULL, {2, 20, 4, 10, 11}},           // FD2A LD IY,(nn)
+    {inc_dec_rr, NULL, {2, 10, 2, -1, 10, 11}},     // FD2B DEC IY
+    {fc_r, INC, {2, 8, 2, 11}},                     // FD2C INC IYl
+    {fc_r, DEC, {2, 8, 2, 11}},                     // FD2D DEC IYl
+    {ld_r_n, NULL, {2, 11, 3, 11}},                 // FD2E LD IYl,n
     {nop, NULL, {1, 4, 1}},                         // FD2F
     {nop, NULL, {1, 4, 1}},                         // FD30
     {nop, NULL, {1, 4, 1}},                         // FD31
     {nop, NULL, {1, 4, 1}},                         // FD32
     {nop, NULL, {1, 4, 1}},                         // FD33
-    {fc_xy, INC, {3, IYh, IYl, N}},                 // FD34 INC (IY+d)
-    {fc_xy, DEC, {3, IYh, IYl, N}},                 // FD35 DEC (IY+d)
-    {ld_xy_n, NULL, {IYh, IYl}},                    // FD36 LD (IY+d),n
+    {fc_xy, INC, {3, 10, 11, -1}},                  // FD34 INC (IY+d)
+    {fc_xy, DEC, {3, 10, 11, -1}},                  // FD35 DEC (IY+d)
+    {ld_xy_n, NULL, {10, 11}},                      // FD36 LD (IY+d),n
     {nop, NULL, {1, 4, 1}},                         // FD37
     {nop, NULL, {1, 4, 1}},                         // FD38
-    {add_rr, NULL, {2, 15, 2, IYh, IYl, SP2, SP}},  // FD39 ADD IY,SP
+    {add_rr, NULL, {2, 15, 2, 10, 11, 13, 12}},     // FD39 ADD IY,SP
     {nop, NULL, {1, 4, 1}},                         // FD3A
     {nop, NULL, {1, 4, 1}},                         // FD3B
     {nop, NULL, {1, 4, 1}},                         // FD3C
@@ -3283,129 +3276,129 @@ static OpcodeFunction after_FD[256] = {
     {nop, NULL, {1, 4, 1}},                         // FD41
     {nop, NULL, {1, 4, 1}},                         // FD42
     {nop, NULL, {1, 4, 1}},                         // FD43
-    {ld_r_r, NULL, {2, 8, 2, B, IYh}},              // FD44 LD B,IYh
-    {ld_r_r, NULL, {2, 8, 2, B, IYl}},              // FD45 LD B,IYl
-    {ld_r_xy, NULL, {B, IYh, IYl}},                 // FD46 LD B,(IY+d)
+    {ld_r_r, NULL, {2, 8, 2, 2, 10}},               // FD44 LD B,IYh
+    {ld_r_r, NULL, {2, 8, 2, 2, 11}},               // FD45 LD B,IYl
+    {ld_r_xy, NULL, {2, 10, 11}},                   // FD46 LD B,(IY+d)
     {nop, NULL, {1, 4, 1}},                         // FD47
     {nop, NULL, {1, 4, 1}},                         // FD48
     {nop, NULL, {1, 4, 1}},                         // FD49
     {nop, NULL, {1, 4, 1}},                         // FD4A
     {nop, NULL, {1, 4, 1}},                         // FD4B
-    {ld_r_r, NULL, {2, 8, 2, C, IYh}},              // FD4C LD C,IYh
-    {ld_r_r, NULL, {2, 8, 2, C, IYl}},              // FD4D LD C,IYl
-    {ld_r_xy, NULL, {C, IYh, IYl}},                 // FD4E LD C,(IY+d)
+    {ld_r_r, NULL, {2, 8, 2, 3, 10}},               // FD4C LD C,IYh
+    {ld_r_r, NULL, {2, 8, 2, 3, 11}},               // FD4D LD C,IYl
+    {ld_r_xy, NULL, {3, 10, 11}},                   // FD4E LD C,(IY+d)
     {nop, NULL, {1, 4, 1}},                         // FD4F
     {nop, NULL, {1, 4, 1}},                         // FD50
     {nop, NULL, {1, 4, 1}},                         // FD51
     {nop, NULL, {1, 4, 1}},                         // FD52
     {nop, NULL, {1, 4, 1}},                         // FD53
-    {ld_r_r, NULL, {2, 8, 2, D, IYh}},              // FD54 LD D,IYh
-    {ld_r_r, NULL, {2, 8, 2, D, IYl}},              // FD55 LD D,IYl
-    {ld_r_xy, NULL, {D, IYh, IYl}},                 // FD56 LD D,(IY+d)
+    {ld_r_r, NULL, {2, 8, 2, 4, 10}},               // FD54 LD D,IYh
+    {ld_r_r, NULL, {2, 8, 2, 4, 11}},               // FD55 LD D,IYl
+    {ld_r_xy, NULL, {4, 10, 11}},                   // FD56 LD D,(IY+d)
     {nop, NULL, {1, 4, 1}},                         // FD57
     {nop, NULL, {1, 4, 1}},                         // FD58
     {nop, NULL, {1, 4, 1}},                         // FD59
     {nop, NULL, {1, 4, 1}},                         // FD5A
     {nop, NULL, {1, 4, 1}},                         // FD5B
-    {ld_r_r, NULL, {2, 8, 2, E, IYh}},              // FD5C LD E,IYh
-    {ld_r_r, NULL, {2, 8, 2, E, IYl}},              // FD5D LD E,IYl
-    {ld_r_xy, NULL, {E, IYh, IYl}},                 // FD5E LD E,(IY+d)
+    {ld_r_r, NULL, {2, 8, 2, 5, 10}},               // FD5C LD E,IYh
+    {ld_r_r, NULL, {2, 8, 2, 5, 11}},               // FD5D LD E,IYl
+    {ld_r_xy, NULL, {5, 10, 11}},                   // FD5E LD E,(IY+d)
     {nop, NULL, {1, 4, 1}},                         // FD5F
-    {ld_r_r, NULL, {2, 8, 2, IYh, B}},              // FD60 LD IYh,B
-    {ld_r_r, NULL, {2, 8, 2, IYh, C}},              // FD61 LD IYh,C
-    {ld_r_r, NULL, {2, 8, 2, IYh, D}},              // FD62 LD IYh,D
-    {ld_r_r, NULL, {2, 8, 2, IYh, E}},              // FD63 LD IYh,E
+    {ld_r_r, NULL, {2, 8, 2, 10, 2}},               // FD60 LD IYh,B
+    {ld_r_r, NULL, {2, 8, 2, 10, 3}},               // FD61 LD IYh,C
+    {ld_r_r, NULL, {2, 8, 2, 10, 4}},               // FD62 LD IYh,D
+    {ld_r_r, NULL, {2, 8, 2, 10, 5}},               // FD63 LD IYh,E
     {nop, NULL, {2, 8, 2}},                         // FD64 LD IYh,IYh
-    {ld_r_r, NULL, {2, 8, 2, IYh, IYl}},            // FD65 LD IYh,IYl
-    {ld_r_xy, NULL, {H, IYh, IYl}},                 // FD66 LD H,(IY+d)
-    {ld_r_r, NULL, {2, 8, 2, IYh, A}},              // FD67 LD IYh,A
-    {ld_r_r, NULL, {2, 8, 2, IYl, B}},              // FD68 LD IYl,B
-    {ld_r_r, NULL, {2, 8, 2, IYl, C}},              // FD69 LD IYl,C
-    {ld_r_r, NULL, {2, 8, 2, IYl, D}},              // FD6A LD IYl,D
-    {ld_r_r, NULL, {2, 8, 2, IYl, E}},              // FD6B LD IYl,E
-    {ld_r_r, NULL, {2, 8, 2, IYl, IYh}},            // FD6C LD IYl,IYh
+    {ld_r_r, NULL, {2, 8, 2, 10, 11}},              // FD65 LD IYh,IYl
+    {ld_r_xy, NULL, {6, 10, 11}},                   // FD66 LD H,(IY+d)
+    {ld_r_r, NULL, {2, 8, 2, 10, 0}},               // FD67 LD IYh,A
+    {ld_r_r, NULL, {2, 8, 2, 11, 2}},               // FD68 LD IYl,B
+    {ld_r_r, NULL, {2, 8, 2, 11, 3}},               // FD69 LD IYl,C
+    {ld_r_r, NULL, {2, 8, 2, 11, 4}},               // FD6A LD IYl,D
+    {ld_r_r, NULL, {2, 8, 2, 11, 5}},               // FD6B LD IYl,E
+    {ld_r_r, NULL, {2, 8, 2, 11, 10}},              // FD6C LD IYl,IYh
     {nop, NULL, {2, 8, 2}},                         // FD6D LD IYl,IYl
-    {ld_r_xy, NULL, {L, IYh, IYl}},                 // FD6E LD L,(IY+d)
-    {ld_r_r, NULL, {2, 8, 2, IYl, A}},              // FD6F LD IYl,A
-    {ld_xy_r, NULL, {IYh, IYl, B}},                 // FD70 LD (IY+d),B
-    {ld_xy_r, NULL, {IYh, IYl, C}},                 // FD71 LD (IY+d),C
-    {ld_xy_r, NULL, {IYh, IYl, D}},                 // FD72 LD (IY+d),D
-    {ld_xy_r, NULL, {IYh, IYl, E}},                 // FD73 LD (IY+d),E
-    {ld_xy_r, NULL, {IYh, IYl, H}},                 // FD74 LD (IY+d),H
-    {ld_xy_r, NULL, {IYh, IYl, L}},                 // FD75 LD (IY+d),L
+    {ld_r_xy, NULL, {7, 10, 11}},                   // FD6E LD L,(IY+d)
+    {ld_r_r, NULL, {2, 8, 2, 11, 0}},               // FD6F LD IYl,A
+    {ld_xy_r, NULL, {10, 11, 2}},                   // FD70 LD (IY+d),B
+    {ld_xy_r, NULL, {10, 11, 3}},                   // FD71 LD (IY+d),C
+    {ld_xy_r, NULL, {10, 11, 4}},                   // FD72 LD (IY+d),D
+    {ld_xy_r, NULL, {10, 11, 5}},                   // FD73 LD (IY+d),E
+    {ld_xy_r, NULL, {10, 11, 6}},                   // FD74 LD (IY+d),H
+    {ld_xy_r, NULL, {10, 11, 7}},                   // FD75 LD (IY+d),L
     {nop, NULL, {1, 4, 1}},                         // FD76
-    {ld_xy_r, NULL, {IYh, IYl, A}},                 // FD77 LD (IY+d),A
+    {ld_xy_r, NULL, {10, 11, 0}},                   // FD77 LD (IY+d),A
     {nop, NULL, {1, 4, 1}},                         // FD78
     {nop, NULL, {1, 4, 1}},                         // FD79
     {nop, NULL, {1, 4, 1}},                         // FD7A
     {nop, NULL, {1, 4, 1}},                         // FD7B
-    {ld_r_r, NULL, {2, 8, 2, A, IYh}},              // FD7C LD A,IYh
-    {ld_r_r, NULL, {2, 8, 2, A, IYl}},              // FD7D LD A,IYl
-    {ld_r_xy, NULL, {A, IYh, IYl}},                 // FD7E LD A,(IY+d)
+    {ld_r_r, NULL, {2, 8, 2, 0, 10}},               // FD7C LD A,IYh
+    {ld_r_r, NULL, {2, 8, 2, 0, 11}},               // FD7D LD A,IYl
+    {ld_r_xy, NULL, {0, 10, 11}},                   // FD7E LD A,(IY+d)
     {nop, NULL, {1, 4, 1}},                         // FD7F
     {nop, NULL, {1, 4, 1}},                         // FD80
     {nop, NULL, {1, 4, 1}},                         // FD81
     {nop, NULL, {1, 4, 1}},                         // FD82
     {nop, NULL, {1, 4, 1}},                         // FD83
-    {af_r, ADD, {2, 8, 2, IYh}},                    // FD84 ADD A,IYh
-    {af_r, ADD, {2, 8, 2, IYl}},                    // FD85 ADD A,IYl
-    {af_xy, ADD, {IYh, IYl}},                       // FD86 ADD A,(IY+d)
+    {af_r, ADD, {2, 8, 2, 10}},                     // FD84 ADD A,IYh
+    {af_r, ADD, {2, 8, 2, 11}},                     // FD85 ADD A,IYl
+    {af_xy, ADD, {10, 11}},                         // FD86 ADD A,(IY+d)
     {nop, NULL, {1, 4, 1}},                         // FD87
     {nop, NULL, {1, 4, 1}},                         // FD88
     {nop, NULL, {1, 4, 1}},                         // FD89
     {nop, NULL, {1, 4, 1}},                         // FD8A
     {nop, NULL, {1, 4, 1}},                         // FD8B
-    {afc_r, ADC, {2, 8, 2, IYh}},                   // FD8C ADC A,IYh
-    {afc_r, ADC, {2, 8, 2, IYl}},                   // FD8D ADC A,IYl
-    {afc_xy, ADC, {IYh, IYl}},                      // FD8E ADC A,(IY+d)
+    {afc_r, ADC, {2, 8, 2, 10}},                    // FD8C ADC A,IYh
+    {afc_r, ADC, {2, 8, 2, 11}},                    // FD8D ADC A,IYl
+    {afc_xy, ADC, {10, 11}},                        // FD8E ADC A,(IY+d)
     {nop, NULL, {1, 4, 1}},                         // FD8F
     {nop, NULL, {1, 4, 1}},                         // FD90
     {nop, NULL, {1, 4, 1}},                         // FD91
     {nop, NULL, {1, 4, 1}},                         // FD92
     {nop, NULL, {1, 4, 1}},                         // FD93
-    {af_r, SUB, {2, 8, 2, IYh}},                    // FD94 SUB IYh
-    {af_r, SUB, {2, 8, 2, IYl}},                    // FD95 SUB IYl
-    {af_xy, SUB, {IYh, IYl}},                       // FD96 SUB (IY+d)
+    {af_r, SUB, {2, 8, 2, 10}},                     // FD94 SUB IYh
+    {af_r, SUB, {2, 8, 2, 11}},                     // FD95 SUB IYl
+    {af_xy, SUB, {10, 11}},                         // FD96 SUB (IY+d)
     {nop, NULL, {1, 4, 1}},                         // FD97
     {nop, NULL, {1, 4, 1}},                         // FD98
     {nop, NULL, {1, 4, 1}},                         // FD99
     {nop, NULL, {1, 4, 1}},                         // FD9A
     {nop, NULL, {1, 4, 1}},                         // FD9B
-    {afc_r, SBC, {2, 8, 2, IYh}},                   // FD9C SBC A,IYh
-    {afc_r, SBC, {2, 8, 2, IYl}},                   // FD9D SBC A,IYl
-    {afc_xy, SBC, {IYh, IYl}},                      // FD9E SBC A,(IY+d)
+    {afc_r, SBC, {2, 8, 2, 10}},                    // FD9C SBC A,IYh
+    {afc_r, SBC, {2, 8, 2, 11}},                    // FD9D SBC A,IYl
+    {afc_xy, SBC, {10, 11}},                        // FD9E SBC A,(IY+d)
     {nop, NULL, {1, 4, 1}},                         // FD9F
     {nop, NULL, {1, 4, 1}},                         // FDA0
     {nop, NULL, {1, 4, 1}},                         // FDA1
     {nop, NULL, {1, 4, 1}},                         // FDA2
     {nop, NULL, {1, 4, 1}},                         // FDA3
-    {af_r, AND, {2, 8, 2, IYh}},                    // FDA4 AND IYh
-    {af_r, AND, {2, 8, 2, IYl}},                    // FDA5 AND IYl
-    {af_xy, AND, {IYh, IYl}},                       // FDA6 AND (IY+d)
+    {af_r, AND, {2, 8, 2, 10}},                     // FDA4 AND IYh
+    {af_r, AND, {2, 8, 2, 11}},                     // FDA5 AND IYl
+    {af_xy, AND, {10, 11}},                         // FDA6 AND (IY+d)
     {nop, NULL, {1, 4, 1}},                         // FDA7
     {nop, NULL, {1, 4, 1}},                         // FDA8
     {nop, NULL, {1, 4, 1}},                         // FDA9
     {nop, NULL, {1, 4, 1}},                         // FDAA
     {nop, NULL, {1, 4, 1}},                         // FDAB
-    {af_r, XOR, {2, 8, 2, IYh}},                    // FDAC XOR IYh
-    {af_r, XOR, {2, 8, 2, IYl}},                    // FDAD XOR IYl
-    {af_xy, XOR, {IYh, IYl}},                       // FDAE XOR (IY+d)
+    {af_r, XOR, {2, 8, 2, 10}},                     // FDAC XOR IYh
+    {af_r, XOR, {2, 8, 2, 11}},                     // FDAD XOR IYl
+    {af_xy, XOR, {10, 11}},                         // FDAE XOR (IY+d)
     {nop, NULL, {1, 4, 1}},                         // FDAF
     {nop, NULL, {1, 4, 1}},                         // FDB0
     {nop, NULL, {1, 4, 1}},                         // FDB1
     {nop, NULL, {1, 4, 1}},                         // FDB2
     {nop, NULL, {1, 4, 1}},                         // FDB3
-    {af_r, OR, {2, 8, 2, IYh}},                     // FDB4 OR IYh
-    {af_r, OR, {2, 8, 2, IYl}},                     // FDB5 OR IYl
-    {af_xy, OR, {IYh, IYl}},                        // FDB6 OR (IY+d)
+    {af_r, OR, {2, 8, 2, 10}},                      // FDB4 OR IYh
+    {af_r, OR, {2, 8, 2, 11}},                      // FDB5 OR IYl
+    {af_xy, OR, {10, 11}},                          // FDB6 OR (IY+d)
     {nop, NULL, {1, 4, 1}},                         // FDB7
     {nop, NULL, {1, 4, 1}},                         // FDB8
     {nop, NULL, {1, 4, 1}},                         // FDB9
     {nop, NULL, {1, 4, 1}},                         // FDBA
     {nop, NULL, {1, 4, 1}},                         // FDBB
-    {af_r, CP, {2, 8, 2, IYh}},                     // FDBC CP IYh
-    {af_r, CP, {2, 8, 2, IYl}},                     // FDBD CP IYl
-    {af_xy, CP, {IYh, IYl}},                        // FDBE CP (IY+d)
+    {af_r, CP, {2, 8, 2, 10}},                      // FDBC CP IYh
+    {af_r, CP, {2, 8, 2, 11}},                      // FDBD CP IYl
+    {af_xy, CP, {10, 11}},                          // FDBE CP (IY+d)
     {nop, NULL, {1, 4, 1}},                         // FDBF
     {nop, NULL, {1, 4, 1}},                         // FDC0
     {nop, NULL, {1, 4, 1}},                         // FDC1
@@ -3418,7 +3411,7 @@ static OpcodeFunction after_FD[256] = {
     {nop, NULL, {1, 4, 1}},                         // FDC8
     {nop, NULL, {1, 4, 1}},                         // FDC9
     {nop, NULL, {1, 4, 1}},                         // FDCA
-    {NULL, NULL, {}},                               // FDCB prefix
+    {NULL, NULL, {0}},                              // FDCB prefix
     {nop, NULL, {1, 4, 1}},                         // FDCC
     {nop, NULL, {1, 4, 1}},                         // FDCD
     {nop, NULL, {1, 4, 1}},                         // FDCE
@@ -3440,15 +3433,15 @@ static OpcodeFunction after_FD[256] = {
     {nop, NULL, {1, 4, 1}},                         // FDDE
     {nop, NULL, {1, 4, 1}},                         // FDDF
     {nop, NULL, {1, 4, 1}},                         // FDE0
-    {pop, NULL, {2, 14, 2, IYh, IYl}},              // FDE1 POP IY
+    {pop, NULL, {2, 14, 2, 10, 11}},                // FDE1 POP IY
     {nop, NULL, {1, 4, 1}},                         // FDE2
-    {ex_sp, NULL, {2, 23, 2, IYh, IYl}},            // FDE3 EX (SP),IY
+    {ex_sp, NULL, {2, 23, 2, 10, 11}},              // FDE3 EX (SP),IY
     {nop, NULL, {1, 4, 1}},                         // FDE4
-    {push, NULL, {2, 15, 2, IYh, IYl}},             // FDE5 PUSH IY
+    {push, NULL, {2, 15, 2, 10, 11}},               // FDE5 PUSH IY
     {nop, NULL, {1, 4, 1}},                         // FDE6
     {nop, NULL, {1, 4, 1}},                         // FDE7
     {nop, NULL, {1, 4, 1}},                         // FDE8
-    {jp_rr, NULL, {2, 8, IYh, IYl}},                // FDE9 JP (IY)
+    {jp_rr, NULL, {2, 8, 10, 11}},                  // FDE9 JP (IY)
     {nop, NULL, {1, 4, 1}},                         // FDEA
     {nop, NULL, {1, 4, 1}},                         // FDEB
     {nop, NULL, {1, 4, 1}},                         // FDEC
@@ -3464,7 +3457,7 @@ static OpcodeFunction after_FD[256] = {
     {nop, NULL, {1, 4, 1}},                         // FDF6
     {nop, NULL, {1, 4, 1}},                         // FDF7
     {nop, NULL, {1, 4, 1}},                         // FDF8
-    {ld_sp_rr, NULL, {2, 10, 2, IYh, IYl}},         // FDF9 LD SP,IY
+    {ld_sp_rr, NULL, {2, 10, 2, 10, 11}},           // FDF9 LD SP,IY
     {nop, NULL, {1, 4, 1}},                         // FDFA
     {nop, NULL, {1, 4, 1}},                         // FDFB
     {nop, NULL, {1, 4, 1}},                         // FDFC
@@ -3474,521 +3467,521 @@ static OpcodeFunction after_FD[256] = {
 };
 
 static OpcodeFunction after_DDCB[256] = {
-    {f_xy, RLC, {IXh, IXl, B}},                     // DDCB..00 RLC (IX+d),B
-    {f_xy, RLC, {IXh, IXl, C}},                     // DDCB..01 RLC (IX+d),C
-    {f_xy, RLC, {IXh, IXl, D}},                     // DDCB..02 RLC (IX+d),D
-    {f_xy, RLC, {IXh, IXl, E}},                     // DDCB..03 RLC (IX+d),E
-    {f_xy, RLC, {IXh, IXl, H}},                     // DDCB..04 RLC (IX+d),H
-    {f_xy, RLC, {IXh, IXl, L}},                     // DDCB..05 RLC (IX+d),L
-    {f_xy, RLC, {IXh, IXl, N}},                     // DDCB..06 RLC (IX+d)
-    {f_xy, RLC, {IXh, IXl, A}},                     // DDCB..07 RLC (IX+d),A
-    {f_xy, RRC, {IXh, IXl, B}},                     // DDCB..08 RRC (IX+d),B
-    {f_xy, RRC, {IXh, IXl, C}},                     // DDCB..09 RRC (IX+d),C
-    {f_xy, RRC, {IXh, IXl, D}},                     // DDCB..0A RRC (IX+d),D
-    {f_xy, RRC, {IXh, IXl, E}},                     // DDCB..0B RRC (IX+d),E
-    {f_xy, RRC, {IXh, IXl, H}},                     // DDCB..0C RRC (IX+d),H
-    {f_xy, RRC, {IXh, IXl, L}},                     // DDCB..0D RRC (IX+d),L
-    {f_xy, RRC, {IXh, IXl, N}},                     // DDCB..0E RRC (IX+d)
-    {f_xy, RRC, {IXh, IXl, A}},                     // DDCB..0F RRC (IX+d),A
-    {fc_xy, RL, {4, IXh, IXl, B}},                  // DDCB..10 RL (IX+d),B
-    {fc_xy, RL, {4, IXh, IXl, C}},                  // DDCB..11 RL (IX+d),C
-    {fc_xy, RL, {4, IXh, IXl, D}},                  // DDCB..12 RL (IX+d),D
-    {fc_xy, RL, {4, IXh, IXl, E}},                  // DDCB..13 RL (IX+d),E
-    {fc_xy, RL, {4, IXh, IXl, H}},                  // DDCB..14 RL (IX+d),H
-    {fc_xy, RL, {4, IXh, IXl, L}},                  // DDCB..15 RL (IX+d),L
-    {fc_xy, RL, {4, IXh, IXl, N}},                  // DDCB..16 RL (IX+d)
-    {fc_xy, RL, {4, IXh, IXl, A}},                  // DDCB..17 RL (IX+d),A
-    {fc_xy, RR, {4, IXh, IXl, B}},                  // DDCB..18 RR (IX+d),B
-    {fc_xy, RR, {4, IXh, IXl, C}},                  // DDCB..19 RR (IX+d),C
-    {fc_xy, RR, {4, IXh, IXl, D}},                  // DDCB..1A RR (IX+d),D
-    {fc_xy, RR, {4, IXh, IXl, E}},                  // DDCB..1B RR (IX+d),E
-    {fc_xy, RR, {4, IXh, IXl, H}},                  // DDCB..1C RR (IX+d),H
-    {fc_xy, RR, {4, IXh, IXl, L}},                  // DDCB..1D RR (IX+d),L
-    {fc_xy, RR, {4, IXh, IXl, N}},                  // DDCB..1E RR (IX+d)
-    {fc_xy, RR, {4, IXh, IXl, A}},                  // DDCB..1F RR (IX+d),A
-    {f_xy, SLA, {IXh, IXl, B}},                     // DDCB..20 SLA (IX+d),B
-    {f_xy, SLA, {IXh, IXl, C}},                     // DDCB..21 SLA (IX+d),C
-    {f_xy, SLA, {IXh, IXl, D}},                     // DDCB..22 SLA (IX+d),D
-    {f_xy, SLA, {IXh, IXl, E}},                     // DDCB..23 SLA (IX+d),E
-    {f_xy, SLA, {IXh, IXl, H}},                     // DDCB..24 SLA (IX+d),H
-    {f_xy, SLA, {IXh, IXl, L}},                     // DDCB..25 SLA (IX+d),L
-    {f_xy, SLA, {IXh, IXl, N}},                     // DDCB..26 SLA (IX+d)
-    {f_xy, SLA, {IXh, IXl, A}},                     // DDCB..27 SLA (IX+d),A
-    {f_xy, SRA, {IXh, IXl, B}},                     // DDCB..28 SRA (IX+d),B
-    {f_xy, SRA, {IXh, IXl, C}},                     // DDCB..29 SRA (IX+d),C
-    {f_xy, SRA, {IXh, IXl, D}},                     // DDCB..2A SRA (IX+d),D
-    {f_xy, SRA, {IXh, IXl, E}},                     // DDCB..2B SRA (IX+d),E
-    {f_xy, SRA, {IXh, IXl, H}},                     // DDCB..2C SRA (IX+d),H
-    {f_xy, SRA, {IXh, IXl, L}},                     // DDCB..2D SRA (IX+d),L
-    {f_xy, SRA, {IXh, IXl, N}},                     // DDCB..2E SRA (IX+d)
-    {f_xy, SRA, {IXh, IXl, A}},                     // DDCB..2F SRA (IX+d),A
-    {f_xy, SLL, {IXh, IXl, B}},                     // DDCB..30 SLL (IX+d),B
-    {f_xy, SLL, {IXh, IXl, C}},                     // DDCB..31 SLL (IX+d),C
-    {f_xy, SLL, {IXh, IXl, D}},                     // DDCB..32 SLL (IX+d),D
-    {f_xy, SLL, {IXh, IXl, E}},                     // DDCB..33 SLL (IX+d),E
-    {f_xy, SLL, {IXh, IXl, H}},                     // DDCB..34 SLL (IX+d),H
-    {f_xy, SLL, {IXh, IXl, L}},                     // DDCB..35 SLL (IX+d),L
-    {f_xy, SLL, {IXh, IXl, N}},                     // DDCB..36 SLL (IX+d)
-    {f_xy, SLL, {IXh, IXl, A}},                     // DDCB..37 SLL (IX+d),A
-    {f_xy, SRL, {IXh, IXl, B}},                     // DDCB..38 SRL (IX+d),B
-    {f_xy, SRL, {IXh, IXl, C}},                     // DDCB..39 SRL (IX+d),C
-    {f_xy, SRL, {IXh, IXl, D}},                     // DDCB..3A SRL (IX+d),D
-    {f_xy, SRL, {IXh, IXl, E}},                     // DDCB..3B SRL (IX+d),E
-    {f_xy, SRL, {IXh, IXl, H}},                     // DDCB..3C SRL (IX+d),H
-    {f_xy, SRL, {IXh, IXl, L}},                     // DDCB..3D SRL (IX+d),L
-    {f_xy, SRL, {IXh, IXl, N}},                     // DDCB..3E SRL (IX+d)
-    {f_xy, SRL, {IXh, IXl, A}},                     // DDCB..3F SRL (IX+d),A
-    {bit_xy, NULL, {0, IXh, IXl}},                  // DDCB..40 BIT 0,(IX+d)
-    {bit_xy, NULL, {0, IXh, IXl}},                  // DDCB..41 BIT 0,(IX+d)
-    {bit_xy, NULL, {0, IXh, IXl}},                  // DDCB..42 BIT 0,(IX+d)
-    {bit_xy, NULL, {0, IXh, IXl}},                  // DDCB..43 BIT 0,(IX+d)
-    {bit_xy, NULL, {0, IXh, IXl}},                  // DDCB..44 BIT 0,(IX+d)
-    {bit_xy, NULL, {0, IXh, IXl}},                  // DDCB..45 BIT 0,(IX+d)
-    {bit_xy, NULL, {0, IXh, IXl}},                  // DDCB..46 BIT 0,(IX+d)
-    {bit_xy, NULL, {0, IXh, IXl}},                  // DDCB..47 BIT 0,(IX+d)
-    {bit_xy, NULL, {1, IXh, IXl}},                  // DDCB..48 BIT 1,(IX+d)
-    {bit_xy, NULL, {1, IXh, IXl}},                  // DDCB..49 BIT 1,(IX+d)
-    {bit_xy, NULL, {1, IXh, IXl}},                  // DDCB..4A BIT 1,(IX+d)
-    {bit_xy, NULL, {1, IXh, IXl}},                  // DDCB..4B BIT 1,(IX+d)
-    {bit_xy, NULL, {1, IXh, IXl}},                  // DDCB..4C BIT 1,(IX+d)
-    {bit_xy, NULL, {1, IXh, IXl}},                  // DDCB..4D BIT 1,(IX+d)
-    {bit_xy, NULL, {1, IXh, IXl}},                  // DDCB..4E BIT 1,(IX+d)
-    {bit_xy, NULL, {1, IXh, IXl}},                  // DDCB..4F BIT 1,(IX+d)
-    {bit_xy, NULL, {2, IXh, IXl}},                  // DDCB..50 BIT 2,(IX+d)
-    {bit_xy, NULL, {2, IXh, IXl}},                  // DDCB..51 BIT 2,(IX+d)
-    {bit_xy, NULL, {2, IXh, IXl}},                  // DDCB..52 BIT 2,(IX+d)
-    {bit_xy, NULL, {2, IXh, IXl}},                  // DDCB..53 BIT 2,(IX+d)
-    {bit_xy, NULL, {2, IXh, IXl}},                  // DDCB..54 BIT 2,(IX+d)
-    {bit_xy, NULL, {2, IXh, IXl}},                  // DDCB..55 BIT 2,(IX+d)
-    {bit_xy, NULL, {2, IXh, IXl}},                  // DDCB..56 BIT 2,(IX+d)
-    {bit_xy, NULL, {2, IXh, IXl}},                  // DDCB..57 BIT 2,(IX+d)
-    {bit_xy, NULL, {3, IXh, IXl}},                  // DDCB..58 BIT 3,(IX+d)
-    {bit_xy, NULL, {3, IXh, IXl}},                  // DDCB..59 BIT 3,(IX+d)
-    {bit_xy, NULL, {3, IXh, IXl}},                  // DDCB..5A BIT 3,(IX+d)
-    {bit_xy, NULL, {3, IXh, IXl}},                  // DDCB..5B BIT 3,(IX+d)
-    {bit_xy, NULL, {3, IXh, IXl}},                  // DDCB..5C BIT 3,(IX+d)
-    {bit_xy, NULL, {3, IXh, IXl}},                  // DDCB..5D BIT 3,(IX+d)
-    {bit_xy, NULL, {3, IXh, IXl}},                  // DDCB..5E BIT 3,(IX+d)
-    {bit_xy, NULL, {3, IXh, IXl}},                  // DDCB..5F BIT 3,(IX+d)
-    {bit_xy, NULL, {4, IXh, IXl}},                  // DDCB..60 BIT 4,(IX+d)
-    {bit_xy, NULL, {4, IXh, IXl}},                  // DDCB..61 BIT 4,(IX+d)
-    {bit_xy, NULL, {4, IXh, IXl}},                  // DDCB..62 BIT 4,(IX+d)
-    {bit_xy, NULL, {4, IXh, IXl}},                  // DDCB..63 BIT 4,(IX+d)
-    {bit_xy, NULL, {4, IXh, IXl}},                  // DDCB..64 BIT 4,(IX+d)
-    {bit_xy, NULL, {4, IXh, IXl}},                  // DDCB..65 BIT 4,(IX+d)
-    {bit_xy, NULL, {4, IXh, IXl}},                  // DDCB..66 BIT 4,(IX+d)
-    {bit_xy, NULL, {4, IXh, IXl}},                  // DDCB..67 BIT 4,(IX+d)
-    {bit_xy, NULL, {5, IXh, IXl}},                  // DDCB..68 BIT 5,(IX+d)
-    {bit_xy, NULL, {5, IXh, IXl}},                  // DDCB..69 BIT 5,(IX+d)
-    {bit_xy, NULL, {5, IXh, IXl}},                  // DDCB..6A BIT 5,(IX+d)
-    {bit_xy, NULL, {5, IXh, IXl}},                  // DDCB..6B BIT 5,(IX+d)
-    {bit_xy, NULL, {5, IXh, IXl}},                  // DDCB..6C BIT 5,(IX+d)
-    {bit_xy, NULL, {5, IXh, IXl}},                  // DDCB..6D BIT 5,(IX+d)
-    {bit_xy, NULL, {5, IXh, IXl}},                  // DDCB..6E BIT 5,(IX+d)
-    {bit_xy, NULL, {5, IXh, IXl}},                  // DDCB..6F BIT 5,(IX+d)
-    {bit_xy, NULL, {6, IXh, IXl}},                  // DDCB..70 BIT 6,(IX+d)
-    {bit_xy, NULL, {6, IXh, IXl}},                  // DDCB..71 BIT 6,(IX+d)
-    {bit_xy, NULL, {6, IXh, IXl}},                  // DDCB..72 BIT 6,(IX+d)
-    {bit_xy, NULL, {6, IXh, IXl}},                  // DDCB..73 BIT 6,(IX+d)
-    {bit_xy, NULL, {6, IXh, IXl}},                  // DDCB..74 BIT 6,(IX+d)
-    {bit_xy, NULL, {6, IXh, IXl}},                  // DDCB..75 BIT 6,(IX+d)
-    {bit_xy, NULL, {6, IXh, IXl}},                  // DDCB..76 BIT 6,(IX+d)
-    {bit_xy, NULL, {6, IXh, IXl}},                  // DDCB..77 BIT 6,(IX+d)
-    {bit_xy, NULL, {7, IXh, IXl}},                  // DDCB..78 BIT 7,(IX+d)
-    {bit_xy, NULL, {7, IXh, IXl}},                  // DDCB..79 BIT 7,(IX+d)
-    {bit_xy, NULL, {7, IXh, IXl}},                  // DDCB..7A BIT 7,(IX+d)
-    {bit_xy, NULL, {7, IXh, IXl}},                  // DDCB..7B BIT 7,(IX+d)
-    {bit_xy, NULL, {7, IXh, IXl}},                  // DDCB..7C BIT 7,(IX+d)
-    {bit_xy, NULL, {7, IXh, IXl}},                  // DDCB..7D BIT 7,(IX+d)
-    {bit_xy, NULL, {7, IXh, IXl}},                  // DDCB..7E BIT 7,(IX+d)
-    {bit_xy, NULL, {7, IXh, IXl}},                  // DDCB..7F BIT 7,(IX+d)
-    {res_xy, NULL, {254, IXh, IXl, B}},             // DDCB..80 RES 0,(IX+d),B
-    {res_xy, NULL, {254, IXh, IXl, C}},             // DDCB..81 RES 0,(IX+d),C
-    {res_xy, NULL, {254, IXh, IXl, D}},             // DDCB..82 RES 0,(IX+d),D
-    {res_xy, NULL, {254, IXh, IXl, E}},             // DDCB..83 RES 0,(IX+d),E
-    {res_xy, NULL, {254, IXh, IXl, H}},             // DDCB..84 RES 0,(IX+d),H
-    {res_xy, NULL, {254, IXh, IXl, L}},             // DDCB..85 RES 0,(IX+d),L
-    {res_xy, NULL, {254, IXh, IXl, N}},             // DDCB..86 RES 0,(IX+d)
-    {res_xy, NULL, {254, IXh, IXl, A}},             // DDCB..87 RES 0,(IX+d),A
-    {res_xy, NULL, {253, IXh, IXl, B}},             // DDCB..88 RES 1,(IX+d),B
-    {res_xy, NULL, {253, IXh, IXl, C}},             // DDCB..89 RES 1,(IX+d),C
-    {res_xy, NULL, {253, IXh, IXl, D}},             // DDCB..8A RES 1,(IX+d),D
-    {res_xy, NULL, {253, IXh, IXl, E}},             // DDCB..8B RES 1,(IX+d),E
-    {res_xy, NULL, {253, IXh, IXl, H}},             // DDCB..8C RES 1,(IX+d),H
-    {res_xy, NULL, {253, IXh, IXl, L}},             // DDCB..8D RES 1,(IX+d),L
-    {res_xy, NULL, {253, IXh, IXl, N}},             // DDCB..8E RES 1,(IX+d)
-    {res_xy, NULL, {253, IXh, IXl, A}},             // DDCB..8F RES 1,(IX+d),A
-    {res_xy, NULL, {251, IXh, IXl, B}},             // DDCB..90 RES 2,(IX+d),B
-    {res_xy, NULL, {251, IXh, IXl, C}},             // DDCB..91 RES 2,(IX+d),C
-    {res_xy, NULL, {251, IXh, IXl, D}},             // DDCB..92 RES 2,(IX+d),D
-    {res_xy, NULL, {251, IXh, IXl, E}},             // DDCB..93 RES 2,(IX+d),E
-    {res_xy, NULL, {251, IXh, IXl, H}},             // DDCB..94 RES 2,(IX+d),H
-    {res_xy, NULL, {251, IXh, IXl, L}},             // DDCB..95 RES 2,(IX+d),L
-    {res_xy, NULL, {251, IXh, IXl, N}},             // DDCB..96 RES 2,(IX+d)
-    {res_xy, NULL, {251, IXh, IXl, A}},             // DDCB..97 RES 2,(IX+d),A
-    {res_xy, NULL, {247, IXh, IXl, B}},             // DDCB..98 RES 3,(IX+d),B
-    {res_xy, NULL, {247, IXh, IXl, C}},             // DDCB..99 RES 3,(IX+d),C
-    {res_xy, NULL, {247, IXh, IXl, D}},             // DDCB..9A RES 3,(IX+d),D
-    {res_xy, NULL, {247, IXh, IXl, E}},             // DDCB..9B RES 3,(IX+d),E
-    {res_xy, NULL, {247, IXh, IXl, H}},             // DDCB..9C RES 3,(IX+d),H
-    {res_xy, NULL, {247, IXh, IXl, L}},             // DDCB..9D RES 3,(IX+d),L
-    {res_xy, NULL, {247, IXh, IXl, N}},             // DDCB..9E RES 3,(IX+d)
-    {res_xy, NULL, {247, IXh, IXl, A}},             // DDCB..9F RES 3,(IX+d),A
-    {res_xy, NULL, {239, IXh, IXl, B}},             // DDCB..A0 RES 4,(IX+d),B
-    {res_xy, NULL, {239, IXh, IXl, C}},             // DDCB..A1 RES 4,(IX+d),C
-    {res_xy, NULL, {239, IXh, IXl, D}},             // DDCB..A2 RES 4,(IX+d),D
-    {res_xy, NULL, {239, IXh, IXl, E}},             // DDCB..A3 RES 4,(IX+d),E
-    {res_xy, NULL, {239, IXh, IXl, H}},             // DDCB..A4 RES 4,(IX+d),H
-    {res_xy, NULL, {239, IXh, IXl, L}},             // DDCB..A5 RES 4,(IX+d),L
-    {res_xy, NULL, {239, IXh, IXl, N}},             // DDCB..A6 RES 4,(IX+d)
-    {res_xy, NULL, {239, IXh, IXl, A}},             // DDCB..A7 RES 4,(IX+d),A
-    {res_xy, NULL, {223, IXh, IXl, B}},             // DDCB..A8 RES 5,(IX+d),B
-    {res_xy, NULL, {223, IXh, IXl, C}},             // DDCB..A9 RES 5,(IX+d),C
-    {res_xy, NULL, {223, IXh, IXl, D}},             // DDCB..AA RES 5,(IX+d),D
-    {res_xy, NULL, {223, IXh, IXl, E}},             // DDCB..AB RES 5,(IX+d),E
-    {res_xy, NULL, {223, IXh, IXl, H}},             // DDCB..AC RES 5,(IX+d),H
-    {res_xy, NULL, {223, IXh, IXl, L}},             // DDCB..AD RES 5,(IX+d),L
-    {res_xy, NULL, {223, IXh, IXl, N}},             // DDCB..AE RES 5,(IX+d)
-    {res_xy, NULL, {223, IXh, IXl, A}},             // DDCB..AF RES 5,(IX+d),A
-    {res_xy, NULL, {191, IXh, IXl, B}},             // DDCB..B0 RES 6,(IX+d),B
-    {res_xy, NULL, {191, IXh, IXl, C}},             // DDCB..B1 RES 6,(IX+d),C
-    {res_xy, NULL, {191, IXh, IXl, D}},             // DDCB..B2 RES 6,(IX+d),D
-    {res_xy, NULL, {191, IXh, IXl, E}},             // DDCB..B3 RES 6,(IX+d),E
-    {res_xy, NULL, {191, IXh, IXl, H}},             // DDCB..B4 RES 6,(IX+d),H
-    {res_xy, NULL, {191, IXh, IXl, L}},             // DDCB..B5 RES 6,(IX+d),L
-    {res_xy, NULL, {191, IXh, IXl, N}},             // DDCB..B6 RES 6,(IX+d)
-    {res_xy, NULL, {191, IXh, IXl, A}},             // DDCB..B7 RES 6,(IX+d),A
-    {res_xy, NULL, {127, IXh, IXl, B}},             // DDCB..B8 RES 7,(IX+d),B
-    {res_xy, NULL, {127, IXh, IXl, C}},             // DDCB..B9 RES 7,(IX+d),C
-    {res_xy, NULL, {127, IXh, IXl, D}},             // DDCB..BA RES 7,(IX+d),D
-    {res_xy, NULL, {127, IXh, IXl, E}},             // DDCB..BB RES 7,(IX+d),E
-    {res_xy, NULL, {127, IXh, IXl, H}},             // DDCB..BC RES 7,(IX+d),H
-    {res_xy, NULL, {127, IXh, IXl, L}},             // DDCB..BD RES 7,(IX+d),L
-    {res_xy, NULL, {127, IXh, IXl, N}},             // DDCB..BE RES 7,(IX+d)
-    {res_xy, NULL, {127, IXh, IXl, A}},             // DDCB..BF RES 7,(IX+d),A
-    {set_xy, NULL, {1, IXh, IXl, B}},               // DDCB..C0 SET 0,(IX+d),B
-    {set_xy, NULL, {1, IXh, IXl, C}},               // DDCB..C1 SET 0,(IX+d),C
-    {set_xy, NULL, {1, IXh, IXl, D}},               // DDCB..C2 SET 0,(IX+d),D
-    {set_xy, NULL, {1, IXh, IXl, E}},               // DDCB..C3 SET 0,(IX+d),E
-    {set_xy, NULL, {1, IXh, IXl, H}},               // DDCB..C4 SET 0,(IX+d),H
-    {set_xy, NULL, {1, IXh, IXl, L}},               // DDCB..C5 SET 0,(IX+d),L
-    {set_xy, NULL, {1, IXh, IXl, N}},               // DDCB..C6 SET 0,(IX+d)
-    {set_xy, NULL, {1, IXh, IXl, A}},               // DDCB..C7 SET 0,(IX+d),A
-    {set_xy, NULL, {2, IXh, IXl, B}},               // DDCB..C8 SET 1,(IX+d),B
-    {set_xy, NULL, {2, IXh, IXl, C}},               // DDCB..C9 SET 1,(IX+d),C
-    {set_xy, NULL, {2, IXh, IXl, D}},               // DDCB..CA SET 1,(IX+d),D
-    {set_xy, NULL, {2, IXh, IXl, E}},               // DDCB..CB SET 1,(IX+d),E
-    {set_xy, NULL, {2, IXh, IXl, H}},               // DDCB..CC SET 1,(IX+d),H
-    {set_xy, NULL, {2, IXh, IXl, L}},               // DDCB..CD SET 1,(IX+d),L
-    {set_xy, NULL, {2, IXh, IXl, N}},               // DDCB..CE SET 1,(IX+d)
-    {set_xy, NULL, {2, IXh, IXl, A}},               // DDCB..CF SET 1,(IX+d),A
-    {set_xy, NULL, {4, IXh, IXl, B}},               // DDCB..D0 SET 2,(IX+d),B
-    {set_xy, NULL, {4, IXh, IXl, C}},               // DDCB..D1 SET 2,(IX+d),C
-    {set_xy, NULL, {4, IXh, IXl, D}},               // DDCB..D2 SET 2,(IX+d),D
-    {set_xy, NULL, {4, IXh, IXl, E}},               // DDCB..D3 SET 2,(IX+d),E
-    {set_xy, NULL, {4, IXh, IXl, H}},               // DDCB..D4 SET 2,(IX+d),H
-    {set_xy, NULL, {4, IXh, IXl, L}},               // DDCB..D5 SET 2,(IX+d),L
-    {set_xy, NULL, {4, IXh, IXl, N}},               // DDCB..D6 SET 2,(IX+d)
-    {set_xy, NULL, {4, IXh, IXl, A}},               // DDCB..D7 SET 2,(IX+d),A
-    {set_xy, NULL, {8, IXh, IXl, B}},               // DDCB..D8 SET 3,(IX+d),B
-    {set_xy, NULL, {8, IXh, IXl, C}},               // DDCB..D9 SET 3,(IX+d),C
-    {set_xy, NULL, {8, IXh, IXl, D}},               // DDCB..DA SET 3,(IX+d),D
-    {set_xy, NULL, {8, IXh, IXl, E}},               // DDCB..DB SET 3,(IX+d),E
-    {set_xy, NULL, {8, IXh, IXl, H}},               // DDCB..DC SET 3,(IX+d),H
-    {set_xy, NULL, {8, IXh, IXl, L}},               // DDCB..DD SET 3,(IX+d),L
-    {set_xy, NULL, {8, IXh, IXl, N}},               // DDCB..DE SET 3,(IX+d)
-    {set_xy, NULL, {8, IXh, IXl, A}},               // DDCB..DF SET 3,(IX+d),A
-    {set_xy, NULL, {16, IXh, IXl, B}},              // DDCB..E0 SET 4,(IX+d),B
-    {set_xy, NULL, {16, IXh, IXl, C}},              // DDCB..E1 SET 4,(IX+d),C
-    {set_xy, NULL, {16, IXh, IXl, D}},              // DDCB..E2 SET 4,(IX+d),D
-    {set_xy, NULL, {16, IXh, IXl, E}},              // DDCB..E3 SET 4,(IX+d),E
-    {set_xy, NULL, {16, IXh, IXl, H}},              // DDCB..E4 SET 4,(IX+d),H
-    {set_xy, NULL, {16, IXh, IXl, L}},              // DDCB..E5 SET 4,(IX+d),L
-    {set_xy, NULL, {16, IXh, IXl, N}},              // DDCB..E6 SET 4,(IX+d)
-    {set_xy, NULL, {16, IXh, IXl, A}},              // DDCB..E7 SET 4,(IX+d),A
-    {set_xy, NULL, {32, IXh, IXl, B}},              // DDCB..E8 SET 5,(IX+d),B
-    {set_xy, NULL, {32, IXh, IXl, C}},              // DDCB..E9 SET 5,(IX+d),C
-    {set_xy, NULL, {32, IXh, IXl, D}},              // DDCB..EA SET 5,(IX+d),D
-    {set_xy, NULL, {32, IXh, IXl, E}},              // DDCB..EB SET 5,(IX+d),E
-    {set_xy, NULL, {32, IXh, IXl, H}},              // DDCB..EC SET 5,(IX+d),H
-    {set_xy, NULL, {32, IXh, IXl, L}},              // DDCB..ED SET 5,(IX+d),L
-    {set_xy, NULL, {32, IXh, IXl, N}},              // DDCB..EE SET 5,(IX+d)
-    {set_xy, NULL, {32, IXh, IXl, A}},              // DDCB..EF SET 5,(IX+d),A
-    {set_xy, NULL, {64, IXh, IXl, B}},              // DDCB..F0 SET 6,(IX+d),B
-    {set_xy, NULL, {64, IXh, IXl, C}},              // DDCB..F1 SET 6,(IX+d),C
-    {set_xy, NULL, {64, IXh, IXl, D}},              // DDCB..F2 SET 6,(IX+d),D
-    {set_xy, NULL, {64, IXh, IXl, E}},              // DDCB..F3 SET 6,(IX+d),E
-    {set_xy, NULL, {64, IXh, IXl, H}},              // DDCB..F4 SET 6,(IX+d),H
-    {set_xy, NULL, {64, IXh, IXl, L}},              // DDCB..F5 SET 6,(IX+d),L
-    {set_xy, NULL, {64, IXh, IXl, N}},              // DDCB..F6 SET 6,(IX+d)
-    {set_xy, NULL, {64, IXh, IXl, A}},              // DDCB..F7 SET 6,(IX+d),A
-    {set_xy, NULL, {128, IXh, IXl, B}},             // DDCB..F8 SET 7,(IX+d),B
-    {set_xy, NULL, {128, IXh, IXl, C}},             // DDCB..F9 SET 7,(IX+d),C
-    {set_xy, NULL, {128, IXh, IXl, D}},             // DDCB..FA SET 7,(IX+d),D
-    {set_xy, NULL, {128, IXh, IXl, E}},             // DDCB..FB SET 7,(IX+d),E
-    {set_xy, NULL, {128, IXh, IXl, H}},             // DDCB..FC SET 7,(IX+d),H
-    {set_xy, NULL, {128, IXh, IXl, L}},             // DDCB..FD SET 7,(IX+d),L
-    {set_xy, NULL, {128, IXh, IXl, N}},             // DDCB..FE SET 7,(IX+d)
-    {set_xy, NULL, {128, IXh, IXl, A}},             // DDCB..FF SET 7,(IX+d),A
+    {f_xy, RLC, {8, 9, 2}},                         // DDCB..00 RLC (IX+d),B
+    {f_xy, RLC, {8, 9, 3}},                         // DDCB..01 RLC (IX+d),C
+    {f_xy, RLC, {8, 9, 4}},                         // DDCB..02 RLC (IX+d),D
+    {f_xy, RLC, {8, 9, 5}},                         // DDCB..03 RLC (IX+d),E
+    {f_xy, RLC, {8, 9, 6}},                         // DDCB..04 RLC (IX+d),H
+    {f_xy, RLC, {8, 9, 7}},                         // DDCB..05 RLC (IX+d),L
+    {f_xy, RLC, {8, 9, -1}},                        // DDCB..06 RLC (IX+d)
+    {f_xy, RLC, {8, 9, 0}},                         // DDCB..07 RLC (IX+d),A
+    {f_xy, RRC, {8, 9, 2}},                         // DDCB..08 RRC (IX+d),B
+    {f_xy, RRC, {8, 9, 3}},                         // DDCB..09 RRC (IX+d),C
+    {f_xy, RRC, {8, 9, 4}},                         // DDCB..0A RRC (IX+d),D
+    {f_xy, RRC, {8, 9, 5}},                         // DDCB..0B RRC (IX+d),E
+    {f_xy, RRC, {8, 9, 6}},                         // DDCB..0C RRC (IX+d),H
+    {f_xy, RRC, {8, 9, 7}},                         // DDCB..0D RRC (IX+d),L
+    {f_xy, RRC, {8, 9, -1}},                        // DDCB..0E RRC (IX+d)
+    {f_xy, RRC, {8, 9, 0}},                         // DDCB..0F RRC (IX+d),A
+    {fc_xy, RL, {4, 8, 9, 2}},                      // DDCB..10 RL (IX+d),B
+    {fc_xy, RL, {4, 8, 9, 3}},                      // DDCB..11 RL (IX+d),C
+    {fc_xy, RL, {4, 8, 9, 4}},                      // DDCB..12 RL (IX+d),D
+    {fc_xy, RL, {4, 8, 9, 5}},                      // DDCB..13 RL (IX+d),E
+    {fc_xy, RL, {4, 8, 9, 6}},                      // DDCB..14 RL (IX+d),H
+    {fc_xy, RL, {4, 8, 9, 7}},                      // DDCB..15 RL (IX+d),L
+    {fc_xy, RL, {4, 8, 9, -1}},                     // DDCB..16 RL (IX+d)
+    {fc_xy, RL, {4, 8, 9, 0}},                      // DDCB..17 RL (IX+d),A
+    {fc_xy, RR, {4, 8, 9, 2}},                      // DDCB..18 RR (IX+d),B
+    {fc_xy, RR, {4, 8, 9, 3}},                      // DDCB..19 RR (IX+d),C
+    {fc_xy, RR, {4, 8, 9, 4}},                      // DDCB..1A RR (IX+d),D
+    {fc_xy, RR, {4, 8, 9, 5}},                      // DDCB..1B RR (IX+d),E
+    {fc_xy, RR, {4, 8, 9, 6}},                      // DDCB..1C RR (IX+d),H
+    {fc_xy, RR, {4, 8, 9, 7}},                      // DDCB..1D RR (IX+d),L
+    {fc_xy, RR, {4, 8, 9, -1}},                     // DDCB..1E RR (IX+d)
+    {fc_xy, RR, {4, 8, 9, 0}},                      // DDCB..1F RR (IX+d),A
+    {f_xy, SLA, {8, 9, 2}},                         // DDCB..20 SLA (IX+d),B
+    {f_xy, SLA, {8, 9, 3}},                         // DDCB..21 SLA (IX+d),C
+    {f_xy, SLA, {8, 9, 4}},                         // DDCB..22 SLA (IX+d),D
+    {f_xy, SLA, {8, 9, 5}},                         // DDCB..23 SLA (IX+d),E
+    {f_xy, SLA, {8, 9, 6}},                         // DDCB..24 SLA (IX+d),H
+    {f_xy, SLA, {8, 9, 7}},                         // DDCB..25 SLA (IX+d),L
+    {f_xy, SLA, {8, 9, -1}},                        // DDCB..26 SLA (IX+d)
+    {f_xy, SLA, {8, 9, 0}},                         // DDCB..27 SLA (IX+d),A
+    {f_xy, SRA, {8, 9, 2}},                         // DDCB..28 SRA (IX+d),B
+    {f_xy, SRA, {8, 9, 3}},                         // DDCB..29 SRA (IX+d),C
+    {f_xy, SRA, {8, 9, 4}},                         // DDCB..2A SRA (IX+d),D
+    {f_xy, SRA, {8, 9, 5}},                         // DDCB..2B SRA (IX+d),E
+    {f_xy, SRA, {8, 9, 6}},                         // DDCB..2C SRA (IX+d),H
+    {f_xy, SRA, {8, 9, 7}},                         // DDCB..2D SRA (IX+d),L
+    {f_xy, SRA, {8, 9, -1}},                        // DDCB..2E SRA (IX+d)
+    {f_xy, SRA, {8, 9, 0}},                         // DDCB..2F SRA (IX+d),A
+    {f_xy, SLL, {8, 9, 2}},                         // DDCB..30 SLL (IX+d),B
+    {f_xy, SLL, {8, 9, 3}},                         // DDCB..31 SLL (IX+d),C
+    {f_xy, SLL, {8, 9, 4}},                         // DDCB..32 SLL (IX+d),D
+    {f_xy, SLL, {8, 9, 5}},                         // DDCB..33 SLL (IX+d),E
+    {f_xy, SLL, {8, 9, 6}},                         // DDCB..34 SLL (IX+d),H
+    {f_xy, SLL, {8, 9, 7}},                         // DDCB..35 SLL (IX+d),L
+    {f_xy, SLL, {8, 9, -1}},                        // DDCB..36 SLL (IX+d)
+    {f_xy, SLL, {8, 9, 0}},                         // DDCB..37 SLL (IX+d),A
+    {f_xy, SRL, {8, 9, 2}},                         // DDCB..38 SRL (IX+d),B
+    {f_xy, SRL, {8, 9, 3}},                         // DDCB..39 SRL (IX+d),C
+    {f_xy, SRL, {8, 9, 4}},                         // DDCB..3A SRL (IX+d),D
+    {f_xy, SRL, {8, 9, 5}},                         // DDCB..3B SRL (IX+d),E
+    {f_xy, SRL, {8, 9, 6}},                         // DDCB..3C SRL (IX+d),H
+    {f_xy, SRL, {8, 9, 7}},                         // DDCB..3D SRL (IX+d),L
+    {f_xy, SRL, {8, 9, -1}},                        // DDCB..3E SRL (IX+d)
+    {f_xy, SRL, {8, 9, 0}},                         // DDCB..3F SRL (IX+d),A
+    {bit_xy, NULL, {0, 8, 9}},                      // DDCB..40 BIT 0,(IX+d)
+    {bit_xy, NULL, {0, 8, 9}},                      // DDCB..41 BIT 0,(IX+d)
+    {bit_xy, NULL, {0, 8, 9}},                      // DDCB..42 BIT 0,(IX+d)
+    {bit_xy, NULL, {0, 8, 9}},                      // DDCB..43 BIT 0,(IX+d)
+    {bit_xy, NULL, {0, 8, 9}},                      // DDCB..44 BIT 0,(IX+d)
+    {bit_xy, NULL, {0, 8, 9}},                      // DDCB..45 BIT 0,(IX+d)
+    {bit_xy, NULL, {0, 8, 9}},                      // DDCB..46 BIT 0,(IX+d)
+    {bit_xy, NULL, {0, 8, 9}},                      // DDCB..47 BIT 0,(IX+d)
+    {bit_xy, NULL, {1, 8, 9}},                      // DDCB..48 BIT 1,(IX+d)
+    {bit_xy, NULL, {1, 8, 9}},                      // DDCB..49 BIT 1,(IX+d)
+    {bit_xy, NULL, {1, 8, 9}},                      // DDCB..4A BIT 1,(IX+d)
+    {bit_xy, NULL, {1, 8, 9}},                      // DDCB..4B BIT 1,(IX+d)
+    {bit_xy, NULL, {1, 8, 9}},                      // DDCB..4C BIT 1,(IX+d)
+    {bit_xy, NULL, {1, 8, 9}},                      // DDCB..4D BIT 1,(IX+d)
+    {bit_xy, NULL, {1, 8, 9}},                      // DDCB..4E BIT 1,(IX+d)
+    {bit_xy, NULL, {1, 8, 9}},                      // DDCB..4F BIT 1,(IX+d)
+    {bit_xy, NULL, {2, 8, 9}},                      // DDCB..50 BIT 2,(IX+d)
+    {bit_xy, NULL, {2, 8, 9}},                      // DDCB..51 BIT 2,(IX+d)
+    {bit_xy, NULL, {2, 8, 9}},                      // DDCB..52 BIT 2,(IX+d)
+    {bit_xy, NULL, {2, 8, 9}},                      // DDCB..53 BIT 2,(IX+d)
+    {bit_xy, NULL, {2, 8, 9}},                      // DDCB..54 BIT 2,(IX+d)
+    {bit_xy, NULL, {2, 8, 9}},                      // DDCB..55 BIT 2,(IX+d)
+    {bit_xy, NULL, {2, 8, 9}},                      // DDCB..56 BIT 2,(IX+d)
+    {bit_xy, NULL, {2, 8, 9}},                      // DDCB..57 BIT 2,(IX+d)
+    {bit_xy, NULL, {3, 8, 9}},                      // DDCB..58 BIT 3,(IX+d)
+    {bit_xy, NULL, {3, 8, 9}},                      // DDCB..59 BIT 3,(IX+d)
+    {bit_xy, NULL, {3, 8, 9}},                      // DDCB..5A BIT 3,(IX+d)
+    {bit_xy, NULL, {3, 8, 9}},                      // DDCB..5B BIT 3,(IX+d)
+    {bit_xy, NULL, {3, 8, 9}},                      // DDCB..5C BIT 3,(IX+d)
+    {bit_xy, NULL, {3, 8, 9}},                      // DDCB..5D BIT 3,(IX+d)
+    {bit_xy, NULL, {3, 8, 9}},                      // DDCB..5E BIT 3,(IX+d)
+    {bit_xy, NULL, {3, 8, 9}},                      // DDCB..5F BIT 3,(IX+d)
+    {bit_xy, NULL, {4, 8, 9}},                      // DDCB..60 BIT 4,(IX+d)
+    {bit_xy, NULL, {4, 8, 9}},                      // DDCB..61 BIT 4,(IX+d)
+    {bit_xy, NULL, {4, 8, 9}},                      // DDCB..62 BIT 4,(IX+d)
+    {bit_xy, NULL, {4, 8, 9}},                      // DDCB..63 BIT 4,(IX+d)
+    {bit_xy, NULL, {4, 8, 9}},                      // DDCB..64 BIT 4,(IX+d)
+    {bit_xy, NULL, {4, 8, 9}},                      // DDCB..65 BIT 4,(IX+d)
+    {bit_xy, NULL, {4, 8, 9}},                      // DDCB..66 BIT 4,(IX+d)
+    {bit_xy, NULL, {4, 8, 9}},                      // DDCB..67 BIT 4,(IX+d)
+    {bit_xy, NULL, {5, 8, 9}},                      // DDCB..68 BIT 5,(IX+d)
+    {bit_xy, NULL, {5, 8, 9}},                      // DDCB..69 BIT 5,(IX+d)
+    {bit_xy, NULL, {5, 8, 9}},                      // DDCB..6A BIT 5,(IX+d)
+    {bit_xy, NULL, {5, 8, 9}},                      // DDCB..6B BIT 5,(IX+d)
+    {bit_xy, NULL, {5, 8, 9}},                      // DDCB..6C BIT 5,(IX+d)
+    {bit_xy, NULL, {5, 8, 9}},                      // DDCB..6D BIT 5,(IX+d)
+    {bit_xy, NULL, {5, 8, 9}},                      // DDCB..6E BIT 5,(IX+d)
+    {bit_xy, NULL, {5, 8, 9}},                      // DDCB..6F BIT 5,(IX+d)
+    {bit_xy, NULL, {6, 8, 9}},                      // DDCB..70 BIT 6,(IX+d)
+    {bit_xy, NULL, {6, 8, 9}},                      // DDCB..71 BIT 6,(IX+d)
+    {bit_xy, NULL, {6, 8, 9}},                      // DDCB..72 BIT 6,(IX+d)
+    {bit_xy, NULL, {6, 8, 9}},                      // DDCB..73 BIT 6,(IX+d)
+    {bit_xy, NULL, {6, 8, 9}},                      // DDCB..74 BIT 6,(IX+d)
+    {bit_xy, NULL, {6, 8, 9}},                      // DDCB..75 BIT 6,(IX+d)
+    {bit_xy, NULL, {6, 8, 9}},                      // DDCB..76 BIT 6,(IX+d)
+    {bit_xy, NULL, {6, 8, 9}},                      // DDCB..77 BIT 6,(IX+d)
+    {bit_xy, NULL, {7, 8, 9}},                      // DDCB..78 BIT 7,(IX+d)
+    {bit_xy, NULL, {7, 8, 9}},                      // DDCB..79 BIT 7,(IX+d)
+    {bit_xy, NULL, {7, 8, 9}},                      // DDCB..7A BIT 7,(IX+d)
+    {bit_xy, NULL, {7, 8, 9}},                      // DDCB..7B BIT 7,(IX+d)
+    {bit_xy, NULL, {7, 8, 9}},                      // DDCB..7C BIT 7,(IX+d)
+    {bit_xy, NULL, {7, 8, 9}},                      // DDCB..7D BIT 7,(IX+d)
+    {bit_xy, NULL, {7, 8, 9}},                      // DDCB..7E BIT 7,(IX+d)
+    {bit_xy, NULL, {7, 8, 9}},                      // DDCB..7F BIT 7,(IX+d)
+    {res_xy, NULL, {254, 8, 9, 2}},                 // DDCB..80 RES 0,(IX+d),B
+    {res_xy, NULL, {254, 8, 9, 3}},                 // DDCB..81 RES 0,(IX+d),C
+    {res_xy, NULL, {254, 8, 9, 4}},                 // DDCB..82 RES 0,(IX+d),D
+    {res_xy, NULL, {254, 8, 9, 5}},                 // DDCB..83 RES 0,(IX+d),E
+    {res_xy, NULL, {254, 8, 9, 6}},                 // DDCB..84 RES 0,(IX+d),H
+    {res_xy, NULL, {254, 8, 9, 7}},                 // DDCB..85 RES 0,(IX+d),L
+    {res_xy, NULL, {254, 8, 9, -1}},                // DDCB..86 RES 0,(IX+d)
+    {res_xy, NULL, {254, 8, 9, 0}},                 // DDCB..87 RES 0,(IX+d),A
+    {res_xy, NULL, {253, 8, 9, 2}},                 // DDCB..88 RES 1,(IX+d),B
+    {res_xy, NULL, {253, 8, 9, 3}},                 // DDCB..89 RES 1,(IX+d),C
+    {res_xy, NULL, {253, 8, 9, 4}},                 // DDCB..8A RES 1,(IX+d),D
+    {res_xy, NULL, {253, 8, 9, 5}},                 // DDCB..8B RES 1,(IX+d),E
+    {res_xy, NULL, {253, 8, 9, 6}},                 // DDCB..8C RES 1,(IX+d),H
+    {res_xy, NULL, {253, 8, 9, 7}},                 // DDCB..8D RES 1,(IX+d),L
+    {res_xy, NULL, {253, 8, 9, -1}},                // DDCB..8E RES 1,(IX+d)
+    {res_xy, NULL, {253, 8, 9, 0}},                 // DDCB..8F RES 1,(IX+d),A
+    {res_xy, NULL, {251, 8, 9, 2}},                 // DDCB..90 RES 2,(IX+d),B
+    {res_xy, NULL, {251, 8, 9, 3}},                 // DDCB..91 RES 2,(IX+d),C
+    {res_xy, NULL, {251, 8, 9, 4}},                 // DDCB..92 RES 2,(IX+d),D
+    {res_xy, NULL, {251, 8, 9, 5}},                 // DDCB..93 RES 2,(IX+d),E
+    {res_xy, NULL, {251, 8, 9, 6}},                 // DDCB..94 RES 2,(IX+d),H
+    {res_xy, NULL, {251, 8, 9, 7}},                 // DDCB..95 RES 2,(IX+d),L
+    {res_xy, NULL, {251, 8, 9, -1}},                // DDCB..96 RES 2,(IX+d)
+    {res_xy, NULL, {251, 8, 9, 0}},                 // DDCB..97 RES 2,(IX+d),A
+    {res_xy, NULL, {247, 8, 9, 2}},                 // DDCB..98 RES 3,(IX+d),B
+    {res_xy, NULL, {247, 8, 9, 3}},                 // DDCB..99 RES 3,(IX+d),C
+    {res_xy, NULL, {247, 8, 9, 4}},                 // DDCB..9A RES 3,(IX+d),D
+    {res_xy, NULL, {247, 8, 9, 5}},                 // DDCB..9B RES 3,(IX+d),E
+    {res_xy, NULL, {247, 8, 9, 6}},                 // DDCB..9C RES 3,(IX+d),H
+    {res_xy, NULL, {247, 8, 9, 7}},                 // DDCB..9D RES 3,(IX+d),L
+    {res_xy, NULL, {247, 8, 9, -1}},                // DDCB..9E RES 3,(IX+d)
+    {res_xy, NULL, {247, 8, 9, 0}},                 // DDCB..9F RES 3,(IX+d),A
+    {res_xy, NULL, {239, 8, 9, 2}},                 // DDCB..A0 RES 4,(IX+d),B
+    {res_xy, NULL, {239, 8, 9, 3}},                 // DDCB..A1 RES 4,(IX+d),C
+    {res_xy, NULL, {239, 8, 9, 4}},                 // DDCB..A2 RES 4,(IX+d),D
+    {res_xy, NULL, {239, 8, 9, 5}},                 // DDCB..A3 RES 4,(IX+d),E
+    {res_xy, NULL, {239, 8, 9, 6}},                 // DDCB..A4 RES 4,(IX+d),H
+    {res_xy, NULL, {239, 8, 9, 7}},                 // DDCB..A5 RES 4,(IX+d),L
+    {res_xy, NULL, {239, 8, 9, -1}},                // DDCB..A6 RES 4,(IX+d)
+    {res_xy, NULL, {239, 8, 9, 0}},                 // DDCB..A7 RES 4,(IX+d),A
+    {res_xy, NULL, {223, 8, 9, 2}},                 // DDCB..A8 RES 5,(IX+d),B
+    {res_xy, NULL, {223, 8, 9, 3}},                 // DDCB..A9 RES 5,(IX+d),C
+    {res_xy, NULL, {223, 8, 9, 4}},                 // DDCB..AA RES 5,(IX+d),D
+    {res_xy, NULL, {223, 8, 9, 5}},                 // DDCB..AB RES 5,(IX+d),E
+    {res_xy, NULL, {223, 8, 9, 6}},                 // DDCB..AC RES 5,(IX+d),H
+    {res_xy, NULL, {223, 8, 9, 7}},                 // DDCB..AD RES 5,(IX+d),L
+    {res_xy, NULL, {223, 8, 9, -1}},                // DDCB..AE RES 5,(IX+d)
+    {res_xy, NULL, {223, 8, 9, 0}},                 // DDCB..AF RES 5,(IX+d),A
+    {res_xy, NULL, {191, 8, 9, 2}},                 // DDCB..B0 RES 6,(IX+d),B
+    {res_xy, NULL, {191, 8, 9, 3}},                 // DDCB..B1 RES 6,(IX+d),C
+    {res_xy, NULL, {191, 8, 9, 4}},                 // DDCB..B2 RES 6,(IX+d),D
+    {res_xy, NULL, {191, 8, 9, 5}},                 // DDCB..B3 RES 6,(IX+d),E
+    {res_xy, NULL, {191, 8, 9, 6}},                 // DDCB..B4 RES 6,(IX+d),H
+    {res_xy, NULL, {191, 8, 9, 7}},                 // DDCB..B5 RES 6,(IX+d),L
+    {res_xy, NULL, {191, 8, 9, -1}},                // DDCB..B6 RES 6,(IX+d)
+    {res_xy, NULL, {191, 8, 9, 0}},                 // DDCB..B7 RES 6,(IX+d),A
+    {res_xy, NULL, {127, 8, 9, 2}},                 // DDCB..B8 RES 7,(IX+d),B
+    {res_xy, NULL, {127, 8, 9, 3}},                 // DDCB..B9 RES 7,(IX+d),C
+    {res_xy, NULL, {127, 8, 9, 4}},                 // DDCB..BA RES 7,(IX+d),D
+    {res_xy, NULL, {127, 8, 9, 5}},                 // DDCB..BB RES 7,(IX+d),E
+    {res_xy, NULL, {127, 8, 9, 6}},                 // DDCB..BC RES 7,(IX+d),H
+    {res_xy, NULL, {127, 8, 9, 7}},                 // DDCB..BD RES 7,(IX+d),L
+    {res_xy, NULL, {127, 8, 9, -1}},                // DDCB..BE RES 7,(IX+d)
+    {res_xy, NULL, {127, 8, 9, 0}},                 // DDCB..BF RES 7,(IX+d),A
+    {set_xy, NULL, {1, 8, 9, 2}},                   // DDCB..C0 SET 0,(IX+d),B
+    {set_xy, NULL, {1, 8, 9, 3}},                   // DDCB..C1 SET 0,(IX+d),C
+    {set_xy, NULL, {1, 8, 9, 4}},                   // DDCB..C2 SET 0,(IX+d),D
+    {set_xy, NULL, {1, 8, 9, 5}},                   // DDCB..C3 SET 0,(IX+d),E
+    {set_xy, NULL, {1, 8, 9, 6}},                   // DDCB..C4 SET 0,(IX+d),H
+    {set_xy, NULL, {1, 8, 9, 7}},                   // DDCB..C5 SET 0,(IX+d),L
+    {set_xy, NULL, {1, 8, 9, -1}},                  // DDCB..C6 SET 0,(IX+d)
+    {set_xy, NULL, {1, 8, 9, 0}},                   // DDCB..C7 SET 0,(IX+d),A
+    {set_xy, NULL, {2, 8, 9, 2}},                   // DDCB..C8 SET 1,(IX+d),B
+    {set_xy, NULL, {2, 8, 9, 3}},                   // DDCB..C9 SET 1,(IX+d),C
+    {set_xy, NULL, {2, 8, 9, 4}},                   // DDCB..CA SET 1,(IX+d),D
+    {set_xy, NULL, {2, 8, 9, 5}},                   // DDCB..CB SET 1,(IX+d),E
+    {set_xy, NULL, {2, 8, 9, 6}},                   // DDCB..CC SET 1,(IX+d),H
+    {set_xy, NULL, {2, 8, 9, 7}},                   // DDCB..CD SET 1,(IX+d),L
+    {set_xy, NULL, {2, 8, 9, -1}},                  // DDCB..CE SET 1,(IX+d)
+    {set_xy, NULL, {2, 8, 9, 0}},                   // DDCB..CF SET 1,(IX+d),A
+    {set_xy, NULL, {4, 8, 9, 2}},                   // DDCB..D0 SET 2,(IX+d),B
+    {set_xy, NULL, {4, 8, 9, 3}},                   // DDCB..D1 SET 2,(IX+d),C
+    {set_xy, NULL, {4, 8, 9, 4}},                   // DDCB..D2 SET 2,(IX+d),D
+    {set_xy, NULL, {4, 8, 9, 5}},                   // DDCB..D3 SET 2,(IX+d),E
+    {set_xy, NULL, {4, 8, 9, 6}},                   // DDCB..D4 SET 2,(IX+d),H
+    {set_xy, NULL, {4, 8, 9, 7}},                   // DDCB..D5 SET 2,(IX+d),L
+    {set_xy, NULL, {4, 8, 9, -1}},                  // DDCB..D6 SET 2,(IX+d)
+    {set_xy, NULL, {4, 8, 9, 0}},                   // DDCB..D7 SET 2,(IX+d),A
+    {set_xy, NULL, {8, 8, 9, 2}},                   // DDCB..D8 SET 3,(IX+d),B
+    {set_xy, NULL, {8, 8, 9, 3}},                   // DDCB..D9 SET 3,(IX+d),C
+    {set_xy, NULL, {8, 8, 9, 4}},                   // DDCB..DA SET 3,(IX+d),D
+    {set_xy, NULL, {8, 8, 9, 5}},                   // DDCB..DB SET 3,(IX+d),E
+    {set_xy, NULL, {8, 8, 9, 6}},                   // DDCB..DC SET 3,(IX+d),H
+    {set_xy, NULL, {8, 8, 9, 7}},                   // DDCB..DD SET 3,(IX+d),L
+    {set_xy, NULL, {8, 8, 9, -1}},                  // DDCB..DE SET 3,(IX+d)
+    {set_xy, NULL, {8, 8, 9, 0}},                   // DDCB..DF SET 3,(IX+d),A
+    {set_xy, NULL, {16, 8, 9, 2}},                  // DDCB..E0 SET 4,(IX+d),B
+    {set_xy, NULL, {16, 8, 9, 3}},                  // DDCB..E1 SET 4,(IX+d),C
+    {set_xy, NULL, {16, 8, 9, 4}},                  // DDCB..E2 SET 4,(IX+d),D
+    {set_xy, NULL, {16, 8, 9, 5}},                  // DDCB..E3 SET 4,(IX+d),E
+    {set_xy, NULL, {16, 8, 9, 6}},                  // DDCB..E4 SET 4,(IX+d),H
+    {set_xy, NULL, {16, 8, 9, 7}},                  // DDCB..E5 SET 4,(IX+d),L
+    {set_xy, NULL, {16, 8, 9, -1}},                 // DDCB..E6 SET 4,(IX+d)
+    {set_xy, NULL, {16, 8, 9, 0}},                  // DDCB..E7 SET 4,(IX+d),A
+    {set_xy, NULL, {32, 8, 9, 2}},                  // DDCB..E8 SET 5,(IX+d),B
+    {set_xy, NULL, {32, 8, 9, 3}},                  // DDCB..E9 SET 5,(IX+d),C
+    {set_xy, NULL, {32, 8, 9, 4}},                  // DDCB..EA SET 5,(IX+d),D
+    {set_xy, NULL, {32, 8, 9, 5}},                  // DDCB..EB SET 5,(IX+d),E
+    {set_xy, NULL, {32, 8, 9, 6}},                  // DDCB..EC SET 5,(IX+d),H
+    {set_xy, NULL, {32, 8, 9, 7}},                  // DDCB..ED SET 5,(IX+d),L
+    {set_xy, NULL, {32, 8, 9, -1}},                 // DDCB..EE SET 5,(IX+d)
+    {set_xy, NULL, {32, 8, 9, 0}},                  // DDCB..EF SET 5,(IX+d),A
+    {set_xy, NULL, {64, 8, 9, 2}},                  // DDCB..F0 SET 6,(IX+d),B
+    {set_xy, NULL, {64, 8, 9, 3}},                  // DDCB..F1 SET 6,(IX+d),C
+    {set_xy, NULL, {64, 8, 9, 4}},                  // DDCB..F2 SET 6,(IX+d),D
+    {set_xy, NULL, {64, 8, 9, 5}},                  // DDCB..F3 SET 6,(IX+d),E
+    {set_xy, NULL, {64, 8, 9, 6}},                  // DDCB..F4 SET 6,(IX+d),H
+    {set_xy, NULL, {64, 8, 9, 7}},                  // DDCB..F5 SET 6,(IX+d),L
+    {set_xy, NULL, {64, 8, 9, -1}},                 // DDCB..F6 SET 6,(IX+d)
+    {set_xy, NULL, {64, 8, 9, 0}},                  // DDCB..F7 SET 6,(IX+d),A
+    {set_xy, NULL, {128, 8, 9, 2}},                 // DDCB..F8 SET 7,(IX+d),B
+    {set_xy, NULL, {128, 8, 9, 3}},                 // DDCB..F9 SET 7,(IX+d),C
+    {set_xy, NULL, {128, 8, 9, 4}},                 // DDCB..FA SET 7,(IX+d),D
+    {set_xy, NULL, {128, 8, 9, 5}},                 // DDCB..FB SET 7,(IX+d),E
+    {set_xy, NULL, {128, 8, 9, 6}},                 // DDCB..FC SET 7,(IX+d),H
+    {set_xy, NULL, {128, 8, 9, 7}},                 // DDCB..FD SET 7,(IX+d),L
+    {set_xy, NULL, {128, 8, 9, -1}},                // DDCB..FE SET 7,(IX+d)
+    {set_xy, NULL, {128, 8, 9, 0}},                 // DDCB..FF SET 7,(IX+d),A
 };
 
 static OpcodeFunction after_FDCB[256] = {
-    {f_xy, RLC, {IYh, IYl, B}},                     // FDCB..00 RLC (IY+d),B
-    {f_xy, RLC, {IYh, IYl, C}},                     // FDCB..01 RLC (IY+d),C
-    {f_xy, RLC, {IYh, IYl, D}},                     // FDCB..02 RLC (IY+d),D
-    {f_xy, RLC, {IYh, IYl, E}},                     // FDCB..03 RLC (IY+d),E
-    {f_xy, RLC, {IYh, IYl, H}},                     // FDCB..04 RLC (IY+d),H
-    {f_xy, RLC, {IYh, IYl, L}},                     // FDCB..05 RLC (IY+d),L
-    {f_xy, RLC, {IYh, IYl, N}},                     // FDCB..06 RLC (IY+d)
-    {f_xy, RLC, {IYh, IYl, A}},                     // FDCB..07 RLC (IY+d),A
-    {f_xy, RRC, {IYh, IYl, B}},                     // FDCB..08 RRC (IY+d),B
-    {f_xy, RRC, {IYh, IYl, C}},                     // FDCB..09 RRC (IY+d),C
-    {f_xy, RRC, {IYh, IYl, D}},                     // FDCB..0A RRC (IY+d),D
-    {f_xy, RRC, {IYh, IYl, E}},                     // FDCB..0B RRC (IY+d),E
-    {f_xy, RRC, {IYh, IYl, H}},                     // FDCB..0C RRC (IY+d),H
-    {f_xy, RRC, {IYh, IYl, L}},                     // FDCB..0D RRC (IY+d),L
-    {f_xy, RRC, {IYh, IYl, N}},                     // FDCB..0E RRC (IY+d)
-    {f_xy, RRC, {IYh, IYl, A}},                     // FDCB..0F RRC (IY+d),A
-    {fc_xy, RL, {4, IYh, IYl, B}},                  // FDCB..10 RL (IY+d),B
-    {fc_xy, RL, {4, IYh, IYl, C}},                  // FDCB..11 RL (IY+d),C
-    {fc_xy, RL, {4, IYh, IYl, D}},                  // FDCB..12 RL (IY+d),D
-    {fc_xy, RL, {4, IYh, IYl, E}},                  // FDCB..13 RL (IY+d),E
-    {fc_xy, RL, {4, IYh, IYl, H}},                  // FDCB..14 RL (IY+d),H
-    {fc_xy, RL, {4, IYh, IYl, L}},                  // FDCB..15 RL (IY+d),L
-    {fc_xy, RL, {4, IYh, IYl, N}},                  // FDCB..16 RL (IY+d)
-    {fc_xy, RL, {4, IYh, IYl, A}},                  // FDCB..17 RL (IY+d),A
-    {fc_xy, RR, {4, IYh, IYl, B}},                  // FDCB..18 RR (IY+d),B
-    {fc_xy, RR, {4, IYh, IYl, C}},                  // FDCB..19 RR (IY+d),C
-    {fc_xy, RR, {4, IYh, IYl, D}},                  // FDCB..1A RR (IY+d),D
-    {fc_xy, RR, {4, IYh, IYl, E}},                  // FDCB..1B RR (IY+d),E
-    {fc_xy, RR, {4, IYh, IYl, H}},                  // FDCB..1C RR (IY+d),H
-    {fc_xy, RR, {4, IYh, IYl, L}},                  // FDCB..1D RR (IY+d),L
-    {fc_xy, RR, {4, IYh, IYl, N}},                  // FDCB..1E RR (IY+d)
-    {fc_xy, RR, {4, IYh, IYl, A}},                  // FDCB..1F RR (IY+d),A
-    {f_xy, SLA, {IYh, IYl, B}},                     // FDCB..20 SLA (IY+d),B
-    {f_xy, SLA, {IYh, IYl, C}},                     // FDCB..21 SLA (IY+d),C
-    {f_xy, SLA, {IYh, IYl, D}},                     // FDCB..22 SLA (IY+d),D
-    {f_xy, SLA, {IYh, IYl, E}},                     // FDCB..23 SLA (IY+d),E
-    {f_xy, SLA, {IYh, IYl, H}},                     // FDCB..24 SLA (IY+d),H
-    {f_xy, SLA, {IYh, IYl, L}},                     // FDCB..25 SLA (IY+d),L
-    {f_xy, SLA, {IYh, IYl, N}},                     // FDCB..26 SLA (IY+d)
-    {f_xy, SLA, {IYh, IYl, A}},                     // FDCB..27 SLA (IY+d),A
-    {f_xy, SRA, {IYh, IYl, B}},                     // FDCB..28 SRA (IY+d),B
-    {f_xy, SRA, {IYh, IYl, C}},                     // FDCB..29 SRA (IY+d),C
-    {f_xy, SRA, {IYh, IYl, D}},                     // FDCB..2A SRA (IY+d),D
-    {f_xy, SRA, {IYh, IYl, E}},                     // FDCB..2B SRA (IY+d),E
-    {f_xy, SRA, {IYh, IYl, H}},                     // FDCB..2C SRA (IY+d),H
-    {f_xy, SRA, {IYh, IYl, L}},                     // FDCB..2D SRA (IY+d),L
-    {f_xy, SRA, {IYh, IYl, N}},                     // FDCB..2E SRA (IY+d)
-    {f_xy, SRA, {IYh, IYl, A}},                     // FDCB..2F SRA (IY+d),A
-    {f_xy, SLL, {IYh, IYl, B}},                     // FDCB..30 SLL (IY+d),B
-    {f_xy, SLL, {IYh, IYl, C}},                     // FDCB..31 SLL (IY+d),C
-    {f_xy, SLL, {IYh, IYl, D}},                     // FDCB..32 SLL (IY+d),D
-    {f_xy, SLL, {IYh, IYl, E}},                     // FDCB..33 SLL (IY+d),E
-    {f_xy, SLL, {IYh, IYl, H}},                     // FDCB..34 SLL (IY+d),H
-    {f_xy, SLL, {IYh, IYl, L}},                     // FDCB..35 SLL (IY+d),L
-    {f_xy, SLL, {IYh, IYl, N}},                     // FDCB..36 SLL (IY+d)
-    {f_xy, SLL, {IYh, IYl, A}},                     // FDCB..37 SLL (IY+d),A
-    {f_xy, SRL, {IYh, IYl, B}},                     // FDCB..38 SRL (IY+d),B
-    {f_xy, SRL, {IYh, IYl, C}},                     // FDCB..39 SRL (IY+d),C
-    {f_xy, SRL, {IYh, IYl, D}},                     // FDCB..3A SRL (IY+d),D
-    {f_xy, SRL, {IYh, IYl, E}},                     // FDCB..3B SRL (IY+d),E
-    {f_xy, SRL, {IYh, IYl, H}},                     // FDCB..3C SRL (IY+d),H
-    {f_xy, SRL, {IYh, IYl, L}},                     // FDCB..3D SRL (IY+d),L
-    {f_xy, SRL, {IYh, IYl, N}},                     // FDCB..3E SRL (IY+d)
-    {f_xy, SRL, {IYh, IYl, A}},                     // FDCB..3F SRL (IY+d),A
-    {bit_xy, NULL, {0, IYh, IYl}},                  // FDCB..40 BIT 0,(IY+d)
-    {bit_xy, NULL, {0, IYh, IYl}},                  // FDCB..41 BIT 0,(IY+d)
-    {bit_xy, NULL, {0, IYh, IYl}},                  // FDCB..42 BIT 0,(IY+d)
-    {bit_xy, NULL, {0, IYh, IYl}},                  // FDCB..43 BIT 0,(IY+d)
-    {bit_xy, NULL, {0, IYh, IYl}},                  // FDCB..44 BIT 0,(IY+d)
-    {bit_xy, NULL, {0, IYh, IYl}},                  // FDCB..45 BIT 0,(IY+d)
-    {bit_xy, NULL, {0, IYh, IYl}},                  // FDCB..46 BIT 0,(IY+d)
-    {bit_xy, NULL, {0, IYh, IYl}},                  // FDCB..47 BIT 0,(IY+d)
-    {bit_xy, NULL, {1, IYh, IYl}},                  // FDCB..48 BIT 1,(IY+d)
-    {bit_xy, NULL, {1, IYh, IYl}},                  // FDCB..49 BIT 1,(IY+d)
-    {bit_xy, NULL, {1, IYh, IYl}},                  // FDCB..4A BIT 1,(IY+d)
-    {bit_xy, NULL, {1, IYh, IYl}},                  // FDCB..4B BIT 1,(IY+d)
-    {bit_xy, NULL, {1, IYh, IYl}},                  // FDCB..4C BIT 1,(IY+d)
-    {bit_xy, NULL, {1, IYh, IYl}},                  // FDCB..4D BIT 1,(IY+d)
-    {bit_xy, NULL, {1, IYh, IYl}},                  // FDCB..4E BIT 1,(IY+d)
-    {bit_xy, NULL, {1, IYh, IYl}},                  // FDCB..4F BIT 1,(IY+d)
-    {bit_xy, NULL, {2, IYh, IYl}},                  // FDCB..50 BIT 2,(IY+d)
-    {bit_xy, NULL, {2, IYh, IYl}},                  // FDCB..51 BIT 2,(IY+d)
-    {bit_xy, NULL, {2, IYh, IYl}},                  // FDCB..52 BIT 2,(IY+d)
-    {bit_xy, NULL, {2, IYh, IYl}},                  // FDCB..53 BIT 2,(IY+d)
-    {bit_xy, NULL, {2, IYh, IYl}},                  // FDCB..54 BIT 2,(IY+d)
-    {bit_xy, NULL, {2, IYh, IYl}},                  // FDCB..55 BIT 2,(IY+d)
-    {bit_xy, NULL, {2, IYh, IYl}},                  // FDCB..56 BIT 2,(IY+d)
-    {bit_xy, NULL, {2, IYh, IYl}},                  // FDCB..57 BIT 2,(IY+d)
-    {bit_xy, NULL, {3, IYh, IYl}},                  // FDCB..58 BIT 3,(IY+d)
-    {bit_xy, NULL, {3, IYh, IYl}},                  // FDCB..59 BIT 3,(IY+d)
-    {bit_xy, NULL, {3, IYh, IYl}},                  // FDCB..5A BIT 3,(IY+d)
-    {bit_xy, NULL, {3, IYh, IYl}},                  // FDCB..5B BIT 3,(IY+d)
-    {bit_xy, NULL, {3, IYh, IYl}},                  // FDCB..5C BIT 3,(IY+d)
-    {bit_xy, NULL, {3, IYh, IYl}},                  // FDCB..5D BIT 3,(IY+d)
-    {bit_xy, NULL, {3, IYh, IYl}},                  // FDCB..5E BIT 3,(IY+d)
-    {bit_xy, NULL, {3, IYh, IYl}},                  // FDCB..5F BIT 3,(IY+d)
-    {bit_xy, NULL, {4, IYh, IYl}},                  // FDCB..60 BIT 4,(IY+d)
-    {bit_xy, NULL, {4, IYh, IYl}},                  // FDCB..61 BIT 4,(IY+d)
-    {bit_xy, NULL, {4, IYh, IYl}},                  // FDCB..62 BIT 4,(IY+d)
-    {bit_xy, NULL, {4, IYh, IYl}},                  // FDCB..63 BIT 4,(IY+d)
-    {bit_xy, NULL, {4, IYh, IYl}},                  // FDCB..64 BIT 4,(IY+d)
-    {bit_xy, NULL, {4, IYh, IYl}},                  // FDCB..65 BIT 4,(IY+d)
-    {bit_xy, NULL, {4, IYh, IYl}},                  // FDCB..66 BIT 4,(IY+d)
-    {bit_xy, NULL, {4, IYh, IYl}},                  // FDCB..67 BIT 4,(IY+d)
-    {bit_xy, NULL, {5, IYh, IYl}},                  // FDCB..68 BIT 5,(IY+d)
-    {bit_xy, NULL, {5, IYh, IYl}},                  // FDCB..69 BIT 5,(IY+d)
-    {bit_xy, NULL, {5, IYh, IYl}},                  // FDCB..6A BIT 5,(IY+d)
-    {bit_xy, NULL, {5, IYh, IYl}},                  // FDCB..6B BIT 5,(IY+d)
-    {bit_xy, NULL, {5, IYh, IYl}},                  // FDCB..6C BIT 5,(IY+d)
-    {bit_xy, NULL, {5, IYh, IYl}},                  // FDCB..6D BIT 5,(IY+d)
-    {bit_xy, NULL, {5, IYh, IYl}},                  // FDCB..6E BIT 5,(IY+d)
-    {bit_xy, NULL, {5, IYh, IYl}},                  // FDCB..6F BIT 5,(IY+d)
-    {bit_xy, NULL, {6, IYh, IYl}},                  // FDCB..70 BIT 6,(IY+d)
-    {bit_xy, NULL, {6, IYh, IYl}},                  // FDCB..71 BIT 6,(IY+d)
-    {bit_xy, NULL, {6, IYh, IYl}},                  // FDCB..72 BIT 6,(IY+d)
-    {bit_xy, NULL, {6, IYh, IYl}},                  // FDCB..73 BIT 6,(IY+d)
-    {bit_xy, NULL, {6, IYh, IYl}},                  // FDCB..74 BIT 6,(IY+d)
-    {bit_xy, NULL, {6, IYh, IYl}},                  // FDCB..75 BIT 6,(IY+d)
-    {bit_xy, NULL, {6, IYh, IYl}},                  // FDCB..76 BIT 6,(IY+d)
-    {bit_xy, NULL, {6, IYh, IYl}},                  // FDCB..77 BIT 6,(IY+d)
-    {bit_xy, NULL, {7, IYh, IYl}},                  // FDCB..78 BIT 7,(IY+d)
-    {bit_xy, NULL, {7, IYh, IYl}},                  // FDCB..79 BIT 7,(IY+d)
-    {bit_xy, NULL, {7, IYh, IYl}},                  // FDCB..7A BIT 7,(IY+d)
-    {bit_xy, NULL, {7, IYh, IYl}},                  // FDCB..7B BIT 7,(IY+d)
-    {bit_xy, NULL, {7, IYh, IYl}},                  // FDCB..7C BIT 7,(IY+d)
-    {bit_xy, NULL, {7, IYh, IYl}},                  // FDCB..7D BIT 7,(IY+d)
-    {bit_xy, NULL, {7, IYh, IYl}},                  // FDCB..7E BIT 7,(IY+d)
-    {bit_xy, NULL, {7, IYh, IYl}},                  // FDCB..7F BIT 7,(IY+d)
-    {res_xy, NULL, {254, IYh, IYl, B}},             // FDCB..80 RES 0,(IY+d),B
-    {res_xy, NULL, {254, IYh, IYl, C}},             // FDCB..81 RES 0,(IY+d),C
-    {res_xy, NULL, {254, IYh, IYl, D}},             // FDCB..82 RES 0,(IY+d),D
-    {res_xy, NULL, {254, IYh, IYl, E}},             // FDCB..83 RES 0,(IY+d),E
-    {res_xy, NULL, {254, IYh, IYl, H}},             // FDCB..84 RES 0,(IY+d),H
-    {res_xy, NULL, {254, IYh, IYl, L}},             // FDCB..85 RES 0,(IY+d),L
-    {res_xy, NULL, {254, IYh, IYl, N}},             // FDCB..86 RES 0,(IY+d)
-    {res_xy, NULL, {254, IYh, IYl, A}},             // FDCB..87 RES 0,(IY+d),A
-    {res_xy, NULL, {253, IYh, IYl, B}},             // FDCB..88 RES 1,(IY+d),B
-    {res_xy, NULL, {253, IYh, IYl, C}},             // FDCB..89 RES 1,(IY+d),C
-    {res_xy, NULL, {253, IYh, IYl, D}},             // FDCB..8A RES 1,(IY+d),D
-    {res_xy, NULL, {253, IYh, IYl, E}},             // FDCB..8B RES 1,(IY+d),E
-    {res_xy, NULL, {253, IYh, IYl, H}},             // FDCB..8C RES 1,(IY+d),H
-    {res_xy, NULL, {253, IYh, IYl, L}},             // FDCB..8D RES 1,(IY+d),L
-    {res_xy, NULL, {253, IYh, IYl, N}},             // FDCB..8E RES 1,(IY+d)
-    {res_xy, NULL, {253, IYh, IYl, A}},             // FDCB..8F RES 1,(IY+d),A
-    {res_xy, NULL, {251, IYh, IYl, B}},             // FDCB..90 RES 2,(IY+d),B
-    {res_xy, NULL, {251, IYh, IYl, C}},             // FDCB..91 RES 2,(IY+d),C
-    {res_xy, NULL, {251, IYh, IYl, D}},             // FDCB..92 RES 2,(IY+d),D
-    {res_xy, NULL, {251, IYh, IYl, E}},             // FDCB..93 RES 2,(IY+d),E
-    {res_xy, NULL, {251, IYh, IYl, H}},             // FDCB..94 RES 2,(IY+d),H
-    {res_xy, NULL, {251, IYh, IYl, L}},             // FDCB..95 RES 2,(IY+d),L
-    {res_xy, NULL, {251, IYh, IYl, N}},             // FDCB..96 RES 2,(IY+d)
-    {res_xy, NULL, {251, IYh, IYl, A}},             // FDCB..97 RES 2,(IY+d),A
-    {res_xy, NULL, {247, IYh, IYl, B}},             // FDCB..98 RES 3,(IY+d),B
-    {res_xy, NULL, {247, IYh, IYl, C}},             // FDCB..99 RES 3,(IY+d),C
-    {res_xy, NULL, {247, IYh, IYl, D}},             // FDCB..9A RES 3,(IY+d),D
-    {res_xy, NULL, {247, IYh, IYl, E}},             // FDCB..9B RES 3,(IY+d),E
-    {res_xy, NULL, {247, IYh, IYl, H}},             // FDCB..9C RES 3,(IY+d),H
-    {res_xy, NULL, {247, IYh, IYl, L}},             // FDCB..9D RES 3,(IY+d),L
-    {res_xy, NULL, {247, IYh, IYl, N}},             // FDCB..9E RES 3,(IY+d)
-    {res_xy, NULL, {247, IYh, IYl, A}},             // FDCB..9F RES 3,(IY+d),A
-    {res_xy, NULL, {239, IYh, IYl, B}},             // FDCB..A0 RES 4,(IY+d),B
-    {res_xy, NULL, {239, IYh, IYl, C}},             // FDCB..A1 RES 4,(IY+d),C
-    {res_xy, NULL, {239, IYh, IYl, D}},             // FDCB..A2 RES 4,(IY+d),D
-    {res_xy, NULL, {239, IYh, IYl, E}},             // FDCB..A3 RES 4,(IY+d),E
-    {res_xy, NULL, {239, IYh, IYl, H}},             // FDCB..A4 RES 4,(IY+d),H
-    {res_xy, NULL, {239, IYh, IYl, L}},             // FDCB..A5 RES 4,(IY+d),L
-    {res_xy, NULL, {239, IYh, IYl, N}},             // FDCB..A6 RES 4,(IY+d)
-    {res_xy, NULL, {239, IYh, IYl, A}},             // FDCB..A7 RES 4,(IY+d),A
-    {res_xy, NULL, {223, IYh, IYl, B}},             // FDCB..A8 RES 5,(IY+d),B
-    {res_xy, NULL, {223, IYh, IYl, C}},             // FDCB..A9 RES 5,(IY+d),C
-    {res_xy, NULL, {223, IYh, IYl, D}},             // FDCB..AA RES 5,(IY+d),D
-    {res_xy, NULL, {223, IYh, IYl, E}},             // FDCB..AB RES 5,(IY+d),E
-    {res_xy, NULL, {223, IYh, IYl, H}},             // FDCB..AC RES 5,(IY+d),H
-    {res_xy, NULL, {223, IYh, IYl, L}},             // FDCB..AD RES 5,(IY+d),L
-    {res_xy, NULL, {223, IYh, IYl, N}},             // FDCB..AE RES 5,(IY+d)
-    {res_xy, NULL, {223, IYh, IYl, A}},             // FDCB..AF RES 5,(IY+d),A
-    {res_xy, NULL, {191, IYh, IYl, B}},             // FDCB..B0 RES 6,(IY+d),B
-    {res_xy, NULL, {191, IYh, IYl, C}},             // FDCB..B1 RES 6,(IY+d),C
-    {res_xy, NULL, {191, IYh, IYl, D}},             // FDCB..B2 RES 6,(IY+d),D
-    {res_xy, NULL, {191, IYh, IYl, E}},             // FDCB..B3 RES 6,(IY+d),E
-    {res_xy, NULL, {191, IYh, IYl, H}},             // FDCB..B4 RES 6,(IY+d),H
-    {res_xy, NULL, {191, IYh, IYl, L}},             // FDCB..B5 RES 6,(IY+d),L
-    {res_xy, NULL, {191, IYh, IYl, N}},             // FDCB..B6 RES 6,(IY+d)
-    {res_xy, NULL, {191, IYh, IYl, A}},             // FDCB..B7 RES 6,(IY+d),A
-    {res_xy, NULL, {127, IYh, IYl, B}},             // FDCB..B8 RES 7,(IY+d),B
-    {res_xy, NULL, {127, IYh, IYl, C}},             // FDCB..B9 RES 7,(IY+d),C
-    {res_xy, NULL, {127, IYh, IYl, D}},             // FDCB..BA RES 7,(IY+d),D
-    {res_xy, NULL, {127, IYh, IYl, E}},             // FDCB..BB RES 7,(IY+d),E
-    {res_xy, NULL, {127, IYh, IYl, H}},             // FDCB..BC RES 7,(IY+d),H
-    {res_xy, NULL, {127, IYh, IYl, L}},             // FDCB..BD RES 7,(IY+d),L
-    {res_xy, NULL, {127, IYh, IYl, N}},             // FDCB..BE RES 7,(IY+d)
-    {res_xy, NULL, {127, IYh, IYl, A}},             // FDCB..BF RES 7,(IY+d),A
-    {set_xy, NULL, {1, IYh, IYl, B}},               // FDCB..C0 SET 0,(IY+d),B
-    {set_xy, NULL, {1, IYh, IYl, C}},               // FDCB..C1 SET 0,(IY+d),C
-    {set_xy, NULL, {1, IYh, IYl, D}},               // FDCB..C2 SET 0,(IY+d),D
-    {set_xy, NULL, {1, IYh, IYl, E}},               // FDCB..C3 SET 0,(IY+d),E
-    {set_xy, NULL, {1, IYh, IYl, H}},               // FDCB..C4 SET 0,(IY+d),H
-    {set_xy, NULL, {1, IYh, IYl, L}},               // FDCB..C5 SET 0,(IY+d),L
-    {set_xy, NULL, {1, IYh, IYl, N}},               // FDCB..C6 SET 0,(IY+d)
-    {set_xy, NULL, {1, IYh, IYl, A}},               // FDCB..C7 SET 0,(IY+d),A
-    {set_xy, NULL, {2, IYh, IYl, B}},               // FDCB..C8 SET 1,(IY+d),B
-    {set_xy, NULL, {2, IYh, IYl, C}},               // FDCB..C9 SET 1,(IY+d),C
-    {set_xy, NULL, {2, IYh, IYl, D}},               // FDCB..CA SET 1,(IY+d),D
-    {set_xy, NULL, {2, IYh, IYl, E}},               // FDCB..CB SET 1,(IY+d),E
-    {set_xy, NULL, {2, IYh, IYl, H}},               // FDCB..CC SET 1,(IY+d),H
-    {set_xy, NULL, {2, IYh, IYl, L}},               // FDCB..CD SET 1,(IY+d),L
-    {set_xy, NULL, {2, IYh, IYl, N}},               // FDCB..CE SET 1,(IY+d)
-    {set_xy, NULL, {2, IYh, IYl, A}},               // FDCB..CF SET 1,(IY+d),A
-    {set_xy, NULL, {4, IYh, IYl, B}},               // FDCB..D0 SET 2,(IY+d),B
-    {set_xy, NULL, {4, IYh, IYl, C}},               // FDCB..D1 SET 2,(IY+d),C
-    {set_xy, NULL, {4, IYh, IYl, D}},               // FDCB..D2 SET 2,(IY+d),D
-    {set_xy, NULL, {4, IYh, IYl, E}},               // FDCB..D3 SET 2,(IY+d),E
-    {set_xy, NULL, {4, IYh, IYl, H}},               // FDCB..D4 SET 2,(IY+d),H
-    {set_xy, NULL, {4, IYh, IYl, L}},               // FDCB..D5 SET 2,(IY+d),L
-    {set_xy, NULL, {4, IYh, IYl, N}},               // FDCB..D6 SET 2,(IY+d)
-    {set_xy, NULL, {4, IYh, IYl, A}},               // FDCB..D7 SET 2,(IY+d),A
-    {set_xy, NULL, {8, IYh, IYl, B}},               // FDCB..D8 SET 3,(IY+d),B
-    {set_xy, NULL, {8, IYh, IYl, C}},               // FDCB..D9 SET 3,(IY+d),C
-    {set_xy, NULL, {8, IYh, IYl, D}},               // FDCB..DA SET 3,(IY+d),D
-    {set_xy, NULL, {8, IYh, IYl, E}},               // FDCB..DB SET 3,(IY+d),E
-    {set_xy, NULL, {8, IYh, IYl, H}},               // FDCB..DC SET 3,(IY+d),H
-    {set_xy, NULL, {8, IYh, IYl, L}},               // FDCB..DD SET 3,(IY+d),L
-    {set_xy, NULL, {8, IYh, IYl, N}},               // FDCB..DE SET 3,(IY+d)
-    {set_xy, NULL, {8, IYh, IYl, A}},               // FDCB..DF SET 3,(IY+d),A
-    {set_xy, NULL, {16, IYh, IYl, B}},              // FDCB..E0 SET 4,(IY+d),B
-    {set_xy, NULL, {16, IYh, IYl, C}},              // FDCB..E1 SET 4,(IY+d),C
-    {set_xy, NULL, {16, IYh, IYl, D}},              // FDCB..E2 SET 4,(IY+d),D
-    {set_xy, NULL, {16, IYh, IYl, E}},              // FDCB..E3 SET 4,(IY+d),E
-    {set_xy, NULL, {16, IYh, IYl, H}},              // FDCB..E4 SET 4,(IY+d),H
-    {set_xy, NULL, {16, IYh, IYl, L}},              // FDCB..E5 SET 4,(IY+d),L
-    {set_xy, NULL, {16, IYh, IYl, N}},              // FDCB..E6 SET 4,(IY+d)
-    {set_xy, NULL, {16, IYh, IYl, A}},              // FDCB..E7 SET 4,(IY+d),A
-    {set_xy, NULL, {32, IYh, IYl, B}},              // FDCB..E8 SET 5,(IY+d),B
-    {set_xy, NULL, {32, IYh, IYl, C}},              // FDCB..E9 SET 5,(IY+d),C
-    {set_xy, NULL, {32, IYh, IYl, D}},              // FDCB..EA SET 5,(IY+d),D
-    {set_xy, NULL, {32, IYh, IYl, E}},              // FDCB..EB SET 5,(IY+d),E
-    {set_xy, NULL, {32, IYh, IYl, H}},              // FDCB..EC SET 5,(IY+d),H
-    {set_xy, NULL, {32, IYh, IYl, L}},              // FDCB..ED SET 5,(IY+d),L
-    {set_xy, NULL, {32, IYh, IYl, N}},              // FDCB..EE SET 5,(IY+d)
-    {set_xy, NULL, {32, IYh, IYl, A}},              // FDCB..EF SET 5,(IY+d),A
-    {set_xy, NULL, {64, IYh, IYl, B}},              // FDCB..F0 SET 6,(IY+d),B
-    {set_xy, NULL, {64, IYh, IYl, C}},              // FDCB..F1 SET 6,(IY+d),C
-    {set_xy, NULL, {64, IYh, IYl, D}},              // FDCB..F2 SET 6,(IY+d),D
-    {set_xy, NULL, {64, IYh, IYl, E}},              // FDCB..F3 SET 6,(IY+d),E
-    {set_xy, NULL, {64, IYh, IYl, H}},              // FDCB..F4 SET 6,(IY+d),H
-    {set_xy, NULL, {64, IYh, IYl, L}},              // FDCB..F5 SET 6,(IY+d),L
-    {set_xy, NULL, {64, IYh, IYl, N}},              // FDCB..F6 SET 6,(IY+d)
-    {set_xy, NULL, {64, IYh, IYl, A}},              // FDCB..F7 SET 6,(IY+d),A
-    {set_xy, NULL, {128, IYh, IYl, B}},             // FDCB..F8 SET 7,(IY+d),B
-    {set_xy, NULL, {128, IYh, IYl, C}},             // FDCB..F9 SET 7,(IY+d),C
-    {set_xy, NULL, {128, IYh, IYl, D}},             // FDCB..FA SET 7,(IY+d),D
-    {set_xy, NULL, {128, IYh, IYl, E}},             // FDCB..FB SET 7,(IY+d),E
-    {set_xy, NULL, {128, IYh, IYl, H}},             // FDCB..FC SET 7,(IY+d),H
-    {set_xy, NULL, {128, IYh, IYl, L}},             // FDCB..FD SET 7,(IY+d),L
-    {set_xy, NULL, {128, IYh, IYl, N}},             // FDCB..FE SET 7,(IY+d)
-    {set_xy, NULL, {128, IYh, IYl, A}},             // FDCB..FF SET 7,(IY+d),A
+    {f_xy, RLC, {10, 11, 2}},                       // FDCB..00 RLC (IY+d),B
+    {f_xy, RLC, {10, 11, 3}},                       // FDCB..01 RLC (IY+d),C
+    {f_xy, RLC, {10, 11, 4}},                       // FDCB..02 RLC (IY+d),D
+    {f_xy, RLC, {10, 11, 5}},                       // FDCB..03 RLC (IY+d),E
+    {f_xy, RLC, {10, 11, 6}},                       // FDCB..04 RLC (IY+d),H
+    {f_xy, RLC, {10, 11, 7}},                       // FDCB..05 RLC (IY+d),L
+    {f_xy, RLC, {10, 11, -1}},                      // FDCB..06 RLC (IY+d)
+    {f_xy, RLC, {10, 11, 0}},                       // FDCB..07 RLC (IY+d),A
+    {f_xy, RRC, {10, 11, 2}},                       // FDCB..08 RRC (IY+d),B
+    {f_xy, RRC, {10, 11, 3}},                       // FDCB..09 RRC (IY+d),C
+    {f_xy, RRC, {10, 11, 4}},                       // FDCB..0A RRC (IY+d),D
+    {f_xy, RRC, {10, 11, 5}},                       // FDCB..0B RRC (IY+d),E
+    {f_xy, RRC, {10, 11, 6}},                       // FDCB..0C RRC (IY+d),H
+    {f_xy, RRC, {10, 11, 7}},                       // FDCB..0D RRC (IY+d),L
+    {f_xy, RRC, {10, 11, -1}},                      // FDCB..0E RRC (IY+d)
+    {f_xy, RRC, {10, 11, 0}},                       // FDCB..0F RRC (IY+d),A
+    {fc_xy, RL, {4, 10, 11, 2}},                    // FDCB..10 RL (IY+d),B
+    {fc_xy, RL, {4, 10, 11, 3}},                    // FDCB..11 RL (IY+d),C
+    {fc_xy, RL, {4, 10, 11, 4}},                    // FDCB..12 RL (IY+d),D
+    {fc_xy, RL, {4, 10, 11, 5}},                    // FDCB..13 RL (IY+d),E
+    {fc_xy, RL, {4, 10, 11, 6}},                    // FDCB..14 RL (IY+d),H
+    {fc_xy, RL, {4, 10, 11, 7}},                    // FDCB..15 RL (IY+d),L
+    {fc_xy, RL, {4, 10, 11, -1}},                   // FDCB..16 RL (IY+d)
+    {fc_xy, RL, {4, 10, 11, 0}},                    // FDCB..17 RL (IY+d),A
+    {fc_xy, RR, {4, 10, 11, 2}},                    // FDCB..18 RR (IY+d),B
+    {fc_xy, RR, {4, 10, 11, 3}},                    // FDCB..19 RR (IY+d),C
+    {fc_xy, RR, {4, 10, 11, 4}},                    // FDCB..1A RR (IY+d),D
+    {fc_xy, RR, {4, 10, 11, 5}},                    // FDCB..1B RR (IY+d),E
+    {fc_xy, RR, {4, 10, 11, 6}},                    // FDCB..1C RR (IY+d),H
+    {fc_xy, RR, {4, 10, 11, 7}},                    // FDCB..1D RR (IY+d),L
+    {fc_xy, RR, {4, 10, 11, -1}},                   // FDCB..1E RR (IY+d)
+    {fc_xy, RR, {4, 10, 11, 0}},                    // FDCB..1F RR (IY+d),A
+    {f_xy, SLA, {10, 11, 2}},                       // FDCB..20 SLA (IY+d),B
+    {f_xy, SLA, {10, 11, 3}},                       // FDCB..21 SLA (IY+d),C
+    {f_xy, SLA, {10, 11, 4}},                       // FDCB..22 SLA (IY+d),D
+    {f_xy, SLA, {10, 11, 5}},                       // FDCB..23 SLA (IY+d),E
+    {f_xy, SLA, {10, 11, 6}},                       // FDCB..24 SLA (IY+d),H
+    {f_xy, SLA, {10, 11, 7}},                       // FDCB..25 SLA (IY+d),L
+    {f_xy, SLA, {10, 11, -1}},                      // FDCB..26 SLA (IY+d)
+    {f_xy, SLA, {10, 11, 0}},                       // FDCB..27 SLA (IY+d),A
+    {f_xy, SRA, {10, 11, 2}},                       // FDCB..28 SRA (IY+d),B
+    {f_xy, SRA, {10, 11, 3}},                       // FDCB..29 SRA (IY+d),C
+    {f_xy, SRA, {10, 11, 4}},                       // FDCB..2A SRA (IY+d),D
+    {f_xy, SRA, {10, 11, 5}},                       // FDCB..2B SRA (IY+d),E
+    {f_xy, SRA, {10, 11, 6}},                       // FDCB..2C SRA (IY+d),H
+    {f_xy, SRA, {10, 11, 7}},                       // FDCB..2D SRA (IY+d),L
+    {f_xy, SRA, {10, 11, -1}},                      // FDCB..2E SRA (IY+d)
+    {f_xy, SRA, {10, 11, 0}},                       // FDCB..2F SRA (IY+d),A
+    {f_xy, SLL, {10, 11, 2}},                       // FDCB..30 SLL (IY+d),B
+    {f_xy, SLL, {10, 11, 3}},                       // FDCB..31 SLL (IY+d),C
+    {f_xy, SLL, {10, 11, 4}},                       // FDCB..32 SLL (IY+d),D
+    {f_xy, SLL, {10, 11, 5}},                       // FDCB..33 SLL (IY+d),E
+    {f_xy, SLL, {10, 11, 6}},                       // FDCB..34 SLL (IY+d),H
+    {f_xy, SLL, {10, 11, 7}},                       // FDCB..35 SLL (IY+d),L
+    {f_xy, SLL, {10, 11, -1}},                      // FDCB..36 SLL (IY+d)
+    {f_xy, SLL, {10, 11, 0}},                       // FDCB..37 SLL (IY+d),A
+    {f_xy, SRL, {10, 11, 2}},                       // FDCB..38 SRL (IY+d),B
+    {f_xy, SRL, {10, 11, 3}},                       // FDCB..39 SRL (IY+d),C
+    {f_xy, SRL, {10, 11, 4}},                       // FDCB..3A SRL (IY+d),D
+    {f_xy, SRL, {10, 11, 5}},                       // FDCB..3B SRL (IY+d),E
+    {f_xy, SRL, {10, 11, 6}},                       // FDCB..3C SRL (IY+d),H
+    {f_xy, SRL, {10, 11, 7}},                       // FDCB..3D SRL (IY+d),L
+    {f_xy, SRL, {10, 11, -1}},                      // FDCB..3E SRL (IY+d)
+    {f_xy, SRL, {10, 11, 0}},                       // FDCB..3F SRL (IY+d),A
+    {bit_xy, NULL, {0, 10, 11}},                    // FDCB..40 BIT 0,(IY+d)
+    {bit_xy, NULL, {0, 10, 11}},                    // FDCB..41 BIT 0,(IY+d)
+    {bit_xy, NULL, {0, 10, 11}},                    // FDCB..42 BIT 0,(IY+d)
+    {bit_xy, NULL, {0, 10, 11}},                    // FDCB..43 BIT 0,(IY+d)
+    {bit_xy, NULL, {0, 10, 11}},                    // FDCB..44 BIT 0,(IY+d)
+    {bit_xy, NULL, {0, 10, 11}},                    // FDCB..45 BIT 0,(IY+d)
+    {bit_xy, NULL, {0, 10, 11}},                    // FDCB..46 BIT 0,(IY+d)
+    {bit_xy, NULL, {0, 10, 11}},                    // FDCB..47 BIT 0,(IY+d)
+    {bit_xy, NULL, {1, 10, 11}},                    // FDCB..48 BIT 1,(IY+d)
+    {bit_xy, NULL, {1, 10, 11}},                    // FDCB..49 BIT 1,(IY+d)
+    {bit_xy, NULL, {1, 10, 11}},                    // FDCB..4A BIT 1,(IY+d)
+    {bit_xy, NULL, {1, 10, 11}},                    // FDCB..4B BIT 1,(IY+d)
+    {bit_xy, NULL, {1, 10, 11}},                    // FDCB..4C BIT 1,(IY+d)
+    {bit_xy, NULL, {1, 10, 11}},                    // FDCB..4D BIT 1,(IY+d)
+    {bit_xy, NULL, {1, 10, 11}},                    // FDCB..4E BIT 1,(IY+d)
+    {bit_xy, NULL, {1, 10, 11}},                    // FDCB..4F BIT 1,(IY+d)
+    {bit_xy, NULL, {2, 10, 11}},                    // FDCB..50 BIT 2,(IY+d)
+    {bit_xy, NULL, {2, 10, 11}},                    // FDCB..51 BIT 2,(IY+d)
+    {bit_xy, NULL, {2, 10, 11}},                    // FDCB..52 BIT 2,(IY+d)
+    {bit_xy, NULL, {2, 10, 11}},                    // FDCB..53 BIT 2,(IY+d)
+    {bit_xy, NULL, {2, 10, 11}},                    // FDCB..54 BIT 2,(IY+d)
+    {bit_xy, NULL, {2, 10, 11}},                    // FDCB..55 BIT 2,(IY+d)
+    {bit_xy, NULL, {2, 10, 11}},                    // FDCB..56 BIT 2,(IY+d)
+    {bit_xy, NULL, {2, 10, 11}},                    // FDCB..57 BIT 2,(IY+d)
+    {bit_xy, NULL, {3, 10, 11}},                    // FDCB..58 BIT 3,(IY+d)
+    {bit_xy, NULL, {3, 10, 11}},                    // FDCB..59 BIT 3,(IY+d)
+    {bit_xy, NULL, {3, 10, 11}},                    // FDCB..5A BIT 3,(IY+d)
+    {bit_xy, NULL, {3, 10, 11}},                    // FDCB..5B BIT 3,(IY+d)
+    {bit_xy, NULL, {3, 10, 11}},                    // FDCB..5C BIT 3,(IY+d)
+    {bit_xy, NULL, {3, 10, 11}},                    // FDCB..5D BIT 3,(IY+d)
+    {bit_xy, NULL, {3, 10, 11}},                    // FDCB..5E BIT 3,(IY+d)
+    {bit_xy, NULL, {3, 10, 11}},                    // FDCB..5F BIT 3,(IY+d)
+    {bit_xy, NULL, {4, 10, 11}},                    // FDCB..60 BIT 4,(IY+d)
+    {bit_xy, NULL, {4, 10, 11}},                    // FDCB..61 BIT 4,(IY+d)
+    {bit_xy, NULL, {4, 10, 11}},                    // FDCB..62 BIT 4,(IY+d)
+    {bit_xy, NULL, {4, 10, 11}},                    // FDCB..63 BIT 4,(IY+d)
+    {bit_xy, NULL, {4, 10, 11}},                    // FDCB..64 BIT 4,(IY+d)
+    {bit_xy, NULL, {4, 10, 11}},                    // FDCB..65 BIT 4,(IY+d)
+    {bit_xy, NULL, {4, 10, 11}},                    // FDCB..66 BIT 4,(IY+d)
+    {bit_xy, NULL, {4, 10, 11}},                    // FDCB..67 BIT 4,(IY+d)
+    {bit_xy, NULL, {5, 10, 11}},                    // FDCB..68 BIT 5,(IY+d)
+    {bit_xy, NULL, {5, 10, 11}},                    // FDCB..69 BIT 5,(IY+d)
+    {bit_xy, NULL, {5, 10, 11}},                    // FDCB..6A BIT 5,(IY+d)
+    {bit_xy, NULL, {5, 10, 11}},                    // FDCB..6B BIT 5,(IY+d)
+    {bit_xy, NULL, {5, 10, 11}},                    // FDCB..6C BIT 5,(IY+d)
+    {bit_xy, NULL, {5, 10, 11}},                    // FDCB..6D BIT 5,(IY+d)
+    {bit_xy, NULL, {5, 10, 11}},                    // FDCB..6E BIT 5,(IY+d)
+    {bit_xy, NULL, {5, 10, 11}},                    // FDCB..6F BIT 5,(IY+d)
+    {bit_xy, NULL, {6, 10, 11}},                    // FDCB..70 BIT 6,(IY+d)
+    {bit_xy, NULL, {6, 10, 11}},                    // FDCB..71 BIT 6,(IY+d)
+    {bit_xy, NULL, {6, 10, 11}},                    // FDCB..72 BIT 6,(IY+d)
+    {bit_xy, NULL, {6, 10, 11}},                    // FDCB..73 BIT 6,(IY+d)
+    {bit_xy, NULL, {6, 10, 11}},                    // FDCB..74 BIT 6,(IY+d)
+    {bit_xy, NULL, {6, 10, 11}},                    // FDCB..75 BIT 6,(IY+d)
+    {bit_xy, NULL, {6, 10, 11}},                    // FDCB..76 BIT 6,(IY+d)
+    {bit_xy, NULL, {6, 10, 11}},                    // FDCB..77 BIT 6,(IY+d)
+    {bit_xy, NULL, {7, 10, 11}},                    // FDCB..78 BIT 7,(IY+d)
+    {bit_xy, NULL, {7, 10, 11}},                    // FDCB..79 BIT 7,(IY+d)
+    {bit_xy, NULL, {7, 10, 11}},                    // FDCB..7A BIT 7,(IY+d)
+    {bit_xy, NULL, {7, 10, 11}},                    // FDCB..7B BIT 7,(IY+d)
+    {bit_xy, NULL, {7, 10, 11}},                    // FDCB..7C BIT 7,(IY+d)
+    {bit_xy, NULL, {7, 10, 11}},                    // FDCB..7D BIT 7,(IY+d)
+    {bit_xy, NULL, {7, 10, 11}},                    // FDCB..7E BIT 7,(IY+d)
+    {bit_xy, NULL, {7, 10, 11}},                    // FDCB..7F BIT 7,(IY+d)
+    {res_xy, NULL, {254, 10, 11, 2}},               // FDCB..80 RES 0,(IY+d),B
+    {res_xy, NULL, {254, 10, 11, 3}},               // FDCB..81 RES 0,(IY+d),C
+    {res_xy, NULL, {254, 10, 11, 4}},               // FDCB..82 RES 0,(IY+d),D
+    {res_xy, NULL, {254, 10, 11, 5}},               // FDCB..83 RES 0,(IY+d),E
+    {res_xy, NULL, {254, 10, 11, 6}},               // FDCB..84 RES 0,(IY+d),H
+    {res_xy, NULL, {254, 10, 11, 7}},               // FDCB..85 RES 0,(IY+d),L
+    {res_xy, NULL, {254, 10, 11, -1}},              // FDCB..86 RES 0,(IY+d)
+    {res_xy, NULL, {254, 10, 11, 0}},               // FDCB..87 RES 0,(IY+d),A
+    {res_xy, NULL, {253, 10, 11, 2}},               // FDCB..88 RES 1,(IY+d),B
+    {res_xy, NULL, {253, 10, 11, 3}},               // FDCB..89 RES 1,(IY+d),C
+    {res_xy, NULL, {253, 10, 11, 4}},               // FDCB..8A RES 1,(IY+d),D
+    {res_xy, NULL, {253, 10, 11, 5}},               // FDCB..8B RES 1,(IY+d),E
+    {res_xy, NULL, {253, 10, 11, 6}},               // FDCB..8C RES 1,(IY+d),H
+    {res_xy, NULL, {253, 10, 11, 7}},               // FDCB..8D RES 1,(IY+d),L
+    {res_xy, NULL, {253, 10, 11, -1}},              // FDCB..8E RES 1,(IY+d)
+    {res_xy, NULL, {253, 10, 11, 0}},               // FDCB..8F RES 1,(IY+d),A
+    {res_xy, NULL, {251, 10, 11, 2}},               // FDCB..90 RES 2,(IY+d),B
+    {res_xy, NULL, {251, 10, 11, 3}},               // FDCB..91 RES 2,(IY+d),C
+    {res_xy, NULL, {251, 10, 11, 4}},               // FDCB..92 RES 2,(IY+d),D
+    {res_xy, NULL, {251, 10, 11, 5}},               // FDCB..93 RES 2,(IY+d),E
+    {res_xy, NULL, {251, 10, 11, 6}},               // FDCB..94 RES 2,(IY+d),H
+    {res_xy, NULL, {251, 10, 11, 7}},               // FDCB..95 RES 2,(IY+d),L
+    {res_xy, NULL, {251, 10, 11, -1}},              // FDCB..96 RES 2,(IY+d)
+    {res_xy, NULL, {251, 10, 11, 0}},               // FDCB..97 RES 2,(IY+d),A
+    {res_xy, NULL, {247, 10, 11, 2}},               // FDCB..98 RES 3,(IY+d),B
+    {res_xy, NULL, {247, 10, 11, 3}},               // FDCB..99 RES 3,(IY+d),C
+    {res_xy, NULL, {247, 10, 11, 4}},               // FDCB..9A RES 3,(IY+d),D
+    {res_xy, NULL, {247, 10, 11, 5}},               // FDCB..9B RES 3,(IY+d),E
+    {res_xy, NULL, {247, 10, 11, 6}},               // FDCB..9C RES 3,(IY+d),H
+    {res_xy, NULL, {247, 10, 11, 7}},               // FDCB..9D RES 3,(IY+d),L
+    {res_xy, NULL, {247, 10, 11, -1}},              // FDCB..9E RES 3,(IY+d)
+    {res_xy, NULL, {247, 10, 11, 0}},               // FDCB..9F RES 3,(IY+d),A
+    {res_xy, NULL, {239, 10, 11, 2}},               // FDCB..A0 RES 4,(IY+d),B
+    {res_xy, NULL, {239, 10, 11, 3}},               // FDCB..A1 RES 4,(IY+d),C
+    {res_xy, NULL, {239, 10, 11, 4}},               // FDCB..A2 RES 4,(IY+d),D
+    {res_xy, NULL, {239, 10, 11, 5}},               // FDCB..A3 RES 4,(IY+d),E
+    {res_xy, NULL, {239, 10, 11, 6}},               // FDCB..A4 RES 4,(IY+d),H
+    {res_xy, NULL, {239, 10, 11, 7}},               // FDCB..A5 RES 4,(IY+d),L
+    {res_xy, NULL, {239, 10, 11, -1}},              // FDCB..A6 RES 4,(IY+d)
+    {res_xy, NULL, {239, 10, 11, 0}},               // FDCB..A7 RES 4,(IY+d),A
+    {res_xy, NULL, {223, 10, 11, 2}},               // FDCB..A8 RES 5,(IY+d),B
+    {res_xy, NULL, {223, 10, 11, 3}},               // FDCB..A9 RES 5,(IY+d),C
+    {res_xy, NULL, {223, 10, 11, 4}},               // FDCB..AA RES 5,(IY+d),D
+    {res_xy, NULL, {223, 10, 11, 5}},               // FDCB..AB RES 5,(IY+d),E
+    {res_xy, NULL, {223, 10, 11, 6}},               // FDCB..AC RES 5,(IY+d),H
+    {res_xy, NULL, {223, 10, 11, 7}},               // FDCB..AD RES 5,(IY+d),L
+    {res_xy, NULL, {223, 10, 11, -1}},              // FDCB..AE RES 5,(IY+d)
+    {res_xy, NULL, {223, 10, 11, 0}},               // FDCB..AF RES 5,(IY+d),A
+    {res_xy, NULL, {191, 10, 11, 2}},               // FDCB..B0 RES 6,(IY+d),B
+    {res_xy, NULL, {191, 10, 11, 3}},               // FDCB..B1 RES 6,(IY+d),C
+    {res_xy, NULL, {191, 10, 11, 4}},               // FDCB..B2 RES 6,(IY+d),D
+    {res_xy, NULL, {191, 10, 11, 5}},               // FDCB..B3 RES 6,(IY+d),E
+    {res_xy, NULL, {191, 10, 11, 6}},               // FDCB..B4 RES 6,(IY+d),H
+    {res_xy, NULL, {191, 10, 11, 7}},               // FDCB..B5 RES 6,(IY+d),L
+    {res_xy, NULL, {191, 10, 11, -1}},              // FDCB..B6 RES 6,(IY+d)
+    {res_xy, NULL, {191, 10, 11, 0}},               // FDCB..B7 RES 6,(IY+d),A
+    {res_xy, NULL, {127, 10, 11, 2}},               // FDCB..B8 RES 7,(IY+d),B
+    {res_xy, NULL, {127, 10, 11, 3}},               // FDCB..B9 RES 7,(IY+d),C
+    {res_xy, NULL, {127, 10, 11, 4}},               // FDCB..BA RES 7,(IY+d),D
+    {res_xy, NULL, {127, 10, 11, 5}},               // FDCB..BB RES 7,(IY+d),E
+    {res_xy, NULL, {127, 10, 11, 6}},               // FDCB..BC RES 7,(IY+d),H
+    {res_xy, NULL, {127, 10, 11, 7}},               // FDCB..BD RES 7,(IY+d),L
+    {res_xy, NULL, {127, 10, 11, -1}},              // FDCB..BE RES 7,(IY+d)
+    {res_xy, NULL, {127, 10, 11, 0}},               // FDCB..BF RES 7,(IY+d),A
+    {set_xy, NULL, {1, 10, 11, 2}},                 // FDCB..C0 SET 0,(IY+d),B
+    {set_xy, NULL, {1, 10, 11, 3}},                 // FDCB..C1 SET 0,(IY+d),C
+    {set_xy, NULL, {1, 10, 11, 4}},                 // FDCB..C2 SET 0,(IY+d),D
+    {set_xy, NULL, {1, 10, 11, 5}},                 // FDCB..C3 SET 0,(IY+d),E
+    {set_xy, NULL, {1, 10, 11, 6}},                 // FDCB..C4 SET 0,(IY+d),H
+    {set_xy, NULL, {1, 10, 11, 7}},                 // FDCB..C5 SET 0,(IY+d),L
+    {set_xy, NULL, {1, 10, 11, -1}},                // FDCB..C6 SET 0,(IY+d)
+    {set_xy, NULL, {1, 10, 11, 0}},                 // FDCB..C7 SET 0,(IY+d),A
+    {set_xy, NULL, {2, 10, 11, 2}},                 // FDCB..C8 SET 1,(IY+d),B
+    {set_xy, NULL, {2, 10, 11, 3}},                 // FDCB..C9 SET 1,(IY+d),C
+    {set_xy, NULL, {2, 10, 11, 4}},                 // FDCB..CA SET 1,(IY+d),D
+    {set_xy, NULL, {2, 10, 11, 5}},                 // FDCB..CB SET 1,(IY+d),E
+    {set_xy, NULL, {2, 10, 11, 6}},                 // FDCB..CC SET 1,(IY+d),H
+    {set_xy, NULL, {2, 10, 11, 7}},                 // FDCB..CD SET 1,(IY+d),L
+    {set_xy, NULL, {2, 10, 11, -1}},                // FDCB..CE SET 1,(IY+d)
+    {set_xy, NULL, {2, 10, 11, 0}},                 // FDCB..CF SET 1,(IY+d),A
+    {set_xy, NULL, {4, 10, 11, 2}},                 // FDCB..D0 SET 2,(IY+d),B
+    {set_xy, NULL, {4, 10, 11, 3}},                 // FDCB..D1 SET 2,(IY+d),C
+    {set_xy, NULL, {4, 10, 11, 4}},                 // FDCB..D2 SET 2,(IY+d),D
+    {set_xy, NULL, {4, 10, 11, 5}},                 // FDCB..D3 SET 2,(IY+d),E
+    {set_xy, NULL, {4, 10, 11, 6}},                 // FDCB..D4 SET 2,(IY+d),H
+    {set_xy, NULL, {4, 10, 11, 7}},                 // FDCB..D5 SET 2,(IY+d),L
+    {set_xy, NULL, {4, 10, 11, -1}},                // FDCB..D6 SET 2,(IY+d)
+    {set_xy, NULL, {4, 10, 11, 0}},                 // FDCB..D7 SET 2,(IY+d),A
+    {set_xy, NULL, {8, 10, 11, 2}},                 // FDCB..D8 SET 3,(IY+d),B
+    {set_xy, NULL, {8, 10, 11, 3}},                 // FDCB..D9 SET 3,(IY+d),C
+    {set_xy, NULL, {8, 10, 11, 4}},                 // FDCB..DA SET 3,(IY+d),D
+    {set_xy, NULL, {8, 10, 11, 5}},                 // FDCB..DB SET 3,(IY+d),E
+    {set_xy, NULL, {8, 10, 11, 6}},                 // FDCB..DC SET 3,(IY+d),H
+    {set_xy, NULL, {8, 10, 11, 7}},                 // FDCB..DD SET 3,(IY+d),L
+    {set_xy, NULL, {8, 10, 11, -1}},                // FDCB..DE SET 3,(IY+d)
+    {set_xy, NULL, {8, 10, 11, 0}},                 // FDCB..DF SET 3,(IY+d),A
+    {set_xy, NULL, {16, 10, 11, 2}},                // FDCB..E0 SET 4,(IY+d),B
+    {set_xy, NULL, {16, 10, 11, 3}},                // FDCB..E1 SET 4,(IY+d),C
+    {set_xy, NULL, {16, 10, 11, 4}},                // FDCB..E2 SET 4,(IY+d),D
+    {set_xy, NULL, {16, 10, 11, 5}},                // FDCB..E3 SET 4,(IY+d),E
+    {set_xy, NULL, {16, 10, 11, 6}},                // FDCB..E4 SET 4,(IY+d),H
+    {set_xy, NULL, {16, 10, 11, 7}},                // FDCB..E5 SET 4,(IY+d),L
+    {set_xy, NULL, {16, 10, 11, -1}},               // FDCB..E6 SET 4,(IY+d)
+    {set_xy, NULL, {16, 10, 11, 0}},                // FDCB..E7 SET 4,(IY+d),A
+    {set_xy, NULL, {32, 10, 11, 2}},                // FDCB..E8 SET 5,(IY+d),B
+    {set_xy, NULL, {32, 10, 11, 3}},                // FDCB..E9 SET 5,(IY+d),C
+    {set_xy, NULL, {32, 10, 11, 4}},                // FDCB..EA SET 5,(IY+d),D
+    {set_xy, NULL, {32, 10, 11, 5}},                // FDCB..EB SET 5,(IY+d),E
+    {set_xy, NULL, {32, 10, 11, 6}},                // FDCB..EC SET 5,(IY+d),H
+    {set_xy, NULL, {32, 10, 11, 7}},                // FDCB..ED SET 5,(IY+d),L
+    {set_xy, NULL, {32, 10, 11, -1}},               // FDCB..EE SET 5,(IY+d)
+    {set_xy, NULL, {32, 10, 11, 0}},                // FDCB..EF SET 5,(IY+d),A
+    {set_xy, NULL, {64, 10, 11, 2}},                // FDCB..F0 SET 6,(IY+d),B
+    {set_xy, NULL, {64, 10, 11, 3}},                // FDCB..F1 SET 6,(IY+d),C
+    {set_xy, NULL, {64, 10, 11, 4}},                // FDCB..F2 SET 6,(IY+d),D
+    {set_xy, NULL, {64, 10, 11, 5}},                // FDCB..F3 SET 6,(IY+d),E
+    {set_xy, NULL, {64, 10, 11, 6}},                // FDCB..F4 SET 6,(IY+d),H
+    {set_xy, NULL, {64, 10, 11, 7}},                // FDCB..F5 SET 6,(IY+d),L
+    {set_xy, NULL, {64, 10, 11, -1}},               // FDCB..F6 SET 6,(IY+d)
+    {set_xy, NULL, {64, 10, 11, 0}},                // FDCB..F7 SET 6,(IY+d),A
+    {set_xy, NULL, {128, 10, 11, 2}},               // FDCB..F8 SET 7,(IY+d),B
+    {set_xy, NULL, {128, 10, 11, 3}},               // FDCB..F9 SET 7,(IY+d),C
+    {set_xy, NULL, {128, 10, 11, 4}},               // FDCB..FA SET 7,(IY+d),D
+    {set_xy, NULL, {128, 10, 11, 5}},               // FDCB..FB SET 7,(IY+d),E
+    {set_xy, NULL, {128, 10, 11, 6}},               // FDCB..FC SET 7,(IY+d),H
+    {set_xy, NULL, {128, 10, 11, 7}},               // FDCB..FD SET 7,(IY+d),L
+    {set_xy, NULL, {128, 10, 11, -1}},              // FDCB..FE SET 7,(IY+d)
+    {set_xy, NULL, {128, 10, 11, 0}},               // FDCB..FF SET 7,(IY+d),A
 };
 
 /*****************************************************************************/
