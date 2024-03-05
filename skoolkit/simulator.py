@@ -64,6 +64,7 @@ xH = 22
 xL = 23
 PC = 24
 T = 25
+IFF = 26
 
 REGISTERS = {
     'A': A,
@@ -122,16 +123,17 @@ class Simulator:
             0,     # xH
             0,     # xL
             0,     # PC
-            0      # T (T-states)
+            0,     # T (T-states)
+            0,     # IFF
         ]
         if registers:
             self.set_registers(registers)
         if state is None:
             state = {}
         self.imode = state.get('im', 1)
-        self.iff = state.get('iff', 0)
+        self.registers[IFF] = state.get('iff', 0)
         self.halted = state.get('halted', False)
-        self.registers[25] = state.get('tstates', 0)
+        self.registers[T] = state.get('tstates', 0)
         cfg = CONFIG.copy()
         if config:
             cfg.update(config)
@@ -210,7 +212,7 @@ class Simulator:
         state = [
             f'border={self.tracer.border}',
             f'fe={self.tracer.outfe}',
-            f'iff={self.iff}',
+            f'iff={self.registers[IFF]}',
             f'im={self.imode}'
         ]
         if tstates:
@@ -253,7 +255,7 @@ class Simulator:
             int_active = self.int_active
             while True:
                 opcodes[memory[pc]]()
-                if self.iff and registers[25] % frame_duration < int_active:
+                if registers[26] and registers[25] % frame_duration < int_active:
                     self.accept_interrupt(registers, memory, pc)
                 pc = registers[24]
                 if pc == stop:
@@ -303,7 +305,7 @@ class Simulator:
             memory[sp] = pc // 256
         registers[15] = R1[registers[15]] # R
         registers[24] = iaddr # PC
-        self.iff = 0
+        registers[26] = 0 # IFF
         self.halted = False
         return True
 
@@ -562,7 +564,7 @@ class Simulator:
 
     def di_ei(self, registers, iff):
         # DI / EI
-        self.iff = iff
+        registers[26] = iff
         registers[15] = R1[registers[15]] # R
         registers[25] += 4 # T-states
         registers[24] = (registers[24] + 1) % 65536 # PC
@@ -633,7 +635,7 @@ class Simulator:
     def halt(self, registers):
         # HALT
         registers[25] += 4 # T-states
-        if self.iff and registers[25] % self.frame_duration < self.int_active:
+        if registers[26] and registers[25] % self.frame_duration < self.int_active:
             registers[24] = (registers[24] + 1) % 65536 # PC
             self.halted = False
         else:
@@ -755,10 +757,10 @@ class Simulator:
         a = registers[r]
         registers[0] = a
         registers[25] += 9 # T-states
-        if self.iff and registers[25] % self.frame_duration < self.int_active:
+        if registers[26] and registers[25] % self.frame_duration < self.int_active:
             registers[1] = (a & 0xA8) + (a == 0) * 0x40 + (registers[1] % 2)
         else:
-            registers[1] = (a & 0xA8) + (a == 0) * 0x40 + self.iff * 0x04 + (registers[1] % 2)
+            registers[1] = (a & 0xA8) + (a == 0) * 0x40 + registers[26] * 0x04 + (registers[1] % 2)
         registers[24] = (registers[24] + 2) % 65536 # PC
 
     def ld_hl_n(self, registers, memory):

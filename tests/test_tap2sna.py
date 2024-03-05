@@ -22,7 +22,7 @@ class MockSimulator:
         global simulator
         self.memory = mock_memory
         self.opcodes = [self.in_a_n] * 256
-        self.registers = [0x80] * 26
+        self.registers = [0x80] * 27
         self.frame_duration = 69888
         self.int_active = 32
         self.iff = 0

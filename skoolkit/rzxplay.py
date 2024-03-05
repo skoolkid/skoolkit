@@ -122,7 +122,7 @@ class RZXTracer(PagingTracer):
         a = registers[r]
         registers[0] = a
         registers[25] += 9 # T-states
-        registers[1] = (a & 0xA8) + (a == 0) * 0x40 + self.simulator.iff * 0x04 + (registers[1] % 2)
+        registers[1] = (a & 0xA8) + (a == 0) * 0x40 + registers[26] * 0x04 + (registers[1] % 2)
         registers[24] = (registers[24] + 2) % 65536 # PC
 
 class RZXContext:
@@ -360,7 +360,7 @@ def process_block(block, options, context):
             prev_scr = memory[16384:23296]
         registers[25] = 0
         fetch_counter = tracer.next_frame()
-        if simulator.iff:
+        if registers[26]:
             if memory[pc] == 0x76:
                 # Advance PC if the CPU was halted
                 registers[24] = (registers[24] + 1) % 65536

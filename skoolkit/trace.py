@@ -61,7 +61,7 @@ class Tracer(PagingTracer):
                 opcodes[memory[pc]]()
             tstates = registers[25]
 
-            if interrupts and simulator.iff and tstates % frame_duration < int_active:
+            if interrupts and registers[26] and tstates % frame_duration < int_active:
                 simulator.accept_interrupt(registers, memory, pc)
                 tstates = registers[25]
 

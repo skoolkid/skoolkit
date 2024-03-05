@@ -25,8 +25,9 @@ from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
                       SkoolKitError, SkoolParsingError, eval_variable, evaluate)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.graphics import Udg
-from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T, INT_ACTIVE)
+from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl,
+                                IYh, IYl, SP, I, R, xA, xF, xB, xC, xD, xE, xH,
+                                xL, PC, T, IFF, INT_ACTIVE)
 from skoolkit.snapshot import FRAME_DURATIONS
 
 _map_cache = {}
@@ -603,7 +604,7 @@ def _write_sim_state(writer, simulator, tracer=None):
         'SP': registers[SP],
         'PC': registers[PC],
         'tstates': registers[T],
-        'iff': simulator.iff,
+        'iff': registers[IFF],
         'im': simulator.imode,
         'halted': int(simulator.halted),
         '7ffd': out7ffd,

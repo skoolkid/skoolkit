@@ -336,7 +336,7 @@ class KeyboardTracer(PagingTracer):
                 opcodes[memory[pc]]()
             tstates = registers[25]
 
-            if simulator.iff and tstates % frame_duration < int_active:
+            if registers[26] and tstates % frame_duration < int_active:
                 if simulator.accept_interrupt(registers, memory, pc) and keys and not keys[0]:
                     keys.pop(0)
                 tstates = registers[25]

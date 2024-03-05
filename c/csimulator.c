@@ -80,6 +80,7 @@ static const int xH = 22;
 static const int xL = 23;
 static const int PC = 24;
 static const int T = 25;
+static const int IFF = 26;
 
 static byte PARITY[256];
 static byte SZ53P[256];
@@ -1084,16 +1085,11 @@ static void cpi(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* DI / EI */
 static void di_ei(CSimulatorObject* self, void* lookup, int args[]) {
-    int value = args[0];
+    int iff = args[0];
     
-    PyObject* iff = PyLong_FromLong(value);
-    int rv = PyObject_SetAttrString(self->simulator, "iff", iff);
-    Py_XDECREF(iff);
-    if (rv == -1) {
-        return;
-    }
-
     unsigned* reg = self->registers;
+
+    REG(IFF) = iff;
 
     INC_R(1);
     INC_T(4);
@@ -1216,13 +1212,10 @@ static void halt(CSimulatorObject* self, void* lookup, int args[]) {
     PyObject* int_active = PyObject_GetAttrString(self->simulator, "int_active");
     unsigned ia_long = PyLong_AsLong(int_active);
     Py_XDECREF(int_active);
-    PyObject* iff = PyObject_GetAttrString(self->simulator, "iff");
-    long iff_long = PyLong_AsLong(iff);
-    Py_XDECREF(iff);
     unsigned* reg = self->registers;
 
     INC_T(4);
-    if (iff_long && (REG(T) % fd_long) < ia_long) {
+    if (REG(IFF) && (REG(T) % fd_long) < ia_long) {
         INC_PC(1);
         PyObject_SetAttrString(self->simulator, "halted", Py_True);
     } else {
@@ -1433,9 +1426,6 @@ static void ld_a_ir(CSimulatorObject* self, void* lookup, int args[]) {
     PyObject* int_active = PyObject_GetAttrString(self->simulator, "int_active");
     unsigned ia_long = PyLong_AsLong(int_active);
     Py_XDECREF(int_active);
-    PyObject* iff = PyObject_GetAttrString(self->simulator, "iff");
-    long iff_long = PyLong_AsLong(iff);
-    Py_XDECREF(iff);
     int r = args[0];
     unsigned* reg = self->registers;
 
@@ -1443,10 +1433,10 @@ static void ld_a_ir(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned a = REG(r);
     REG(A) = a;
     INC_T(9);
-    if (iff_long && (REG(T) % fd_long) < ia_long) {
+    if (REG(IFF) && (REG(T) % fd_long) < ia_long) {
         REG(F) = (a & 0xA8) + (a == 0) * 0x40 + (REG(F) & 1);
     } else {
-        REG(F) = (a & 0xA8) + (a == 0) * 0x40 + iff_long * 0x04 + (REG(F) & 1);
+        REG(F) = (a & 0xA8) + (a == 0) * 0x40 + REG(IFF) * 0x04 + (REG(F) & 1);
     }
     INC_PC(2);
 }

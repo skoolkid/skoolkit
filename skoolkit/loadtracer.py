@@ -20,7 +20,7 @@ from functools import partial
 from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
 from skoolkit.pagingtracer import PagingTracer
-from skoolkit.simulator import A, D, E, F, H, L, IXh, IXl, PC, T, R1
+from skoolkit.simulator import A, D, E, F, H, L, IXh, IXl, PC, T, IFF, R1
 from skoolkit.traceutils import Registers, disassemble
 
 DEC = tuple(tuple((
@@ -211,7 +211,7 @@ class LoadTracer(PagingTracer):
                 opcodes[memory[pc]]()
             tstates = registers[25]
 
-            if simulator.iff and tstates % frame_duration < int_active:
+            if registers[26] and tstates % frame_duration < int_active:
                 simulator.accept_interrupt(registers, memory, pc)
                 tstates = registers[25]
 
@@ -539,7 +539,7 @@ class LoadTracer(PagingTracer):
         # (as done at 0x0559), and preload the machine stack with 0x053F (as
         # done at 0x055E)
         registers[0:2], registers[16:18] = registers[16:18], registers[0:2]
-        simulator.iff = 0
+        registers[IFF] = 0
         registers[H], registers[L] = 0x05, 0x3F # SA-LD-RET
         simulator.push(registers, memory, R1, 11, 1, H, L)
 
