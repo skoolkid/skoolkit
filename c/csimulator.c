@@ -82,6 +82,7 @@ static const int PC = 24;
 static const int T = 25;
 static const int IFF = 26;
 static const int IM = 27;
+static const int HALT = 28;
 
 static byte PARITY[256];
 static byte SZ53P[256];
@@ -1217,9 +1218,9 @@ static void halt(CSimulatorObject* self, void* lookup, int args[]) {
     INC_T(4);
     if (REG(IFF) && (REG(T) % fd_long) < ia_long) {
         INC_PC(1);
-        PyObject_SetAttrString(self->simulator, "halted", Py_True);
+        REG(HALT) = 0;
     } else {
-        PyObject_SetAttrString(self->simulator, "halted", Py_False);
+        REG(HALT) = 1;
     }
 
     INC_R(1);

@@ -66,6 +66,7 @@ PC = 24
 T = 25
 IFF = 26
 IM = 27
+HALT = 28
 
 REGISTERS = {
     'A': A,
@@ -127,6 +128,7 @@ class Simulator:
             0,     # T (T-states)
             0,     # IFF
             0,     # IM (interrupt mode)
+            0,     # HALT (halted)
         ]
         if registers:
             self.set_registers(registers)
@@ -134,7 +136,7 @@ class Simulator:
             state = {}
         self.registers[IM] = state.get('im', 1)
         self.registers[IFF] = state.get('iff', 0)
-        self.halted = state.get('halted', False)
+        self.registers[HALT] = state.get('halted', 0)
         self.registers[T] = state.get('tstates', 0)
         cfg = CONFIG.copy()
         if config:
@@ -308,7 +310,7 @@ class Simulator:
         registers[15] = R1[registers[15]] # R
         registers[24] = iaddr # PC
         registers[26] = 0 # IFF
-        self.halted = False
+        registers[28] = 0 # HALT state
         return True
 
     def prefix(self, opcodes, registers, memory):
@@ -639,9 +641,9 @@ class Simulator:
         registers[25] += 4 # T-states
         if registers[26] and registers[25] % self.frame_duration < self.int_active:
             registers[24] = (registers[24] + 1) % 65536 # PC
-            self.halted = False
+            registers[28] = 0 # HALT state
         else:
-            self.halted = True
+            registers[28] = 1 # HALT state
         registers[15] = R1[registers[15]] # R
 
     def im(self, registers, mode):
