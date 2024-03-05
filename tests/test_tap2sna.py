@@ -22,11 +22,9 @@ class MockSimulator:
         global simulator
         self.memory = mock_memory
         self.opcodes = [self.in_a_n] * 256
-        self.registers = [0x80] * 27
+        self.registers = [0x80] * 28
         self.frame_duration = 69888
         self.int_active = 32
-        self.iff = 0
-        self.imode = 1
 
         # The NOP at 49151 is a dummy instruction that triggers LoadTracer's
         # read_port() (via in_a_n() below) and starts the tape running.

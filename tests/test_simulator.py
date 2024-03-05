@@ -1,7 +1,7 @@
 from skoolkittest import SkoolKitTestCase
 from skoolkit.simulator import (Simulator,
                                 A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R,
-                                xA, xF, xB, xC, xD, xE, xH, xL, PC, T, IFF)
+                                xA, xF, xB, xC, xD, xE, xH, xL, PC, T, IFF, IM)
 from skoolkit.simulator import REGISTERS as SIMULATOR_REGISTERS
 
 REGISTER_NAMES = {v: r for r, v in SIMULATOR_REGISTERS.items()}
@@ -73,7 +73,7 @@ class SimulatorTest(SkoolKitTestCase):
             self.assertEqual(actual_memory, sna_out, f"Memory mismatch for '{inst}' ({data_hex}); input: {regvals}")
         if state_out:
             if 'im' in state_out:
-                self.assertEqual(simulator.imode, state_out['im'])
+                self.assertEqual(simulator.registers[IM], state_out['im'])
             if 'iff' in state_out:
                 self.assertEqual(simulator.registers[IFF], state_out['iff'])
 

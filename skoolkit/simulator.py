@@ -65,6 +65,7 @@ xL = 23
 PC = 24
 T = 25
 IFF = 26
+IM = 27
 
 REGISTERS = {
     'A': A,
@@ -125,12 +126,13 @@ class Simulator:
             0,     # PC
             0,     # T (T-states)
             0,     # IFF
+            0,     # IM (interrupt mode)
         ]
         if registers:
             self.set_registers(registers)
         if state is None:
             state = {}
-        self.imode = state.get('im', 1)
+        self.registers[IM] = state.get('im', 1)
         self.registers[IFF] = state.get('iff', 0)
         self.halted = state.get('halted', False)
         self.registers[T] = state.get('tstates', 0)
@@ -213,7 +215,7 @@ class Simulator:
             f'border={self.tracer.border}',
             f'fe={self.tracer.outfe}',
             f'iff={self.registers[IFF]}',
-            f'im={self.imode}'
+            f'im={self.registers[IM]}'
         ]
         if tstates:
             state.append(f'tstates={self.registers[T]}')
@@ -289,7 +291,7 @@ class Simulator:
         pc = registers[24]
         if opcode == 0xFB or (opcode in (0xDD, 0xFD) and prev_pc == (pc - 1) % 65536):
             return False
-        if self.imode == 2:
+        if registers[27] == 2:
             vaddr = 255 + 256 * registers[14]
             iaddr = memory[vaddr] + 256 * memory[(vaddr + 1) % 65536]
             registers[25] += 19 # T-states
@@ -644,7 +646,7 @@ class Simulator:
 
     def im(self, registers, mode):
         # IM 0/1/2
-        self.imode = mode
+        registers[27] = mode
         registers[15] = R2[registers[15]] # R
         registers[25] += 8 # T-states
         registers[24] = (registers[24] + 2) % 65536 # PC

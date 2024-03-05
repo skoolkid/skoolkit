@@ -27,7 +27,7 @@ from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.graphics import Udg
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl,
                                 IYh, IYl, SP, I, R, xA, xF, xB, xC, xD, xE, xH,
-                                xL, PC, T, IFF, INT_ACTIVE)
+                                xL, PC, T, IFF, IM, INT_ACTIVE)
 from skoolkit.snapshot import FRAME_DURATIONS
 
 _map_cache = {}
@@ -605,7 +605,7 @@ def _write_sim_state(writer, simulator, tracer=None):
         'PC': registers[PC],
         'tstates': registers[T],
         'iff': registers[IFF],
-        'im': simulator.imode,
+        'im': registers[IM],
         'halted': int(simulator.halted),
         '7ffd': out7ffd,
         'fffd': outfffd,

@@ -81,6 +81,7 @@ static const int xL = 23;
 static const int PC = 24;
 static const int T = 25;
 static const int IFF = 26;
+static const int IM = 27;
 
 static byte PARITY[256];
 static byte SZ53P[256];
@@ -1086,7 +1087,6 @@ static void cpi(CSimulatorObject* self, void* lookup, int args[]) {
 /* DI / EI */
 static void di_ei(CSimulatorObject* self, void* lookup, int args[]) {
     int iff = args[0];
-    
     unsigned* reg = self->registers;
 
     REG(IFF) = iff;
@@ -1227,16 +1227,10 @@ static void halt(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* IM 0/1/2 */
 static void im(CSimulatorObject* self, void* lookup, int args[]) {
-    int value = args[0];
-    
-    PyObject* mode = PyLong_FromLong(value);
-    int rv = PyObject_SetAttrString(self->simulator, "imode", mode);
-    Py_XDECREF(mode);
-    if (rv == -1) {
-        return;
-    }
-
+    int mode = args[0];
     unsigned* reg = self->registers;
+
+    REG(IM) = mode;
 
     INC_R(2);
     INC_T(8);

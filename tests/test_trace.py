@@ -6,7 +6,7 @@ from unittest.mock import patch
 from skoolkittest import SkoolKitTestCase
 from skoolkit import simulator, trace, SkoolKitError, VERSION
 from skoolkit.config import COMMANDS
-from skoolkit.simulator import IFF
+from skoolkit.simulator import IFF, IM
 
 ROM0_MD5 = 'b4d2692115a9f2924df92a3cbfb358fb'
 ROM1_MD5 = '6e09e5d3c4aef166601669feaaadc01c'
@@ -158,7 +158,7 @@ class TraceTest(SkoolKitTestCase):
         """
         self._test_trace(f'-vv -S 24577 {snafile}', exp_output)
         self.assertEqual(simulator.registers[IFF], 0)
-        self.assertEqual(simulator.imode, 2)
+        self.assertEqual(simulator.registers[IM], 2)
 
     @patch.object(trace, 'Simulator', TestSimulator)
     def test_sna_128k(self):
@@ -199,7 +199,7 @@ class TraceTest(SkoolKitTestCase):
         """
         self._test_trace(f'-vv -S 24578 {snafile}', exp_output)
         self.assertEqual(simulator.registers[IFF], 0)
-        self.assertEqual(simulator.imode, 2)
+        self.assertEqual(simulator.registers[IM], 2)
         self.assertTrue(all(b == 1 for b in simulator.memory[0xC000:0x10000]))
         self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM1_MD5)
 
@@ -244,7 +244,7 @@ class TraceTest(SkoolKitTestCase):
         """
         self._test_trace(f'-vv -S 32769 {z80file}', exp_output)
         self.assertEqual(simulator.registers[IFF], 1)
-        self.assertEqual(simulator.imode, 2)
+        self.assertEqual(simulator.registers[IM], 2)
         self.assertEqual(simulator.registers[25], 20004)
 
     @patch.object(trace, 'Simulator', TestSimulator)
@@ -290,7 +290,7 @@ class TraceTest(SkoolKitTestCase):
         """
         self._test_trace(f'-vv -S 24578 {z80file}', exp_output)
         self.assertEqual(simulator.registers[IFF], 1)
-        self.assertEqual(simulator.imode, 2)
+        self.assertEqual(simulator.registers[IM], 2)
         self.assertEqual(simulator.registers[25], 20012)
         self.assertTrue(all(b == 1 for b in simulator.memory[0xC000:0x10000]))
         self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM0_MD5)
@@ -325,7 +325,7 @@ class TraceTest(SkoolKitTestCase):
         """
         self._test_trace(f'-vv -S 49153 {szxfile}', exp_output)
         self.assertEqual(simulator.registers[IFF], 1)
-        self.assertEqual(simulator.imode, 0)
+        self.assertEqual(simulator.registers[IM], 0)
         self.assertEqual(simulator.registers[25], 261)
 
     @patch.object(trace, 'Simulator', TestSimulator)
@@ -362,7 +362,7 @@ class TraceTest(SkoolKitTestCase):
         """
         self._test_trace(f'-vv -S 24578 {szxfile}', exp_output)
         self.assertEqual(simulator.registers[IFF], 1)
-        self.assertEqual(simulator.imode, 0)
+        self.assertEqual(simulator.registers[IM], 0)
         self.assertEqual(simulator.registers[25], 269)
         self.assertTrue(all(b == 3 for b in simulator.memory[0xC000:0x10000]))
         self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM1_MD5)
