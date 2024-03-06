@@ -3982,6 +3982,20 @@ static void CSimulator_dealloc(CSimulatorObject* self) {
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
+static void get_opcode_handlers(PyObject* simulator, const char* name, PyObject* dest[]) {
+    PyObject* opcodes = PyObject_GetAttrString(simulator, name);
+    if (PyList_Check(opcodes) && PyList_Size(opcodes) == 256) {
+        for (int i = 0; i < 256; i++) {
+            PyObject* opcode_f = PyList_GetItem(opcodes, i);
+            if (opcode_f && opcode_f != Py_None) {
+                Py_INCREF(opcode_f);
+                dest[i] = opcode_f;
+            }
+        }
+    }
+    Py_XDECREF(opcodes);
+}
+
 static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
     static char* kwlist[] = {"", "out7ffd", NULL};
     PyObject* simulator = NULL;
@@ -4064,6 +4078,14 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
     }
     Py_XDECREF(int_active);
 
+    get_opcode_handlers(simulator, "opcodes", self->opcodes);
+    get_opcode_handlers(simulator, "after_CB", self->after_CB);
+    get_opcode_handlers(simulator, "after_ED", self->after_ED);
+    get_opcode_handlers(simulator, "after_DD", self->after_DD);
+    get_opcode_handlers(simulator, "after_FD", self->after_FD);
+    get_opcode_handlers(simulator, "after_DDCB", self->after_DDCB);
+    get_opcode_handlers(simulator, "after_FDCB", self->after_FDCB);
+
     PyObject* in_a_n_tracer = PyObject_GetAttrString(simulator, "in_a_n_tracer");
     if (in_a_n_tracer && in_a_n_tracer != Py_None) {
         self->in_a_n_tracer = in_a_n_tracer;
@@ -4085,39 +4107,6 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
     }
 
     return 0;
-}
-
-static PyObject* CSimulator_set_opcode_handler(CSimulatorObject* self, PyObject* args) {
-    unsigned opcode;
-    PyObject* method;
-    if (!PyArg_ParseTuple(args, "IO", &opcode, &method)) {
-        return NULL;
-    }
-
-    if (opcode <= 0xFF) {
-        Py_INCREF(method);
-        self->opcodes[opcode] = method;
-    } else if (opcode <= 0xFFFF && (opcode & 0xFF00) == 0xCB00) {
-        Py_INCREF(method);
-        self->after_CB[opcode & 0xFF] = method;
-    } else if (opcode <= 0xFFFF && (opcode & 0xFF00) == 0xED00) {
-        Py_INCREF(method);
-        self->after_ED[opcode & 0xFF] = method;
-    } else if (opcode <= 0xFFFF && (opcode & 0xFF00) == 0xDD00) {
-        Py_INCREF(method);
-        self->after_DD[opcode & 0xFF] = method;
-    } else if (opcode <= 0xFFFF && (opcode & 0xFF00) == 0xFD00) {
-        Py_INCREF(method);
-        self->after_FD[opcode & 0xFF] = method;
-    } else if ((opcode & 0xFFFF00) == 0xDDCB00) {
-        Py_INCREF(method);
-        self->after_DDCB[opcode & 0xFF] = method;
-    } else if ((opcode & 0xFFFF00) == 0xFDCB00) {
-        Py_INCREF(method);
-        self->after_FDCB[opcode & 0xFF] = method;
-    }
-
-    Py_RETURN_NONE;
 }
 
 static PyObject* CSimulator_exec(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
@@ -4364,7 +4353,6 @@ static PyMethodDef CSimulator_methods[] = {
     {"exec", (PyCFunction) CSimulator_exec, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions"},
     {"exec_all", (PyCFunction) CSimulator_exec_all, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions in CSimulator only"},
     {"exec_frame", (PyCFunction) CSimulator_exec_frame, METH_VARARGS | METH_KEYWORDS, "Execute an RZX frame"},
-    {"set_opcode_handler", (PyCFunction) CSimulator_set_opcode_handler, METH_VARARGS, "Set an alternative opcode handler"},
     {NULL}  /* Sentinel */
 };
 
