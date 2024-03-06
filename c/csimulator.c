@@ -38,6 +38,8 @@ typedef struct {
     byte* memory;
     byte roms[2][0x4000];
     byte* banks[8];
+    unsigned frame_duration;
+    unsigned int_active;
     byte out7ffd;
     PyObject* in_a_n_tracer;
     PyObject* in_r_c_tracer;
@@ -1207,16 +1209,10 @@ static void exx(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* HALT */
 static void halt(CSimulatorObject* self, void* lookup, int args[]) {
-    PyObject* frame_duration = PyObject_GetAttrString(self->simulator, "frame_duration");
-    long fd_long = PyLong_AsLong(frame_duration);
-    Py_XDECREF(frame_duration);
-    PyObject* int_active = PyObject_GetAttrString(self->simulator, "int_active");
-    unsigned ia_long = PyLong_AsLong(int_active);
-    Py_XDECREF(int_active);
     unsigned* reg = self->registers;
 
     INC_T(4);
-    if (REG(IFF) && (REG(T) % fd_long) < ia_long) {
+    if (REG(IFF) && (REG(T) % self->frame_duration) < self->int_active) {
         INC_PC(1);
         REG(HALT) = 0;
     } else {
@@ -1415,12 +1411,6 @@ static void jr(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* LD A,I/R */
 static void ld_a_ir(CSimulatorObject* self, void* lookup, int args[]) {
-    PyObject* frame_duration = PyObject_GetAttrString(self->simulator, "frame_duration");
-    long fd_long = PyLong_AsLong(frame_duration);
-    Py_XDECREF(frame_duration);
-    PyObject* int_active = PyObject_GetAttrString(self->simulator, "int_active");
-    unsigned ia_long = PyLong_AsLong(int_active);
-    Py_XDECREF(int_active);
     int r = args[0];
     unsigned* reg = self->registers;
 
@@ -1428,7 +1418,7 @@ static void ld_a_ir(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned a = REG(r);
     REG(A) = a;
     INC_T(9);
-    if (REG(IFF) && (REG(T) % fd_long) < ia_long) {
+    if (REG(IFF) && (REG(T) % self->frame_duration) < self->int_active) {
         REG(F) = (a & 0xA8) + (a == 0) * 0x40 + (REG(F) & 1);
     } else {
         REG(F) = (a & 0xA8) + (a == 0) * 0x40 + REG(IFF) * 0x04 + (REG(F) & 1);
@@ -4057,6 +4047,22 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
     }
     Py_XDECREF(registers);
     self->registers = self->buffers[8].buf;
+
+    PyObject* frame_duration = PyObject_GetAttrString(simulator, "frame_duration");
+    if (PyLong_Check(frame_duration)) {
+        self->frame_duration = PyLong_AsLong(frame_duration);
+    } else {
+        self->frame_duration = 69888;
+    }
+    Py_XDECREF(frame_duration);
+
+    PyObject* int_active = PyObject_GetAttrString(simulator, "int_active");
+    if (PyLong_Check(int_active)) {
+        self->int_active = PyLong_AsLong(int_active);
+    } else {
+        self->int_active = 32;
+    }
+    Py_XDECREF(int_active);
 
     PyObject* in_a_n_tracer = PyObject_GetAttrString(simulator, "in_a_n_tracer");
     if (in_a_n_tracer && in_a_n_tracer != Py_None) {
