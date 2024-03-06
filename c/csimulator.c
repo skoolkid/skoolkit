@@ -21,23 +21,24 @@
 #include "structmember.h"
 
 #define REG(r) reg[r]
-#define MEMGET(a) (mem ? mem[a] : mem_get(self, a))
-#define MEMSET(a, v) mem ? mem[a] = v : mem_set(self, a, v)
+#define MEMGET(a) (mem ? mem[a] : self->mem128[(a) / 0x4000][(a) % 0x4000])
+#define MEMSET(a, v) if (mem) mem[a] = v; else self->mem128[(a) / 0x4000][(a) % 0x4000] = v
 #define INC_R(i) REG(R) = (REG(R) & 0x80) + ((REG(R) + (i)) & 0x7F)
 #define INC_T(i) REG(T) += i
 #define INC_PC(i) REG(PC) = (REG(PC) + (i)) % 65536
-#define OUT(p, v) if (mem == NULL && (p & 0x8002) == 0 && (self->out7ffd & 0x20) == 0) self->out7ffd = v
+#define OUT(p, v) if (mem == NULL && (p & 0x8002) == 0 && (self->out7ffd & 0x20) == 0) out7ffd(self, v)
 
 typedef unsigned char byte;
 
 typedef struct {
     PyObject_HEAD
     PyObject* simulator;
-    Py_buffer buffers[9];
+    Py_buffer buffers[11];
     unsigned* registers;
     byte* memory;
-    byte roms[2][0x4000];
+    byte* roms[2];
     byte* banks[8];
+    byte* mem128[4];
     unsigned frame_duration;
     unsigned int_active;
     byte out7ffd;
@@ -609,27 +610,10 @@ static void init_lookup_tables() {
     init_XOR();
 }
 
-static byte mem_get(CSimulatorObject* self, unsigned address) {
-    if (address < 0x4000) {
-        return self->roms[(self->out7ffd & 0x10) / 0x10][address];
-    }
-    if (address < 0x8000) {
-        return self->banks[5][address % 0x4000];
-    }
-    if (address < 0xC000) {
-        return self->banks[2][address % 0x4000];
-    }
-    return self->banks[self->out7ffd & 0x07][address % 0x4000];
-}
-
-static void mem_set(CSimulatorObject* self, unsigned address, byte value) {
-    if (address < 0x8000) {
-        self->banks[5][address % 0x4000] = value;
-    } else if (address < 0xC000) {
-        self->banks[2][address % 0x4000] = value;
-    } else {
-        self->banks[self->out7ffd & 0x07][address % 0x4000] = value;
-    }
+static void out7ffd(CSimulatorObject* self, byte value) {
+    self->mem128[0] = self->roms[(value & 0x10) / 0x10];
+    self->mem128[3] = self->banks[value & 0x07];
+    self->out7ffd = value;
 }
 
 /*****************************************************************************/
@@ -3963,7 +3947,7 @@ static OpcodeFunction after_FDCB[256] = {
 
 static void CSimulator_dealloc(CSimulatorObject* self) {
     Py_XDECREF(self->simulator);
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < 11; i++) {
         PyBuffer_Release(&self->buffers[i]);
     }
     Py_XDECREF(self->in_a_n_tracer);
@@ -4017,15 +4001,16 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
         PyObject* roms = PyObject_GetAttrString(memory, "roms");
         if (PyTuple_Check(roms) && PyTuple_Size(roms) == 2) {
             for (int i = 0; i < 2; i++) {
-                Py_buffer rom_buf;
                 PyObject* rom = PyTuple_GetItem(roms, i);
-                if (PyObject_GetBuffer(rom, &rom_buf, PyBUF_SIMPLE) == -1) {
+                if (PyByteArray_Check(rom) && PyByteArray_Size(rom) == 0x4000) {
+                    if (PyObject_GetBuffer(rom, &self->buffers[i], PyBUF_SIMPLE) == -1) {
+                        return -1;
+                    }
+                    self->roms[i] = self->buffers[i].buf;
+                } else {
+                    PyErr_Format(PyExc_TypeError, "Simulator ROM %d is not a bytearray of length 16384", i);
                     return -1;
                 }
-                for (int j = 0; j < 0x4000; j++) {
-                    self->roms[i][j] = ((byte*)rom_buf.buf)[j];
-                }
-                PyBuffer_Release(&rom_buf);
             }
         } else {
             PyErr_SetString(PyExc_TypeError, "Simulator memory.roms is not an 2-element tuple");
@@ -4038,10 +4023,10 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
             for (int i = 0; i < 8; i++) {
                 PyObject* bank = PyList_GetItem(banks, i);
                 if (PyByteArray_Check(bank) && PyByteArray_Size(bank) == 0x4000) {
-                    if (PyObject_GetBuffer(bank, &self->buffers[i], PyBUF_WRITABLE) == -1) {
+                    if (PyObject_GetBuffer(bank, &self->buffers[i + 2], PyBUF_WRITABLE) == -1) {
                         return -1;
                     }
-                    self->banks[i] = self->buffers[i].buf;
+                    self->banks[i] = self->buffers[i + 2].buf;
                 } else {
                     PyErr_Format(PyExc_TypeError, "Simulator memory bank %d is not a bytearray of length 16384", i);
                     return -1;
@@ -4052,15 +4037,19 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
             return -1;
         }
         Py_XDECREF(banks);
+
+        self->mem128[1] = self->banks[5];
+        self->mem128[2] = self->banks[2];
+        out7ffd(self, self->out7ffd);
     }
     Py_XDECREF(memory);
 
     PyObject* registers = PyObject_GetAttrString(simulator, "registers");
-    if (PyObject_GetBuffer(registers, &self->buffers[8], PyBUF_WRITABLE | PyBUF_FORMAT) == -1) {
+    if (PyObject_GetBuffer(registers, &self->buffers[10], PyBUF_WRITABLE | PyBUF_FORMAT) == -1) {
         return -1;
     }
     Py_XDECREF(registers);
-    self->registers = self->buffers[8].buf;
+    self->registers = self->buffers[10].buf;
 
     PyObject* frame_duration = PyObject_GetAttrString(simulator, "frame_duration");
     if (PyLong_Check(frame_duration)) {
