@@ -95,6 +95,9 @@ def load_tap(tapfile):
             return int(r[3:]), snapshot
 
 def run(tapfile, options):
+    if options.csim and CSimulator is None:
+        sys.stderr.write('ERROR: CSimulator is not available\n')
+        sys.exit(1)
     start, snapshot = load_tap(tapfile)
     print()
     snapshot[23692] = 255 # Inhibit 'scroll?' prompt
@@ -109,13 +112,7 @@ def run(tapfile, options):
         test_addr = 34938 + options.stop * 2
         snapshot[test_addr:test_addr + 2] = (0, 0)
     simulator_cls = CMIOSimulator if options.cmio else Simulator
-    simulator = simulator_cls(snapshot, {'PC': start})
-    if options.csim:
-        if CSimulator is None:
-            sys.stderr.write('ERROR: CSimulator is not available\n')
-            sys.exit(1)
-        simulator.memory = bytearray(simulator.memory)
-        simulator.registers = array.array('I', simulator.registers)
+    simulator = simulator_cls(snapshot, {'PC': start}, config={'c': options.csim})
     if options.quiet:
         tracer = None
         print('Running tests')

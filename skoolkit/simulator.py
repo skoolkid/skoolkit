@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import array
 from functools import partial
 
 from skoolkit import read_bin_file
@@ -32,6 +33,7 @@ FRAME_DURATIONS = (69888, 70908)
 INT_ACTIVE = (32, 36)
 
 CONFIG = {
+    'c': False,
     'fast_djnz': False,
     'fast_ldir': False,
     'frame_duration': 69888,
@@ -141,7 +143,24 @@ class Simulator:
         cfg = CONFIG.copy()
         if config:
             cfg.update(config)
-        self.create_opcodes()
+        if cfg['c']:
+            if len(memory) == 65536:
+                self.memory = bytearray(memory)
+            else:
+                rom_id = memory.roms.index(memory.memory[0])
+                memory.roms = roms = tuple(bytearray(rom) for rom in memory.roms)
+                memory.banks = banks = [bytearray(bank) for bank in memory.banks]
+                memory.memory = [roms[rom_id], banks[5], banks[2], banks[memory.page]]
+            self.registers = array.array('I', self.registers)
+            self.opcodes = [None] * 256
+            self.after_CB = [None] * 256
+            self.after_ED = [None] * 256
+            self.after_DD = [None] * 256
+            self.after_FD = [None] * 256
+            self.after_DDCB = [None] * 256
+            self.after_FDCB = [None] * 256
+        else:
+            self.create_opcodes()
         if cfg['fast_djnz']:
             self.opcodes[0x10] = partial(self.djnz_fast, self.registers, self.memory)
         if cfg['fast_ldir']:
