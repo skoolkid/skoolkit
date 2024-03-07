@@ -34,6 +34,11 @@ from skoolkit.simulator import Simulator, I, R, R1, R2
 from skoolkit.snapshot import Snapshot, Z80, write_snapshot
 from skoolkit.traceutils import disassemble
 
+try:
+    from skoolkit.csimulator import CSimulator
+except ImportError: # pragma: no cover
+    CSimulator = None
+
 if pygame: # pragma: no cover
     COLOURS = (
         pygame.Color(0x00, 0x00, 0x00), # Black
@@ -135,6 +140,7 @@ class RZXContext:
         self.tracefile = None
         self.snapshot = None
         self.simulator = None
+        self.csimulator = None
         self.total_frames = 0
         self.frame_count = 0
         self.stop = False
@@ -295,6 +301,10 @@ def check_supported(snapshot, options):
         if unsupported_blocks:
             warn('Unsupported block(s) ({}) in SZX snapshot'.format(', '.join(sorted(unsupported_blocks))))
 
+def trace_exec(tracefile, context, fetch_counter, pc):
+    i = disassemble(context.simulator.memory, pc)[0]
+    tracefile.write(f'F:{context.frame_count:0{context.fnwidth}} C:{fetch_counter:05} I:{len(context.simulator.tracer.readings):05} ${pc:04X} {i}\n')
+
 def process_block(block, options, context):
     if block is None:
         raise SkoolKitError('Unsupported snapshot type')
@@ -310,21 +320,30 @@ def process_block(block, options, context):
         tracer = simulator.tracer
         tracer.set_input_rec(block)
     else:
-        simulator = Simulator.from_snapshot(context.snapshot)
+        simulator = Simulator.from_snapshot(context.snapshot, config={'c': CSimulator})
         context.simulator = simulator
         tracer = RZXTracer(context, block)
         simulator.set_tracer(tracer)
+        if CSimulator: # pragma: no cover
+            context.csimulator = CSimulator(simulator, tracer.out7ffd)
+        else:
+            context.csimulator = None
+    csimulator = context.csimulator
     opcodes = simulator.opcodes
     memory = simulator.memory
     registers = simulator.registers
     total_frames = context.total_frames
-    fnwidth = len(str(total_frames))
+    context.fnwidth = len(str(total_frames))
     prev_scr = [None] * 6912
     show_progress = not options.quiet
     fps = options.fps
     stop = options.stop
     exec_map = context.exec_map
     tracefile = context.tracefile
+    if tracefile:
+        trace = partial(trace_exec, tracefile, context)
+    else:
+        trace = None
     screen = context.screen
     if screen: # pragma: no cover
         p_rectangles = context.p_rectangles
@@ -335,20 +354,22 @@ def process_block(block, options, context):
     while run:
         if fetch_counter < 0:
             break
-        while fetch_counter > 0:
-            pc = registers[24]
-            r0 = registers[15]
-            ld_r_a = memory[pc] == 0xED and memory[(pc + 1) % 65536] == 0x4F
-            if tracefile:
-                i = disassemble(memory, pc)[0]
-                tracefile.write(f'F:{context.frame_count:0{fnwidth}} C:{fetch_counter:05} I:{len(tracer.readings):05} ${pc:04X} {i}\n')
-            if exec_map is not None:
-                exec_map.add(pc)
-            opcodes[memory[pc]]()
-            if ld_r_a:
-                fetch_counter -= 2
-            else:
-                fetch_counter -= 2 - ((registers[15] ^ r0) % 2)
+        if csimulator: # pragma: no cover
+            pc = csimulator.exec_frame(fetch_counter, exec_map, trace)
+        else:
+            while fetch_counter > 0:
+                pc = registers[24]
+                r0 = registers[15]
+                ld_r_a = memory[pc] == 0xED and memory[(pc + 1) % 65536] == 0x4F
+                if tracefile:
+                    trace_exec(tracefile, context, fetch_counter, pc)
+                if exec_map is not None:
+                    exec_map.add(pc)
+                opcodes[memory[pc]]()
+                if ld_r_a:
+                    fetch_counter -= 2
+                else:
+                    fetch_counter -= 2 - ((registers[15] ^ r0) % 2)
         if screen: # pragma: no cover
             draw(screen, memory, context.frame_count, p_rectangles, c_rectangles, prev_scr)
             pygame.display.update()

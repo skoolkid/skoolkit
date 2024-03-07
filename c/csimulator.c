@@ -4246,9 +4246,10 @@ static PyObject* CSimulator_exec_frame(CSimulatorObject* self, PyObject* args, P
 
     unsigned* reg = self->registers;
     byte* mem = self->memory;
+    unsigned pc;
 
     while (1) {
-        unsigned pc = REG(PC);
+        pc = REG(PC);
         byte opcode = MEMGET(pc);
         byte opcode2 = MEMGET((pc + 1) % 65536);
         PyObject* opcode_f = self->opcodes[opcode];
@@ -4330,7 +4331,7 @@ static PyObject* CSimulator_exec_frame(CSimulatorObject* self, PyObject* args, P
         }
     }
 
-    Py_RETURN_NONE;
+    return PyLong_FromLong(pc);
 }
 
 static PyMemberDef CSimulator_members[] = {

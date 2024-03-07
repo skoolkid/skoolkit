@@ -40,6 +40,7 @@ class RzxplayTest(SkoolKitTestCase):
         args = f'{options} {rzxfile}'
         if outfile:
             args += f' {outfile}'
+        rzxplay.CSimulator = None
         output, error = self.run_rzxplay(args)
         self.assertEqual(dedent(exp_error).lstrip(), error)
         self.assertEqual(dedent(exp_output).lstrip(), output)
