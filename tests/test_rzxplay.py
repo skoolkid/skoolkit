@@ -1215,6 +1215,26 @@ class RzxplayTest(SkoolKitTestCase):
         """
         self._test_rzx(rzx, exp_output, '--stop 2 --quiet --no-screen', exp_trace)
 
+    def test_option_stop_with_empty_frame(self):
+        ram = [0] * 0xC000
+        pc = 0xE000
+        code = (
+            0xAF, # XOR A
+            0xA8, # XOR B
+            0xA9, # XOR C
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, []), (0, 0, []), (2, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00001 I:00000 $E000 XOR A
+        """
+        self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace)
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_rzxplay(option, catch_exit=0)

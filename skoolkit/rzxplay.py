@@ -337,7 +337,7 @@ def process_block(block, options, context):
     prev_scr = [None] * 6912
     show_progress = not options.quiet
     fps = options.fps
-    stop = options.stop
+    stop = options.stop or total_frames
     exec_map = context.exec_map
     tracefile = context.tracefile
     if tracefile:
@@ -394,7 +394,7 @@ def process_block(block, options, context):
         if show_progress:
             p = (context.frame_count / total_frames) * 100
             write(f'[{p:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')
-        if context.frame_count == stop:
+        if context.frame_count >= stop:
             context.stop = True
             break
 
