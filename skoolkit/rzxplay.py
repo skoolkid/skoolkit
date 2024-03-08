@@ -67,14 +67,16 @@ class RZXBlock:
         self.obj = obj
 
 class InputRecording:
-    def __init__(self, tstates, frames):
+    def __init__(self, tstates, frames, data):
         self.tstates = tstates
         self.frames = frames
+        self.data = data
 
 class Frame:
-    def __init__(self, fetch_counter, port_readings):
+    def __init__(self, fetch_counter, start, end):
         self.fetch_counter = fetch_counter
-        self.port_readings = port_readings
+        self.start = start
+        self.end = end
 
 class RZXTracer(PagingTracer):
     def __init__(self, context, input_rec):
@@ -93,27 +95,31 @@ class RZXTracer(PagingTracer):
 
     def set_input_rec(self, input_rec):
         self.frames = input_rec.frames
+        self.data = input_rec.data
         self.frame_index = -1
-        self.readings = None
+        self.index = 0
+        self.end = 0
 
     def next_frame(self):
-        if self.readings:
-            raise SkoolKitError(f'{len(self.readings)} port reading(s) left for frame {self.context.frame_count}')
+        if self.end > self.index:
+            raise SkoolKitError(f'{self.end - self.index} port reading(s) left for frame {self.context.frame_count}')
         self.frame_index += 1
         if self.frame_index > 0:
             self.context.frame_count += 1
         while self.frame_index < len(self.frames):
             frame = self.frames[self.frame_index]
             if frame.fetch_counter > 0:
-                self.readings = frame.port_readings
+                self.index = frame.start
+                self.end = frame.end
                 return frame.fetch_counter
             self.frame_index += 1
             self.context.frame_count += 1
         return -1
 
     def read_port(self, registers, port):
-        if self.readings:
-            return self.readings.pop(0)
+        if self.index < self.end:
+            self.index += 1
+            return self.data[self.index - 1]
         raise SkoolKitError(f'Port readings exhausted for frame {self.context.frame_count}')
 
     def halt(self, registers):
@@ -186,9 +192,10 @@ def write_rzx(fname, context, rzx_blocks):
     io_frames = bytearray()
     for frame in frames:
         fc = frame.fetch_counter
-        ic = len(frame.port_readings)
+        port_readings = tracer.data[tracer.index:tracer.end]
+        ic = len(port_readings)
         io_frames.extend((fc % 256, fc // 256, ic % 256, ic // 256))
-        io_frames.extend(frame.port_readings)
+        io_frames.extend(port_readings)
     io_frames = zlib.compress(io_frames, 9)
     b_len = 18 + len(io_frames)
     rzx_data.extend((
@@ -231,22 +238,21 @@ def parse_rzx(rzxfile):
             tstates = get_dword(data, i + 10)
             flags = get_dword(data, i + 14)
             frames = []
-            contents.append(RZXBlock(data[i:i + block_len], InputRecording(tstates, frames)))
             frames_data = data[i + 18:i + block_len]
             if flags & 2:
                 frames_data = zlib.decompress(frames_data)
+            contents.append(RZXBlock(data[i:i + block_len], InputRecording(tstates, frames, frames_data)))
             j = 0
-            port_readings = []
+            start = end = 0
             for k in range(num_frames):
                 fetch_counter = get_word(frames_data, j)
                 in_counter = get_word(frames_data, j + 2)
                 if in_counter == 65535:
-                    port_readings = port_readings[:]
                     j += 4
                 else:
-                    port_readings = list(frames_data[j + 4:j + 4 + in_counter])
-                    j += 4 + in_counter
-                frames.append(Frame(fetch_counter, port_readings))
+                    start = j + 4
+                    end = j = start + in_counter
+                frames.append(Frame(fetch_counter, start, end))
         i += block_len
     return contents
 
@@ -303,7 +309,8 @@ def check_supported(snapshot, options):
 
 def trace_exec(tracefile, context, fetch_counter, pc):
     i = disassemble(context.simulator.memory, pc)[0]
-    tracefile.write(f'F:{context.frame_count:0{context.fnwidth}} C:{fetch_counter:05} I:{len(context.simulator.tracer.readings):05} ${pc:04X} {i}\n')
+    readings_left = context.simulator.tracer.end - context.simulator.tracer.index
+    tracefile.write(f'F:{context.frame_count:0{context.fnwidth}} C:{fetch_counter:05} I:{readings_left:05} ${pc:04X} {i}\n')
 
 def process_block(block, options, context):
     if block is None:
