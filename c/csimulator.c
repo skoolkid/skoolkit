@@ -32,7 +32,6 @@ typedef unsigned char byte;
 
 typedef struct {
     PyObject_HEAD
-    PyObject* simulator;
     Py_buffer buffers[11];
     unsigned* registers;
     byte* memory;
@@ -3945,24 +3944,46 @@ static OpcodeFunction after_FDCB[256] = {
 
 /*****************************************************************************/
 
+static int CSimulator_traverse(CSimulatorObject* self, visitproc visit, void *arg) {
+    Py_VISIT(self->in_a_n_tracer);
+    Py_VISIT(self->in_r_c_tracer);
+    Py_VISIT(self->ini_tracer);
+    Py_VISIT(self->out_tracer);
+    for (int i = 0; i < 256; i++) {
+        Py_VISIT(self->opcodes[i]);
+        Py_VISIT(self->after_CB[i]);
+        Py_VISIT(self->after_ED[i]);
+        Py_VISIT(self->after_DD[i]);
+        Py_VISIT(self->after_FD[i]);
+        Py_VISIT(self->after_DDCB[i]);
+        Py_VISIT(self->after_FDCB[i]);
+    }
+    return 0;
+}
+
+static int CSimulator_clear(CSimulatorObject* self) {
+    Py_CLEAR(self->in_a_n_tracer);
+    Py_CLEAR(self->in_r_c_tracer);
+    Py_CLEAR(self->ini_tracer);
+    Py_CLEAR(self->out_tracer);
+    for (int i = 0; i < 256; i++) {
+        Py_CLEAR(self->opcodes[i]);
+        Py_CLEAR(self->after_CB[i]);
+        Py_CLEAR(self->after_ED[i]);
+        Py_CLEAR(self->after_DD[i]);
+        Py_CLEAR(self->after_FD[i]);
+        Py_CLEAR(self->after_DDCB[i]);
+        Py_CLEAR(self->after_FDCB[i]);
+    }
+    return 0;
+}
+
 static void CSimulator_dealloc(CSimulatorObject* self) {
-    Py_XDECREF(self->simulator);
     for (int i = 0; i < 11; i++) {
         PyBuffer_Release(&self->buffers[i]);
     }
-    Py_XDECREF(self->in_a_n_tracer);
-    Py_XDECREF(self->in_r_c_tracer);
-    Py_XDECREF(self->ini_tracer);
-    Py_XDECREF(self->out_tracer);
-    for (int i = 0; i < 256; i++) {
-        Py_XDECREF(self->opcodes[i]);
-        Py_XDECREF(self->after_CB[i]);
-        Py_XDECREF(self->after_ED[i]);
-        Py_XDECREF(self->after_DD[i]);
-        Py_XDECREF(self->after_FD[i]);
-        Py_XDECREF(self->after_DDCB[i]);
-        Py_XDECREF(self->after_FDCB[i]);
-    }
+    PyObject_GC_UnTrack(self);
+    CSimulator_clear(self);
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -3987,9 +4008,6 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|b", kwlist, &simulator, &self->out7ffd)) {
         return -1;
     }
-
-    Py_INCREF(simulator);
-    self->simulator = simulator;
 
     PyObject* memory = PyObject_GetAttrString(simulator, "memory");
     if (PyByteArray_Check(memory) && PyByteArray_Size(memory) == 65536) {
@@ -4335,7 +4353,6 @@ static PyObject* CSimulator_exec_frame(CSimulatorObject* self, PyObject* args, P
 }
 
 static PyMemberDef CSimulator_members[] = {
-    {"simulator", T_OBJECT_EX, offsetof(CSimulatorObject, simulator), 0, "simulator"},
     {NULL}  /* Sentinel */
 };
 
@@ -4352,10 +4369,12 @@ static PyTypeObject CSimulatorType = {
     .tp_doc = PyDoc_STR("CSimulator objects"),
     .tp_basicsize = sizeof(CSimulatorObject),
     .tp_itemsize = 0,
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
     .tp_new = PyType_GenericNew,
     .tp_init = (initproc) CSimulator_init,
     .tp_dealloc = (destructor) CSimulator_dealloc,
+    .tp_traverse = (traverseproc) CSimulator_traverse,
+    .tp_clear = (inquiry) CSimulator_clear,
     .tp_members = CSimulator_members,
     .tp_methods = CSimulator_methods,
 };
