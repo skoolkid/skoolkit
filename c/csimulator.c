@@ -1762,9 +1762,7 @@ static void out_c(CSimulatorObject* self, void* lookup, int args[]) {
     byte value = r >= 0 ? REG(r) : 0;
     OUT(port, value);
     if (self->out_tracer) {
-        PyObject* m_args = PyTuple_New(2);
-        PyTuple_SetItem(m_args, 0, PyLong_FromLong(port));
-        PyTuple_SetItem(m_args, 1, PyLong_FromLong(value));
+        PyObject* m_args = Py_BuildValue("(IB)", port, value);
         PyObject* rv = PyObject_Call(self->out_tracer, m_args, NULL);
         Py_XDECREF(m_args);
         if (rv == NULL) {
@@ -1787,13 +1785,11 @@ static void outi(CSimulatorObject* self, void* lookup, int args[]) {
 
     unsigned hl = REG(L) + 256 * REG(H);
     unsigned b = (REG(B) - 1) % 256;
-    unsigned port = REG(C) + 256 * REG(B);
-    unsigned value = MEMGET(hl);
+    unsigned port = REG(C) + 256 * b;
+    byte value = MEMGET(hl);
     OUT(port, value);
     if (self->out_tracer) {
-        PyObject* m_args = PyTuple_New(2);
-        PyTuple_SetItem(m_args, 0, PyLong_FromLong(port));
-        PyTuple_SetItem(m_args, 1, PyLong_FromLong(value));
+        PyObject* m_args = Py_BuildValue("(IB)", port, value);
         PyObject* rv = PyObject_Call(self->out_tracer, m_args, NULL);
         Py_XDECREF(m_args);
         if (rv == NULL) {
