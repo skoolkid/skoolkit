@@ -84,9 +84,6 @@ class RZXTracer(PagingTracer):
         self.set_input_rec(input_rec)
         self.simulator = context.simulator
         self.simulator.registers[25] = input_rec.tstates
-        self.simulator.opcodes[0x76] = partial(self.halt, self.simulator.registers)
-        self.simulator.after_ED[0x57] = partial(self.ld_a_ir, self.simulator.registers, I)
-        self.simulator.after_ED[0x5F] = partial(self.ld_a_ir, self.simulator.registers, R)
         self.border = context.snapshot.border
         self.out7ffd = context.snapshot.out7ffd
         self.outfffd = context.snapshot.outfffd
@@ -121,20 +118,6 @@ class RZXTracer(PagingTracer):
             self.index += 1
             return self.data[self.index - 1]
         raise SkoolKitError(f'Port readings exhausted for frame {self.context.frame_count}')
-
-    def halt(self, registers):
-        # HALT
-        registers[25] += 4 # T-states
-        registers[15] = R1[registers[15]] # R
-
-    def ld_a_ir(self, registers, r):
-        # LD A,I/R
-        registers[15] = R2[registers[15]] # R
-        a = registers[r]
-        registers[0] = a
-        registers[25] += 9 # T-states
-        registers[1] = (a & 0xA8) + (a == 0) * 0x40 + registers[26] * 0x04 + (registers[1] % 2)
-        registers[24] = (registers[24] + 2) % 65536 # PC
 
 class RZXContext:
     def __init__(self, screen=None, p_rectangles=None, c_rectangles=None, clock=None):
@@ -327,7 +310,10 @@ def process_block(block, options, context):
         tracer = simulator.tracer
         tracer.set_input_rec(block)
     else:
-        simulator = Simulator.from_snapshot(context.snapshot, config={'c': CSimulator})
+        # Set 'int_active' to 0 to prevent 'HALT' and 'LD A,I/R' from ever
+        # behaving as if an interrupt is to be accepted
+        config = {'c': CSimulator, 'int_active': 0}
+        simulator = Simulator.from_snapshot(context.snapshot, config=config)
         context.simulator = simulator
         tracer = RZXTracer(context, block)
         simulator.set_tracer(tracer)
