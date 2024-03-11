@@ -698,25 +698,48 @@ class RzxplayTest(SkoolKitTestCase):
     def test_write_rzx_file(self):
         pc = 0xF000
         code = (
-            (
-                0xAF, # XOR A
-                0xA8, # XOR B
-            ),
-            (
-                0xA9, # XOR C
-            )
-        )
-        frames = (
-            [(1, 0, []), (1, 0, [])],
-            [(1, 0, [])]
+            0xAF,       # XOR A
+            0xA8,       # XOR B
+            0xED, 0x78, # IN A,(C)
         )
         rzx = RZX()
-        for c, f in zip(code, frames):
+        ram = [0] * 0xC000
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        frames = ((1, 0, []), (1, 0, []), (1, 1, [0]))
+        rzx.add_snapshot(z80data, 'z80', frames)
+        outfile = 'out.rzx'
+        exp_output = f'Wrote {outfile}\n'
+        exp_trace = """
+            F:0 C:00001 I:00000 $F000 XOR A
+        """
+        self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
+
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00001 I:00000 $F001 XOR B
+            F:1 C:00001 I:00001 $F002 IN A,(C)
+        """
+        self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_write_rzx_file_with_two_snapshots(self):
+        spec = (
+            (0xF000, [(1, 0, []), (1, 0, [])], (
+                0xAF,       # XOR A
+                0xA8,       # XOR B
+            )),
+            (0xF002, [(1, 1, [0])], (
+                0xED, 0x78, # IN A,(C)
+            ))
+        )
+        rzx = RZX()
+        for pc, frames, code in spec:
             ram = [0] * 0xC000
-            ram[pc - 0x4000:pc - 0x4000 + len(c)] = c
+            ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
             registers = {'PC': pc}
             z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
-            rzx.add_snapshot(z80data, 'z80', f)
+            rzx.add_snapshot(z80data, 'z80', frames)
 
         outfile = 'out.rzx'
         exp_output = f'Wrote {outfile}\n'
@@ -728,7 +751,7 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = ''
         exp_trace = """
             F:0 C:00001 I:00000 $F001 XOR B
-            F:1 C:00001 I:00000 $F000 XOR C
+            F:1 C:00001 I:00001 $F002 IN A,(C)
         """
         self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
 

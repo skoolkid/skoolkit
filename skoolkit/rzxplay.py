@@ -175,7 +175,7 @@ def write_rzx(fname, context, rzx_blocks):
     io_frames = bytearray()
     for frame in frames:
         fc = frame.fetch_counter
-        port_readings = tracer.data[tracer.index:tracer.end]
+        port_readings = tracer.data[frame.start:frame.end]
         ic = len(port_readings)
         io_frames.extend((fc % 256, fc // 256, ic % 256, ic // 256))
         io_frames.extend(port_readings)
