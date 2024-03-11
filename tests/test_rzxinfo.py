@@ -225,6 +225,11 @@ class RzxinfoTest(SkoolKitTestCase):
             self.run_rzxinfo(invalid_rzx)
         self.assertEqual(cm.exception.args[0], 'Not an RZX file')
 
+    def test_nonexistent_rzx_file(self):
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxinfo('nonexistent.rzx')
+        self.assertEqual(cm.exception.args[0], 'nonexistent.rzx: file not found')
+
     def test_option_extract(self):
         sna = [0] * 49179
         rzx = RZX()

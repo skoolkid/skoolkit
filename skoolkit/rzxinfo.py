@@ -18,7 +18,7 @@ import argparse
 import os
 import zlib
 
-from skoolkit import VERSION, SkoolKitError, get_dword, get_word
+from skoolkit import VERSION, SkoolKitError, get_dword, get_word, read_bin_file
 from skoolkit.snapinfo import get_szx_machine_type, get_z80_machine_type
 from skoolkit.snapshot import Snapshot
 
@@ -141,8 +141,7 @@ def _extract_snapshots(data, prefix):
         print('No snapshots found')
 
 def run(infile, options):
-    with open(infile, 'rb') as f:
-        data = f.read()
+    data = read_bin_file(infile)
     if data[:4] != b'RZX!' or len(data) < 10:
         raise SkoolKitError('Not an RZX file')
     if options.extract:
