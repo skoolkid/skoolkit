@@ -1,18 +1,27 @@
 name: z80doc-tests
 
 on:
+  push:
+    paths:
+    - 'skoolkit/simulator.py'
+    - 'skoolkit/cmiosimulator.py'
+    - 'c/csimulator.c'
   workflow_dispatch:
 
 jobs:
   z80doc-tests:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sim: [--sim, --cmio, --csim]
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
 
@@ -21,7 +30,11 @@ jobs:
         wget https://github.com/raxoft/z80test/releases/download/v1.2/z80test-1.2.zip
         unzip -j z80test-1.2.zip z80test-1.2/z80doc.tap
 
+    - if: matrix.sim == '--csim'
+      name: Build csimulator
+      run: python setup.py build_ext -b .
+
     - name: Run z80doc tests
       run: |
         export SKOOLKIT_HOME=$(pwd)
-        tools/z80-test-simulator.py z80doc.tap
+        tools/z80-test-simulator.py ${{ matrix.sim }} z80doc.tap

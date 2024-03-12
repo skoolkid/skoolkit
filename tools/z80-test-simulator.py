@@ -157,6 +157,8 @@ if __name__ == '__main__':
                        help="Run tests with CMIOSimulator.")
     group.add_argument('-C', '--csim', action='store_true',
                        help="Run tests with CSimulator.")
+    group.add_argument('-s', '--sim', action='store_true',
+                       help="Run tests with Simulator (this is the default).")
     group.add_argument('-t', '--test', metavar='TEST', type=int, default=0,
                        help='Start at this test (default: 0).')
     group.add_argument('-T', '--stop', metavar='TEST', type=int, default=0,
