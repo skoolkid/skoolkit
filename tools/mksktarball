@@ -60,10 +60,9 @@ rsync -aR \
   examples/hungry_horace.{ctl,ref,t2s} \
   skoolkit/resources/{{{128,plus2}-{0,1},48}.rom,skoolkit{,-dark,-green,-plum,-wide}.css} \
   tests/{{macro,skoolkit}test,test_{audio,basic,bin2{sna,tap},cmiosimulator,ctlparser,disassembler,graphics,image,kbtracer,refparser,rzx{info,play},simulator,skool{{,2}{asm,ctl,html},2bin,macro,parser},skoolkit,sna2{ctl,img},sna{2,}skool,snap{info,mod,shot},tap{2sna,info},textutils,trace,traceutils,z80}}.py \
-  COPYING MANIFEST.in long_description.rst pyproject.toml setup.cfg \
+  c/csimulator.c \
+  COPYING MANIFEST.in long_description.rst pyproject.toml setup.cfg setup.py \
   $ABSDIR
-
-$SKOOLKIT_HOME/tools/cfg2py.py > $ABSDIR/setup.py
 
 if [[ $INCLUDE_DOCS == 1 ]]; then
   cd $SKOOLKIT_HOME/sphinx

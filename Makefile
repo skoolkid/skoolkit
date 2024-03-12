@@ -12,6 +12,7 @@ usage:
 	@echo "  doc           build the documentation"
 	@echo "  man           build the man pages"
 	@echo "  clean         clean the documentation and man pages"
+	@echo "  csimulator    build and install the csimulator module"
 	@echo "  hh            build the Hungry Horace disassembly"
 	@echo "  test          run core tests"
 	@echo "  test3X        run core tests with Python 3.X (8<=X<=12)"
@@ -41,6 +42,10 @@ man:
 .PHONY: clean
 clean:
 	$(MAKE) -C sphinx clean
+
+.PHONY: csimulator
+csimulator:
+	python3 setup.py build_ext -b .
 
 .PHONY: hh
 hh:
