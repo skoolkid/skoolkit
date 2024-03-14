@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sim: [--sim, --cmio, --csim]
+        sim: [--sim, --cmio, --csim, --ccmio]
 
     steps:
     - name: Checkout code
@@ -30,7 +30,7 @@ jobs:
         wget https://github.com/raxoft/z80test/releases/download/v1.2/z80test-1.2.zip
         unzip -j z80test-1.2.zip z80test-1.2/z80doc.tap
 
-    - if: matrix.sim == '--csim'
+    - if: matrix.sim == '--csim' || matrix.sim == '--ccmio'
       name: Build csimulator
       run: python setup.py build_ext -b .
 

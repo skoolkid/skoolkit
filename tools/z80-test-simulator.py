@@ -26,6 +26,11 @@ try:
 except ImportError:
     CSimulator = None
 
+try:
+    from skoolkit.ccmiosimulator import CCMIOSimulator
+except ImportError:
+    CCMIOSimulator = None
+
 STOP = 0x8094
 
 class Options:
@@ -98,6 +103,9 @@ def run(tapfile, options):
     if options.csim and CSimulator is None:
         sys.stderr.write('ERROR: CSimulator is not available\n')
         sys.exit(1)
+    if options.ccmio and CCMIOSimulator is None:
+        sys.stderr.write('ERROR: CCMIOSimulator is not available\n')
+        sys.exit(1)
     start, snapshot = load_tap(tapfile)
     print()
     snapshot[23692] = 255 # Inhibit 'scroll?' prompt
@@ -112,21 +120,23 @@ def run(tapfile, options):
         test_addr = 34938 + options.stop * 2
         snapshot[test_addr:test_addr + 2] = (0, 0)
     simulator_cls = CMIOSimulator if options.cmio else Simulator
-    simulator = simulator_cls(snapshot, {'PC': start}, config={'c': options.csim})
+    csimulator_cls = CCMIOSimulator if options.ccmio else CSimulator
+    c = options.csim or options.ccmio
+    simulator = simulator_cls(snapshot, {'PC': start}, config={'c': c})
     if options.quiet:
         tracer = None
         print('Running tests')
         begin = time.time()
-        if options.csim:
-            CSimulator(simulator).exec_all(STOP)
+        if c:
+            csimulator_cls(simulator).exec_all(STOP)
         else:
             simulator.run(stop=STOP)
     else:
         tracer = Tracer()
         simulator.set_tracer(tracer)
         begin = time.time()
-        if options.csim:
-            CSimulator(simulator).exec_all(STOP, tracer.rst16_cb)
+        if c:
+            csimulator_cls(simulator).exec_all(STOP, tracer.rst16_cb)
         else:
             tracer.run(simulator)
     rt = time.time() - begin
@@ -153,11 +163,13 @@ if __name__ == '__main__':
     )
     parser.add_argument('tapfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-c', '--cmio', action='store_true',
+    group.add_argument('--ccmio', action='store_true',
+                       help="Run tests with CCMIOSimulator.")
+    group.add_argument('--cmio', action='store_true',
                        help="Run tests with CMIOSimulator.")
-    group.add_argument('-C', '--csim', action='store_true',
+    group.add_argument('--csim', action='store_true',
                        help="Run tests with CSimulator.")
-    group.add_argument('-s', '--sim', action='store_true',
+    group.add_argument('--sim', action='store_true',
                        help="Run tests with Simulator (this is the default).")
     group.add_argument('-t', '--test', metavar='TEST', type=int, default=0,
                        help='Start at this test (default: 0).')

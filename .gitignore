@@ -8,6 +8,7 @@ diffs
 dist
 MANIFEST
 skoolkit/csimulator.*
+skoolkit/ccmiosimulator.*
 tests/cover
 tests/test_hh_*.py
 untracked
