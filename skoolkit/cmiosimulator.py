@@ -817,7 +817,7 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             b = registers[2]
             bc = registers[3] + 256 * b
-            io_c = self.io_contention(bc)
+            io_c = self.io_contention((bc - 256) % 65536)
             if repeat and b != 1:
                 # 21 T-states
                 delay = self.contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), (registers[7] + 256 * registers[6], 3), *io_c, (bc, 1), (bc, 1), (bc, 1), (bc, 1), (bc, 1)))

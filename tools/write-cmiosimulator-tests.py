@@ -662,6 +662,9 @@ def get_times(contend_f, cycles, duration, addr, assembler, assembled, ops, size
             if data[0] in (0xD3, 0xDB):
                 # IN A,(n) / OUT (n),A
                 port = data[1] + 256 * registers['A']
+            elif data[0] == 0xED and data[1] in (0xA3, 0xAB, 0xB3, 0xBB):
+                # OUTI / OUTD / OTIR / OTDR
+                port = (registers['BC'] - 256) % 65536
             else:
                 port = registers['BC']
             contention = calculate_contention(cycles, PC=addr, port=port, page=page, **registers)

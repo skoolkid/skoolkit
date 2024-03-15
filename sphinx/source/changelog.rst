@@ -10,6 +10,7 @@ Changelog
   by :ref:`rzxplay.py`
 * Added support to :ref:`tap2sna.py` for TZX block type 0x15 (direct recording)
 * :ref:`tapinfo.py` now shows info for TZX block type 0x15 (direct recording)
+* Fixed the contention pattern for the OUTI/OUTD/OTIR/OTDR instructions
 
 9.1 (2024-02-03)
 ----------------
