@@ -1246,7 +1246,7 @@ static void bit_xy(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         unsigned pc3 = (pc + 3) % 65536;
-        CPATTERN(14, pc, 4, (pc + 1) % 65536, 4, (pc + 2) % 65536, 3, pc3, 1, pc3, 1, addr, 3, addr, 1);
+        CPATTERN(16, pc, 4, (pc + 1) % 65536, 4, (pc + 2) % 65536, 3, pc3, 3, pc3, 1, pc3, 1, addr, 3, addr, 1);
     }
 #endif
     byte value = BIT[REG(F) & 1][b][MEMGET(addr)];
@@ -1340,6 +1340,7 @@ static void cpi(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
         CONTEND {
             unsigned pc = REG(PC);
+            hl = (hl - inc) % 65536;
             CPATTERN(26, pc, 4, (pc + 1) % 65536, 4, hl, 3, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1);
         }
 #endif
@@ -1350,6 +1351,7 @@ static void cpi(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
         CONTEND {
             unsigned pc = REG(PC);
+            hl = (hl - inc) % 65536;
             CPATTERN(16, pc, 4, (pc + 1) % 65536, 4, hl, 3, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1);
         }
 #endif
@@ -1844,7 +1846,7 @@ static void ld_hl_n(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(6, pc, 4, (pc + 1) % 65536, 4, hl, 3);
+        CPATTERN(6, pc, 4, (pc + 1) % 65536, 3, hl, 3);
     }
 #endif
     if (hl > 0x3FFF) {
@@ -4837,16 +4839,21 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
     return 0;
 }
 
-static PyObject* CSimulator_exec(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"stop", NULL};
+static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
+    static char* kwlist[] = {"start", "stop", NULL};
+    unsigned start = 0x10000;
     unsigned stop = 0x10000;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|I", kwlist, &stop)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|II", kwlist, &start, &stop)) {
         return NULL;
     }
 
     unsigned* reg = self->registers;
     byte* mem = self->memory;
+
+    if (start < 0x10000) {
+        REG(PC) = start;
+    }
 
     while (1) {
         byte opcode = MEMGET(REG(PC));
@@ -5061,14 +5068,26 @@ static PyObject* CSimulator_exec_frame(CSimulatorObject* self, PyObject* args, P
     return PyLong_FromLong(pc);
 }
 
+static PyObject* CSimulator_out7ffd(CSimulatorObject* self, PyObject* value) {
+    if (self->memory == NULL) {
+        long v = PyLong_AsLong(value);
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        out7ffd(self, v % 256);
+    }
+    Py_RETURN_NONE;
+}
+
 static PyMemberDef CSimulator_members[] = {
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef CSimulator_methods[] = {
-    {"exec", (PyCFunction) CSimulator_exec, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions"},
     {"exec_all", (PyCFunction) CSimulator_exec_all, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions in CSimulator only"},
     {"exec_frame", (PyCFunction) CSimulator_exec_frame, METH_VARARGS | METH_KEYWORDS, "Execute an RZX frame"},
+    {"out7ffd", (PyCFunction) CSimulator_out7ffd, METH_O, "Output a value to port 0x7ffd"},
+    {"run", (PyCFunction) CSimulator_run, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions"},
     {NULL}  /* Sentinel */
 };
 

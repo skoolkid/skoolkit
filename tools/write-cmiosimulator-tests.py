@@ -549,6 +549,9 @@ from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.pagingtracer import Memory
 from skoolkit.z80 import Assembler
 
+if $ccmio:
+    from skoolkit.ccmiosimulator import CCMIOSimulator
+
 GROUPS = $groups
 
 DELAYS_48K = [0] * 69888
@@ -682,12 +685,22 @@ def get_times(contend_f, cycles, duration, addr, assembler, assembled, ops, size
                 times[t_range[0]].append(duration + delay)
     return times
 
-CS48 = CMIOSimulator([0] * 65536)
-CS128 = CMIOSimulator(Memory())
-CS128.memory.roms = [[0] * 16384, [0] * 16384]
+CS48 = CMIOSimulator([0] * 65536, config={'c': $ccmio})
+CS128 = CMIOSimulator(Memory(), config={'c': $ccmio})
+CS48_MEMORY = CS48.memory
+CS128_MEMORY = CS128.memory
+CS48_REGISTERS = CS48.registers
+CS128_REGISTERS = CS128.registers
+if $ccmio:
+    CS48 = CCMIOSimulator(CS48)
+    CS128 = CCMIOSimulator(CS128)
+    CS128_MEMORY.roms[0][:] = [0] * 16384
+    CS128_MEMORY.roms[1][:] = [0] * 16384
+else:
+    CS128_MEMORY.roms = ([0] * 16384, [0] * 16384)
 
 class CMIOSimulatorTest(unittest.TestCase):
-    def _test_contention(self, machine, cspec, ops, registers):
+    def _test_contention(self, machine, cspec, ops, regvals):
         assembler = Assembler()
         assembled = {}
         cycles = cspec.split(',')
@@ -695,18 +708,21 @@ class CMIOSimulatorTest(unittest.TestCase):
         size = len(set(c.split(':')[0] for c in cycles if c.startswith('pc')))
         if machine == '48K':
             cs = CS48
+            memory = CS48_MEMORY
+            registers = CS48_REGISTERS
             ct0 = 14335
             period = 224
             frame_duration = 69888
         else:
             cs = CS128
-            cs.memory.roms = [[0] * 16384, [0] * 16384]
+            memory = CS128_MEMORY
+            registers = CS128_REGISTERS
             ct0 = 14361
             period = 228
             frame_duration = 70908
         t_ranges = $t_ranges
         cs_registers = []
-        for r, v in registers.items():
+        for r, v in regvals.items():
             if r == 'SP':
                 cs_registers.append((12, v))
             elif r == 'F':
@@ -718,10 +734,10 @@ class CMIOSimulatorTest(unittest.TestCase):
         op_times = {}
         for addr in ADDRESSES[size]:
             if machine == '48K':
-                op_times[(addr, -1)] = get_times(contend_48k, cycles, duration, addr, assembler, assembled, ops, size, registers, t_ranges, ct0, period)
+                op_times[(addr, -1)] = get_times(contend_48k, cycles, duration, addr, assembler, assembled, ops, size, regvals, t_ranges, ct0, period)
             else:
-                op_times[(addr, 0)] = get_times(contend_128k, cycles, duration, addr, assembler, assembled, ops, size, registers, t_ranges, ct0, period, 0)
-                op_times[(addr, 1)] = get_times(contend_128k, cycles, duration, addr, assembler, assembled, ops, size, registers, t_ranges, ct0, period, 1)
+                op_times[(addr, 0)] = get_times(contend_128k, cycles, duration, addr, assembler, assembled, ops, size, regvals, t_ranges, ct0, period, 0)
+                op_times[(addr, 1)] = get_times(contend_128k, cycles, duration, addr, assembler, assembled, ops, size, regvals, t_ranges, ct0, period, 1)
                 for page in range(2, 8):
                     op_times[(addr, page)] = op_times[(addr, page % 2)]
         for op in ops:
@@ -731,17 +747,19 @@ class CMIOSimulatorTest(unittest.TestCase):
                     t = t0
                     for exp_timing in times:
                         if page >= 0:
-                            cs.memory.out7ffd(page)
+                            memory.out7ffd(page)
+                            if $ccmio:
+                                cs.out7ffd(page)
                         a = addr
                         for b in data:
-                            cs.memory[a % 65536] = b
+                            memory[a % 65536] = b
                             a += 1
                         for r, v in cs_registers:
-                            cs.registers[r] = v
-                        cs.registers[25] = t
+                            registers[r] = v
+                        registers[25] = t
                         cs.run(addr)
-                        if cs.registers[25] - t != exp_timing:
-                            self.fail(f"Failed for '$${addr:04X} {op}' (T={t}, page={page}, registers={registers}): expected {exp_timing} T-states, was {cs.registers[25] - t}")
+                        if registers[25] - t != exp_timing:
+                            self.fail(f"Failed for '$${addr:04X} {op}' (T={t}, page={page}, registers={regvals}): expected {exp_timing} T-states, was {registers[25] - t}")
                         t += 1
 $tests
 
@@ -837,7 +855,7 @@ def print_tests(outfile, options):
     tests = '\n'.join(tests)
 
     with open(outfile, 'w') as f:
-        f.write(Template(TEMPLATE).substitute(groups=groups, t_ranges=t_ranges, tests=tests))
+        f.write(Template(TEMPLATE).substitute(groups=groups, t_ranges=t_ranges, tests=tests, ccmio=options.ccmio))
     os.chmod(outfile, 0o755)
     if options.verbose:
         print(f'Now run ./{outfile}')
@@ -845,11 +863,13 @@ def print_tests(outfile, options):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         usage='%(prog)s [options] [OUTFILE]',
-        description="Write tests for CMIOSimulator.",
+        description="Write tests for CMIOSimulator or CCMIOSimulator.",
         add_help=False
     )
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('--ccmio', action='store_true',
+                       help="Write tests for CCMIOSimulator.")
     group.add_argument('--vfast', action='store_true',
                        help="Test only one contended T-state.")
     group.add_argument('--fast', action='store_true',
@@ -865,5 +885,6 @@ if __name__ == '__main__':
     namespace, unknown_args = parser.parse_known_args()
     if unknown_args:
         parser.exit(2, parser.format_help())
-    outfile = namespace.outfile or 'slow_test_cmiosimulator.py'
+    def_outfile = 'slow_test_{}cmiosimulator.py'.format('c' if namespace.ccmio else '')
+    outfile = namespace.outfile or def_outfile
     print_tests(outfile, namespace)

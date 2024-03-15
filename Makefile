@@ -18,6 +18,7 @@ usage:
 	@echo "  test3X        run core tests with Python 3.X (8<=X<=12)"
 	@echo "  test-slow     run slow tests"
 	@echo "  test-cmio     run slow tests for CMIOSimulator"
+	@echo "  test-ccmio    run slow tests for CCMIOSimulator"
 	@echo "  test-all      run core and disassembly tests"
 	@echo "  test3X-all    run core and disassembly tests with Python 3.X (8<=X<=12)"
 	@echo "  test-cover    run core tests with coverage info"
@@ -92,6 +93,12 @@ test-cmio:
 	tools/write-cmiosimulator-tests.py --quiet --vslow
 	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) slow_test_cmiosimulator
 	rm slow_test_cmiosimulator.py
+
+.PHONY: test-ccmio
+test-ccmio:
+	tools/write-cmiosimulator-tests.py --quiet --vslow --ccmio
+	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) slow_test_ccmiosimulator
+	rm slow_test_ccmiosimulator.py
 
 .PHONY: release
 release:
