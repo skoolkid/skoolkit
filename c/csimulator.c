@@ -5123,6 +5123,107 @@ static PyObject* CSimulator_exec_frame(CSimulatorObject* self, PyObject* args, P
     return PyLong_FromLong(pc);
 }
 
+static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
+    static char* kwlist[] = {"", "", "", "", "", "", "", NULL};
+    PyObject* start_obj;
+    PyObject* stop_obj;
+    long long max_operations;
+    int max_tstates;
+    int interrupts;
+    PyObject* disassemble;
+    PyObject* trace;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOLiiOO", kwlist, &start_obj, &stop_obj, &max_operations, &max_tstates, &interrupts, &disassemble, &trace)) {
+        return NULL;
+    }
+
+    unsigned start = PyLong_Check(start_obj) ? PyLong_AsLong(start_obj) : 0x10000;
+    unsigned stop = PyLong_Check(stop_obj) ? PyLong_AsLong(stop_obj) : 0x10000;
+    unsigned* reg = self->registers;
+    byte* mem = self->memory;
+    unsigned frame_duration = self->frame_duration;
+    unsigned int_active = self->int_active;
+    unsigned long long operations = 0;
+    if (start < 0x10000) {
+        REG(PC) = start;
+    }
+
+    while (1) {
+        PyObject* i = NULL;
+        unsigned t0 = REG(T);
+        unsigned pc = REG(PC);
+        byte opcode = MEMGET(pc);
+        OpcodeFunction* opcode_func = &opcodes[opcode];
+        if (!opcode_func->func) {
+            byte opcode2 = MEMGET((pc + 1) % 65536);
+            switch (opcode) {
+                case 0xCB:
+                    opcode_func = &after_CB[opcode2];
+                    break;
+                case 0xED:
+                    opcode_func = &after_ED[opcode2];
+                    break;
+                case 0xDD:
+                    if (opcode2 == 0xCB) {
+                        opcode_func = &after_DDCB[MEMGET((pc + 3) % 65536)];
+                    } else {
+                        opcode_func = &after_DD[opcode2];
+                    }
+                    break;
+                case 0xFD:
+                    if (opcode2 == 0xCB) {
+                        opcode_func = &after_FDCB[MEMGET((pc + 3) % 65536)];
+                    } else {
+                        opcode_func = &after_FD[opcode2];
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (disassemble != Py_None) {
+            i = PyObject_CallOneArg(disassemble, PyLong_FromLong(pc));
+            if (i == NULL) {
+                return NULL;
+            }
+        }
+
+        opcode_func->func(self, opcode_func->lookup, opcode_func->args);
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+
+        if (trace != Py_None) {
+            PyObject* args = Py_BuildValue("(INI)", pc, i, t0);
+            PyObject* rv = PyObject_CallObject(trace, args);
+            if (rv == NULL) {
+                return NULL;
+            }
+            Py_DECREF(rv);
+            Py_XDECREF(args);
+        }
+
+        if (interrupts && REG(IFF) && (REG(T) % frame_duration) < int_active) {
+            accept_interrupt(self, pc);
+        }
+
+        operations += 1;
+
+        if (max_operations > 0 && operations >= (unsigned long long)max_operations) {
+            return Py_BuildValue("(IL)", 1, operations);
+        }
+        if (max_tstates > 0 && REG(T) >= (unsigned)max_tstates) {
+            return Py_BuildValue("(IL)", 2, operations);
+        }
+        if (REG(PC) == stop) {
+            return Py_BuildValue("(IL)", 3, operations);
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
 static PyObject* CSimulator_out7ffd(CSimulatorObject* self, PyObject* value) {
     if (self->memory == NULL) {
         long v = PyLong_AsLong(value);
@@ -5144,6 +5245,7 @@ static PyMethodDef CSimulator_methods[] = {
     {"exec_frame", (PyCFunction) CSimulator_exec_frame, METH_VARARGS | METH_KEYWORDS, "Execute an RZX frame"},
     {"out7ffd", (PyCFunction) CSimulator_out7ffd, METH_O, "Output a value to port 0x7ffd"},
     {"run", (PyCFunction) CSimulator_run, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions"},
+    {"trace", (PyCFunction) CSimulator_trace, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions with optional tracing"},
     {NULL}  /* Sentinel */
 };
 

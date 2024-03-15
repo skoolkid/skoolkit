@@ -21,6 +21,7 @@ def mock_config(name):
 def mock_write_snapshot(fname, ram, registers, state):
     global s_fname, s_memory, s_banks, s_reg, s_state
     s_fname = fname
+    s_memory = [0] * 65536
     if len(ram) == 8:
         s_banks = ram
         page = 0
@@ -28,10 +29,12 @@ def mock_write_snapshot(fname, ram, registers, state):
             if spec.startswith('7ffd='):
                 page = int(spec[5:]) % 8
                 break
-        s_memory = [0] * 16384 + ram[5] + ram[2] + ram[page]
+        s_memory[0x4000:0x8000] = ram[5]
+        s_memory[0x8000:0xC000] = ram[2]
+        s_memory[0xC000:] = ram[page]
     else:
         s_banks = None
-        s_memory = [0] * 16384 + ram
+        s_memory[0x4000:] = ram
     s_reg = registers
     s_state = state
 
