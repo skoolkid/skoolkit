@@ -84,9 +84,7 @@ static const int E = 5;
 static const int H = 6;
 static const int L = 7;
 static const int SP = 12;
-#ifdef CONTENTION
 static const int I = 14;
-#endif
 static const int R = 15;
 static const int xA = 16;
 static const int xF = 17;
@@ -662,6 +660,39 @@ static void out7ffd(CSimulatorObject* self, byte value) {
     self->mem128[0] = self->roms[(value & 0x10) / 0x10];
     self->mem128[3] = self->banks[value & 0x07];
     self->out7ffd = value;
+}
+
+static int accept_interrupt(CSimulatorObject* self, unsigned prev_pc) {
+    unsigned* reg = self->registers;
+    byte* mem = self->memory;
+
+    byte opcode = MEMGET(prev_pc);
+    unsigned pc = REG(PC);
+    if (opcode == 0xFB || ((opcode == 0xDD || opcode == 0xFD) && prev_pc == (pc - 1) % 65536)) {
+        return 0;
+    }
+    unsigned iaddr = 56;
+    if (REG(IM) == 2) {
+        unsigned vaddr = 255 + 256 * REG(I);
+        iaddr = MEMGET(vaddr) + 256 * MEMGET((vaddr + 1) % 65536);
+        REG(T) += 19;
+    } else {
+        REG(T) += 13;
+    }
+    unsigned sp = (REG(12) - 2) % 65536;
+    REG(SP) = sp;
+    if (sp > 0x3FFF) {
+        MEMSET(sp, pc % 256);
+    }
+    sp = (sp + 1) % 65536;
+    if (sp > 0x3FFF) {
+        MEMSET(sp, pc / 256);
+    }
+    INC_R(1);
+    REG(PC) = iaddr;
+    REG(IFF) = 0;
+    REG(HALT) = 0;
+    return 1;
 }
 
 #ifdef CONTENTION
@@ -4839,24 +4870,44 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
     return 0;
 }
 
+static PyObject* CSimulator_accept_interrupt(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
+    static char* kwlist[] = {"", "", "", NULL};
+    PyObject* registers;
+    PyObject* memory;
+    unsigned prev_pc;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOI", kwlist, &registers, &memory, &prev_pc)) {
+        return NULL;
+    }
+
+    if (accept_interrupt(self, prev_pc)) {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
+}
+
 static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"start", "stop", NULL};
+    static char* kwlist[] = {"start", "stop", "interrupts", NULL};
     unsigned start = 0x10000;
     unsigned stop = 0x10000;
+    int interrupts = 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|II", kwlist, &start, &stop)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|IIp", kwlist, &start, &stop, &interrupts)) {
         return NULL;
     }
 
     unsigned* reg = self->registers;
     byte* mem = self->memory;
+    unsigned frame_duration = self->frame_duration;
+    unsigned int_active = self->int_active;
 
     if (start < 0x10000) {
         REG(PC) = start;
     }
 
     while (1) {
-        byte opcode = MEMGET(REG(PC));
+        unsigned pc = REG(PC);
+        byte opcode = MEMGET(pc);
         PyObject* opcode_f = self->opcodes[opcode];
         OpcodeFunction* opcode_func = &opcodes[opcode];
         if (!opcode_func->func) {
@@ -4904,6 +4955,10 @@ static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject
             if (PyErr_Occurred()) {
                 return NULL;
             }
+        }
+
+        if (interrupts && REG(IFF) && (REG(T) % frame_duration) < int_active) {
+            accept_interrupt(self, pc);
         }
 
         if (stop > 0xFFFF || REG(PC) == stop) {
@@ -5084,6 +5139,7 @@ static PyMemberDef CSimulator_members[] = {
 };
 
 static PyMethodDef CSimulator_methods[] = {
+    {"accept_interrupt", (PyCFunction) CSimulator_accept_interrupt, METH_VARARGS | METH_KEYWORDS, "Accept an interrupt if allowed"},
     {"exec_all", (PyCFunction) CSimulator_exec_all, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions in CSimulator only"},
     {"exec_frame", (PyCFunction) CSimulator_exec_frame, METH_VARARGS | METH_KEYWORDS, "Execute an RZX frame"},
     {"out7ffd", (PyCFunction) CSimulator_out7ffd, METH_O, "Output a value to port 0x7ffd"},
