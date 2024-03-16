@@ -12,9 +12,10 @@ usage:
 	@echo "  doc           build the documentation"
 	@echo "  man           build the man pages"
 	@echo "  clean         clean the documentation and man pages"
-	@echo "  csimulator    build and install the csimulator module"
+	@echo "  cmods         build and install the C extension modules"
 	@echo "  hh            build the Hungry Horace disassembly"
 	@echo "  test          run core tests"
+	@echo "  test-c        run core tests with C extension modules"
 	@echo "  test3X        run core tests with Python 3.X (8<=X<=12)"
 	@echo "  test-slow     run slow tests"
 	@echo "  test-cmio     run slow tests for CMIOSimulator"
@@ -44,8 +45,8 @@ man:
 clean:
 	$(MAKE) -C sphinx clean
 
-.PHONY: csimulator
-csimulator:
+.PHONY: cmods
+cmods:
 	python3 setup.py build_ext -b .
 
 .PHONY: hh
@@ -64,28 +65,36 @@ write-disassembly-tests:
 remove-disassembly-tests:
 	rm -f tests/test_hh_*.py
 
+.PHONY: remove-c
+remove-c:
+	rm -f skoolkit/*.so
+
 .PHONY: test
-test: remove-disassembly-tests
+test: remove-disassembly-tests remove-c
+	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES)
+
+.PHONY: test-c
+test-c: remove-disassembly-tests cmods
 	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES)
 
 .PHONY: test-all
-test-all: write-disassembly-tests
+test-all: write-disassembly-tests remove-c
 	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES)
 
 .PHONY: test3%
-test3%: remove-disassembly-tests
+test3%: remove-disassembly-tests remove-c
 	$(HOME)/Python/Python3.$*/bin/nose2 --plugin=nose2.plugins.mp -N $(CORES)
 
 .PHONY: test3%-all
-test3%-all: write-disassembly-tests
+test3%-all: write-disassembly-tests remove-c
 	$(HOME)/Python/Python3.$*/bin/nose2 --plugin=nose2.plugins.mp -N $(CORES)
 
 .PHONY: test-cover
-test-cover: remove-disassembly-tests
+test-cover: remove-disassembly-tests remove-c
 	$(NOSE) -C --coverage skoolkit --coverage-report term-missing
 
 .PHONY: test-slow
-test-slow:
+test-slow: remove-c
 	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) -v -c tests/slow_test.cfg
 
 .PHONY: test-cmio
@@ -95,7 +104,7 @@ test-cmio:
 	rm slow_test_cmiosimulator.py
 
 .PHONY: test-ccmio
-test-ccmio:
+test-ccmio: cmods
 	tools/write-cmiosimulator-tests.py --quiet --vslow --ccmio
 	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) slow_test_ccmiosimulator
 	rm slow_test_ccmiosimulator.py
