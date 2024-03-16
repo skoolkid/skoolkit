@@ -147,10 +147,11 @@ class Simulator:
             if len(memory) == 65536:
                 self.memory = bytearray(memory)
             else:
-                rom_id = memory.roms.index(memory.memory[0])
+                rom_id = (memory.o7ffd % 32) // 16
+                page = memory.o7ffd % 8
                 memory.roms = roms = tuple(bytearray(rom) for rom in memory.roms)
                 memory.banks = banks = [bytearray(bank) for bank in memory.banks]
-                memory.memory = [roms[rom_id], banks[5], banks[2], banks[memory.page]]
+                memory.memory = [roms[rom_id], banks[5], banks[2], banks[page]]
             self.registers = array.array('I', self.registers)
             self.opcodes = [None] * 256
             self.after_CB = [None] * 256
@@ -243,7 +244,7 @@ class Simulator:
         if isinstance(self.memory, Memory):
             ram = self.memory.banks
             state.extend(f'ay[{n}]={v}' for n, v in enumerate(self.tracer.ay))
-            state.extend((f'7ffd={self.tracer.out7ffd}', f'fffd={self.tracer.outfffd}'))
+            state.extend((f'7ffd={self.memory.o7ffd}', f'fffd={self.tracer.outfffd}'))
         else:
             ram = self.memory[0x4000:]
         return ram, registers, state

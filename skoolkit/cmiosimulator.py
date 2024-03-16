@@ -67,7 +67,7 @@ class CMIOSimulator(Simulator):
         return ((0, 1), (0x4000, 3))
 
     def contend_128k(self, t, timings):
-        c = self.memory.page % 2
+        c = self.memory.o7ffd % 2
         delay = 0
         for address, tstates in timings:
             if 0x4000 <= address < 0x8000 or (c and address >= 0xC000):
@@ -79,11 +79,11 @@ class CMIOSimulator(Simulator):
     def io_contention_128k(self, port):
         if port % 2:
             # Low bit set
-            if 0x4000 <= port < 0x8000 or (self.memory.page % 2 and port >= 0xC000):
+            if 0x4000 <= port < 0x8000 or (self.memory.o7ffd % 2 and port >= 0xC000):
                 return ((0x4000, 1), (0x4000, 1), (0x4000, 1), (0x4000, 1))
             return ((0, 4),)
         # Low bit reset (ULA port)
-        if 0x4000 <= port < 0x8000 or (self.memory.page % 2 and port >= 0xC000):
+        if 0x4000 <= port < 0x8000 or (self.memory.o7ffd % 2 and port >= 0xC000):
             return ((0x4000, 1), (0x4000, 3))
         return ((0, 1), (0x4000, 3))
 

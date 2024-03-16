@@ -37,7 +37,7 @@ class Memory:
     def out7ffd(self, value):
         self.memory[0] = self.roms[(value % 32) // 16]
         self.memory[3] = self.banks[value % 8]
-        self.page = value % 8
+        self.o7ffd = value
 
 class PagingTracer:
     def write_port(self, registers, port, value):

@@ -34,7 +34,7 @@ INDEX_STOP = {None: 65536}
 Flags = namedtuple('Flags', 'prepend final overwrite append')
 
 class Memory:
-    def __init__(self, banks=None, bank=None, roms=None, rom=None, page=0):
+    def __init__(self, banks=None, bank=None, roms=None, rom=None, o7ffd=0):
         if banks is None:
             self.banks = [None] * 8
             self.banks[5] = [0] * 0x4000
@@ -47,7 +47,7 @@ class Memory:
         else:
             self.roms = roms
         self.memory = [rom or [0] * 0x4000, self.banks[5], self.banks[2], bank or self.banks[0]]
-        self.page = page
+        self.o7ffd = o7ffd
 
     def __getitem__(self, index):
         if isinstance(index, int):
@@ -73,7 +73,7 @@ class Memory:
             self.memory[0] = self.roms[0]
         if data is None:
             self.memory[3] = self.banks[page]
-            self.page = page
+            self.o7ffd = (self.o7ffd & 0xF8) + page
         else:
             self.banks[page][:] = data
 
@@ -86,13 +86,13 @@ class Memory:
         else:
             bank = banks[0]
             rom = self.memory[0][:]
-        return Memory(banks, bank, roms, rom, self.page)
+        return Memory(banks, bank, roms, rom, self.o7ffd)
 
     def out7ffd(self, value):
         if all(self.banks):
             self.memory[0] = self.roms[(value % 32) // 16]
             self.memory[3] = self.banks[value % 8]
-            self.page = value % 8
+            self.o7ffd = value
 
 class Comment:
     def __init__(self, rowspan, text):

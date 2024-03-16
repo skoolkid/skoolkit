@@ -4911,7 +4911,7 @@ static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject
         PyObject* opcode_f = self->opcodes[opcode];
         OpcodeFunction* opcode_func = &opcodes[opcode];
         if (!opcode_func->func) {
-            byte opcode2 = MEMGET((REG(PC) + 1) % 65536);
+            byte opcode2 = MEMGET((pc + 1) % 65536);
             switch (opcode) {
                 case 0xCB:
                     opcode_f = self->after_CB[opcode2];
@@ -4923,8 +4923,8 @@ static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject
                     break;
                 case 0xDD:
                     if (opcode2 == 0xCB) {
-                        opcode_f = self->after_DDCB[MEMGET((REG(PC) + 3) % 65536)];
-                        opcode_func = &after_DDCB[MEMGET((REG(PC) + 3) % 65536)];
+                        opcode_f = self->after_DDCB[MEMGET((pc + 3) % 65536)];
+                        opcode_func = &after_DDCB[MEMGET((pc + 3) % 65536)];
                     } else {
                         opcode_f = self->after_DD[opcode2];
                         opcode_func = &after_DD[opcode2];
@@ -4932,8 +4932,8 @@ static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject
                     break;
                 case 0xFD:
                     if (opcode2 == 0xCB) {
-                        opcode_f = self->after_FDCB[MEMGET((REG(PC) + 3) % 65536)];
-                        opcode_func = &after_FDCB[MEMGET((REG(PC) + 3) % 65536)];
+                        opcode_f = self->after_FDCB[MEMGET((pc + 3) % 65536)];
+                        opcode_func = &after_FDCB[MEMGET((pc + 3) % 65536)];
                     } else {
                         opcode_f = self->after_FD[opcode2];
                         opcode_func = &after_FD[opcode2];

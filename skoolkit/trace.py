@@ -18,7 +18,7 @@ import argparse
 import textwrap
 import time
 
-from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
+from skoolkit import ROM48, VERSION, SkoolKitError, CSimulator, CCMIOSimulator, get_int_param, integer, read_bin_file
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.pagingtracer import Memory, PagingTracer
@@ -26,16 +26,6 @@ from skoolkit.simulator import (Simulator, INT_ACTIVE, A, F, B, C, D, E, H, L, I
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 from skoolkit.snapshot import FRAME_DURATIONS, Snapshot, make_snapshot, poke, print_reg_help, write_snapshot
 from skoolkit.traceutils import Registers, disassemble
-
-try:
-    from skoolkit.csimulator import CSimulator
-except ImportError: # pragma: no cover
-    CSimulator = None
-
-try:
-    from skoolkit.ccmiosimulator import CCMIOSimulator
-except ImportError: # pragma: no cover
-    CCMIOSimulator = None
 
 class Tracer(PagingTracer):
     def __init__(self, simulator, border, out7ffd, outfffd, ay, outfe):

@@ -22,6 +22,16 @@ import posixpath
 import textwrap
 import importlib
 
+try:
+    from skoolkit.csimulator import CSimulator
+except ImportError: # pragma: no cover
+    CSimulator = None
+
+try:
+    from skoolkit.ccmiosimulator import CCMIOSimulator
+except ImportError: # pragma: no cover
+    CCMIOSimulator = None
+
 VERSION = '9.2b1'
 PACKAGE_DIR = os.path.dirname(__file__)
 

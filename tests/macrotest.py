@@ -2017,6 +2017,25 @@ class CommonSkoolMacroTest:
         self.assertEqual(banks[7][0], 135)
         self.assertEqual(writer.expand('#FORMAT(7ffd={sim[7ffd]})'), '7ffd=7')
 
+    def test_macro_sim_128k_rom_switching_with_intervening_bank_macro(self):
+        skool = """
+            @start
+            @bank=0
+            ; Routine
+            c40000 LD BC,$7FFD
+             40003 LD D,16
+             40005 OUT (C),D   ; Page in ROM 1
+             40007 RET
+
+            ; Another routine
+            c40008 LD A,(1)    ; Opcode at address 1 in ROM 1 is 175 (XOR A)
+             40011 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=40000,stop=40007) #BANK1 #SIM(start=40008,stop=40011)')
+        self.assertEqual(writer.expand('#PEEK1'), '175')
+        self.assertEqual(writer.expand('#FORMAT(A={sim[A]})'), 'A=175')
+
     def test_macro_sim_128k_port_7ffd_saved_and_restored(self):
         skool = """
             @start

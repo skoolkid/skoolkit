@@ -28,16 +28,11 @@ with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
     except ImportError: # pragma: no cover
         pygame = None
 
-from skoolkit import VERSION, SkoolKitError, get_dword, get_word, read_bin_file, warn, write
+from skoolkit import VERSION, SkoolKitError, CSimulator, get_dword, get_word, read_bin_file, warn, write
 from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import Simulator, I, R, R1, R2
 from skoolkit.snapshot import Snapshot, Z80, write_snapshot
 from skoolkit.traceutils import disassemble
-
-try:
-    from skoolkit.csimulator import CSimulator
-except ImportError: # pragma: no cover
-    CSimulator = None
 
 if pygame: # pragma: no cover
     COLOURS = (
