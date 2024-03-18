@@ -3,8 +3,7 @@ import tempfile
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import tap2sna
-from skoolkit.snapinfo import parse_snapshot
-from skoolkit.snapshot import get_snapshot
+from skoolkit.snapshot import Snapshot
 
 class SimLoadGamesTest(SkoolKitTestCase):
     def _test_sim_load(self, url, tapname, tapsum, reg, options=''):
@@ -13,9 +12,9 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 options = options.split()
             z80file = f'{d}/{tapname[:-4]}.z80'
             tap2sna.main(('--tape-name', tapname, '--tape-sum', tapsum, *options, url, z80file))
-            ram = get_snapshot(z80file)[16384:]
+            r = Snapshot.get(z80file)
+            ram = r.ram(-1)
             md5sum = hashlib.md5(bytes(ram)).hexdigest()
-            r = parse_snapshot(z80file)[1]
             rvals = {
                 "AF,BC,DE,HL": f'{r.a:02X}{r.f:02X},{r.bc:04X},{r.de:04X},{r.hl:04X}',
                 "AF',BC',DE',HL'": f'{r.a2:02X}{r.f2:02X},{r.bc2:04X},{r.de2:04X},{r.hl2:04X}',
@@ -438,7 +437,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 "AF',BC',DE',HL'": 'FF81,7FFD,0009,0038',
                 'PC,SP,IX,IY': '5B14,5F52,C654,5C3A',
                 'IR,iff,im,border': '3F6A,1,1,0',
-                'ram': '25466216f28f0b841bdc419d57ddf3aa'
+                'ram': '2b6b7f6e2c9dd6411967f2531a173077'
             },
             '-c in-flags=4 -c machine=128 -c finish-tape=1 --start 23316'
         )

@@ -313,7 +313,7 @@ class KeyboardTracer(PagingTracer):
         self.ay = [0] * 16
         self.outfe = 0
 
-    def run(self, stop, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
+    def run(self, stop, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt, csimulator):
         simulator = self.simulator
         opcodes = simulator.opcodes
         memory = simulator.memory
@@ -326,27 +326,35 @@ class KeyboardTracer(PagingTracer):
         if tracefile:
             r = Registers(registers)
 
-        while True:
-            t0 = tstates
-            if tracefile:
-                i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
-                opcodes[memory[pc]]()
-                tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
+        if csimulator: # pragma: no cover
+            if trace_line:
+                df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
+                tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
             else:
-                opcodes[memory[pc]]()
-            tstates = registers[25]
-
-            if registers[26] and tstates % frame_duration < int_active:
-                if simulator.accept_interrupt(registers, memory, pc) and keys and not keys[0]:
-                    keys.pop(0)
+                df = tf = None
+            csimulator.press_keys(keys, stop, timeout, df, tf)
+        else:
+            while True:
+                t0 = tstates
+                if tracefile:
+                    i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
+                    opcodes[memory[pc]]()
+                    tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
+                else:
+                    opcodes[memory[pc]]()
                 tstates = registers[25]
 
-            pc = registers[24]
-            if pc == stop:
-                break
+                if registers[26] and tstates % frame_duration < int_active:
+                    if simulator.accept_interrupt(registers, memory, pc) and keys and not keys[0]:
+                        keys.pop(0)
+                    tstates = registers[25]
 
-            if tstates > timeout:
-                break
+                pc = registers[24]
+                if pc == stop:
+                    break
+
+                if tstates > timeout:
+                    break
 
     def read_port(self, registers, port):
         if self.keys:

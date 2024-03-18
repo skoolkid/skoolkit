@@ -23,9 +23,10 @@ import zipfile
 from urllib.request import Request, urlopen
 from urllib.parse import urlparse
 
-from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
-                      get_word, get_word3, integer, open_file, parse_int,
-                      read_bin_file, write_line, ROM48, VERSION)
+from skoolkit import (SkoolKitError, CSimulator, CCMIOSimulator, get_dword,
+                      get_int_param, get_object, get_word, get_word3, integer,
+                      open_file, parse_int, read_bin_file, write_line, ROM48,
+                      VERSION)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.kbtracer import KeyboardTracer
@@ -374,9 +375,10 @@ def sim_load(blocks, options, config):
     timeout = options.timeout * 3500000
 
     if options.cmio:
-        simulator_cls = CMIOSimulator
+        simulator_cls, csimulator_cls = CMIOSimulator, CCMIOSimulator
     else:
-        simulator_cls = Simulator
+        simulator_cls, csimulator_cls = Simulator, CSimulator
+    sim_cfg['c'] = csimulator_cls
 
     if options.load:
         load = options.load.split()
@@ -391,8 +393,9 @@ def sim_load(blocks, options, config):
         simulator = simulator_cls(memory, registers, state, sim_cfg)
         tracer = KeyboardTracer(simulator, load, kb_delay)
         simulator.set_tracer(tracer)
+        csimulator = csimulator_cls(simulator) if csimulator_cls else None
         try:
-            tracer.run(stop, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
+            tracer.run(stop, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt, csimulator)
             border = tracer.border
             out7ffd = tracer.out7ffd
             outfffd = tracer.outfffd
@@ -422,7 +425,7 @@ def sim_load(blocks, options, config):
                 if b > 0xFF:
                     memory[a + 1] = b // 256
         memory[0xFF58:] = memory[0x3E08:0x3EB0] # UDGs
-        simulator = simulator_cls(memory, {'PC': 0x0605, 'SP': 0xFF50})
+        simulator = simulator_cls(memory, {'PC': 0x0605, 'SP': 0xFF50}, config=sim_cfg)
         border = 7
         out7ffd = 0
         outfffd = 0
@@ -442,9 +445,15 @@ def sim_load(blocks, options, config):
                             options.polarity, options.finish_tape, in_min_addr, options.accelerate_dec_a,
                             list_accelerators, border, out7ffd, outfffd, ay, outfe)
         simulator.set_tracer(tracer, options.in_flags & 4, False)
+        if csimulator_cls and not list_accelerators: # pragma: no cover
+            # Remove pure Python opcode handlers to improve performance
+            simulator.opcodes[0x04] = None # INC B
+            simulator.opcodes[0x05] = None # DEC B
+            simulator.opcodes[0x3D] = None # DEC A
+        csimulator = csimulator_cls(simulator, tracer.out7ffd) if csimulator_cls else None
         try:
-            tracer.run(options.start, options.fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
-            _ram_operations(memory, options.ram_ops)
+            tracer.run(options.start, options.fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt, csimulator)
+            _ram_operations(simulator.memory, options.ram_ops)
         except KeyboardInterrupt:
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
         if list_accelerators:

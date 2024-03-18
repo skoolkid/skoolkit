@@ -100,7 +100,7 @@ class KeyboardTracerTest(SkoolKitTestCase):
             exp_data.extend(reading)
             exp_data.append(0)
         exp_data.extend((0xF7, 0b11111100)) # 1+2 triggers jump to 0xC000
-        kbtracer.run(0xC000, 3500000, None, None, None, None, None)
+        kbtracer.run(0xC000, 3500000, None, None, None, None, None, None)
         self.assertEqual(exp_data, memory[0x8000:0x8000 + len(exp_data)])
 
     def test_unmodified_keys(self):
@@ -221,7 +221,7 @@ class KeyboardTracerTest(SkoolKitTestCase):
         trace_line = "{t:03} ${pc:04X} {i:<13} AFBCDEHL={r[a]:02X}{r[f]:02X}{r[b]:02X}{r[c]:02X}{r[d]:02X}{r[e]:02X}{r[h]:02X}{r[l]:02X}"
         trace_line += " AFBCDEHL'={r[^a]:02X}{r[^f]:02X}{r[^b]:02X}{r[^c]:02X}{r[^d]:02X}{r[^e]:02X}{r[^h]:02X}{r[^l]:02X}"
         trace_line += " IX={r[ixh]:02X}{r[ixl]:02X} IY={r[iyh]:02X}{r[iyl]:02X} SP={r[sp]:04X} IR={r[i]:02X}{r[r]:02X}\n"
-        kbtracer.run(stop, 200, tracefile, trace_line, '$', '02X', '04X')
+        kbtracer.run(stop, 200, tracefile, trace_line, '$', '02X', '04X', None)
         exp_output = """
              000 $0000 LD BC,$3039   AFBCDEHL=0000303900000000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=5C00 IR=3F01
              010 $0003 LD DE,$5BA0   AFBCDEHL=000030395BA00000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=5C00 IR=3F02
@@ -263,7 +263,7 @@ class KeyboardTracerTest(SkoolKitTestCase):
         trace_line = "${pc:04X} {i:<13} BCDEHL={r[bc]:04X}{r[de]:04X}{r[hl]:04X}"
         trace_line += " BCDEHL'={r[^bc]:04X}{r[^de]:04X}{r[^hl]:04X}"
         trace_line += " IX={r[ix]:04X} IY={r[iy]:04X}\n"
-        kbtracer.run(stop, 200, tracefile, trace_line, '$', '02X', '04X')
+        kbtracer.run(stop, 200, tracefile, trace_line, '$', '02X', '04X', None)
         exp_output = """
             $0000 LD BC,$3039   BCDEHL=303900000000 BCDEHL'=000000000000 IX=0000 IY=5C3A
             $0003 LD DE,$5BA0   BCDEHL=30395BA00000 BCDEHL'=000000000000 IX=0000 IY=5C3A
@@ -284,6 +284,6 @@ class KeyboardTracerTest(SkoolKitTestCase):
         kbtracer = KeyboardTracer(simulator, ['ENTER'], 0)
         simulator.set_tracer(kbtracer)
         timeout = 10
-        kbtracer.run(stop, timeout, None, None, None, None, None)
+        kbtracer.run(stop, timeout, None, None, None, None, None, None)
         self.assertEqual(simulator.registers[T], 12)
         self.assertNotEqual(simulator.registers[PC], stop)

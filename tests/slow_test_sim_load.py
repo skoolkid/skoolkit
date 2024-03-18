@@ -9,15 +9,18 @@ from skoolkit import tap2sna, loadtracer, ROM48, read_bin_file
 def mock_write_snapshot(ram, namespace, z80):
     global snapshot, options
     options = namespace
+    snapshot = [0] * 65536
     if len(ram) == 8:
         page = 0
         for spec in options.state:
             if spec.startswith('7ffd='):
                 page = int(spec[5:]) % 8
                 break
-        snapshot = [0] * 16384 + ram[5] + ram[2] + ram[page]
+        snapshot[0x4000:0x8000] = ram[5]
+        snapshot[0x8000:0xC000] = ram[2]
+        snapshot[0xC000:] = ram[page]
     else:
-        snapshot = [0] * 16384 + ram
+        snapshot[0x4000:] = ram
 
 def get_loader(addr, bits=(0xB0, 0xCB)):
     rom = list(read_bin_file(ROM48, 0x0605))
@@ -665,7 +668,7 @@ class SimLoadTest(SkoolKitTestCase):
             (code, code_start),
             (code2, code2_start)
         )
-        exp_reg = set(('SP=65344', f'IX={code2_end}', 'IY=23610', 'PC=49158', 'E=136', 'D=2', 'C=0')) # CDE=648
+        exp_reg = set(('SP=65344', f'IX={code2_end}', 'IY=23610', 'PC=49158', 'BC=45056', 'DE=648')) # CDE=648
         exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',

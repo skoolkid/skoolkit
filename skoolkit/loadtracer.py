@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import array
 from collections import defaultdict
 from functools import partial
 
@@ -166,13 +167,9 @@ class LoadTracer(PagingTracer):
                     opcodes[0x05] = partial(self.dec_b, registers, memory, dec_b_acc[0])
                 elif dec_b_acc:
                     opcodes[0x05] = partial(self.dec_b_auto, registers, memory, dec_b_acc)
-        self.next_edge = 0
         self.block_index = 0
-        self.block_data_index, self.block_max_index = self.indexes[0]
-        self.index = 0
+        self.block_data_index = self.indexes[0][0]
         self.max_index = len(self.edges) - 1
-        self.tape_running = False
-        self.end_of_tape = 0
         self.tape_end_time = 0
         self.custom_loader = False
         self.border = border
@@ -184,89 +181,119 @@ class LoadTracer(PagingTracer):
         self.ay = ay
         self.outfe = outfe
         self.text = TextReader()
+        self.state = [
+            0,                  # state[0]: next_edge
+            0,                  # state[1]: index
+            0,                  # state[2]: end_of_tape
+            self.indexes[0][1], # state[3]: block_max_index
+            0,                  # state[4]: tape_running
+        ]
 
-    def run(self, stop, fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
+    def run(self, stop, fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt, csimulator):
         simulator = self.simulator
-        opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
-        frame_duration = simulator.frame_duration
-        int_active = simulator.int_active
-        pc = registers[24]
-        progress = 0
-        edges = self.edges
-        tape_length = edges[-1] // 1000
-        max_index = self.max_index
-        tstates = registers[25]
         if tracefile:
             r = Registers(registers)
 
-        while True:
-            t0 = tstates
+        if csimulator: # pragma: no cover
             if tracefile:
-                i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
-                opcodes[memory[pc]]()
-                tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
+                df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
+                tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
             else:
-                opcodes[memory[pc]]()
+                df = tf = None
+            ppf = lambda p: write(f'[{p/10:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')
+            self.edges = array.array('I', self.edges)
+            self.state = array.array('I', self.state)
+            stop_cond = csimulator.load(self, stop, fast_load, timeout, ppf, df, tf)
+            pc = registers[24]
+        else:
+            opcodes = simulator.opcodes
+            frame_duration = simulator.frame_duration
+            int_active = simulator.int_active
+            pc = registers[24]
+            progress = 0
+            edges = self.edges
+            tape_length = edges[-1] // 1000
+            max_index = self.max_index
             tstates = registers[25]
-
-            if registers[26] and tstates % frame_duration < int_active:
-                simulator.accept_interrupt(registers, memory, pc)
+            state = self.state
+            while True:
+                t0 = tstates
+                if tracefile:
+                    i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
+                    opcodes[memory[pc]]()
+                    tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
+                else:
+                    opcodes[memory[pc]]()
                 tstates = registers[25]
 
-            if self.tape_running and tstates >= self.next_edge:
-                index = self.index
-                while index < max_index and edges[index + 1] < tstates:
-                    index += 1
-                self.index = index
-                if index == max_index:
-                    # Allow 1ms for the final edge on the tape to be read
-                    if tstates - edges[index] > 3500:
-                        self.stop_tape(tstates) # pragma: no cover
-                elif index > self.block_max_index:
-                    # Pause tape between blocks
-                    self.next_block(tstates) # pragma: no cover
-                else:
-                    self.next_edge = edges[index + 1]
-                    if index < self.block_max_index:
-                        p = edges[index] // tape_length
-                        if p > progress:
-                            msg = f'[{p/10:0.1f}%]'
-                            write(msg + chr(8) * len(msg))
-                            progress = p
+                if registers[26] and tstates % frame_duration < int_active:
+                    simulator.accept_interrupt(registers, memory, pc)
+                    tstates = registers[25]
 
-            pc = registers[24]
+                if state[4] and tstates >= state[0]:
+                    index = state[1]
+                    while index < max_index and edges[index + 1] < tstates:
+                        index += 1
+                    state[1] = index
+                    if index == max_index:
+                        # Allow 1ms for the final edge on the tape to be read
+                        if tstates - edges[index] > 3500:
+                            self.stop_tape(tstates) # pragma: no cover
+                    elif index > state[3]:
+                        # Pause tape between blocks
+                        self.next_block(tstates) # pragma: no cover
+                    else:
+                        state[0] = edges[index + 1]
+                        if index < state[3]:
+                            p = edges[index] // tape_length
+                            if p > progress:
+                                write(f'[{p/10:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')
+                                progress = p
 
-            if pc == stop and (self.end_of_tape or not self.finish_tape):
-                write_line(f'Simulation stopped (PC at start address): PC={pc}')
-                break
-
-            if pc == 0x0556 and self.out7ffd & 0x10 and fast_load and self.fast_load(simulator):
-                self.index = self.block_max_index
-                if self.index == max_index:
-                    # Final block, so stop the tape
-                    self.stop_tape(tstates)
-                else:
-                    # Otherwise continue to play the tape until this block's
-                    # 'pause' period (if any) has elapsed
-                    self.tape_running = True
-                    registers[25] = self.next_edge = edges[self.index]
                 pc = registers[24]
-            else:
-                if self.end_of_tape and stop is None:
-                    if self.custom_loader:
-                        write_line(f'Simulation stopped (end of tape): PC={pc}')
-                        break
-                    if pc > 0x3FFF:
-                        write_line(f'Simulation stopped (PC in RAM): PC={pc}')
-                        break
-                    if tstates - self.tape_end_time > 3500000: # pragma: no cover
-                        write_line(f'Simulation stopped (tape ended 1 second ago): PC={pc}')
-                        break
-                if tstates > timeout: # pragma: no cover
-                    write_line(f'Simulation stopped (timed out): PC={pc}')
+
+                if pc == stop and (state[2] or not self.finish_tape):
+                    stop_cond = 0
                     break
+
+                if pc == 0x0556 and self.out7ffd & 0x10 and fast_load and self.fast_load(simulator):
+                    state[1] = state[3]
+                    if state[1] == max_index:
+                        # Final block, so stop the tape
+                        self.stop_tape(tstates)
+                    else:
+                        # Otherwise continue to play the tape until this block's
+                        # 'pause' period (if any) has elapsed
+                        state[4] = 1
+                        registers[25] = state[0] = edges[state[1]]
+                    pc = registers[24]
+                else:
+                    if state[2] and stop is None:
+                        if self.custom_loader:
+                            stop_cond = 1
+                            break
+                        if pc > 0x3FFF:
+                            stop_cond = 2
+                            break
+                        if tstates - self.tape_end_time > 3500000: # pragma: no cover
+                            stop_cond = 3
+                            break
+                    if tstates > timeout: # pragma: no cover
+                        stop_cond = 4
+                        break
+
+        if stop_cond == 0:
+            write_line(f'Simulation stopped (PC at start address): PC={pc}')
+        elif stop_cond == 1:
+            write_line(f'Simulation stopped (end of tape): PC={pc}')
+        elif stop_cond == 2:
+            write_line(f'Simulation stopped (PC in RAM): PC={pc}')
+        elif stop_cond == 3: # pragma: no cover
+            write_line(f'Simulation stopped (tape ended 1 second ago): PC={pc}')
+        elif stop_cond == 4: # pragma: no cover
+            write_line(f'Simulation stopped (timed out): PC={pc}')
 
     def dec_a_jr(self, registers, memory):
         # Speed up any
@@ -274,8 +301,8 @@ class LoadTracer(PagingTracer):
         #             JR NZ,LD_DELAY
         # loop, which is common in tape loading routines
         a = registers[0]
-        pcn = registers[24] + 1
-        if a and memory[pcn:pcn + 2] == [0x20, 0xFD]:
+        pcn = (registers[24] + 1) % 65536
+        if a and memory[pcn] == 0x20 and memory[(pcn + 1) % 65536] == 0xFD:
             registers[0] = 0
             registers[1] = 0x42 + (registers[1] % 2)
             r = registers[15]
@@ -283,7 +310,7 @@ class LoadTracer(PagingTracer):
             registers[25] += 16 * a - 5
             registers[24] = (pcn + 2) % 65536
         else:
-            registers[:2] = DEC[registers[1] % 2][a]
+            registers[0], registers[1] = DEC[registers[1] % 2][a]
             registers[15] = R1[registers[15]]
             registers[25] += 4
             registers[24] = pcn % 65536
@@ -295,7 +322,7 @@ class LoadTracer(PagingTracer):
         # loop, which is used in a few tape loading routines
         a = registers[0]
         pc = registers[24]
-        if a and memory[pc + 1:pc + 4] == [0xC2, pc % 256, pc // 256]:
+        if a and memory[(pc + 1) % 65536] == 0xC2 and memory[(pc + 2) % 65536] == pc % 256 and memory[(pc + 3) % 65536] == pc // 256:
             registers[0] = 0
             registers[1] = 0x42 + (registers[1] % 2)
             r = registers[15]
@@ -303,7 +330,7 @@ class LoadTracer(PagingTracer):
             registers[25] += 14 * a
             registers[24] = (pc + 4) % 65536
         else:
-            registers[:2] = DEC[registers[1] % 2][a]
+            registers[0], registers[1] = DEC[registers[1] % 2][a]
             registers[15] = R1[registers[15]]
             registers[25] += 4
             registers[24] = (pc + 1) % 65536
@@ -312,15 +339,15 @@ class LoadTracer(PagingTracer):
         # Speed up any 'DEC A: JR/JP NZ,$-1' loop, and also count hits and
         # misses
         pc = registers[24]
-        if memory[pc + 1:pc + 3] == [0x20, 0xFD]:
+        if memory[(pc + 1) % 65536] == 0x20 and memory[(pc + 2) % 65536] == 0xFD:
             self.dec_a_jr_hits += 1
             self.dec_a_jr(registers, memory)
-        elif memory[pc + 1:pc + 4] == [0xC2, pc % 256, pc // 256]:
+        elif memory[(pc + 1) % 65536] == 0xC2 and memory[(pc + 2) % 65536] == pc % 256 and memory[(pc + 3) % 65536] == pc // 256:
             self.dec_a_jp_hits += 1
             self.dec_a_jp(registers, memory)
         else:
             self.dec_a_misses += 1
-            registers[:2] = DEC[registers[1] % 2][registers[0]]
+            registers[0], registers[1] = DEC[registers[1] % 2][registers[0]]
             registers[15] = R1[registers[15]]
             registers[25] += 4
             registers[24] = (pc + 1) % 65536
@@ -330,9 +357,9 @@ class LoadTracer(PagingTracer):
         b = registers[2]
         loops = 0
         pcn = registers[24] + 1
-        if self.tape_running and memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
-            if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
-                delta = self.next_edge - registers[25] - acc.in_time
+        if self.state[4] and memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
+            if registers[3] & acc.ear_mask == ((self.state[1] - acc.polarity) % 2) * acc.ear_mask:
+                delta = self.state[0] - registers[25] - acc.in_time
                 if delta > 0:
                     loops = min(delta // acc.loop_time + 1, (b - 1) % 256)
                     if loops:
@@ -349,12 +376,12 @@ class LoadTracer(PagingTracer):
         # loader-specific accelerator
         b = registers[2]
         pcn = registers[24] + 1
-        if self.tape_running:
+        if self.state[4]:
             loops = 0
             for i, acc in enumerate(accelerators):
                 if memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
-                    if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
-                        delta = self.next_edge - registers[25] - acc.in_time
+                    if registers[3] & acc.ear_mask == ((self.state[1] - acc.polarity) % 2) * acc.ear_mask:
+                        delta = self.state[0] - registers[25] - acc.in_time
                         if delta > 0:
                             loops = min(delta // acc.loop_time + 1, (b - 1) % 256)
                             if loops:
@@ -381,9 +408,9 @@ class LoadTracer(PagingTracer):
         b = registers[2]
         loops = 0
         pcn = registers[24] + 1
-        if self.tape_running and memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
-            if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
-                delta = self.next_edge - registers[25] - acc.in_time
+        if self.state[4] and memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
+            if registers[3] & acc.ear_mask == ((self.state[1] - acc.polarity) % 2) * acc.ear_mask:
+                delta = self.state[0] - registers[25] - acc.in_time
                 if delta > 0:
                     loops = min(delta // acc.loop_time + 1, 255 - b)
                     if loops:
@@ -400,9 +427,9 @@ class LoadTracer(PagingTracer):
         b = registers[2]
         loops = 0
         pcn = registers[24] + 1
-        if self.tape_running and all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
-            if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
-                delta = self.next_edge - registers[25] - acc.in_time
+        if self.state[4] and all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
+            if registers[3] & acc.ear_mask == ((self.state[1] - acc.polarity) % 2) * acc.ear_mask:
+                delta = self.state[0] - registers[25] - acc.in_time
                 if delta > 0:
                     loops = min(delta // acc.loop_time + 1, 255 - b)
                     if loops:
@@ -419,12 +446,12 @@ class LoadTracer(PagingTracer):
         # loader-specific accelerator
         b = registers[2]
         pcn = registers[24] + 1
-        if self.tape_running:
+        if self.state[4]:
             loops = 0
             for i, acc in enumerate(accelerators):
                 if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
-                    if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
-                        delta = self.next_edge - registers[25] - acc.in_time
+                    if registers[3] & acc.ear_mask == ((self.state[1] - acc.polarity) % 2) * acc.ear_mask:
+                        delta = self.state[0] - registers[25] - acc.in_time
                         if delta > 0:
                             loops = min(delta // acc.loop_time + 1, 255 - b)
                             if loops:
@@ -450,7 +477,7 @@ class LoadTracer(PagingTracer):
         # Speed up the tape-sampling loop with an automatically selected
         # loader-specific accelerator, and also count hits and misses
         pcn = registers[24] + 1
-        if self.tape_running:
+        if self.state[4]:
             for i, acc in enumerate(accelerators):
                 if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
                     self.accelerators[acc.name] += 1
@@ -472,10 +499,10 @@ class LoadTracer(PagingTracer):
             pc = registers[24]
             if pc >= self.in_min_addr or (0x0562 <= pc <= 0x05F1 and self.out7ffd & 0x10):
                 self.custom_loader = True
-                index = self.index
-                if self.announce_data and not self.end_of_tape:
+                index = self.state[1]
+                if self.announce_data and not self.state[2]:
                     self.announce_data = False
-                    self.tape_running = True
+                    self.state[4] = 1
                     registers[T] = self.edges[index]
                     length = len(self.blocks[self.block_index])
                     if length:
@@ -502,23 +529,23 @@ class LoadTracer(PagingTracer):
         if self.block_index >= len(self.blocks):
             self.stop_tape(tstates) # pragma: no cover
         else:
-            self.index = self.block_max_index + 1
-            self.next_edge = self.edges[self.index]
-            self.block_data_index, self.block_max_index = self.indexes[self.block_index]
-            self.tape_running = not self.pause
+            self.state[1] = self.state[3] + 1
+            self.state[0] = self.edges[self.state[1]]
+            self.block_data_index, self.state[3] = self.indexes[self.block_index]
+            self.state[4] = int(not self.pause)
             self.announce_data = True
 
     def stop_tape(self, tstates):
         self.block_index = len(self.blocks)
-        self.end_of_tape += 1
-        if self.end_of_tape == 1:
+        self.state[2] += 1
+        if self.state[2] == 1:
             write_line('Tape finished')
             self.tape_end_time = tstates
-        self.tape_running = False
+        self.state[4] = 0
 
     def fast_load(self, simulator):
         registers = simulator.registers
-        while self.block_data_index <= self.index < self.max_index:
+        while self.block_data_index <= self.state[1] < self.max_index:
             self.next_block(registers[T])
         if self.block_index < len(self.blocks):
             block = self.blocks[self.block_index]

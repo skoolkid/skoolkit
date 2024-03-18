@@ -92,9 +92,10 @@ class Tracer:
 def load_tap(tapfile):
     tap_blocks = get_tap_blocks(read_bin_file(tapfile))
     options = Options()
-    snapshot = [0] * 16384 + sim_load(tap_blocks, options, defaultdict(str))
+    snapshot = [0] * 65536
     rom = read_bin_file(ROM48)
     snapshot[:len(rom)] = rom
+    snapshot[0x4000:] = sim_load(tap_blocks, options, defaultdict(str))
     for r in options.reg:
         if r.startswith('PC='):
             return int(r[3:]), snapshot

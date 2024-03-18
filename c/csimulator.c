@@ -5183,7 +5183,9 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
         }
 
         if (disassemble != Py_None) {
-            i = PyObject_CallOneArg(disassemble, PyLong_FromLong(pc));
+            PyObject* arg = PyLong_FromLong(pc);
+            i = PyObject_CallOneArg(disassemble, arg);
+            Py_DECREF(arg);
             if (i == NULL) {
                 return NULL;
             }
@@ -5197,11 +5199,11 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
         if (trace != Py_None) {
             PyObject* args = Py_BuildValue("(INI)", pc, i, t0);
             PyObject* rv = PyObject_CallObject(trace, args);
+            Py_XDECREF(args);
             if (rv == NULL) {
                 return NULL;
             }
             Py_DECREF(rv);
-            Py_XDECREF(args);
         }
 
         if (interrupts && REG(IFF) && (REG(T) % frame_duration) < int_active) {
@@ -5224,6 +5226,388 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
     Py_RETURN_NONE;
 }
 
+static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
+    static char* kwlist[] = {"", "", "", "", "", NULL};
+    PyObject* keys;
+    unsigned stop;
+    unsigned timeout;
+    PyObject* disassemble;
+    PyObject* trace;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OIIOO", kwlist, &keys, &stop, &timeout, &disassemble, &trace)) {
+        return NULL;
+    }
+
+    PyObject* pop = PyObject_GetAttrString(keys, "pop");
+    if (pop == NULL) {
+        return NULL;
+    }
+
+    unsigned* reg = self->registers;
+    byte* mem = self->memory;
+    unsigned frame_duration = self->frame_duration;
+    unsigned int_active = self->int_active;
+
+    while (1) {
+        PyObject* i = NULL;
+        unsigned pc = REG(PC);
+        unsigned t0 = REG(T);
+        byte opcode = MEMGET(pc);
+        OpcodeFunction* opcode_func = &opcodes[opcode];
+        if (!opcode_func->func) {
+            byte opcode2 = MEMGET((pc + 1) % 65536);
+            switch (opcode) {
+                case 0xCB:
+                    opcode_func = &after_CB[opcode2];
+                    break;
+                case 0xED:
+                    opcode_func = &after_ED[opcode2];
+                    break;
+                case 0xDD:
+                    if (opcode2 == 0xCB) {
+                        opcode_func = &after_DDCB[MEMGET((pc + 3) % 65536)];
+                    } else {
+                        opcode_func = &after_DD[opcode2];
+                    }
+                    break;
+                case 0xFD:
+                    if (opcode2 == 0xCB) {
+                        opcode_func = &after_FDCB[MEMGET((pc + 3) % 65536)];
+                    } else {
+                        opcode_func = &after_FD[opcode2];
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (disassemble != Py_None) {
+            PyObject* arg = PyLong_FromLong(pc);
+            i = PyObject_CallOneArg(disassemble, arg);
+            Py_DECREF(arg);
+            if (i == NULL) {
+                return NULL;
+            }
+        }
+
+        opcode_func->func(self, opcode_func->lookup, opcode_func->args);
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+
+        if (trace != Py_None) {
+            PyObject* args = Py_BuildValue("(INI)", pc, i, t0);
+            PyObject* t = PyObject_CallObject(trace, args);
+            Py_XDECREF(args);
+            if (t == NULL) {
+                return NULL;
+            }
+            Py_DECREF(t);
+        }
+
+        if (REG(IFF) && (REG(T) % frame_duration) < int_active) {
+            if (accept_interrupt(self, pc) && PyList_Size(keys)) {
+                PyObject* k = PyList_GetItem(keys, 0);
+                if (k == NULL) {
+                    return NULL;
+                }
+                if (!PyObject_IsTrue(k)) {
+                    PyObject* arg = PyLong_FromLong(0);
+                    PyObject* p = PyObject_CallOneArg(pop, arg);
+                    Py_DECREF(arg);
+                    if (p == NULL) {
+                        return NULL;
+                    }
+                    Py_DECREF(p);
+                }
+            }
+        }
+
+        if (REG(PC) == stop || REG(T) > timeout) {
+            break;
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
+static int advance_tape(PyObject* tracer, unsigned* tracer_state, unsigned* edges, unsigned max_index, unsigned tstates, PyObject* print_progress, unsigned* progress) {
+    unsigned tape_running = tracer_state[4];
+    if (!tape_running) {
+        return 0;
+    }
+
+    unsigned next_edge = tracer_state[0];
+    if (tstates < next_edge) {
+        return 0;
+    }
+
+    unsigned index = tracer_state[1];
+    while (index < max_index) {
+        unsigned edge = edges[index + 1];
+        if (edge >= tstates) {
+            break;
+        }
+        index += 1;
+    }
+    tracer_state[1] = index;
+
+    unsigned block_max_index = tracer_state[3];
+    unsigned edge = edges[index];
+    if (index == max_index) {
+        /* Allow 1ms for the final edge on the tape to be read */
+        if (tstates - edge > 3500) {
+            PyObject* rv = PyObject_CallMethod(tracer, "stop_tape", "(I)", tstates);
+            if (rv == NULL) {
+                return -1;
+            }
+            Py_DECREF(rv);
+        }
+    } else if (index > block_max_index) {
+        /* Pause tape between blocks */
+        PyObject* rv = PyObject_CallMethod(tracer, "next_block", "(I)", tstates);
+        if (rv == NULL) {
+            return -1;
+        }
+        Py_DECREF(rv);
+    } else {
+        tracer_state[0] = edges[index + 1];
+        if (index < block_max_index) {
+            unsigned p = edge / (edges[max_index] / 1000);
+            if (p > *progress) {
+                PyObject* arg = PyLong_FromLong(p);
+                PyObject* rv = PyObject_CallOneArg(print_progress, arg);
+                Py_DECREF(arg);
+                if (rv == NULL) {
+                    return -1;
+                }
+                Py_DECREF(rv);
+                *progress = p;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
+    static char* kwlist[] = {"", "", "", "", "", "", "", NULL};
+    PyObject* tracer;
+    PyObject* stop_obj;
+    int fast_load;
+    unsigned timeout;
+    PyObject* print_progress;
+    PyObject* disassemble;
+    PyObject* trace;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOiIOOO", kwlist, &tracer, &stop_obj, &fast_load, &timeout, &print_progress, &disassemble, &trace)) {
+        return NULL;
+    }
+
+    int ok = 1;
+
+    Py_buffer edges_buffer;
+    PyObject* e = ok ? PyObject_GetAttrString(tracer, "edges") : NULL;
+    if (e == NULL || PyObject_GetBuffer(e, &edges_buffer, PyBUF_SIMPLE) == -1) {
+        ok = 0;
+    }
+    Py_XDECREF(e);
+    unsigned* edges = edges_buffer.buf;
+    unsigned max_index = edges ? (edges_buffer.len / edges_buffer.itemsize) - 1 : 0;
+
+    Py_buffer ts_buffer;
+    PyObject* ts = ok ? PyObject_GetAttrString(tracer, "state") : NULL;
+    if (ts == NULL || PyObject_GetBuffer(ts, &ts_buffer, PyBUF_WRITABLE) == -1) {
+        ok = 0;
+    }
+    Py_XDECREF(ts);
+    unsigned* tracer_state = ts_buffer.buf;
+
+    PyObject* ft = ok ? PyObject_GetAttrString(tracer, "finish_tape") : NULL;
+    if (ft == NULL) {
+        ok = 0;
+    }
+    int finish_tape = ft ? PyLong_AsLong(ft) : 0;
+    Py_XDECREF(ft);
+
+    PyObject* simulator = ok ? PyObject_GetAttrString(tracer, "simulator") : NULL;
+    if (simulator == NULL) {
+        ok = 0;
+    }
+
+    PyObject* fast_load_method = ok ? PyObject_GetAttrString(tracer, "fast_load") : NULL;
+    if (fast_load_method == NULL) {
+        ok = 0;
+    }
+
+    unsigned* reg = self->registers;
+    byte* mem = self->memory;
+    unsigned frame_duration = self->frame_duration;
+    unsigned int_active = self->int_active;
+    unsigned progress = 0;
+    unsigned pc = REG(PC);
+    unsigned stop = stop_obj == Py_None ? 0x10000 : PyLong_AsLong(stop_obj);
+    PyObject* rv = NULL;
+
+    while (ok) {
+        PyObject* i = NULL;
+        unsigned t0 = REG(T);
+        byte opcode = MEMGET(pc);
+        PyObject* opcode_f = self->opcodes[opcode];
+        OpcodeFunction* opcode_func = &opcodes[opcode];
+        if (!opcode_func->func) {
+            byte opcode2 = MEMGET((pc + 1) % 65536);
+            switch (opcode) {
+                case 0xCB:
+                    opcode_f = self->after_CB[opcode2];
+                    opcode_func = &after_CB[opcode2];
+                    break;
+                case 0xED:
+                    opcode_f = self->after_ED[opcode2];
+                    opcode_func = &after_ED[opcode2];
+                    break;
+                case 0xDD:
+                    if (opcode2 == 0xCB) {
+                        opcode_f = self->after_DDCB[MEMGET((pc + 3) % 65536)];
+                        opcode_func = &after_DDCB[MEMGET((pc + 3) % 65536)];
+                    } else {
+                        opcode_f = self->after_DD[opcode2];
+                        opcode_func = &after_DD[opcode2];
+                    }
+                    break;
+                case 0xFD:
+                    if (opcode2 == 0xCB) {
+                        opcode_f = self->after_FDCB[MEMGET((pc + 3) % 65536)];
+                        opcode_func = &after_FDCB[MEMGET((pc + 3) % 65536)];
+                    } else {
+                        opcode_f = self->after_FD[opcode2];
+                        opcode_func = &after_FD[opcode2];
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (disassemble != Py_None) {
+            PyObject* arg = PyLong_FromLong(pc);
+            i = PyObject_CallOneArg(disassemble, arg);
+            Py_DECREF(arg);
+            if (i == NULL) {
+                break;
+            }
+        }
+
+        if (opcode_f && PyCallable_Check(opcode_f)) {
+            PyObject* op = PyObject_CallNoArgs(opcode_f);
+            if (op == NULL) {
+                break;
+            }
+            Py_DECREF(op);
+        } else {
+            opcode_func->func(self, opcode_func->lookup, opcode_func->args);
+            if (PyErr_Occurred()) {
+                break;
+            }
+        }
+
+        if (trace != Py_None) {
+            PyObject* args = Py_BuildValue("(INI)", pc, i, t0);
+            PyObject* t = PyObject_CallObject(trace, args);
+            Py_XDECREF(args);
+            if (t == NULL) {
+                break;
+            }
+            Py_DECREF(t);
+        }
+
+        if (REG(IFF) && (REG(T) % frame_duration) < int_active) {
+            accept_interrupt(self, pc);
+        }
+
+        unsigned tstates = REG(T);
+        if (advance_tape(tracer, tracer_state, edges, max_index, tstates, print_progress, &progress) == -1) {
+            break;
+        }
+
+        pc = REG(PC);
+        unsigned end_of_tape = tracer_state[2];
+        if (pc == stop && (end_of_tape || !finish_tape)) {
+            rv = PyLong_FromLong(0);
+            break;
+        }
+
+        int did_fast_load = 0;
+        if (pc == 0x0556 && self->out7ffd & 0x10 && fast_load) {
+            PyObject* fl = PyObject_CallOneArg(fast_load_method, simulator);
+            if (fl == NULL) {
+                break;
+            }
+            if (PyObject_IsTrue(fl)) {
+                did_fast_load = 1;
+                unsigned block_max_index = tracer_state[3];
+                tracer_state[1] = block_max_index;
+                if (block_max_index == max_index) {
+                    /* Final block, so stop the tape */
+                    PyObject* st = PyObject_CallMethod(tracer, "stop_tape", "(I)", tstates);
+                    if (st == NULL) {
+                        Py_DECREF(fl);
+                        break;
+                    }
+                    Py_DECREF(st);
+                } else {
+                    /* Otherwise continue to play the tape until this block's
+                       'pause' period (if any) has elapsed */
+                    tracer_state[4] = 1;
+                    tracer_state[0] = edges[block_max_index];
+                    REG(T) = edges[block_max_index];
+                }
+            }
+            Py_DECREF(fl);
+            pc = REG(PC);
+        }
+        if (!did_fast_load) {
+            if (end_of_tape && stop == 0x10000) {
+                PyObject* cl = PyObject_GetAttrString(tracer, "custom_loader");
+                if (cl == NULL) {
+                    break;
+                }
+                int custom_loader = PyObject_IsTrue(cl);
+                Py_DECREF(cl);
+                if (custom_loader) {
+                    rv = PyLong_FromLong(1);
+                    break;
+                }
+                if (pc > 0x3FFF) {
+                    rv = PyLong_FromLong(2);
+                    break;
+                }
+                PyObject* tet = PyObject_GetAttrString(tracer, "tape_end_time");
+                if (tet == NULL) {
+                    break;
+                }
+                unsigned tape_end_time = PyLong_AsLong(tet);
+                Py_DECREF(tet);
+                if (REG(T) - tape_end_time > 3500000) {
+                    rv = PyLong_FromLong(3);
+                    break;
+                }
+            }
+            if (REG(T) > timeout) {
+                rv = PyLong_FromLong(4);
+                break;
+            }
+        }
+    }
+
+    if (edges) PyBuffer_Release(&edges_buffer);
+    if (tracer_state) PyBuffer_Release(&ts_buffer);
+    Py_XDECREF(fast_load_method);
+    Py_XDECREF(simulator);
+    return rv;
+}
+
 static PyObject* CSimulator_out7ffd(CSimulatorObject* self, PyObject* value) {
     if (self->memory == NULL) {
         long v = PyLong_AsLong(value);
@@ -5243,7 +5627,9 @@ static PyMethodDef CSimulator_methods[] = {
     {"accept_interrupt", (PyCFunction) CSimulator_accept_interrupt, METH_VARARGS | METH_KEYWORDS, "Accept an interrupt if allowed"},
     {"exec_all", (PyCFunction) CSimulator_exec_all, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions in CSimulator only"},
     {"exec_frame", (PyCFunction) CSimulator_exec_frame, METH_VARARGS | METH_KEYWORDS, "Execute an RZX frame"},
+    {"load", (PyCFunction) CSimulator_load, METH_VARARGS | METH_KEYWORDS, "Load a tape"},
     {"out7ffd", (PyCFunction) CSimulator_out7ffd, METH_O, "Output a value to port 0x7ffd"},
+    {"press_keys", (PyCFunction) CSimulator_press_keys, METH_VARARGS | METH_KEYWORDS, "Simulate keypresses"},
     {"run", (PyCFunction) CSimulator_run, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions"},
     {"trace", (PyCFunction) CSimulator_trace, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions with optional tracing"},
     {NULL}  /* Sentinel */
