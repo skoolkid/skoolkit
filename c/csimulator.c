@@ -4870,22 +4870,6 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
     return 0;
 }
 
-static PyObject* CSimulator_accept_interrupt(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", NULL};
-    PyObject* registers;
-    PyObject* memory;
-    unsigned prev_pc;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOI", kwlist, &registers, &memory, &prev_pc)) {
-        return NULL;
-    }
-
-    if (accept_interrupt(self, prev_pc)) {
-        Py_RETURN_TRUE;
-    }
-    Py_RETURN_FALSE;
-}
-
 static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
     static char* kwlist[] = {"start", "stop", "interrupts", NULL};
     unsigned start = 0x10000;
@@ -5609,7 +5593,6 @@ static PyMemberDef CSimulator_members[] = {
 };
 
 static PyMethodDef CSimulator_methods[] = {
-    {"accept_interrupt", (PyCFunction) CSimulator_accept_interrupt, METH_VARARGS | METH_KEYWORDS, "Accept an interrupt if allowed"},
     {"exec_all", (PyCFunction) CSimulator_exec_all, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions in CSimulator only"},
     {"exec_frame", (PyCFunction) CSimulator_exec_frame, METH_VARARGS | METH_KEYWORDS, "Execute an RZX frame"},
     {"load", (PyCFunction) CSimulator_load, METH_VARARGS | METH_KEYWORDS, "Load a tape"},
