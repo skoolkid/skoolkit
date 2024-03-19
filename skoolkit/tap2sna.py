@@ -456,7 +456,7 @@ def sim_load(blocks, options, config):
         except KeyboardInterrupt:
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
         if list_accelerators:
-            accelerators = '; '.join(f'{k}: {v}' for k, v in tracer.accelerators.items()) or 'none'
+            accelerators = '; '.join(f'{k}: {v}' for k, v in tracer.acc_usage.items()) or 'none'
             tsl_misses = f'{tracer.inc_b_misses}/{tracer.dec_b_misses}'
             dec_a_stats = f'{tracer.dec_a_jr_hits}/{tracer.dec_a_jp_hits}/{tracer.dec_a_misses}'
             write_line(f'Accelerators: {accelerators}; misses: {tsl_misses}; dec-a: {dec_a_stats}')

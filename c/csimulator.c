@@ -71,6 +71,19 @@ typedef struct CSimulatorObject {
     OpcodeFunction* opcodes[256];
 } CSimulatorObject;
 
+typedef struct {
+    byte opcode;
+    unsigned* code;
+    int c0;
+    int c1;
+    unsigned in_time;
+    unsigned loop_time;
+    unsigned loop_r_inc;
+    unsigned ear_mask;
+    unsigned polarity;
+    unsigned* state;
+} tsl_accelerator;
+
 static const int A = 0;
 static const int F = 1;
 static const int B = 2;
@@ -5358,6 +5371,193 @@ static void dec_a_jp(CSimulatorObject* self, void* lookup, int args[]) {
         REG(PC) = (pc + 1) % 65536;
     }
 }
+
+static void dec_b(CSimulatorObject* self, void* lookup, int args[]) {
+    tsl_accelerator** accs = (tsl_accelerator**)lookup;
+    int num_accs = args[0];
+    unsigned* state = accs[0]->state;
+    unsigned* reg = self->registers;
+    byte* mem = self->memory;
+
+    byte b = REG(B);
+    unsigned pc1 = (REG(PC) + 1) % 65536;
+    if (state[4] && REG(IFF) == 0) {
+        unsigned loops = 0;
+        for (int k = 0; k < num_accs; k++) {
+            tsl_accelerator* acc = accs[k];
+            int match = 1;
+            int i = 0;
+            for (int j = acc->c0; j < acc->c1; j++) {
+                unsigned c = acc->code[i++];
+                if (c < 256 && c != MEMGET((pc1 + j) % 65536)) {
+                    match = 0;
+                    break;
+                }
+            }
+            if (match) {
+                if ((REG(C) & acc->ear_mask) == ((state[1] - acc->polarity) & 1) * acc->ear_mask) {
+                    int delta = state[0] - REG(T) - acc->in_time;
+                    if (delta > 0) {
+                        unsigned d1 = delta / acc->loop_time + 1;
+                        unsigned d2 = (b - 1) & 0xFF;
+                        loops = d1 < d2 ? d1 : d2;
+                        if (loops) {
+                            /* The carry flag is cleared on each loop iteration */
+                            REG(F) &= 0xFE;
+                        }
+                    }
+                }
+                if (k) {
+                    /* Move the selected accelerator to the beginning of the
+                       list so that it can be found quicker next time */
+                    tsl_accelerator* first = accs[0];
+                    accs[0] = acc;
+                    accs[k] = first;
+                }
+                REG(B) = DEC[REG(F) & 1][(b - loops) & 0xFF][0];
+                REG(F) = DEC[REG(F) & 1][(b - loops) & 0xFF][1];
+                INC_R(acc->loop_r_inc * loops + 1);
+                INC_T(acc->loop_time * loops + 4);
+                REG(PC) = pc1;
+                return;
+            }
+        }
+    }
+
+    REG(B) = DEC[REG(F) & 1][b][0];
+    REG(F) = DEC[REG(F) & 1][b][1];
+    INC_R(1);
+    INC_T(4);
+    REG(PC) = pc1;
+}
+
+static void inc_b(CSimulatorObject* self, void* lookup, int args[]) {
+    tsl_accelerator** accs = (tsl_accelerator**)lookup;
+    int num_accs = args[0];
+    unsigned* state = accs[0]->state;
+    unsigned* reg = self->registers;
+    byte* mem = self->memory;
+
+    byte b = REG(B);
+    unsigned pc1 = (REG(PC) + 1) % 65536;
+    if (state[4] && REG(IFF) == 0) {
+        unsigned loops = 0;
+        for (int k = 0; k < num_accs; k++) {
+            tsl_accelerator* acc = accs[k];
+            int match = 1;
+            int i = 0;
+            for (int j = acc->c0; j < acc->c1; j++) {
+                unsigned c = acc->code[i++];
+                if (c < 256 && c != MEMGET((pc1 + j) % 65536)) {
+                    match = 0;
+                    break;
+                }
+            }
+            if (match) {
+                if ((REG(C) & acc->ear_mask) == ((state[1] - acc->polarity) & 1) * acc->ear_mask) {
+                    int delta = state[0] - REG(T) - acc->in_time;
+                    if (delta > 0) {
+                        unsigned d1 = delta / acc->loop_time + 1;
+                        unsigned d2 = 255 - b;
+                        loops = d1 < d2 ? d1 : d2;
+                        if (loops) {
+                            /* The carry flag is cleared on each loop iteration */
+                            REG(F) &= 0xFE;
+                        }
+                    }
+                }
+                if (k) {
+                    /* Move the selected accelerator to the beginning of the
+                       list so that it can be found quicker next time */
+                    tsl_accelerator* first = accs[0];
+                    accs[0] = acc;
+                    accs[k] = first;
+                }
+                REG(B) = INC[REG(F) & 1][b + loops][0];
+                REG(F) = INC[REG(F) & 1][b + loops][1];
+                INC_R(acc->loop_r_inc * loops + 1);
+                INC_T(acc->loop_time * loops + 4);
+                REG(PC) = pc1;
+                return;
+            }
+        }
+    }
+
+    REG(B) = INC[REG(F) & 1][b][0];
+    REG(F) = INC[REG(F) & 1][b][1];
+    INC_R(1);
+    INC_T(4);
+    REG(PC) = pc1;
+}
+
+static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs, unsigned* tracer_state) {
+    PyObject* iter = PyObject_GetIter(accelerators);
+    if (iter == NULL) {
+        return -1;
+    }
+
+    int ok = 1;
+    PyObject* item;
+    int i = 0;
+    while ((item = PyIter_Next(iter)) != NULL) {
+        tsl_accelerator* accelerator = &accs[i++];
+        PyObject* opcode_obj = PyObject_GetAttrString(item, "opcode");
+        PyObject* code_obj = PyObject_GetAttrString(item, "code");
+        PyObject* c0_obj = PyObject_GetAttrString(item, "c0");
+        PyObject* c1_obj = PyObject_GetAttrString(item, "c1");
+        PyObject* in_time_obj = PyObject_GetAttrString(item, "in_time");
+        PyObject* loop_time_obj = PyObject_GetAttrString(item, "loop_time");
+        PyObject* loop_r_inc_obj = PyObject_GetAttrString(item, "loop_r_inc");
+        PyObject* ear_mask_obj = PyObject_GetAttrString(item, "ear_mask");
+        PyObject* polarity_obj = PyObject_GetAttrString(item, "polarity");
+        if (opcode_obj == NULL || code_obj == NULL || c0_obj == NULL || c1_obj == NULL || in_time_obj == NULL ||
+            loop_time_obj == NULL || loop_r_inc_obj == NULL || ear_mask_obj == NULL || polarity_obj == NULL) {
+            ok = 0;
+        } else {
+            accelerator->opcode = PyLong_AsLong(opcode_obj);
+            accelerator->c0 = 0 - PyLong_AsLong(c0_obj);
+            accelerator->c1 = PyLong_AsLong(c1_obj);
+            accelerator->in_time = PyLong_AsLong(in_time_obj);
+            accelerator->loop_time = PyLong_AsLong(loop_time_obj);
+            accelerator->loop_r_inc = PyLong_AsLong(loop_r_inc_obj);
+            accelerator->ear_mask = PyLong_AsLong(ear_mask_obj);
+            accelerator->polarity = PyLong_AsLong(polarity_obj);
+            accelerator->state = tracer_state;
+            Py_ssize_t code_len = PyList_Size(code_obj);
+            accelerator->code = malloc(code_len * sizeof(unsigned));
+            if (accelerator->code) {
+                for (int i = 0; i < code_len; i++) {
+                    PyObject* b = PyList_GetItem(code_obj, i);
+                    if (b == NULL) {
+                        ok = 0;
+                    } else if (b == Py_None) {
+                        accelerator->code[i] = 256;
+                    } else {
+                        accelerator->code[i] = PyLong_AsLong(b);
+                    }
+                }
+            } else {
+                ok = 0;
+            }
+        }
+        Py_XDECREF(opcode_obj);
+        Py_XDECREF(code_obj);
+        Py_XDECREF(c0_obj);
+        Py_XDECREF(c1_obj);
+        Py_XDECREF(in_time_obj);
+        Py_XDECREF(loop_time_obj);
+        Py_XDECREF(loop_r_inc_obj);
+        Py_XDECREF(ear_mask_obj);
+        Py_XDECREF(polarity_obj);
+        Py_DECREF(item);
+        if (!ok) {
+            break;
+        }
+    }
+    Py_DECREF(iter);
+
+    return ok ? i : -1;
+}
 #endif
 
 static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
@@ -5420,6 +5620,46 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         self->opcodes[0x3D] = &dec_a_jr_accelerator;
     } else if (tracer_state[5] == 2) {
         self->opcodes[0x3D] = &dec_a_jp_accelerator;
+    }
+
+    PyObject* accelerators = ok ? PyObject_GetAttrString(tracer, "accelerators") : NULL;
+    if (accelerators == NULL) {
+        ok = 0;
+    }
+    Py_ssize_t num_accs = PySet_Check(accelerators) ? PySet_Size(accelerators) : 0;
+    tsl_accelerator* accs = NULL;
+    tsl_accelerator** inc_b_accs = NULL;
+    tsl_accelerator** dec_b_accs = NULL;
+    OpcodeFunction inc_b_accelerator = {inc_b, NULL, {0}};
+    OpcodeFunction dec_b_accelerator = {dec_b, NULL, {0}};
+    if (ok && num_accs) {
+        accs = malloc(num_accs * sizeof(tsl_accelerator));
+        inc_b_accs = malloc(num_accs * sizeof(tsl_accelerator*));
+        dec_b_accs = malloc(num_accs * sizeof(tsl_accelerator*));
+        if (accs && inc_b_accs && dec_b_accs && get_tsl_accelerators(accelerators, accs, tracer_state) == num_accs) {
+            int inc_b_ctr = 0;
+            int dec_b_ctr = 0;
+            for (int i = 0; i < num_accs; i++) {
+                tsl_accelerator* acc = &accs[i];
+                if (acc->opcode == 0x04) {
+                    inc_b_accs[inc_b_ctr++] = acc;
+                } else if (acc->opcode == 0x05) {
+                    dec_b_accs[dec_b_ctr++] = acc;
+                }
+            }
+            inc_b_accelerator.lookup = inc_b_accs;
+            inc_b_accelerator.args[0] = inc_b_ctr;
+            dec_b_accelerator.lookup = dec_b_accs;
+            dec_b_accelerator.args[0] = dec_b_ctr;
+            if (inc_b_ctr) {
+                self->opcodes[0x04] = &inc_b_accelerator;
+            }
+            if (dec_b_ctr) {
+                self->opcodes[0x05] = &dec_b_accelerator;
+            }
+        } else {
+            ok = 0;
+        }
     }
 #endif
 
@@ -5568,6 +5808,20 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         }
     }
 
+#ifndef CONTENTION
+    if (accs) {
+        for (int i = 0; i < num_accs; i++) {
+            tsl_accelerator* acc = &accs[i];
+            if (acc && acc->code) {
+                free(acc->code);
+            }
+        }
+        free(accs);
+    }
+    if (inc_b_accs) free(inc_b_accs);
+    if (dec_b_accs) free(dec_b_accs);
+    Py_XDECREF(accelerators);
+#endif
     if (edges) PyBuffer_Release(&edges_buffer);
     if (tracer_state) PyBuffer_Release(&ts_buffer);
     Py_XDECREF(fast_load_method);

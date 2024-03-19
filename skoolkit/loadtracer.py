@@ -122,7 +122,7 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
 class LoadTracer(PagingTracer):
     def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity, finish_tape,
                  in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe):
-        self.accelerators = defaultdict(int)
+        self.acc_usage = defaultdict(int)
         self.inc_b_misses = 0
         self.dec_b_misses = 0
         self.dec_a_jr_hits = 0
@@ -134,6 +134,7 @@ class LoadTracer(PagingTracer):
         self.finish_tape = finish_tape
         self.in_min_addr = in_min_addr
         self.announce_data = True
+        self.accelerators = accelerators
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
@@ -483,7 +484,7 @@ class LoadTracer(PagingTracer):
         if self.state[4] and registers[26] == 0:
             for i, acc in enumerate(accelerators):
                 if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
-                    self.accelerators[acc.name] += 1
+                    self.acc_usage[acc.name] += 1
                     if i:
                         # Move the selected accelerator to the beginning of the
                         # list so that it can be found quicker by auto_method()
