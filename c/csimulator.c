@@ -38,7 +38,17 @@ typedef unsigned char byte;
 
 typedef void (*contend_f)(unsigned* t, unsigned* delay, int urc, int n, ...);
 
+typedef struct CSimulatorObject CSimulatorObject;
+
+typedef void (*opcode_exec)(CSimulatorObject* self, void* lookup, int args[]);
+
 typedef struct {
+    opcode_exec func;
+    void* lookup;
+    int args[7];
+} OpcodeFunction;
+
+typedef struct CSimulatorObject {
     PyObject_HEAD
     Py_buffer buffers[11];
     unsigned* registers;
@@ -58,22 +68,8 @@ typedef struct {
     PyObject* in_r_c_tracer;
     PyObject* ini_tracer;
     PyObject* out_tracer;
-    PyObject* opcodes[256];
-    PyObject* after_CB[256];
-    PyObject* after_ED[256];
-    PyObject* after_DD[256];
-    PyObject* after_FD[256];
-    PyObject* after_DDCB[256];
-    PyObject* after_FDCB[256];
+    OpcodeFunction* opcodes[256];
 } CSimulatorObject;
-
-typedef void (*opcode_exec)(CSimulatorObject* self, void* lookup, int args[]);
-
-typedef struct {
-    opcode_exec func;
-    void* lookup;
-    int args[7];
-} OpcodeFunction;
 
 static const int A = 0;
 static const int F = 1;
@@ -4693,15 +4689,6 @@ static int CSimulator_traverse(CSimulatorObject* self, visitproc visit, void *ar
     Py_VISIT(self->in_r_c_tracer);
     Py_VISIT(self->ini_tracer);
     Py_VISIT(self->out_tracer);
-    for (int i = 0; i < 256; i++) {
-        Py_VISIT(self->opcodes[i]);
-        Py_VISIT(self->after_CB[i]);
-        Py_VISIT(self->after_ED[i]);
-        Py_VISIT(self->after_DD[i]);
-        Py_VISIT(self->after_FD[i]);
-        Py_VISIT(self->after_DDCB[i]);
-        Py_VISIT(self->after_FDCB[i]);
-    }
     return 0;
 }
 
@@ -4710,15 +4697,6 @@ static int CSimulator_clear(CSimulatorObject* self) {
     Py_CLEAR(self->in_r_c_tracer);
     Py_CLEAR(self->ini_tracer);
     Py_CLEAR(self->out_tracer);
-    for (int i = 0; i < 256; i++) {
-        Py_CLEAR(self->opcodes[i]);
-        Py_CLEAR(self->after_CB[i]);
-        Py_CLEAR(self->after_ED[i]);
-        Py_CLEAR(self->after_DD[i]);
-        Py_CLEAR(self->after_FD[i]);
-        Py_CLEAR(self->after_DDCB[i]);
-        Py_CLEAR(self->after_FDCB[i]);
-    }
     return 0;
 }
 
@@ -4729,20 +4707,6 @@ static void CSimulator_dealloc(CSimulatorObject* self) {
     PyObject_GC_UnTrack(self);
     CSimulator_clear(self);
     Py_TYPE(self)->tp_free((PyObject *) self);
-}
-
-static void get_opcode_handlers(PyObject* simulator, const char* name, PyObject* dest[]) {
-    PyObject* opcodes = PyObject_GetAttrString(simulator, name);
-    if (PyList_Check(opcodes) && PyList_Size(opcodes) == 256) {
-        for (int i = 0; i < 256; i++) {
-            PyObject* opcode_f = PyList_GetItem(opcodes, i);
-            if (opcode_f && opcode_f != Py_None) {
-                Py_INCREF(opcode_f);
-                dest[i] = opcode_f;
-            }
-        }
-    }
-    Py_XDECREF(opcodes);
 }
 
 static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
@@ -4838,14 +4802,6 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
         self->int_active = 32;
     }
     Py_XDECREF(int_active);
-
-    get_opcode_handlers(simulator, "opcodes", self->opcodes);
-    get_opcode_handlers(simulator, "after_CB", self->after_CB);
-    get_opcode_handlers(simulator, "after_ED", self->after_ED);
-    get_opcode_handlers(simulator, "after_DD", self->after_DD);
-    get_opcode_handlers(simulator, "after_FD", self->after_FD);
-    get_opcode_handlers(simulator, "after_DDCB", self->after_DDCB);
-    get_opcode_handlers(simulator, "after_FDCB", self->after_FDCB);
 
     PyObject* in_a_n_tracer = PyObject_GetAttrString(simulator, "in_a_n_tracer");
     if (in_a_n_tracer && in_a_n_tracer != Py_None) {
@@ -5360,6 +5316,50 @@ static int advance_tape(PyObject* tracer, unsigned* tracer_state, unsigned* edge
     return 0;
 }
 
+#ifndef CONTENTION
+static void dec_a_jr(CSimulatorObject* self, void* lookup, int args[]) {
+    unsigned* reg = self->registers;
+    byte* mem = self->memory;
+
+    byte a = REG(A);
+    unsigned pc1 = (REG(PC) + 1) % 65536;
+    if (REG(IFF) == 0 && a && MEMGET(pc1) == 0x20 && MEMGET((pc1 + 1) % 65536) == 0xFD) {
+        REG(A) = 0;
+        REG(F) = 0x42 + (REG(F) & 1);
+        INC_R(a * 2);
+        INC_T(16 * a - 5);
+        REG(PC) = (pc1 + 2) % 65536;
+    } else {
+        REG(A) = DEC[REG(F) & 1][a][0];
+        REG(F) = DEC[REG(F) & 1][a][1];
+        INC_R(1);
+        INC_T(4);
+        REG(PC) = pc1;
+    }
+}
+
+static void dec_a_jp(CSimulatorObject* self, void* lookup, int args[]) {
+    unsigned* reg = self->registers;
+    byte* mem = self->memory;
+
+    byte a = REG(A);
+    unsigned pc = REG(PC);
+    if (REG(IFF) == 0 && a && MEMGET((pc + 1) % 65536) == 0xC2 && MEMGET((pc + 2) % 65536) == pc % 256 && MEMGET((pc + 3) % 65536) == pc / 256) {
+        REG(A) = 0;
+        REG(F) = 0x42 + (REG(F) & 1);
+        INC_R(a * 2);
+        INC_T(14 * a);
+        REG(PC) = (pc + 4) % 65536;
+    } else {
+        REG(A) = DEC[REG(F) & 1][a][0];
+        REG(F) = DEC[REG(F) & 1][a][1];
+        INC_R(1);
+        INC_T(4);
+        REG(PC) = (pc + 1) % 65536;
+    }
+}
+#endif
+
 static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
     static char* kwlist[] = {"", "", "", "", "", "", "", NULL};
     PyObject* tracer;
@@ -5410,6 +5410,19 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         ok = 0;
     }
 
+    for (int i = 0; i < 256; i++) {
+        self->opcodes[i] = &opcodes[i];
+    }
+#ifndef CONTENTION
+    OpcodeFunction dec_a_jr_accelerator = {dec_a_jr, NULL, {0}};
+    OpcodeFunction dec_a_jp_accelerator = {dec_a_jp, NULL, {0}};
+    if (tracer_state[5] == 1) {
+        self->opcodes[0x3D] = &dec_a_jr_accelerator;
+    } else if (tracer_state[5] == 2) {
+        self->opcodes[0x3D] = &dec_a_jp_accelerator;
+    }
+#endif
+
     unsigned* reg = self->registers;
     byte* mem = self->memory;
     unsigned frame_duration = self->frame_duration;
@@ -5423,34 +5436,27 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         PyObject* i = NULL;
         unsigned t0 = REG(T);
         byte opcode = MEMGET(pc);
-        PyObject* opcode_f = self->opcodes[opcode];
-        OpcodeFunction* opcode_func = &opcodes[opcode];
+        OpcodeFunction* opcode_func = self->opcodes[opcode];
         if (!opcode_func->func) {
             byte opcode2 = MEMGET((pc + 1) % 65536);
             switch (opcode) {
                 case 0xCB:
-                    opcode_f = self->after_CB[opcode2];
                     opcode_func = &after_CB[opcode2];
                     break;
                 case 0xED:
-                    opcode_f = self->after_ED[opcode2];
                     opcode_func = &after_ED[opcode2];
                     break;
                 case 0xDD:
                     if (opcode2 == 0xCB) {
-                        opcode_f = self->after_DDCB[MEMGET((pc + 3) % 65536)];
                         opcode_func = &after_DDCB[MEMGET((pc + 3) % 65536)];
                     } else {
-                        opcode_f = self->after_DD[opcode2];
                         opcode_func = &after_DD[opcode2];
                     }
                     break;
                 case 0xFD:
                     if (opcode2 == 0xCB) {
-                        opcode_f = self->after_FDCB[MEMGET((pc + 3) % 65536)];
                         opcode_func = &after_FDCB[MEMGET((pc + 3) % 65536)];
                     } else {
-                        opcode_f = self->after_FD[opcode2];
                         opcode_func = &after_FD[opcode2];
                     }
                     break;
@@ -5468,17 +5474,9 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
             }
         }
 
-        if (opcode_f && PyCallable_Check(opcode_f)) {
-            PyObject* op = PyObject_CallNoArgs(opcode_f);
-            if (op == NULL) {
-                break;
-            }
-            Py_DECREF(op);
-        } else {
-            opcode_func->func(self, opcode_func->lookup, opcode_func->args);
-            if (PyErr_Occurred()) {
-                break;
-            }
+        opcode_func->func(self, opcode_func->lookup, opcode_func->args);
+        if (PyErr_Occurred()) {
+            break;
         }
 
         if (trace != Py_None) {

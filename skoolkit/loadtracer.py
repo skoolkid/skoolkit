@@ -187,6 +187,7 @@ class LoadTracer(PagingTracer):
             0,                  # state[2]: end_of_tape
             self.indexes[0][1], # state[3]: block_max_index
             0,                  # state[4]: tape_running
+            accel_dec_a,        # state[5]
         ]
 
     def run(self, stop, fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt, csimulator):

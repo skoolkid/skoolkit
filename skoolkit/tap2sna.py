@@ -380,6 +380,8 @@ def sim_load(blocks, options, config):
         options.accelerate_dec_a = 0
     else:
         simulator_cls, csimulator_cls = Simulator, CSimulator
+    if list_accelerators:
+        csimulator_cls = None
     sim_cfg['c'] = csimulator_cls
 
     if options.load:
@@ -447,11 +449,6 @@ def sim_load(blocks, options, config):
                             options.polarity, options.finish_tape, in_min_addr, options.accelerate_dec_a,
                             list_accelerators, border, out7ffd, outfffd, ay, outfe)
         simulator.set_tracer(tracer, options.in_flags & 4, False)
-        if csimulator_cls and not list_accelerators: # pragma: no cover
-            # Remove pure Python opcode handlers to improve performance
-            simulator.opcodes[0x04] = None # INC B
-            simulator.opcodes[0x05] = None # DEC B
-            simulator.opcodes[0x3D] = None # DEC A
         csimulator = csimulator_cls(simulator, tracer.out7ffd) if csimulator_cls else None
         try:
             tracer.run(options.start, options.fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt, csimulator)
