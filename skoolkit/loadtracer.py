@@ -137,7 +137,7 @@ class LoadTracer(PagingTracer):
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
-        if list_accelerators:
+        if list_accelerators and accel_dec_a:
             opcodes[0x3D] = partial(self.dec_a_list, registers, memory)
         elif accel_dec_a == 1:
             opcodes[0x3D] = partial(self.dec_a_jr, registers, memory)
@@ -302,7 +302,7 @@ class LoadTracer(PagingTracer):
         # loop, which is common in tape loading routines
         a = registers[0]
         pcn = (registers[24] + 1) % 65536
-        if a and memory[pcn] == 0x20 and memory[(pcn + 1) % 65536] == 0xFD:
+        if registers[26] == 0 and a and memory[pcn] == 0x20 and memory[(pcn + 1) % 65536] == 0xFD:
             registers[0] = 0
             registers[1] = 0x42 + (registers[1] % 2)
             r = registers[15]
@@ -322,7 +322,7 @@ class LoadTracer(PagingTracer):
         # loop, which is used in a few tape loading routines
         a = registers[0]
         pc = registers[24]
-        if a and memory[(pc + 1) % 65536] == 0xC2 and memory[(pc + 2) % 65536] == pc % 256 and memory[(pc + 3) % 65536] == pc // 256:
+        if registers[26] == 0 and a and memory[(pc + 1) % 65536] == 0xC2 and memory[(pc + 2) % 65536] == pc % 256 and memory[(pc + 3) % 65536] == pc // 256:
             registers[0] = 0
             registers[1] = 0x42 + (registers[1] % 2)
             r = registers[15]
@@ -339,25 +339,27 @@ class LoadTracer(PagingTracer):
         # Speed up any 'DEC A: JR/JP NZ,$-1' loop, and also count hits and
         # misses
         pc = registers[24]
-        if memory[(pc + 1) % 65536] == 0x20 and memory[(pc + 2) % 65536] == 0xFD:
-            self.dec_a_jr_hits += 1
-            self.dec_a_jr(registers, memory)
-        elif memory[(pc + 1) % 65536] == 0xC2 and memory[(pc + 2) % 65536] == pc % 256 and memory[(pc + 3) % 65536] == pc // 256:
-            self.dec_a_jp_hits += 1
-            self.dec_a_jp(registers, memory)
-        else:
-            self.dec_a_misses += 1
-            registers[0], registers[1] = DEC[registers[1] % 2][registers[0]]
-            registers[15] = R1[registers[15]]
-            registers[25] += 4
-            registers[24] = (pc + 1) % 65536
+        if registers[26] == 0:
+            if memory[(pc + 1) % 65536] == 0x20 and memory[(pc + 2) % 65536] == 0xFD:
+                self.dec_a_jr_hits += 1
+                self.dec_a_jr(registers, memory)
+                return
+            if memory[(pc + 1) % 65536] == 0xC2 and memory[(pc + 2) % 65536] == pc % 256 and memory[(pc + 3) % 65536] == pc // 256:
+                self.dec_a_jp_hits += 1
+                self.dec_a_jp(registers, memory)
+                return
+        self.dec_a_misses += 1
+        registers[0], registers[1] = DEC[registers[1] % 2][registers[0]]
+        registers[15] = R1[registers[15]]
+        registers[25] += 4
+        registers[24] = (pc + 1) % 65536
 
     def dec_b(self, registers, memory, acc):
         # Speed up the tape-sampling loop with a loader-specific accelerator
         b = registers[2]
         loops = 0
         pcn = registers[24] + 1
-        if self.state[4] and memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
+        if self.state[4] and registers[26] == 0 and memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
             if registers[3] & acc.ear_mask == ((self.state[1] - acc.polarity) % 2) * acc.ear_mask:
                 delta = self.state[0] - registers[25] - acc.in_time
                 if delta > 0:
@@ -376,7 +378,7 @@ class LoadTracer(PagingTracer):
         # loader-specific accelerator
         b = registers[2]
         pcn = registers[24] + 1
-        if self.state[4]:
+        if self.state[4] and registers[26] == 0:
             loops = 0
             for i, acc in enumerate(accelerators):
                 if memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
@@ -408,7 +410,7 @@ class LoadTracer(PagingTracer):
         b = registers[2]
         loops = 0
         pcn = registers[24] + 1
-        if self.state[4] and memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
+        if self.state[4] and registers[26] == 0 and memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
             if registers[3] & acc.ear_mask == ((self.state[1] - acc.polarity) % 2) * acc.ear_mask:
                 delta = self.state[0] - registers[25] - acc.in_time
                 if delta > 0:
@@ -427,7 +429,7 @@ class LoadTracer(PagingTracer):
         b = registers[2]
         loops = 0
         pcn = registers[24] + 1
-        if self.state[4] and all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
+        if self.state[4] and registers[26] == 0 and all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
             if registers[3] & acc.ear_mask == ((self.state[1] - acc.polarity) % 2) * acc.ear_mask:
                 delta = self.state[0] - registers[25] - acc.in_time
                 if delta > 0:
@@ -446,7 +448,7 @@ class LoadTracer(PagingTracer):
         # loader-specific accelerator
         b = registers[2]
         pcn = registers[24] + 1
-        if self.state[4]:
+        if self.state[4] and registers[26] == 0:
             loops = 0
             for i, acc in enumerate(accelerators):
                 if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
@@ -477,7 +479,7 @@ class LoadTracer(PagingTracer):
         # Speed up the tape-sampling loop with an automatically selected
         # loader-specific accelerator, and also count hits and misses
         pcn = registers[24] + 1
-        if self.state[4]:
+        if self.state[4] and registers[26] == 0:
             for i, acc in enumerate(accelerators):
                 if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
                     self.accelerators[acc.name] += 1

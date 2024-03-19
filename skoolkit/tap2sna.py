@@ -376,6 +376,8 @@ def sim_load(blocks, options, config):
 
     if options.cmio:
         simulator_cls, csimulator_cls = CMIOSimulator, CCMIOSimulator
+        accelerators.clear()
+        options.accelerate_dec_a = 0
     else:
         simulator_cls, csimulator_cls = Simulator, CSimulator
     sim_cfg['c'] = csimulator_cls
@@ -924,7 +926,8 @@ Configure various properties of a simulated LOAD.
 
   By default, memory contention and I/O contention delays are not simulated.
   This improves performance and does not affect most loaders. Set cmio=1 to
-  enable simulation of memory and I/O contention delays.
+  enable simulation of memory and I/O contention delays. Note that when cmio=1,
+  all acceleration is disabled.
 
 --sim-load-config fast-load=0/1
 

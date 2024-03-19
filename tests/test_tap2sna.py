@@ -23,6 +23,7 @@ class MockSimulator:
         self.memory = mock_memory
         self.opcodes = [self.in_a_n] * 256
         self.registers = [0x80] * 28
+        self.registers[26] = 0 # Interrupts disabled
         self.frame_duration = 69888
         self.int_active = 32
 
@@ -2411,7 +2412,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         params = (
             'accelerate-dec-a=2',
             'accelerator=speedlock',
-            'cmio=1',
+            'cmio=0',
             'fast-load=0',
             'finish-tape=1',
             'first-edge=1234',
@@ -2436,7 +2437,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(kbtracer.prefix, '$')
         self.assertEqual(kbtracer.byte_fmt, '02X')
         self.assertEqual(kbtracer.word_fmt, '04X')
-        self.assertEqual(load_tracer.simulator.__class__.__name__, 'CMIOSimulator')
+        self.assertEqual(load_tracer.simulator.__class__.__name__, 'Simulator')
         self.assertEqual(['speedlock'], [a.name for a in load_tracer.accelerators_in])
         self.assertEqual(load_tracer.pause, 0)
         self.assertEqual(load_tracer.first_edge, 1234)
@@ -2459,6 +2460,24 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(load_tracer.prefix, '$')
         self.assertEqual(load_tracer.byte_fmt, '02X')
         self.assertEqual(load_tracer.word_fmt, '04X')
+
+    @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_cmio_1_disables_acceleration(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        trace_log = '{}/trace.log'.format(self.make_directory())
+        params = (
+            'accelerate-dec-a=2',
+            'accelerator=speedlock',
+            'cmio=1'
+        )
+        options = ' '.join(f'-c {p}' for p in params)
+        output, error = self.run_tap2sna(f'{options} {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(load_tracer.simulator.__class__.__name__, 'CMIOSimulator')
+        self.assertEqual(set(), load_tracer.accelerators_in)
+        self.assertEqual(load_tracer.accel_dec_a, 0)
 
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
