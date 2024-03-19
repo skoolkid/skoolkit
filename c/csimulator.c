@@ -4908,34 +4908,27 @@ static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject
     while (1) {
         unsigned pc = REG(PC);
         byte opcode = MEMGET(pc);
-        PyObject* opcode_f = self->opcodes[opcode];
         OpcodeFunction* opcode_func = &opcodes[opcode];
         if (!opcode_func->func) {
             byte opcode2 = MEMGET((pc + 1) % 65536);
             switch (opcode) {
                 case 0xCB:
-                    opcode_f = self->after_CB[opcode2];
                     opcode_func = &after_CB[opcode2];
                     break;
                 case 0xED:
-                    opcode_f = self->after_ED[opcode2];
                     opcode_func = &after_ED[opcode2];
                     break;
                 case 0xDD:
                     if (opcode2 == 0xCB) {
-                        opcode_f = self->after_DDCB[MEMGET((pc + 3) % 65536)];
                         opcode_func = &after_DDCB[MEMGET((pc + 3) % 65536)];
                     } else {
-                        opcode_f = self->after_DD[opcode2];
                         opcode_func = &after_DD[opcode2];
                     }
                     break;
                 case 0xFD:
                     if (opcode2 == 0xCB) {
-                        opcode_f = self->after_FDCB[MEMGET((pc + 3) % 65536)];
                         opcode_func = &after_FDCB[MEMGET((pc + 3) % 65536)];
                     } else {
-                        opcode_f = self->after_FD[opcode2];
                         opcode_func = &after_FD[opcode2];
                     }
                     break;
@@ -4944,17 +4937,9 @@ static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject
             }
         }
 
-        if (opcode_f && PyCallable_Check(opcode_f)) {
-            PyObject* rv = PyObject_CallNoArgs(opcode_f);
-            if (rv == NULL) {
-                return NULL;
-            }
-            Py_DECREF(rv);
-        } else {
-            opcode_func->func(self, opcode_func->lookup, opcode_func->args);
-            if (PyErr_Occurred()) {
-                return NULL;
-            }
+        opcode_func->func(self, opcode_func->lookup, opcode_func->args);
+        if (PyErr_Occurred()) {
+            return NULL;
         }
 
         if (interrupts && REG(IFF) && (REG(T) % frame_duration) < int_active) {
