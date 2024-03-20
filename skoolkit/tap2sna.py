@@ -334,7 +334,7 @@ def sim_load(blocks, options, config):
         get_edges(blocks, options.first_edge, options.polarity, True)
         sys.exit(0)
 
-    list_accelerators = options.accelerator == 'list'
+    list_accelerators = int(options.accelerator == 'list')
     accelerators = set()
     if options.accelerator == 'auto' or list_accelerators:
         accelerators.update(ACCELERATORS.values())
@@ -380,8 +380,6 @@ def sim_load(blocks, options, config):
         options.accelerate_dec_a = 0
     else:
         simulator_cls, csimulator_cls = Simulator, CSimulator
-    if list_accelerators:
-        csimulator_cls = None
     sim_cfg['c'] = csimulator_cls
 
     if options.load:
@@ -456,7 +454,7 @@ def sim_load(blocks, options, config):
         except KeyboardInterrupt:
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
         if list_accelerators:
-            accelerators = '; '.join(f'{k}: {v}' for k, v in tracer.acc_usage.items()) or 'none'
+            accelerators = '; '.join(f'{k}: {v}' for k, v in sorted(tracer.acc_usage.items())) or 'none'
             tsl_misses = f'{tracer.inc_b_misses}/{tracer.dec_b_misses}'
             dec_a_stats = f'{tracer.dec_a_jr_hits}/{tracer.dec_a_jp_hits}/{tracer.dec_a_misses}'
             write_line(f'Accelerators: {accelerators}; misses: {tsl_misses}; dec-a: {dec_a_stats}')
