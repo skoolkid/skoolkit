@@ -25,13 +25,15 @@ class BaseTracer:
         self.data = bytearray()
         self.checksum = None
 
-    def run(self, simulator):
+    def run(self, simulator, csimulator_cls):
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
+        csimulator = csimulator_cls(simulator) if csimulator_cls else None
 
         while True:
-            registers[:PC + 1] = INITIAL_REGISTERS
+            for i in range(PC + 1):
+                registers[i] = INITIAL_REGISTERS[i]
             registers[SP] = 32768
             registers[B] = 129
             registers[D] = 130
@@ -39,7 +41,10 @@ class BaseTracer:
             registers[IXh] = 132
             registers[IYh] = 133
             self.prepare(simulator)
-            opcodes[memory[registers[24]]]()
+            if csimulator:
+                csimulator.run()
+            else:
+                opcodes[memory[registers[24]]]()
             self.collect_result(simulator)
             self.count -= 1
             if self.count < 0:
@@ -59,9 +64,11 @@ class BaseTracer:
         ix = registers[IXl] + 256 * registers[IXh]
         iy = registers[IYl] + 256 * registers[IYh]
         sp = registers[SP]
-        data.extend(registers[:SP])
+        for i in range(SP):
+            data.append(registers[i])
         data.extend((sp // 256, sp % 256))
-        data.extend(registers[SP + 2:PC])
+        for i in range(SP + 2, PC):
+            data.append(registers[i])
         data.extend(memory[bc:bc + 2])
         data.extend(memory[de:de + 2])
         data.extend(memory[hl:hl + 2])

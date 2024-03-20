@@ -1,16 +1,26 @@
 from skoolkittest import SkoolKitTestCase
+from skoolkit import CSimulator
 from skoolkit.simulator import Simulator, F, SP, PC
 from sim_test_tracers import *
 
 class ROMReadOnlyTest(SkoolKitTestCase):
+    def _get_simulator(self, memory):
+        simulator = Simulator(memory, config={'c': CSimulator})
+        if CSimulator:
+            return CSimulator(simulator), simulator.memory, simulator.registers
+        return simulator, simulator.memory, simulator.registers
+
     def _test_read_only(self, code, start, value=0):
         start = 0x8000
         stop = 0x8000 + len(code)
         memory = [value] * 65536
         memory[start:stop] = code
-        simulator = Simulator(memory)
-        simulator.run(start, stop)
-        self.assertTrue(all(b == value for b in memory[:0x4000]))
+        simulator = Simulator(memory, config={'c': CSimulator})
+        if CSimulator:
+            CSimulator(simulator).run(start, stop)
+        else:
+            simulator.run(start, stop)
+        self.assertTrue(all(b == value for b in simulator.memory[:0x4000]))
 
     def test_ld_8_bit(self):
         code = (
@@ -294,7 +304,7 @@ class ROMReadOnlyTest(SkoolKitTestCase):
         memory = [0] * 65536
         memory[start:stop] = code
         memory[0xC000:] = [0xFF] * 0x4000
-        simulator = Simulator(memory)
+        simulator, memory, registers = self._get_simulator(memory)
         simulator.run(start, stop)
         self.assertTrue(all(b == 0 for b in memory[:0x4000]))
 
@@ -310,14 +320,12 @@ class ROMReadOnlyTest(SkoolKitTestCase):
         memory = [0] * 65536
         memory[start:stop] = code
         memory[0xC000:] = [0xFF] * 0x4000
-        simulator = Simulator(memory)
+        simulator, memory, registers = self._get_simulator(memory)
         simulator.run(start, stop)
         self.assertTrue(all(b == 0 for b in memory[:0x4000]))
 
     def test_call(self):
-        memory = [0] * 65536
-        simulator = Simulator(memory)
-        registers = simulator.registers
+        simulator, memory, registers = self._get_simulator([0] * 65536)
         for sp in range(1, 16386):
             for opcode, f in (
                     (0xC4, 0b00000000), # CALL NZ
@@ -421,9 +429,7 @@ class ROMReadOnlyTest(SkoolKitTestCase):
         self._test_read_only(code, 0x8000)
 
     def test_rst(self):
-        memory = [0] * 65536
-        simulator = Simulator(memory)
-        registers = simulator.registers
+        simulator, memory, registers = self._get_simulator([0] * 65536)
         for sp in range(1, 16386):
             for opcode, exp_pc in (
                     (0xC7, 0x00), # RST $00
@@ -446,9 +452,9 @@ class ROMReadOnlyTest(SkoolKitTestCase):
 
 class SimulatorTest(SkoolKitTestCase):
     def _verify(self, tracer, checksum):
-        simulator = Simulator([0] * 65536)
+        simulator = Simulator([0] * 65536, config={'c': CSimulator})
         simulator.set_tracer(tracer)
-        tracer.run(simulator)
+        tracer.run(simulator, CSimulator)
         self.assertEqual(tracer.checksum, checksum)
 
 class ALOTest(SimulatorTest):
