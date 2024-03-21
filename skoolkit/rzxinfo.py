@@ -106,13 +106,15 @@ def _show_blocks(data, options):
                     print(f'    Fetch counter: {fetch_counter}')
                     print(f'    IN counter: {in_counter}')
                     if in_counter == 65535:
-                        print(f'    Port readings: {pr_str}{suffix}')
+                        if pr_str:
+                            print(f'    Port readings: {pr_str}{suffix}')
                         j += 4
                     else:
                         port_readings = list(frames[j + 4:j + 4 + in_counter])
                         pr_str = ', '.join(str(b) for b in port_readings[:10])
                         suffix = '...' if len(port_readings) > 10 else ''
-                        print(f'    Port readings: {pr_str}{suffix}')
+                        if port_readings:
+                            print(f'    Port readings: {pr_str}{suffix}')
                         j += 4 + in_counter
         else:
             print(f'Unknown block ID: 0x{block_id:02X}')

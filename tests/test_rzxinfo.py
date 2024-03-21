@@ -271,7 +271,9 @@ class RzxinfoTest(SkoolKitTestCase):
         frames = (
             (1, 2, (3, 4)),     # Frame 0
             (10, 11, [5] * 11), # Frame 1
-            (20, 65535, ()),    # Frame 2
+            (20, 65535, ()),    # Frame 2 (repeats frame 1)
+            (15, 0, ()),        # Frame 3 (no port readings)
+            (15, 65535, ()),    # Frame 4 (repeats frame 3)
         )
         rzx.add_snapshot(sna, 'sna', frames)
         exp_output = """
@@ -285,7 +287,7 @@ class RzxinfoTest(SkoolKitTestCase):
               Machine: 48K Spectrum
               Start address: 0
             Input recording
-              Number of frames: 3 (0h00m00s)
+              Number of frames: 5 (0h00m00s)
               T-states: 0
               Encrypted: No
               Frame 0:
@@ -300,6 +302,12 @@ class RzxinfoTest(SkoolKitTestCase):
                 Fetch counter: 20
                 IN counter: 65535
                 Port readings: 5, 5, 5, 5, 5, 5, 5, 5, 5, 5...
+              Frame 3:
+                Fetch counter: 15
+                IN counter: 0
+              Frame 4:
+                Fetch counter: 15
+                IN counter: 65535
         """
         self._test_rzx(rzx, exp_output, '--frames')
 
