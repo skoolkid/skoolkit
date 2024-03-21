@@ -17,6 +17,7 @@ ADDRESSES = {
 }
 
 PORTS = (0x40FE, 0x40FF, 0x80FE, 0x80FF, 0xC0FE, 0xC0FF)
+BC_OTIR_OTDR = (0x41FE, 0x41FF, 0x81FE, 0x81FF, 0xC1FE, 0xC1FF)
 PORTS_MSB = (0x40, 0x80, 0xC0)
 PORTS_LSB = (0xFE, 0xFF)
 
@@ -526,7 +527,7 @@ GROUPS = (
         'otir_otdr_repeat',
         'pc:4,pc+1:4,ir:1,hl:3,io:4,bc:1,bc:1,bc:1,bc:1,bc:1',
         ('OTIR', 'OTDR'),
-        [{'BC': bc, 'IR': ir, 'HL': hl} for bc in PORTS for ir in ADDRESSES[1] for hl in ADDRESSES[1]]
+        [{'BC': bc, 'IR': ir, 'HL': hl} for bc in BC_OTIR_OTDR for ir in ADDRESSES[1] for hl in ADDRESSES[1]]
     ),
 )
 
