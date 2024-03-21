@@ -7,8 +7,7 @@ License:        GPLv3+
 URL:            https://skoolkit.ca
 Source0:        https://skoolkit.ca/downloads/%{name}/%{name}-%{version}.tar.xz
 
-BuildArch:      noarch
-BuildRequires:  python3-devel python3-setuptools
+BuildRequires:  python3-devel python3-setuptools gcc
 Requires:       python3 >= 3.8
 
 %description
@@ -40,7 +39,8 @@ cp -a examples %{buildroot}%{_datadir}/%{name}
 %{_bindir}/*
 %{_mandir}/man1/*
 %{_datadir}/%{name}/*
-%{python3_sitelib}/*
+%{python3_sitearch}/skoolkit/*
+%{python3_sitearch}/skoolkit-%{version}*.egg-info/
 
 %changelog
 * Sat Feb 03 2024 Richard Dymond <rjdymond@gmail.com> 9.1-1
