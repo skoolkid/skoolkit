@@ -64,6 +64,8 @@ typedef struct CSimulatorObject {
     contend_f contend;
 #endif
     byte out7ffd;
+    PyObject* memory_obj;
+    PyObject* registers_obj;
     PyObject* tracer;
     PyObject* in_a_n_tracer;
     PyObject* in_r_c_tracer;
@@ -4704,6 +4706,8 @@ static OpcodeFunction after_FDCB[256] = {
 /*****************************************************************************/
 
 static int CSimulator_traverse(CSimulatorObject* self, visitproc visit, void *arg) {
+    Py_VISIT(self->memory_obj);
+    Py_VISIT(self->registers_obj);
     Py_VISIT(self->tracer);
     Py_VISIT(self->in_a_n_tracer);
     Py_VISIT(self->in_r_c_tracer);
@@ -4713,6 +4717,8 @@ static int CSimulator_traverse(CSimulatorObject* self, visitproc visit, void *ar
 }
 
 static int CSimulator_clear(CSimulatorObject* self) {
+    Py_CLEAR(self->memory_obj);
+    Py_CLEAR(self->registers_obj);
     Py_CLEAR(self->tracer);
     Py_CLEAR(self->in_a_n_tracer);
     Py_CLEAR(self->in_r_c_tracer);
@@ -4730,65 +4736,77 @@ static void CSimulator_dealloc(CSimulatorObject* self) {
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "out7ffd", NULL};
-    PyObject* simulator = NULL;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|b", kwlist, &simulator, &self->out7ffd)) {
-        return -1;
-    }
-
-    PyObject* memory = PyObject_GetAttrString(simulator, "memory");
-    if (PyByteArray_Check(memory) && PyByteArray_Size(memory) == 65536) {
-        if (PyObject_GetBuffer(memory, &self->buffers[0], PyBUF_WRITABLE) == -1) {
+static int set_memory_buffer(PyObject* source, Py_ssize_t exp_size, Py_buffer* buffer, byte** memory, int flags) {
+    if (exp_size > 0) {
+        Py_ssize_t size = PyObject_Size(source);
+        if (size == -1) {
             return -1;
         }
-        self->memory = self->buffers[0].buf;
+        if (size != exp_size) {
+            PyErr_Format(PyExc_ValueError, "Memory bank size is %d (expected %d)", size, exp_size);
+            return -1;
+        }
+    }
+    if (PyObject_GetBuffer(source, buffer, flags) == -1) {
+        return -1;
+    }
+    *memory = buffer->buf;
+    return 0;
+}
+
+static int set_memory(CSimulatorObject* self, PyObject* source) {
+    int mem_ok = 0;
+    PyObject* roms = NULL;
+    PyObject* banks = NULL;
+
+    Py_XSETREF(self->memory_obj, source);
+    Py_ssize_t mem_size = PyObject_Size(source);
+
+    if (mem_size == 65536) {
+        mem_ok = set_memory_buffer(source, 0, &self->buffers[0], &self->memory, PyBUF_WRITABLE);
 #ifdef CONTENTION
         self->t0 = 14335 - 23;
         self->t1 = 14335 + 224 * 191 + 126;
         self->contend = contend_48k;
 #endif
-    } else {
-        PyObject* roms = PyObject_GetAttrString(memory, "roms");
+    } else if (mem_size == 131072) {
+        roms = PyObject_GetAttrString(source, "roms");
+        if (roms == NULL) {
+            mem_ok = -1;
+            goto done;
+        }
         if (PyTuple_Check(roms) && PyTuple_Size(roms) == 2) {
             for (int i = 0; i < 2; i++) {
                 PyObject* rom = PyTuple_GetItem(roms, i);
-                if (PyByteArray_Check(rom) && PyByteArray_Size(rom) == 0x4000) {
-                    if (PyObject_GetBuffer(rom, &self->buffers[i], PyBUF_SIMPLE) == -1) {
-                        return -1;
-                    }
-                    self->roms[i] = self->buffers[i].buf;
-                } else {
-                    PyErr_Format(PyExc_TypeError, "Simulator ROM %d is not a bytearray of length 16384", i);
-                    return -1;
+                mem_ok = set_memory_buffer(rom, 0x4000, &self->buffers[i], &self->roms[i], PyBUF_SIMPLE);
+                if (mem_ok == -1) {
+                    goto done;
                 }
             }
         } else {
-            PyErr_SetString(PyExc_TypeError, "Simulator memory.roms is not an 2-element tuple");
-            return -1;
+            PyErr_SetString(PyExc_TypeError, "Simulator memory.roms is not a 2-element tuple");
+            mem_ok = -1;
+            goto done;
         }
-        Py_XDECREF(roms);
 
-        PyObject* banks = PyObject_GetAttrString(memory, "banks");
+        banks = PyObject_GetAttrString(source, "banks");
+        if (banks == NULL) {
+            mem_ok = -1;
+            goto done;
+        }
         if (PyList_Check(banks) && PyList_Size(banks) == 8) {
             for (int i = 0; i < 8; i++) {
                 PyObject* bank = PyList_GetItem(banks, i);
-                if (PyByteArray_Check(bank) && PyByteArray_Size(bank) == 0x4000) {
-                    if (PyObject_GetBuffer(bank, &self->buffers[i + 2], PyBUF_WRITABLE) == -1) {
-                        return -1;
-                    }
-                    self->banks[i] = self->buffers[i + 2].buf;
-                } else {
-                    PyErr_Format(PyExc_TypeError, "Simulator memory bank %d is not a bytearray of length 16384", i);
-                    return -1;
+                mem_ok = set_memory_buffer(bank, 0x4000, &self->buffers[i + 2], &self->banks[i], PyBUF_WRITABLE);
+                if (mem_ok == -1) {
+                    goto done;
                 }
             }
         } else {
             PyErr_SetString(PyExc_TypeError, "Simulator memory.banks is not an 8-element list");
-            return -1;
+            mem_ok = -1;
+            goto done;
         }
-        Py_XDECREF(banks);
 
         self->mem128[1] = self->banks[5];
         self->mem128[2] = self->banks[2];
@@ -4798,50 +4816,91 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
         self->t1 = 14361 + 228 * 191 + 126;
         self->contend = contend_128k;
 #endif
+    } else {
+        PyErr_SetString(PyExc_TypeError, "Simulator memory length is neither 65536 nor 131072");
+        mem_ok = -1;
+        goto done;
     }
-    Py_XDECREF(memory);
 
-    PyObject* registers = PyObject_GetAttrString(simulator, "registers");
+done:
+    Py_XDECREF(roms);
+    Py_XDECREF(banks);
+    return mem_ok;
+}
+
+static int set_registers(CSimulatorObject* self, PyObject* registers) {
     if (PyObject_GetBuffer(registers, &self->buffers[10], PyBUF_WRITABLE | PyBUF_FORMAT) == -1) {
         return -1;
     }
-    Py_XDECREF(registers);
+    Py_XSETREF(self->registers_obj, registers);
     self->registers = self->buffers[10].buf;
+    return 0;
+}
 
-    PyObject* frame_duration = PyObject_GetAttrString(simulator, "frame_duration");
-    if (PyLong_Check(frame_duration)) {
-        self->frame_duration = PyLong_AsLong(frame_duration);
+static int set_config(PyObject* simulator, const char* name, unsigned* dest) {
+    int rv = 0;
+    PyObject* config = PyObject_GetAttrString(simulator, name);
+    if (config == NULL) {
+        rv = -1;
+    } else if (PyLong_Check(config)) {
+        *dest = PyLong_AsLong(config);
     } else {
-        self->frame_duration = 69888;
+        PyErr_Format(PyExc_ValueError, "%s is not an integer", name);
+        rv = -1;
     }
-    Py_XDECREF(frame_duration);
+    Py_XDECREF(config);
+    return rv;
+}
 
-    PyObject* int_active = PyObject_GetAttrString(simulator, "int_active");
-    if (PyLong_Check(int_active)) {
-        self->int_active = PyLong_AsLong(int_active);
+static int set_tracer(PyObject* simulator, const char* name, PyObject** dest) {
+    PyObject* tracer = PyObject_GetAttrString(simulator, name);
+    if (tracer == NULL) {
+        return -1;
+    }
+    if (tracer == Py_None) {
+        Py_DECREF(tracer);
     } else {
-        self->int_active = 32;
+        Py_XSETREF(*dest, tracer);
     }
-    Py_XDECREF(int_active);
+    return 0;
+}
 
-    PyObject* in_a_n_tracer = PyObject_GetAttrString(simulator, "in_a_n_tracer");
-    if (in_a_n_tracer && in_a_n_tracer != Py_None) {
-        self->in_a_n_tracer = in_a_n_tracer;
-    }
+static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
+    static char* kwlist[] = {"", "out7ffd", NULL};
+    PyObject* simulator = NULL;
 
-    PyObject* in_r_c_tracer = PyObject_GetAttrString(simulator, "in_r_c_tracer");
-    if (in_r_c_tracer && in_r_c_tracer != Py_None) {
-        self->in_r_c_tracer = in_r_c_tracer;
-    }
-
-    PyObject* ini_tracer = PyObject_GetAttrString(simulator, "ini_tracer");
-    if (ini_tracer && ini_tracer != Py_None) {
-        self->ini_tracer = ini_tracer;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|b", kwlist, &simulator, &self->out7ffd)) {
+        return -1;
     }
 
-    PyObject* out_tracer = PyObject_GetAttrString(simulator, "out_tracer");
-    if (out_tracer && out_tracer != Py_None) {
-        self->out_tracer = out_tracer;
+    PyObject* memory = PyObject_GetAttrString(simulator, "memory");
+    if (memory == NULL || set_memory(self, memory) == -1) {
+        return -1;
+    }
+
+    PyObject* registers = PyObject_GetAttrString(simulator, "registers");
+    if (registers == NULL || set_registers(self, registers) == -1) {
+        return -1;
+    }
+
+    if (set_config(simulator, "frame_duration", &self->frame_duration) == -1) {
+        return -1;
+    }
+    if (set_config(simulator, "int_active", &self->int_active) == -1) {
+        return -1;
+    }
+
+    if (set_tracer(simulator, "in_a_n_tracer", &self->in_a_n_tracer) == -1) {
+        return -1;
+    }
+    if (set_tracer(simulator, "in_r_c_tracer", &self->in_r_c_tracer) == -1) {
+        return -1;
+    }
+    if (set_tracer(simulator, "ini_tracer", &self->ini_tracer) == -1) {
+        return -1;
+    }
+    if (set_tracer(simulator, "out_tracer", &self->out_tracer) == -1) {
+        return -1;
     }
 
     return 0;
@@ -5984,6 +6043,8 @@ static PyObject* CSimulator_out7ffd(CSimulatorObject* self, PyObject* value) {
 }
 
 static PyMemberDef CSimulator_members[] = {
+    {"memory", T_OBJECT_EX, offsetof(CSimulatorObject, memory_obj), 0, "memory"},
+    {"registers", T_OBJECT_EX, offsetof(CSimulatorObject, registers_obj), 0, "registers"},
     {NULL}  /* Sentinel */
 };
 
