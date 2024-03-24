@@ -29,7 +29,7 @@ class BaseTracer:
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
-        csimulator = csimulator_cls(simulator) if csimulator_cls else None
+        csimulator = csimulator_cls.from_simulator(simulator) if csimulator_cls else None
 
         while True:
             for i in range(PC + 1):

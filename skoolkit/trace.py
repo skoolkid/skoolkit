@@ -214,7 +214,7 @@ def run(snafile, options, config):
     trace_operand = config['TraceOperand' + ('', 'Decimal')[options.decimal]]
     prefix, byte_fmt, word_fmt = (trace_operand + ',' * (2 - trace_operand.count(','))).split(',')[:3]
     begin = time.time()
-    csimulator = csimulator_cls(simulator, tracer.out7ffd) if csimulator_cls else None
+    csimulator = csimulator_cls.from_simulator(simulator, tracer.out7ffd) if csimulator_cls else None
     tracer.run(start, options.stop, options.max_operations, options.max_tstates,
                options.interrupts, trace_line, prefix, byte_fmt, word_fmt, csimulator)
     rt = time.time() - begin

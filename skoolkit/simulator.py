@@ -147,21 +147,9 @@ class Simulator:
             if len(memory) == 65536:
                 self.memory = bytearray(memory)
             else:
-                rom_id = (memory.o7ffd % 32) // 16
-                page = memory.o7ffd % 8
-                memory.roms = roms = tuple(bytearray(rom) for rom in memory.roms)
-                memory.banks = banks = [bytearray(bank) for bank in memory.banks]
-                memory.memory = [roms[rom_id], banks[5], banks[2], banks[page]]
+                self.memory.convert()
             self.registers = array.array('I', self.registers)
-            self.opcodes = [None] * 256
-            self.after_CB = [None] * 256
-            self.after_ED = [None] * 256
-            self.after_DD = [None] * 256
-            self.after_FD = [None] * 256
-            self.after_DDCB = [None] * 256
-            self.after_FDCB = [None] * 256
-        else:
-            self.create_opcodes()
+        self.create_opcodes()
         if cfg['fast_djnz']:
             self.opcodes[0x10] = partial(self.djnz_fast, self.registers, self.memory)
         if cfg['fast_ldir']:

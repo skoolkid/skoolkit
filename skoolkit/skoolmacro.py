@@ -661,7 +661,7 @@ def parse_audio(writer, text, index, need_audio=None):
                 tracer = AudioTracer()
             simulator.set_tracer(tracer)
             if csimulator_cls: # pragma: no cover
-                csimulator_cls(simulator, memory.o7ffd).run(start, stop, execint)
+                csimulator_cls.from_simulator(simulator, memory.o7ffd).run(start, stop, execint)
                 if len(memory) == 65536:
                     memory[:] = simulator.memory[:]
             else:
@@ -1248,7 +1248,7 @@ def parse_sim(writer, text, index, *cwd):
             start = simulator.registers[PC]
         simulator.set_tracer(tracer)
         if csimulator_cls: # pragma: no cover
-            csimulator_cls(simulator, memory.o7ffd).run(start, stop, execint > 0)
+            csimulator_cls.from_simulator(simulator, memory.o7ffd).run(start, stop, execint > 0)
             if len(memory) == 65536:
                 memory[:] = simulator.memory[:]
         else:
@@ -1321,7 +1321,7 @@ def parse_tstates(writer, text, index, *cwd):
         simulator.set_tracer(tracer)
         start_time = simulator.registers[T]
         if csimulator_cls: # pragma: no cover
-            csimulator_cls(simulator, memory.o7ffd).run(start, stop, execint)
+            csimulator_cls.from_simulator(simulator, memory.o7ffd).run(start, stop, execint)
         else:
             simulator.run(start, stop, execint)
         if msg is None:

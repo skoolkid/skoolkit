@@ -16,20 +16,10 @@ if not os.path.isdir(SKOOLKIT_HOME):
     sys.exit(1)
 sys.path.insert(0, SKOOLKIT_HOME)
 
-from skoolkit import ROM48, integer, read_bin_file
+from skoolkit import ROM48, CSimulator, CCMIOSimulator, integer, read_bin_file
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.simulator import Simulator, A, PC, T
 from skoolkit.tap2sna import get_tap_blocks, sim_load
-
-try:
-    from skoolkit.csimulator import CSimulator
-except ImportError:
-    CSimulator = None
-
-try:
-    from skoolkit.ccmiosimulator import CCMIOSimulator
-except ImportError:
-    CCMIOSimulator = None
 
 STOP = 0x8094
 
@@ -129,7 +119,7 @@ def run(tapfile, options):
         print('Running tests')
         begin = time.time()
         if c:
-            csimulator_cls(simulator).exec_all(STOP)
+            csimulator_cls.from_simulator(simulator).exec_all(STOP)
         else:
             simulator.run(stop=STOP)
     else:
@@ -137,7 +127,7 @@ def run(tapfile, options):
         simulator.set_tracer(tracer)
         begin = time.time()
         if c:
-            csimulator_cls(simulator).exec_all(STOP, tracer.rst16_cb)
+            csimulator_cls.from_simulator(simulator).exec_all(STOP, tracer.rst16_cb)
         else:
             tracer.run(simulator)
     rt = time.time() - begin

@@ -39,6 +39,14 @@ class Memory:
         self.memory[3] = self.banks[value % 8]
         self.o7ffd = value
 
+    def convert(self):
+        # Prepare for use by a CSimulator
+        rom_id = (self.o7ffd % 32) // 16
+        page = self.o7ffd % 8
+        self.roms = tuple(bytearray(rom) for rom in self.roms)
+        self.banks = [bytearray(bank) for bank in self.banks]
+        self.memory = [self.roms[rom_id], self.banks[5], self.banks[2], self.banks[page]]
+
 class PagingTracer:
     def write_port(self, registers, port, value):
         if port % 2 == 0:

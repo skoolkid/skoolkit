@@ -395,7 +395,7 @@ def sim_load(blocks, options, config):
         simulator = simulator_cls(memory, registers, state, sim_cfg)
         tracer = KeyboardTracer(simulator, load, kb_delay)
         simulator.set_tracer(tracer)
-        csimulator = csimulator_cls(simulator) if csimulator_cls else None
+        csimulator = csimulator_cls.from_simulator(simulator) if csimulator_cls else None
         try:
             tracer.run(stop, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt, csimulator)
             border = tracer.border
@@ -447,7 +447,7 @@ def sim_load(blocks, options, config):
                             options.polarity, options.finish_tape, in_min_addr, options.accelerate_dec_a,
                             list_accelerators, border, out7ffd, outfffd, ay, outfe)
         simulator.set_tracer(tracer, options.in_flags & 4, False)
-        csimulator = csimulator_cls(simulator, tracer.out7ffd) if csimulator_cls else None
+        csimulator = csimulator_cls.from_simulator(simulator, tracer.out7ffd) if csimulator_cls else None
         try:
             tracer.run(options.start, options.fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt, csimulator)
             _ram_operations(simulator.memory, options.ram_ops)

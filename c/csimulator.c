@@ -97,6 +97,8 @@ static const int D = 4;
 static const int E = 5;
 static const int H = 6;
 static const int L = 7;
+static const int IYh = 10;
+static const int IYl = 11;
 static const int SP = 12;
 static const int I = 14;
 static const int R = 15;
@@ -113,6 +115,59 @@ static const int T = 25;
 static const int IFF = 26;
 static const int IM = 27;
 static const int HALT = 28;
+static const int REGISTERS_SIZE = 29;
+
+typedef struct {
+    const char* name;
+    unsigned index;
+    unsigned size;
+    unsigned mask;
+} z80_reg;
+
+z80_reg REGISTERS[] = {
+    {"A", 0, 1, 0xFF},
+    {"F", 1, 1, 0xFF},
+    {"B", 2, 1, 0xFF},
+    {"C", 3, 1, 0xFF},
+    {"D", 4, 1, 0xFF},
+    {"E", 5, 1, 0xFF},
+    {"H", 6, 1, 0xFF},
+    {"L", 7, 1, 0xFF},
+    {"IXh", 8, 1, 0xFF},
+    {"IXl", 9, 1, 0xFF},
+    {"IYh", 10, 1, 0xFF},
+    {"IYl", 11, 1, 0xFF},
+    {"SP", 12, 1, 0xFFFF},
+    {"I", 14, 1, 0xFF},
+    {"R", 15, 1, 0xFF},
+    {"^A", 16, 1, 0xFF},
+    {"^F", 17, 1, 0xFF},
+    {"^B", 18, 1, 0xFF},
+    {"^C", 19, 1, 0xFF},
+    {"^D", 20, 1, 0xFF},
+    {"^E", 21, 1, 0xFF},
+    {"^H", 22, 1, 0xFF},
+    {"^L", 23, 1, 0xFF},
+    {"PC", 24, 1, 0xFFFF},
+    {"T", 25, 1, 0xFFFFFFFF},
+    {"BC", 2, 2, 0xFF},
+    {"DE", 4, 2, 0xFF},
+    {"HL", 6, 2, 0xFF},
+    {"IX", 8, 2, 0xFF},
+    {"IY", 10, 2, 0xFF},
+    {"^BC", 18, 2, 0xFF},
+    {"^DE", 20, 2, 0xFF},
+    {"^HL", 22, 2, 0xFF},
+    {NULL}
+};
+
+z80_reg STATE[] = {
+    {"iff", 26},
+    {"im", 27},
+    {"halted", 28},
+    {"tstates", 25},
+    {NULL}
+};
 
 static byte PARITY[256];
 static byte SZ53P[256];
@@ -4828,7 +4883,7 @@ done:
     return mem_ok;
 }
 
-static int set_registers(CSimulatorObject* self, PyObject* registers) {
+static int set_registers_from_simulator(CSimulatorObject* self, PyObject* registers) {
     if (PyObject_GetBuffer(registers, &self->buffers[10], PyBUF_WRITABLE | PyBUF_FORMAT) == -1) {
         return -1;
     }
@@ -4837,7 +4892,7 @@ static int set_registers(CSimulatorObject* self, PyObject* registers) {
     return 0;
 }
 
-static int set_config(PyObject* simulator, const char* name, unsigned* dest) {
+static int set_config_from_simulator(PyObject* simulator, const char* name, unsigned* dest) {
     int rv = 0;
     PyObject* config = PyObject_GetAttrString(simulator, name);
     if (config == NULL) {
@@ -4852,7 +4907,7 @@ static int set_config(PyObject* simulator, const char* name, unsigned* dest) {
     return rv;
 }
 
-static int set_tracer(PyObject* simulator, const char* name, PyObject** dest) {
+static int set_tracer_from_simulator(PyObject* simulator, const char* name, PyObject** dest) {
     PyObject* tracer = PyObject_GetAttrString(simulator, name);
     if (tracer == NULL) {
         return -1;
@@ -4865,45 +4920,372 @@ static int set_tracer(PyObject* simulator, const char* name, PyObject** dest) {
     return 0;
 }
 
-static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
+static PyObject* CSimulator_from_simulator(PyTypeObject* type, PyObject* args, PyObject* kwds) {
+    CSimulatorObject* self = (CSimulatorObject*)type->tp_new(type, NULL, NULL);
+    if (self == NULL) {
+        return NULL;
+    }
+
     static char* kwlist[] = {"", "out7ffd", NULL};
     PyObject* simulator = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|b", kwlist, &simulator, &self->out7ffd)) {
-        return -1;
+        return NULL;
     }
 
     PyObject* memory = PyObject_GetAttrString(simulator, "memory");
     if (memory == NULL || set_memory(self, memory) == -1) {
-        return -1;
+        return NULL;
     }
 
     PyObject* registers = PyObject_GetAttrString(simulator, "registers");
-    if (registers == NULL || set_registers(self, registers) == -1) {
+    if (registers == NULL || set_registers_from_simulator(self, registers) == -1) {
+        return NULL;
+    }
+
+    if (set_config_from_simulator(simulator, "frame_duration", &self->frame_duration) == -1) {
+        return NULL;
+    }
+    if (set_config_from_simulator(simulator, "int_active", &self->int_active) == -1) {
+        return NULL;
+    }
+
+    if (set_tracer_from_simulator(simulator, "in_a_n_tracer", &self->in_a_n_tracer) == -1) {
+        return NULL;
+    }
+    if (set_tracer_from_simulator(simulator, "in_r_c_tracer", &self->in_r_c_tracer) == -1) {
+        return NULL;
+    }
+    if (set_tracer_from_simulator(simulator, "ini_tracer", &self->ini_tracer) == -1) {
+        return NULL;
+    }
+    if (set_tracer_from_simulator(simulator, "out_tracer", &self->out_tracer) == -1) {
+        return NULL;
+    }
+
+    return (PyObject*)self;
+}
+
+static int init_registers(CSimulatorObject* self) {
+    PyObject* array_module = NULL;
+    PyObject* array_cls = NULL;
+    PyObject* initializer = NULL;
+    PyObject* args = NULL;
+    int reg_ok = 0;
+
+    array_module = PyImport_ImportModule("array");
+    if (array_module == NULL) {
+        reg_ok = -1;
+        goto done;
+    }
+    array_cls = PyObject_GetAttrString(array_module, "array");
+    if (array_cls == NULL) {
+        reg_ok = -1;
+        goto done;
+    }
+
+    initializer = PyList_New(REGISTERS_SIZE);
+    if (initializer == NULL) {
+        PyErr_SetString(PyExc_MemoryError, "Failed to initialise registers");
+        reg_ok = -1;
+        goto done;
+    }
+    for (int i = 0; i < REGISTERS_SIZE; i++) {
+        unsigned value = 0;
+        switch (i) {
+            case IYh:
+                value = 92;
+                break;
+            case IYl:
+                value = 58;
+                break;
+            case SP:
+                value = 23552;
+                break;
+            case I:
+                value = 63;
+                break;
+            default:
+                break;
+        }
+        PyObject* value_obj = PyLong_FromLong(value);
+        if (value_obj == NULL) {
+            goto done;
+        }
+        if (PyList_SetItem(initializer, i, value_obj) == -1) {
+            Py_DECREF(value_obj);
+            goto done;
+        }
+    }
+
+    args = Py_BuildValue("(sO)", "I", initializer);
+    PyObject* array = PyObject_CallObject(array_cls, args);
+    if (array == NULL) {
+        reg_ok = -1;
+        goto done;
+    }
+
+    if (PyObject_GetBuffer(array, &self->buffers[10], PyBUF_WRITABLE | PyBUF_FORMAT) == -1) {
+        Py_DECREF(array);
+        reg_ok = -1;
+        goto done;
+    }
+
+    Py_XSETREF(self->registers_obj, array);
+    self->registers = self->buffers[10].buf;
+
+done:
+    Py_XDECREF(args);
+    Py_XDECREF(initializer);
+    Py_XDECREF(array_cls);
+    Py_XDECREF(array_module);
+    return reg_ok;
+}
+
+static int configure_registers(CSimulatorObject* self, PyObject* registers, PyObject* state) {
+    if (init_registers(self) == -1) {
         return -1;
     }
 
-    if (set_config(simulator, "frame_duration", &self->frame_duration) == -1) {
-        return -1;
+    PyObject *key, *value;
+    Py_ssize_t pos;
+
+    if (registers && registers != Py_None) {
+        if (!PyDict_Check(registers)) {
+            PyErr_SetString(PyExc_TypeError, "'registers' must be a dict");
+            return -1;
+        }
+        pos = 0;
+        while (PyDict_Next(registers, &pos, &key, &value)) {
+            if (!PyUnicode_Check(key)) {
+                PyErr_SetString(PyExc_TypeError, "keys of 'registers' must be strings");
+                return -1;
+            }
+            if (!PyLong_Check(value)) {
+                PyErr_SetString(PyExc_TypeError, "values of 'registers' must be integers");
+                return -1;
+            }
+            for (int i = 0; REGISTERS[i].name != NULL; i++) {
+                if (PyUnicode_CompareWithASCIIString(key, REGISTERS[i].name) == 0) {
+                    self->registers[REGISTERS[i].index] = PyLong_AsLong(value) & REGISTERS[i].mask;
+                    if (REGISTERS[i].size == 2) {
+                        self->registers[REGISTERS[i].index + 1] = (PyLong_AsLong(value) >> 8) & REGISTERS[i].mask;
+                    }
+                }
+            }
+        }
     }
-    if (set_config(simulator, "int_active", &self->int_active) == -1) {
+
+    if (state && state != Py_None) {
+        if (!PyDict_Check(state)) {
+            PyErr_SetString(PyExc_TypeError, "'state' must be a dict");
+            return -1;
+        }
+        pos = 0;
+        while (PyDict_Next(state, &pos, &key, &value)) {
+            if (!PyUnicode_Check(key)) {
+                PyErr_SetString(PyExc_TypeError, "keys of 'state' must be strings");
+                return -1;
+            }
+            if (!PyLong_Check(value)) {
+                PyErr_SetString(PyExc_TypeError, "values of 'state' must be integers");
+                return -1;
+            }
+            for (int i = 0; STATE[i].name != NULL; i++) {
+                if (PyUnicode_CompareWithASCIIString(key, STATE[i].name) == 0) {
+                    self->registers[STATE[i].index] = PyLong_AsLong(value);
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+static int configure(CSimulatorObject* self, PyObject* config) {
+    self->frame_duration = 69888;
+    self->int_active = 32;
+
+    PyObject *key, *value;
+    Py_ssize_t pos;
+
+    if (config && config != Py_None) {
+        if (!PyDict_Check(config)) {
+            PyErr_SetString(PyExc_TypeError, "'config' must be a dict");
+            return -1;
+        }
+        pos = 0;
+        while (PyDict_Next(config, &pos, &key, &value)) {
+            if (!PyUnicode_Check(key)) {
+                PyErr_SetString(PyExc_TypeError, "keys of 'config' must be strings");
+                return -1;
+            }
+            if (!PyLong_Check(value)) {
+                PyErr_SetString(PyExc_TypeError, "values of 'config' must be integers");
+                return -1;
+            }
+            if (PyUnicode_CompareWithASCIIString(key, "frame_duration") == 0) {
+                self->frame_duration = PyLong_AsLong(value);
+            } else if (PyUnicode_CompareWithASCIIString(key, "int_active") == 0) {
+                self->int_active = PyLong_AsLong(value);
+            }
+        }
+    }
+
+    return 0;
+}
+
+static PyObject* convert_memory(PyObject* source) {
+    PyObject* memory = NULL;
+    char* mem = NULL;
+
+    PyObject* mem_iter = PyObject_GetIter(source);
+    if (mem_iter == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Failed to create iterator for memory");
+        goto done;
+    }
+
+    PyObject* item;
+    unsigned addr = 0;
+    unsigned size = 0x10000;
+    int mem_ok = 0;
+    mem = malloc(size * sizeof(char));
+    if (mem == NULL) {
+        PyErr_SetString(PyExc_MemoryError, "Failed to allocate memory for memory object");
+        goto done;
+    }
+    while (mem_ok == 0 && addr < size && (item = PyIter_Next(mem_iter)) != NULL) {
+        if (PyLong_Check(item)) {
+            mem[addr] = PyLong_AsLong(item) & 0xFF;
+        } else {
+            PyErr_Format(PyExc_TypeError, "Object at memory address %u is not an integer", addr);
+            mem_ok = -1;
+        }
+        Py_DECREF(item);
+        addr += 1;
+    }
+    Py_DECREF(mem_iter);
+    if (mem_ok == -1) {
+        goto done;
+    }
+
+    memory = PyByteArray_FromStringAndSize(mem, size);
+
+done:
+    if (mem) free(mem);
+    return memory;
+}
+
+static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
+    static char* kwlist[] = {"memory", "registers", "state", "config", NULL};
+    PyObject* memory = NULL;
+    PyObject* registers = NULL;
+    PyObject* state = NULL;
+    PyObject* config = NULL;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &memory, &registers, &state, &config)) {
+       return -1;
+    }
+
+    if (PyObject_Size(memory) == 0x10000) {
+        memory = convert_memory(memory);
+        if (memory == NULL) {
+            return -1;
+        }
+    } else {
+        PyObject* convert = PyObject_CallMethod(memory, "convert", NULL);
+        if (convert == NULL) {
+            return -1;
+        }
+        Py_DECREF(convert);
+        Py_INCREF(memory);
+    }
+    if (set_memory(self, memory) == -1) {
         return -1;
     }
 
-    if (set_tracer(simulator, "in_a_n_tracer", &self->in_a_n_tracer) == -1) {
+    if (configure_registers(self, registers, state) == -1) {
         return -1;
     }
-    if (set_tracer(simulator, "in_r_c_tracer", &self->in_r_c_tracer) == -1) {
-        return -1;
-    }
-    if (set_tracer(simulator, "ini_tracer", &self->ini_tracer) == -1) {
-        return -1;
-    }
-    if (set_tracer(simulator, "out_tracer", &self->out_tracer) == -1) {
+
+    if (configure(self, config) == -1) {
         return -1;
     }
 
     return 0;
+}
+
+static PyObject* CSimulator_set_tracer(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
+    int ok = 1;
+    PyObject* functools = NULL;
+    PyObject* partial = NULL;
+    static char* kwlist[] = {"", "in_r_c", "ini", NULL};
+    PyObject* tracer = NULL;
+    int in_r_c = 1;
+    int ini = 1;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|ii", kwlist, &tracer, &in_r_c, &ini)) {
+        return NULL;
+    }
+
+    functools = PyImport_ImportModule("functools");
+    if (functools == NULL) {
+        ok = 0;
+        goto done;
+    }
+    partial = PyObject_GetAttrString(functools, "partial");
+    if (partial == NULL) {
+        ok = 0;
+        goto done;
+    }
+
+    Py_XSETREF(self->tracer, Py_NewRef(tracer));
+    Py_CLEAR(self->in_a_n_tracer);
+    Py_CLEAR(self->in_r_c_tracer);
+    Py_CLEAR(self->ini_tracer);
+    Py_CLEAR(self->out_tracer);
+
+    if (PyObject_HasAttrString(tracer, "read_port")) {
+        PyObject* read_port = PyObject_GetAttrString(tracer, "read_port");
+        PyObject* args = Py_BuildValue("(OO)", read_port, self->registers_obj);
+        self->in_a_n_tracer = PyObject_CallObject(partial, args);
+        if (in_r_c) {
+            self->in_r_c_tracer = PyObject_CallObject(partial, args);
+        }
+        if (ini) {
+            self->ini_tracer = PyObject_CallObject(partial, args);
+        }
+        Py_XDECREF(args);
+        Py_XDECREF(read_port);
+        if (self->in_a_n_tracer == NULL) {
+            ok = 0;
+            goto done;
+        }
+        if (in_r_c && self->in_r_c_tracer == NULL) {
+            ok = 0;
+            goto done;
+        }
+        if (ini && self->ini_tracer == NULL) {
+            ok = 0;
+            goto done;
+        }
+    }
+
+    if (PyObject_HasAttrString(tracer, "write_port")) {
+        PyObject* write_port = PyObject_GetAttrString(tracer, "write_port");
+        PyObject* args = Py_BuildValue("(OO)", write_port, self->registers_obj);
+        self->out_tracer = PyObject_CallObject(partial, args);
+        Py_XDECREF(args);
+        Py_XDECREF(write_port);
+        if (self->out_tracer == NULL) {
+            ok = 0;
+            goto done;
+        }
+    }
+
+done:
+    Py_XDECREF(functools);
+    Py_XDECREF(partial);
+    return ok ? Py_NewRef(Py_None) : NULL;
 }
 
 static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
@@ -6045,16 +6427,19 @@ static PyObject* CSimulator_out7ffd(CSimulatorObject* self, PyObject* value) {
 static PyMemberDef CSimulator_members[] = {
     {"memory", T_OBJECT_EX, offsetof(CSimulatorObject, memory_obj), 0, "memory"},
     {"registers", T_OBJECT_EX, offsetof(CSimulatorObject, registers_obj), 0, "registers"},
+    {"tracer", T_OBJECT_EX, offsetof(CSimulatorObject, tracer), 0, "tracer"},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef CSimulator_methods[] = {
     {"exec_all", (PyCFunction) CSimulator_exec_all, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions in CSimulator only"},
     {"exec_frame", (PyCFunction) CSimulator_exec_frame, METH_VARARGS | METH_KEYWORDS, "Execute an RZX frame"},
+    {"from_simulator", (PyCFunction) CSimulator_from_simulator, METH_VARARGS | METH_KEYWORDS | METH_CLASS, "Create a CSimulator from a Simulator"},
     {"load", (PyCFunction) CSimulator_load, METH_VARARGS | METH_KEYWORDS, "Load a tape"},
     {"out7ffd", (PyCFunction) CSimulator_out7ffd, METH_O, "Output a value to port 0x7ffd"},
     {"press_keys", (PyCFunction) CSimulator_press_keys, METH_VARARGS | METH_KEYWORDS, "Simulate keypresses"},
     {"run", (PyCFunction) CSimulator_run, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions"},
+    {"set_tracer", (PyCFunction) CSimulator_set_tracer, METH_VARARGS | METH_KEYWORDS, "Set the tracer"},
     {"trace", (PyCFunction) CSimulator_trace, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions with optional tracing"},
     {NULL}  /* Sentinel */
 };
@@ -6072,6 +6457,7 @@ static PyTypeObject CSimulatorType = {
     .tp_itemsize = 0,
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
     .tp_new = PyType_GenericNew,
+    .tp_free = PyObject_GC_Del,
     .tp_init = (initproc) CSimulator_init,
     .tp_dealloc = (destructor) CSimulator_dealloc,
     .tp_traverse = (traverseproc) CSimulator_traverse,

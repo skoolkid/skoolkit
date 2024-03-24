@@ -313,7 +313,7 @@ def process_block(block, options, context):
         tracer = RZXTracer(context, block)
         simulator.set_tracer(tracer)
         if CSimulator: # pragma: no cover
-            context.csimulator = CSimulator(simulator, tracer.out7ffd)
+            context.csimulator = CSimulator.from_simulator(simulator, tracer.out7ffd)
         else:
             context.csimulator = None
     csimulator = context.csimulator

@@ -7,7 +7,7 @@ class ROMReadOnlyTest(SkoolKitTestCase):
     def _get_simulator(self, memory):
         simulator = Simulator(memory, config={'c': CSimulator})
         if CSimulator:
-            return CSimulator(simulator), simulator.memory, simulator.registers
+            return CSimulator.from_simulator(simulator), simulator.memory, simulator.registers
         return simulator, simulator.memory, simulator.registers
 
     def _test_read_only(self, code, start, value=0):
@@ -17,7 +17,7 @@ class ROMReadOnlyTest(SkoolKitTestCase):
         memory[start:stop] = code
         simulator = Simulator(memory, config={'c': CSimulator})
         if CSimulator:
-            CSimulator(simulator).run(start, stop)
+            CSimulator.from_simulator(simulator).run(start, stop)
         else:
             simulator.run(start, stop)
         self.assertTrue(all(b == value for b in simulator.memory[:0x4000]))
