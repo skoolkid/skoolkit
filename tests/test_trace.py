@@ -4,9 +4,10 @@ from textwrap import dedent
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import simulator, trace, SkoolKitError, VERSION
+from skoolkit import trace, SkoolKitError, VERSION, CSimulator
 from skoolkit.config import COMMANDS
-from skoolkit.simulator import IFF, IM
+from skoolkit.simulator import Simulator
+from skoolkit.simutils import IFF, IM
 
 ROM0_MD5 = 'b4d2692115a9f2924df92a3cbfb358fb'
 ROM1_MD5 = '6e09e5d3c4aef166601669feaaadc01c'
@@ -38,7 +39,7 @@ def mock_write_snapshot(fname, ram, registers, state):
     s_reg = registers
     s_state = state
 
-class TestSimulator(simulator.Simulator):
+class TestSimulator(CSimulator or Simulator):
     def __init__(self, memory, registers=None, state=None, config=None):
         global simulator
         simulator = self
@@ -131,6 +132,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage:'))
 
+    @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
     def test_sna_48k(self):
         header = [
@@ -163,6 +165,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[IFF], 0)
         self.assertEqual(simulator.registers[IM], 2)
 
+    @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
     def test_sna_128k(self):
         sna = [0] * 131103
@@ -206,6 +209,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertTrue(all(b == 1 for b in simulator.memory[0xC000:0x10000]))
         self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM1_MD5)
 
+    @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
     def test_z80_48k(self):
         registers = {
@@ -250,6 +254,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[IM], 2)
         self.assertEqual(simulator.registers[25], 20004)
 
+    @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
     def test_z80_128k(self):
         ram = [0] * 49152
@@ -298,6 +303,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertTrue(all(b == 1 for b in simulator.memory[0xC000:0x10000]))
         self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM0_MD5)
 
+    @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
     def test_szx_48k(self):
         registers = (
@@ -331,6 +337,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[IM], 0)
         self.assertEqual(simulator.registers[25], 261)
 
+    @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
     def test_szx_128k(self):
         ram = [0] * 49152

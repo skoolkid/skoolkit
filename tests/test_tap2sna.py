@@ -10,10 +10,12 @@ from skoolkittest import (SkoolKitTestCase, Z80_REGISTERS, create_data_block,
                           create_tap_header_block, create_tap_data_block,
                           create_tzx_header_block, create_tzx_data_block,
                           create_tzx_turbo_data_block, create_tzx_pure_data_block)
-from skoolkit import tap2sna, VERSION, SkoolKitError
+from skoolkit import tap2sna, VERSION, SkoolKitError, CSimulator, CCMIOSimulator
+from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.config import COMMANDS
 from skoolkit.loadtracer import LoadTracer
 from skoolkit.snapshot import get_snapshot
+from skoolkit.simulator import Simulator
 
 mock_memory = None
 
@@ -77,7 +79,7 @@ class MockKeyboardTracer:
         self.run_called = False
         kbtracer = self
 
-    def run(self, stop, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt, csimulator):
+    def run(self, stop, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         self.stop = stop
         self.timeout = timeout
         self.tracefile = tracefile
@@ -118,7 +120,7 @@ class MockLoadTracer:
         self.run_called = False
         load_tracer = self
 
-    def run(self, stop, fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt, csimulator):
+    def run(self, stop, fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         self.stop = stop
         self.fast_load = fast_load
         self.timeout = timeout
@@ -2379,7 +2381,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(tapfile)
         self.assertEqual(error, '')
         self.assertIsNone(kbtracer)
-        self.assertEqual(load_tracer.simulator.__class__.__name__, 'Simulator')
+        self.assertIs(load_tracer.simulator.__class__, CSimulator or Simulator)
         self.assertEqual(len(load_tracer.accelerators_in), 46)
         self.assertTrue(load_tracer.pause)
         self.assertEqual(load_tracer.first_edge, 0)
@@ -2437,7 +2439,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(kbtracer.prefix, '$')
         self.assertEqual(kbtracer.byte_fmt, '02X')
         self.assertEqual(kbtracer.word_fmt, '04X')
-        self.assertEqual(load_tracer.simulator.__class__.__name__, 'Simulator')
+        self.assertIs(load_tracer.simulator.__class__, CSimulator or Simulator)
         self.assertEqual(['speedlock'], [a.name for a in load_tracer.accelerators_in])
         self.assertEqual(load_tracer.pause, 0)
         self.assertEqual(load_tracer.first_edge, 1234)
@@ -2475,7 +2477,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         options = ' '.join(f'-c {p}' for p in params)
         output, error = self.run_tap2sna(f'{options} {tapfile}')
         self.assertEqual(error, '')
-        self.assertEqual(load_tracer.simulator.__class__.__name__, 'CMIOSimulator')
+        self.assertIs(load_tracer.simulator.__class__, CCMIOSimulator or CMIOSimulator)
         self.assertEqual(set(), load_tracer.accelerators_in)
         self.assertEqual(load_tracer.accel_dec_a, 0)
 

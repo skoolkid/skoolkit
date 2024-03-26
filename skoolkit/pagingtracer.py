@@ -39,7 +39,7 @@ class Memory:
         self.memory[3] = self.banks[value % 8]
         self.o7ffd = value
 
-    def convert(self):
+    def convert(self): # pragma: no cover
         # Prepare for use by a CSimulator
         rom_id = (self.o7ffd % 32) // 16
         page = self.o7ffd % 8

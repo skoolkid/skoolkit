@@ -4,7 +4,7 @@ from skoolkittest import (SkoolKitTestCase, create_data_block,
                           create_tap_header_block, create_tap_data_block,
                           create_tzx_header_block, create_tzx_data_block,
                           create_tzx_turbo_data_block, create_tzx_pure_data_block)
-from skoolkit import tap2sna, loadtracer, ROM48, read_bin_file
+from skoolkit import tap2sna, ROM48, read_bin_file
 
 def mock_write_snapshot(ram, namespace, z80):
     global snapshot, options

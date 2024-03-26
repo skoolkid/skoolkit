@@ -1,4 +1,4 @@
-# Copyright 2022, 2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from skoolkit.simulator import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                                SP, SP2, I, R, xA, xF, xB, xC, xD, xE, xH, xL)
+from skoolkit.simutils import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
+                               SP, SP2, I, R, xA, xF, xB, xC, xD, xE, xH, xL)
 
 REGISTERS = {
     'a': (A, SP2),

@@ -3,7 +3,6 @@ from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase, SZX, Z80, Z80_REGISTERS
 from skoolkit import SkoolKitError, snapmod, read_bin_file, VERSION
-from skoolkit.snapshot import get_snapshot
 
 def mock_run(*args):
     global run_args

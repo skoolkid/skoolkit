@@ -16,11 +16,11 @@
 
 import argparse
 
-from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, integer, read_bin_file, VERSION
+from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, integer, VERSION
 from skoolkit.basic import BasicLister, VariableLister, get_char
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.opcodes import END, decode
-from skoolkit.snapshot import FRAME_DURATIONS, Snapshot, make_snapshot
+from skoolkit.snapshot import Snapshot, make_snapshot
 from skoolkit.sna2skool import get_ctl_parser
 from skoolkit.snaskool import Disassembly
 

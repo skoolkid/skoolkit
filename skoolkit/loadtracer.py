@@ -21,7 +21,8 @@ from functools import partial
 from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
 from skoolkit.pagingtracer import PagingTracer
-from skoolkit.simulator import A, D, E, F, H, L, IXh, IXl, PC, T, IFF, R1
+from skoolkit.simulator import R1
+from skoolkit.simutils import A, D, E, F, H, L, IXh, IXl, R, SP, PC, T, IFF
 from skoolkit.traceutils import Registers, disassemble
 
 DEC = tuple(tuple((
@@ -135,39 +136,40 @@ class LoadTracer(PagingTracer):
         self.in_min_addr = in_min_addr
         self.announce_data = True
         self.accelerators = accelerators
-        opcodes = simulator.opcodes
-        memory = simulator.memory
-        registers = simulator.registers
-        if list_accelerators and accel_dec_a:
-            opcodes[0x3D] = partial(self.dec_a_list, registers, memory)
-        elif accel_dec_a == 1:
-            opcodes[0x3D] = partial(self.dec_a_jr, registers, memory)
-        elif accel_dec_a == 2:
-            opcodes[0x3D] = partial(self.dec_a_jp, registers, memory)
-        if accelerators:
-            inc_b_acc = []
-            dec_b_acc = []
-            for accelerator in accelerators:
-                if accelerator.opcode == 0x04:
-                    inc_b_acc.append(accelerator)
-                else:
-                    dec_b_acc.append(accelerator)
-            if list_accelerators:
-                opcodes[0x04] = partial(self.list_accelerators, registers, memory, inc_b_acc, self.inc_b_auto, 0x04)
-                opcodes[0x05] = partial(self.list_accelerators, registers, memory, dec_b_acc, self.dec_b_auto, 0x05)
-            else:
-                if len(inc_b_acc) == 1:
-                    accelerator = inc_b_acc[0]
-                    if None in accelerator.code:
-                        opcodes[0x04] = partial(self.inc_b_none, registers, memory, accelerator)
+        if hasattr(simulator, 'opcodes'):
+            opcodes = simulator.opcodes
+            memory = simulator.memory
+            registers = simulator.registers
+            if list_accelerators and accel_dec_a:
+                opcodes[0x3D] = partial(self.dec_a_list, registers, memory)
+            elif accel_dec_a == 1:
+                opcodes[0x3D] = partial(self.dec_a_jr, registers, memory)
+            elif accel_dec_a == 2:
+                opcodes[0x3D] = partial(self.dec_a_jp, registers, memory)
+            if accelerators:
+                inc_b_acc = []
+                dec_b_acc = []
+                for accelerator in accelerators:
+                    if accelerator.opcode == 0x04:
+                        inc_b_acc.append(accelerator)
                     else:
-                        opcodes[0x04] = partial(self.inc_b, registers, memory, accelerator)
-                elif inc_b_acc:
-                    opcodes[0x04] = partial(self.inc_b_auto, registers, memory, inc_b_acc)
-                if len(dec_b_acc) == 1:
-                    opcodes[0x05] = partial(self.dec_b, registers, memory, dec_b_acc[0])
-                elif dec_b_acc:
-                    opcodes[0x05] = partial(self.dec_b_auto, registers, memory, dec_b_acc)
+                        dec_b_acc.append(accelerator)
+                if list_accelerators:
+                    opcodes[0x04] = partial(self.list_accelerators, registers, memory, inc_b_acc, self.inc_b_auto, 0x04)
+                    opcodes[0x05] = partial(self.list_accelerators, registers, memory, dec_b_acc, self.dec_b_auto, 0x05)
+                else:
+                    if len(inc_b_acc) == 1:
+                        accelerator = inc_b_acc[0]
+                        if None in accelerator.code:
+                            opcodes[0x04] = partial(self.inc_b_none, registers, memory, accelerator)
+                        else:
+                            opcodes[0x04] = partial(self.inc_b, registers, memory, accelerator)
+                    elif inc_b_acc:
+                        opcodes[0x04] = partial(self.inc_b_auto, registers, memory, inc_b_acc)
+                    if len(dec_b_acc) == 1:
+                        opcodes[0x05] = partial(self.dec_b, registers, memory, dec_b_acc[0])
+                    elif dec_b_acc:
+                        opcodes[0x05] = partial(self.dec_b_auto, registers, memory, dec_b_acc)
         self.block_index = 0
         self.block_data_index = self.indexes[0][0]
         self.max_index = len(self.edges) - 1
@@ -192,14 +194,14 @@ class LoadTracer(PagingTracer):
             list_accelerators,  # state[6]
         ]
 
-    def run(self, stop, fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt, csimulator):
+    def run(self, stop, fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
         memory = simulator.memory
         registers = simulator.registers
         if tracefile:
             r = Registers(registers)
 
-        if csimulator: # pragma: no cover
+        if hasattr(simulator, 'load'): # pragma: no cover
             if tracefile:
                 df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                 tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
@@ -208,7 +210,7 @@ class LoadTracer(PagingTracer):
             ppf = lambda p: write(f'[{p/10:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')
             self.edges = array.array('I', self.edges)
             self.state = array.array('I', self.state)
-            stop_cond = csimulator.load(self, stop, fast_load, timeout, ppf, df, tf)
+            stop_cond = simulator.load(stop, fast_load, timeout, ppf, df, tf)
             pc = registers[24]
         else:
             opcodes = simulator.opcodes
@@ -573,7 +575,15 @@ class LoadTracer(PagingTracer):
         registers[0:2], registers[16:18] = registers[16:18], registers[0:2]
         registers[IFF] = 0
         registers[H], registers[L] = 0x05, 0x3F # SA-LD-RET
-        simulator.push(registers, memory, R1, 11, 1, H, L)
+        sp = (registers[SP] - 2) % 65536
+        registers[SP] = sp
+        if sp > 0x3FFF:
+            memory[sp] = registers[L]
+        sp = (sp + 1) % 65536
+        if sp > 0x3FFF:
+            memory[sp] = registers[H]
+        registers[R] = R1[registers[R]]
+        registers[T] += 11
 
         if a == block[0]:
             skipped = ''

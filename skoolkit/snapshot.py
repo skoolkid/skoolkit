@@ -19,8 +19,7 @@ import zlib
 
 from skoolkit import ROM48, ROM128, ROM_PLUS2, SkoolKitError, get_dword, get_word, get_int_param, parse_int, read_bin_file
 from skoolkit.components import get_snapshot_reader, get_value
-
-FRAME_DURATIONS = (69888, 70908)
+from skoolkit.simutils import FRAME_DURATIONS
 
 # https://worldofspectrum.net/faq/reference/z80format.htm
 Z80_REGISTERS = {

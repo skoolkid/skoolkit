@@ -26,10 +26,10 @@ from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
                       CCMIOSimulator, eval_variable, evaluate)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.graphics import Udg
-from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl,
-                                IYh, IYl, SP, I, R, xA, xF, xB, xC, xD, xE, xH,
-                                xL, PC, T, IFF, IM, HALT, INT_ACTIVE)
-from skoolkit.snapshot import FRAME_DURATIONS
+from skoolkit.simulator import Simulator
+from skoolkit.simutils import (FRAME_DURATIONS, INT_ACTIVE, A, F, B, C, D, E,
+                               H, L, IXh, IXl, IYh, IYl, SP, I, R, xA, xF, xB,
+                               xC, xD, xE, xH, xL, PC, T, IFF, IM, HALT)
 
 _map_cache = {}
 
@@ -562,7 +562,7 @@ def expand_macros(writer, text, *cwd):
 
     return text
 
-def _read_sim_state(writer, execint, c, reg=None, clear=0):
+def _read_sim_state(writer, execint, reg=None, clear=0):
     registers = {'iff': 0, 'im': 1, 'halted': 0, 'tstates': 0, 'fffd': 0, 'ay': [0] * 16}
     if clear < 1:
         registers.update(writer.fields.get('sim', {}))
@@ -571,7 +571,7 @@ def _read_sim_state(writer, execint, c, reg=None, clear=0):
             if v >= 0:
                 registers[r] = v
     state = {a: registers.pop(a) for a in ('iff', 'im', 'halted', 'tstates', 'fffd', 'ay')}
-    config = {'c': c, 'fast_djnz': execint < 1, 'fast_ldir': execint < 1}
+    config = {'fast_djnz': execint < 1, 'fast_ldir': execint < 1}
     if len(writer.snapshot) == 0x20000:
         config['frame_duration'] = FRAME_DURATIONS[1]
         config['int_active'] = INT_ACTIVE[1]
@@ -647,10 +647,10 @@ def parse_audio(writer, text, index, need_audio=None):
         end, start, stop, execint, cmio = parse_ints(text, end, 4, defaults=(0, 0), fields=writer.fields)
         if eval_delays:
             if cmio:
-                simulator_cls, csimulator_cls = CMIOSimulator, CCMIOSimulator
+                simulator_cls = CCMIOSimulator or CMIOSimulator
             else:
-                simulator_cls, csimulator_cls  = Simulator, CSimulator
-            registers, state, config = _read_sim_state(writer, execint, csimulator_cls)
+                simulator_cls  = CSimulator or Simulator
+            registers, state, config = _read_sim_state(writer, execint)
             if offset is not None:
                 state['tstates'] = offset
             simulator = simulator_cls(writer.snapshot, registers, state, config)
@@ -660,12 +660,9 @@ def parse_audio(writer, text, index, need_audio=None):
             else:
                 tracer = AudioTracer()
             simulator.set_tracer(tracer)
-            if csimulator_cls: # pragma: no cover
-                csimulator_cls.from_simulator(simulator, memory.o7ffd).run(start, stop, execint)
-                if len(memory) == 65536:
-                    memory[:] = simulator.memory[:]
-            else:
-                simulator.run(start, stop, execint)
+            simulator.run(start, stop, execint)
+            if memory != simulator.memory: # pragma: no cover
+                memory[:] = simulator.memory[:]
             _write_sim_state(writer, simulator, tracer)
             delays = [t - tracer.out_times[i] for i, t in enumerate(tracer.out_times[1:])]
     else:
@@ -1233,10 +1230,10 @@ def parse_sim(writer, text, index, *cwd):
      reg['I'], reg['R'], reg['SP'], execint, reg['tstates'], reg['iff'],
      reg['im'], cmio) = parse_ints(text, index, len(names), defaults, names, writer.fields)
     if cmio > 0:
-        simulator_cls, csimulator_cls = CMIOSimulator, CCMIOSimulator
+        simulator_cls = CCMIOSimulator or CMIOSimulator
     else:
-        simulator_cls, csimulator_cls = Simulator, CSimulator
-    registers, state, config = _read_sim_state(writer, execint, csimulator_cls, reg, clear)
+        simulator_cls = CSimulator or Simulator
+    registers, state, config = _read_sim_state(writer, execint, reg, clear)
     memory = writer.snapshot
     if len(memory) == 0x20000:
         tracer = PagingTracer(memory, memory.o7ffd, state['fffd'], state['ay'])
@@ -1247,12 +1244,9 @@ def parse_sim(writer, text, index, *cwd):
         if start < 0:
             start = simulator.registers[PC]
         simulator.set_tracer(tracer)
-        if csimulator_cls: # pragma: no cover
-            csimulator_cls.from_simulator(simulator, memory.o7ffd).run(start, stop, execint > 0)
-            if len(memory) == 65536:
-                memory[:] = simulator.memory[:]
-        else:
-            simulator.run(start, stop, execint > 0)
+        simulator.run(start, stop, execint > 0)
+        if memory != simulator.memory: # pragma: no cover
+            memory[:] = simulator.memory[:]
     _write_sim_state(writer, simulator, tracer)
     return end, ''
 
@@ -1308,10 +1302,10 @@ def parse_tstates(writer, text, index, *cwd):
         if stop < 0:
             raise MacroParsingError(f"Missing stop address: '{text[index:end]}'")
         if cmio:
-            simulator_cls, csimulator_cls = CMIOSimulator, CCMIOSimulator
+            simulator_cls = CCMIOSimulator or CMIOSimulator
         else:
-            simulator_cls, csimulator_cls = Simulator, CSimulator
-        registers, state, config = _read_sim_state(writer, execint, csimulator_cls)
+            simulator_cls = CSimulator or Simulator
+        registers, state, config = _read_sim_state(writer, execint)
         memory = writer.snapshot.copy()
         if len(memory) == 0x20000:
             tracer = PagingTracer(memory, memory.o7ffd, state['fffd'], state['ay'])
@@ -1320,10 +1314,7 @@ def parse_tstates(writer, text, index, *cwd):
         simulator = simulator_cls(memory, registers, state, config)
         simulator.set_tracer(tracer)
         start_time = simulator.registers[T]
-        if csimulator_cls: # pragma: no cover
-            csimulator_cls.from_simulator(simulator, memory.o7ffd).run(start, stop, execint)
-        else:
-            simulator.run(start, stop, execint)
+        simulator.run(start, stop, execint)
         if msg is None:
             return end, str(simulator.registers[T] - start_time)
         return end, Template(msg).safe_substitute(tstates=simulator.registers[T])

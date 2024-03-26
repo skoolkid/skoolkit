@@ -22,9 +22,9 @@ from skoolkit import ROM48, VERSION, SkoolKitError, CSimulator, CCMIOSimulator, 
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.pagingtracer import Memory, PagingTracer
-from skoolkit.simulator import (Simulator, INT_ACTIVE, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
-from skoolkit.snapshot import FRAME_DURATIONS, Snapshot, make_snapshot, poke, print_reg_help, write_snapshot
+from skoolkit.simulator import Simulator
+from skoolkit.simutils import PC, T, from_snapshot, get_state
+from skoolkit.snapshot import Snapshot, make_snapshot, poke, print_reg_help, write_snapshot
 from skoolkit.traceutils import Registers, disassemble
 
 class Tracer(PagingTracer):
@@ -39,19 +39,19 @@ class Tracer(PagingTracer):
         self.spkr = None
         self.out_times = []
 
-    def run(self, start, stop, max_operations, max_tstates, interrupts, trace_line, prefix, byte_fmt, word_fmt, csimulator):
+    def run(self, start, stop, max_operations, max_tstates, interrupts, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
         memory = simulator.memory
         registers = simulator.registers
         r = Registers(registers)
 
-        if csimulator: # pragma: no cover
+        if hasattr(simulator, 'trace'): # pragma: no cover
             if trace_line:
                 df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                 tf = lambda pc, i, t0: print(trace_line.format(pc=pc, i=i, r=r, t=t0))
             else:
                 df = tf = None
-            stop_cond, operations = csimulator.trace(start, stop, max_operations, max_tstates, interrupts, df, tf)
+            stop_cond, operations = simulator.trace(start, stop, max_operations, max_tstates, interrupts, df, tf)
             pc = registers[24]
             tstates = registers[25]
         else:
@@ -156,11 +156,9 @@ def run(snafile, options, config):
         else:
             memory, org = make_snapshot(snafile, options.org)[:2]
     if options.cmio:
-        simulator_cls = CMIOSimulator
-        csimulator_cls = CCMIOSimulator
+        simulator_cls = CCMIOSimulator or CMIOSimulator
     else:
-        simulator_cls = Simulator
-        csimulator_cls = CSimulator
+        simulator_cls = CSimulator or Simulator
     registers = {}
     for spec in options.reg:
         reg, sep, val = spec.upper().partition('=')
@@ -170,14 +168,14 @@ def run(snafile, options, config):
             except ValueError:
                 raise SkoolKitError("Cannot parse register value: {}".format(spec))
     fast = options.verbose == 0 and not options.interrupts
-    sim_config = {'fast_djnz': fast, 'fast_ldir': fast, 'c': csimulator_cls}
+    sim_config = {'fast_djnz': fast, 'fast_ldir': fast}
     if snapshot:
         border = snapshot.border
         out7ffd = snapshot.out7ffd
         outfffd = snapshot.outfffd
         ay = list(snapshot.ay)
         outfe = snapshot.outfe
-        simulator = simulator_cls.from_snapshot(snapshot, registers, sim_config, options.rom)
+        simulator = from_snapshot(simulator_cls, snapshot, registers, sim_config, options.rom)
         memory = simulator.memory
     else:
         border = 7
@@ -214,9 +212,8 @@ def run(snafile, options, config):
     trace_operand = config['TraceOperand' + ('', 'Decimal')[options.decimal]]
     prefix, byte_fmt, word_fmt = (trace_operand + ',' * (2 - trace_operand.count(','))).split(',')[:3]
     begin = time.time()
-    csimulator = csimulator_cls.from_simulator(simulator, tracer.out7ffd) if csimulator_cls else None
     tracer.run(start, options.stop, options.max_operations, options.max_tstates,
-               options.interrupts, trace_line, prefix, byte_fmt, word_fmt, csimulator)
+               options.interrupts, trace_line, prefix, byte_fmt, word_fmt)
     rt = time.time() - begin
     if options.stats:
         z80t = simulator.registers[T] - t0
@@ -234,7 +231,7 @@ def run(snafile, options, config):
         lines = textwrap.wrap(simplify(delays, options.depth), 78)
         print('Delays:\n {}'.format('\n '.join(lines)))
     if options.dump:
-        ram, registers, state = simulator.state()
+        ram, registers, state = get_state(simulator)
         write_snapshot(options.dump, ram, registers, state)
         print(f'Wrote {options.dump}')
 

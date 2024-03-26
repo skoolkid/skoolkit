@@ -14,11 +14,11 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-import array
 from functools import partial
 
-from skoolkit import read_bin_file
-from skoolkit.pagingtracer import Memory
+from skoolkit import simutils
+from skoolkit.simutils import (FRAME_DURATIONS, INT_ACTIVE, A, F, B, C, D, E,
+                               H, L, IXh, IXl, IYh, IYl, SP, SP2, I, R)
 
 JR_OFFSETS = tuple(j + 2 if j < 128 else j - 254 for j in range(256))
 
@@ -28,127 +28,20 @@ R1 = tuple((r & 0x80) + ((r + 1) % 128) for r in range(256))
 
 R2 = tuple((r & 0x80) + ((r + 2) % 128) for r in range(256))
 
-FRAME_DURATIONS = (69888, 70908)
-
-INT_ACTIVE = (32, 36)
-
 CONFIG = {
-    'c': False,
     'fast_djnz': False,
     'fast_ldir': False,
-    'frame_duration': 69888,
+    'frame_duration': FRAME_DURATIONS[0],
     'int_active': INT_ACTIVE[0]
-}
-
-A = 0
-F = 1
-B = 2
-C = 3
-D = 4
-E = 5
-H = 6
-L = 7
-IXh = 8
-IXl = 9
-IYh = 10
-IYl = 11
-SP = 12
-SP2 = 13
-I = 14
-R = 15
-xA = 16
-xF = 17
-xB = 18
-xC = 19
-xD = 20
-xE = 21
-xH = 22
-xL = 23
-PC = 24
-T = 25
-IFF = 26
-IM = 27
-HALT = 28
-
-REGISTERS = {
-    'A': A,
-    'F': F,
-    'B': B,
-    'C': C,
-    'D': D,
-    'E': E,
-    'H': H,
-    'L': L,
-    'IXh': IXh,
-    'IXl': IXl,
-    'IYh': IYh,
-    'IYl': IYl,
-    'SP': SP,
-    'I': I,
-    'R': R,
-    '^A': xA,
-    '^F': xF,
-    '^B': xB,
-    '^C': xC,
-    '^D': xD,
-    '^E': xE,
-    '^H': xH,
-    '^L': xL,
-    'PC': PC,
-    'T': T
 }
 
 class Simulator:
     def __init__(self, memory, registers=None, state=None, config=None):
         self.memory = memory
-        self.registers = [
-            0,     # A
-            0,     # F
-            0,     # B
-            0,     # C
-            0,     # D
-            0,     # E
-            0,     # H
-            0,     # L
-            0,     # IXh
-            0,     # IXl
-            92,    # IYh
-            58,    # IYl
-            23552, # SP
-            0,     # SP2 (must be 0)
-            63,    # I
-            0,     # R
-            0,     # xA
-            0,     # xF
-            0,     # xB
-            0,     # xC
-            0,     # xD
-            0,     # xE
-            0,     # xH
-            0,     # xL
-            0,     # PC
-            0,     # T (T-states)
-            0,     # IFF
-            0,     # IM (interrupt mode)
-            0,     # HALT (halted)
-        ]
-        if registers:
-            self.set_registers(registers)
-        if state is None:
-            state = {}
-        self.registers[IM] = state.get('im', 1)
-        self.registers[IFF] = state.get('iff', 0)
-        self.registers[HALT] = state.get('halted', 0)
-        self.registers[T] = state.get('tstates', 0)
+        self.registers = simutils.get_registers(registers, state, False)
         cfg = CONFIG.copy()
         if config:
             cfg.update(config)
-        if cfg['c']:
-            if len(memory) == 65536:
-                self.memory = bytearray(memory)
-            else:
-                self.memory.convert()
-            self.registers = array.array('I', self.registers)
         self.create_opcodes()
         if cfg['fast_djnz']:
             self.opcodes[0x10] = partial(self.djnz_fast, self.registers, self.memory)
@@ -158,84 +51,6 @@ class Simulator:
         self.frame_duration = cfg['frame_duration']
         self.int_active = cfg['int_active']
         self.set_tracer(None)
-
-    @classmethod
-    def from_snapshot(cls, snapshot, registers=None, config=None, rom_file=None):
-        ram = snapshot.ram(-1)
-        if len(ram) == 0x20000:
-            banks = [ram[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
-            s_memory = Memory(banks, snapshot.out7ffd, snapshot.rom)
-        else:
-            s_memory = [0] * 16384 + ram
-            rom = read_bin_file(rom_file or snapshot.rom)
-            s_memory[:len(rom)] = rom
-        s_registers = {
-            'A': snapshot.a,
-            'F': snapshot.f,
-            'BC': snapshot.bc,
-            'DE': snapshot.de,
-            'HL': snapshot.hl,
-            'IX': snapshot.ix,
-            'IY': snapshot.iy,
-            'SP': snapshot.sp,
-            'I': snapshot.i,
-            'R': snapshot.r,
-            '^A': snapshot.a2,
-            '^F': snapshot.f2,
-            '^BC': snapshot.bc2,
-            '^DE': snapshot.de2,
-            '^HL': snapshot.hl2,
-            'PC': snapshot.pc
-        }
-        if registers:
-            s_registers.update(registers)
-        s_state = {
-            'im': snapshot.im,
-            'iff': snapshot.iff1,
-            'tstates': snapshot.tstates
-        }
-        s_config = {
-            'frame_duration': FRAME_DURATIONS[len(ram) == 0x20000],
-            'int_active': INT_ACTIVE[len(ram) == 0x20000]
-        }
-        if config:
-            s_config.update(config)
-        return cls(s_memory, s_registers, s_state, s_config)
-
-    def state(self, tstates=True):
-        registers = [
-            f'A={self.registers[A]}',
-            f'F={self.registers[F]}',
-            f'BC={self.registers[C] + 256 * self.registers[B]}',
-            f'DE={self.registers[E] + 256 * self.registers[D]}',
-            f'HL={self.registers[L] + 256 * self.registers[H]}',
-            f'IX={self.registers[IXl] + 256 * self.registers[IXh]}',
-            f'IY={self.registers[IYl] + 256 * self.registers[IYh]}',
-            f'SP={self.registers[SP]}',
-            f'I={self.registers[I]}',
-            f'R={self.registers[R]}',
-            f'^A={self.registers[xA]}',
-            f'^F={self.registers[xF]}',
-            f'^BC={self.registers[xC] + 256 * self.registers[xB]}',
-            f'^DE={self.registers[xE] + 256 * self.registers[xD]}',
-            f'^HL={self.registers[xL] + 256 * self.registers[xH]}',
-            f'PC={self.registers[PC]}'
-        ]
-        state = [
-            f'border={self.tracer.border}',
-            f'fe={self.tracer.outfe}',
-            f'iff={self.registers[IFF]}',
-            f'im={self.registers[IM]}'
-        ]
-        if tstates:
-            state.append(f'tstates={self.registers[T]}')
-        if isinstance(self.memory, Memory):
-            ram = self.memory.banks
-            state.extend(f'ay[{n}]={v}' for n, v in enumerate(self.tracer.ay))
-            state.extend((f'7ffd={self.memory.o7ffd}', f'fffd={self.tracer.outfffd}'))
-        else:
-            ram = self.memory[0x4000:]
-        return ram, registers, state
 
     def set_tracer(self, tracer, in_r_c=True, ini=True):
         self.tracer = tracer
@@ -278,23 +93,6 @@ class Simulator:
                 pc = registers[24]
                 if pc == stop:
                     break
-
-    def set_registers(self, registers):
-        for reg, value in registers.items():
-            if reg in REGISTERS:
-                self.registers[REGISTERS[reg]] = value
-            elif reg in ('IX', 'IY'):
-                rh = REGISTERS[reg + 'h']
-                self.registers[rh] = value // 256
-                self.registers[rh + 1] = value % 256
-            elif reg.startswith('^'):
-                rh = REGISTERS[reg[:2]]
-                self.registers[rh] = value // 256
-                self.registers[rh + 1] = value % 256
-            elif len(reg) == 2:
-                rh = REGISTERS[reg[0]]
-                self.registers[rh] = value // 256
-                self.registers[rh + 1] = value % 256
 
     def accept_interrupt(self, registers, memory, prev_pc):
         opcode = memory[prev_pc]

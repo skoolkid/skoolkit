@@ -1,13 +1,11 @@
 from skoolkittest import SkoolKitTestCase
 from skoolkit import CSimulator
-from skoolkit.simulator import Simulator, F, SP, PC
+from skoolkit.simulator import Simulator
 from sim_test_tracers import *
 
 class ROMReadOnlyTest(SkoolKitTestCase):
     def _get_simulator(self, memory):
-        simulator = Simulator(memory, config={'c': CSimulator})
-        if CSimulator:
-            return CSimulator.from_simulator(simulator), simulator.memory, simulator.registers
+        simulator = (CSimulator or Simulator)(memory)
         return simulator, simulator.memory, simulator.registers
 
     def _test_read_only(self, code, start, value=0):
@@ -15,11 +13,8 @@ class ROMReadOnlyTest(SkoolKitTestCase):
         stop = 0x8000 + len(code)
         memory = [value] * 65536
         memory[start:stop] = code
-        simulator = Simulator(memory, config={'c': CSimulator})
-        if CSimulator:
-            CSimulator.from_simulator(simulator).run(start, stop)
-        else:
-            simulator.run(start, stop)
+        simulator = (CSimulator or Simulator)(memory)
+        simulator.run(start, stop)
         self.assertTrue(all(b == value for b in simulator.memory[:0x4000]))
 
     def test_ld_8_bit(self):
@@ -452,9 +447,9 @@ class ROMReadOnlyTest(SkoolKitTestCase):
 
 class SimulatorTest(SkoolKitTestCase):
     def _verify(self, tracer, checksum):
-        simulator = Simulator([0] * 65536, config={'c': CSimulator})
+        simulator = (CSimulator or Simulator)([0] * 65536)
         simulator.set_tracer(tracer)
-        tracer.run(simulator, CSimulator)
+        tracer.run(simulator)
         self.assertEqual(tracer.checksum, checksum)
 
 class ALOTest(SimulatorTest):

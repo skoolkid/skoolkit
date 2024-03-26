@@ -5,8 +5,8 @@ import sys
 SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
 
-from skoolkit.simulator import (REGISTERS, A, F, B, C, D, E, H, L, IXh, IXl,
-                                IYh, IYl, SP, I, R, PC)
+from skoolkit.simutils import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP,
+                               I, R, PC)
 
 Hd = 30
 Xd = 32
@@ -25,11 +25,10 @@ class BaseTracer:
         self.data = bytearray()
         self.checksum = None
 
-    def run(self, simulator, csimulator_cls):
-        opcodes = simulator.opcodes
+    def run(self, simulator):
+        opcodes = simulator.opcodes if hasattr(simulator, 'opcodes') else None
         memory = simulator.memory
         registers = simulator.registers
-        csimulator = csimulator_cls.from_simulator(simulator) if csimulator_cls else None
 
         while True:
             for i in range(PC + 1):
@@ -41,10 +40,10 @@ class BaseTracer:
             registers[IXh] = 132
             registers[IYh] = 133
             self.prepare(simulator)
-            if csimulator:
-                csimulator.run()
-            else:
+            if opcodes:
                 opcodes[memory[registers[24]]]()
+            else:
+                simulator.run()
             self.collect_result(simulator)
             self.count -= 1
             if self.count < 0:

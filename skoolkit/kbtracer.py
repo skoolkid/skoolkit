@@ -313,27 +313,27 @@ class KeyboardTracer(PagingTracer):
         self.ay = [0] * 16
         self.outfe = 0
 
-    def run(self, stop, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt, csimulator):
+    def run(self, stop, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
-        opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
-        frame_duration = simulator.frame_duration
-        int_active = simulator.int_active
         keys = self.keys
-        pc = registers[24]
-        tstates = registers[25]
         if tracefile:
             r = Registers(registers)
 
-        if csimulator: # pragma: no cover
+        if hasattr(simulator, 'press_keys'): # pragma: no cover
             if trace_line:
                 df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                 tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
             else:
                 df = tf = None
-            csimulator.press_keys(keys, stop, timeout, df, tf)
+            simulator.press_keys(keys, stop, timeout, df, tf)
         else:
+            opcodes = simulator.opcodes
+            frame_duration = simulator.frame_duration
+            int_active = simulator.int_active
+            pc = registers[24]
+            tstates = registers[25]
             while True:
                 t0 = tstates
                 if tracefile:

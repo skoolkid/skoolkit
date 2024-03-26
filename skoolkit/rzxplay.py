@@ -30,8 +30,9 @@ with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
 
 from skoolkit import VERSION, SkoolKitError, CSimulator, get_dword, get_word, read_bin_file, warn, write
 from skoolkit.pagingtracer import PagingTracer
-from skoolkit.simulator import Simulator, I, R, R1, R2
-from skoolkit.snapshot import Snapshot, Z80, write_snapshot
+from skoolkit.simulator import Simulator
+from skoolkit.simutils import from_snapshot, get_state
+from skoolkit.snapshot import Snapshot, write_snapshot
 from skoolkit.traceutils import disassemble
 
 if pygame: # pragma: no cover
@@ -124,7 +125,6 @@ class RZXContext:
         self.tracefile = None
         self.snapshot = None
         self.simulator = None
-        self.csimulator = None
         self.total_frames = 0
         self.frame_count = 0
         self.stop = False
@@ -146,7 +146,7 @@ def write_rzx(fname, context, rzx_blocks):
         int(minor), 0
     ))
 
-    ram, registers, state = context.simulator.state()
+    ram, registers, state = get_state(context.simulator)
     snapshot = context.snapshot
     snapshot.set_ram(ram)
     snapshot.set_registers_and_state(registers, state)
@@ -307,17 +307,12 @@ def process_block(block, options, context):
     else:
         # Set 'int_active' to 0 to prevent 'HALT' and 'LD A,I/R' from ever
         # behaving as if an interrupt is to be accepted
-        config = {'c': CSimulator, 'int_active': 0}
-        simulator = Simulator.from_snapshot(context.snapshot, config=config)
+        config = {'int_active': 0}
+        simulator = from_snapshot(CSimulator or Simulator, context.snapshot, config=config)
         context.simulator = simulator
         tracer = RZXTracer(context, block)
         simulator.set_tracer(tracer)
-        if CSimulator: # pragma: no cover
-            context.csimulator = CSimulator.from_simulator(simulator, tracer.out7ffd)
-        else:
-            context.csimulator = None
-    csimulator = context.csimulator
-    opcodes = simulator.opcodes
+    opcodes = simulator.opcodes if hasattr(simulator, 'opcodes') else None
     memory = simulator.memory
     registers = simulator.registers
     total_frames = context.total_frames
@@ -339,11 +334,12 @@ def process_block(block, options, context):
         clock = context.clock
     fetch_counter = tracer.next_frame()
     run = True
+    csimulator = hasattr(simulator, 'exec_frame')
     while run:
         if fetch_counter < 0:
             break
         if csimulator: # pragma: no cover
-            pc = csimulator.exec_frame(fetch_counter, exec_map, trace)
+            pc = simulator.exec_frame(fetch_counter, exec_map, trace)
         else:
             while fetch_counter > 0:
                 pc = registers[24]
@@ -429,7 +425,7 @@ def run(infile, options):
     if options.dump:
         ext = options.dump.lower().rpartition('.')[2]
         if ext in ('szx', 'z80'):
-            ram, registers, state = context.simulator.state()
+            ram, registers, state = get_state(context.simulator)
             if len(ram) == 8:
                 rom0 = context.simulator.memory.roms[0]
             else:

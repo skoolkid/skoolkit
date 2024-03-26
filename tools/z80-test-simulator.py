@@ -18,7 +18,8 @@ sys.path.insert(0, SKOOLKIT_HOME)
 
 from skoolkit import ROM48, CSimulator, CCMIOSimulator, integer, read_bin_file
 from skoolkit.cmiosimulator import CMIOSimulator
-from skoolkit.simulator import Simulator, A, PC, T
+from skoolkit.simulator import Simulator
+from skoolkit.simutils import PC, T
 from skoolkit.tap2sna import get_tap_blocks, sim_load
 
 STOP = 0x8094
@@ -110,35 +111,21 @@ def run(tapfile, options):
     if options.stop > 0:
         test_addr = 34938 + options.stop * 2
         snapshot[test_addr:test_addr + 2] = (0, 0)
-    simulator_cls = CMIOSimulator if options.cmio else Simulator
-    csimulator_cls = CCMIOSimulator if options.ccmio else CSimulator
     c = options.csim or options.ccmio
-    simulator = simulator_cls(snapshot, {'PC': start}, config={'c': c})
-    if options.quiet:
-        tracer = None
-        print('Running tests')
-        begin = time.time()
-        if c:
-            csimulator_cls.from_simulator(simulator).exec_all(STOP)
-        else:
-            simulator.run(stop=STOP)
+    if c:
+        simulator_cls = CCMIOSimulator if options.ccmio else CSimulator
     else:
-        tracer = Tracer()
-        simulator.set_tracer(tracer)
-        begin = time.time()
-        if c:
-            csimulator_cls.from_simulator(simulator).exec_all(STOP, tracer.rst16_cb)
-        else:
-            tracer.run(simulator)
+        simulator_cls = CMIOSimulator if options.cmio else Simulator
+    simulator = simulator_cls(snapshot, {'PC': start})
+    tracer = Tracer()
+    simulator.set_tracer(tracer)
+    begin = time.time()
+    if c:
+        simulator.exec_with_cb(STOP, tracer.rst16_cb)
+    else:
+        tracer.run(simulator)
     rt = time.time() - begin
-    if tracer:
-        failed = tracer.failed
-    else:
-        failed = simulator.registers[A]
-        if failed:
-            print(f'{failed} test(s) failed')
-        else:
-            print('All tests passed')
+    failed = tracer.failed
     z80t = simulator.registers[T] / 3500000
     speed = z80t / rt
     print(f'Z80 execution time: {simulator.registers[T]} T-states ({z80t:.03f}s)')
@@ -166,8 +153,6 @@ if __name__ == '__main__':
                        help='Start at this test (default: 0).')
     group.add_argument('-T', '--stop', metavar='TEST', type=int, default=0,
                        help='Stop at this test.')
-    group.add_argument('-q', '--quiet', action='store_true',
-                       help="Don't show test progress.")
     namespace, unknown_args = parser.parse_known_args()
     if unknown_args or namespace.tapfile is None:
         parser.exit(2, parser.format_help())

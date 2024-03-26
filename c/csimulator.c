@@ -97,8 +97,6 @@ static const int D = 4;
 static const int E = 5;
 static const int H = 6;
 static const int L = 7;
-static const int IYh = 10;
-static const int IYl = 11;
 static const int SP = 12;
 static const int I = 14;
 static const int R = 15;
@@ -115,7 +113,6 @@ static const int T = 25;
 static const int IFF = 26;
 static const int IM = 27;
 static const int HALT = 28;
-static const int REGISTERS_SIZE = 29;
 
 typedef struct {
     const char* name;
@@ -4813,6 +4810,7 @@ static int set_memory(CSimulatorObject* self, PyObject* source) {
     int mem_ok = 0;
     PyObject* roms = NULL;
     PyObject* banks = NULL;
+    PyObject* o7ffd = NULL;
 
     Py_XSETREF(self->memory_obj, source);
     Py_ssize_t mem_size = PyObject_Size(source);
@@ -4863,9 +4861,20 @@ static int set_memory(CSimulatorObject* self, PyObject* source) {
             goto done;
         }
 
+        o7ffd = PyObject_GetAttrString(source, "o7ffd");
+        if (o7ffd == NULL) {
+            mem_ok = -1;
+            goto done;
+        }
+        if (!PyLong_Check(o7ffd)) {
+            PyErr_SetString(PyExc_TypeError, "memory.o7ffd is not an integer");
+            mem_ok = -1;
+            goto done;
+        }
+
         self->mem128[1] = self->banks[5];
         self->mem128[2] = self->banks[2];
-        out7ffd(self, self->out7ffd);
+        out7ffd(self, PyLong_AsLong(o7ffd) & 0xFF);
 #ifdef CONTENTION
         self->t0 = 14361 - 23;
         self->t1 = 14361 + 228 * 191 + 126;
@@ -4880,226 +4889,37 @@ static int set_memory(CSimulatorObject* self, PyObject* source) {
 done:
     Py_XDECREF(roms);
     Py_XDECREF(banks);
+    Py_XDECREF(o7ffd);
     return mem_ok;
 }
 
-static int set_registers_from_simulator(CSimulatorObject* self, PyObject* registers) {
-    if (PyObject_GetBuffer(registers, &self->buffers[10], PyBUF_WRITABLE | PyBUF_FORMAT) == -1) {
-        return -1;
-    }
-    Py_XSETREF(self->registers_obj, registers);
-    self->registers = self->buffers[10].buf;
-    return 0;
-}
+static int configure_registers(CSimulatorObject* self, PyObject* registers, PyObject* state) {
+    int rv = -1;
+    PyObject* simutils = NULL;
+    PyObject* get_registers = NULL;
 
-static int set_config_from_simulator(PyObject* simulator, const char* name, unsigned* dest) {
-    int rv = 0;
-    PyObject* config = PyObject_GetAttrString(simulator, name);
-    if (config == NULL) {
-        rv = -1;
-    } else if (PyLong_Check(config)) {
-        *dest = PyLong_AsLong(config);
-    } else {
-        PyErr_Format(PyExc_ValueError, "%s is not an integer", name);
-        rv = -1;
-    }
-    Py_XDECREF(config);
-    return rv;
-}
-
-static int set_tracer_from_simulator(PyObject* simulator, const char* name, PyObject** dest) {
-    PyObject* tracer = PyObject_GetAttrString(simulator, name);
-    if (tracer == NULL) {
-        return -1;
-    }
-    if (tracer == Py_None) {
-        Py_DECREF(tracer);
-    } else {
-        Py_XSETREF(*dest, tracer);
-    }
-    return 0;
-}
-
-static PyObject* CSimulator_from_simulator(PyTypeObject* type, PyObject* args, PyObject* kwds) {
-    CSimulatorObject* self = (CSimulatorObject*)type->tp_new(type, NULL, NULL);
-    if (self == NULL) {
-        return NULL;
-    }
-
-    static char* kwlist[] = {"", "out7ffd", NULL};
-    PyObject* simulator = NULL;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|b", kwlist, &simulator, &self->out7ffd)) {
-        return NULL;
-    }
-
-    PyObject* memory = PyObject_GetAttrString(simulator, "memory");
-    if (memory == NULL || set_memory(self, memory) == -1) {
-        return NULL;
-    }
-
-    PyObject* registers = PyObject_GetAttrString(simulator, "registers");
-    if (registers == NULL || set_registers_from_simulator(self, registers) == -1) {
-        return NULL;
-    }
-
-    if (set_config_from_simulator(simulator, "frame_duration", &self->frame_duration) == -1) {
-        return NULL;
-    }
-    if (set_config_from_simulator(simulator, "int_active", &self->int_active) == -1) {
-        return NULL;
-    }
-
-    if (set_tracer_from_simulator(simulator, "in_a_n_tracer", &self->in_a_n_tracer) == -1) {
-        return NULL;
-    }
-    if (set_tracer_from_simulator(simulator, "in_r_c_tracer", &self->in_r_c_tracer) == -1) {
-        return NULL;
-    }
-    if (set_tracer_from_simulator(simulator, "ini_tracer", &self->ini_tracer) == -1) {
-        return NULL;
-    }
-    if (set_tracer_from_simulator(simulator, "out_tracer", &self->out_tracer) == -1) {
-        return NULL;
-    }
-
-    return (PyObject*)self;
-}
-
-static int init_registers(CSimulatorObject* self) {
-    PyObject* array_module = NULL;
-    PyObject* array_cls = NULL;
-    PyObject* initializer = NULL;
-    PyObject* args = NULL;
-    int reg_ok = 0;
-
-    array_module = PyImport_ImportModule("array");
-    if (array_module == NULL) {
-        reg_ok = -1;
+    simutils = PyImport_ImportModule("skoolkit.simutils");
+    if (simutils == NULL) {
         goto done;
     }
-    array_cls = PyObject_GetAttrString(array_module, "array");
-    if (array_cls == NULL) {
-        reg_ok = -1;
+    get_registers = PyObject_GetAttrString(simutils, "get_registers");
+    if (get_registers == NULL) {
         goto done;
     }
-
-    initializer = PyList_New(REGISTERS_SIZE);
-    if (initializer == NULL) {
-        PyErr_SetString(PyExc_MemoryError, "Failed to initialise registers");
-        reg_ok = -1;
-        goto done;
-    }
-    for (int i = 0; i < REGISTERS_SIZE; i++) {
-        unsigned value = 0;
-        switch (i) {
-            case IYh:
-                value = 92;
-                break;
-            case IYl:
-                value = 58;
-                break;
-            case SP:
-                value = 23552;
-                break;
-            case I:
-                value = 63;
-                break;
-            default:
-                break;
-        }
-        PyObject* value_obj = PyLong_FromLong(value);
-        if (value_obj == NULL) {
-            goto done;
-        }
-        if (PyList_SetItem(initializer, i, value_obj) == -1) {
-            Py_DECREF(value_obj);
-            goto done;
-        }
-    }
-
-    args = Py_BuildValue("(sO)", "I", initializer);
-    PyObject* array = PyObject_CallObject(array_cls, args);
+    PyObject* array = PyObject_CallFunction(get_registers, "(OO)", registers, state);
     if (array == NULL) {
-        reg_ok = -1;
         goto done;
     }
-
-    if (PyObject_GetBuffer(array, &self->buffers[10], PyBUF_WRITABLE | PyBUF_FORMAT) == -1) {
-        Py_DECREF(array);
-        reg_ok = -1;
-        goto done;
-    }
-
     Py_XSETREF(self->registers_obj, array);
-    self->registers = self->buffers[10].buf;
+    if (PyObject_GetBuffer(array, &self->buffers[10], PyBUF_WRITABLE | PyBUF_FORMAT) == 0) {
+        rv = 0;
+        self->registers = self->buffers[10].buf;
+    }
 
 done:
-    Py_XDECREF(args);
-    Py_XDECREF(initializer);
-    Py_XDECREF(array_cls);
-    Py_XDECREF(array_module);
-    return reg_ok;
-}
-
-static int configure_registers(CSimulatorObject* self, PyObject* registers, PyObject* state) {
-    if (init_registers(self) == -1) {
-        return -1;
-    }
-
-    PyObject *key, *value;
-    Py_ssize_t pos;
-
-    if (registers && registers != Py_None) {
-        if (!PyDict_Check(registers)) {
-            PyErr_SetString(PyExc_TypeError, "'registers' must be a dict");
-            return -1;
-        }
-        pos = 0;
-        while (PyDict_Next(registers, &pos, &key, &value)) {
-            if (!PyUnicode_Check(key)) {
-                PyErr_SetString(PyExc_TypeError, "keys of 'registers' must be strings");
-                return -1;
-            }
-            if (!PyLong_Check(value)) {
-                PyErr_SetString(PyExc_TypeError, "values of 'registers' must be integers");
-                return -1;
-            }
-            for (int i = 0; REGISTERS[i].name != NULL; i++) {
-                if (PyUnicode_CompareWithASCIIString(key, REGISTERS[i].name) == 0) {
-                    self->registers[REGISTERS[i].index] = PyLong_AsLong(value) & REGISTERS[i].mask;
-                    if (REGISTERS[i].size == 2) {
-                        self->registers[REGISTERS[i].index + 1] = (PyLong_AsLong(value) >> 8) & REGISTERS[i].mask;
-                    }
-                }
-            }
-        }
-    }
-
-    if (state && state != Py_None) {
-        if (!PyDict_Check(state)) {
-            PyErr_SetString(PyExc_TypeError, "'state' must be a dict");
-            return -1;
-        }
-        pos = 0;
-        while (PyDict_Next(state, &pos, &key, &value)) {
-            if (!PyUnicode_Check(key)) {
-                PyErr_SetString(PyExc_TypeError, "keys of 'state' must be strings");
-                return -1;
-            }
-            if (!PyLong_Check(value)) {
-                PyErr_SetString(PyExc_TypeError, "values of 'state' must be integers");
-                return -1;
-            }
-            for (int i = 0; STATE[i].name != NULL; i++) {
-                if (PyUnicode_CompareWithASCIIString(key, STATE[i].name) == 0) {
-                    self->registers[STATE[i].index] = PyLong_AsLong(value);
-                }
-            }
-        }
-    }
-
-    return 0;
+    Py_XDECREF(simutils);
+    Py_XDECREF(get_registers);
+    return rv;
 }
 
 static int configure(CSimulatorObject* self, PyObject* config) {
@@ -5120,13 +4940,17 @@ static int configure(CSimulatorObject* self, PyObject* config) {
                 PyErr_SetString(PyExc_TypeError, "keys of 'config' must be strings");
                 return -1;
             }
-            if (!PyLong_Check(value)) {
-                PyErr_SetString(PyExc_TypeError, "values of 'config' must be integers");
-                return -1;
-            }
             if (PyUnicode_CompareWithASCIIString(key, "frame_duration") == 0) {
+                if (!PyLong_Check(value)) {
+                    PyErr_SetString(PyExc_TypeError, "value of 'frame_duration' must be an integer");
+                    return -1;
+                }
                 self->frame_duration = PyLong_AsLong(value);
             } else if (PyUnicode_CompareWithASCIIString(key, "int_active") == 0) {
+                if (!PyLong_Check(value)) {
+                    PyErr_SetString(PyExc_TypeError, "value of 'int_active' must be an integer");
+                    return -1;
+                }
                 self->int_active = PyLong_AsLong(value);
             }
         }
@@ -5179,8 +5003,8 @@ done:
 static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
     static char* kwlist[] = {"memory", "registers", "state", "config", NULL};
     PyObject* memory = NULL;
-    PyObject* registers = NULL;
-    PyObject* state = NULL;
+    PyObject* registers = Py_None;
+    PyObject* state = Py_None;
     PyObject* config = NULL;
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &memory, &registers, &state, &config)) {
        return -1;
@@ -5356,12 +5180,12 @@ static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject
     Py_RETURN_NONE;
 }
 
-static PyObject* CSimulator_exec_all(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
+static PyObject* CSimulator_exec_with_cb(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
     static char* kwlist[] = {"stop", "rst16_cb", NULL};
     unsigned stop;
-    PyObject* rst16_cb = Py_None;
+    PyObject* rst16_cb;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "I|O", kwlist, &stop, &rst16_cb)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "IO", kwlist, &stop, &rst16_cb)) {
         return NULL;
     }
 
@@ -5404,7 +5228,7 @@ static PyObject* CSimulator_exec_all(CSimulatorObject* self, PyObject* args, PyO
             return NULL;
         }
 
-        if (opcode == 0xD7 && rst16_cb != Py_None) {
+        if (opcode == 0xD7) {
             PyObject* args = Py_BuildValue("(b)", REG(A));
             PyObject* rv = PyObject_CallObject(rst16_cb, args);
             Py_XDECREF(args);
@@ -5508,6 +5332,22 @@ static PyObject* CSimulator_exec_frame(CSimulatorObject* self, PyObject* args, P
     }
 
     return PyLong_FromLong(pc);
+}
+
+static PyObject* CSimulator_accept_interrupt(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
+    static char* kwlist[] = {"", "", "", NULL};
+    PyObject* registers = NULL;
+    PyObject* memory = NULL;
+    unsigned prev_pc = 0;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOi", kwlist, &registers, &memory, &prev_pc)) {
+        return NULL;
+    }
+
+    if (accept_interrupt(self, prev_pc)) {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
 }
 
 static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
@@ -6050,7 +5890,7 @@ static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs, u
             ok = 0;
         } else {
             accelerator->name = name;
-            accelerator->opcode = PyLong_AsLong(opcode_obj);
+            accelerator->opcode = (byte)PyLong_AsLong(opcode_obj);
             accelerator->c0 = 0 - PyLong_AsLong(c0_obj);
             accelerator->c1 = PyLong_AsLong(c1_obj);
             accelerator->in_time = PyLong_AsLong(in_time_obj);
@@ -6098,8 +5938,7 @@ static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs, u
 #endif
 
 static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", "", "", "", "", NULL};
-    PyObject* tracer;
+    static char* kwlist[] = {"", "", "", "", "", "", NULL};
     PyObject* stop_obj;
     int fast_load;
     unsigned timeout;
@@ -6107,45 +5946,37 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOiIOOO", kwlist, &tracer, &stop_obj, &fast_load, &timeout, &print_progress, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OiIOOO", kwlist, &stop_obj, &fast_load, &timeout, &print_progress, &disassemble, &trace)) {
         return NULL;
     }
 
     int ok = 1;
 
-    Py_INCREF(tracer);
-    self->tracer = tracer;
-
     Py_buffer edges_buffer;
-    PyObject* e = ok ? PyObject_GetAttrString(tracer, "edges") : NULL;
+    PyObject* e = ok ? PyObject_GetAttrString(self->tracer, "edges") : NULL;
     if (e == NULL || PyObject_GetBuffer(e, &edges_buffer, PyBUF_SIMPLE) == -1) {
         ok = 0;
     }
     Py_XDECREF(e);
     unsigned* edges = edges_buffer.buf;
-    unsigned max_index = edges ? (edges_buffer.len / edges_buffer.itemsize) - 1 : 0;
+    unsigned max_index = edges ? (unsigned)(edges_buffer.len / edges_buffer.itemsize) - 1 : 0;
 
     Py_buffer ts_buffer;
-    PyObject* ts = ok ? PyObject_GetAttrString(tracer, "state") : NULL;
+    PyObject* ts = ok ? PyObject_GetAttrString(self->tracer, "state") : NULL;
     if (ts == NULL || PyObject_GetBuffer(ts, &ts_buffer, PyBUF_WRITABLE) == -1) {
         ok = 0;
     }
     Py_XDECREF(ts);
     unsigned* tracer_state = ts_buffer.buf;
 
-    PyObject* ft = ok ? PyObject_GetAttrString(tracer, "finish_tape") : NULL;
+    PyObject* ft = ok ? PyObject_GetAttrString(self->tracer, "finish_tape") : NULL;
     if (ft == NULL) {
         ok = 0;
     }
     int finish_tape = ft ? PyLong_AsLong(ft) : 0;
     Py_XDECREF(ft);
 
-    PyObject* simulator = ok ? PyObject_GetAttrString(tracer, "simulator") : NULL;
-    if (simulator == NULL) {
-        ok = 0;
-    }
-
-    PyObject* fast_load_method = ok ? PyObject_GetAttrString(tracer, "fast_load") : NULL;
+    PyObject* fast_load_method = ok ? PyObject_GetAttrString(self->tracer, "fast_load") : NULL;
     if (fast_load_method == NULL) {
         ok = 0;
     }
@@ -6165,7 +5996,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         self->opcodes[0x3D] = &dec_a_jp_accelerator;
     }
 
-    PyObject* accelerators = ok ? PyObject_GetAttrString(tracer, "accelerators") : NULL;
+    PyObject* accelerators = ok ? PyObject_GetAttrString(self->tracer, "accelerators") : NULL;
     if (accelerators == NULL) {
         ok = 0;
     }
@@ -6208,6 +6039,9 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
 
     unsigned* reg = self->registers;
     byte* mem = self->memory;
+    if (mem) {
+        self->out7ffd = 0x10; // Signal: 48K ROM always
+    }
     unsigned frame_duration = self->frame_duration;
     unsigned int_active = self->int_active;
     unsigned progress = 0;
@@ -6277,7 +6111,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         }
 
         unsigned tstates = REG(T);
-        if (advance_tape(tracer, tracer_state, edges, max_index, tstates, print_progress, &progress) == -1) {
+        if (advance_tape(self->tracer, tracer_state, edges, max_index, tstates, print_progress, &progress) == -1) {
             break;
         }
 
@@ -6290,7 +6124,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
 
         int did_fast_load = 0;
         if (pc == 0x0556 && self->out7ffd & 0x10 && fast_load) {
-            PyObject* args = Py_BuildValue("(O)", simulator);
+            PyObject* args = Py_BuildValue("(O)", self);
             PyObject* fl = PyObject_CallObject(fast_load_method, args);
             Py_XDECREF(args);
             if (fl == NULL) {
@@ -6303,7 +6137,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
                 tracer_state[1] = block_max_index;
                 if (block_max_index == max_index) {
                     /* Final block, so stop the tape */
-                    PyObject* st = PyObject_CallMethod(tracer, "stop_tape", "(I)", tstates);
+                    PyObject* st = PyObject_CallMethod(self->tracer, "stop_tape", "(I)", tstates);
                     if (st == NULL) {
                         break;
                     }
@@ -6320,7 +6154,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         }
         if (!did_fast_load) {
             if (end_of_tape && stop == 0x10000) {
-                PyObject* cl = PyObject_GetAttrString(tracer, "custom_loader");
+                PyObject* cl = PyObject_GetAttrString(self->tracer, "custom_loader");
                 if (cl == NULL) {
                     break;
                 }
@@ -6334,7 +6168,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
                     rv = PyLong_FromLong(2);
                     break;
                 }
-                PyObject* tet = PyObject_GetAttrString(tracer, "tape_end_time");
+                PyObject* tet = PyObject_GetAttrString(self->tracer, "tape_end_time");
                 if (tet == NULL) {
                     break;
                 }
@@ -6375,11 +6209,11 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         PyObject* dec_a_misses = PyLong_FromLong(dec_a_accelerator.args[2]);
         PyObject* inc_b_misses = PyLong_FromLong(inc_b_accelerator.args[2]);
         PyObject* dec_b_misses = PyLong_FromLong(dec_b_accelerator.args[2]);
-        if (PyObject_SetAttrString(tracer, "dec_a_jr_hits", dec_a_jr_hits) == -1 ||
-            PyObject_SetAttrString(tracer, "dec_a_jp_hits", dec_a_jp_hits) == -1 ||
-            PyObject_SetAttrString(tracer, "dec_a_misses", dec_a_misses) == -1 ||
-            PyObject_SetAttrString(tracer, "inc_b_misses", inc_b_misses) == -1 ||
-            PyObject_SetAttrString(tracer, "dec_b_misses", dec_b_misses) == -1) {
+        if (PyObject_SetAttrString(self->tracer, "dec_a_jr_hits", dec_a_jr_hits) == -1 ||
+            PyObject_SetAttrString(self->tracer, "dec_a_jp_hits", dec_a_jp_hits) == -1 ||
+            PyObject_SetAttrString(self->tracer, "dec_a_misses", dec_a_misses) == -1 ||
+            PyObject_SetAttrString(self->tracer, "inc_b_misses", inc_b_misses) == -1 ||
+            PyObject_SetAttrString(self->tracer, "dec_b_misses", dec_b_misses) == -1) {
             ok = 0;
         }
         Py_XDECREF(dec_a_jr_hits);
@@ -6405,23 +6239,11 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     if (edges) PyBuffer_Release(&edges_buffer);
     if (tracer_state) PyBuffer_Release(&ts_buffer);
     Py_XDECREF(fast_load_method);
-    Py_XDECREF(simulator);
     if (!ok) {
         Py_XDECREF(rv);
         rv = NULL;
     }
     return rv;
-}
-
-static PyObject* CSimulator_out7ffd(CSimulatorObject* self, PyObject* value) {
-    if (self->memory == NULL) {
-        long v = PyLong_AsLong(value);
-        if (PyErr_Occurred()) {
-            return NULL;
-        }
-        out7ffd(self, v % 256);
-    }
-    Py_RETURN_NONE;
 }
 
 static PyMemberDef CSimulator_members[] = {
@@ -6432,11 +6254,10 @@ static PyMemberDef CSimulator_members[] = {
 };
 
 static PyMethodDef CSimulator_methods[] = {
-    {"exec_all", (PyCFunction) CSimulator_exec_all, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions in CSimulator only"},
+    {"accept_interrupt", (PyCFunction) CSimulator_accept_interrupt, METH_VARARGS | METH_KEYWORDS, "Accept an interrupt if allowed"},
     {"exec_frame", (PyCFunction) CSimulator_exec_frame, METH_VARARGS | METH_KEYWORDS, "Execute an RZX frame"},
-    {"from_simulator", (PyCFunction) CSimulator_from_simulator, METH_VARARGS | METH_KEYWORDS | METH_CLASS, "Create a CSimulator from a Simulator"},
+    {"exec_with_cb", (PyCFunction) CSimulator_exec_with_cb, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions with an 'RST $10' callback"},
     {"load", (PyCFunction) CSimulator_load, METH_VARARGS | METH_KEYWORDS, "Load a tape"},
-    {"out7ffd", (PyCFunction) CSimulator_out7ffd, METH_O, "Output a value to port 0x7ffd"},
     {"press_keys", (PyCFunction) CSimulator_press_keys, METH_VARARGS | METH_KEYWORDS, "Simulate keypresses"},
     {"run", (PyCFunction) CSimulator_run, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions"},
     {"set_tracer", (PyCFunction) CSimulator_set_tracer, METH_VARARGS | METH_KEYWORDS, "Set the tracer"},

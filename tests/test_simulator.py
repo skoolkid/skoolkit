@@ -1,11 +1,8 @@
-import array
-
 from skoolkittest import SkoolKitTestCase
-from skoolkit.pagingtracer import Memory
-from skoolkit.simulator import (Simulator,
-                                A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R,
-                                xA, xF, xB, xC, xD, xE, xH, xL, PC, T, IFF, IM)
-from skoolkit.simulator import REGISTERS as SIMULATOR_REGISTERS
+from skoolkit.simulator import Simulator
+from skoolkit.simutils import (REGISTERS as SIMULATOR_REGISTERS, A, F, B, C, D,
+                               E, H, L, IXh, IXl, IYh, IYl, SP, I, R, xA, xF,
+                               xB, xC, xD, xE, xH, xL, PC, T, IFF, IM)
 
 REGISTER_NAMES = {v: r for r, v in SIMULATOR_REGISTERS.items()}
 
@@ -2927,27 +2924,3 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[SP], sp)
         self.assertEqual([0, 0], simulator.memory[sp - 2:sp])
         self.assertEqual(simulator.registers[IFF], 1)
-
-    def test_config_c_48k(self):
-        simulator = Simulator([0] * 65536, config={'c': True})
-        self.assertTrue(isinstance(simulator.memory, bytearray))
-        self.assertTrue(isinstance(simulator.registers, array.array))
-
-    def test_config_c_128k(self):
-        memory = Memory(out7ffd=0x14)
-        simulator = Simulator(memory, config={'c': True})
-        self.assertTrue(isinstance(memory.roms[0], bytearray))
-        self.assertTrue(isinstance(memory.roms[1], bytearray))
-        self.assertTrue(isinstance(memory.banks[0], bytearray))
-        self.assertTrue(isinstance(memory.banks[1], bytearray))
-        self.assertTrue(isinstance(memory.banks[2], bytearray))
-        self.assertTrue(isinstance(memory.banks[3], bytearray))
-        self.assertTrue(isinstance(memory.banks[4], bytearray))
-        self.assertTrue(isinstance(memory.banks[5], bytearray))
-        self.assertTrue(isinstance(memory.banks[6], bytearray))
-        self.assertTrue(isinstance(memory.banks[7], bytearray))
-        self.assertIs(memory.memory[0], memory.roms[1])
-        self.assertIs(memory.memory[1], memory.banks[5])
-        self.assertIs(memory.memory[2], memory.banks[2])
-        self.assertIs(memory.memory[3], memory.banks[4])
-        self.assertTrue(isinstance(simulator.registers, array.array))
