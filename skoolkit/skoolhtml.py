@@ -1,4 +1,4 @@
-# Copyright 2008-2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -1058,7 +1058,7 @@ class HtmlWriter:
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index, self.fields)
         message, addr, chars, attr, scale, tindex, alpha = params
-        udgs = lambda: font_udgs(self.snapshot, addr, attr, unescape(message)[:chars])
+        udgs = font_udgs(self.snapshot, addr, attr, unescape(message)[:chars])
         frame = Frame(udgs, scale, 0, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
         return end, self.handle_image(frame, fname, cwd, alt, 'FontImagePath')
 
@@ -1135,7 +1135,7 @@ class HtmlWriter:
     def expand_scr(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(text, index, self.fields)
         scale, x, y, w, h, df, af, tindex, alpha = params
-        udgs = lambda: self.screenshot(x, y, w, h, df, af)
+        udgs = self.screenshot(x, y, w, h, df, af)
         frame = Frame(udgs, scale, 0, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
         return end, self.handle_image(frame, fname, cwd, alt, 'ScreenshotImagePath')
 
@@ -1147,7 +1147,7 @@ class HtmlWriter:
     def expand_udg(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udg(text, index, self.fields)
         addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha, mask_addr, mask_step = params
-        udgs = lambda: [[build_udg(self.snapshot, addr, attr, step, inc, flip, rotate, mask, mask_addr, mask_step)]]
+        udgs = [[build_udg(self.snapshot, addr, attr, step, inc, flip, rotate, mask, mask_addr, mask_step)]]
         if not fname and not frame:
             fname = format_template(self.udg_fname_template, 'UDGFilename', addr=addr, attr=attr, scale=scale)
             if frame == '':

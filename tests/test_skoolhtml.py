@@ -2343,6 +2343,15 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         self._check_animated_image(writer.image_writer, exp_frames)
 
+    def test_macro_font_frame_is_evaluated_immediately(self):
+        snapshot = [1, 2, 3, 4, 5, 6, 7, 8] # ' ' (space)
+        fname = 'space'
+        message = ' '
+        macros = f'#FONT:({message})0(*frame)#POKES(0,255)#UDGARRAY*frame({fname})'
+        exp_image_path = f'{UDGDIR}/{fname}.png'
+        exp_udgs = [[Udg(56, [1, 2, 3, 4, 5, 6, 7, 8])]]
+        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs)
+
     def test_macro_font_alt_text_without_fname(self):
         snapshot = [0] * 8
         fname = 'font'
@@ -3993,6 +4002,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         self._check_animated_image(writer.image_writer, exp_frames)
 
+    def test_macro_scr_frame_is_evaluated_immediately(self):
+        snapshot = [1] * 23296
+        fname = 'scr'
+        macros = f'#SCR(2,w=1,h=1)(*frame)#POKES(16384,255)#UDGARRAY*frame({fname})'
+        exp_image_path = f'{UDGDIR}/{fname}.png'
+        exp_udgs = [[Udg(1, [1] * 8)]]
+        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs)
+
     def test_macro_scr_alt_text_without_fname(self):
         snapshot = [0] * 23296
         alt = 'An awesome screenshot'
@@ -4342,6 +4359,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             Frame([[Udg(4, udg4, udg1)]], scale=6, mask=1, x=5, y=6, width=32, height=32)
         ]
         self._check_animated_image(writer.image_writer, exp_frames)
+
+    def test_macro_udg_frame_is_evaluated_immediately(self):
+        snapshot = [128] * 8
+        fname = 'udg'
+        macros = f'#UDG0(*frame)#POKES(0,255)#UDGARRAY*frame({fname})'
+        exp_image_path = f'{UDGDIR}/{fname}.png'
+        exp_udgs = [[Udg(56, [128] * 8)]]
+        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, scale=4)
 
     def test_macro_udg_alt_text_with_fname(self):
         snapshot = [0] * 8
@@ -4713,6 +4738,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_frames = [frame1, frame2, frame3]
         self._check_animated_image(writer.image_writer, exp_frames)
 
+    def test_macro_udgarray_frame_is_evaluated_immediately(self):
+        snapshot = [128] * 8
+        fname = 'udgarray'
+        macros = f'#UDGARRAY1(0)(*frame)#POKES(0,255)#UDGARRAY*frame({fname})'
+        exp_image_path = f'{UDGDIR}/{fname}.png'
+        exp_udgs = [[Udg(56, [128] * 8)]]
+        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs)
+
     def test_macro_udgarray_frames_with_replacement_fields(self):
         udg1, udg2 = Udg(23, [101] * 8), Udg(47, [35] * 8)
         snapshot = udg1.data + udg2.data
@@ -5020,6 +5053,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         frame3 = Frame([[udg3]], 2, delay=17)                             # Offsets revert to (0, 0)
         exp_frames = [frame1, frame2, frame3]
         self._check_animated_image(writer.image_writer, exp_frames)
+
+    def test_macro_udgs_frame_is_evaluated_immediately(self):
+        snapshot = [1] * 8
+        fname = 'udgs'
+        macros = f'#UDGS1,1(*frame)(#UDG0,2,2(*f) f)#POKES(0,255)#UDGARRAY*frame({fname})'
+        exp_image_path = f'{UDGDIR}/{fname}.png'
+        exp_udgs = [[Udg(2, [1] * 8)]]
+        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs)
 
     def test_macro_udgs_alt_text(self):
         snapshot = [0] * 8
@@ -11141,7 +11182,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Page:{}]
             PageContent=#UDG0({})
         """.format(page_id, img_fname)
-        writer = self._get_writer(ref=ref, mock_image_writer=False, mock_file_info=True)
+        writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_image_writer=False, mock_file_info=True)
         writer.write_page(page_id)
         self.assertEqual(writer.file_info.files['images/udgs/{}'.format(img_fname)], b'hello')
 
@@ -11166,7 +11207,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Template:{0}]
             {{Page[PageContent]}}
         """.format(page_id, img_fname)
-        writer = self._get_writer(ref=ref, mock_image_writer=False)
+        writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_image_writer=False)
         writer.write_page(page_id)
         self._assert_content_equal('goodbye', '{}.html'.format(page_id))
         img_dir = '{}/{}/{}'.format(self.odir, GAMEDIR, UDGDIR)
