@@ -6,6 +6,20 @@ import zlib
 from skoolkittest import SkoolKitTestCase, RZX
 from skoolkit import VERSION, SkoolKitError, rzxplay
 
+class MockSimulator:
+    def __init__(self, *args, **kwargs):
+        global simulator
+        simulator = self
+        self.memory = [0] * 65536
+        self.opcodes = [self.nop] * 256
+        self.registers = [0] * 29
+
+    def set_tracer(self, tracer, *args, **kwargs):
+        pass
+
+    def nop(self):
+        pass
+
 def mock_run(*args):
     global run_args
     run_args = args
@@ -76,6 +90,7 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertFalse(options.force)
         self.assertEqual(options.fps, 50)
         self.assertTrue(options.screen)
+        self.assertFalse(options.python)
         self.assertFalse(options.quiet)
         self.assertEqual(options.scale, 2)
         self.assertIsNone(options.stop)
@@ -1187,6 +1202,21 @@ class RzxplayTest(SkoolKitTestCase):
         with open(mapfile) as f:
             map_contents = f.read()
         self.assertEqual(dedent(exp_map).lstrip(), map_contents)
+
+    @patch.object(rzxplay, 'Simulator', MockSimulator)
+    def test_option_python(self):
+        global simulator
+        simulator = None
+        ram = [0] * 0xC000
+        pc = 0xF000
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        self._test_rzx(rzx, exp_output, '--python --quiet --no-screen')
+        self.assertIsNotNone(simulator)
 
     def test_option_snapshot(self):
         ram = [0] * 0xC000

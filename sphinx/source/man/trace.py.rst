@@ -60,6 +60,9 @@ OPTIONS
   be used multiple times. 'a', 'b', 'c' and 'v' must each be a decimal number,
   or a hexadecimal number prefixed by '0x'.
 
+--python
+  Use the pure Python Z80 simulator even if the C version is available.
+
 -r, --reg `name=value`
   Set the value of a register before execution begins. Do ``--reg help`` for
   more information, or see the section on ``REGISTERS`` below. This option may

@@ -22,7 +22,7 @@ mock_memory = None
 class MockSimulator:
     def __init__(self, *args, **kwargs):
         global simulator
-        self.memory = mock_memory
+        self.memory = mock_memory or [1] * 65536
         self.opcodes = [self.in_a_n] * 256
         self.registers = [0x80] * 28
         self.registers[26] = 0 # Interrupts disabled
@@ -32,15 +32,8 @@ class MockSimulator:
         # The NOP at 49151 is a dummy instruction that triggers LoadTracer's
         # read_port() (via in_a_n() below) and starts the tape running.
         self.registers[24] = 49151 # PC
-        if self.memory:
-            self.stop = max(a for a in range(49152, 65536) if self.memory[a]) + 2
+        self.stop = max(a for a in range(49152, 65536) if self.memory[a]) + 2
         simulator = self
-
-    def state(self, tstates):
-        ram = []
-        registers = []
-        state = []
-        return ram, registers, state
 
     def set_tracer(self, tracer, *args, **kwargs):
         self.tracer = tracer
@@ -2481,12 +2474,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(set(), load_tracer.accelerators_in)
         self.assertEqual(load_tracer.accel_dec_a, 0)
 
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_in_flags_parameter_bit_0(self):
-        if tap2sna.CSimulator:
-            self.skipTest('MockSimulator is not compatible with CSimulator')
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c in-flags=1 {tapfile}')
         self.assertEqual(error, '')
@@ -2495,12 +2487,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertFalse(set_tracer_args[0])
         self.assertFalse(set_tracer_args[1])
 
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_in_flags_parameter_bit_1(self):
-        if tap2sna.CSimulator:
-            self.skipTest('MockSimulator is not compatible with CSimulator')
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c in-flags=2 {tapfile}')
         self.assertEqual(error, '')
@@ -2509,12 +2500,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertFalse(set_tracer_args[0])
         self.assertFalse(set_tracer_args[1])
 
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_in_flags_parameter_bit_2(self):
-        if tap2sna.CSimulator:
-            self.skipTest('MockSimulator is not compatible with CSimulator')
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c in-flags=4 {tapfile}')
         self.assertEqual(error, '')
@@ -2568,6 +2558,28 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(kbtracer.kb_delay, 13)
         self.assertTrue(kbtracer.run_called)
         self.assertEqual(kbtracer.stop, 0x13BE)
+
+    @patch.object(tap2sna, 'Simulator', MockSimulator)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_python_parameter(self):
+        global mock_memory
+        mock_memory = [1] * 65536
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-c python=1 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertIs(load_tracer.simulator.__class__, MockSimulator)
+
+    @patch.object(tap2sna, 'CMIOSimulator', MockSimulator)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_python_parameter_with_cmio(self):
+        global mock_memory
+        mock_memory = [1] * 65536
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-c python=1 -c cmio=1 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertIs(load_tracer.simulator.__class__, MockSimulator)
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_empty_tape(self):
@@ -2903,11 +2915,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, '^Error while converting test.zip: HTTP Error 403: Forbidden$'):
             self.run_tap2sna('http://example.com/test.zip {}/test.z80'.format(self.make_directory()))
 
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_dec_a_jr(self):
-        if tap2sna.CSimulator:
-            self.skipTest('dec_a_jr opcode handler is not used by CSimulator')
         global mock_memory
         mock_memory = [0] * 65536
         code = (
@@ -2926,11 +2937,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(simulator.registers[0], 0)
 
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_dec_a_jp(self):
-        if tap2sna.CSimulator:
-            self.skipTest('dec_a_jp opcode handler is not used by CSimulator')
         global mock_memory
         mock_memory = [0] * 65536
         code = (
@@ -2950,11 +2960,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(simulator.registers[0], 0)
 
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_dec_b(self):
-        if tap2sna.CSimulator:
-            self.skipTest('dec_b opcode handler is not used by CSimulator')
         global mock_memory
         mock_memory = [0] * 65536
         code = (
@@ -2978,11 +2987,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[2], 98)
 
     @patch.object(tap2sna, 'LoadTracer', TestLoadTracer)
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_dec_b_auto(self):
-        if tap2sna.CSimulator:
-            self.skipTest('dec_b_auto opcode handler is not used by CSimulator')
         global mock_memory
         mock_memory = [0] * 65536
         code = (
@@ -3006,11 +3014,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(simulator.registers[2], 93)
 
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_inc_b(self):
-        if tap2sna.CSimulator:
-            self.skipTest('inc_b opcode handler is not used by CSimulator')
         global mock_memory
         mock_memory = [0] * 65536
         code = (
@@ -3033,11 +3040,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(simulator.registers[2], 156)
 
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_inc_b_none(self):
-        if tap2sna.CSimulator:
-            self.skipTest('inc_b_none opcode handler is not used by CSimulator')
         global mock_memory
         mock_memory = [0] * 65536
         code = (
@@ -3064,11 +3070,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[2], 149)
 
     @patch.object(tap2sna, 'LoadTracer', TestLoadTracer)
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_inc_b_auto(self):
-        if tap2sna.CSimulator:
-            self.skipTest('inc_b_auto opcode handler is not used by CSimulator')
         global mock_memory
         mock_memory = [0] * 65536
         code = (
@@ -3091,11 +3096,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(simulator.registers[2], 156)
 
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_list_accelerators(self):
-        if tap2sna.CSimulator:
-            self.skipTest('MockSimulator is not compatible with CSimulator')
         global mock_memory
         mock_memory = [0] * 65536
         code = (

@@ -308,7 +308,11 @@ def process_block(block, options, context):
         # Set 'int_active' to 0 to prevent 'HALT' and 'LD A,I/R' from ever
         # behaving as if an interrupt is to be accepted
         config = {'int_active': 0}
-        simulator = from_snapshot(CSimulator or Simulator, context.snapshot, config=config)
+        if options.python:
+            simulator_cls = Simulator
+        else:
+            simulator_cls = CSimulator or Simulator
+        simulator = from_snapshot(simulator_cls, context.snapshot, config=config)
         context.simulator = simulator
         tracer = RZXTracer(context, block)
         simulator.set_tracer(tracer)
@@ -456,6 +460,8 @@ def main(args):
                        help="Log addresses of executed instructions to a file.")
     group.add_argument('--no-screen', dest='screen', action='store_false',
                        help="Run without a screen.")
+    group.add_argument('--python', action='store_true',
+                       help="Use the pure Python Z80 simulator.")
     group.add_argument('--quiet', action='store_true',
                        help="Don't print progress percentage.")
     group.add_argument('--scale', metavar='SCALE', type=int, default=2, choices=(1, 2, 3, 4),

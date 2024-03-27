@@ -3,6 +3,8 @@ Changelog
 
 9.2b1
 -----
+* Added a Z80 instruction set simulator implemented in C (as a faster
+  alternative to the pure Python Z80 simulator)
 * Added the :ref:`rzxplay.py` command (for playing an RZX file)
 * Added the :ref:`rzxinfo.py` command (for showing the blocks in or extracting
   the snapshots from an RZX file)
@@ -10,6 +12,11 @@ Changelog
   by :ref:`rzxplay.py`
 * Added support to :ref:`tap2sna.py` for TZX block type 0x15 (direct recording)
 * :ref:`tapinfo.py` now shows info for TZX block type 0x15 (direct recording)
+* Added the ``python`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (for forcing usage of the pure Python
+  Z80 simulator even if the C version is available)
+* Added the ``--python`` option to :ref:`trace.py` (for forcing usage of the
+  pure Python Z80 simulator even if the C version is available)
 * Fixed the lazy evaluation bug that can make the :ref:`FONT`, :ref:`SCR` and
   :ref:`UDG` macros create frames with incorrect graphic content
 * Fixed the contention pattern for the OUTI/OUTD/OTIR/OTDR instructions

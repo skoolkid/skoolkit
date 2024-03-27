@@ -143,6 +143,8 @@ parameters are:
 * ``polarity`` - the EAR bit reading produced by the first pulse on the tape:
   ``0`` (the default) or ``1``; subsequent pulses give readings that alternate
   between 0 and 1
+* ``python`` - whether to use the pure Python Z80 simulator (``1``), or the
+  much faster C version if available (``0``, the default)
 * ``timeout`` - the number of seconds of Z80 CPU time after which to abort the
   simulated LOAD if it's still in progress (default: 900)
 * ``trace`` - the file to which to log all instructions executed during the

@@ -295,6 +295,7 @@ def _set_sim_load_config(options):
     options.machine = '48'
     options.pause = True
     options.polarity = 0
+    options.python = 0
     options.timeout = 900
     options.trace = None
     for spec in options.sim_load_config:
@@ -322,6 +323,8 @@ def _set_sim_load_config(options):
                 options.pause = parse_int(value, options.pause)
             elif name == 'polarity':
                 options.polarity = parse_int(value, options.polarity)
+            elif name == 'python':
+                options.python = parse_int(value, options.python)
             elif name == 'timeout':
                 options.timeout = parse_int(value, options.timeout)
             elif name == 'trace':
@@ -375,9 +378,14 @@ def sim_load(blocks, options, config):
     timeout = options.timeout * 3500000
 
     if options.cmio:
-        simulator_cls = CCMIOSimulator or CMIOSimulator
+        if options.python:
+            simulator_cls = CMIOSimulator
+        else:
+            simulator_cls = CCMIOSimulator or CMIOSimulator
         accelerators.clear()
         options.accelerate_dec_a = 0
+    elif options.python:
+        simulator_cls = Simulator
     else:
         simulator_cls = CSimulator or Simulator
 

@@ -1,3 +1,4 @@
+from functools import partial
 import hashlib
 import os
 from textwrap import dedent
@@ -11,6 +12,23 @@ from skoolkit.simutils import IFF, IM
 
 ROM0_MD5 = 'b4d2692115a9f2924df92a3cbfb358fb'
 ROM1_MD5 = '6e09e5d3c4aef166601669feaaadc01c'
+
+class MockSimulator:
+    def __init__(self, pc, *args, **kwargs):
+        global simulator
+        simulator = self
+        self.pc = pc
+        self.memory = [0] * 65536
+        self.opcodes = [self.nop] * 256
+        self.registers = [0] * 29
+        self.frame_duration = 69888
+        self.int_active = 32
+
+    def set_tracer(self, tracer, *args, **kwargs):
+        pass
+
+    def nop(self):
+        self.registers[24] = self.pc
 
 def mock_run(*args):
     global run_args
@@ -68,6 +86,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertIsNone(options.org)
         self.assertEqual(options.params, [])
         self.assertEqual(options.pokes, [])
+        self.assertFalse(options.python)
         self.assertEqual(options.reg, [])
         self.assertIsNone(options.rom)
         self.assertFalse(options.stats)
@@ -1259,6 +1278,22 @@ class TraceTest(SkoolKitTestCase):
             '$6007 LD A,($C000)    Bank 7: A=$F8'
         ]
         self.assertEqual(exp_output, output.rstrip().split('\n')[3::5])
+
+    @patch.object(trace, 'Simulator', partial(MockSimulator, 0x1234))
+    def test_option_python(self):
+        global simulator
+        simulator = None
+        output, error = self.run_trace(f'--python -m 1 48')
+        self.assertEqual(error, '')
+        self.assertEqual(output, 'Stopped at $1234: 1 operations\n')
+
+    @patch.object(trace, 'CMIOSimulator', partial(MockSimulator, 0x2345))
+    def test_option_python_with_cmio(self):
+        global simulator
+        simulator = None
+        output, error = self.run_trace(f'--python --cmio -m 1 48')
+        self.assertEqual(error, '')
+        self.assertEqual(output, 'Stopped at $2345: 1 operations\n')
 
     def test_option_reg(self):
         data = [

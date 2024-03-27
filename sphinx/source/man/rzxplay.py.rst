@@ -27,6 +27,9 @@ OPTIONS
 --no-screen
   Run without a screen.
 
+--python
+  Use the pure Python Z80 simulator even if the C version is available.
+
 --quiet
   Don't print progress percentage during playback.
 

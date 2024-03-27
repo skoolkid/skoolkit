@@ -156,7 +156,12 @@ def run(snafile, options, config):
         else:
             memory, org = make_snapshot(snafile, options.org)[:2]
     if options.cmio:
-        simulator_cls = CCMIOSimulator or CMIOSimulator
+        if options.python:
+            simulator_cls = CMIOSimulator
+        else:
+            simulator_cls = CCMIOSimulator or CMIOSimulator
+    elif options.python:
+        simulator_cls = Simulator
     else:
         simulator_cls = CSimulator or Simulator
     registers = {}
@@ -269,6 +274,8 @@ def main(args):
                        help="POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}. "
                             "Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD operation. "
                             "This option may be used multiple times.")
+    group.add_argument('--python', action='store_true',
+                       help="Use the pure Python Z80 simulator.")
     group.add_argument('-r', '--reg', metavar='name=value', action='append', default=[],
                        help="Set the value of a register. Do '--reg help' for more information. "
                             "This option may be used multiple times.")

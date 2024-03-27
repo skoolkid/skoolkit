@@ -243,6 +243,7 @@ To list the options supported by `rzxplay.py`, run it with no arguments::
                      maximum speed.
     --map FILE       Log addresses of executed instructions to a file.
     --no-screen      Run without a screen.
+    --python         Use the pure Python Z80 simulator.
     --quiet          Don't print progress percentage.
     --scale SCALE    Scale display up by this factor (1-4; default: 2).
     --snapshot FILE  Specify an external snapshot file to start with.
@@ -1564,6 +1565,8 @@ parameters are:
 * ``polarity`` - the EAR bit reading produced by the first pulse on the tape:
   ``0`` (the default) or ``1``; subsequent pulses give readings that alternate
   between 0 and 1
+* ``python`` - whether to use the pure Python Z80 simulator (``1``), or the
+  much faster C version if available (``0``, the default)
 * ``timeout`` - the number of seconds of Z80 CPU time after which to abort the
   simulated LOAD if it's still in progress (default: 900)
 * ``trace`` - the file to which to log all instructions executed during the
@@ -1766,7 +1769,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.2     | Added support for TZX block type 0x15 (direct recording)          |
+| 9.2     | Added support for TZX block type 0x15 (direct recording); added   |
+|         | the ``python`` simulated LOAD configuration parameter             |
 +---------+-------------------------------------------------------------------+
 | 9.1     | The ``--ram move`` and ``--ram poke`` options can modify specific |
 |         | RAM banks; added the ``cmio`` simulated LOAD configuration        |
@@ -1918,6 +1922,7 @@ To list the options supported by `trace.py`, run it with no arguments::
                           Prefix 'v' with '^' to perform an XOR operation, or
                           '+' to perform an ADD operation. This option may be
                           used multiple times.
+    --python              Use the pure Python Z80 simulator.
     -r name=value, --reg name=value
                           Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
@@ -2001,6 +2006,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.2     | Added the ``--python`` option                                     |
++---------+-------------------------------------------------------------------+
 | 9.1     | The ``--poke`` option can modify specific RAM banks; added the    |
 |         | ``--cmio`` option                                                 |
 +---------+-------------------------------------------------------------------+
