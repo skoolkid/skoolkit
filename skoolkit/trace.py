@@ -172,7 +172,7 @@ def run(snafile, options, config):
                 registers[reg] = get_int_param(val, True)
             except ValueError:
                 raise SkoolKitError("Cannot parse register value: {}".format(spec))
-    fast = options.verbose == 0 and not options.interrupts
+    fast = options.verbose == 0 and options.max_operations == 0 and options.max_tstates == 0
     sim_config = {'fast_djnz': fast, 'fast_ldir': fast}
     if snapshot:
         border = snapshot.border

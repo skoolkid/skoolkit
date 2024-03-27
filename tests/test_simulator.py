@@ -1923,16 +1923,20 @@ class SimulatorTest(SkoolKitTestCase):
         registers = simulator.registers
         start = 35732
 
-        for offset, b_in, b_out, timing, r_out, end in (
-                (-2, 100, 0,   1295, 100, start + 2),
-                (-2, 1,   0,   8,    1,   start + 2),
-                (-2, 0,   0,   3323, 0,   start + 2),
-                (-3, 100, 99,  13,   1,   start - 1),
-                (-3, 1,   0,   8,    1,   start + 2),
-                (-3, 0,   255, 13,   1,   start - 1),
+        for offset, iff, b_in, b_out, timing, r_out, end in (
+                (-2, 0, 100, 0,   1295, 100, start + 2),
+                (-2, 0, 1,   0,   8,    1,   start + 2),
+                (-2, 0, 0,   0,   3323, 0,   start + 2),
+                (-2, 1, 100, 99,  13,   1,   start),
+                (-2, 1, 1,   0,   8,    1,   start + 2),
+                (-2, 1, 0,   255, 13,   1,   start),
+                (-3, 0, 100, 99,  13,   1,   start - 1),
+                (-3, 0, 1,   0,   8,    1,   start + 2),
+                (-3, 0, 0,   255, 13,   1,   start - 1),
         ):
             operation = f'DJNZ ${start + 2 + offset:04X}'
             data = (16, offset & 0xFF)
+            registers[IFF] = iff
             registers[B] = b_in
             registers[R] = 0
             reg_out = {B: b_out, R: r_out}
@@ -2261,14 +2265,17 @@ class SimulatorTest(SkoolKitTestCase):
         start = 30000
         at_hl = 250
 
-        for bc_in, bc_out, de_in, de_out, hl_in, hl_out, f_out, r_out, timing, end in (
-                #                                     SZ5H3PNC
-                (52, 1, 29950, 30001, 40000, 40051, 0b00100100, 102,    1066, start),     # 0xED overwritten
-                (51, 0, 29950, 30001, 40000, 40051, 0b00101000, 102,    1066, start + 2), # 0xED overwritten
-                (50, 0, 29950, 30000, 40000, 40050, 0b00101000, 100,    1045, start + 2),
-                ( 1, 0, 29950, 29951, 40000, 40001, 0b00101000,   2,      16, start + 2),
-                ( 0, 1, 30002, 30001, 30002, 30001, 0b00100100, 126, 1376230, start),     # 0xED overwritten
+        for iff, bc_in, bc_out, de_in, de_out, hl_in, hl_out, f_out, r_out, timing, end in (
+                #                                         SZ5H3PNC
+                (0, 52,  1, 29950, 30001, 40000, 40051, 0b00100100, 102,    1066, start),     # 0xED overwritten
+                (0, 51,  0, 29950, 30001, 40000, 40051, 0b00101000, 102,    1066, start + 2), # 0xED overwritten
+                (0, 50,  0, 29950, 30000, 40000, 40050, 0b00101000, 100,    1045, start + 2),
+                (0,  1,  0, 29950, 29951, 40000, 40001, 0b00101000,   2,      16, start + 2),
+                (0,  0,  1, 30002, 30001, 30002, 30001, 0b00100100, 126, 1376230, start),     # 0xED overwritten
+                (1, 50, 49, 50000, 50001, 40000, 40001, 0b00100100,   2,      21, start),
+                (1,  1,  0, 50000, 50001, 40000, 40001, 0b00101000,   2,      16, start + 2),
         ):
+            registers[IFF] = iff
             registers[B] = bc_in // 256
             registers[C] = bc_in % 256
             registers[D] = de_in // 256

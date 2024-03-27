@@ -393,7 +393,7 @@ class Simulator:
         registers[15] = R1[registers[15]] # R
 
     def djnz_fast(self, registers, memory):
-        if memory[(registers[24] + 1) % 65536] == 0xFE:
+        if registers[26] == 0 and memory[(registers[24] + 1) % 65536] == 0xFE:
             b = (registers[2] - 1) % 256
             registers[2] = 0
             r = registers[15]
@@ -737,6 +737,9 @@ class Simulator:
         registers[15] = R2[registers[15]] # R
 
     def ldir_fast(self, registers, memory, inc):
+        if registers[26]:
+            self.ldi(registers, memory, inc, 1)
+            return
         de = registers[5] + 256 * registers[4]
         bc = registers[3] + 256 * registers[2]
         hl = registers[7] + 256 * registers[6]

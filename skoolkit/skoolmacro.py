@@ -571,7 +571,7 @@ def _read_sim_state(writer, execint, reg=None, clear=0):
             if v >= 0:
                 registers[r] = v
     state = {a: registers.pop(a) for a in ('iff', 'im', 'halted', 'tstates', 'fffd', 'ay')}
-    config = {'fast_djnz': execint < 1, 'fast_ldir': execint < 1}
+    config = {'fast_djnz': True, 'fast_ldir': True}
     if len(writer.snapshot) == 0x20000:
         config['frame_duration'] = FRAME_DURATIONS[1]
         config['int_active'] = INT_ACTIVE[1]

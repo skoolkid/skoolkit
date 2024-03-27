@@ -1178,6 +1178,44 @@ class TraceTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_option_max_operations_disables_fast_djnz(self):
+        data = (
+            0xF3,       # $8000 DI
+            0x06, 0x02, # $8001 LD B,2
+            0x10, 0xFE, # $8003 DJNZ $8002
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 32768
+        exp_output = """
+            Stopped at $8003: 3 operations
+            Wrote out.z80
+        """
+        output, error = self.run_trace(f'-o {start} -m 3 {binfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertLessEqual({'BC=256', 'R=3'}, set(s_reg))
+
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_option_max_operations_disables_fast_ldir(self):
+        data = (
+            0xF3,             # $8000 DI
+            0x01, 0x02, 0x00, # $8001 LD BC,$0002
+            0x11, 0x01, 0xC0, # $8004 LD DE,$C001
+            0x21, 0x00, 0xC0, # $8007 LD HL,$C000
+            0xED, 0xB0,       # $800A LDIR
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 32768
+        exp_output = """
+            Stopped at $800A: 5 operations
+            Wrote out.z80
+        """
+        output, error = self.run_trace(f'-o {start} -m 5 {binfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertLessEqual({'BC=1', 'DE=49154', 'HL=49153', 'R=6'}, set(s_reg))
+
     def test_option_max_tstates(self):
         data = [
             0xAF, # XOR A
@@ -1194,6 +1232,44 @@ class TraceTest(SkoolKitTestCase):
             output, error = self.run_trace(f'-n -o {start} -v {option} 8 {binfile}')
             self.assertEqual(error, '')
             self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_option_max_tstates_disables_fast_djnz(self):
+        data = (
+            0xF3,       # $8000 DI         ; [4]
+            0x06, 0x02, # $8001 LD B,2     ; [7]
+            0x10, 0xFE, # $8003 DJNZ $8002 ; [13/8]
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 32768
+        exp_output = """
+            Stopped at $8003: 24 T-states
+            Wrote out.z80
+        """
+        output, error = self.run_trace(f'-o {start} -M 24 {binfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertLessEqual({'BC=256', 'R=3'}, set(s_reg))
+
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_option_max_tstates_disables_fast_ldir(self):
+        data = (
+            0xF3,             # $8000 DI          ; [4]
+            0x01, 0x02, 0x00, # $8001 LD BC,$0002 ; [10]
+            0x11, 0x01, 0xC0, # $8004 LD DE,$C001 ; [10]
+            0x21, 0x00, 0xC0, # $8007 LD HL,$C000 ; [10]
+            0xED, 0xB0,       # $800A LDIR        ; [21/16]
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 32768
+        exp_output = """
+            Stopped at $800A: 55 T-states
+            Wrote out.z80
+        """
+        output, error = self.run_trace(f'-o {start} -M 55 {binfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertLessEqual({'BC=1', 'DE=49154', 'HL=49153', 'R=6'}, set(s_reg))
 
     def test_option_no_interrupts(self):
         data = [
@@ -1493,6 +1569,48 @@ class TraceTest(SkoolKitTestCase):
             $8000 XOR A
             Stopped at $8001
         """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_verbose_disables_fast_djnz(self):
+        data = (
+            0xF3,       # $8000 DI
+            0x06, 0x02, # $8001 LD B,2
+            0x10, 0xFE, # $8003 DJNZ $8002
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 32768
+        exp_output = """
+            $8000 DI
+            $8001 LD B,$02
+            $8003 DJNZ $8003
+            $8003 DJNZ $8003
+            Stopped at $8005
+        """
+        output, error = self.run_trace(f'-v -o {start} -S 0x8005 {binfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_verbose_disables_fast_ldir(self):
+        data = (
+            0xF3,             # $8000 DI
+            0x01, 0x02, 0x00, # $8001 LD BC,$0002
+            0x11, 0x01, 0xC0, # $8004 LD DE,$C001
+            0x21, 0x00, 0xC0, # $8007 LD HL,$C000
+            0xED, 0xB0,       # $800A LDIR
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 32768
+        exp_output = """
+            $8000 DI
+            $8001 LD BC,$0002
+            $8004 LD DE,$C001
+            $8007 LD HL,$C000
+            $800A LDIR
+            $800A LDIR
+            Stopped at $800C
+        """
+        output, error = self.run_trace(f'-v -o {start} -S 0x800C {binfile}')
+        self.assertEqual(error, '')
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     def test_option_vv(self):
