@@ -16,33 +16,12 @@ if not os.path.isdir(SKOOLKIT_HOME):
     sys.exit(1)
 sys.path.insert(0, SKOOLKIT_HOME)
 
-from skoolkit import ROM48, CSimulator, CCMIOSimulator, integer, read_bin_file
+from skoolkit import ROM48, tap2sna, CSimulator, CCMIOSimulator, read_bin_file
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import PC, T
-from skoolkit.tap2sna import get_tap_blocks, sim_load
 
 STOP = 0x8094
-
-class Options:
-    start = None
-    ram_ops = ()
-    reg = []
-    state = []
-    tape_analysis = False
-    accelerator = None
-    machine = None
-    load = None
-    cmio = 0
-    in_flags = 0
-    pause = 1
-    first_edge = 0
-    polarity = 0
-    finish_tape = 0
-    accelerate_dec_a = 1
-    fast_load = 1
-    timeout = 60
-    trace = None
 
 class Tracer:
     def __init__(self):
@@ -80,16 +59,22 @@ class Tracer:
                 print()
             self.msg = ''
 
-def load_tap(tapfile):
-    tap_blocks = get_tap_blocks(read_bin_file(tapfile))
-    options = Options()
+def write_snapshot(fname, ram, registers, state):
+    global pc, snapshot
     snapshot = [0] * 65536
     rom = read_bin_file(ROM48)
     snapshot[:len(rom)] = rom
-    snapshot[0x4000:] = sim_load(tap_blocks, options, defaultdict(str))
-    for r in options.reg:
+    snapshot[0x4000:] = ram
+    for r in registers:
         if r.startswith('PC='):
-            return int(r[3:]), snapshot
+            pc = int(r[3:])
+            break
+
+def load_tap(tapfile):
+    global pc, snapshot
+    tap2sna.write_snapshot = write_snapshot
+    tap2sna.main([tapfile])
+    return pc, snapshot
 
 def run(tapfile, options):
     if options.csim and CSimulator is None:
