@@ -208,7 +208,10 @@ def parse_rzx(rzxfile):
                 ext = ''.join(chr(b) for b in data[i + 9:i + 13] if b)
                 sdata = data[i + 17:i + block_len]
                 if flags & 2:
-                    sdata = zlib.decompress(sdata)
+                    try:
+                        sdata = zlib.decompress(sdata)
+                    except zlib.error as e:
+                        raise SkoolKitError(f'Failed to decompress snapshot: {e.args[0]}')
                 contents.append(RZXBlock(data[i:i + block_len], Snapshot.get(sdata, ext)))
         elif block_id == 0x80:
             # Input recording
@@ -218,7 +221,10 @@ def parse_rzx(rzxfile):
             frames = []
             frames_data = data[i + 18:i + block_len]
             if flags & 2:
-                frames_data = zlib.decompress(frames_data)
+                try:
+                    frames_data = zlib.decompress(frames_data)
+                except zlib.error as e:
+                    raise SkoolKitError(f'Failed to decompress input recording block: {e.args[0]}')
             contents.append(RZXBlock(data[i:i + block_len], InputRecording(tstates, frames, frames_data)))
             j = 0
             start = end = 0

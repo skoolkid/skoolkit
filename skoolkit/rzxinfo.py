@@ -62,7 +62,10 @@ def _show_blocks(data, options):
                 print(f'  External snapshot: {ext_sname}')
             else:
                 if flags & 2:
-                    sdata = zlib.decompress(sdata)
+                    try:
+                        sdata = zlib.decompress(sdata)
+                    except zlib.error as e:
+                        raise SkoolKitError(f'Failed to decompress snapshot: {e.args[0]}')
                 snap = Snapshot.get(sdata, ext)
                 if snap:
                     if snap.type == 'SNA':
@@ -95,7 +98,10 @@ def _show_blocks(data, options):
             if options.frames and not encrypted:
                 frames = data[i + 18:i + block_len]
                 if flags & 2:
-                    frames = zlib.decompress(frames)
+                    try:
+                        frames = zlib.decompress(frames)
+                    except zlib.error as e:
+                        raise SkoolKitError(f'Failed to decompress input recording block: {e.args[0]}')
                 j = 0
                 pr_str = '?'
                 suffix = ''

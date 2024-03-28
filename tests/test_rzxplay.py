@@ -1106,6 +1106,27 @@ class RzxplayTest(SkoolKitTestCase):
             self.run_rzxplay(f'--quiet --no-screen {rzxfile}')
         self.assertEqual(cm.exception.args[0], 'Port readings exhausted for frame 1')
 
+    def test_corrupted_snapshot_block(self):
+        sna = [0] * 49179
+        rzx = RZX()
+        rzx.add_snapshot(sna, 'sna', flags=2)
+        snapshot_block = rzx.snapshots[0][0]
+        snapshot_block[17:] = [0] * (len(snapshot_block) - 17)
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--no-screen {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'Failed to decompress snapshot: Error -3 while decompressing data: unknown compression method')
+
+    def test_corrupted_input_recording_block(self):
+        rzx = RZX()
+        rzx.add_snapshot(frames=[(1, 1, [0])], io_flags=2)
+        io_block = rzx.snapshots[0][1]
+        io_block[18:] = [0] * (len(io_block) - 18)
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--no-screen {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'Failed to decompress input recording block: Error -3 while decompressing data: unknown compression method')
+
     def test_invalid_rzx_file(self):
         data = [0, 1, 2, 4]
         rzxfile = self.write_bin_file(data, suffix='.rzx')
