@@ -55,13 +55,14 @@ def mock_config(name):
     return {k: v[0] for k, v in COMMANDS[name].items()}
 
 def mock_write_snapshot(memory, namespace, fname):
-    global snapshot, options
+    global snapshot, options, snapshot_fname
     if len(memory) == 8:
         snapshot = memory
     else:
         snapshot = [0] * 65536
         snapshot[0x4000:] = memory
     options = namespace
+    snapshot_fname = fname
 
 class MockKeyboardTracer:
     def __init__(self, simulator, load, kb_delay):
@@ -332,13 +333,15 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(error), 0)
         self.assertTrue(os.path.isfile(exp_z80_fname))
 
-    @patch.object(tap2sna, 'urlopen', Mock(return_value=BytesIO(bytearray(create_tap_data_block([0])))))
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'urlopen', Mock(return_value=BytesIO(bytearray(create_tap_data_block([1])))))
     def test_no_snapshot_argument_with_remote_download(self):
         url = 'http://example.com/test.tap'
         exp_z80_fname = 'test.z80'
         output, error = self.run_tap2sna(f'--ram load=1,16384 {url}')
         self.assertEqual(error, '')
-        self.assertTrue(os.path.isfile(exp_z80_fname))
+        self.assertEqual(snapshot_fname, exp_z80_fname)
+        self.assertEqual(snapshot[16384], 1)
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_tape_file_with_hash_in_name(self):
@@ -713,16 +716,16 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     @patch.object(tap2sna, 'urlopen')
     def test_option_u(self, mock_urlopen):
-        mock_urlopen.return_value = BytesIO(bytes(create_tap_data_block([1])))
+        tap_data = bytes(create_tap_data_block([1]))
         url = 'http://example.com/test.tap'
         for option, user_agent in (('-u', 'Wget/1.18'), ('--user-agent', 'SkoolKit/6.3')):
-            output, error = self.run_tap2sna('{} {} --ram load=1,23296 {} {}/test.z80'.format(option, user_agent, url, self.make_directory()))
-            self.assertTrue(output.startswith('Downloading {}\n'.format(url)))
+            mock_urlopen.return_value = BytesIO(tap_data)
+            output, error = self.run_tap2sna(f'{option} {user_agent} --ram load=1,23296 {url} test.z80')
+            self.assertTrue(output.startswith(f'Downloading {url}\n'))
             self.assertEqual(error, '')
             request = mock_urlopen.call_args[0][0]
             self.assertEqual({'User-agent': user_agent}, request.headers)
             self.assertEqual(snapshot[23296], 1)
-            mock_urlopen.return_value.seek(0)
 
     def test_option_V(self):
         for option in ('-V', '--version'):

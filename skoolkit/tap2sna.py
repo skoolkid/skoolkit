@@ -754,15 +754,16 @@ def _get_tape_blocks(tape_type, tape, sim, start, stop, is48):
 def _get_tape(urlstring, user_agent, member):
     url = urlparse(urlstring)
     if url.scheme:
-        write_line('Downloading {0}'.format(urlstring))
+        write_line(f'Downloading {urlstring}')
         r = Request(urlstring, headers={'User-Agent': user_agent})
-        u = urlopen(r, timeout=30)
         f = tempfile.NamedTemporaryFile(prefix='tap2sna-')
-        while 1:
-            data = bytearray(u.read(4096))
-            if not data:
-                break
-            f.write(data)
+        with urlopen(r, timeout=30) as u:
+            while 1:
+                data = u.read(4096)
+                if not data:
+                    break
+                f.write(data)
+        f.seek(0)
     else:
         f = open_file(urlstring, 'rb')
 
@@ -776,16 +777,15 @@ def _get_tape(urlstring, user_agent, member):
             else:
                 f.close()
                 raise TapeError('No TAP or TZX file found')
-        write_line('Extracting {0}'.format(member))
+        write_line(f'Extracting {member}')
         try:
             tape = z.open(member)
         except KeyError:
             raise TapeError(f'No file named "{member}" in the archive')
-        data = bytearray(tape.read())
+        data = tape.read()
     else:
         member = os.path.basename(urlstring)
-        f.seek(0)
-        data = bytearray(f.read())
+        data = f.read()
 
     f.close()
     tape_type = member[-3:]
