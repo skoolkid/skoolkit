@@ -686,19 +686,23 @@ def get_times(contend_f, cycles, duration, addr, assembler, assembled, ops, size
                 times[t_range[0]].append(duration + delay)
     return times
 
-CS48 = CMIOSimulator([0] * 65536, config={'c': $ccmio})
-CS128 = CMIOSimulator(Memory(), config={'c': $ccmio})
-CS48_MEMORY = CS48.memory
-CS128_MEMORY = CS128.memory
-CS48_REGISTERS = CS48.registers
-CS128_REGISTERS = CS128.registers
 if $ccmio:
-    CS48 = CCMIOSimulator(CS48)
-    CS128 = CCMIOSimulator(CS128)
-    CS128_MEMORY.roms[0][:] = [0] * 16384
-    CS128_MEMORY.roms[1][:] = [0] * 16384
+    CS48 = CCMIOSimulator([0] * 65536)
+    CS128 = CCMIOSimulator(Memory())
 else:
-    CS128_MEMORY.roms = ([0] * 16384, [0] * 16384)
+    CS48 = CMIOSimulator([0] * 65536)
+    CS128 = CMIOSimulator(Memory())
+CS48_MEMORY = CS48.memory
+CS48_REGISTERS = CS48.registers
+CS128_MEMORY = CS128.memory
+CS128_MEMORY.roms[0][:] = [0] * 16384
+CS128_MEMORY.roms[1][:] = [0] * 16384
+CS128_MEMORY.memory[1][0x2000:0x2007] = (
+    0x3E, 0x00,       # 6000 LD A,00
+    0x01, 0xFD, 0x7F, # 6002 LD BC,7FFD
+    0xED, 0x79,       # 6005 OUT (C),A
+)
+CS128_REGISTERS = CS128.registers
 
 class CMIOSimulatorTest(unittest.TestCase):
     def _test_contention(self, machine, cspec, ops, regvals):
@@ -744,13 +748,14 @@ class CMIOSimulatorTest(unittest.TestCase):
         for op in ops:
             data = assembled[op]
             for (addr, page), timings in op_times.items():
+                if page >= 0:
+                    memory.out7ffd(page)
+                    if $ccmio:
+                        memory[0x6001] = page
+                        cs.run(0x6000, 0x6007)
                 for t0, times in timings.items():
                     t = t0
                     for exp_timing in times:
-                        if page >= 0:
-                            memory.out7ffd(page)
-                            if $ccmio:
-                                cs.out7ffd(page)
                         a = addr
                         for b in data:
                             memory[a % 65536] = b

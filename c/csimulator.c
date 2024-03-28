@@ -5062,7 +5062,8 @@ static PyObject* CSimulator_set_tracer(CSimulatorObject* self, PyObject* args, P
         goto done;
     }
 
-    Py_XSETREF(self->tracer, Py_NewRef(tracer));
+    Py_INCREF(tracer);
+    Py_XSETREF(self->tracer, tracer);
     Py_CLEAR(self->in_a_n_tracer);
     Py_CLEAR(self->in_r_c_tracer);
     Py_CLEAR(self->ini_tracer);
@@ -5109,7 +5110,10 @@ static PyObject* CSimulator_set_tracer(CSimulatorObject* self, PyObject* args, P
 done:
     Py_XDECREF(functools);
     Py_XDECREF(partial);
-    return ok ? Py_NewRef(Py_None) : NULL;
+    if (ok) {
+        Py_RETURN_NONE;
+    }
+    return NULL;
 }
 
 static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject* kwds) {

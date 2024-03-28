@@ -8,25 +8,23 @@ OPTIONS += $(HTML_OPTS)
 .PHONY: usage
 usage:
 	@echo "Targets:"
-	@echo "  usage         show this help"
-	@echo "  doc           build the documentation"
-	@echo "  man           build the man pages"
-	@echo "  clean         clean the documentation and man pages"
-	@echo "  cmods         build and install the C extension modules"
-	@echo "  hh            build the Hungry Horace disassembly"
-	@echo "  test          run core tests"
-	@echo "  test-c        run core tests with C extension modules"
-	@echo "  test3X        run core tests with Python 3.X (8<=X<=12)"
-	@echo "  test-slow     run slow tests"
-	@echo "  test-cmio     run slow tests for CMIOSimulator"
-	@echo "  test-ccmio    run slow tests for CCMIOSimulator"
-	@echo "  test-all      run core and disassembly tests"
-	@echo "  test3X-all    run core and disassembly tests with Python 3.X (8<=X<=12)"
-	@echo "  test-cover    run core tests with coverage info"
-	@echo "  release       build a SkoolKit release tarball and zip archive"
-	@echo "  tarball       build a SkoolKit release tarball"
-	@echo "  deb           build a SkoolKit Debian package"
-	@echo "  rpm           build a SkoolKit RPM package"
+	@echo "  usage           show this help"
+	@echo "  doc             build the documentation"
+	@echo "  man             build the man pages"
+	@echo "  clean           clean the documentation and man pages"
+	@echo "  cmods           build and install the C extension modules"
+	@echo "  hh              build the Hungry Horace disassembly"
+	@echo "  test[-c]        run core tests [with C extension modules]"
+	@echo "  test[-c]-3X     run core tests with Python 3.X (8<=X<=12) [and C extension modules]"
+	@echo "  test[-c]-slow   run slow tests [with C extension modules]"
+	@echo "  test[-c]-cmio   run slow tests for [C]CMIOSimulator"
+	@echo "  test[-c]-all    run core and disassembly tests [with C extension modules]"
+	@echo "  test[-c]-3X-all run core and disassembly tests with Python 3.X (8<=X<=12) [and C extension modules]"
+	@echo "  test-cover      run core tests with coverage info"
+	@echo "  release         build a SkoolKit release tarball and zip archive"
+	@echo "  tarball         build a SkoolKit release tarball"
+	@echo "  deb             build a SkoolKit Debian package"
+	@echo "  rpm             build a SkoolKit RPM package"
 	@echo ""
 	@echo "Variables:"
 	@echo "  THEMES     CSS theme(s) to use"
@@ -81,20 +79,34 @@ test-c: remove-disassembly-tests cmods
 test-all: write-disassembly-tests remove-c
 	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES)
 
-.PHONY: test3%
-test3%: remove-disassembly-tests remove-c
+.PHONY: test-c-all
+test-c-all: write-disassembly-tests cmods
+	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES)
+
+.PHONY: test-3%
+test-3%: remove-disassembly-tests remove-c
 	$(HOME)/Python/Python3.$*/bin/nose2 --plugin=nose2.plugins.mp -N $(CORES)
 
-.PHONY: test3%-all
-test3%-all: write-disassembly-tests remove-c
+.PHONY: test-c-3%
+test-c-3%: remove-disassembly-tests
+	$(HOME)/Python/Python3.$*/bin/python3 setup.py build_ext -b .
 	$(HOME)/Python/Python3.$*/bin/nose2 --plugin=nose2.plugins.mp -N $(CORES)
 
-.PHONY: test-cover
-test-cover: remove-disassembly-tests remove-c
-	$(NOSE) -C --coverage skoolkit --coverage-report term-missing
+.PHONY: test-3%-all
+test-3%-all: write-disassembly-tests remove-c
+	$(HOME)/Python/Python3.$*/bin/nose2 --plugin=nose2.plugins.mp -N $(CORES)
+
+.PHONY: test-c-3%-all
+test-c-3%-all: write-disassembly-tests
+	$(HOME)/Python/Python3.$*/bin/python3 setup.py build_ext -b .
+	$(HOME)/Python/Python3.$*/bin/nose2 --plugin=nose2.plugins.mp -N $(CORES)
 
 .PHONY: test-slow
 test-slow: remove-c
+	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) -v -c tests/slow_test.cfg
+
+.PHONY: test-c-slow
+test-c-slow: cmods
 	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) -v -c tests/slow_test.cfg
 
 .PHONY: test-cmio
@@ -103,11 +115,15 @@ test-cmio:
 	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) slow_test_cmiosimulator
 	rm slow_test_cmiosimulator.py
 
-.PHONY: test-ccmio
-test-ccmio: cmods
+.PHONY: test-c-cmio
+test-c-cmio: cmods
 	tools/write-cmiosimulator-tests.py --quiet --vslow --ccmio
 	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) slow_test_ccmiosimulator
 	rm slow_test_ccmiosimulator.py
+
+.PHONY: test-cover
+test-cover: remove-disassembly-tests remove-c
+	$(NOSE) -C --coverage skoolkit --coverage-report term-missing
 
 .PHONY: release
 release:
