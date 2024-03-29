@@ -349,19 +349,21 @@ def sim_load(blocks, options, config):
                 raise SkoolKitError(f'Unrecognised accelerator: {name}')
 
     interrupted = False
+    fast = not options.trace
+    sim_cfg = {'fast_djnz': fast, 'fast_ldir': fast}
     if options.machine == '128':
         if not options.load:
             options.load = 'ENTER'
         registers = {'PC': 0x00EA, '^HL': 0xFFFF, 'R': 0x38}
         state = {'tstates': 3453395}
-        sim_cfg = {'frame_duration': FRAME_DURATIONS[1], 'int_active': INT_ACTIVE[1]}
+        sim_cfg['frame_duration'] = FRAME_DURATIONS[1]
+        sim_cfg['int_active'] = INT_ACTIVE[1]
         memory = Memory()
         stop = 0x13BE
         kb_delay = 13
     else:
         registers = {'PC': 0x1200, 'HL': 0xFFFF, 'R': 0x22}
         state = {'tstates': 5701854}
-        sim_cfg = {}
         memory = [0] * 65536
         memory[:0x4000] = read_bin_file(ROM48, 16384)
         stop = 0x0605 # SAVE-ETC

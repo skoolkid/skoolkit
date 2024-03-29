@@ -28,6 +28,7 @@ class MockSimulator:
         self.registers[26] = 0 # Interrupts disabled
         self.frame_duration = 69888
         self.int_active = 32
+        self.config = kwargs.get('config') or args[3]
 
         # The NOP at 49151 is a dummy instruction that triggers LoadTracer's
         # read_port() (via in_a_n() below) and starts the tape running.
@@ -2458,6 +2459,28 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(load_tracer.prefix, '$')
         self.assertEqual(load_tracer.byte_fmt, '02X')
         self.assertEqual(load_tracer.word_fmt, '04X')
+
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
+    @patch.object(tap2sna, 'Simulator', MockSimulator)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_sim_load_enables_fast_djnz_ldir(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(tapfile)
+        self.assertEqual(error, '')
+        self.assertTrue(simulator.config.get('fast_djnz'))
+        self.assertTrue(simulator.config.get('fast_ldir'))
+
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
+    @patch.object(tap2sna, 'Simulator', MockSimulator)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_sim_load_disables_fast_djnz_ldir_when_tracing(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-c trace=load.log {tapfile}')
+        self.assertEqual(error, '')
+        self.assertFalse(simulator.config.get('fast_djnz'))
+        self.assertFalse(simulator.config.get('fast_ldir'))
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
