@@ -740,6 +740,7 @@ class Simulator:
         if registers[26]:
             self.ldi(registers, memory, inc, 1)
             return
+        pc = registers[24]
         de = registers[5] + 256 * registers[4]
         bc = registers[3] + 256 * registers[2]
         hl = registers[7] + 256 * registers[6]
@@ -749,7 +750,7 @@ class Simulator:
             if de > 0x3FFF:
                 memory[de] = memory[hl]
             bc = (bc - 1) % 65536
-            if bc == 0 or registers[24] <= de <= registers[24] + 1:
+            if bc == 0 or pc <= de <= pc + 1:
                 repeat = False
             de = (de + inc) % 65536
             hl = (hl + inc) % 65536
@@ -760,12 +761,13 @@ class Simulator:
         r = registers[15]
         registers[15] = (r & 0x80) + ((r + 2 * count) % 128) # R
         if bc:
-            registers[1] = (registers[1] & 0xC1) + ((registers[24] // 256) & 0x28) + 0x04
+            registers[1] = (registers[1] & 0xC1) + ((pc // 256) & 0x28) + 0x04
+            registers[25] += 21 * count # T-states
         else:
             n = registers[0] + memory[(hl - inc) % 65536]
             registers[1] = (registers[1] & 0xC1) + (n & 0x02) * 16 + (n & 0x08)
-            registers[24] = (registers[24] + 2) % 65536 # PC
-        registers[25] += 21 * count - 5 # T-states
+            registers[25] += 21 * count - 5 # T-states
+            registers[24] = (pc + 2) % 65536 # PC
 
     def ld_sp_rr(self, registers, r_inc, timing, size, rh, rl):
         # LD SP,HL/IX/IY

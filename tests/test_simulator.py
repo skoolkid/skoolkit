@@ -2224,11 +2224,11 @@ class SimulatorTest(SkoolKitTestCase):
 
         for bc_in, bc_out, de_in, de_out, hl_in, hl_out, f_out, r_out, timing, end in (
                 #                                     SZ5H3PNC
-                (52, 1, 30051, 30000, 40000, 39949, 0b00100100, 102,    1066, start),     # 0xB8 overwritten
+                (52, 1, 30051, 30000, 40000, 39949, 0b00100100, 102,    1071, start),     # 0xB8 overwritten
                 (51, 0, 30051, 30000, 40000, 39949, 0b00101000, 102,    1066, start + 2), # 0xB8 overwritten
                 (50, 0, 30051, 30001, 40000, 39950, 0b00101000, 100,    1045, start + 2),
                 ( 1, 0, 30051, 30050, 40000, 39999, 0b00101000,   2,      16, start + 2),
-                ( 0, 1, 29999, 30000, 29999, 30000, 0b00100100, 126, 1376230, start),     # 0xB8 overwritten
+                ( 0, 1, 29999, 30000, 29999, 30000, 0b00100100, 126, 1376235, start),     # 0xB8 overwritten
         ):
             registers[B] = bc_in // 256
             registers[C] = bc_in % 256
@@ -2267,11 +2267,11 @@ class SimulatorTest(SkoolKitTestCase):
 
         for iff, bc_in, bc_out, de_in, de_out, hl_in, hl_out, f_out, r_out, timing, end in (
                 #                                         SZ5H3PNC
-                (0, 52,  1, 29950, 30001, 40000, 40051, 0b00100100, 102,    1066, start),     # 0xED overwritten
+                (0, 52,  1, 29950, 30001, 40000, 40051, 0b00100100, 102,    1071, start),     # 0xED overwritten
                 (0, 51,  0, 29950, 30001, 40000, 40051, 0b00101000, 102,    1066, start + 2), # 0xED overwritten
                 (0, 50,  0, 29950, 30000, 40000, 40050, 0b00101000, 100,    1045, start + 2),
                 (0,  1,  0, 29950, 29951, 40000, 40001, 0b00101000,   2,      16, start + 2),
-                (0,  0,  1, 30002, 30001, 30002, 30001, 0b00100100, 126, 1376230, start),     # 0xED overwritten
+                (0,  0,  1, 30002, 30001, 30002, 30001, 0b00100100, 126, 1376235, start),     # 0xED overwritten
                 (1, 50, 49, 50000, 50001, 40000, 40001, 0b00100100,   2,      21, start),
                 (1,  1,  0, 50000, 50001, 40000, 40001, 0b00101000,   2,      16, start + 2),
         ):
