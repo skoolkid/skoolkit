@@ -8,10 +8,12 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit import trace, SkoolKitError, VERSION, CSimulator
 from skoolkit.config import COMMANDS
 from skoolkit.simulator import Simulator
-from skoolkit.simutils import IFF, IM
+from skoolkit.simutils import IFF, IM, T
 
-ROM0_MD5 = 'b4d2692115a9f2924df92a3cbfb358fb'
-ROM1_MD5 = '6e09e5d3c4aef166601669feaaadc01c'
+ROM128_0_MD5 = 'b4d2692115a9f2924df92a3cbfb358fb'
+ROM128_1_MD5 = '6e09e5d3c4aef166601669feaaadc01c'
+ROM_PLUS2_0_MD5 = '4ed7af4636308b8a48d7a35e6c5b546b'
+ROM_PLUS2_1_MD5 = 'b3db95931cc844efaeb82db9c171b9f3'
 
 class MockSimulator:
     def __init__(self, pc, *args, **kwargs):
@@ -37,8 +39,8 @@ def mock_run(*args):
 def mock_config(name):
     return {k: v[0] for k, v in COMMANDS[name].items()}
 
-def mock_write_snapshot(fname, ram, registers, state):
-    global s_fname, s_memory, s_banks, s_reg, s_state
+def mock_write_snapshot(fname, ram, registers, state, rom0):
+    global s_fname, s_memory, s_banks, s_reg, s_state, s_rom0
     s_fname = fname
     s_memory = [0] * 65536
     if len(ram) == 8:
@@ -56,6 +58,7 @@ def mock_write_snapshot(fname, ram, registers, state):
         s_memory[0x4000:] = ram
     s_reg = registers
     s_state = state
+    s_rom0 = rom0
 
 class TestSimulator(CSimulator or Simulator):
     def __init__(self, memory, registers=None, state=None, config=None):
@@ -226,7 +229,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[IFF], 0)
         self.assertEqual(simulator.registers[IM], 2)
         self.assertTrue(all(b == 1 for b in simulator.memory[0xC000:0x10000]))
-        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM1_MD5)
+        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM128_1_MD5)
 
     @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
@@ -271,7 +274,7 @@ class TraceTest(SkoolKitTestCase):
         self._test_trace(f'-vv -S 32769 {z80file}', exp_output)
         self.assertEqual(simulator.registers[IFF], 1)
         self.assertEqual(simulator.registers[IM], 2)
-        self.assertEqual(simulator.registers[25], 20004)
+        self.assertEqual(simulator.registers[T], 20004)
 
     @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
@@ -318,9 +321,58 @@ class TraceTest(SkoolKitTestCase):
         self._test_trace(f'-vv -S 24578 {z80file}', exp_output)
         self.assertEqual(simulator.registers[IFF], 1)
         self.assertEqual(simulator.registers[IM], 2)
-        self.assertEqual(simulator.registers[25], 20012)
+        self.assertEqual(simulator.registers[T], 20012)
         self.assertTrue(all(b == 1 for b in simulator.memory[0xC000:0x10000]))
-        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM0_MD5)
+        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM128_0_MD5)
+
+    @patch.object(trace, 'CSimulator', TestSimulator)
+    @patch.object(trace, 'Simulator', TestSimulator)
+    def test_z80_plus2(self):
+        ram = [0] * 49152
+        ram[8192:8194] = (0xED, 0x79) # $6000 OUT (C),A
+        pages = {p: [p] * 16384 for p in (1, 3, 4, 6, 7)}
+        registers = {
+            'A': 1,
+            'F': 2,
+            'B': 127,
+            'C': 253,
+            'D': 5,
+            'E': 6,
+            'H': 7,
+            'L': 8,
+            'IXh': 9,
+            'IXl': 10,
+            'IYh': 11,
+            'IYl': 12,
+            'SP': 65535,
+            'I': 13,
+            'R': 14,
+            '^A': 15,
+            '^F': 16,
+            '^B': 17,
+            '^C': 18,
+            '^D': 19,
+            '^E': 20,
+            '^H': 21,
+            '^L': 22,
+            'PC': 24576,
+            'iff1': 1,
+            'iff2': 1,
+            'im': 2,
+            'tstates': 20000
+        }
+        z80file = self.write_z80(ram, machine_id=4, modify=True, out_7ffd=18, pages=pages, registers=registers)[1]
+        exp_output = """
+            $6000 OUT (C),A        A=01  F=00000010  BC=7FFD  DE=0506  HL=0708  IX=0B0C IY=090A
+                                   A'=0F F'=00010000 BC'=1112 DE'=1314 HL'=1516 SP=FFFF IR=0D10
+            Stopped at $6002
+        """
+        self._test_trace(f'-vv -S 24578 {z80file}', exp_output)
+        self.assertEqual(simulator.registers[IFF], 1)
+        self.assertEqual(simulator.registers[IM], 2)
+        self.assertEqual(simulator.registers[T], 20012)
+        self.assertTrue(all(b == 1 for b in simulator.memory[0xC000:0x10000]))
+        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM_PLUS2_0_MD5)
 
     @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
@@ -354,7 +406,7 @@ class TraceTest(SkoolKitTestCase):
         self._test_trace(f'-vv -S 49153 {szxfile}', exp_output)
         self.assertEqual(simulator.registers[IFF], 1)
         self.assertEqual(simulator.registers[IM], 0)
-        self.assertEqual(simulator.registers[25], 261)
+        self.assertEqual(simulator.registers[T], 261)
 
     @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
@@ -392,9 +444,49 @@ class TraceTest(SkoolKitTestCase):
         self._test_trace(f'-vv -S 24578 {szxfile}', exp_output)
         self.assertEqual(simulator.registers[IFF], 1)
         self.assertEqual(simulator.registers[IM], 0)
-        self.assertEqual(simulator.registers[25], 269)
+        self.assertEqual(simulator.registers[T], 269)
         self.assertTrue(all(b == 3 for b in simulator.memory[0xC000:0x10000]))
-        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM1_MD5)
+        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM128_1_MD5)
+
+    @patch.object(trace, 'CSimulator', TestSimulator)
+    @patch.object(trace, 'Simulator', TestSimulator)
+    def test_szx_plus2(self):
+        ram = [0] * 49152
+        ram[8192:8194] = (
+            0xED, 0x79  # $6000 OUT (C),A
+        )
+        pages = {p: [p] * 16384 for p in (1, 3, 4, 6, 7)}
+        registers = (
+            1, 19,      # AF
+            253, 127,   # BC
+            5, 6,       # DE
+            7, 8,       # HL
+            9, 10,      # AF'
+            11, 12,     # BC'
+            13, 14,     # DE'
+            15, 16,     # HL'
+            17, 18,     # IX
+            19, 20,     # IY
+            0, 128,     # SP=32768
+            0, 96,      # PC=24576
+            21,         # I
+            22,         # R
+            1, 1,       # iff1, iff2
+            0,          # im
+            1, 1, 0, 0, # dwCyclesStart=257
+        )
+        szxfile = self.write_szx(ram, machine_id=3, ch7ffd=4, pages=pages, registers=registers)
+        exp_output = """
+            $6000 OUT (C),A        A=13  F=00000001  BC=7FFD  DE=0605  HL=0807  IX=1211 IY=1413
+                                   A'=0A F'=00001001 BC'=0C0B DE'=0E0D HL'=100F SP=8000 IR=1518
+            Stopped at $6002
+        """
+        self._test_trace(f'-vv -S 24578 {szxfile}', exp_output)
+        self.assertEqual(simulator.registers[IFF], 1)
+        self.assertEqual(simulator.registers[IM], 0)
+        self.assertEqual(simulator.registers[T], 269)
+        self.assertTrue(all(b == 3 for b in simulator.memory[0xC000:0x10000]))
+        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM_PLUS2_1_MD5)
 
     def test_no_snapshot_48k(self):
         output, error = self.run_trace(f'-v -S 2 48')
@@ -413,6 +505,16 @@ class TraceTest(SkoolKitTestCase):
             $0000 DI
             $0001 LD BC,$692B
             Stopped at $0004
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_no_snapshot_plus_2(self):
+        output, error = self.run_trace(f'-v -n -s 154 -S 162 +2')
+        self.assertEqual(error, '')
+        exp_output = """
+            $009A LD HL,$06F7
+            $009D JR $00A2
+            Stopped at $00A2
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -2250,6 +2352,72 @@ class TraceTest(SkoolKitTestCase):
         self.assertTrue(all(b == 1 for b in s_memory[0xC000:0x10000]))
         self.assertEqual(exp_reg, s_reg)
         self.assertEqual(exp_state, set(s_state))
+        self.assertEqual(hashlib.md5(bytes(s_rom0)).hexdigest(), ROM128_0_MD5)
+
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_write_z80_plus2(self):
+        ram = [0] * 49152
+        start = 32768
+        code = [
+            0x37,                   # $8000 SCF
+            0x9F,                   # $8001 SBC A,A
+            0xF3,                   # $8002 DI
+            0xED, 0x5E,             # $8003 IM 2
+            0xED, 0x47,             # $8005 LD I,A
+            0xED, 0x4F,             # $8007 LD R,A
+            0x08,                   # $8009 EX AF,AF'
+            0x3E, 0x01,             # $800A LD A,$01
+            0xA7,                   # $800C AND A
+            0xD3, 0xFE,             # $800D OUT ($FE),A
+            0x01, 0xFD, 0x7F,       # $800F LD BC,$7FFD
+            0xED, 0x79,             # $8012 OUT (C),A
+            0x11, 0xB8, 0x53,       # $8014 LD DE,$53B8
+            0x21, 0x57, 0x63,       # $8017 LD HL,$6357
+            0xD9,                   # $801A EXX
+            0x01, 0x27, 0xEF,       # $801C LD BC,$EF27
+            0x11, 0xF8, 0x13,       # $801E LD DE,$13F8
+            0x21, 0x77, 0x7D,       # $8021 LD HL,$7D77
+            0x31, 0xE9, 0xBE,       # $8024 LD SP,$BEE9
+            0xDD, 0x21, 0x72, 0x0D, # $8027 LD IX,$0D72
+            0xFD, 0x21, 0x2E, 0x27, # $802B LD IY,$272E
+        ]
+        stop = start + len(code)
+        ram[start - 0x4000:stop - 0x4000] = code
+        infile = self.write_z80(ram, machine_id=4, modify=True)[1]
+        outfile = 'out.z80'
+        output, error = self.run_trace(f'-s {start} -S {stop} {infile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        exp_reg = [
+            'A=1',
+            'F=16',
+            'BC=61223',
+            'DE=5112',
+            'HL=32119',
+            'IX=3442',
+            'IY=10030',
+            'SP=48873',
+            'I=255',
+            'R=145',
+            '^A=255',
+            '^F=187',
+            '^BC=32765',
+            '^DE=21432',
+            '^HL=25431',
+            f'PC={stop}'
+        ]
+        exp_state = {f'ay[{n}]=0' for n in range(16)}
+        exp_state.update(('7ffd=1', 'fffd=0', 'border=1', 'fe=1', 'iff=0', 'im=2', 'tstates=35631'))
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(s_fname, outfile)
+        self.assertEqual(code, s_memory[start:stop])
+        self.assertEqual(exp_reg, s_reg)
+        self.assertEqual(exp_state, set(s_state))
+        self.assertEqual(exp_state, set(s_state))
+        self.assertIsNotNone(s_rom0)
+        self.assertEqual(hashlib.md5(bytes(s_rom0)).hexdigest(), ROM_PLUS2_0_MD5)
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_ay_tracing_from_z80(self):

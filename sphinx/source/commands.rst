@@ -1890,7 +1890,7 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 
 trace.py
 --------
-`trace.py` simulates the execution of machine code in a 48K or 128K memory
+`trace.py` simulates the execution of machine code in a 48K, 128K or +2 memory
 snapshot. For example::
 
   $ trace.py --start 32768 --stop 49152 game.z80
@@ -1900,8 +1900,8 @@ To list the options supported by `trace.py`, run it with no arguments::
   usage: trace.py [options] FILE [OUTFILE]
 
   Trace Z80 machine code execution. FILE may be a binary (raw memory) file, a
-  SNA, SZX or Z80 snapshot, or '48' or '128' for no snapshot. If 'OUTFILE' is
-  given, an SZX or Z80 snapshot is written after execution has completed.
+  SNA, SZX or Z80 snapshot, or '48', '128' or '+2' for no snapshot. If 'OUTFILE'
+  is given, an SZX or Z80 snapshot is written after execution has completed.
 
   Options:
     --audio               Show audio delays.
@@ -2006,7 +2006,7 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.2     | Added the ``--python`` option                                     |
+| 9.2     | Added the ``--python`` option; added support for +2 snapshots     |
 +---------+-------------------------------------------------------------------+
 | 9.1     | The ``--poke`` option can modify specific RAM banks; added the    |
 |         | ``--cmio`` option                                                 |

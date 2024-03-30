@@ -12,6 +12,7 @@ Changelog
   by :ref:`rzxplay.py`
 * Added support to :ref:`tap2sna.py` for TZX block type 0x15 (direct recording)
 * :ref:`tapinfo.py` now shows info for TZX block type 0x15 (direct recording)
+* Added support to :ref:`trace.py` for executing machine code in +2 snapshots
 * Added the ``python`` simulated LOAD configuration parameter to
   :ref:`tap2sna.py <tap2sna-sim-load>` (for forcing usage of the pure Python
   Z80 simulator even if the C version is available)

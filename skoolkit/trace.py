@@ -18,7 +18,9 @@ import argparse
 import textwrap
 import time
 
-from skoolkit import ROM48, VERSION, SkoolKitError, CSimulator, CCMIOSimulator, get_int_param, integer, read_bin_file
+from skoolkit import (ROM48, ROM128, ROM_PLUS2, VERSION, SkoolKitError,
+                      CSimulator, CCMIOSimulator, get_int_param, integer,
+                      read_bin_file)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.pagingtracer import Memory, PagingTracer
@@ -148,6 +150,10 @@ def run(snafile, options, config):
         memory = [0] * 0x10000
     elif snafile == '128':
         memory = [0] * 0x20000
+        roms = ROM128
+    elif snafile == '+2':
+        memory = [0] * 0x20000
+        roms = ROM_PLUS2
     else:
         snapshot = Snapshot.get(snafile)
         if snapshot:
@@ -193,7 +199,7 @@ def run(snafile, options, config):
             memory[:len(rom)] = rom
         else:
             banks = [memory[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
-            memory = Memory(banks, out7ffd)
+            memory = Memory(banks, out7ffd, roms)
         state = {'im': 1, 'iff': 1, 'tstates': 0}
         simulator = simulator_cls(memory, registers, state, sim_config)
     t0 = simulator.registers[T]
@@ -237,7 +243,11 @@ def run(snafile, options, config):
         print('Delays:\n {}'.format('\n '.join(lines)))
     if options.dump:
         ram, registers, state = get_state(simulator)
-        write_snapshot(options.dump, ram, registers, state)
+        if len(ram) == 8:
+            rom0 = simulator.memory.roms[0]
+        else:
+            rom0 = None
+        write_snapshot(options.dump, ram, registers, state, rom0)
         print(f'Wrote {options.dump}')
 
 def main(args):
@@ -245,7 +255,7 @@ def main(args):
     parser = argparse.ArgumentParser(
         usage='trace.py [options] FILE [OUTFILE]',
         description="Trace Z80 machine code execution. "
-                    "FILE may be a binary (raw memory) file, a SNA, SZX or Z80 snapshot, or '48' or '128' for no snapshot. "
+                    "FILE may be a binary (raw memory) file, a SNA, SZX or Z80 snapshot, or '48', '128' or '+2' for no snapshot. "
                     "If 'OUTFILE' is given, an SZX or Z80 snapshot is written after execution has completed.",
         add_help=False
     )
