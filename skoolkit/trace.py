@@ -226,19 +226,24 @@ def run(snafile, options, config):
     tracer.run(start, options.stop, options.max_operations, options.max_tstates,
                options.interrupts, trace_line, prefix, byte_fmt, word_fmt)
     rt = time.time() - begin
+    if len(simulator.memory) == 65536:
+        cpu_freq = 3500000
+    else:
+        cpu_freq = 3546900
     if options.stats:
         z80t = simulator.registers[T] - t0
-        z80s = z80t / 3500000
+        z80s = z80t / cpu_freq
         speed = z80s / (rt or 0.001) # Avoid division by zero
-        print(f'Z80 execution time: {z80t} T-states ({z80s:.03f}s)')
+        print(f'Z80 execution time: {z80t} T-states ({z80s:.3f}s)')
         print(f'Instructions executed: {tracer.operations}')
-        print(f'Simulation time: {rt:.03f}s (x{speed:.02f})')
+        print(f'Simulation time: {rt:.3f}s (x{speed:.2f})')
     if options.audio:
         delays = []
         for i, t in enumerate(tracer.out_times[1:]):
             delays.append(t - tracer.out_times[i])
-        duration = sum(delays)
-        print('Sound duration: {} T-states ({:.03f}s)'.format(duration, duration / 3500000))
+        z80t = sum(delays)
+        z80s = z80t / cpu_freq
+        print(f'Sound duration: {z80t} T-states ({z80s:.3f}s)')
         lines = textwrap.wrap(simplify(delays, options.depth), 78)
         print('Delays:\n {}'.format('\n '.join(lines)))
     if options.dump:

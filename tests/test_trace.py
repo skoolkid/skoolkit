@@ -8,7 +8,7 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit import trace, SkoolKitError, VERSION, CSimulator
 from skoolkit.config import COMMANDS
 from skoolkit.simulator import Simulator
-from skoolkit.simutils import IFF, IM, T
+from skoolkit.simutils import PC, IFF, IM, T
 
 ROM128_0_MD5 = 'b4d2692115a9f2924df92a3cbfb358fb'
 ROM128_1_MD5 = '6e09e5d3c4aef166601669feaaadc01c'
@@ -16,21 +16,24 @@ ROM_PLUS2_0_MD5 = '4ed7af4636308b8a48d7a35e6c5b546b'
 ROM_PLUS2_1_MD5 = 'b3db95931cc844efaeb82db9c171b9f3'
 
 class MockSimulator:
-    def __init__(self, pc, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         global simulator
         simulator = self
-        self.pc = pc
-        self.memory = [0] * 65536
+        self.memory = args[0]
         self.opcodes = [self.nop] * 256
         self.registers = [0] * 29
         self.frame_duration = 69888
         self.int_active = 32
+        self.pc = kwargs.get('pc', 0)
+        self.t1 = kwargs.get('t1', 0)
+        self.out_times = kwargs.get('out_times', ())
 
     def set_tracer(self, tracer, *args, **kwargs):
-        pass
+        tracer.out_times = self.out_times
 
     def nop(self):
-        self.registers[24] = self.pc
+        self.registers[PC] = self.pc
+        self.registers[T] = self.t1
 
 def mock_run(*args):
     global run_args
@@ -1048,6 +1051,19 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    @patch.object(trace, 'CSimulator', partial(MockSimulator, pc=0x8001, out_times=(0, 500000, 1000000)))
+    @patch.object(trace, 'Simulator', partial(MockSimulator, pc=0x8001, out_times=(0, 500000, 1000000)))
+    def test_option_audio_128k(self):
+        output, error = self.run_trace(f'-s 0x8000 -S 0x8001 --audio 128')
+        self.assertEqual(error, '')
+        exp_output = """
+            Stopped at $8001
+            Sound duration: 1000000 T-states (0.282s)
+            Delays:
+             [500000]*2
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     def test_option_cmio(self):
         data = (
             0xAF,             # $6000 XOR A        ;  4T -> 10T [ 4T ->  10T]
@@ -1457,7 +1473,7 @@ class TraceTest(SkoolKitTestCase):
         ]
         self.assertEqual(exp_output, output.rstrip().split('\n')[3::5])
 
-    @patch.object(trace, 'Simulator', partial(MockSimulator, 0x1234))
+    @patch.object(trace, 'Simulator', partial(MockSimulator, pc=0x1234))
     def test_option_python(self):
         global simulator
         simulator = None
@@ -1465,7 +1481,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(output, 'Stopped at $1234: 1 operations\n')
 
-    @patch.object(trace, 'CMIOSimulator', partial(MockSimulator, 0x2345))
+    @patch.object(trace, 'CMIOSimulator', partial(MockSimulator, pc=0x2345))
     def test_option_python_with_cmio(self):
         global simulator
         simulator = None
@@ -1647,6 +1663,17 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(o_lines[0], 'Stopped at $8002')
         self.assertEqual(o_lines[1], 'Z80 execution time: 8 T-states (0.000s)')
         self.assertEqual(o_lines[2], 'Instructions executed: 2')
+        self.assertEqual(o_lines[3][:17], 'Simulation time: ')
+
+    @patch.object(trace, 'CSimulator', partial(MockSimulator, pc=0x8001, t1=1000000))
+    @patch.object(trace, 'Simulator', partial(MockSimulator, pc=0x8001, t1=1000000))
+    def test_option_stats_128k(self):
+        output, error = self.run_trace(f'-s 0x8000 -S 0x8001 --stats 128')
+        self.assertEqual(error, '')
+        o_lines = output.split('\n')
+        self.assertEqual(o_lines[0], 'Stopped at $8001')
+        self.assertEqual(o_lines[1], 'Z80 execution time: 1000000 T-states (0.282s)')
+        self.assertEqual(o_lines[2], 'Instructions executed: 1')
         self.assertEqual(o_lines[3][:17], 'Simulation time: ')
 
     def test_option_stop(self):
