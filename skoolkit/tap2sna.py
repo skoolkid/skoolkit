@@ -423,8 +423,9 @@ def sim_load(blocks, options, config):
             if b > 0xFF:
                 memory[a + 1] = b // 256
         is_code = False
-        for block in blocks:
-            block_data = block[1]
+        for block_id, timings, block_data in blocks:
+            if block_id == 0x15:
+                break
             if block_data:
                 if len(block_data) >= 19 and tuple(block_data[0:2]) == (0, 3):
                     is_code = True
@@ -721,9 +722,9 @@ def _get_tzx_blocks(data, sim, start, stop, is48):
                     # Stop the tape if in 48K mode
                     break
             if loop is None:
-                blocks.append((timings, tape_data))
+                blocks.append((block_id, timings, tape_data))
             else:
-                loop.append((timings, tape_data))
+                loop.append((block_id, timings, tape_data))
             if block_id == 0x25 and loop is not None:
                 blocks.extend(loop * repetitions)
                 loop = None
@@ -743,7 +744,7 @@ def get_tap_blocks(tap, start=1, stop=0):
             data = tap[i:i + block_len]
             if data:
                 timings = get_tape_block_timings(data[0])
-                blocks.append((timings, data))
+                blocks.append((None, timings, data))
         i += block_len
         block_num += 1
     return blocks
@@ -1036,12 +1037,12 @@ def make_snapshot(url, options, outfile, config):
         is48 = True
     tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load, options.tape_start, options.tape_stop, is48)
     if options.sim_load:
-        blocks = [b for b in tape_blocks if b[0]]
+        blocks = [b for b in tape_blocks if b[1]]
         if not blocks:
             raise TapeError('Tape is empty')
         ram = sim_load(blocks, options, config)
     else:
-        blocks = [b[1] for b in tape_blocks]
+        blocks = [b[2] for b in tape_blocks]
         ram = _get_ram(blocks, options)
     if outfile is None:
         if tape_name.lower().endswith(('.tap', '.tzx')):
