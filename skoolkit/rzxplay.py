@@ -146,7 +146,7 @@ def write_rzx(fname, context, rzx_blocks):
         int(minor), 0
     ))
 
-    ram, registers, state = get_state(context.simulator)
+    ram, registers, state = get_state(context.simulator)[:3]
     snapshot = context.snapshot
     snapshot.set_ram(ram)
     snapshot.set_registers_and_state(registers, state)
@@ -275,7 +275,7 @@ def draw(screen, memory, frame, pixel_rects, cell_rects, prev_scr): # pragma: no
 def check_supported(snapshot, options):
     if options.force:
         return
-    if snapshot.rom is None:
+    if snapshot.machine is None:
         return 'Unsupported machine type'
     if snapshot.type == 'Z80':
         header = snapshot.header
@@ -435,12 +435,8 @@ def run(infile, options):
     if options.dump:
         ext = options.dump.lower().rpartition('.')[2]
         if ext in ('szx', 'z80'):
-            ram, registers, state = get_state(context.simulator)
-            if len(ram) == 8:
-                rom0 = context.simulator.memory.roms[0]
-            else:
-                rom0 = None
-            write_snapshot(options.dump, ram, registers, state, rom0)
+            ram, registers, state, machine = get_state(context.simulator)
+            write_snapshot(options.dump, ram, registers, state, machine)
         elif ext == 'rzx':
             write_rzx(options.dump, context, rzx_blocks)
         else:

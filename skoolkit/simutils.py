@@ -16,7 +16,7 @@
 
 import array
 
-from skoolkit import read_bin_file
+from skoolkit import ROM48, read_bin_file
 from skoolkit.pagingtracer import Memory
 
 FRAME_DURATIONS = (69888, 70908)
@@ -85,10 +85,10 @@ def from_snapshot(cls, snapshot, registers=None, config=None, rom_file=None):
     ram = snapshot.ram(-1)
     if len(ram) == 0x20000:
         banks = [ram[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
-        s_memory = Memory(banks, snapshot.out7ffd, snapshot.rom)
+        s_memory = Memory(banks, snapshot.out7ffd, snapshot.machine)
     else:
         s_memory = [0] * 16384 + ram
-        rom = read_bin_file(rom_file or snapshot.rom)
+        rom = read_bin_file(rom_file or ROM48)
         s_memory[:len(rom)] = rom
     s_registers = {
         'A': snapshot.a,
@@ -154,9 +154,11 @@ def get_state(simulator, tstates=True):
         ram = simulator.memory.banks
         state.extend(f'ay[{n}]={v}' for n, v in enumerate(simulator.tracer.ay))
         state.extend((f'7ffd={simulator.memory.o7ffd}', f'fffd={simulator.tracer.outfffd}'))
+        machine = simulator.memory.machine
     else:
         ram = simulator.memory[0x4000:]
-    return ram, registers, state
+        machine = '48K'
+    return ram, registers, state, machine
 
 def get_registers(config, state, as_array=True):
     registers = [0] * 29

@@ -17,7 +17,7 @@
 import textwrap
 import zlib
 
-from skoolkit import ROM48, ROM128, ROM_PLUS2, SkoolKitError, get_dword, get_word, get_int_param, parse_int, read_bin_file
+from skoolkit import SkoolKitError, get_dword, get_word, get_int_param, parse_int, read_bin_file
 from skoolkit.components import get_snapshot_reader, get_value
 from skoolkit.simutils import FRAME_DURATIONS
 
@@ -158,7 +158,7 @@ class Snapshot:
         self.outfffd = 0
         self.ay = (0,) * 16
         self.outfe = 0
-        self.rom = None
+        self.machine = None
 
     @classmethod
     def get(cls, sfile, ext=None):
@@ -218,7 +218,7 @@ class SNA(Snapshot):
             if self.sp >= 16384:
                 self.pc = get_word(self.tail, self.sp - 16384)
             page = 0
-            self.rom = ROM48
+            self.machine = '48K'
         else:
             self.pc = get_word(self.tail, 49152)
             self.out7ffd = self.tail[49154]
@@ -227,14 +227,14 @@ class SNA(Snapshot):
             for i in sorted(set(range(8)) - {5, 2, page}):
                 banks[i] = self.tail[offset:offset + 16384]
                 offset += 16384
-            self.rom = ROM128
+            self.machine = '128K'
         banks[5] = self.tail[:0x4000]
         banks[2] = self.tail[0x4000:0x8000]
         banks[page] = self.tail[0x8000:0xC000]
         self.memory = Memory(banks=banks, page=page)
 
 class SZX(Snapshot):
-    def __init__(self, szx_data=None, ram=None, rom0=None):
+    def __init__(self, szx_data=None, ram=None, machine='48K'):
         super().__init__()
         self.type = 'SZX'
         if szx_data:
@@ -244,7 +244,7 @@ class SZX(Snapshot):
             self.blocks = {}
             if len(ram) == 8:
                 # 128K
-                if rom0 and rom0[0x3FFD] == 0:
+                if machine == '+2':
                     self.header[6] = 3 # +2
                 else:
                     self.header[6] = 2 # 128K
@@ -264,11 +264,11 @@ class SZX(Snapshot):
         self.header = data[:8]
         machine_id = self.header[6]
         if machine_id < 2:
-            self.rom = ROM48
+            self.machine = '48K'
         elif machine_id == 2:
-            self.rom = ROM128
+            self.machine = '128K'
         elif machine_id == 3:
-            self.rom = ROM_PLUS2
+            self.machine = '+2'
         page = 0
         i = 8
         while i + 8 <= len(data):
@@ -440,7 +440,7 @@ class SZX(Snapshot):
             f.write(self.data())
 
 class Z80(Snapshot):
-    def __init__(self, z80_data=None, ram=(0,) * 49152, rom0=None):
+    def __init__(self, z80_data=None, ram=(0,) * 49152, machine='48K'):
         super().__init__()
         self.type = 'Z80'
         if z80_data:
@@ -451,7 +451,7 @@ class Z80(Snapshot):
             if len(ram) == 8:
                 # 128K
                 self.header[34] = 4
-                if rom0 and rom0[0x3FFD] == 0:
+                if machine == '+2':
                     self.header[37] |= 0x80 # +2
             self.set_ram(ram)
 
@@ -472,7 +472,7 @@ class Z80(Snapshot):
             banks[5] = ram[0x0000:0x4000]
             banks[2] = ram[0x4000:0x8000]
             banks[0] = ram[0x8000:0xC000]
-            self.rom = ROM48
+            self.machine = '48K'
         else:
             page = None
             i = 32 + data[30]
@@ -496,12 +496,12 @@ class Z80(Snapshot):
                 m48_ids = (0, 1)
                 m128_ids = (3, 4, 12)
             if machine_id[0] in m48_ids:
-                self.rom = ROM48
+                self.machine = '48K'
             elif machine_id[0] in m128_ids:
                 if machine_id[0] == 12 or machine_id[1] == 1:
-                    self.rom = ROM_PLUS2
+                    self.machine = '+2'
                 else:
-                    self.rom = ROM128
+                    self.machine = '128K'
             if (i == 55 and machine_id[0] > 2) or (i > 55 and machine_id[0] > 3):
                 page = data[35] % 8 # 128K
             while i < len(data):
@@ -737,13 +737,13 @@ def make_snapshot(fname, org, start=None, end=65536, page=None):
     mem[org:org + len(ram)] = ram
     return mem, max(org, start), min(end, org + len(ram))
 
-def write_snapshot(fname, ram, registers, state, rom0=None):
+def write_snapshot(fname, ram, registers, state, machine='48K'):
     snapshot_type = fname[-4:].lower()
     if snapshot_type == '.z80':
-        snapshot = Z80(ram=ram, rom0=rom0)
+        snapshot = Z80(ram=ram, machine=machine)
         registers = ('i=63', 'iy=23610', *registers)
     elif snapshot_type == '.szx':
-        snapshot = SZX(ram=ram, rom0=rom0)
+        snapshot = SZX(ram=ram, machine=machine)
     else:
         raise SnapshotError(f'{fname}: Unsupported snapshot type')
     snapshot.set_registers_and_state(registers, ('iff=1', 'im=1', 'tstates=34943', *state))

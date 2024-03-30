@@ -470,7 +470,7 @@ def sim_load(blocks, options, config):
     if tracefile:
         tracefile.close()
 
-    ram, registers, state = get_state(simulator, False)
+    ram, registers, state = get_state(simulator, False)[:3]
     options.reg = registers + options.reg
     options.state = state + options.state
     return ram

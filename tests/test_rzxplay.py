@@ -24,8 +24,8 @@ def mock_run(*args):
     global run_args
     run_args = args
 
-def mock_write_snapshot(fname, ram, registers, state, rom0):
-    global s_fname, s_memory, s_banks, s_reg, s_state, s_rom0
+def mock_write_snapshot(fname, ram, registers, state, machine):
+    global s_fname, s_memory, s_banks, s_reg, s_state, s_machine
     s_fname = fname
     s_memory = [0] * 65536
     if len(ram) == 8:
@@ -43,7 +43,7 @@ def mock_write_snapshot(fname, ram, registers, state, rom0):
         s_memory[0x4000:] = ram
     s_reg = registers
     s_state = state
-    s_rom0 = rom0
+    s_machine = machine
 
 class RzxplayTest(SkoolKitTestCase):
     def _test_rzx(self, rzx, exp_output, options='', exp_trace=None, outfile=None, exp_error=''):
@@ -685,7 +685,7 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertLessEqual({'A=191', f'PC={end}'}, set(s_reg))
         self.assertIn('tstates=0', s_state)
         self.assertIsNotNone(s_banks)
-        self.assertEqual(s_rom0[0x3FFD], 0x4D)
+        self.assertEqual(s_machine, '128K')
         self.assertEqual(code, s_memory[pc:end])
 
     @patch.object(rzxplay, 'write_snapshot', mock_write_snapshot)
@@ -709,7 +709,7 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertLessEqual({'A=191', f'PC={end}'}, set(s_reg))
         self.assertIn('tstates=0', s_state)
         self.assertIsNotNone(s_banks)
-        self.assertEqual(s_rom0[0x3FFD], 0)
+        self.assertEqual(s_machine, '+2')
         self.assertEqual(code, s_memory[pc:end])
 
     def test_write_rzx_file(self):

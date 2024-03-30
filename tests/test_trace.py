@@ -42,8 +42,8 @@ def mock_run(*args):
 def mock_config(name):
     return {k: v[0] for k, v in COMMANDS[name].items()}
 
-def mock_write_snapshot(fname, ram, registers, state, rom0):
-    global s_fname, s_memory, s_banks, s_reg, s_state, s_rom0
+def mock_write_snapshot(fname, ram, registers, state, machine):
+    global s_fname, s_memory, s_banks, s_reg, s_state, s_machine
     s_fname = fname
     s_memory = [0] * 65536
     if len(ram) == 8:
@@ -61,7 +61,7 @@ def mock_write_snapshot(fname, ram, registers, state, rom0):
         s_memory[0x4000:] = ram
     s_reg = registers
     s_state = state
-    s_rom0 = rom0
+    s_machine = machine
 
 class TestSimulator(CSimulator or Simulator):
     def __init__(self, memory, registers=None, state=None, config=None):
@@ -2379,7 +2379,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertTrue(all(b == 1 for b in s_memory[0xC000:0x10000]))
         self.assertEqual(exp_reg, s_reg)
         self.assertEqual(exp_state, set(s_state))
-        self.assertEqual(hashlib.md5(bytes(s_rom0)).hexdigest(), ROM128_0_MD5)
+        self.assertEqual(s_machine, '128K')
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_write_z80_plus2(self):
@@ -2443,8 +2443,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(exp_reg, s_reg)
         self.assertEqual(exp_state, set(s_state))
         self.assertEqual(exp_state, set(s_state))
-        self.assertIsNotNone(s_rom0)
-        self.assertEqual(hashlib.md5(bytes(s_rom0)).hexdigest(), ROM_PLUS2_0_MD5)
+        self.assertEqual(s_machine, '+2')
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_ay_tracing_from_z80(self):

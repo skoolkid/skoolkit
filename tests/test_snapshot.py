@@ -644,16 +644,16 @@ class WriteSZXTest(WriteSnapshotTest):
         for i in range(16):
             self.assertEqual(ay[2 + i], exp_state[f'ay[{i}]'] % 256)
 
-    def _test_szx(self, ram, registers, state, rom0=None):
+    def _test_szx(self, ram, registers, state, machine=None):
         fname = '{}/test.szx'.format(self.make_directory())
-        write_snapshot(fname, ram, [f'{k}={v}' for k, v in registers.items()], [f'{k}={v}' for k, v in state.items()], rom0)
+        write_snapshot(fname, ram, [f'{k}={v}' for k, v in registers.items()], [f'{k}={v}' for k, v in state.items()], machine)
         with open(fname, 'rb') as f:
             szx = tuple(f.read())
         self.assertTrue(len(szx) > 8)
         self.assertEqual(bytes(szx[:4]), b'ZXST')
         is128k = len(ram) == 8
         if is128k:
-            if rom0 and rom0[0x3FFD] == 0:
+            if machine == '+2':
                 machine_id = 3
             else:
                 machine_id = 2
@@ -814,8 +814,7 @@ class WriteSZXTest(WriteSnapshotTest):
             'issue2': 1,
             'tstates': 12345
         }
-        rom0 = [0] * 16384
-        self._test_szx(ram, registers, state, rom0)
+        self._test_szx(ram, registers, state, '+2')
 
     def test_default_registers_and_state_48k(self):
         ram = [0] * 49152
@@ -876,9 +875,9 @@ class WriteZ80Test(WriteSnapshotTest):
         for n, ram in exp_pages.items():
             self.assertEqual(ram, pages[n])
 
-    def _check_header(self, z80, ram, exp_registers, exp_state, rom0):
+    def _check_header(self, z80, ram, exp_registers, exp_state, machine):
         is128k = len(ram) == 8
-        hw_mod = 128 if is128k and rom0 and rom0[0x3FFD] == 0 else 0
+        hw_mod = 128 if is128k and machine == '+2' else 0
         self.assertEqual(z80[0], exp_registers['a'])
         self.assertEqual(z80[1], exp_registers['f'])
         self.assertEqual(z80[2], exp_registers['c'])
@@ -922,12 +921,12 @@ class WriteZ80Test(WriteSnapshotTest):
         self.assertEqual(tstates, exp_state['tstates'] % frame_duration)
         self.assertEqual(z80[58:86], (0,) * 28) # Various flags
 
-    def _test_z80(self, ram, registers, state, rom0=None):
+    def _test_z80(self, ram, registers, state, machine=None):
         fname = '{}/test.z80'.format(self.make_directory())
-        write_snapshot(fname, ram, [f'{k}={v}' for k, v in registers.items()], [f'{k}={v}' for k, v in state.items()], rom0)
+        write_snapshot(fname, ram, [f'{k}={v}' for k, v in registers.items()], [f'{k}={v}' for k, v in state.items()], machine)
         with open(fname, 'rb') as f:
             z80 = tuple(f.read())
-        self._check_header(z80, ram, self._normalise_registers(registers), self._fill_state(state), rom0)
+        self._check_header(z80, ram, self._normalise_registers(registers), self._fill_state(state), machine)
         self._check_ram(z80, ram)
 
     def _test_bad_spec(self, exp_error, ram, registers=(), state=()):
@@ -1063,8 +1062,7 @@ class WriteZ80Test(WriteSnapshotTest):
             'issue2': 1,
             'tstates': 12345
         }
-        rom0 = [0] * 16384
-        self._test_z80(ram, registers, state, rom0)
+        self._test_z80(ram, registers, state, '+2')
 
     def test_invalid_state(self):
         self._test_invalid_state()

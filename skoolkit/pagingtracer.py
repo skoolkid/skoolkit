@@ -14,14 +14,17 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from skoolkit import ROM128, read_bin_file
+from skoolkit import ROM128, ROM_PLUS2, read_bin_file
+
+ROMS = {'128K': ROM128, '+2': ROM_PLUS2}
 
 class Memory:
-    def __init__(self, banks=None, out7ffd=0, roms=None):
+    def __init__(self, banks=None, out7ffd=0, machine='128K'):
         self.banks = banks or tuple([0] * 16384 for b in range(8))
-        self.roms = tuple(list(read_bin_file(r)) for r in roms or ROM128)
+        self.roms = tuple(list(read_bin_file(r)) for r in ROMS.get(machine, ROM128))
         self.memory = [None, self.banks[5], self.banks[2], None]
         self.out7ffd(out7ffd)
+        self.machine = machine
 
     def __getitem__(self, index):
         if isinstance(index, int):
