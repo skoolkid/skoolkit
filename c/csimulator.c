@@ -51,7 +51,7 @@ typedef struct {
 typedef struct CSimulatorObject {
     PyObject_HEAD
     Py_buffer buffers[11];
-    unsigned* registers;
+    unsigned long long* registers;
     byte* memory;
     byte* roms[2];
     byte* banks[8];
@@ -729,7 +729,7 @@ static void out7ffd(CSimulatorObject* self, byte value) {
 }
 
 static int accept_interrupt(CSimulatorObject* self, unsigned prev_pc) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     byte opcode = MEMGET(prev_pc);
@@ -830,7 +830,7 @@ static void contend_128k(unsigned* t, unsigned* delay, int urc, int n, ...) {
 /* ADD A,(HL) / AND (HL) / CP (HL) / OR (HL) / SUB (HL) / XOR (HL) */
 static void af_hl(CSimulatorObject* self, void* lookup, int args[]) {
     byte (*table)[256][2] = lookup;
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned old_a = REG(A);
@@ -851,7 +851,7 @@ static void af_hl(CSimulatorObject* self, void* lookup, int args[]) {
 /* ADD A,n / AND n / CP n / OR n / SUB n / XOR n */
 static void af_n(CSimulatorObject* self, void* lookup, int args[]) {
     byte (*table)[256][2] = lookup;
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
 #ifdef CONTENTION
@@ -877,7 +877,7 @@ static void af_r(CSimulatorObject* self, void* lookup, int args[]) {
     int timing = args[1];
     int size = args[2];
     int r = args[3];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -904,7 +904,7 @@ static void af_xy(CSimulatorObject* self, void* lookup, int args[]) {
     byte (*table)[256][2] = lookup;
     int xyh = args[0];
     int xyl = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     int xy = REG(xyl) + 256 * REG(xyh);
@@ -929,7 +929,7 @@ static void af_xy(CSimulatorObject* self, void* lookup, int args[]) {
 /* ADC/SBC A,(HL) */
 static void afc_hl(CSimulatorObject* self, void* lookup, int args[]) {
     byte (*table)[256][256][2] = lookup;
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned old_a = REG(A);
@@ -950,7 +950,7 @@ static void afc_hl(CSimulatorObject* self, void* lookup, int args[]) {
 /* ADC/SBC A,n */
 static void afc_n(CSimulatorObject* self, void* lookup, int args[]) {
     byte (*table)[256][256][2] = lookup;
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
 #ifdef CONTENTION
@@ -976,7 +976,7 @@ static void afc_r(CSimulatorObject* self, void* lookup, int args[]) {
     int timing = args[1];
     int size = args[2];
     int r = args[3];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1002,7 +1002,7 @@ static void afc_xy(CSimulatorObject* self, void* lookup, int args[]) {
     byte (*table)[256][256][2] = lookup;
     int xyh = args[0];
     int xyl = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     int xy = REG(xyl) + 256 * REG(xyh);
@@ -1031,7 +1031,7 @@ static void afc_xy(CSimulatorObject* self, void* lookup, int args[]) {
 /* RLC/RRC/SLA/SLL/SRA/SRL (HL) */
 static void f_hl(CSimulatorObject* self, void* lookup, int args[]) {
     byte (*table)[2] = lookup;
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned hl = REG(L) + 256 * REG(H);
@@ -1055,7 +1055,7 @@ static void f_hl(CSimulatorObject* self, void* lookup, int args[]) {
 static void f_r(CSimulatorObject* self, void* lookup, int args[]) {
     byte (*table)[2] = lookup;
     int r = args[0];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1078,7 +1078,7 @@ static void f_xy(CSimulatorObject* self, void* lookup, int args[]) {
     int xyh = args[0];
     int xyl = args[1];
     int dest = args[2];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     int xy = REG(xyl) + 256 * REG(xyh);
@@ -1111,7 +1111,7 @@ static void fc_hl(CSimulatorObject* self, void* lookup, int args[]) {
     int r_inc = args[0];
     int timing = args[1];
     int size = args[2];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned hl = REG(L) + 256 * REG(H);
@@ -1143,7 +1143,7 @@ static void fc_r(CSimulatorObject* self, void* lookup, int args[]) {
     int timing = args[1];
     int size = args[2];
     int r = args[3];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1171,7 +1171,7 @@ static void fc_xy(CSimulatorObject* self, void* lookup, int args[]) {
     int xyh = args[1];
     int xyl = args[2];
     int dest = args[3];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     int xy = REG(xyl) + 256 * REG(xyh);
@@ -1207,7 +1207,7 @@ static void fc_xy(CSimulatorObject* self, void* lookup, int args[]) {
 static void adc_hl(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned rh = args[0];
     unsigned rl = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1255,7 +1255,7 @@ static void add_rr(CSimulatorObject* self, void* lookup, int args[]) {
     int al = args[4];
     int rh = args[5];
     int rl = args[6];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1292,7 +1292,7 @@ static void add_rr(CSimulatorObject* self, void* lookup, int args[]) {
 /* BIT n,(HL) */
 static void bit_hl(CSimulatorObject* self, void* lookup, int args[]) {
     int b = args[0];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned hl = REG(L) + 256 * REG(H);
@@ -1313,7 +1313,7 @@ static void bit_hl(CSimulatorObject* self, void* lookup, int args[]) {
 static void bit_r(CSimulatorObject* self, void* lookup, int args[]) {
     int b = args[0];
     int r = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1333,7 +1333,7 @@ static void bit_xy(CSimulatorObject* self, void* lookup, int args[]) {
     int b = args[0];
     int xyh = args[1];
     int xyl = args[2];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     int xy = REG(xyl) + 256 * REG(xyh);
@@ -1358,7 +1358,7 @@ static void bit_xy(CSimulatorObject* self, void* lookup, int args[]) {
 static void call(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned c_and = args[0];
     unsigned c_val = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
     if (c_and && (REG(F) & c_and) == c_val) {
 #ifdef CONTENTION
@@ -1398,7 +1398,7 @@ static void call(CSimulatorObject* self, void* lookup, int args[]) {
 /* CCF / SCF */
 static void cf(CSimulatorObject* self, void* lookup, int args[]) {
     byte (*table)[256] = lookup;
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1416,7 +1416,7 @@ static void cf(CSimulatorObject* self, void* lookup, int args[]) {
 static void cpi(CSimulatorObject* self, void* lookup, int args[]) {
     int inc = args[0];
     int repeat = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned hl = REG(L) + 256 * REG(H);
@@ -1462,7 +1462,7 @@ static void cpi(CSimulatorObject* self, void* lookup, int args[]) {
 /* DI / EI */
 static void di_ei(CSimulatorObject* self, void* lookup, int args[]) {
     int iff = args[0];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1478,7 +1478,7 @@ static void di_ei(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* DJNZ nn */
 static void djnz(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
     unsigned b = (REG(B) - 1) % 256;
     REG(B) = b;
@@ -1511,7 +1511,7 @@ static void djnz(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* EX AF,AF' */
 static void ex_af(CSimulatorObject* self, void* lookup, int arg[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1532,7 +1532,7 @@ static void ex_af(CSimulatorObject* self, void* lookup, int arg[]) {
 
 /* EX DE,HL */
 static void ex_de_hl(CSimulatorObject* self, void* lookup, int arg[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1558,7 +1558,7 @@ static void ex_sp(CSimulatorObject* self, void* lookup, int args[]) {
     int size = args[2];
     int rh = args[3];
     int rl = args[4];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned sp = REG(SP);
@@ -1592,7 +1592,7 @@ static void ex_sp(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* EXX */
 static void exx(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1625,7 +1625,7 @@ static void exx(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* HALT */
 static void halt(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1646,7 +1646,7 @@ static void halt(CSimulatorObject* self, void* lookup, int args[]) {
 /* IM 0/1/2 */
 static void im(CSimulatorObject* self, void* lookup, int args[]) {
     int mode = args[0];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1663,7 +1663,7 @@ static void im(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* IN A,(n) */
 static void in_a(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1696,7 +1696,7 @@ static void in_a(CSimulatorObject* self, void* lookup, int args[]) {
 /* IN r,(C) */
 static void in_c(CSimulatorObject* self, void* lookup, int args[]) {
     int r = args[0];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1734,7 +1734,7 @@ static void inc_dec_rr(CSimulatorObject* self, void* lookup, int args[]) {
     int inc = args[3];
     int rh = args[4];
     int rl = args[5];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1764,7 +1764,7 @@ static void inc_dec_rr(CSimulatorObject* self, void* lookup, int args[]) {
 static void ini(CSimulatorObject* self, void* lookup, int args[]) {
     int inc = args[0];
     int repeat = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned hl = REG(L) + 256 * REG(H);
@@ -1840,7 +1840,7 @@ static void ini(CSimulatorObject* self, void* lookup, int args[]) {
 static void jp(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned c_and = args[0];
     unsigned c_val = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1866,7 +1866,7 @@ static void jp_rr(CSimulatorObject* self, void* lookup, int args[]) {
     int timing = args[1];
     int rh = args[2];
     int rl = args[3];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
     INC_R(r_inc);
 #ifdef CONTENTION
@@ -1887,7 +1887,7 @@ static void jp_rr(CSimulatorObject* self, void* lookup, int args[]) {
 static void jr(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned c_and = args[0];
     unsigned c_val = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
     if ((REG(F) & c_and) == c_val) {
 #ifdef CONTENTION
@@ -1918,7 +1918,7 @@ static void jr(CSimulatorObject* self, void* lookup, int args[]) {
 /* LD A,I/R */
 static void ld_a_ir(CSimulatorObject* self, void* lookup, int args[]) {
     int r = args[0];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -1940,7 +1940,7 @@ static void ld_a_ir(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* LD (HL),n */
 static void ld_hl_n(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
     unsigned hl = REG(L) + 256 * REG(H);
 #ifdef CONTENTION
@@ -1965,7 +1965,7 @@ static void ld_r_n(CSimulatorObject* self, void* lookup, int args[]) {
     int timing = args[1];
     int size = args[2];
     int r = args[3];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
 #ifdef CONTENTION
@@ -1992,7 +1992,7 @@ static void ld_r_r(CSimulatorObject* self, void* lookup, int args[]) {
     int size = args[2];
     int r1 = args[3];
     int r2 = args[4];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -2019,7 +2019,7 @@ static void ld_r_rr(CSimulatorObject* self, void* lookup, int args[]) {
     int r = args[0];
     int rh = args[1];
     int rl = args[2];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
 #ifdef CONTENTION
@@ -2039,7 +2039,7 @@ static void ld_rr_r(CSimulatorObject* self, void* lookup, int args[]) {
     int rh = args[0];
     int rl = args[1];
     int r = args[2];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
     unsigned addr = REG(rl) + 256 * REG(rh);
 #ifdef CONTENTION
@@ -2062,7 +2062,7 @@ static void ld_r_xy(CSimulatorObject* self, void* lookup, int args[]) {
     int r = args[0];
     int xyh = args[1];
     int xyl = args[2];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned xy = REG(xyl) + 256 * REG(xyh);
@@ -2086,7 +2086,7 @@ static void ld_r_xy(CSimulatorObject* self, void* lookup, int args[]) {
 static void ld_xy_n(CSimulatorObject* self, void* lookup, int args[]) {
     int xyh = args[0];
     int xyl = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned xy = REG(xyl) + 256 * REG(xyh);
@@ -2114,7 +2114,7 @@ static void ld_xy_r(CSimulatorObject* self, void* lookup, int args[]) {
     int xyh = args[0];
     int xyl = args[1];
     int r = args[2];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned xy = REG(xyl) + 256 * REG(xyh);
@@ -2143,7 +2143,7 @@ static void ld_rr_nn(CSimulatorObject* self, void* lookup, int args[]) {
     int size = args[2];
     int rh = args[3];
     int rl = args[4];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
 #ifdef CONTENTION
@@ -2170,7 +2170,7 @@ static void ld_rr_nn(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* LD A,(nn) */
 static void ld_a_m(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
 #ifdef CONTENTION
@@ -2190,7 +2190,7 @@ static void ld_a_m(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* LD (nn),A */
 static void ld_m_a(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned addr = MEMGET((REG(PC) + 1) % 65536) + 256 * MEMGET((REG(PC) + 2) % 65536);
@@ -2216,7 +2216,7 @@ static void ld_rr_mm(CSimulatorObject* self, void* lookup, int args[]) {
     int size = args[2];
     int rh = args[3];
     int rl = args[4];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned addr = MEMGET((REG(PC) + size - 2) % 65536) + 256 * MEMGET((REG(PC) + size - 1) % 65536);
@@ -2249,7 +2249,7 @@ static void ld_mm_rr(CSimulatorObject* self, void* lookup, int args[]) {
     int size = args[2];
     int rh = args[3];
     int rl = args[4];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned addr = MEMGET((REG(PC) + size - 2) % 65536) + 256 * MEMGET((REG(PC) + size - 1) % 65536);
@@ -2291,7 +2291,7 @@ static void ld_mm_rr(CSimulatorObject* self, void* lookup, int args[]) {
 static void ldi(CSimulatorObject* self, void* lookup, int args[]) {
     int inc = args[0];
     int repeat = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned hl = REG(L) + 256 * REG(H);
@@ -2346,7 +2346,7 @@ static void ld_sp_rr(CSimulatorObject* self, void* lookup, int args[]) {
     int size = args[2];
     int rh = args[3];
     int rl = args[4];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -2368,7 +2368,7 @@ static void ld_sp_rr(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* NEG */
 static void neg(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -2390,7 +2390,7 @@ static void nop(CSimulatorObject* self, void* lookup, int args[]) {
     int r_inc = args[0];
     int timing = args[1];
     int size = args[2];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
     INC_R(r_inc);
 #ifdef CONTENTION
@@ -2409,7 +2409,7 @@ static void nop(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* OUT (n),A */
 static void out_a(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned port = MEMGET((REG(PC) + 1) % 65536) + 256 * REG(A);
@@ -2439,7 +2439,7 @@ static void out_a(CSimulatorObject* self, void* lookup, int args[]) {
 /* OUT (C),r/0 */
 static void out_c(CSimulatorObject* self, void* lookup, int args[]) {
     int r = args[0];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned port = REG(C) + 256 * REG(B);
@@ -2470,7 +2470,7 @@ static void out_c(CSimulatorObject* self, void* lookup, int args[]) {
 static void outi(CSimulatorObject* self, void* lookup, int args[]) {
     int inc = args[0];
     int repeat = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned hl = REG(L) + 256 * REG(H);
@@ -2545,7 +2545,7 @@ static void pop(CSimulatorObject* self, void* lookup, int args[]) {
     int size = args[2];
     int rh = args[3];
     int rl = args[4];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned sp = REG(SP);
@@ -2575,7 +2575,7 @@ static void push(CSimulatorObject* self, void* lookup, int args[]) {
     int size = args[2];
     int rh = args[3];
     int rl = args[4];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned sp = (REG(SP) - 2) % 65536;
@@ -2607,7 +2607,7 @@ static void push(CSimulatorObject* self, void* lookup, int args[]) {
 /* RES n,(HL) */
 static void res_hl(CSimulatorObject* self, void* lookup, int args[]) {
     int bit = args[0];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
     unsigned hl = REG(L) + 256 * REG(H);
 #ifdef CONTENTION
@@ -2630,7 +2630,7 @@ static void res_hl(CSimulatorObject* self, void* lookup, int args[]) {
 static void res_r(CSimulatorObject* self, void* lookup, int args[]) {
     int bit = args[0];
     int r = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -2651,7 +2651,7 @@ static void res_xy(CSimulatorObject* self, void* lookup, int args[]) {
     int xyh = args[1];
     int xyl = args[2];
     int dest = args[3];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned xy = REG(xyl) + 256 * REG(xyh);
@@ -2681,7 +2681,7 @@ static void res_xy(CSimulatorObject* self, void* lookup, int args[]) {
 static void ret(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned c_and = args[0];
     unsigned c_val = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     if (c_and) {
@@ -2726,7 +2726,7 @@ static void ret(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* RETI / RETN */
 static void reti(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned sp = REG(SP);
@@ -2745,7 +2745,7 @@ static void reti(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* RLD */
 static void rld(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned hl = REG(L) + 256 * REG(H);
@@ -2770,7 +2770,7 @@ static void rld(CSimulatorObject* self, void* lookup, int args[]) {
 
 /* RRD */
 static void rrd(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned hl = REG(L) + 256 * REG(H);
@@ -2796,7 +2796,7 @@ static void rrd(CSimulatorObject* self, void* lookup, int args[]) {
 /* RST n */
 static void rst(CSimulatorObject* self, void* lookup, int args[]) {
     int addr = args[0];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned ret_addr = (REG(PC) + 1) % 65536;
@@ -2825,7 +2825,7 @@ static void rst(CSimulatorObject* self, void* lookup, int args[]) {
 static void sbc_hl(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned rh = args[0];
     unsigned rl = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -2870,7 +2870,7 @@ static void sbc_hl(CSimulatorObject* self, void* lookup, int args[]) {
 /* SET n,(HL) */
 static void set_hl(CSimulatorObject* self, void* lookup, int args[]) {
     int bit = args[0];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
     unsigned hl = REG(L) + 256 * REG(H);
 #ifdef CONTENTION
@@ -2893,7 +2893,7 @@ static void set_hl(CSimulatorObject* self, void* lookup, int args[]) {
 static void set_r(CSimulatorObject* self, void* lookup, int args[]) {
     int bit = args[0];
     int r = args[1];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
 
 #ifdef CONTENTION
     CONTEND {
@@ -2914,7 +2914,7 @@ static void set_xy(CSimulatorObject* self, void* lookup, int args[]) {
     int xyh = args[1];
     int xyl = args[2];
     int dest = args[3];
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned xy = REG(xyl) + 256 * REG(xyh);
@@ -5126,7 +5126,7 @@ static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject
         return NULL;
     }
 
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
     unsigned frame_duration = self->frame_duration;
     unsigned int_active = self->int_active;
@@ -5193,7 +5193,7 @@ static PyObject* CSimulator_exec_with_cb(CSimulatorObject* self, PyObject* args,
         return NULL;
     }
 
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     while (1) {
@@ -5260,7 +5260,7 @@ static PyObject* CSimulator_exec_frame(CSimulatorObject* self, PyObject* args, P
         return NULL;
     }
 
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
     unsigned pc;
 
@@ -5358,19 +5358,19 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
     static char* kwlist[] = {"", "", "", "", "", "", "", NULL};
     PyObject* start_obj;
     PyObject* stop_obj;
-    long long max_operations;
-    int max_tstates;
+    unsigned long long max_operations;
+    unsigned long long max_tstates;
     int interrupts;
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOLiiOO", kwlist, &start_obj, &stop_obj, &max_operations, &max_tstates, &interrupts, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKKiOO", kwlist, &start_obj, &stop_obj, &max_operations, &max_tstates, &interrupts, &disassemble, &trace)) {
         return NULL;
     }
 
     unsigned start = PyLong_Check(start_obj) ? PyLong_AsLong(start_obj) : 0x10000;
     unsigned stop = PyLong_Check(stop_obj) ? PyLong_AsLong(stop_obj) : 0x10000;
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
     unsigned frame_duration = self->frame_duration;
     unsigned int_active = self->int_active;
@@ -5381,7 +5381,7 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
 
     while (1) {
         PyObject* i = NULL;
-        unsigned t0 = REG(T);
+        unsigned long long t0 = REG(T);
         unsigned pc = REG(PC);
         byte opcode = MEMGET(pc);
         OpcodeFunction* opcode_func = &opcodes[opcode];
@@ -5428,7 +5428,7 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
         }
 
         if (trace != Py_None) {
-            PyObject* args = Py_BuildValue("(INI)", pc, i, t0);
+            PyObject* args = Py_BuildValue("(INK)", pc, i, t0);
             PyObject* rv = PyObject_CallObject(trace, args);
             Py_XDECREF(args);
             if (rv == NULL) {
@@ -5443,10 +5443,10 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
 
         operations += 1;
 
-        if (max_operations > 0 && operations >= (unsigned long long)max_operations) {
+        if (max_operations > 0 && operations >= max_operations) {
             return Py_BuildValue("(IL)", 1, operations);
         }
-        if (max_tstates > 0 && REG(T) >= (unsigned)max_tstates) {
+        if (max_tstates > 0 && REG(T) >= max_tstates) {
             return Py_BuildValue("(IL)", 2, operations);
         }
         if (REG(PC) == stop) {
@@ -5474,7 +5474,7 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
         return NULL;
     }
 
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
     unsigned frame_duration = self->frame_duration;
     unsigned int_active = self->int_active;
@@ -5482,7 +5482,7 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
     while (1) {
         PyObject* i = NULL;
         unsigned pc = REG(PC);
-        unsigned t0 = REG(T);
+        unsigned long long t0 = REG(T);
         byte opcode = MEMGET(pc);
         OpcodeFunction* opcode_func = &opcodes[opcode];
         if (!opcode_func->func) {
@@ -5528,7 +5528,7 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
         }
 
         if (trace != Py_None) {
-            PyObject* args = Py_BuildValue("(INI)", pc, i, t0);
+            PyObject* args = Py_BuildValue("(INK)", pc, i, t0);
             PyObject* t = PyObject_CallObject(trace, args);
             Py_XDECREF(args);
             if (t == NULL) {
@@ -5563,7 +5563,7 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
     Py_RETURN_NONE;
 }
 
-static int advance_tape(PyObject* tracer, unsigned* tracer_state, unsigned* edges, unsigned max_index, unsigned tstates, PyObject* print_progress, unsigned* progress) {
+static int advance_tape(PyObject* tracer, unsigned* tracer_state, unsigned* edges, unsigned max_index, unsigned long long tstates, PyObject* print_progress, unsigned* progress) {
     unsigned tape_running = tracer_state[4];
     if (!tape_running) {
         return 0;
@@ -5589,7 +5589,7 @@ static int advance_tape(PyObject* tracer, unsigned* tracer_state, unsigned* edge
     if (index == max_index) {
         /* Allow 1ms for the final edge on the tape to be read */
         if (tstates - edge > 3500) {
-            PyObject* rv = PyObject_CallMethod(tracer, "stop_tape", "(I)", tstates);
+            PyObject* rv = PyObject_CallMethod(tracer, "stop_tape", "(K)", tstates);
             if (rv == NULL) {
                 return -1;
             }
@@ -5597,7 +5597,7 @@ static int advance_tape(PyObject* tracer, unsigned* tracer_state, unsigned* edge
         }
     } else if (index > block_max_index) {
         /* Pause tape between blocks */
-        PyObject* rv = PyObject_CallMethod(tracer, "next_block", "(I)", tstates);
+        PyObject* rv = PyObject_CallMethod(tracer, "next_block", "(K)", tstates);
         if (rv == NULL) {
             return -1;
         }
@@ -5624,7 +5624,7 @@ static int advance_tape(PyObject* tracer, unsigned* tracer_state, unsigned* edge
 
 #ifndef CONTENTION
 static void dec_a_jr(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     byte a = REG(A);
@@ -5645,7 +5645,7 @@ static void dec_a_jr(CSimulatorObject* self, void* lookup, int args[]) {
 }
 
 static void dec_a_jp(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     byte a = REG(A);
@@ -5666,7 +5666,7 @@ static void dec_a_jp(CSimulatorObject* self, void* lookup, int args[]) {
 }
 
 static void dec_a_list(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned pc = REG(PC);
@@ -5698,7 +5698,7 @@ static void dec_b(CSimulatorObject* self, void* lookup, int args[]) {
     tsl_accelerator** accs = (tsl_accelerator**)lookup;
     int num_accs = args[0];
     unsigned* state = accs[0]->state;
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     byte b = REG(B);
@@ -5757,7 +5757,7 @@ static void inc_b(CSimulatorObject* self, void* lookup, int args[]) {
     tsl_accelerator** accs = (tsl_accelerator**)lookup;
     int num_accs = args[0];
     unsigned* state = accs[0]->state;
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     byte b = REG(B);
@@ -5817,7 +5817,7 @@ static void list_accelerators(CSimulatorObject* self, void* lookup, int args[]) 
     int num_accs = args[0];
     byte opcode = args[1];
     unsigned* state = accs[0]->state;
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned pc1 = (REG(PC) + 1) % 65536;
@@ -6041,7 +6041,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     }
 #endif
 
-    unsigned* reg = self->registers;
+    unsigned long long* reg = self->registers;
     byte* mem = self->memory;
     if (mem) {
         self->out7ffd = 0x10; // Signal: 48K ROM always
@@ -6055,7 +6055,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
 
     while (ok) {
         PyObject* i = NULL;
-        unsigned t0 = REG(T);
+        unsigned long long t0 = REG(T);
         byte opcode = MEMGET(pc);
         OpcodeFunction* opcode_func = self->opcodes[opcode];
         if (!opcode_func->func) {
@@ -6101,7 +6101,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         }
 
         if (trace != Py_None) {
-            PyObject* args = Py_BuildValue("(INI)", pc, i, t0);
+            PyObject* args = Py_BuildValue("(INK)", pc, i, t0);
             PyObject* t = PyObject_CallObject(trace, args);
             Py_XDECREF(args);
             if (t == NULL) {
@@ -6114,7 +6114,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
             accept_interrupt(self, pc);
         }
 
-        unsigned tstates = REG(T);
+        unsigned long long tstates = REG(T);
         if (advance_tape(self->tracer, tracer_state, edges, max_index, tstates, print_progress, &progress) == -1) {
             break;
         }
@@ -6141,7 +6141,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
                 tracer_state[1] = block_max_index;
                 if (block_max_index == max_index) {
                     /* Final block, so stop the tape */
-                    PyObject* st = PyObject_CallMethod(self->tracer, "stop_tape", "(I)", tstates);
+                    PyObject* st = PyObject_CallMethod(self->tracer, "stop_tape", "(K)", tstates);
                     if (st == NULL) {
                         break;
                     }

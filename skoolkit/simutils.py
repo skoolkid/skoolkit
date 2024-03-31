@@ -163,7 +163,7 @@ def get_state(simulator, tstates=True):
 def get_registers(config, state, as_array=True):
     registers = [0] * 29
     if as_array: # pragma: no cover
-        registers = array.array('I', registers)
+        registers = array.array('Q', registers)
     registers[IYh] = 92
     registers[IYl] = 58
     registers[SP] = 23552
