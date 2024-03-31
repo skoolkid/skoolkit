@@ -5359,12 +5359,12 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
     PyObject* start_obj;
     PyObject* stop_obj;
     unsigned long long max_operations;
-    unsigned long long max_tstates;
+    unsigned long long max_time;
     int interrupts;
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKKiOO", kwlist, &start_obj, &stop_obj, &max_operations, &max_tstates, &interrupts, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKKiOO", kwlist, &start_obj, &stop_obj, &max_operations, &max_time, &interrupts, &disassemble, &trace)) {
         return NULL;
     }
 
@@ -5446,7 +5446,7 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
         if (max_operations > 0 && operations >= max_operations) {
             return Py_BuildValue("(IL)", 1, operations);
         }
-        if (max_tstates > 0 && REG(T) >= max_tstates) {
+        if (max_time > 0 && REG(T) >= max_time) {
             return Py_BuildValue("(IL)", 2, operations);
         }
         if (REG(PC) == stop) {

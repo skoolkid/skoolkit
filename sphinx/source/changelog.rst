@@ -20,6 +20,8 @@ Changelog
   pure Python Z80 simulator even if the C version is available)
 * Fixed the lazy evaluation bug that can make the :ref:`FONT`, :ref:`SCR` and
   :ref:`UDG` macros create frames with incorrect graphic content
+* Fixed the bug that can make :ref:`trace.py` stop too soon when the
+  ``--max-tstates`` option is used
 * Fixed the contention pattern for the OUTI/OUTD/OTIR/OTDR instructions
 
 9.1 (2024-02-03)

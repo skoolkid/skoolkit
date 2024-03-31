@@ -44,6 +44,11 @@ class Tracer(PagingTracer):
         simulator = self.simulator
         memory = simulator.memory
         registers = simulator.registers
+        start_time = registers[T]
+        if max_tstates > 0:
+            max_time = start_time + max_tstates
+        else:
+            max_time = 0
         r = Registers(registers)
 
         if hasattr(simulator, 'trace'): # pragma: no cover
@@ -52,9 +57,7 @@ class Tracer(PagingTracer):
                 tf = lambda pc, i, t0: print(trace_line.format(pc=pc, i=i, r=r, t=t0))
             else:
                 df = tf = None
-            stop_cond, operations = simulator.trace(start, stop, max_operations, max_tstates, interrupts, df, tf)
-            pc = registers[24]
-            tstates = registers[25]
+            stop_cond, operations = simulator.trace(start, stop, max_operations, max_time, interrupts, df, tf)
         else:
             opcodes = simulator.opcodes
             frame_duration = simulator.frame_duration
@@ -82,7 +85,7 @@ class Tracer(PagingTracer):
                 if operations >= max_operations > 0:
                     stop_cond = 1
                     break
-                if tstates >= max_tstates > 0:
+                if tstates >= max_time > 0:
                     stop_cond = 2
                     break
                 if pc == stop:
@@ -90,11 +93,11 @@ class Tracer(PagingTracer):
                     break
 
         if stop_cond == 1:
-            print(f'Stopped at {prefix}{pc:{word_fmt}}: {operations} operations')
+            print(f'Stopped at {prefix}{registers[PC]:{word_fmt}}: {operations} operations')
         elif stop_cond == 2:
-            print(f'Stopped at {prefix}{pc:{word_fmt}}: {tstates} T-states')
+            print(f'Stopped at {prefix}{registers[PC]:{word_fmt}}: {registers[T] - start_time} T-states')
         elif stop_cond == 3:
-            print(f'Stopped at {prefix}{pc:{word_fmt}}')
+            print(f'Stopped at {prefix}{registers[PC]:{word_fmt}}')
         self.operations = operations
 
     def read_port(self, registers, port):

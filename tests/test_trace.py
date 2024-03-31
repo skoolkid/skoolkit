@@ -1335,19 +1335,24 @@ class TraceTest(SkoolKitTestCase):
         self.assertLessEqual({'BC=1', 'DE=49154', 'HL=49153', 'R=6'}, set(s_reg))
 
     def test_option_max_tstates(self):
-        data = [
+        data = (
             0xAF, # XOR A
             0x3C, # INC A
-        ]
-        binfile = self.write_bin_file(data, suffix='.bin')
-        start = 32768
+        )
+        start = 0x8000
+        stop = start + len(data)
+        ram = [0] * 0xC000
+        ram[start - 0x4000:stop - 0x4000] = data
+        start_time = 4
+        registers = {'PC': start, 'tstates': start_time}
+        z80file = self.write_z80_file(None, ram, registers=registers)
         exp_output = """
             $8000 XOR A
             $8001 INC A
             Stopped at $8002: 8 T-states
         """
         for option in ('-M', '--max-tstates'):
-            output, error = self.run_trace(f'-n -o {start} -v {option} 8 {binfile}')
+            output, error = self.run_trace(f'-v {option} 8 {z80file}')
             self.assertEqual(error, '')
             self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
