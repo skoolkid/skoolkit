@@ -326,7 +326,7 @@ def process_block(block, options, context):
     memory = simulator.memory
     registers = simulator.registers
     total_frames = context.total_frames
-    context.fnwidth = len(str(total_frames))
+    context.fnwidth = len(str(total_frames)) - 1
     prev_scr = [None] * 6912
     show_progress = not options.quiet
     fps = options.fps

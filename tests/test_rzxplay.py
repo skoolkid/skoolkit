@@ -1311,6 +1311,42 @@ class RzxplayTest(SkoolKitTestCase):
         """
         self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace)
 
+    def test_option_trace_uses_minimal_width_for_frame_number_field(self):
+        ram = [0] * 0xC000
+        pc = 0xF000
+        code = (
+            0x06, 0x00, # LD B,$00
+            0x06, 0x01, # LD B,$01
+            0x06, 0x02, # LD B,$02
+            0x06, 0x03, # LD B,$03
+            0x06, 0x04, # LD B,$04
+            0x06, 0x05, # LD B,$05
+            0x06, 0x06, # LD B,$06
+            0x06, 0x07, # LD B,$07
+            0x06, 0x08, # LD B,$08
+            0x06, 0x09, # LD B,$09
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, [])] * 10
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00001 I:00000 $F000 LD B,$00
+            F:1 C:00001 I:00000 $F002 LD B,$01
+            F:2 C:00001 I:00000 $F004 LD B,$02
+            F:3 C:00001 I:00000 $F006 LD B,$03
+            F:4 C:00001 I:00000 $F008 LD B,$04
+            F:5 C:00001 I:00000 $F00A LD B,$05
+            F:6 C:00001 I:00000 $F00C LD B,$06
+            F:7 C:00001 I:00000 $F00E LD B,$07
+            F:8 C:00001 I:00000 $F010 LD B,$08
+            F:9 C:00001 I:00000 $F012 LD B,$09
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_rzxplay(option, catch_exit=0)
