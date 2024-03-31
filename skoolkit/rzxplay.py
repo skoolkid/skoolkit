@@ -408,6 +408,11 @@ def run(infile, options):
         context = RZXContext()
     if options.map:
         context.exec_map = set()
+        if os.path.isfile(options.map):
+            with open(options.map) as f:
+                for line in f:
+                    if re.match(r'\$[0-9A-F]{4}', line):
+                        context.exec_map.add(int(line[1:5], 16))
     if options.trace:
         context.tracefile = open(options.trace, 'w')
     rzx_blocks = parse_rzx(infile)

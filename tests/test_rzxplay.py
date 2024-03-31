@@ -1224,6 +1224,43 @@ class RzxplayTest(SkoolKitTestCase):
             map_contents = f.read()
         self.assertEqual(dedent(exp_map).lstrip(), map_contents)
 
+    def test_option_map_with_existing_file(self):
+        ram = [0] * 0xC000
+        pc = 0x6006
+        code = (
+            0x06, 0x02,       # $6006 LD B,2
+            0xCD, 0x52, 0x00, # $6008 CALL $0052
+            0x10, 0xFB,       # $600B DJNZ $6008
+            0x18, 0xF7,       # $600D JR $6006
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(9, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        existing_map = """
+            $0052
+            $6000
+            $6003
+            $6006
+        """
+        mapfile = self.write_text_file(dedent(existing_map).lstrip(), suffix='.map')
+        exp_output = ''
+        self._test_rzx(rzx, exp_output, f'--map {mapfile} --quiet --no-screen')
+        exp_map = """
+            $0052
+            $6000
+            $6003
+            $6006
+            $6008
+            $600B
+            $600D
+        """
+        with open(mapfile) as f:
+            map_contents = f.read()
+        self.assertEqual(dedent(exp_map).lstrip(), map_contents)
+
     @patch.object(rzxplay, 'Simulator', MockSimulator)
     def test_option_python(self):
         global simulator

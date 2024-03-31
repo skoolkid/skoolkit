@@ -66,9 +66,11 @@ use the ``--no-screen`` option.
 
 CODE EXECUTION MAP
 ==================
-The ``-map`` option can be used to log the addresses of instructions executed
+The ``--map`` option can be used to log the addresses of instructions executed
 during playback to a file. This file can then be used by ``sna2ctl.py`` to
-produce a control file.
+produce a control file. If the file specified by the ``--map`` option already
+exists, any addresses it contains will be merged with those of the instructions
+executed.
 
 OUTPUT FILE
 ===========

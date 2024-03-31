@@ -265,7 +265,9 @@ the ``--no-screen`` option.
 
 The ``--map`` option can be used to log the addresses of instructions executed
 during playback to a file. This file can then be used by :ref:`sna2ctl.py` to
-produce a control file.
+produce a control file. If the file specified by the ``--map`` option already
+exists, any addresses it contains will be merged with those of the instructions
+executed.
 
 If ``OUTFILE`` is given, and ends with either '.z80' or '.szx', then a snapshot
 in the corresponding format is written when playback ends. Similarly, if
