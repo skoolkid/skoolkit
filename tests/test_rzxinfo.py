@@ -27,7 +27,7 @@ class RzxinfoTest(SkoolKitTestCase):
               Size: 49179 bytes
               Machine: 48K Spectrum
               Start address: 0
-            Input recording
+            Input recording:
               Number of frames: 1 (0h00m00s)
               T-states: 0
               Encrypted: No
@@ -48,7 +48,7 @@ class RzxinfoTest(SkoolKitTestCase):
               Size: 131103 bytes
               Machine: 128K Spectrum
               Start address: 0
-            Input recording
+            Input recording:
               Number of frames: 1 (0h00m00s)
               T-states: 0
               Encrypted: No
@@ -70,7 +70,7 @@ class RzxinfoTest(SkoolKitTestCase):
               Size: 49247 bytes
               Machine: 48K Spectrum
               Start address: 0
-            Input recording
+            Input recording:
               Number of frames: 1 (0h00m00s)
               T-states: 0
               Encrypted: No
@@ -92,7 +92,7 @@ class RzxinfoTest(SkoolKitTestCase):
               Size: 174 bytes
               Machine: 48K ZX Spectrum
               Start address: 0
-            Input recording
+            Input recording:
               Number of frames: 1 (0h00m00s)
               T-states: 0
               Encrypted: No
@@ -113,7 +113,7 @@ class RzxinfoTest(SkoolKitTestCase):
               Size: 49179 bytes
               Machine: 48K Spectrum
               Start address: 0
-            Input recording
+            Input recording:
               Number of frames: 1 (0h00m00s)
               T-states: 0
               Encrypted: No
@@ -135,7 +135,7 @@ class RzxinfoTest(SkoolKitTestCase):
               Filename extension: sna
               Size: 13 bytes
               External snapshot: game.sna
-            Input recording
+            Input recording:
               Number of frames: 1 (0h00m00s)
               T-states: 0
               Encrypted: No
@@ -158,7 +158,7 @@ class RzxinfoTest(SkoolKitTestCase):
               Size: 174 bytes
               Machine: 48K ZX Spectrum
               Start address: 0
-            Input recording
+            Input recording:
               Number of frames: 1 (0h00m00s)
               T-states: 0
               Encrypted: No
@@ -192,7 +192,7 @@ class RzxinfoTest(SkoolKitTestCase):
               Size: 10 bytes
               Machine: Unknown
               Start address: Unknown
-            Input recording
+            Input recording:
               Number of frames: 1 (0h00m00s)
               T-states: 0
               Encrypted: No
@@ -307,7 +307,7 @@ class RzxinfoTest(SkoolKitTestCase):
               Size: 49179 bytes
               Machine: 48K Spectrum
               Start address: 0
-            Input recording
+            Input recording:
               Number of frames: 5 (0h00m00s)
               T-states: 0
               Encrypted: No
@@ -321,14 +321,45 @@ class RzxinfoTest(SkoolKitTestCase):
                 Port readings: 5, 5, 5, 5, 5, 5, 5, 5, 5, 5...
               Frame 2:
                 Fetch counter: 20
-                IN counter: 65535
+                IN counter: 65535 (11)
                 Port readings: 5, 5, 5, 5, 5, 5, 5, 5, 5, 5...
               Frame 3:
                 Fetch counter: 15
                 IN counter: 0
               Frame 4:
                 Fetch counter: 15
-                IN counter: 65535
+                IN counter: 65535 (0)
+        """
+        self._test_rzx(rzx, exp_output, '--frames')
+
+    def test_option_frames_first_frame_in_counter_65535(self):
+        sna = [0] * 49179
+        rzx = RZX()
+        frames = (
+            (1, 65535, ()), # Frame 0
+            (2, 0, ()),     # Frame 1
+        )
+        rzx.add_snapshot(sna, 'sna', frames)
+        exp_output = """
+            Version: 0.13
+            Signed: No
+            Creator information:
+              ID: SkoolKit 9.2 (0.9.0.2)
+            Snapshot:
+              Filename extension: sna
+              Size: 49179 bytes
+              Machine: 48K Spectrum
+              Start address: 0
+            Input recording:
+              Number of frames: 2 (0h00m00s)
+              T-states: 0
+              Encrypted: No
+              Frame 0:
+                Fetch counter: 1
+                IN counter: 65535 (0)
+              Frame 1:
+                Fetch counter: 2
+                IN counter: 0
         """
         self._test_rzx(rzx, exp_output, '--frames')
 

@@ -84,7 +84,7 @@ def _show_blocks(data, options):
                 print(f'  Machine: {machine}')
                 print(f'  Start address: {start_addr}')
         elif block_id == 0x80:
-            print('Input recording')
+            print('Input recording:')
             num_frames = get_dword(data, i + 5)
             h = num_frames // 180000
             m = (num_frames % 180000) // 3000
@@ -103,19 +103,21 @@ def _show_blocks(data, options):
                     except zlib.error as e:
                         raise SkoolKitError(f'Failed to decompress input recording block: {e.args[0]}')
                 j = 0
-                pr_str = '?'
+                pr_str = ''
+                port_readings = ()
                 suffix = ''
                 for k in range(num_frames):
                     fetch_counter = get_word(frames, j)
                     in_counter = get_word(frames, j + 2)
                     print(f'  Frame {k}:')
                     print(f'    Fetch counter: {fetch_counter}')
-                    print(f'    IN counter: {in_counter}')
                     if in_counter == 65535:
+                        print(f'    IN counter: {in_counter} ({len(port_readings)})')
                         if pr_str:
                             print(f'    Port readings: {pr_str}{suffix}')
                         j += 4
                     else:
+                        print(f'    IN counter: {in_counter}')
                         port_readings = list(frames[j + 4:j + 4 + in_counter])
                         pr_str = ', '.join(str(b) for b in port_readings[:10])
                         suffix = '...' if len(port_readings) > 10 else ''
