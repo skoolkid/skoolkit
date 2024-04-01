@@ -376,15 +376,19 @@ def process_block(block, options, context):
         registers[25] = 0
         fetch_counter = tracer.next_frame()
         if registers[26]:
-            if memory[pc] == 0x76:
+            opcode = memory[pc]
+            if opcode == 0x76:
                 # Advance PC if the CPU was halted
                 registers[24] = (registers[24] + 1) % 65536
-            elif memory[pc] == 0xED and memory[(pc + 1) % 65536] in (0x57, 0x5F):
+                simulator.accept_interrupt(registers, memory, 0)
+            elif opcode == 0xED and memory[(pc + 1) % 65536] in (0x57, 0x5F):
                 # Reset bit 2 of F if the last instruction was LD A,I/R
                 registers[1] &= 0b11111011
-            # Always accept an interrupt at a frame boundary, even if the
-            # instruction just executed would normally block it (e.g. EI)
-            simulator.accept_interrupt(registers, memory, 0)
+                simulator.accept_interrupt(registers, memory, 0)
+            elif opcode != 0xFB or fetch_counter > 2:
+                # Accept an interrupt at a frame boundary, unless the last
+                # instruction was EI and the next frame is short
+                simulator.accept_interrupt(registers, memory, 0)
         if show_progress:
             p = (context.frame_count / total_frames) * 100
             write(f'[{p:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')
