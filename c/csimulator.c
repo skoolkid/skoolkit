@@ -835,15 +835,15 @@ static void af_hl(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
-    unsigned old_a = REG(A);
     unsigned hl = REG(L) + 256 * REG(H);
 #ifdef CONTENTION
     CONTEND {
         CPATTERN(4, REG(PC), 4, hl, 3);
     }
 #endif
-    LD(A, table[old_a][PEEK(hl)][0]);
-    LD(F, table[old_a][PEEK(hl)][1]);
+    byte* values = table[REG(A)][PEEK(hl)];
+    LD(A, values[0]);
+    LD(F, values[1]);
 
     INC_R(1);
     INC_T(7);
@@ -862,10 +862,9 @@ static void af_n(CSimulatorObject* self, void* lookup, int args[]) {
         CPATTERN(4, pc, 4, (pc + 1) % 65536, 3);
     }
 #endif
-    unsigned old_a = REG(A);
-    byte n = PEEK((REG(PC) + 1) % 65536);
-    LD(A, table[old_a][n][0]);
-    LD(F, table[old_a][n][1]);
+    byte* values = table[REG(A)][PEEK((REG(PC) + 1) % 65536)];
+    LD(A, values[0]);
+    LD(F, values[1]);
 
     INC_R(1);
     INC_T(7);
@@ -891,10 +890,9 @@ static void af_r(CSimulatorObject* self, void* lookup, int args[]) {
         }
     }
 #endif
-    unsigned old_a = REG(A);
-    unsigned old_r = REG(r);
-    LD(A, table[old_a][old_r][0]);
-    LD(F, table[old_a][old_r][1]);
+    byte* values = table[REG(A)][REG(r)];
+    LD(A, values[0]);
+    LD(F, values[1]);
 
     INC_R(r_inc);
     INC_T(timing);
@@ -919,9 +917,9 @@ static void af_xy(CSimulatorObject* self, void* lookup, int args[]) {
         CPATTERN(18, pc, 4, (pc + 1) % 65536, 4, pc2, 3, pc2, 1, pc2, 1, pc2, 1, pc2, 1, pc2, 1, addr, 3);
     }
 #endif
-    unsigned old_a = REG(A);
-    LD(A, table[old_a][PEEK(addr)][0]);
-    LD(F, table[old_a][PEEK(addr)][1]);
+    byte* values = table[REG(A)][PEEK(addr)];
+    LD(A, values[0]);
+    LD(F, values[1]);
 
     INC_R(2);
     INC_T(19);
@@ -934,15 +932,15 @@ static void afc_hl(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
-    unsigned old_a = REG(A);
     unsigned hl = REG(L) + 256 * REG(H);
 #ifdef CONTENTION
     CONTEND {
         CPATTERN(4, REG(PC), 4, hl, 3);
     }
 #endif
-    LD(A, table[REG(F) & 1][old_a][PEEK(hl)][0]);
-    LD(F, table[REG(F) & 1][old_a][PEEK(hl)][1]);
+    byte* values = table[REG(F) & 1][REG(A)][PEEK(hl)];
+    LD(A, values[0]);
+    LD(F, values[1]);
 
     INC_R(1);
     INC_T(7);
@@ -961,10 +959,9 @@ static void afc_n(CSimulatorObject* self, void* lookup, int args[]) {
         CPATTERN(4, pc, 4, (pc + 1) % 65536, 3);
     }
 #endif
-    unsigned n = PEEK((REG(PC) + 1) % 65536);
-    unsigned old_a = REG(A);
-    LD(A, table[REG(F) & 1][old_a][n][0]);
-    LD(F, table[REG(F) & 1][old_a][n][1]);
+    byte* values = table[REG(F) & 1][REG(A)][PEEK((REG(PC) + 1) % 65536)];
+    LD(A, values[0]);
+    LD(F, values[1]);
 
     INC_R(1);
     INC_T(7);
@@ -990,9 +987,9 @@ static void afc_r(CSimulatorObject* self, void* lookup, int args[]) {
         }
     }
 #endif
-    unsigned old_a = REG(A);
-    LD(A, table[REG(F) & 1][old_a][REG(r)][0]);
-    LD(F, table[REG(F) & 1][old_a][REG(r)][1]);
+    byte* values = table[REG(F) & 1][REG(A)][REG(r)];
+    LD(A, values[0]);
+    LD(F, values[1]);
 
     INC_R(r_inc);
     INC_T(timing);
@@ -1017,9 +1014,9 @@ static void afc_xy(CSimulatorObject* self, void* lookup, int args[]) {
         CPATTERN(18, pc, 4, (pc + 1) % 65536, 4, pc2, 3, pc2, 1, pc2, 1, pc2, 1, pc2, 1, pc2, 1, addr, 3);
     }
 #endif
-    unsigned old_a = REG(A);
-    LD(A, table[REG(F) & 1][old_a][PEEK(addr)][0]);
-    LD(F, table[REG(F) & 1][old_a][PEEK(addr)][1]);
+    byte* values = table[REG(F) & 1][REG(A)][PEEK(addr)];
+    LD(A, values[0]);
+    LD(F, values[1]);
 
     INC_R(2);
 #ifdef CONTENTION
@@ -1043,9 +1040,10 @@ static void f_hl(CSimulatorObject* self, void* lookup, int args[]) {
         CPATTERN(10, pc, 4, (pc + 1) % 65536, 4, hl, 3, hl, 1, hl, 3);
     }
 #endif
-    LD(F, table[PEEK(hl)][1]);
+    byte* values = table[PEEK(hl)];
+    LD(F, values[1]);
     if (hl > 0x3FFF) {
-        POKE(hl, table[PEEK(hl)][0]);
+        POKE(hl, values[0]);
     }
 
     INC_R(2);
@@ -1065,9 +1063,9 @@ static void f_r(CSimulatorObject* self, void* lookup, int args[]) {
         CPATTERN(4, pc, 4, (pc + 1) % 65536, 4);
     }
 #endif
-    unsigned old_r = REG(r);
-    LD(r, table[old_r][0]);
-    LD(F, table[old_r][1]);
+    byte* values = table[REG(r)];
+    LD(r, values[0]);
+    LD(F, values[1]);
 
     INC_R(2);
     INC_T(8);
@@ -1093,13 +1091,13 @@ static void f_xy(CSimulatorObject* self, void* lookup, int args[]) {
         CPATTERN(18, pc, 4, (pc + 1) % 65536, 4, (pc + 2) % 65536, 3, pc3, 3, pc3, 1, pc3, 1, addr, 3, addr, 1, addr, 3);
     }
 #endif
-    byte value = table[PEEK(addr)][0];
-    LD(F, table[PEEK(addr)][1]);
+    byte* values = table[PEEK(addr)];
+    LD(F, values[1]);
     if (addr > 0x3FFF) {
-        POKE(addr, value);
+        POKE(addr, values[0]);
     }
     if (dest >= 0) {
-        LD(dest, value);
+        LD(dest, values[0]);
     }
 
     INC_R(2);
@@ -1127,10 +1125,10 @@ static void fc_hl(CSimulatorObject* self, void* lookup, int args[]) {
         }
     }
 #endif
-    unsigned cf = REG(F) & 1;
-    LD(F, table[cf][PEEK(hl)][1]);
+    byte* values = table[REG(F) & 1][PEEK(hl)];
+    LD(F, values[1]);
     if (hl > 0x3FFF) {
-        POKE(hl, table[cf][PEEK(hl)][0]);
+        POKE(hl, values[0]);
     }
 
     INC_R(r_inc);
@@ -1157,9 +1155,9 @@ static void fc_r(CSimulatorObject* self, void* lookup, int args[]) {
         }
     }
 #endif
-    byte old_r = REG(r);
-    LD(r, table[REG(F) % 2][old_r][0]);
-    LD(F, table[REG(F) % 2][old_r][1]);
+    byte* values = table[REG(F) & 1][REG(r)];
+    LD(r, values[0]);
+    LD(F, values[1]);
 
     INC_R(r_inc);
     INC_T(timing);
@@ -1191,13 +1189,13 @@ static void fc_xy(CSimulatorObject* self, void* lookup, int args[]) {
         }
     }
 #endif
-    int value = table[REG(F) & 1][PEEK(addr)][0];
-    LD(F, table[REG(F) & 1][PEEK(addr)][1]);
+    byte* values = table[REG(F) & 1][PEEK(addr)];
+    LD(F, values[1]);
     if (addr > 0x3FFF) {
-        POKE(addr, value);
+        POKE(addr, values[0]);
     }
     if (dest >= 0) {
-        LD(dest, value);
+        LD(dest, values[0]);
     }
 
     INC_R(2);
@@ -2378,9 +2376,9 @@ static void neg(CSimulatorObject* self, void* lookup, int args[]) {
         CPATTERN(4, pc, 4, (pc + 1) % 65536, 4);
     }
 #endif
-    unsigned old_a = REG(A);
-    LD(A, NEG[old_a][0]);
-    LD(F, NEG[old_a][1]);
+    byte* values = NEG[REG(A)];
+    LD(A, values[0]);
+    LD(F, values[1]);
 
     INC_R(2);
     INC_T(8);
@@ -5637,8 +5635,9 @@ static void dec_a_jr(CSimulatorObject* self, void* lookup, int args[]) {
         INC_T(16 * a - 5);
         LD(PC, (pc1 + 2) % 65536);
     } else {
-        LD(A, DEC[REG(F) & 1][a][0]);
-        LD(F, DEC[REG(F) & 1][a][1]);
+        byte* values = DEC[REG(F) & 1][a];
+        LD(A, values[0]);
+        LD(F, values[1]);
         INC_R(1);
         INC_T(4);
         LD(PC, pc1);
@@ -5658,8 +5657,9 @@ static void dec_a_jp(CSimulatorObject* self, void* lookup, int args[]) {
         INC_T(14 * a);
         LD(PC, (pc + 4) % 65536);
     } else {
-        LD(A, DEC[REG(F) & 1][a][0]);
-        LD(F, DEC[REG(F) & 1][a][1]);
+        byte* values = DEC[REG(F) & 1][a];
+        LD(A, values[0]);
+        LD(F, values[1]);
         INC_R(1);
         INC_T(4);
         LD(PC, (pc + 1) % 65536);
@@ -5687,9 +5687,9 @@ static void dec_a_list(CSimulatorObject* self, void* lookup, int args[]) {
     /* Increment the miss count */
     args[2]++;
 
-    byte a = REG(A);
-    LD(A, DEC[REG(F) & 1][a][0]);
-    LD(F, DEC[REG(F) & 1][a][1]);
+    byte* values = DEC[REG(F) & 1][REG(A)];
+    LD(A, values[0]);
+    LD(F, values[1]);
     INC_R(1);
     INC_T(4);
     LD(PC, (pc + 1) % 65536);
@@ -5737,8 +5737,9 @@ static void dec_b(CSimulatorObject* self, void* lookup, int args[]) {
                     accs[0] = acc;
                     accs[k] = first;
                 }
-                LD(B, DEC[REG(F) & 1][(b - loops) & 0xFF][0]);
-                LD(F, DEC[REG(F) & 1][(b - loops) & 0xFF][1]);
+                byte* values = DEC[REG(F) & 1][(b - loops) & 0xFF];
+                LD(B, values[0]);
+                LD(F, values[1]);
                 INC_R(acc->loop_r_inc * loops + 1);
                 INC_T(acc->loop_time * loops + 4);
                 LD(PC, pc1);
@@ -5747,8 +5748,9 @@ static void dec_b(CSimulatorObject* self, void* lookup, int args[]) {
         }
     }
 
-    LD(B, DEC[REG(F) & 1][b][0]);
-    LD(F, DEC[REG(F) & 1][b][1]);
+    byte* values = DEC[REG(F) & 1][b];
+    LD(B, values[0]);
+    LD(F, values[1]);
     INC_R(1);
     INC_T(4);
     LD(PC, pc1);
@@ -5796,8 +5798,9 @@ static void inc_b(CSimulatorObject* self, void* lookup, int args[]) {
                     accs[0] = acc;
                     accs[k] = first;
                 }
-                LD(B, INC[REG(F) & 1][b + loops][0]);
-                LD(F, INC[REG(F) & 1][b + loops][1]);
+                byte* values = INC[REG(F) & 1][b + loops];
+                LD(B, values[0]);
+                LD(F, values[1]);
                 INC_R(acc->loop_r_inc * loops + 1);
                 INC_T(acc->loop_time * loops + 4);
                 LD(PC, pc1);
@@ -5806,8 +5809,9 @@ static void inc_b(CSimulatorObject* self, void* lookup, int args[]) {
         }
     }
 
-    LD(B, INC[REG(F) & 1][b][0]);
-    LD(F, INC[REG(F) & 1][b][1]);
+    byte* values = INC[REG(F) & 1][b];
+    LD(B, values[0]);
+    LD(F, values[1]);
     INC_R(1);
     INC_T(4);
     LD(PC, pc1);
@@ -5856,14 +5860,9 @@ static void list_accelerators(CSimulatorObject* self, void* lookup, int args[]) 
     /* Increment the miss count */
     args[2]++;
 
-    byte b = REG(B);
-    if (opcode == 0x04) {
-        LD(B, INC[REG(F) & 1][b][0]);
-        LD(F, INC[REG(F) & 1][b][1]);
-    } else {
-        LD(B, DEC[REG(F) & 1][b][0]);
-        LD(F, DEC[REG(F) & 1][b][1]);
-    }
+    byte* values = opcode == 0x04 ? INC[REG(F) & 1][REG(B)] : DEC[REG(F) & 1][REG(B)];
+    LD(B, values[0]);
+    LD(F, values[1]);
     INC_R(1);
     INC_T(4);
     LD(PC, pc1);
