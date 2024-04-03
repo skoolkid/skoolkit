@@ -393,7 +393,31 @@ class RzxplayTest(SkoolKitTestCase):
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
-    def test_ld_a_i_at_frame_boundary(self):
+    def test_ld_a_i_at_frame_boundary_default(self):
+        ram = [0] * 0xC000
+        pc = 0xFEFA
+        code = (
+            0xED, 0x57,       # $FEFA LD A,I      ; Set bit 2 of F
+            0xEA, 0xFA, 0xFE, # $FEFC JP PE,$FEFA ; This jump is made
+            0x01, 0xFF,       # $FEFF DEFW $FF01  ; Interrupt vector
+            0xC9,             # $FF01 RET         ; Interrupt routine
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, []), (3, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00001 I:00000 $FEFA LD A,I
+            F:1 C:00003 I:00000 $FF01 RET
+            F:1 C:00002 I:00000 $FEFC JP PE,$FEFA
+            F:1 C:00001 I:00000 $FEFA LD A,I
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_ld_a_i_at_frame_boundary_when_flags_bit_0_set(self):
         ram = [0] * 0xC000
         pc = 0xFEFA
         code = (
@@ -415,9 +439,33 @@ class RzxplayTest(SkoolKitTestCase):
             F:1 C:00002 I:00000 $FEFC JP PO,$FEFA
             F:1 C:00001 I:00000 $FEFA LD A,I
         """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen --flags 1', exp_trace)
+
+    def test_ld_a_r_at_frame_boundary_default(self):
+        ram = [0] * 0xC000
+        pc = 0xFEFA
+        code = (
+            0xED, 0x5F,       # $FEFA LD A,R      ; Set bit 2 of F
+            0xEA, 0xFA, 0xFE, # $FEFC JP PE,$FEFA ; This jump is made
+            0x01, 0xFF,       # $FEFF DEFW $FF01  ; Interrupt vector
+            0xC9,             # $FF01 RET         ; Interrupt routine
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, []), (3, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00001 I:00000 $FEFA LD A,R
+            F:1 C:00003 I:00000 $FF01 RET
+            F:1 C:00002 I:00000 $FEFC JP PE,$FEFA
+            F:1 C:00001 I:00000 $FEFA LD A,R
+        """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
-    def test_ld_a_r_at_frame_boundary(self):
+    def test_ld_a_r_at_frame_boundary_when_flags_bit_0_set(self):
         ram = [0] * 0xC000
         pc = 0xFEFA
         code = (
@@ -439,9 +487,54 @@ class RzxplayTest(SkoolKitTestCase):
             F:1 C:00002 I:00000 $FEFC JP PO,$FEFA
             F:1 C:00001 I:00000 $FEFA LD A,R
         """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen --flags 1', exp_trace)
+
+    def test_ei_does_not_block_interrupt_before_frame_with_fetch_count_1_default(self):
+        ram = [0] * 0xC000
+        pc = 0xC000
+        code = (
+            0xFB, # EI
+            0xAF, # XOR A
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, []), (1, 0, []), (2, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00001 I:00000 $C000 EI
+            F:1 C:00001 I:00000 $0038 PUSH AF
+            F:2 C:00002 I:00000 $0039 PUSH HL
+            F:2 C:00001 I:00000 $003A LD HL,($5C78)
+        """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
-    def test_ei_blocks_interrupt_before_frame_with_fetch_count_1(self):
+    def test_ei_does_not_block_interrupt_before_frame_with_fetch_count_2_default(self):
+        ram = [0] * 0xC000
+        pc = 0xC000
+        code = (
+            0xFB, # EI
+            0xAF, # XOR A
+            0xA8, # XOR B
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, []), (2, 0, []), (1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00001 I:00000 $C000 EI
+            F:1 C:00002 I:00000 $0038 PUSH AF
+            F:1 C:00001 I:00000 $0039 PUSH HL
+            F:2 C:00001 I:00000 $003A LD HL,($5C78)
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_ei_blocks_interrupt_before_frame_with_fetch_count_1_when_flags_bit_1_set(self):
         ram = [0] * 0xC000
         pc = 0xC000
         code = (
@@ -462,9 +555,9 @@ class RzxplayTest(SkoolKitTestCase):
             F:2 C:00002 I:00000 $0039 PUSH HL
             F:2 C:00001 I:00000 $003A LD HL,($5C78)
         """
-        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen --flags 2', exp_trace)
 
-    def test_ei_blocks_interrupt_before_frame_with_fetch_count_2(self):
+    def test_ei_blocks_interrupt_before_frame_with_fetch_count_2_when_flags_bit_1_set(self):
         ram = [0] * 0xC000
         pc = 0xC000
         code = (
@@ -487,9 +580,9 @@ class RzxplayTest(SkoolKitTestCase):
             F:2 C:00002 I:00000 $0039 PUSH HL
             F:2 C:00001 I:00000 $003A LD HL,($5C78)
         """
-        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen --flags 2', exp_trace)
 
-    def test_ei_does_not_block_interrupt_before_frame_with_fetch_count_3(self):
+    def test_ei_does_not_block_interrupt_before_frame_with_fetch_count_3_when_flags_bit_1_set(self):
         ram = [0] * 0xC000
         pc = 0xC000
         code = (
@@ -509,7 +602,7 @@ class RzxplayTest(SkoolKitTestCase):
             F:1 C:00002 I:00000 $0039 PUSH HL
             F:1 C:00001 I:00000 $003A LD HL,($5C78)
         """
-        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen --flags 2', exp_trace)
 
     def test_empty_frame_at_start_of_input_recording_block(self):
         ram = [0] * 0xC000
@@ -1228,6 +1321,11 @@ class RzxplayTest(SkoolKitTestCase):
         output, error = self.run_rzxplay('-x test.rzx', catch_exit=2)
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: rzxplay.py'))
+
+    def test_option_flags_help(self):
+        output, error = self.run_rzxplay('--flags help')
+        self.assertTrue(output.startswith('Usage: --flags FLAGS\n'))
+        self.assertEqual(error, '')
 
     def test_option_force(self):
         ram = [0] * 0xC000

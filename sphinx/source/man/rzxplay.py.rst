@@ -15,6 +15,10 @@ or an RZX file is written after playback has completed.
 
 OPTIONS
 =======
+--flags FLAGS
+  Set playback flags. Do ``--flags help`` for more information, or see the
+  section on ``FLAGS`` below.
+
 --force
   Force playback when unsupported hardware is detected.
 
@@ -71,6 +75,26 @@ during playback to a file. This file can then be used by ``sna2ctl.py`` to
 produce a control file. If the file specified by the ``--map`` option already
 exists, any addresses it contains will be merged with those of the instructions
 executed.
+
+FLAGS
+=====
+The ``--flags`` option sets flags that control the playback of RZX frames when
+interrupts are enabled. If an RZX file fails to play to completion, setting one
+or more of these flags may help. ``FLAGS`` is the sum of the following values,
+chosen according to the desired outcome:
+
+* 1 - When the last instruction in a frame is either 'LD A,I' or 'LD A,R',
+  reset bit 2 of the flags register. This is the expected behaviour of a real
+  Z80, but some RZX files fail when this flag is set.
+
+* 2 - When the last instruction in a frame is 'EI', and the next frame is a
+  short one (i.e. has a fetch count of 1 or 2), block the interrupt in the next
+  frame. By default, and according to RZX convention, ``rzxplay.py`` accepts an
+  interrupt at the start of every frame except the first, regardless of whether
+  the instruction just executed would normally block it. However, some RZX
+  files contain a short frame immediately after an 'EI' to indicate that the
+  interrupt should in fact be blocked, and therefore require this flag to be
+  set to play back correctly.
 
 OUTPUT FILE
 ===========

@@ -238,6 +238,7 @@ To list the options supported by `rzxplay.py`, run it with no arguments::
   is written after playback has completed.
 
   Options:
+    --flags FLAGS    Set playback flags. Do '--flags help' for more information.
     --force          Force playback when unsupported hardware is detected.
     --fps FPS        Run at this many frames per second (default: 50). 0 means
                      maximum speed.
@@ -268,6 +269,24 @@ during playback to a file. This file can then be used by :ref:`sna2ctl.py` to
 produce a control file. If the file specified by the ``--map`` option already
 exists, any addresses it contains will be merged with those of the instructions
 executed.
+
+The ``--flags`` option sets flags that control the playback of RZX frames when
+interrupts are enabled. If an RZX file fails to play to completion, setting one
+or more of these flags may help. ``FLAGS`` is the sum of the following values,
+chosen according to the desired outcome:
+
+* 1 - When the last instruction in a frame is either 'LD A,I' or 'LD A,R',
+  reset bit 2 of the flags register. This is the expected behaviour of a real
+  Z80, but some RZX files fail when this flag is set.
+
+* 2 - When the last instruction in a frame is 'EI', and the next frame is a
+  short one (i.e. has a fetch count of 1 or 2), block the interrupt in the next
+  frame. By default, and according to RZX convention, `rzxplay.py` accepts an
+  interrupt at the start of every frame except the first, regardless of whether
+  the instruction just executed would normally block it. However, some RZX
+  files contain a short frame immediately after an 'EI' to indicate that the
+  interrupt should in fact be blocked, and therefore require this flag to be
+  set to play back correctly.
 
 If ``OUTFILE`` is given, and ends with either '.z80' or '.szx', then a snapshot
 in the corresponding format is written when playback ends. Similarly, if

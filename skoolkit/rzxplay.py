@@ -28,7 +28,8 @@ with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
     except ImportError: # pragma: no cover
         pygame = None
 
-from skoolkit import VERSION, SkoolKitError, CSimulator, get_dword, get_word, read_bin_file, warn, write
+from skoolkit import (VERSION, SkoolKitError, CSimulator, get_dword, get_word,
+                      parse_int, read_bin_file, warn, write)
 from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import from_snapshot, get_state
@@ -331,6 +332,9 @@ def process_block(block, options, context):
     show_progress = not options.quiet
     fps = options.fps
     stop = options.stop or total_frames
+    flags = parse_int(options.flags, 0)
+    flags_ldair = flags & 1
+    flags_ei = flags & 2
     exec_map = context.exec_map
     tracefile = context.tracefile
     if tracefile:
@@ -376,18 +380,22 @@ def process_block(block, options, context):
         registers[25] = 0
         fetch_counter = tracer.next_frame()
         if registers[26]:
-            opcode = memory[pc]
-            if opcode == 0x76:
+            if memory[pc] == 0x76:
                 # Advance PC if the CPU was halted
                 registers[24] = (registers[24] + 1) % 65536
                 simulator.accept_interrupt(registers, memory, 0)
-            elif opcode == 0xED and memory[(pc + 1) % 65536] in (0x57, 0x5F):
-                # Reset bit 2 of F if the last instruction was LD A,I/R
+            elif flags_ldair and memory[pc] == 0xED and memory[(pc + 1) % 65536] in (0x57, 0x5F):
+                # If bit 0 of the playback flags is set and the last
+                # instruction was 'LD A,I' or 'LD A,R', reset bit 2 of F
                 registers[1] &= 0b11111011
                 simulator.accept_interrupt(registers, memory, 0)
-            elif opcode != 0xFB or fetch_counter > 2:
-                # Accept an interrupt at a frame boundary, unless the last
-                # instruction was EI and the next frame is short
+            elif flags_ei:
+                # If bit 1 of the playback flags is set, accept an interrupt at
+                # a frame boundary unless the last instruction was EI and the
+                # next frame is short
+                if memory[pc] != 0xFB or fetch_counter > 2:
+                    simulator.accept_interrupt(registers, memory, 0)
+            else:
                 simulator.accept_interrupt(registers, memory, 0)
         if show_progress:
             p = (context.frame_count / total_frames) * 100
@@ -452,6 +460,29 @@ def run(infile, options):
             raise SkoolKitError(f'Unknown file type: {ext}')
         print(f'Wrote {options.dump}')
 
+def print_flags_help():
+    print("""
+Usage: --flags FLAGS
+
+Set flags that control the playback of RZX frames when interrupts are enabled.
+FLAGS is the sum of the following values, chosen according to the desired
+outcome:
+
+  1 - When the last instruction in a frame is either 'LD A,I' or 'LD A,R',
+      reset bit 2 of the flags register. This is the expected behaviour of a
+      real Z80, but some RZX files fail when this flag is set.
+
+  2 - When the last instruction in a frame is 'EI', and the next frame is a
+      short one (i.e. has a fetch count of 1 or 2), block the interrupt in the
+      next frame. By default, and according to RZX convention, rzxplay.py
+      accepts an interrupt at the start of every frame except the first,
+      regardless of whether the instruction just executed would normally block
+      it. However, some RZX files contain a short frame immediately after an
+      'EI' to indicate that the interrupt should in fact be blocked, and
+      therefore require this flag to be set to play back correctly.
+
+""".strip())
+
 def main(args):
     parser = argparse.ArgumentParser(
         usage='rzxplay.py [options] FILE [OUTFILE]',
@@ -462,6 +493,8 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('dump', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('--flags', default='0',
+                       help="Set playback flags. Do '--flags help' for more information.")
     group.add_argument('--force', action='store_true',
                        help="Force playback when unsupported hardware is detected.")
     group.add_argument('--fps', type=int, default=50,
@@ -486,6 +519,9 @@ def main(args):
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
+    if namespace.flags == 'help':
+        print_flags_help()
+        return
     if unknown_args or namespace.infile is None:
         parser.exit(2, parser.format_help())
     run(namespace.infile, namespace)
