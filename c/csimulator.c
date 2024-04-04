@@ -35,6 +35,7 @@
 #endif
 #define INC_PC(i) LD(PC, (REG(PC) + (i)) % 65536)
 #define OUT(p, v) if (mem == NULL && (p & 0x8002) == 0 && (self->out7ffd & 0x20) == 0) out7ffd(self, v)
+#define CHECK_SIGNALS if ((TIME & 0xFFFFFF) < 10) PyErr_CheckSignals()
 
 typedef unsigned char byte;
 
@@ -5178,6 +5179,8 @@ static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject
         if (stop > 0xFFFF || REG(PC) == stop) {
             break;
         }
+
+        CHECK_SIGNALS;
     }
 
     Py_RETURN_NONE;
@@ -5426,7 +5429,9 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
             return NULL;
         }
 
-        if (trace != Py_None) {
+        if (trace == Py_None) {
+            CHECK_SIGNALS;
+        } else {
             PyObject* args = Py_BuildValue("(INK)", pc, i, t0);
             PyObject* rv = PyObject_CallObject(trace, args);
             Py_XDECREF(args);
