@@ -26,7 +26,7 @@ With SkoolKit you can:
   snapshot (SNA, SZX or Z80) or raw memory file
 * enable :ref:`sna2ctl.py` to generate a much better control file that more
   reliably distinguishes code from data by using a code execution map produced
-  by an emulator
+  by an emulator or :ref:`rzxplay.py`
 * use :ref:`sna2skool.py` along with this control file to produce a disassembly
   of a snapshot or raw memory file
 * add annotations to this disassembly (or the control file) as you discover the
@@ -46,8 +46,12 @@ With SkoolKit you can:
   tile graphic data, find text, or find sequences of arbitrary byte values
 * use :ref:`trace.py` to trace the execution of machine code in a snapshot or
   raw memory file
+* use :ref:`rzxplay.py` to trace the execution of machine code in an RZX file,
+  and produce a code execution map for :ref:`sna2ctl.py`
 * use :ref:`tapinfo.py` to analyse the blocks in a TAP or TZX file, and list
   the BASIC program it contains
+* use :ref:`rzxinfo.py` to analyse the blocks in an RZX file, and extract
+  snapshots from it
 * use :ref:`bin2tap.py` to convert a snapshot or raw memory file into a TAP
   file
 * use :ref:`bin2sna.py` to convert a raw memory file into a Z80 or SZX snapshot
