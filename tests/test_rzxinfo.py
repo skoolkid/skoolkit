@@ -133,7 +133,6 @@ class RzxinfoTest(SkoolKitTestCase):
               ID: SkoolKit 9.2 (0.9.0.2)
             Snapshot:
               Filename extension: sna
-              Size: 13 bytes
               External snapshot: game.sna
             Input recording:
               Number of frames: 1 (0h00m00s)
@@ -214,6 +213,65 @@ class RzxinfoTest(SkoolKitTestCase):
         """
         self._test_rzx(rzx, exp_output)
 
+    def test_asciiz_fields_without_zero_padding(self):
+        snap = [0] * 1
+        rzx = RZX()
+        rzx.set_creator('12345678901234567890')
+        rzx.add_snapshot(snap, 'snap')
+        descriptor = [0] * 4
+        descriptor.extend(ord(c) for c in 'game.sna')
+        rzx.add_snapshot(descriptor, 'sna', flags=1)
+        exp_output = """
+            Version: 0.13
+            Signed: No
+            Creator information:
+              ID: 12345678901234567890 1.0 (0.1.0.0)
+            Snapshot:
+              Filename extension: snap
+              Size: 1 bytes
+              Machine: Unknown
+              Start address: Unknown
+            Input recording:
+              Number of frames: 1 (0h00m00s)
+              T-states: 0
+              Encrypted: No
+            Snapshot:
+              Filename extension: sna
+              External snapshot: game.sna
+            Input recording:
+              Number of frames: 1 (0h00m00s)
+              T-states: 0
+              Encrypted: No
+        """
+        self._test_rzx(rzx, exp_output)
+
+    def test_malformed_sna(self):
+        sna = [0] * 28
+        rzx = RZX()
+        rzx.add_snapshot(sna, 'sna')
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxinfo(rzxfile)
+        self.assertEqual(cm.exception.args[0], 'Invalid SNA file')
+
+    def test_malformed_szx(self):
+        szx = [128] * 8
+        rzx = RZX()
+        rzx.add_snapshot(szx, 'szx')
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxinfo(rzxfile)
+        self.assertEqual(cm.exception.args[0], 'Invalid SZX file')
+
+    def test_malformed_z80(self):
+        z80 = [255] * 31
+        rzx = RZX()
+        rzx.add_snapshot(z80, 'z80')
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxinfo(rzxfile)
+        self.assertEqual(cm.exception.args[0], 'RAM is 0 bytes (should be 49152)')
+
     def test_corrupted_snapshot_block(self):
         sna = [0] * 49179
         rzx = RZX()
@@ -224,6 +282,17 @@ class RzxinfoTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_rzxinfo(rzxfile)
         self.assertEqual(cm.exception.args[0], 'Failed to decompress snapshot: Error -3 while decompressing data: unknown compression method')
+
+    def test_corrupted_snapshot_extraction(self):
+        sna = [0] * 49179
+        rzx = RZX()
+        rzx.add_snapshot(sna, 'sna', flags=2)
+        snapshot_block = rzx.snapshots[0][0]
+        snapshot_block[17:] = [1] * (len(snapshot_block) - 17)
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxinfo(f'--extract {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'Failed to decompress snapshot: Error -3 while decompressing data: incorrect header check')
 
     def test_corrupted_input_recording_block(self):
         rzx = RZX()

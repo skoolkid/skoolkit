@@ -1248,6 +1248,33 @@ class RzxplayTest(SkoolKitTestCase):
             self.run_rzxplay(f'--quiet --no-screen {rzxfile}')
         self.assertEqual(cm.exception.args[0], 'Port readings exhausted for frame 1')
 
+    def test_malformed_sna(self):
+        sna = [0] * 28
+        rzx = RZX()
+        rzx.add_snapshot(sna, 'sna')
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--no-screen {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'Invalid SNA file')
+
+    def test_malformed_szx(self):
+        szx = [128] * 8
+        rzx = RZX()
+        rzx.add_snapshot(szx, 'szx')
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--no-screen {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'Invalid SZX file')
+
+    def test_malformed_z80(self):
+        z80 = [255] * 31
+        rzx = RZX()
+        rzx.add_snapshot(z80, 'z80')
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--no-screen {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'RAM is 0 bytes (should be 49152)')
+
     def test_corrupted_snapshot_block(self):
         sna = [0] * 49179
         rzx = RZX()

@@ -24,7 +24,7 @@ from skoolkit.snapshot import Snapshot
 
 def _get_str(data, i, max_len):
     s = ''
-    while data[i] and len(s) < max_len:
+    while len(s) < max_len and data[i]:
         s += chr(data[i])
         i += 1
     return s
@@ -55,12 +55,12 @@ def _show_blocks(data, options):
             ext = _get_str(data, i + 9, 4)
             length = get_dword(data, i + 13)
             print(f'  Filename extension: {ext}')
-            print(f'  Size: {length} bytes')
             sdata = data[i + 17:i + block_len]
             if flags & 1:
                 ext_sname = _get_str(sdata, 4, len(sdata) - 4)
                 print(f'  External snapshot: {ext_sname}')
             else:
+                print(f'  Size: {length} bytes')
                 if flags & 2:
                     try:
                         sdata = zlib.decompress(sdata)
@@ -140,7 +140,10 @@ def _extract_snapshots(data, prefix):
                 ext = _get_str(data, i + 9, 4).lower()
                 sdata = data[i + 17:i + block_len]
                 if flags & 2:
-                    sdata = zlib.decompress(sdata)
+                    try:
+                        sdata = zlib.decompress(sdata)
+                    except zlib.error as e:
+                        raise SkoolKitError(f'Failed to decompress snapshot: {e.args[0]}')
                 s_count += 1
                 sfname = f'{prefix}.{s_count:03}.{ext}'
                 with open(sfname, 'wb') as f:
