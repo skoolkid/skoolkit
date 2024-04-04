@@ -45,7 +45,7 @@ clean:
 
 .PHONY: cmods
 cmods:
-	python3 setup.py build_ext -b .
+	python3 setup.py build_ext -i
 
 .PHONY: hh
 hh:
