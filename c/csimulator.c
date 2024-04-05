@@ -6157,27 +6157,18 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         }
         if (!did_fast_load) {
             if (end_of_tape && stop == 0x10000) {
-                PyObject* cl = PyObject_GetAttrString(self->tracer, "custom_loader");
-                if (cl == NULL) {
-                    break;
-                }
-                int custom_loader = PyObject_IsTrue(cl);
-                Py_DECREF(cl);
-                if (custom_loader) {
+                if (tracer_state[7]) {
+                    /* Custom loader was detected */
                     rv = PyLong_FromLong(1);
                     break;
                 }
                 if (pc > 0x3FFF) {
+                    /* PC in RAM */
                     rv = PyLong_FromLong(2);
                     break;
                 }
-                PyObject* tet = PyObject_GetAttrString(self->tracer, "tape_end_time");
-                if (tet == NULL) {
-                    break;
-                }
-                unsigned tape_end_time = PyLong_AsLong(tet);
-                Py_DECREF(tet);
-                if (TIME - tape_end_time > 3500000) {
+                if (TIME - tracer_state[8] > 3500000) {
+                    /* Tape ended 1 second ago */
                     rv = PyLong_FromLong(3);
                     break;
                 }

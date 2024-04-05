@@ -172,8 +172,6 @@ class LoadTracer(PagingTracer):
         self.block_index = 0
         self.block_data_index = self.indexes[0][0]
         self.max_index = len(self.edges) - 1
-        self.tape_end_time = 0
-        self.custom_loader = False
         self.border = border
         if len(simulator.memory) == 65536:
             self.out7ffd = 0x10 # Signal: 48K ROM always
@@ -184,14 +182,20 @@ class LoadTracer(PagingTracer):
         self.outfe = outfe
         self.text = TextReader()
         self.state = [
-            0,                  # state[0]: next_edge
-            0,                  # state[1]: index
-            0,                  # state[2]: end_of_tape
-            self.indexes[0][1], # state[3]: block_max_index
-            0,                  # state[4]: tape_running
+            0,                  # state[0]: next edge (timestamp)
+            0,                  # state[1]: edge index
+            0,                  # state[2]: end of tape reached
+            self.indexes[0][1], # state[3]: index of final edge in current block
+            0,                  # state[4]: tape running
             accel_dec_a,        # state[5]
             list_accelerators,  # state[6]
+            0,                  # state[7]: custom loader detected
+            0,                  # state[8]: tape end time
         ]
+        if hasattr(simulator, 'load'): # pragma: no cover
+            self.edges = array.array('I', self.edges)
+            self.state = array.array('I', self.state)
+        self.read_port = partial(self._read_port, self.state)
 
     def run(self, stop, fast_load, finish_tape, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
@@ -207,8 +211,6 @@ class LoadTracer(PagingTracer):
             else:
                 df = tf = None
             ppf = lambda p: write(f'[{p/10:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')
-            self.edges = array.array('I', self.edges)
-            self.state = array.array('I', self.state)
             stop_cond = simulator.load(stop, fast_load, finish_tape, timeout, ppf, df, tf)
             pc = registers[24]
         else:
@@ -270,18 +272,22 @@ class LoadTracer(PagingTracer):
                     else:
                         # Otherwise continue to play the tape until this block's
                         # 'pause' period (if any) has elapsed
-                        state[4] = 1
+                        state[4] = 1 # Signal: tape is running
                         registers[25] = state[0] = edges[state[1]]
                     pc = registers[24]
                 else:
                     if state[2] and stop is None:
-                        if self.custom_loader:
+                        # The tape has ended and no stop address is set
+                        if state[7]:
+                            # Custom loader was detected
                             stop_cond = 1
                             break
                         if pc > 0x3FFF:
+                            # PC in RAM
                             stop_cond = 2
                             break
-                        if tstates - self.tape_end_time > 3500000: # pragma: no cover
+                        if tstates - self.state[8] > 3500000: # pragma: no cover
+                            # Tape ended 1 second ago
                             stop_cond = 3
                             break
                     if tstates > timeout: # pragma: no cover
@@ -500,15 +506,15 @@ class LoadTracer(PagingTracer):
             self.dec_b_misses += 1
         auto_method(registers, memory, ())
 
-    def read_port(self, registers, port):
+    def _read_port(self, state, registers, port):
         if port % 256 == 0xFE:
             pc = registers[24]
             if pc >= self.in_min_addr or (0x0562 <= pc <= 0x05F1 and self.out7ffd & 0x10):
-                self.custom_loader = True
-                index = self.state[1]
-                if self.announce_data and not self.state[2]:
+                state[7] = 1 # Signal: custom loader detected
+                index = state[1]
+                if self.announce_data and not state[2]:
                     self.announce_data = False
-                    self.state[4] = 1
+                    state[4] = 1 # Signal: tape is running
                     registers[T] = self.edges[index]
                     length = len(self.blocks[self.block_index])
                     if length:
@@ -538,16 +544,16 @@ class LoadTracer(PagingTracer):
             self.state[1] = self.state[3] + 1
             self.state[0] = self.edges[self.state[1]]
             self.block_data_index, self.state[3] = self.indexes[self.block_index]
-            self.state[4] = int(not self.pause)
+            self.state[4] = int(not self.pause) # Pause tape unless configured not to
             self.announce_data = True
 
     def stop_tape(self, tstates):
         self.block_index = len(self.blocks)
-        self.state[2] += 1
+        self.state[2] += 1 # Signal: end of tape reached
         if self.state[2] == 1:
             write_line('Tape finished')
-            self.tape_end_time = tstates
-        self.state[4] = 0
+            self.state[8] = tstates # Set tape end time
+        self.state[4] = 0 # Signal: tape is not running
 
     def fast_load(self, simulator):
         registers = simulator.registers
