@@ -453,11 +453,11 @@ def sim_load(blocks, options, config):
         else:
             in_min_addr = 0x8000
         tracer = LoadTracer(simulator, blocks, accelerators, options.pause, options.first_edge,
-                            options.polarity, options.finish_tape, in_min_addr, options.accelerate_dec_a,
+                            options.polarity, in_min_addr, options.accelerate_dec_a,
                             list_accelerators, border, out7ffd, outfffd, ay, outfe)
         simulator.set_tracer(tracer, options.in_flags & 4, False)
         try:
-            tracer.run(options.start, options.fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
+            tracer.run(options.start, options.fast_load, options.finish_tape, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
             _ram_operations(simulator.memory, options.ram_ops)
         except KeyboardInterrupt:
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')

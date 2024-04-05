@@ -121,7 +121,7 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
     return edges, indexes, data_blocks
 
 class LoadTracer(PagingTracer):
-    def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity, finish_tape,
+    def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity,
                  in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe):
         self.acc_usage = defaultdict(int)
         self.inc_b_misses = 0
@@ -132,7 +132,6 @@ class LoadTracer(PagingTracer):
         self.simulator = simulator
         self.edges, self.indexes, self.blocks = get_edges(blocks, first_edge, polarity)
         self.pause = pause
-        self.finish_tape = finish_tape
         self.in_min_addr = in_min_addr
         self.announce_data = True
         self.accelerators = accelerators
@@ -194,7 +193,7 @@ class LoadTracer(PagingTracer):
             list_accelerators,  # state[6]
         ]
 
-    def run(self, stop, fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
+    def run(self, stop, fast_load, finish_tape, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
         memory = simulator.memory
         registers = simulator.registers
@@ -210,7 +209,7 @@ class LoadTracer(PagingTracer):
             ppf = lambda p: write(f'[{p/10:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')
             self.edges = array.array('I', self.edges)
             self.state = array.array('I', self.state)
-            stop_cond = simulator.load(stop, fast_load, timeout, ppf, df, tf)
+            stop_cond = simulator.load(stop, fast_load, finish_tape, timeout, ppf, df, tf)
             pc = registers[24]
         else:
             opcodes = simulator.opcodes
@@ -259,7 +258,7 @@ class LoadTracer(PagingTracer):
 
                 pc = registers[24]
 
-                if pc == stop and (state[2] or not self.finish_tape):
+                if pc == stop and (state[2] or not finish_tape):
                     stop_cond = 0
                     break
 

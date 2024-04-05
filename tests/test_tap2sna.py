@@ -91,7 +91,7 @@ class MockKeyboardTracer:
         self.run_called = True
 
 class MockLoadTracer:
-    def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity, finish_tape,
+    def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity,
                  in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe):
         global load_tracer
         self.simulator = simulator
@@ -100,7 +100,6 @@ class MockLoadTracer:
         self.pause = pause
         self.first_edge = first_edge
         self.polarity = polarity
-        self.finish_tape = finish_tape
         self.in_min_addr = in_min_addr
         self.accel_dec_a = accel_dec_a
         self.list_accelerators = list_accelerators
@@ -115,9 +114,10 @@ class MockLoadTracer:
         self.run_called = False
         load_tracer = self
 
-    def run(self, stop, fast_load, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
+    def run(self, stop, fast_load, finish_tape, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         self.stop = stop
         self.fast_load = fast_load
+        self.finish_tape = finish_tape
         self.timeout = timeout
         self.tracefile = tracefile
         self.trace_line = trace_line
@@ -127,12 +127,12 @@ class MockLoadTracer:
         self.run_called = True
 
 class TestLoadTracer(LoadTracer):
-    def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity, finish_tape,
+    def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity,
                  in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe):
         # Ensure that accelerators are in a predictable order when testing the
         # {dec,inc}_b_auto() methods on LoadTracer
         acc_sorted = sorted(accelerators, key=lambda a: a.name)
-        super().__init__(simulator, blocks, acc_sorted, pause, first_edge, polarity, finish_tape,
+        super().__init__(simulator, blocks, acc_sorted, pause, first_edge, polarity,
                  in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe)
 
 class InterruptedTracer:

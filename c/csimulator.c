@@ -5947,15 +5947,16 @@ static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs, u
 #endif
 
 static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", "", "", "", NULL};
+    static char* kwlist[] = {"", "", "", "", "", "", "", NULL};
     PyObject* stop_obj;
     int fast_load;
+    int finish_tape;
     unsigned timeout;
     PyObject* print_progress;
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OiIOOO", kwlist, &stop_obj, &fast_load, &timeout, &print_progress, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OiiIOOO", kwlist, &stop_obj, &fast_load, &finish_tape, &timeout, &print_progress, &disassemble, &trace)) {
         return NULL;
     }
 
@@ -5977,13 +5978,6 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     }
     Py_XDECREF(ts);
     unsigned* tracer_state = ts_buffer.buf;
-
-    PyObject* ft = ok ? PyObject_GetAttrString(self->tracer, "finish_tape") : NULL;
-    if (ft == NULL) {
-        ok = 0;
-    }
-    int finish_tape = ft ? PyLong_AsLong(ft) : 0;
-    Py_XDECREF(ft);
 
     PyObject* fast_load_method = ok ? PyObject_GetAttrString(self->tracer, "fast_load") : NULL;
     if (fast_load_method == NULL) {
