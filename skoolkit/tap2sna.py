@@ -905,6 +905,7 @@ Usage: --sim-load-config accelerate-dec-a=0/1/2
        --sim-load-config machine=48/128
        --sim-load-config pause=0/1
        --sim-load-config polarity=0/1
+       --sim-load-config python=0/1
        --sim-load-config timeout=N
        --sim-load-config trace=FILE
 
@@ -1013,6 +1014,11 @@ Configure various properties of a simulated LOAD.
   By default, the first pulse on the tape produces an EAR bit reading of 0
   (polarity=0), and subsequent pulses give readings that alternate between 1
   and 0. This works for most loaders, but some require polarity=1.
+
+--sim-load-config python=0/1
+
+  By default, tap2sna.py will use the C version of the Z80 simulator if it's
+  available. Set python=1 to force usage of the pure Python Z80 simulator.
 
 --sim-load-config timeout=N
 
