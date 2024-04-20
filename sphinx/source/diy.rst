@@ -122,21 +122,21 @@ be 100% accurate (except by accident). You will need to examine the resultant
 skool file (`game.skool`) to see which blocks have been incorrectly marked as
 text, data or code, and then edit the control file (`game.ctl`) accordingly.
 
-To generate a better control file, you could use a code execution map produced
-by an emulator to tell `sna2ctl.py` where at least some of the code is in the
-snapshot. `sna2ctl.py` will read a map (otherwise known as a profile or trace)
-produced by Fuse, SpecEmu, Spud, Zero or Z80 when specified by the ``-m``
-option::
+To generate a better control file, you could use a code execution map to tell
+`sna2ctl.py` where at least some of the code is in the snapshot. `sna2ctl.py`
+will read a map (otherwise known as a profile or trace) produced by
+:ref:`rzxplay.py`, Fuse, SpecEmu, Spud, Zero or Z80 when specified by the
+``-m`` option::
 
   $ sna2ctl.py -m game.map game.z80 > game.ctl
 
 Needless to say, in general, the better the map, the more accurate the
 resulting control file will be. To create a good map file, you should ideally
 play the game from start to finish in the emulator, in an attempt to exercise
-as much code as possible. If that sounds like too much work, and your emulator
-supports playing back RZX files, you could grab a recording of your chosen game
-from the `RZX Archive <https://rzxarchive.co.uk>`_, and set the emulator's
-profiler or tracer going while the recording plays back.
+as much code as possible. If that sounds like too much work, you could grab a
+recording of your chosen game from the `RZX Archive`_, and either run the RZX
+file through `rzxplay.py` with the ``--map`` option, or set an emulator's
+profiler or tracer going while it plays the recording back.
 
 By default, `sna2ctl.py` and `sna2skool.py` generate control files and skool
 files with addresses and instruction operands in decimal notation. If you
@@ -145,6 +145,8 @@ produce a hexadecimal control file and a hexadecimal skool file::
 
   $ sna2ctl.py --hex game.z80 > game.ctl
   $ sna2skool.py --hex -c game.ctl game.z80 > game.skool
+
+.. _RZX Archive: https://rzxarchive.co.uk
 
 Developing the disassembly
 --------------------------
