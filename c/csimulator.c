@@ -88,7 +88,7 @@ typedef struct {
     unsigned loop_r_inc;
     unsigned ear_mask;
     unsigned polarity;
-    unsigned* state;
+    unsigned long long* state;
     unsigned hits;
 } tsl_accelerator;
 
@@ -5567,29 +5567,28 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
     Py_RETURN_NONE;
 }
 
-static int advance_tape(PyObject* tracer, unsigned* tracer_state, unsigned* edges, unsigned max_index, unsigned long long tstates, PyObject* print_progress, unsigned* progress) {
-    unsigned tape_running = tracer_state[4];
+static int advance_tape(PyObject* tracer, unsigned long long* tracer_state, unsigned long long* edges, unsigned long long max_index, unsigned long long tstates, PyObject* print_progress, unsigned* progress) {
+    unsigned long long tape_running = tracer_state[4];
     if (!tape_running) {
         return 0;
     }
 
-    unsigned next_edge = tracer_state[0];
+    unsigned long long next_edge = tracer_state[0];
     if (tstates < next_edge) {
         return 0;
     }
 
-    unsigned index = tracer_state[1];
+    unsigned long long index = tracer_state[1];
     while (index < max_index) {
-        unsigned edge = edges[index + 1];
-        if (edge >= tstates) {
+        if (edges[index + 1] >= tstates) {
             break;
         }
         index += 1;
     }
     tracer_state[1] = index;
 
-    unsigned block_max_index = tracer_state[3];
-    unsigned edge = edges[index];
+    unsigned long long block_max_index = tracer_state[3];
+    unsigned long long edge = edges[index];
     if (index == max_index) {
         /* Allow 1ms for the final edge on the tape to be read */
         if (tstates - edge > 3500) {
@@ -5609,7 +5608,7 @@ static int advance_tape(PyObject* tracer, unsigned* tracer_state, unsigned* edge
     } else {
         tracer_state[0] = edges[index + 1];
         if (index < block_max_index) {
-            unsigned p = edge / (edges[max_index] / 1000);
+            unsigned p = (unsigned)(edge / (edges[max_index] / 1000));
             if (p > *progress) {
                 PyObject* args = Py_BuildValue("(I)", p);
                 PyObject* rv = PyObject_CallObject(print_progress, args);
@@ -5703,7 +5702,7 @@ static void dec_a_list(CSimulatorObject* self, void* lookup, int args[]) {
 static void dec_b(CSimulatorObject* self, void* lookup, int args[]) {
     tsl_accelerator** accs = (tsl_accelerator**)lookup;
     int num_accs = args[0];
-    unsigned* state = accs[0]->state;
+    unsigned long long* state = accs[0]->state;
     unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
@@ -5764,7 +5763,7 @@ static void dec_b(CSimulatorObject* self, void* lookup, int args[]) {
 static void inc_b(CSimulatorObject* self, void* lookup, int args[]) {
     tsl_accelerator** accs = (tsl_accelerator**)lookup;
     int num_accs = args[0];
-    unsigned* state = accs[0]->state;
+    unsigned long long* state = accs[0]->state;
     unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
@@ -5826,7 +5825,7 @@ static void list_accelerators(CSimulatorObject* self, void* lookup, int args[]) 
     tsl_accelerator** accs = (tsl_accelerator**)lookup;
     int num_accs = args[0];
     byte opcode = args[1];
-    unsigned* state = accs[0]->state;
+    unsigned long long* state = accs[0]->state;
     unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
@@ -5873,7 +5872,7 @@ static void list_accelerators(CSimulatorObject* self, void* lookup, int args[]) 
     LD(PC, pc1);
 }
 
-static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs, unsigned* tracer_state) {
+static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs, unsigned long long* tracer_state) {
     PyObject* iter = PyObject_GetIter(accelerators);
     if (iter == NULL) {
         return -1;
@@ -5968,8 +5967,8 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         ok = 0;
     }
     Py_XDECREF(e);
-    unsigned* edges = edges_buffer.buf;
-    unsigned max_index = edges ? (unsigned)(edges_buffer.len / edges_buffer.itemsize) - 1 : 0;
+    unsigned long long* edges = edges_buffer.buf;
+    unsigned long long max_index = edges ? (edges_buffer.len / edges_buffer.itemsize) - 1 : 0;
 
     Py_buffer ts_buffer;
     PyObject* ts = ok ? PyObject_GetAttrString(self->tracer, "state") : NULL;
@@ -5977,7 +5976,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         ok = 0;
     }
     Py_XDECREF(ts);
-    unsigned* tracer_state = ts_buffer.buf;
+    unsigned long long* tracer_state = ts_buffer.buf;
 
     PyObject* fast_load_method = ok ? PyObject_GetAttrString(self->tracer, "fast_load") : NULL;
     if (fast_load_method == NULL) {
@@ -6119,7 +6118,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         }
 
         pc = REG(PC);
-        unsigned end_of_tape = tracer_state[2];
+        unsigned long long end_of_tape = tracer_state[2];
         if (pc == stop && (end_of_tape || !finish_tape)) {
             rv = PyLong_FromLong(0);
             break;
@@ -6136,7 +6135,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
             did_fast_load = PyObject_IsTrue(fl);
             Py_DECREF(fl);
             if (did_fast_load) {
-                unsigned block_max_index = tracer_state[3];
+                unsigned long long block_max_index = tracer_state[3];
                 tracer_state[1] = block_max_index;
                 if (block_max_index == max_index) {
                     /* Final block, so stop the tape */

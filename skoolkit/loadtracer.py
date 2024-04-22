@@ -193,8 +193,8 @@ class LoadTracer(PagingTracer):
             0,                  # state[8]: tape end time
         ]
         if hasattr(simulator, 'load'): # pragma: no cover
-            self.edges = array.array('I', self.edges)
-            self.state = array.array('I', self.state)
+            self.edges = array.array('Q', self.edges)
+            self.state = array.array('Q', self.state)
         self.read_port = partial(self._read_port, self.state)
 
     def run(self, stop, fast_load, finish_tape, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
