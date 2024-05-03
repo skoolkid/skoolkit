@@ -1,7 +1,7 @@
 Changelog
 =========
 
-9.2b1
+9.2rc
 -----
 * Added a Z80 instruction set simulator implemented in C (as a faster
   alternative to the pure Python Z80 simulator)
