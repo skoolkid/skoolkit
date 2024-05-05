@@ -1032,6 +1032,7 @@ class Disassembler:
         # assemble back to the same bytes
         0x6B: (defb4, ''),
         0x6F: (no_arg, 'RLD'),
+        0x70: (no_arg, 'IN F,(C)'),
         0x72: (no_arg, 'SBC HL,SP'),
         0x73: (word_arg, 'LD ({}),SP'),
         0x78: (no_arg, 'IN A,(C)'),
