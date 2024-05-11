@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>What is SkoolKit? &#8212; SkoolKit 9.1 documentation</title>
+    <title>What is SkoolKit? &#8212; SkoolKit 9.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="index.html" title="SkoolKit manual"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">What is SkoolKit?</a></li> 
       </ul>
     </div>  
@@ -64,7 +64,7 @@ attempt to identify routines and data blocks by static analysis) from a
 snapshot (SNA, SZX or Z80) or raw memory file</p></li>
 <li><p>enable <a class="reference internal" href="commands.html#sna2ctl-py"><span class="std std-ref">sna2ctl.py</span></a> to generate a much better control file that more
 reliably distinguishes code from data by using a code execution map produced
-by an emulator</p></li>
+by an emulator or <a class="reference internal" href="commands.html#rzxplay-py"><span class="std std-ref">rzxplay.py</span></a></p></li>
 <li><p>use <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> along with this control file to produce a disassembly
 of a snapshot or raw memory file</p></li>
 <li><p>add annotations to this disassembly (or the control file) as you discover the
@@ -84,8 +84,12 @@ BASIC program it contains, show register values, produce a call graph, find
 tile graphic data, find text, or find sequences of arbitrary byte values</p></li>
 <li><p>use <a class="reference internal" href="commands.html#trace-py"><span class="std std-ref">trace.py</span></a> to trace the execution of machine code in a snapshot or
 raw memory file</p></li>
+<li><p>use <a class="reference internal" href="commands.html#rzxplay-py"><span class="std std-ref">rzxplay.py</span></a> to trace the execution of machine code in an RZX file,
+and produce a code execution map for <a class="reference internal" href="commands.html#sna2ctl-py"><span class="std std-ref">sna2ctl.py</span></a></p></li>
 <li><p>use <a class="reference internal" href="commands.html#tapinfo-py"><span class="std std-ref">tapinfo.py</span></a> to analyse the blocks in a TAP or TZX file, and list
 the BASIC program it contains</p></li>
+<li><p>use <a class="reference internal" href="commands.html#rzxinfo-py"><span class="std std-ref">rzxinfo.py</span></a> to analyse the blocks in an RZX file, and extract
+snapshots from it</p></li>
 <li><p>use <a class="reference internal" href="commands.html#bin2tap-py"><span class="std std-ref">bin2tap.py</span></a> to convert a snapshot or raw memory file into a TAP
 file</p></li>
 <li><p>use <a class="reference internal" href="commands.html#bin2sna-py"><span class="std std-ref">bin2sna.py</span></a> to convert a raw memory file into a Z80 or SZX snapshot</p></li>
@@ -128,7 +132,7 @@ licence.</p>
 </section>
 <section id="zx-spectrum-roms">
 <h2>ZX Spectrum ROMs<a class="headerlink" href="#zx-spectrum-roms" title="Permalink to this heading">¶</a></h2>
-<p>Copies of the 48K and 128K ZX Spectrum ROMs are included with SkoolKit (in the
+<p>Copies of the 48K, 128K and +2 ROMs are included with SkoolKit (in the
 <cite>skoolkit/resources</cite> directory). The copyright in these ROMs is held by
 Amstrad, who have kindly <a class="reference external" href="https://groups.google.com/g/comp.sys.amstrad.8bit/c/HtpBU2Bzv_U/m/HhNDSU3MksAJ">given permission</a> for them to be redistributed.</p>
 </section>
@@ -197,7 +201,7 @@ Amstrad, who have kindly <a class="reference external" href="https://groups.goog
         <li class="right" >
           <a href="index.html" title="SkoolKit manual"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">What is SkoolKit?</a></li> 
       </ul>
     </div>

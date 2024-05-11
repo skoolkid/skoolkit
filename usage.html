@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Installing and using SkoolKit &#8212; SkoolKit 9.1 documentation</title>
+    <title>Installing and using SkoolKit &#8212; SkoolKit 9.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="whatis.html" title="What is SkoolKit?"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Installing and using SkoolKit</a></li> 
       </ul>
     </div>  
@@ -63,6 +63,24 @@ running Windows, you can get Python <a class="reference external" href="https://
 wherever it is unpacked: it does not need to be installed in any particular
 location.</p>
 </section>
+<section id="c-extension-modules">
+<h2>C extension modules<a class="headerlink" href="#c-extension-modules" title="Permalink to this heading">¶</a></h2>
+<p>If you obtained SkoolKit from a zip archive or tarball, and you want to make
+use of the C extension modules (for faster Z80 simulation), then you will need
+to build them first. This requires a compiler, the <a class="reference external" href="https://pypi.org/project/setuptools/">setuptools</a> package, and
+the development headers for the version of Python you’re using. Once these are
+ready, run the following command in the directory where SkoolKit was unpacked:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ python setup.py build_ext -i
+</pre></div>
+</div>
+<p>You may need to replace the <code class="docutils literal notranslate"><span class="pre">python</span></code> in this command with <code class="docutils literal notranslate"><span class="pre">python3</span></code>,
+<code class="docutils literal notranslate"><span class="pre">py</span></code>, or the path to the Python executable, depending on the OS you’re using.</p>
+<p>To see a list of the compilers that may be used to build the C extension
+modules, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ python setup.py build_ext --help-compiler
+</pre></div>
+</div>
+</section>
 <section id="linux-bsd-v-windows-command-line">
 <h2>Linux/*BSD v. Windows command line<a class="headerlink" href="#linux-bsd-v-windows-command-line" title="Permalink to this heading">¶</a></h2>
 <p>Throughout this documentation, commands that must be entered in a terminal
@@ -91,6 +109,7 @@ script is being run from the current working directory.</p>
 <li><a class="reference internal" href="#">Installing and using SkoolKit</a><ul>
 <li><a class="reference internal" href="#requirements">Requirements</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#c-extension-modules">C extension modules</a></li>
 <li><a class="reference internal" href="#linux-bsd-v-windows-command-line">Linux/*BSD v. Windows command line</a></li>
 </ul>
 </li>
@@ -140,7 +159,7 @@ script is being run from the current working directory.</p>
         <li class="right" >
           <a href="whatis.html" title="What is SkoolKit?"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Installing and using SkoolKit</a></li> 
       </ul>
     </div>

@@ -196,6 +196,113 @@ block on the tape.
 | 1.3.1   | New                                                               |
 +---------+-------------------------------------------------------------------+
 
+.. _rzxinfo.py:
+
+rzxinfo.py
+----------
+`rzxinfo.py` shows the blocks in or extracts the snapshots from an RZX file.
+For example::
+
+  $ rzxinfo.py game.rzx
+
+To list the options supported by `rzxinfo.py`, run it with no arguments::
+
+  usage: rzxinfo.py [options] FILE
+
+  Show the blocks in or extract the snapshots from an RZX file.
+
+  Options:
+    --extract      Extract snapshots.
+    --frames       Show the contents of every frame.
+    -V, --version  Show SkoolKit version number and exit.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 9.2     | New     |
++---------+---------+
+
+.. _rzxplay.py:
+
+rzxplay.py
+----------
+`rzxplay.py` plays an RZX file. For example::
+
+  $ rzxplay.py game.rzx
+
+To list the options supported by `rzxplay.py`, run it with no arguments::
+
+  usage: rzxplay.py [options] FILE [OUTFILE]
+
+  Play an RZX file. If 'OUTFILE' is given, an SZX or Z80 snapshot or an RZX file
+  is written after playback has completed.
+
+  Options:
+    --flags FLAGS    Set playback flags. Do '--flags help' for more information.
+    --force          Force playback when unsupported hardware is detected.
+    --fps FPS        Run at this many frames per second (default: 50). 0 means
+                     maximum speed.
+    --map FILE       Log addresses of executed instructions to a file.
+    --no-screen      Run without a screen.
+    --python         Use the pure Python Z80 simulator.
+    --quiet          Don't print progress percentage.
+    --scale SCALE    Scale display up by this factor (1-4; default: 2).
+    --snapshot FILE  Specify an external snapshot file to start with.
+    --stop FRAMES    Stop after playing this many frames.
+    --trace FILE     Log executed instructions to a file.
+    -V, --version    Show SkoolKit version number and exit.
+
+`rzxplay.py` can play RZX files that were recorded in 48K, 128K or +2 mode with
+no peripherals (e.g. Interface 1) attached. The ``--force`` option can be used
+to make `rzxplay.py` attempt playback of files that were recorded on
+unsupported machines or with unsupported hardware attached, but they are
+unlikely to play to the end.
+
+If `pygame`_ is installed, `rzxplay.py` will use it to render the Spectrum's
+screen contents at 50 frames per second by default. Use the ``--fps`` option
+to change the frame rate. Specifying ``--fps 0`` makes `rzxplay.py` run at
+maximum speed. To disable the screen and make `rzxplay.py` run even faster, use
+the ``--no-screen`` option.
+
+The ``--map`` option can be used to log the addresses of instructions executed
+during playback to a file. This file can then be used by :ref:`sna2ctl.py` to
+produce a control file. If the file specified by the ``--map`` option already
+exists, any addresses it contains will be merged with those of the instructions
+executed.
+
+The ``--flags`` option sets flags that control the playback of RZX frames when
+interrupts are enabled. If an RZX file fails to play to completion, setting one
+or more of these flags may help. ``FLAGS`` is the sum of the following values,
+chosen according to the desired outcome:
+
+* 1 - When the last instruction in a frame is either 'LD A,I' or 'LD A,R',
+  reset bit 2 of the flags register. This is the expected behaviour of a real
+  Z80, but some RZX files fail when this flag is set.
+
+* 2 - When the last instruction in a frame is 'EI', and the next frame is a
+  short one (i.e. has a fetch count of 1 or 2), block the interrupt in the next
+  frame. By default, and according to RZX convention, `rzxplay.py` accepts an
+  interrupt at the start of every frame except the first, regardless of whether
+  the instruction just executed would normally block it. However, some RZX
+  files contain a short frame immediately after an 'EI' to indicate that the
+  interrupt should in fact be blocked, and therefore require this flag to be
+  set to play back correctly.
+
+If ``OUTFILE`` is given, and ends with either '.z80' or '.szx', then a snapshot
+in the corresponding format is written when playback ends. Similarly, if
+``OUTFILE`` ends with '.rzx', then an RZX file is written when playback ends.
+However, this makes sense only if ``--stop`` is used to end playback somewhere
+in the middle of the input RZX file, otherwise the output RZX file will be
+empty (i.e. contain no frames).
+
+.. _pygame: https://pygame.org/
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 9.2     | New     |
++---------+---------+
+
 .. _skool2asm.py:
 
 skool2asm.py
@@ -800,6 +907,7 @@ to be a binary file.
 The ``-m`` option may be used to specify a code execution map to use when
 generating a control file. The supported file formats are:
 
+* Files created by the ``--map`` option of :ref:`rzxplay.py`
 * Profiles created by the Fuse emulator
 * Code execution logs created by the SpecEmu, Spud and Zero emulators
 * Map files created by the SpecEmu and Z80 emulators
@@ -844,6 +952,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.2     | Added support for reading code execution maps produced by         |
+|         | :ref:`rzxplay.py`                                                 |
++---------+-------------------------------------------------------------------+
 | 7.2     | Added the ``Dictionary`` configuration parameter                  |
 +---------+-------------------------------------------------------------------+
 | 7.1     | Configuration is read from `skoolkit.ini` if present; added the   |
@@ -1373,8 +1484,8 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
 
-Note that `tap2sna.py` cannot read data from TZX block types 0x15 (direct
-recording), 0x18 (CSW recording) or 0x19 (generalized data block).
+Note that `tap2sna.py` cannot read data from TZX block types 0x18 (CSW
+recording) or 0x19 (generalized data block).
 
 By default, `tap2sna.py` attempts to load a tape exactly as a 48K Spectrum
 would (see :ref:`tap2sna-sim-load`). If that doesn't work, the ``--ram`` option
@@ -1451,7 +1562,8 @@ parameters are:
   to use (see :ref:`tap2sna-accelerators`)
 * ``cmio`` - enable simulation of memory contention and I/O contention delays
   (``1``), or disable it (``0``); this is disabled by default to improve
-  performance, but some loaders may require it
+  performance, but some loaders may require it; when this is enabled, all
+  acceleration is disabled
 * ``fast-load`` - enable fast loading (``1``, the default), or disable it
   (``0``); fast loading significantly reduces the load time for many tapes, but
   can also cause some loaders to fail
@@ -1474,6 +1586,8 @@ parameters are:
 * ``polarity`` - the EAR bit reading produced by the first pulse on the tape:
   ``0`` (the default) or ``1``; subsequent pulses give readings that alternate
   between 0 and 1
+* ``python`` - whether to use the pure Python Z80 simulator (``1``), or the
+  much faster C version if available (``0``, the default)
 * ``timeout`` - the number of seconds of Z80 CPU time after which to abort the
   simulated LOAD if it's still in progress (default: 900)
 * ``trace`` - the file to which to log all instructions executed during the
@@ -1676,6 +1790,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.2     | Added support for TZX block type 0x15 (direct recording); added   |
+|         | the ``python`` simulated LOAD configuration parameter             |
++---------+-------------------------------------------------------------------+
 | 9.1     | The ``--ram move`` and ``--ram poke`` options can modify specific |
 |         | RAM banks; added the ``cmio`` simulated LOAD configuration        |
 |         | parameter                                                         |
@@ -1767,6 +1884,8 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.2     | Shows info for TZX block type 0x15 (direct recording)             |
++---------+-------------------------------------------------------------------+
 | 9.0     | Shows the LINE number (if present) for 'Program:' header blocks;  |
 |         | renders BASIC tokens in header block names                        |
 +---------+-------------------------------------------------------------------+
@@ -1792,7 +1911,7 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 
 trace.py
 --------
-`trace.py` simulates the execution of machine code in a 48K or 128K memory
+`trace.py` simulates the execution of machine code in a 48K, 128K or +2 memory
 snapshot. For example::
 
   $ trace.py --start 32768 --stop 49152 game.z80
@@ -1802,8 +1921,8 @@ To list the options supported by `trace.py`, run it with no arguments::
   usage: trace.py [options] FILE [OUTFILE]
 
   Trace Z80 machine code execution. FILE may be a binary (raw memory) file, a
-  SNA, SZX or Z80 snapshot, or '48' or '128' for no snapshot. If 'OUTFILE' is
-  given, an SZX or Z80 snapshot is written after execution has completed.
+  SNA, SZX or Z80 snapshot, or '48', '128' or '+2' for no snapshot. If 'OUTFILE'
+  is given, an SZX or Z80 snapshot is written after execution has completed.
 
   Options:
     --audio               Show audio delays.
@@ -1824,6 +1943,7 @@ To list the options supported by `trace.py`, run it with no arguments::
                           Prefix 'v' with '^' to perform an XOR operation, or
                           '+' to perform an ADD operation. This option may be
                           used multiple times.
+    --python              Use the pure Python Z80 simulator.
     -r name=value, --reg name=value
                           Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
@@ -1907,6 +2027,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.2     | Added the ``--python`` option; added support for +2 snapshots     |
++---------+-------------------------------------------------------------------+
 | 9.1     | The ``--poke`` option can modify specific RAM banks; added the    |
 |         | ``--cmio`` option                                                 |
 +---------+-------------------------------------------------------------------+

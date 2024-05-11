@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Disassembly DIY &#8212; SkoolKit 9.1 documentation</title>
+    <title>Disassembly DIY &#8212; SkoolKit 9.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Disassembly DIY</a></li> 
       </ul>
     </div>  
@@ -154,21 +154,21 @@ $ sna2skool.py -c game.ctl game.z80 &gt; game.skool
 be 100% accurate (except by accident). You will need to examine the resultant
 skool file (<cite>game.skool</cite>) to see which blocks have been incorrectly marked as
 text, data or code, and then edit the control file (<cite>game.ctl</cite>) accordingly.</p>
-<p>To generate a better control file, you could use a code execution map produced
-by an emulator to tell <cite>sna2ctl.py</cite> where at least some of the code is in the
-snapshot. <cite>sna2ctl.py</cite> will read a map (otherwise known as a profile or trace)
-produced by Fuse, SpecEmu, Spud, Zero or Z80 when specified by the <code class="docutils literal notranslate"><span class="pre">-m</span></code>
-option:</p>
+<p>To generate a better control file, you could use a code execution map to tell
+<cite>sna2ctl.py</cite> where at least some of the code is in the snapshot. <cite>sna2ctl.py</cite>
+will read a map (otherwise known as a profile or trace) produced by
+<a class="reference internal" href="commands.html#rzxplay-py"><span class="std std-ref">rzxplay.py</span></a>, Fuse, SpecEmu, Spud, Zero or Z80 when specified by the
+<code class="docutils literal notranslate"><span class="pre">-m</span></code> option:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sna2ctl.py -m game.map game.z80 &gt; game.ctl
 </pre></div>
 </div>
 <p>Needless to say, in general, the better the map, the more accurate the
 resulting control file will be. To create a good map file, you should ideally
 play the game from start to finish in the emulator, in an attempt to exercise
-as much code as possible. If that sounds like too much work, and your emulator
-supports playing back RZX files, you could grab a recording of your chosen game
-from the <a class="reference external" href="https://rzxarchive.co.uk">RZX Archive</a>, and set the emulator’s
-profiler or tracer going while the recording plays back.</p>
+as much code as possible. If that sounds like too much work, you could grab a
+recording of your chosen game from the <a class="reference external" href="https://rzxarchive.co.uk">RZX Archive</a>, and either run the RZX
+file through <cite>rzxplay.py</cite> with the <code class="docutils literal notranslate"><span class="pre">--map</span></code> option, or set an emulator’s
+profiler or tracer going while it plays the recording back.</p>
 <p>By default, <cite>sna2ctl.py</cite> and <cite>sna2skool.py</cite> generate control files and skool
 files with addresses and instruction operands in decimal notation. If you
 prefer to work in hexadecimal, use the <code class="docutils literal notranslate"><span class="pre">--hex</span></code> option of each command to
@@ -387,7 +387,7 @@ versa.</p>
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Disassembly DIY</a></li> 
       </ul>
     </div>

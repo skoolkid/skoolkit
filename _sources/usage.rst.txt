@@ -24,6 +24,26 @@ location.
 .. _PyPI: https://pypi.org/project/skoolkit/
 .. _pip: https://pip.pypa.io/
 
+C extension modules
+-------------------
+If you obtained SkoolKit from a zip archive or tarball, and you want to make
+use of the C extension modules (for faster Z80 simulation), then you will need
+to build them first. This requires a compiler, the `setuptools`_ package, and
+the development headers for the version of Python you're using. Once these are
+ready, run the following command in the directory where SkoolKit was unpacked::
+
+  $ python setup.py build_ext -i
+
+You may need to replace the ``python`` in this command with ``python3``,
+``py``, or the path to the Python executable, depending on the OS you're using.
+
+To see a list of the compilers that may be used to build the C extension
+modules, run the following command::
+
+  $ python setup.py build_ext --help-compiler
+
+.. _setuptools: https://pypi.org/project/setuptools/
+
 Linux/\*BSD v. Windows command line
 -----------------------------------
 Throughout this documentation, commands that must be entered in a terminal
