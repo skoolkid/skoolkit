@@ -20,7 +20,7 @@ With SkoolKit you can:
   Z80) or raw memory file
 * enable sna2ctl.py_ to generate a much better control file that more reliably
   distinguishes code from data by using a code execution map produced by an
-  emulator
+  emulator or rzxplay.py_
 * use sna2skool.py_ along with this control file to produce a disassembly of a
   snapshot or raw memory file
 * add annotations to this disassembly (or the control file) as you discover the
@@ -40,8 +40,12 @@ With SkoolKit you can:
   graphic data, find text, or find sequences of arbitrary byte values
 * use trace.py_ to trace the execution of machine code in a snapshot or raw
   memory file
+* use rzxplay.py_ to trace the execution of machine code in an RZX file, and
+  produce a code execution map for sna2ctl.py_
 * use tapinfo.py_ to analyse the blocks in a TAP or TZX file, and list the
   BASIC program it contains
+* use rzxinfo.py_ to analyse the blocks in an RZX file, and extract snapshots
+  from it
 * use bin2tap.py_ to convert a snapshot or raw memory file into a TAP file
 * use bin2sna.py_ to convert a raw memory file into a Z80 or SZX snapshot
 * use snapmod.py_ to modify the register values or memory contents in a Z80 or
@@ -65,6 +69,8 @@ disassemblies of `Skool Daze`_, `Back to Skool`_, `Contact Sam Cruise`_,
 
 .. _bin2sna.py: https://skoolkid.github.io/skoolkit/commands.html#bin2sna-py
 .. _bin2tap.py: https://skoolkid.github.io/skoolkit/commands.html#bin2tap-py
+.. _rzxinfo.py: https://skoolkid.github.io/skoolkit/commands.html#rzxinfo-py
+.. _rzxplay.py: https://skoolkid.github.io/skoolkit/commands.html#rzxplay-py
 .. _skool2asm.py: https://skoolkid.github.io/skoolkit/commands.html#skool2asm-py
 .. _skool2bin.py: https://skoolkid.github.io/skoolkit/commands.html#skool2bin-py
 .. _skool2ctl.py: https://skoolkid.github.io/skoolkit/commands.html#skool2ctl-py

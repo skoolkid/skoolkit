@@ -1,8 +1,8 @@
 Changelog
 =========
 
-9.2rc
------
+9.2 (2024-05-11)
+----------------
 * Added a Z80 instruction set simulator implemented in C (as a faster
   alternative to the pure Python Z80 simulator)
 * Added the :ref:`rzxplay.py` command (for playing an RZX file)

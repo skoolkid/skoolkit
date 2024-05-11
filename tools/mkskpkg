@@ -43,8 +43,8 @@ if [ "$PKGTYPE" = "deb" ]; then
   echo "Created $(ls $SKOOLKIT_HOME/dist/skoolkit_$VERSION-*.deb)"
 elif [ "$PKGTYPE" = "rpm" ]; then
   cp -p dist/$SKOOLKIT_TAR ~/rpmbuild/SOURCES/skoolkit-$VERSION.tar.xz
-  rm -f ~/rpmbuild/RPMS/noarch/skoolkit-$VERSION-*.rpm
+  rm -f ~/rpmbuild/RPMS/x86_64/skoolkit-$VERSION-*.rpm
   rpmbuild -bb --define='_binary_payload w6.xzdio' rpm/skoolkit.spec
-  mv ~/rpmbuild/RPMS/noarch/skoolkit-$VERSION-*.rpm dist
+  mv ~/rpmbuild/RPMS/x86_64/skoolkit-$VERSION-*.rpm dist
   echo "Created $(ls $SKOOLKIT_HOME/dist/skoolkit-$VERSION-*.rpm)"
 fi

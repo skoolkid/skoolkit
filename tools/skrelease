@@ -397,7 +397,7 @@ verify_pip() {
 build_deb() {
   _require_skoolkit
 
-  debname=skoolkit_$VERSION-1_all.deb
+  debname=skoolkit_$VERSION-1_amd64.deb
   deb=$SKOOLKIT_HOME/dist/$debname
   logdir=$SKOOLKIT_HOME/dist
   mkdir -p $logdir
@@ -419,7 +419,7 @@ build_deb() {
 build_rpm() {
   _require_skoolkit
 
-  rpmname=skoolkit-$VERSION-1.noarch.rpm
+  rpmname=skoolkit-$VERSION-1.x86_64.rpm
   rpm=$SKOOLKIT_HOME/dist/$rpmname
   logdir=$SKOOLKIT_HOME/dist
   mkdir -p $logdir

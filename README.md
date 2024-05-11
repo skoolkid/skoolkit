@@ -33,7 +33,8 @@ With SkoolKit you can:
   snapshot (SNA, SZX or Z80) or raw memory file
 * enable [sna2ctl.py](https://skoolkid.github.io/skoolkit/commands.html#sna2ctl-py)
   to generate a much better control file that more reliably distinguishes code
-  from data by using a code execution map produced by an emulator
+  from data by using a code execution map produced by an emulator or
+  [rzxplay.py](https://skoolkid.github.io/skoolkit/commands.html#rzxplay-py)
 * use [sna2skool.py](https://skoolkid.github.io/skoolkit/commands.html#sna2skool-py)
   along with this control file to produce a disassembly of a snapshot or raw
   memory file
@@ -58,9 +59,15 @@ With SkoolKit you can:
   find text, or find sequences of arbitrary byte values
 * use [trace.py](https://skoolkid.github.io/skoolkit/commands.html#trace-py)
   to trace the execution of machine code in a snapshot or raw memory file
+* use [rzxplay.py](https://skoolkid.github.io/skoolkit/commands.html#rzxplay-py)
+  to trace the execution of machine code in an RZX file, and produce a code
+  execution map for
+  [sna2ctl.py](https://skoolkid.github.io/skoolkit/commands.html#sna2ctl-py)
 * use [tapinfo.py](https://skoolkid.github.io/skoolkit/commands.html#tapinfo-py)
   to analyse the blocks in a TAP or TZX file, and list the BASIC program it
   contains
+* use [rzxinfo.py](https://skoolkid.github.io/skoolkit/commands.html#rzxinfo-py)
+  to analyse the blocks in an RZX file, and extract snapshots from it
 * use [bin2tap.py](https://skoolkid.github.io/skoolkit/commands.html#bin2tap-py)
   to convert a snapshot or raw memory file into a TAP file
 * use [bin2sna.py](https://skoolkid.github.io/skoolkit/commands.html#bin2sna-py)
