@@ -1,6 +1,9 @@
 Changelog
 =========
 
+9.3b1
+-----
+
 9.2 (2024-05-11)
 ----------------
 * Added a Z80 instruction set simulator implemented in C (as a faster
