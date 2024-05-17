@@ -3,6 +3,8 @@ Changelog
 
 9.3b1
 -----
+* Fixed the bug that prevents the ``--reg`` option of :ref:`trace.py` from
+  accepting hexadecimal values prefixed by '0x'
 
 9.2 (2024-05-11)
 ----------------

@@ -1568,6 +1568,37 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_option_reg_with_hex_and_binary_values(self):
+        data = [0x03] # INC BC
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start, stop = 32768, 32769
+        registers = {
+            'A': '0x50',
+            'F': '%01000001',
+            'BC': '$123f',
+            'DE': '0x2345',
+            'HL': '$3456',
+            'IX': '0x456a',
+            'IY': '$5678',
+            'I': '0x67',
+            'R': '$89',
+            '^A': '0x98',
+            '^F': '%10101010',
+            '^BC': '$8765',
+            '^DE': '0x7654',
+            '^HL': '$6543',
+            'SP': '0x5432'
+        }
+        reg_options = ' '.join(f'--reg {r}={v}' for r, v in registers.items())
+        output, error = self.run_trace(f'-n -o {start} -S {stop} -vv {reg_options} {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            $8000 INC BC           A=50  F=01000001  BC=1240  DE=2345  HL=3456  IX=456A IY=5678
+                                   A'=98 F'=10101010 BC'=8765 DE'=7654 HL'=6543 SP=5432 IR=678A
+            Stopped at $8001
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     def test_option_reg_help(self):
         output, error = self.run_trace('--reg help')
         self.assertTrue(output.startswith('Usage: --reg name=value\n'))

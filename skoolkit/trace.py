@@ -174,10 +174,10 @@ def run(snafile, options, config):
         simulator_cls = CSimulator or Simulator
     registers = {}
     for spec in options.reg:
-        reg, sep, val = spec.upper().partition('=')
+        reg, sep, val = spec.partition('=')
         if sep:
             try:
-                registers[reg] = get_int_param(val, True)
+                registers[reg.upper()] = get_int_param(val, True)
             except ValueError:
                 raise SkoolKitError("Cannot parse register value: {}".format(spec))
     fast = options.verbose == 0 and options.max_operations == 0 and options.max_tstates == 0
