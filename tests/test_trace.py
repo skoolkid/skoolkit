@@ -75,6 +75,11 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def _test_bad_spec(self, option, exp_error):
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_trace(f'{option} 48')
+        self.assertEqual(cm.exception.args[0], exp_error)
+
     @patch.object(trace, 'run', mock_run)
     def test_default_option_values(self):
         trace.main(('test.z80',))
@@ -95,6 +100,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertFalse(options.python)
         self.assertEqual(options.reg, [])
         self.assertIsNone(options.rom)
+        self.assertEqual(options.state, [])
         self.assertFalse(options.stats)
         self.assertEqual(options.verbose, 0)
         self.assertEqual(config['TraceLine'], '${pc:04X} {i}')
@@ -1604,6 +1610,9 @@ class TraceTest(SkoolKitTestCase):
         self.assertTrue(output.startswith('Usage: --reg name=value\n'))
         self.assertEqual(error, '')
 
+    def test_option_reg_bad_value(self):
+        self._test_bad_spec('--reg A=x', 'Cannot parse register value: A=x')
+
     def test_option_rom(self):
         romfile = self.write_bin_file([175], suffix='.bin')
         binfile = self.write_bin_file([195, 0, 0], suffix='.bin')
@@ -1667,6 +1676,117 @@ class TraceTest(SkoolKitTestCase):
                 Stopped at $8001
             """
             self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_option_state_with_no_snapshot_48k(self):
+        state = ('border=4', 'fe=128', 'iff=0', 'im=2', 'tstates=40000')
+        state_options = ' '.join(f'--state {spec}' for spec in state)
+        output, error = self.run_trace(f'-s 32768 -S 32769 {state_options} 48 out.z80')
+        self.assertEqual(error, '')
+        self.assertIn('border=4', s_state)
+        self.assertIn('fe=128', s_state)
+        self.assertIn('iff=0', s_state)
+        self.assertIn('im=2', s_state)
+        self.assertIn('tstates=40004', s_state)
+
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_option_state_with_no_snapshot_128k(self):
+        state = ['7ffd=3', 'border=4', 'fe=128', 'fffd=12', 'iff=0', 'im=2', 'tstates=40000']
+        ay = tuple(range(20, 36))
+        state.extend(f'ay[{r}]={v}' for r, v in enumerate(ay))
+        state_options = ' '.join(f'--state {spec}' for spec in state)
+        output, error = self.run_trace(f'-s 32768 -S 32769 {state_options} 128 out.szx')
+        self.assertEqual(error, '')
+        self.assertIn('7ffd=3', s_state)
+        for r, v in enumerate(ay):
+            self.assertIn(f'ay[{r}]={v}', s_state)
+        self.assertIn('border=4', s_state)
+        self.assertIn('fe=128', s_state)
+        self.assertIn('fffd=12', s_state)
+        self.assertIn('iff=0', s_state)
+        self.assertIn('im=2', s_state)
+        self.assertIn('tstates=40004', s_state)
+
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_option_state_with_48k_snapshot(self):
+        header = [0] * 86
+        header[30] = 54 # Version 3
+        header[12] = 2 # BORDER 1
+        header[27:29] = (255, 255) # Interrupts enabled
+        header[29] = 1 # IM 1
+        header[35] = 1 # Last OUT to port 0x7ffd
+        header[55:58] = (0, 0, 0) # T-states (34943)
+        ram = [0] * 49152
+        z80file = self.write_z80_file(header, ram)
+        state = ('border=4', 'fe=128', 'iff=0', 'im=2', 'tstates=40000')
+        state_options = ' '.join(f'--state {spec}' for spec in state)
+        output, error = self.run_trace(f'-s 32768 -S 32769 {state_options} {z80file} out.szx')
+        self.assertEqual(error, '')
+        self.assertIn('border=4', s_state)
+        self.assertIn('fe=128', s_state)
+        self.assertIn('iff=0', s_state)
+        self.assertIn('im=2', s_state)
+        self.assertIn('tstates=40004', s_state)
+
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_option_state_with_128k_snapshot(self):
+        header = [0] * 86
+        header[30] = 54 # Version 3
+        header[12] = 2 # BORDER 1
+        header[27:29] = (255, 255) # Interrupts enabled
+        header[29] = 1 # IM 1
+        header[34] = 4 # 128K
+        header[35] = 1 # Last OUT to port 0x7ffd
+        header[38] = 2 # Last OUT to port 0xfffd
+        header[39:55] = [255] * 16 # AY registers
+        header[55:58] = (0, 0, 0) # T-states (34943)
+        ram = [0] * 49152
+        z80file = self.write_z80_file(header, ram)
+        state = ['7ffd=3', 'border=4', 'fe=128', 'fffd=12', 'iff=0', 'im=2', 'tstates=40000']
+        ay = tuple(range(20, 36))
+        state.extend(f'ay[{r}]={v}' for r, v in enumerate(ay))
+        state_options = ' '.join(f'--state {spec}' for spec in state)
+        output, error = self.run_trace(f'-s 32768 -S 32769 {state_options} {z80file} out.z80')
+        self.assertEqual(error, '')
+        self.assertIn('7ffd=3', s_state)
+        for r, v in enumerate(ay):
+            self.assertIn(f'ay[{r}]={v}', s_state)
+        self.assertIn('border=4', s_state)
+        self.assertIn('fe=128', s_state)
+        self.assertIn('fffd=12', s_state)
+        self.assertIn('iff=0', s_state)
+        self.assertIn('im=2', s_state)
+        self.assertIn('tstates=40004', s_state)
+
+    def test_state_help(self):
+        output, error = self.run_trace('--state help')
+        self.assertEqual(error, '')
+        exp_output = """
+            Usage: --state name=value
+
+            Set a hardware state attribute. Recognised names are:
+
+              7ffd    - last OUT to port 0x7ffd (128K only)
+              ay[N]   - contents of AY register N (N=0-15; 128K only)
+              border  - border colour
+              fe      - last OUT to port 0xfe (SZX only)
+              fffd    - last OUT to port 0xfffd (128K only)
+              iff     - interrupt flip-flop: 0=disabled, 1=enabled
+              im      - interrupt mode
+              tstates - T-states elapsed since start of frame
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_state_bad_values(self):
+        self._test_bad_spec('--state 7ffd=x', 'Cannot parse integer: 7ffd=x')
+        self._test_bad_spec('--state ay[0]=q', 'Cannot parse integer: ay[0]=q')
+        self._test_bad_spec('--state ay[r]=0', 'Cannot parse integer: ay[r]=0')
+        self._test_bad_spec('--state border=?', 'Cannot parse integer: border=?')
+        self._test_bad_spec('--state fe=!', 'Cannot parse integer: fe=!')
+        self._test_bad_spec('--state fffd=@', 'Cannot parse integer: fffd=@')
+        self._test_bad_spec('--state iff=#', 'Cannot parse integer: iff=#')
+        self._test_bad_spec('--state im=%', 'Cannot parse integer: im=%')
+        self._test_bad_spec('--state tstates=.', 'Cannot parse integer: tstates=.')
 
     def test_option_stats(self):
         data = [
@@ -2285,13 +2405,6 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(s_banks[2][0], 2)
         self.assertEqual(s_memory[0xC000], 2)
         self.assertEqual(s_banks[0][0], 0)
-
-    def test_invalid_register_value(self):
-        binfile = self.write_bin_file([201], suffix='.bin')
-        addr = 32768
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_trace(f'-o {addr} --reg A=x {binfile}')
-        self.assertEqual(cm.exception.args[0], 'Cannot parse register value: A=x')
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_write_z80_48k(self):

@@ -25,7 +25,8 @@ from skoolkit.config import get_config, show_config, update_options
 from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import PC, T, from_snapshot, get_state
-from skoolkit.snapshot import Snapshot, make_snapshot, poke, print_reg_help, write_snapshot
+from skoolkit.snapshot import (Snapshot, make_snapshot, poke, print_reg_help,
+                               print_state_help, write_snapshot)
 from skoolkit.traceutils import Registers, disassemble
 
 class Tracer(PagingTracer):
@@ -180,30 +181,46 @@ def run(snafile, options, config):
                 registers[reg.upper()] = get_int_param(val, True)
             except ValueError:
                 raise SkoolKitError("Cannot parse register value: {}".format(spec))
+    state = {'ay': [None] * 16}
+    for spec in options.state:
+        attr, sep, val = spec.partition('=')
+        if sep:
+            try:
+                if attr.startswith('ay[') and attr.endswith(']'):
+                    state['ay'][get_int_param(attr[3:-1]) % 16] = get_int_param(val)
+                else:
+                    state[attr] = get_int_param(val)
+            except ValueError:
+                raise SkoolKitError(f'Cannot parse integer: {spec}')
     fast = options.verbose == 0 and options.max_operations == 0 and options.max_tstates == 0
     sim_config = {'fast_djnz': fast, 'fast_ldir': fast}
     if snapshot:
-        border = snapshot.border
-        out7ffd = snapshot.out7ffd
-        outfffd = snapshot.outfffd
+        border = state.get('border', snapshot.border)
+        out7ffd = state.get('7ffd', snapshot.out7ffd)
+        outfffd = state.get('fffd', snapshot.outfffd)
         ay = list(snapshot.ay)
-        outfe = snapshot.outfe
-        simulator = from_snapshot(simulator_cls, snapshot, registers, sim_config, options.rom)
+        outfe = state.get('fe', snapshot.outfe)
+        simulator = from_snapshot(simulator_cls, snapshot, registers, state, sim_config, options.rom)
         memory = simulator.memory
+        if len(memory) == 0x20000:
+            memory.out7ffd(out7ffd)
     else:
-        border = 7
-        out7ffd = 0
-        outfffd = 0
+        border = state.get('border', 7)
+        out7ffd = state.get('7ffd', 0)
+        outfffd = state.get('fffd', 0)
         ay = [0] * 16
-        outfe = 0
+        outfe = state.get('fe', 0)
         if len(memory) == 65536:
             rom = read_bin_file(options.rom or ROM48)
             memory[:len(rom)] = rom
         else:
             banks = [memory[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
             memory = Memory(banks, out7ffd, machine)
-        state = {'im': 1, 'iff': 1, 'tstates': 0}
+        state.setdefault('iff', 1)
         simulator = simulator_cls(memory, registers, state, sim_config)
+    for r, v in enumerate(state['ay']):
+        if v is not None:
+            ay[r] = v
     t0 = simulator.registers[T]
     start = options.start
     if start is None:
@@ -300,6 +317,9 @@ def main(args):
                        help='Start execution at this address.')
     group.add_argument('-S', '--stop', metavar='ADDR', type=integer,
                        help='Stop execution at this address.')
+    group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
+                       help="Set a hardware state attribute before execution begins. Do '--state help' for more information. "
+                            "This option may be used multiple times.")
     group.add_argument('--stats', action='store_true',
                        help="Show stats after execution.")
     group.add_argument('-v', '--verbose', action='count', default=0,
@@ -311,6 +331,9 @@ def main(args):
         show_config('trace', config)
     if 'help' in namespace.reg:
         print_reg_help()
+        return
+    if 'help' in namespace.state:
+        print_state_help(show_defaults=False, omit=['issue2'])
         return
     if unknown_args or namespace.snafile is None:
         parser.exit(2, parser.format_help())

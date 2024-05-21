@@ -3,6 +3,8 @@ Changelog
 
 9.3b1
 -----
+* Added the ``--state`` option to :ref:`trace.py` (for setting hardware state
+  attributes before code execution begins)
 * Fixed the bug that prevents the ``--reg`` option of :ref:`trace.py` from
   accepting hexadecimal values prefixed by '0x'
 

@@ -81,7 +81,7 @@ REGISTERS = {
     'T': T
 }
 
-def from_snapshot(cls, snapshot, registers=None, config=None, rom_file=None):
+def from_snapshot(cls, snapshot, registers=None, state=None, config=None, rom_file=None):
     ram = snapshot.ram(-1)
     if len(ram) == 0x20000:
         banks = [ram[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
@@ -115,6 +115,8 @@ def from_snapshot(cls, snapshot, registers=None, config=None, rom_file=None):
         'iff': snapshot.iff1,
         'tstates': snapshot.tstates
     }
+    if state:
+        s_state.update(state)
     s_config = {
         'frame_duration': FRAME_DURATIONS[len(ram) == 0x20000],
         'int_active': INT_ACTIVE[len(ram) == 0x20000]

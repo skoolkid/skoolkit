@@ -85,6 +85,11 @@ OPTIONS
   Stop execution at this address. `ADDR` must be a decimal number, or a
   hexadecimal number prefixed by '0x'.
 
+--state name=value
+  Set a hardware state attribute before execution begins. Do ``--state help``
+  for more information, or see the section on ``HARDWARE STATE`` below. This
+  option may be used multiple times.
+
 --stats
   Show statistics after execution.
 
@@ -119,6 +124,25 @@ Recognised register names are:
 |  ``^a``, ``^b``, ``^bc``, ``^c``, ``^d``, ``^de``, ``^e``, ``^f``, ``^h``, ``^hl``, ``^l``,
 |  ``a``, ``b``, ``bc``, ``c``, ``d``, ``de``, ``e``, ``f``, ``h``, ``hl``, ``l``,
 |  ``i``, ``ix``, ``iy``, ``pc``, ``r``, ``sp``
+
+HARDWARE STATE
+==============
+The ``--state`` option sets a hardware state attribute before execution begins.
+
+|
+|  ``--state name=value``
+
+Recognised attribute names and their default values are:
+
+|
+|  ``7ffd``    - last OUT to port 0x7ffd (128K only)
+|  ``ay[N]``   - contents of AY register N (N=0-15; 128K only)
+|  ``border``  - border colour
+|  ``fe``      - last OUT to port 0xfe (SZX only)
+|  ``fffd``    - last OUT to port 0xfffd (128K only)
+|  ``iff``     - interrupt flip-flop: 0=disabled, 1=enabled
+|  ``im``      - interrupt mode
+|  ``tstates`` - T-states elapsed since start of frame
 
 CONFIGURATION
 =============

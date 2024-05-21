@@ -771,7 +771,7 @@ Recognised register names are:
   {}
 """.format(', '.join(options), '\n  '.join(textwrap.wrap(reg_names, 70))).strip())
 
-def print_state_help(short_option=None, show_defaults=True):
+def print_state_help(short_option=None, show_defaults=True, omit=()):
     options = ['--state name=value']
     if short_option:
         options.insert(0, '-{} name=value'.format(short_option))
@@ -783,7 +783,7 @@ def print_state_help(short_option=None, show_defaults=True):
         tstates = ' (default=34943)'
     else:
         infix = border = issue2 = iff = im = tstates = ''
-    attributes = [
+    all_attrs = (
         ('7ffd', 'last OUT to port 0x7ffd (128K only)'),
         ('ay[N]', 'contents of AY register N (N=0-15; 128K only)'),
         ('border', f'border colour{border}'),
@@ -793,7 +793,8 @@ def print_state_help(short_option=None, show_defaults=True):
         ('im', f'interrupt mode{im}'),
         ('issue2', f'issue 2 emulation: 0=disabled, 1=enabled{issue2}'),
         ('tstates', f'T-states elapsed since start of frame{tstates}')
-    ]
+    )
+    attributes = [attr for attr in all_attrs if attr[0] not in omit]
     attrs = '\n'.join(f'  {a:<7} - {d}' for a, d in sorted(attributes))
     print(f'Usage: {opts}\n\nSet a hardware state attribute. Recognised names {infix}are:\n\n{attrs}')
 

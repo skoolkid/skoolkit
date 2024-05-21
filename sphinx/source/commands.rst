@@ -1952,6 +1952,9 @@ To list the options supported by `trace.py`, run it with no arguments::
     -s ADDR, --start ADDR
                           Start execution at this address.
     -S ADDR, --stop ADDR  Stop execution at this address.
+    --state name=value    Set a hardware state attribute before execution
+                          begins. Do '--state help' for more information. This
+                          option may be used multiple times.
     --stats               Show stats after execution.
     -v, --verbose         Show executed instructions. Repeat this option to show
                           register values too.
@@ -2027,6 +2030,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.3     | Added the ``--state`` option                                      |
++---------+-------------------------------------------------------------------+
 | 9.2     | Added the ``--python`` option; added support for +2 snapshots     |
 +---------+-------------------------------------------------------------------+
 | 9.1     | The ``--poke`` option can modify specific RAM banks; added the    |
