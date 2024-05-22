@@ -452,6 +452,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             InstructionWidth=13
             LineWidth=79
             ListRefs=1
+            Opcodes=
             Ref=Used by the routine at {ref}.
             RefFormat=#R{address}
             Refs=Used by the routines at {refs} and {ref}.
@@ -493,6 +494,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             InstructionWidth=13
             LineWidth=79
             ListRefs=1
+            Opcodes=
             Ref=Called by the routine at {ref}.
             RefFormat=#R{address}
             Refs=Used by the routines at {refs} and {ref}.

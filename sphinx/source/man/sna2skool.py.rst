@@ -91,6 +91,8 @@ configuration parameters are:
   :ListRefs: When to add a comment that lists routine or entry point referrers:
     never (``0``), if no other comment is defined at the entry point (``1``,
     the default), or always (``2``).
+  :Opcodes: Comma-separated list of additional opcode sequences to disassemble
+    (see below).
   :Ref: Template used to format the comment for a routine with exactly one
     referrer (default: ``Used by the routine at {ref}.``).
   :RefFormat: Template used to format referrers in the ``{ref}`` and ``{refs}``
@@ -125,6 +127,17 @@ configuration parameters are:
     (default: ``Data block at {address}``).
   :Wrap: Disassemble an instruction that wraps around the 64K boundary (``1``),
     or don't (``0``, the default).
+
+The ``Opcodes`` list is empty by default, but may contain any of the following
+hexadecimal opcode sequences:
+
+  |
+  | ``ED70`` - IN F,(C)
+  | ``ED71`` - OUT (C),0
+
+Note that assemblers may not recognise these instructions, so if your skool
+file contains any of them, care must be taken when using an assembler on the
+output of ``skool2asm.py``.
 
 Configuration parameters must appear in a ``[sna2skool]`` section. For example,
 to make ``sna2skool.py`` generate hexadecimal skool files with a line width of

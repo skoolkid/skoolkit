@@ -1,4 +1,4 @@
-# Copyright 2009-2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -33,7 +33,7 @@ MIN_COMMENT_WIDTH = 10
 AD_LABEL_PREFIX = AD_LABEL + '='
 AD_REFS_PREFIX = AD_REFS + '='
 
-DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size wrap')
+DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size opcodes wrap')
 
 # Component API
 def calculate_references(entries, operations):
@@ -130,6 +130,7 @@ class Disassembly:
             self.config.get('DefbSize', 8),
             self.config.get('DefmSize', 65),
             self.config.get('DefwSize', 1),
+            self.config.get('Opcodes', ''),
             self.config.get('Wrap', 0)
         )
         self.disassembler = get_component('Disassembler', snapshot, dconfig)

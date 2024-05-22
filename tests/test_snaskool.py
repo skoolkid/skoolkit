@@ -3414,6 +3414,22 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, params={'InstructionWidth': 17})
 
+    def test_opcodes(self):
+        snapshot = [
+            0xED, 0x70, # IN F,(C)
+            0xED, 0x71  # OUT (C),0
+        ]
+        ctl = """
+            c 00000
+            i 00004
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 IN F,(C)      ;
+             00002 OUT (C),0     ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Opcodes': 'ED70,ED71'})
+
     def test_semicolons_bcgi(self):
         snapshot = [0, 201, 0, 0, 0, 65, 0, 0, 0]
         ctl = """

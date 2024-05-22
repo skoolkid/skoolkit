@@ -1106,6 +1106,8 @@ configuration parameters are:
 * ``ListRefs`` - when to add a comment that lists routine or entry point
   referrers: never (``0``), if no other comment is defined at the entry point
   (``1``, the default), or always (``2``)
+* ``Opcodes`` - comma-separated list of additional opcode sequences to
+  disassemble (see below)
 * ``Ref`` - template used to format the comment for a routine with exactly one
   referrer (default: ``Used by the routine at {ref}.``)
 * ``RefFormat`` - template used to format referrers in the ``{ref}`` and
@@ -1141,6 +1143,16 @@ configuration parameters are:
 * ``Wrap`` - disassemble an instruction that wraps around the 64K boundary
   (``1``), or don't (``0``, the default)
 
+The ``Opcodes`` list is empty by default, but may contain any of the following
+hexadecimal opcode sequences:
+
+* ``ED70`` - IN F,(C)
+* ``ED71`` - OUT (C),0
+
+Note that assemblers may not recognise these instructions, so if your skool
+file contains any of them, care must be taken when using an assembler on the
+output of :ref:`skool2asm.py`.
+
 Configuration parameters must appear in a ``[sna2skool]`` section. For example,
 to make `sna2skool.py` generate hexadecimal skool files with a line width of
 120 characters by default (without having to use the ``-H`` and ``-w`` options
@@ -1157,6 +1169,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.3     | Added the ``Opcodes`` configuration parameter                     |
++---------+-------------------------------------------------------------------+
 | 8.7     | Added the ``--defb`` option and the ``Timings`` configuration     |
 |         | parameter                                                         |
 +---------+-------------------------------------------------------------------+

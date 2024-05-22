@@ -1,4 +1,4 @@
-# Copyright 2017-2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2017-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -56,6 +56,7 @@ COMMANDS = {
         'Text': (0, ''),
         'EntryPointRef': ('This entry point is used by the routine at {ref}.', ''),
         'EntryPointRefs': ('This entry point is used by the routines at {refs} and {ref}.', ''),
+        'Opcodes': ('', ''),
         'Ref': ('Used by the routine at {ref}.', ''),
         'RefFormat': ('#R{address}', ''),
         'Refs': ('Used by the routines at {refs} and {ref}.', ''),

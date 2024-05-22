@@ -5,6 +5,9 @@ Changelog
 -----
 * Added the ``--state`` option to :ref:`trace.py` (for setting hardware state
   attributes before code execution begins)
+* Added the ``Opcodes`` configuration parameter to
+  :ref:`sna2skool.py <sna2skool-conf>` (for specifying additional opcode
+  sequences to disassemble)
 * Fixed the bug that prevents the ``--reg`` option of :ref:`trace.py` from
   accepting hexadecimal values prefixed by '0x'
 

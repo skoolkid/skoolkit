@@ -5,7 +5,7 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit import components
 from skoolkit.disassembler import Disassembler
 
-Config = namedtuple('Config', 'asm_hex asm_lower defb_size defm_size defw_size wrap')
+Config = namedtuple('Config', 'asm_hex asm_lower defb_size defm_size defw_size opcodes wrap')
 
 ASM = {
     '000000': ('NOP', 'NOP', 'NOP'),
@@ -1802,6 +1802,11 @@ ASM = {
     'FDCB01FF': ('DEFB 253,203,1,255',),
 }
 
+ADDITIONAL_OPCODES = {
+    'ED70': ('ED70', 'IN F,(C)'),
+    'ED71': ('ED71', 'OUT (C),0'),
+}
+
 BOUNDARY_ASM = (
     (65535, [62, 1], 'LD A,1'),
     (65535, [1, 1, 1], 'LD BC,257'),
@@ -1855,8 +1860,8 @@ BOUNDARY_ASM = (
 )
 
 class DisassemblerTest(SkoolKitTestCase):
-    def _get_disassembler(self, snapshot=(), asm_hex=False, asm_lower=False, defw_size=1, wrap=False):
-        config = Config(asm_hex, asm_lower, 8, 66, defw_size, wrap)
+    def _get_disassembler(self, snapshot=(), asm_hex=False, asm_lower=False, defw_size=1, opcodes='', wrap=False):
+        config = Config(asm_hex, asm_lower, 8, 66, defw_size, opcodes, wrap)
         return Disassembler(snapshot, config)
 
     def _get_snapshot(self, start, data):
@@ -1877,13 +1882,24 @@ class DisassemblerTest(SkoolKitTestCase):
         return disassembler.disassemble(start, 65536, 'n')
 
     def test_all_instructions(self):
-        sna_prefix = [0] * 16384
+        snapshot = [0] * 16388
+        disassembler = self._get_disassembler(snapshot)
         for hex_bytes, ops in ASM.items():
-            snapshot = sna_prefix + [int(hex_bytes[i:i + 2], 16) for i in range(0, len(hex_bytes), 2)]
-            disassembler = self._get_disassembler(snapshot)
-            instructions = disassembler.disassemble(len(sna_prefix), len(snapshot), 'n')
+            end = 16384 + len(hex_bytes) // 2
+            snapshot[16384:end] = [int(hex_bytes[i:i + 2], 16) for i in range(0, len(hex_bytes), 2)]
+            instructions = disassembler.disassemble(16384, end, 'n')
             operations = tuple([inst[1] for inst in instructions])
-            self.assertEqual(operations, ops)
+            self.assertEqual(ops, operations)
+
+    def test_additional_opcodes(self):
+        snapshot = [0] * 4
+        for hex_bytes, (opcodes, op) in ADDITIONAL_OPCODES.items():
+            end = len(hex_bytes) // 2
+            snapshot[0:end] = [int(hex_bytes[i:i + 2], 16) for i in range(0, len(hex_bytes), 2)]
+            disassembler = self._get_disassembler(snapshot, opcodes=opcodes)
+            instructions = disassembler.disassemble(0, end, 'n')
+            self.assertEqual(len(instructions), 1)
+            self.assertEqual(instructions[0][1], op)
 
     def test_boundary_asm(self):
         for start, data, op in BOUNDARY_ASM:

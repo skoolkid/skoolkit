@@ -1,4 +1,4 @@
-# Copyright 2015, 2017-2019, 2021-2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015, 2017-2019, 2021-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -664,6 +664,8 @@ AFTER_ED_TIMINGS = {
     0x69: 12,       # OUT (C),L
     0x6A: 15,       # ADC HL,HL
     0x6F: 18,       # RLD
+    0x70: 12,       # IN F,(C)
+    0x71: 12,       # OUT (C),0
     0x72: 15,       # SBC HL,SP
     0x73: 20,       # LD (nn),SP
     0x78: 12,       # IN A,(C)
@@ -1015,9 +1017,12 @@ class Assembler:
         return (237, 70 + (0, 16, 24)[self.parse_byte(op, 3, non_neg=True)])
 
     def _assemble_in(self, address, op1, op2):
-        if op2 == '(C)' and op1 != '(HL)':
-            return (237, 64 + 8 * _reg_index(op1))
-        if op1 == 'A':
+        if op2 == '(C)':
+            if op1 == 'F':
+                return (237, 112)
+            if op1 != '(HL)':
+                return (237, 64 + 8 * _reg_index(op1))
+        elif op1 == 'A':
             return (219, self.parse_byte(op2, brackets=True, non_neg=True))
 
     def _assemble_jp(self, address, op1, op2=None):
@@ -1142,9 +1147,12 @@ class Assembler:
             return (237, 71 + 8 * ('I', 'R').index(op1))
 
     def _assemble_out(self, address, op1, op2):
-        if op1 == '(C)' and op2 != '(HL)':
-            return (237, 65 + 8 * _reg_index(op2))
-        if op2 == 'A':
+        if op1 == '(C)':
+            if op2 == '0':
+                return (237, 113)
+            if op2 != '(HL)':
+                return (237, 65 + 8 * _reg_index(op2))
+        elif op2 == 'A':
             return (211, self.parse_byte(op1, brackets=True, non_neg=True))
 
     def _pop_push(self, base_code, address, op):
