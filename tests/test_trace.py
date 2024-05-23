@@ -35,6 +35,17 @@ class MockSimulator:
         self.registers[PC] = self.pc
         self.registers[T] = self.t1
 
+class MockAudioWriter:
+    def __init__(self, config):
+        global audio_writer
+        audio_writer = self
+        self.config = config
+
+    def write_audio(self, audio_file, delays, ma_filter=None):
+        self.fname = audio_file.name
+        self.delays = delays
+        self.ma_filter = ma_filter
+
 def mock_run(*args):
     global run_args
     run_args = args
@@ -2405,6 +2416,73 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(s_banks[2][0], 2)
         self.assertEqual(s_memory[0xC000], 2)
         self.assertEqual(s_banks[0][0], 0)
+
+    @patch.object(trace, 'AudioWriter', MockAudioWriter)
+    def test_write_wav_48k(self):
+        data = (
+            0x0E, 0x0A,             # $8000 LD C,$0A
+            0xD3, 0xFE,             # $8002 OUT ($FE),A
+            0xEE, 0x10,             # $8004 XOR $10
+            0x0D,                   # $8006 DEC C
+            0x20, 0xF9,             # $8007 JR NZ,$8002
+        )
+        infile = self.write_bin_file(data, suffix='.bin')
+        outfile = 'out.wav'
+        start = 32768
+        stop = start + len(data)
+        output, error = self.run_trace(f'-o {start} -S {stop} {infile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        exp_config = {'ClockSpeed': 3500000}
+        exp_delays = [34] * 9
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(exp_config, audio_writer.config)
+        self.assertEqual(audio_writer.fname, outfile)
+        self.assertEqual(exp_delays, audio_writer.delays)
+        self.assertTrue(audio_writer.ma_filter)
+
+    @patch.object(trace, 'AudioWriter', MockAudioWriter)
+    def test_write_wav_128k(self):
+        data = (
+            0x0E, 0x0A,             # $8000 LD C,$0A
+            0xD3, 0xFE,             # $8002 OUT ($FE),A
+            0xEE, 0x10,             # $8004 XOR $10
+            0x0D,                   # $8006 DEC C
+            0xC2, 0x02, 0x80,       # $8007 JP NZ,$8002
+        )
+        ram = [0] * 49152
+        start = 32768
+        stop = start + len(data)
+        ram[start - 0x4000:stop - 0x4000] = data
+        infile = self.write_z80_file(None, ram, machine_id=4)
+        outfile = 'out.wav'
+        output, error = self.run_trace(f'-s {start} -S {stop} {infile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        exp_config = {'ClockSpeed': 3546900}
+        exp_delays = [32] * 9
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(exp_config, audio_writer.config)
+        self.assertEqual(audio_writer.fname, outfile)
+        self.assertEqual(exp_delays, audio_writer.delays)
+        self.assertTrue(audio_writer.ma_filter)
+
+    @patch.object(trace, 'AudioWriter', MockAudioWriter)
+    def test_write_wav_no_audio(self):
+        global audio_writer
+        audio_writer = None
+        data = (0xD3, 0xFE) # OUT ($FE),A
+        infile = self.write_bin_file(data, suffix='.bin')
+        start = 32768
+        stop = start + len(data)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_trace(f'-o {start} -S {stop} {infile} out.wav')
+        self.assertEqual(cm.exception.args[0], 'No audio detected')
+        self.assertIsNone(audio_writer)
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_write_z80_48k(self):

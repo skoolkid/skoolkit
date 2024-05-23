@@ -5,6 +5,8 @@ Changelog
 -----
 * Added the ``--state`` option to :ref:`trace.py` (for setting hardware state
   attributes before code execution begins)
+* Added support to :ref:`trace.py` for writing a WAV file after code execution
+  has completed
 * Added the ``Opcodes`` configuration parameter to
   :ref:`sna2skool.py <sna2skool-conf>` (for specifying additional opcode
   sequences to disassemble)

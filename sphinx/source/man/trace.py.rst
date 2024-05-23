@@ -13,8 +13,8 @@ DESCRIPTION
 ``trace.py`` simulates the execution of machine code in a 48K, 128K or +2 SNA,
 SZX or Z80 snapshot, or a binary (raw memory) file. If FILE is '48', '128' or
 '+2', no snapshot is loaded, and the RAM is left blank (all zeroes). If
-'OUTFILE' is given, an SZX or Z80 snapshot is written after execution has
-completed.
+'OUTFILE' is given, an SZX/Z80 snapshot or WAV file is written after execution
+has completed.
 
 OPTIONS
 =======

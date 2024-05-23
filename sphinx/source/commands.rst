@@ -1936,7 +1936,8 @@ To list the options supported by `trace.py`, run it with no arguments::
 
   Trace Z80 machine code execution. FILE may be a binary (raw memory) file, a
   SNA, SZX or Z80 snapshot, or '48', '128' or '+2' for no snapshot. If 'OUTFILE'
-  is given, an SZX or Z80 snapshot is written after execution has completed.
+  is given, an SZX/Z80 snapshot or WAV file is written after execution has
+  completed.
 
   Options:
     --audio               Show audio delays.
@@ -2044,7 +2045,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.3     | Added the ``--state`` option                                      |
+| 9.3     | Added the ``--state`` option; added support for writing a WAV     |
+|         | file after execution has completed                                |
 +---------+-------------------------------------------------------------------+
 | 9.2     | Added the ``--python`` option; added support for +2 snapshots     |
 +---------+-------------------------------------------------------------------+

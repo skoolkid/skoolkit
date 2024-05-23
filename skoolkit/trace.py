@@ -20,6 +20,7 @@ import time
 
 from skoolkit import (ROM48, VERSION, SkoolKitError, CSimulator,
                       CCMIOSimulator, get_int_param, integer, read_bin_file)
+from skoolkit.audio import CLOCK_SPEED, AudioWriter
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.pagingtracer import Memory, PagingTracer
@@ -112,6 +113,9 @@ class Tracer(PagingTracer):
             if self.spkr != value & 0x10:
                 self.spkr = value & 0x10
                 self.out_times.append(registers[T])
+
+    def get_delays(self):
+        return [t1 - t0 for t0, t1 in zip(self.out_times, self.out_times[1:])]
 
 def rle(s, length):
     s2 = []
@@ -257,17 +261,24 @@ def run(snafile, options, config):
         print(f'Instructions executed: {tracer.operations}')
         print(f'Simulation time: {rt:.3f}s (x{speed:.2f})')
     if options.audio:
-        delays = []
-        for i, t in enumerate(tracer.out_times[1:]):
-            delays.append(t - tracer.out_times[i])
+        delays = tracer.get_delays()
         z80t = sum(delays)
         z80s = z80t / cpu_freq
         print(f'Sound duration: {z80t} T-states ({z80s:.3f}s)')
         lines = textwrap.wrap(simplify(delays, options.depth), 78)
         print('Delays:\n {}'.format('\n '.join(lines)))
     if options.dump:
-        ram, registers, state, machine = get_state(simulator)
-        write_snapshot(options.dump, ram, registers, state, machine)
+        if options.dump.lower().endswith('.wav'):
+            delays = tracer.get_delays()
+            if delays:
+                audio_writer = AudioWriter({CLOCK_SPEED: cpu_freq})
+                with open(options.dump, 'wb') as f:
+                    audio_writer.write_audio(f, delays, ma_filter=True)
+            else:
+                raise SkoolKitError('No audio detected')
+        else:
+            ram, registers, state, machine = get_state(simulator)
+            write_snapshot(options.dump, ram, registers, state, machine)
         print(f'Wrote {options.dump}')
 
 def main(args):
@@ -276,7 +287,7 @@ def main(args):
         usage='trace.py [options] FILE [OUTFILE]',
         description="Trace Z80 machine code execution. "
                     "FILE may be a binary (raw memory) file, a SNA, SZX or Z80 snapshot, or '48', '128' or '+2' for no snapshot. "
-                    "If 'OUTFILE' is given, an SZX or Z80 snapshot is written after execution has completed.",
+                    "If 'OUTFILE' is given, an SZX/Z80 snapshot or WAV file is written after execution has completed.",
         add_help=False
     )
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')
