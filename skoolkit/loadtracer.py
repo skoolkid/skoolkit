@@ -23,7 +23,7 @@ from skoolkit.basic import TextReader
 from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import R1
 from skoolkit.simutils import A, D, E, F, H, L, IXh, IXl, R, SP, PC, T, IFF
-from skoolkit.traceutils import Registers, disassemble
+from skoolkit.traceutils import Registers, disassemble, get_trace_line
 
 DEC = tuple(tuple((
         v % 256,
@@ -202,12 +202,14 @@ class LoadTracer(PagingTracer):
         memory = simulator.memory
         registers = simulator.registers
         if tracefile:
+            trace_line = get_trace_line(trace_line)
             r = Registers(registers)
+            m = memory
 
         if hasattr(simulator, 'load'): # pragma: no cover
             if tracefile:
                 df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
-                tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
+                tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0, m=m))
             else:
                 df = tf = None
             ppf = lambda p: write(f'[{p/10:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')
@@ -229,7 +231,7 @@ class LoadTracer(PagingTracer):
                 if tracefile:
                     i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                     opcodes[memory[pc]]()
-                    tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
+                    tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0, m=m))
                 else:
                     opcodes[memory[pc]]()
                 tstates = registers[25]

@@ -3,6 +3,8 @@ Changelog
 
 9.3b1
 -----
+* Added support to :ref:`tap2sna.py <tap2sna-conf>` for the ``m`` (memory)
+  replacement field in the ``TraceLine`` configuration parameter
 * Added the ``--state`` option to :ref:`trace.py` (for setting hardware state
   attributes before code execution begins)
 * Added support to :ref:`trace.py` for writing a WAV file after code execution

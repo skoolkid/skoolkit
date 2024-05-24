@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import re
+
 from skoolkit.simutils import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                SP, SP2, I, R, xA, xF, xB, xC, xD, xE, xH, xL)
 
@@ -58,6 +60,14 @@ class Registers:
     def __getitem__(self, key):
         lo, hi = REGISTERS[key]
         return self.registers[lo] + 256 * self.registers[hi]
+
+def _m_repl(match):
+    if len(match.group(1)) % 2:
+        return '{}m[{}]'.format(match.group(1), int(match.group(3), 16))
+    return match.group()
+
+def get_trace_line(trace_line):
+    return re.sub(r'(\{+)m\[(0x|\$)([0-9a-fA-F]+)\]', _m_repl, trace_line)
 
 def disassemble(memory, address, prefix='$', byte_fmt='02X', word_fmt='04X'):
     opcode = memory[address]

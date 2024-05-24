@@ -2764,6 +2764,82 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[30], "$250D ADD HL,BC     BCDEHL=001C000025B3 BCDEHL'=000000000000 IX=0000 IY=5C3A")
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_config_TraceLine_with_memory_contents(self):
+        tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
+        tracefile = 'sim-load.trace'
+        trace_line = "${pc:04X} {i:<13} (23668)={m[23668]}"
+        args = ('-I', f'TraceLine={trace_line}', '-c', f'trace={tracefile}', '--start', '0x060E', tapfile, 'out.z80')
+        exp_trace = """
+            $0605 POP AF        (23668)=225
+            $0606 LD A,($5C74)  (23668)=225
+            $0609 SUB $E0       (23668)=225
+            $060B LD ($5C74),A  (23668)=1
+        """
+        tap2sna.main(args)
+        self.assertEqual(self.err.getvalue(), '')
+        self.assertIn('PC=1550', s_reg)
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip()
+        self.assertEqual(dedent(exp_trace).strip(), trace_lines)
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_config_TraceLine_with_memory_contents_using_hex_address(self):
+        tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
+        tracefile = 'sim-load.trace'
+        trace_line = "${pc:04X} {i:<13} ($5C74)=${m[$5c74]:02X}"
+        args = ('-I', f'TraceLine={trace_line}', '-c', f'trace={tracefile}', '--start', '0x060E', tapfile, 'out.z80')
+        exp_trace = """
+            $0605 POP AF        ($5C74)=$E1
+            $0606 LD A,($5C74)  ($5C74)=$E1
+            $0609 SUB $E0       ($5C74)=$E1
+            $060B LD ($5C74),A  ($5C74)=$01
+        """
+        tap2sna.main(args)
+        self.assertEqual(self.err.getvalue(), '')
+        self.assertIn('PC=1550', s_reg)
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip()
+        self.assertEqual(dedent(exp_trace).strip(), trace_lines)
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_config_TraceLine_with_memory_contents_using_0x_prefixed_hex_address(self):
+        tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
+        tracefile = 'sim-load.trace'
+        trace_line = "${pc:04X} {i:<13} (0x5C74)=0x{m[0x5c74]:02X}"
+        args = ('-I', f'TraceLine={trace_line}', '-c', f'trace={tracefile}', '--start', '0x060E', tapfile, 'out.z80')
+        exp_trace = """
+            $0605 POP AF        (0x5C74)=0xE1
+            $0606 LD A,($5C74)  (0x5C74)=0xE1
+            $0609 SUB $E0       (0x5C74)=0xE1
+            $060B LD ($5C74),A  (0x5C74)=0x01
+        """
+        tap2sna.main(args)
+        self.assertEqual(self.err.getvalue(), '')
+        self.assertIn('PC=1550', s_reg)
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip()
+        self.assertEqual(dedent(exp_trace).strip(), trace_lines)
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_config_TraceLine_with_memory_contents_using_escaped_braces(self):
+        tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
+        tracefile = 'sim-load.trace'
+        trace_line = "${pc:04X} {i:<13} {{m[0x5C74]}}={{{m[0x5c74]:02X}}}"
+        args = ('-I', f'TraceLine={trace_line}', '-c', f'trace={tracefile}', '--start', '0x060E', tapfile, 'out.z80')
+        exp_trace = """
+            $0605 POP AF        {m[0x5C74]}={E1}
+            $0606 LD A,($5C74)  {m[0x5C74]}={E1}
+            $0609 SUB $E0       {m[0x5C74]}={E1}
+            $060B LD ($5C74),A  {m[0x5C74]}={01}
+        """
+        tap2sna.main(args)
+        self.assertEqual(self.err.getvalue(), '')
+        self.assertIn('PC=1550', s_reg)
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip()
+        self.assertEqual(dedent(exp_trace).strip(), trace_lines)
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_config_TraceOperand(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
         tracefile = 'sim-load.trace'
