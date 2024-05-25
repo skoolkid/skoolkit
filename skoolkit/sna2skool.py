@@ -79,7 +79,7 @@ def main(args):
     group.add_argument('-d', '--defb', dest='defb', metavar='SIZE', type=int,
                        help='Disassemble as DEFB statements of this size.')
     group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=65536,
-                       help='Stop disassembling at this address (default=65536).')
+                       help='Stop disassembling at this address (default: 65536).')
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=16, default=config['Base'],
                        help='Write hexadecimal addresses and operands in the disassembly.')
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
