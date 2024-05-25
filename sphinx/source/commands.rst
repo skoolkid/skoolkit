@@ -1961,14 +1961,15 @@ To list the options supported by `trace.py`, run it with no arguments::
     -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
                           file (default: 65536 - length).
     -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
-                          POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
-                          Prefix 'v' with '^' to perform an XOR operation, or
-                          '+' to perform an ADD operation. This option may be
-                          used multiple times.
+                          POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}
+                          before execution begins. Prefix 'v' with '^' to
+                          perform an XOR operation, or '+' to perform an ADD
+                          operation. This option may be used multiple times.
     --python              Use the pure Python Z80 simulator.
     -r name=value, --reg name=value
-                          Set the value of a register. Do '--reg help' for more
-                          information. This option may be used multiple times.
+                          Set the value of a register before execution begins.
+                          Do '--reg help' for more information. This option may
+                          be used multiple times.
     --rom FILE            Patch in a ROM at address 0 from this file.
     --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR

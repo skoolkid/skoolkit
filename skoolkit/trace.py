@@ -312,13 +312,13 @@ def main(args):
     group.add_argument('-o', '--org', metavar='ADDR', type=integer,
                        help='Specify the origin address of a binary (raw memory) file (default: 65536 - length).')
     group.add_argument('-p', '--poke', dest='pokes', metavar='[p:]a[-b[-c]],[^+]v', action='append', default=[],
-                       help="POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}. "
+                       help="POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b} before execution begins. "
                             "Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD operation. "
                             "This option may be used multiple times.")
     group.add_argument('--python', action='store_true',
                        help="Use the pure Python Z80 simulator.")
     group.add_argument('-r', '--reg', metavar='name=value', action='append', default=[],
-                       help="Set the value of a register. Do '--reg help' for more information. "
+                       help="Set the value of a register before execution begins. Do '--reg help' for more information. "
                             "This option may be used multiple times.")
     group.add_argument('--rom', metavar='FILE',
                        help='Patch in a ROM at address 0 from this file.')

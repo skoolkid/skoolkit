@@ -56,10 +56,10 @@ OPTIONS
   number, or a hexadecimal number prefixed by '0x'.
 
 -p, --poke `[p:]a[-b[-c]],[^+]v`
-  POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}. Prefix 'v' with '^' to
-  perform an XOR operation, or '+' to perform an ADD operation. This option may
-  be used multiple times. 'a', 'b', 'c' and 'v' must each be a decimal number,
-  or a hexadecimal number prefixed by '0x'.
+  POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b} before execution begins.
+  Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD
+  operation. This option may be used multiple times. 'a', 'b', 'c' and 'v' must
+  each be a decimal number, or a hexadecimal number prefixed by '0x'.
 
 --python
   Use the pure Python Z80 simulator even if the C version is available.
