@@ -27,9 +27,9 @@ class MockBasicLister:
         return 'BASIC DONE!'
 
 class TapinfoTest(SkoolKitTestCase):
-    def _write_tzx(self, blocks):
+    def _write_tzx(self, blocks, minor_version=20):
         tzx_data = [ord(c) for c in "ZXTape!"]
-        tzx_data.extend((26, 1, 20))
+        tzx_data.extend((26, 1, minor_version))
         for block in blocks:
             tzx_data.extend(block)
         return self.write_bin_file(tzx_data, suffix='.tzx')
@@ -161,6 +161,13 @@ class TapinfoTest(SkoolKitTestCase):
               Data: 255, 64, 0, 191
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_tzx_with_minor_version_less_than_10(self):
+        blocks = [create_tzx_data_block([0])]
+        tzxfile = self._write_tzx(blocks, 3)
+        output, error = self.run_tapinfo(tzxfile)
+        self.assertEqual(error, '')
+        self.assertEqual(output.split('\n')[0], 'Version: 1.03')
 
     def test_invalid_tzx_file(self):
         invalid_tzx = self.write_text_file('This is not a TZX file', suffix='.tzx')

@@ -485,7 +485,7 @@ def _analyse_tzx(tzx, basic_block, text_reader, show_data):
         raise SkoolKitError("Not a TZX file")
 
     try:
-        version = 'Version: {}.{}'.format(tzx[8], tzx[9])
+        version = 'Version: {}.{:02}'.format(tzx[8], tzx[9])
         if not basic_block:
             print(version)
     except IndexError:
