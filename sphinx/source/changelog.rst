@@ -12,6 +12,8 @@ Changelog
 * Added the ``Opcodes`` configuration parameter to
   :ref:`sna2skool.py <sna2skool-conf>` (for specifying additional opcode
   sequences to disassemble)
+* Added support for path ID replacement fields in the ``destDir`` parameter of
+  items in the :ref:`resources` section
 * Fixed the bug that prevents the ``--reg`` option of :ref:`trace.py` from
   accepting hexadecimal values prefixed by '0x'
 

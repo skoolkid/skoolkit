@@ -802,6 +802,57 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_resources_using_path_id_replacement_fields(self):
+        resource_dir = self.make_directory()
+        self.write_bin_file(path=f'{resource_dir}/sound.wav')
+        self.write_bin_file(path=f'{resource_dir}/asm.html')
+        self.write_bin_file(path=f'{resource_dir}/font.png')
+        self.write_bin_file(path=f'{resource_dir}/font.ttf')
+        self.write_bin_file(path=f'{resource_dir}/logo.png')
+        self.write_bin_file(path=f'{resource_dir}/game.js')
+        self.write_bin_file(path=f'{resource_dir}/scr.png')
+        self.write_bin_file(path=f'{resource_dir}/style.css')
+        self.write_bin_file(path=f'{resource_dir}/udg.png')
+        ref = """
+            [Paths]
+            AudioPath=a
+            CodePath=b
+            FontImagePath=c
+            FontPath=d
+            ImagePath=e
+            JavaScriptPath=f
+            ScreenshotImagePath=g
+            StyleSheetPath=h
+            UDGImagePath=i
+
+            [Resources]
+            sound.wav={AudioPath}/1
+            asm.html={CodePath}/2
+            font.png={FontImagePath}/3
+            font.ttf={FontPath}/4
+            logo.png={ImagePath}/5
+            game.js={JavaScriptPath}/6
+            scr.png={ScreenshotImagePath}/7
+            style.css={StyleSheetPath}/8
+            udg.png={UDGImagePath}/9
+        """
+        reffile = self._write_ref_file(ref)
+        skoolfile = self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('-d {} -S {} {}'.format(self.odir, resource_dir, skoolfile))
+        self.assertEqual(error, '')
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'a', '1', 'sound.wav')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'b', '2', 'asm.html')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'c', '3', 'font.png')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'd', '4', 'font.ttf')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'e', '5', 'logo.png')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'f', '6', 'game.js')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'g', '7', 'scr.png')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'h', '8', 'style.css')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'i', '9', 'udg.png')))
+
+    @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_resources_using_pathname_expansion(self):
         resource_dir = self.make_directory()
         self.write_bin_file(path=os.path.join(resource_dir, 'bar.png'))

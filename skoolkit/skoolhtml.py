@@ -194,7 +194,7 @@ class HtmlWriter:
                 self.titles.setdefault(map_name, map_name)
 
         self._expand_values(self.paths)
-        self.image_paths = {k: v for k, v in self.paths.items() if k.endswith('ImagePath')}
+        self.all_paths = {k: v for k, v in self.paths.items() if k.endswith('Path')}
 
         self.asm_fname_template = self.paths['CodeFiles']
         self.udg_fname_template = self.paths['UDGFilename']
@@ -1006,18 +1006,18 @@ class HtmlWriter:
         """
         if fname:
             fname = self.image_writer.image_fname(fname)
-            expanded = self._expand_image_path(fname)
+            expanded = self.format_path(fname)
             if expanded != fname or fname.startswith('/'):
                 return expanded.lstrip('/')
             if path_id in self.paths:
-                return join(self._expand_image_path(self.paths[path_id]), fname)
+                return join(self.format_path(self.paths[path_id]), fname)
             raise SkoolKitError("Unknown path ID '{0}' for image file '{1}'".format(path_id, fname))
 
-    def _expand_image_path(self, path):
+    def format_path(self, path):
         orig_path = prev_path = path
         while True:
             try:
-                path = path.format(**self.image_paths)
+                path = path.format(**self.all_paths)
             except KeyError:
                 break
             if path in (prev_path, orig_path):

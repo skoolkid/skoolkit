@@ -909,6 +909,10 @@ which are expanded as follows:
   sequence of characters (e.g. ``abcde``) or a range (e.g. ``a-e``)
 * ``[!seq]`` - matches any character not in ``seq``
 
+If ``destDir`` contains a path ID replacement field (e.g. ``{AudioPath}``), the
+corresponding parameter value from the :ref:`Paths` section will be
+substituted.
+
 If your disassembly requires pre-built images or other resources that SkoolKit
 does not build, listing them in this section ensures that they will be copied
 into place whenever the disassembly is built.
@@ -916,6 +920,9 @@ into place whenever the disassembly is built.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.3     | Added support for path ID replacement fields in the ``destDir``   |
+|         | parameter                                                         |
++---------+-------------------------------------------------------------------+
 | 8.0     | Added support for the ``**`` pattern                              |
 +---------+-------------------------------------------------------------------+
 | 6.3     | Added support for pathname pattern expansion using wildcard       |
