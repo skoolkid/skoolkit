@@ -379,9 +379,16 @@ def _find(snapshot, byte_seq, base_addr):
         raise SkoolKitError('Invalid distance: {}'.format(steps))
     for step in steps:
         offset = step * len(byte_values)
-        for a in range(base_addr, 65537 - offset):
-            if snapshot[a:a + offset:step] == byte_values:
-                print("{0}-{1}-{2} {0:04X}-{1:04X}-{2:X}: {3}".format(a, a + offset - step, step, byte_seq))
+        if len(snapshot) == 0x20000:
+            for bank in range(8):
+                i = bank * 16384
+                for a in range(16385 - offset):
+                    if snapshot[i + a:i + a + offset:step] == byte_values:
+                        print("{0}:{1:05}-{2:05}-{3} {0}:{1:04X}-{2:04X}-{3:X}: {4}".format(bank, a, a + offset - step, step, byte_seq))
+        else:
+            for a in range(base_addr, 65537 - offset):
+                if snapshot[a:a + offset:step] == byte_values:
+                    print("{0}-{1}-{2} {0:04X}-{1:04X}-{2:X}: {3}".format(a, a + offset - step, step, byte_seq))
 
 def _find_tile(snapshot, coords):
     steps = '1'
@@ -422,6 +429,8 @@ def _word(snapshot, specs, fmt):
 def run(infile, options, config):
     if any((options.find, options.tile, options.text, options.call_graph, options.peek,
             options.word, options.basic, options.variables)):
+        if options.find and options.page is None:
+            options.page = -1
         snapshot, start, end = make_snapshot(infile, options.org, page=options.page)
         if options.find:
             _find(snapshot, options.find, start)

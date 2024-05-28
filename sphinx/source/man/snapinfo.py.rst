@@ -28,7 +28,9 @@ OPTIONS
 -f, --find `A[,B...[-M[-N]]]`
   Search for the byte sequence `A`, `B`... with distance ranging from `M` to
   `N` (default=1) between bytes. `A`, `B`, etc. and `M` and `N` must each be a
-  decimal number, or a hexadecimal number prefixed by '0x'.
+  decimal number, or a hexadecimal number prefixed by '0x'. By default, all RAM
+  banks in a 128K snapshot are searched; use the ``--page`` option to restrict
+  the search to the address range 16384-65535 (0x4000-0xFFFF).
 
 -g, --call-graph
   Generate a call graph in DOT format.

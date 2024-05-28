@@ -47,11 +47,11 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, exp_error)
         self.assertEqual(dedent(exp_output).lstrip('\n').rstrip(), output.rstrip())
 
-    def _test_z80(self, exp_output, header=None, ram=None, version=3, compress=False, machine_id=0, pages=None):
+    def _test_z80(self, exp_output, options='', header=None, ram=None, version=3, compress=False, machine_id=0, pages=None):
         if ram is None:
             ram = [0] * 49152
-        z80file = self.write_z80_file(header, ram, version, compress, machine_id, pages or {})
-        output, error = self.run_snapinfo(z80file)
+        z80file = self.write_z80_file(header, ram, version, compress, machine_id, pages=pages or {})
+        output, error = self.run_snapinfo(f'{options} {z80file}')
         self.assertEqual(error, '')
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -270,7 +270,7 @@ class SnapinfoTest(SkoolKitTestCase):
               F 00010001        F' 00100110
             48K RAM block (16384-65535 4000-FFFF): 49152 bytes (uncompressed)
         """
-        self._test_z80(exp_output, header, version=1)
+        self._test_z80(exp_output, header=header, version=1)
 
     def test_z80v1_compressed(self):
         header = list(range(16, 46))
@@ -301,7 +301,7 @@ class SnapinfoTest(SkoolKitTestCase):
               F 00010001        F' 00100110
             48K RAM block (16384-65535 4000-FFFF): 776 bytes (compressed)
         """
-        self._test_z80(exp_output, header, version=1, compress=True)
+        self._test_z80(exp_output, header=header, version=1, compress=True)
 
     def test_z80v2_48k_uncompressed(self):
         header = list(range(30))
@@ -338,7 +338,7 @@ class SnapinfoTest(SkoolKitTestCase):
             RAM block 5 (49152-65535 C000-FFFF): 16384 bytes (uncompressed)
             RAM block 8 (16384-32767 4000-7FFF): 16384 bytes (uncompressed)
         """
-        self._test_z80(exp_output, header, version=2)
+        self._test_z80(exp_output, header=header, version=2)
 
     def test_z80v2_48k_compressed(self):
         header = list(range(30))
@@ -375,7 +375,7 @@ class SnapinfoTest(SkoolKitTestCase):
             RAM block 5 (49152-65535 C000-FFFF): 260 bytes (compressed)
             RAM block 8 (16384-32767 4000-7FFF): 260 bytes (compressed)
         """
-        self._test_z80(exp_output, header, version=2, compress=True)
+        self._test_z80(exp_output, header=header, version=2, compress=True)
 
     def test_z80v3_48k_uncompressed(self):
         header = list(range(30))
@@ -414,7 +414,7 @@ class SnapinfoTest(SkoolKitTestCase):
             RAM block 5 (49152-65535 C000-FFFF): 16384 bytes (uncompressed)
             RAM block 8 (16384-32767 4000-7FFF): 16384 bytes (uncompressed)
         """
-        self._test_z80(exp_output, header, version=3)
+        self._test_z80(exp_output, header=header, version=3)
 
     def test_z80v3_48k_compressed(self):
         header = list(range(48, 78))
@@ -453,7 +453,7 @@ class SnapinfoTest(SkoolKitTestCase):
             RAM block 5 (49152-65535 C000-FFFF): 260 bytes (compressed)
             RAM block 8 (16384-32767 4000-7FFF): 260 bytes (compressed)
         """
-        self._test_z80(exp_output, header, version=3, compress=True)
+        self._test_z80(exp_output, header=header, version=3, compress=True)
 
     def test_z80v3_128k_uncompressed(self):
         header = list(range(32, 62))
@@ -502,7 +502,7 @@ class SnapinfoTest(SkoolKitTestCase):
             RAM block 9: 16384 bytes (uncompressed)
             RAM block 10: 16384 bytes (uncompressed)
         """
-        self._test_z80(exp_output, header, compress=False, machine_id=4, pages=pages)
+        self._test_z80(exp_output, header=header, compress=False, machine_id=4, pages=pages)
 
     def test_z80v3_128k_compressed(self):
         header = list(range(32, 62))
@@ -552,7 +552,7 @@ class SnapinfoTest(SkoolKitTestCase):
             RAM block 9: 260 bytes (compressed)
             RAM block 10: 260 bytes (compressed)
         """
-        self._test_z80(exp_output, header, compress=True, machine_id=4, pages=pages)
+        self._test_z80(exp_output, header=header, compress=True, machine_id=4, pages=pages)
 
     def test_szx_16k_uncompressed(self):
         registers = list(range(32, 58)) # Registers
@@ -1005,6 +1005,30 @@ class SnapinfoTest(SkoolKitTestCase):
         exp_output = '35674-35676-1 8B5A-8B5C-1: {}'.format(seq_str)
         self._test_sna(ram, exp_output, '--find {}'.format(seq_str))
 
+    def test_option_find_with_byte_sequence_128k_ram_banks(self):
+        seq = (2, 4, 6)
+        pages = {}
+        for page, addr in zip((0, 2, 6), (123, 1234, 12345)):
+            pages[page] = [0] * 16384
+            pages[page][addr:addr + len(seq)] = seq
+        seq_str = ','.join(str(b) for b in seq)
+        exp_output = f"""
+            0:00123-00125-1 0:007B-007D-1: {seq_str}
+            2:01234-01236-1 2:04D2-04D4-1: {seq_str}
+            6:12345-12347-1 6:3039-303B-1: {seq_str}
+        """
+        self._test_z80(exp_output, f'--find {seq_str}', pages=pages, machine_id=4)
+
+    def test_options_find_and_page_with_byte_sequence_128k(self):
+        seq = (2, 4, 6)
+        pages = {}
+        for page, addr in zip((0, 1, 3), (123, 1234, 12345)):
+            pages[page] = [0] * 16384
+            pages[page][addr:addr + len(seq)] = seq
+        seq_str = ','.join(str(b) for b in seq)
+        exp_output = f"50386-50388-1 C4D2-C4D4-1: {seq_str}\n"
+        self._test_z80(exp_output, f'--find {seq_str} --page 1', pages=pages, machine_id=4)
+
     def test_option_f_with_byte_sequence_and_step(self):
         ram = [0] * 49152
         address = 47983
@@ -1014,6 +1038,22 @@ class SnapinfoTest(SkoolKitTestCase):
         seq_str = ','.join([str(b) for b in seq])
         exp_output = '47983-47987-2 BB6F-BB73-2: {}'.format(seq_str)
         self._test_sna(ram, exp_output, '-f {}-{}'.format(seq_str, step))
+
+    def test_option_f_with_byte_sequence_and_step_128k_ram_banks(self):
+        seq = (2, 3, 5)
+        step = 2
+        size = step * len(seq)
+        pages = {}
+        for page, addr in zip((1, 3, 7), (1, 12, 10000)):
+            pages[page] = [0] * 16384
+            pages[page][addr:addr + size:step] = seq
+        seq_str = ','.join(str(b) for b in seq)
+        exp_output = f"""
+            1:00001-00005-2 1:0001-0005-2: {seq_str}
+            3:00012-00016-2 3:000C-0010-2: {seq_str}
+            7:10000-10004-2 7:2710-2714-2: {seq_str}
+        """
+        self._test_z80(exp_output, f'-f {seq_str}-{step}', pages=pages, machine_id=4)
 
     def test_option_f_with_byte_sequence_and_step_range(self):
         ram = [0] * 49152
@@ -1029,6 +1069,20 @@ class SnapinfoTest(SkoolKitTestCase):
             52172-52180-4 CBCC-CBD4-4: 8,10,13
         """
         self._test_sna(ram, exp_output, '-f {}-1-5'.format(seq_str))
+
+    def test_option_f_with_byte_sequence_and_step_range_128k_ram_banks(self):
+        seq = (7, 8, 9)
+        pages = {}
+        for page, addr, step in zip((3, 4, 6), (34, 7008, 11953), (2, 3, 4)):
+            pages[page] = [0] * 16384
+            pages[page][addr:addr + step * len(seq):step] = seq
+        seq_str = ','.join(str(b) for b in seq)
+        exp_output = f"""
+            3:00034-00038-2 3:0022-0026-2: {seq_str}
+            4:07008-07014-3 4:1B60-1B66-3: {seq_str}
+            6:11953-11961-4 6:2EB1-2EB9-4: {seq_str}
+        """
+        self._test_z80(exp_output, f'-f {seq_str}-1-5', pages=pages, machine_id=4)
 
     def test_option_f_with_address_below_16384(self):
         data = [0] * 256
