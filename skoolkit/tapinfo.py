@@ -311,6 +311,12 @@ def _get_block_info(data, i, block_num):
         samples_length = get_word3(data, i + 5)
         info.append('Length: {}'.format(samples_length))
         i += 8 + samples_length
+    elif block_id == 22:
+        header = 'C64 ROM type data'
+        i += get_dword(data, i) + 4
+    elif block_id == 23:
+        header = 'C64 turbo tape data'
+        i += get_dword(data, i) + 4
     elif block_id == 24:
         header = 'CSW recording'
         i += get_dword(data, i) + 4
@@ -399,12 +405,18 @@ def _get_block_info(data, i, block_num):
                 '  Info: {}'.format(HARDWARE_INFO[data[i] > 0].get(data[i + 2], 'Unknown'))
             ))
             i += 3
+    elif block_id == 52:
+        header = 'Emulation info'
+        i += 8
     elif block_id == 53:
         header = 'Custom info'
         ident = _get_str(data[i:i + 16]).strip()
         length = get_dword(data, i + 16)
         info.extend(_format_text(ident, data, i + 20, length, True))
         i += length + 20
+    elif block_id == 64:
+        header = 'Snapshot'
+        i += get_word3(data, i + 1) + 4
     elif block_id == 90:
         header = '"Glue" block'
         i += 9

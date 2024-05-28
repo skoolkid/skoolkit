@@ -280,6 +280,20 @@ class TapinfoTest(SkoolKitTestCase):
         """
         self._test_tzx_block(block, exp_output)
 
+    def test_tzx_block_0x16(self):
+        block = [22] # Block ID
+        block.extend((5, 0, 0, 0)) # Block length
+        block.extend((1, 2, 3, 4, 5)) # Data
+        exp_output = '1: C64 ROM type data (0x16)'
+        self._test_tzx_block(block, exp_output)
+
+    def test_tzx_block_0x17(self):
+        block = [23] # Block ID
+        block.extend((4, 0, 0, 0)) # Block length
+        block.extend((1, 2, 3, 4)) # Data
+        exp_output = '1: C64 turbo tape data (0x17)'
+        self._test_tzx_block(block, exp_output)
+
     def test_tzx_block_0x18(self):
         block = [24] # Block ID
         block.extend((12, 0, 0, 0)) # Block length
@@ -522,6 +536,12 @@ class TapinfoTest(SkoolKitTestCase):
         """
         self._test_tzx_block(block, exp_output)
 
+    def test_tzx_block_0x34(self):
+        block = [52] # Block ID
+        block.extend((1, 2, 3, 4, 5, 6, 7, 8)) # Data
+        exp_output = '1: Emulation info (0x34)'
+        self._test_tzx_block(block, exp_output)
+
     def test_tzx_block_0x35_pure_text(self):
         block = [0x35] # Block ID
         info_id = 'Instructions'
@@ -550,6 +570,14 @@ class TapinfoTest(SkoolKitTestCase):
                           0010  02 03 0D 49 6E 76 69 6E 63 69 62 69 6C 69 74 79  ...Invincibility
                           0020  00 0E 0F 10                                      ....
         """
+        self._test_tzx_block(block, exp_output)
+
+    def test_tzx_block_0x40(self):
+        block = [64] # Block ID
+        block.append(0) # Snapshot type
+        block.extend((1, 0, 0)) # Snapshot length
+        block.append(0) # Snapshot data
+        exp_output = '1: Snapshot (0x40)'
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x5A(self):
