@@ -28,7 +28,7 @@ from skoolkit.simulator import Simulator
 from skoolkit.simutils import PC, T, from_snapshot, get_state
 from skoolkit.snapshot import (Snapshot, make_snapshot, poke, print_reg_help,
                                print_state_help, write_snapshot)
-from skoolkit.traceutils import Registers, disassemble
+from skoolkit.traceutils import Registers, disassemble, get_trace_line
 
 class Tracer(PagingTracer):
     def __init__(self, simulator, border, out7ffd, outfffd, ay, outfe):
@@ -51,12 +51,14 @@ class Tracer(PagingTracer):
             max_time = start_time + max_tstates
         else:
             max_time = 0
-        r = Registers(registers)
+        if trace_line:
+            trace_line = get_trace_line(trace_line)
+            r = Registers(registers)
 
         if hasattr(simulator, 'trace'): # pragma: no cover
             if trace_line:
                 df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
-                tf = lambda pc, i, t0: print(trace_line.format(pc=pc, i=i, r=r, t=t0))
+                tf = lambda pc, i, t0: print(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
             else:
                 df = tf = None
             stop_cond, operations = simulator.trace(start, stop, max_operations, max_time, interrupts, df, tf)
@@ -72,7 +74,7 @@ class Tracer(PagingTracer):
                 if trace_line:
                     i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                     opcodes[memory[pc]]()
-                    print(trace_line.format(pc=pc, i=i, r=r, t=t0))
+                    print(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
                 else:
                     opcodes[memory[pc]]()
                 tstates = registers[25]

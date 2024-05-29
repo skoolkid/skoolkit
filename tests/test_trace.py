@@ -2030,6 +2030,25 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_config_TraceLine_with_memory_contents(self):
+        code = (
+            0x21, 0xCD, 0xAB, # $8000 LD HL,$ABCD
+            0x22, 0x00, 0xC0, # $8003 LD ($C000),HL
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        trace_line = '${pc:04X} {i:<14} {{m[$c000]}}=({m[49152]},0x{m[0xc001]:02X},${m[$C002]:02X})'
+        args = ('-n', '-I', f'TraceLine={trace_line}', '-o', str(start), '-S', str(stop), '-v', binfile)
+        output, error = self.run_trace(args)
+        self.assertEqual(error, '')
+        exp_output = """
+            $8000 LD HL,$ABCD    {m[$c000]}=(0,0x00,$00)
+            $8003 LD ($C000),HL  {m[$c000]}=(205,0xAB,$00)
+            Stopped at $8006
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     def test_config_TraceLine2_read_from_file(self):
         ini = """
             [trace]
@@ -2072,6 +2091,25 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_config_TraceLine2_with_memory_contents(self):
+        code = (
+            0x21, 0xCD, 0xAB, # $8000 LD HL,$ABCD
+            0x22, 0x00, 0xC0, # $8003 LD ($C000),HL
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        trace_line = '${pc:04X} {i:<14} {{m[$c000]}}=({m[49152]},0x{m[0xc001]:02X},${m[$C002]:02X})'
+        args = ('-n', '-I', f'TraceLine2={trace_line}', '-o', str(start), '-S', str(stop), '-vv', binfile)
+        output, error = self.run_trace(args)
+        self.assertEqual(error, '')
+        exp_output = """
+            $8000 LD HL,$ABCD    {m[$c000]}=(0,0x00,$00)
+            $8003 LD ($C000),HL  {m[$c000]}=(205,0xAB,$00)
+            Stopped at $8006
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     def test_config_TraceLineDecimal_read_from_file(self):
         ini = """
             [trace]
@@ -2109,6 +2147,25 @@ class TraceTest(SkoolKitTestCase):
             32768:LD B,2
             32770:LD C,3
             Stopped at 32772
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceLineDecimal_with_memory_contents(self):
+        code = (
+            0x21, 0xCD, 0xAB, # $8000 LD HL,$ABCD
+            0x22, 0x00, 0xC0, # $8003 LD ($C000),HL
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        trace_line = '{pc:05} {i:<14} {{m[$c000]}}=({m[49152]},0x{m[0xc001]:02X},${m[$C002]:02X})'
+        args = ('-n', '-I', f'TraceLineDecimal={trace_line}', '-o', str(start), '-S', str(stop), '-Dv', binfile)
+        output, error = self.run_trace(args)
+        self.assertEqual(error, '')
+        exp_output = """
+            32768 LD HL,43981    {m[$c000]}=(0,0x00,$00)
+            32771 LD (49152),HL  {m[$c000]}=(205,0xAB,$00)
+            Stopped at 32774
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -2157,6 +2214,25 @@ class TraceTest(SkoolKitTestCase):
             32768 LD B,2      BC=2,0
             32770 LD C,3      BC=2,3
             Stopped at 32772
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceLineDecimal2_with_memory_contents(self):
+        code = (
+            0x21, 0xCD, 0xAB, # $8000 LD HL,$ABCD
+            0x22, 0x00, 0xC0, # $8003 LD ($C000),HL
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        trace_line = '{pc:05} {i:<14} {{m[$c000]}}=({m[49152]},0x{m[0xc001]:02X},${m[$C002]:02X})'
+        args = ('-n', '-I', f'TraceLineDecimal2={trace_line}', '-o', str(start), '-S', str(stop), '-Dvv', binfile)
+        output, error = self.run_trace(args)
+        self.assertEqual(error, '')
+        exp_output = """
+            32768 LD HL,43981    {m[$c000]}=(0,0x00,$00)
+            32771 LD (49152),HL  {m[$c000]}=(205,0xAB,$00)
+            Stopped at 32774
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 

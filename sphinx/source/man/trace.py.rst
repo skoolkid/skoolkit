@@ -170,9 +170,13 @@ the following replacement fields:
 
 |
 |  ``i`` - the current instruction
+|  ``m[address]`` - the contents of a memory address
 |  ``pc`` - the address of the current instruction (program counter)
 |  ``r[X]`` - the 'X' register (see below)
 |  ``t`` - the current timestamp (in T-states)
+
+When using the ``m`` (memory) replacement field, ``address`` must be either a
+decimal number, or a hexadecimal number prefixed by '$' or '0x'.
 
 The register name ``X`` in ``r[X]`` must be one of the following::
 

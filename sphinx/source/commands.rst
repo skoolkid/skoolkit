@@ -2032,9 +2032,13 @@ The ``TraceLine*`` parameters are standard Python format strings that recognise
 the following replacement fields:
 
 * ``i`` - the current instruction
+* ``m[address]`` - the contents of a memory address
 * ``pc`` - the address of the current instruction (program counter)
 * ``r[X]`` - the 'X' register (see below)
 * ``t`` - the current timestamp (in T-states)
+
+When using the ``m`` (memory) replacement field, ``address`` must be either a
+decimal number, or a hexadecimal number prefixed by '$' or '0x'.
 
 The register name ``X`` in ``r[X]`` must be one of the following::
 
@@ -2063,7 +2067,9 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.3     | Added the ``--state`` option; added support for writing a WAV     |
-|         | file after execution has completed                                |
+|         | file after execution has completed; added support for the ``m``   |
+|         | (memory) replacement field in the ``TraceLine*`` configuration    |
+|         | parameters                                                        |
 +---------+-------------------------------------------------------------------+
 | 9.2     | Added the ``--python`` option; added support for +2 snapshots     |
 +---------+-------------------------------------------------------------------+
