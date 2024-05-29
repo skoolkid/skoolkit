@@ -14,8 +14,8 @@ Changelog
 * Added the ``Opcodes`` configuration parameter to
   :ref:`sna2skool.py <sna2skool-conf>` (for specifying additional opcode
   sequences to disassemble)
-* The ``--find`` option of :ref:`snapinfo.py` now searches all RAM banks in a
-  128K snapshot by default
+* The ``--find`` and ``--find-text`` options of :ref:`snapinfo.py` now search
+  all RAM banks in a 128K snapshot by default
 * Added support for path ID replacement fields in the ``destDir`` parameter of
   items in the :ref:`resources` section
 * :ref:`tapinfo.py` now recognises the deprecated TZX block types 0x16, 0x17,

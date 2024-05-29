@@ -1838,6 +1838,33 @@ class SnapinfoTest(SkoolKitTestCase):
             exp_output += '{0}-{1} {0:04X}-{1:04X}: {2}\n'.format(a, a + len(text) - 1, text)
         self._test_sna(ram, exp_output, '--find-text {}'.format(text))
 
+    def test_option_find_text_128k_ram_banks(self):
+        text = 'bar'
+        text_bin = [ord(c) for c in text]
+        pages = {}
+        for page, addr in zip((0, 2, 6), (123, 1234, 12345)):
+            pages[page] = [0] * 16384
+            pages[page][addr:addr + len(text_bin)] = text_bin
+        exp_output = f"""
+            0:00123-00125 0:007B-007D: {text}
+            2:01234-01236 2:04D2-04D4: {text}
+            6:12345-12347 6:3039-303B: {text}
+        """
+        self._test_z80(exp_output, f'--find-text {text}', pages=pages, machine_id=4)
+
+    def test_options_find_text_and_page_128k(self):
+        text = 'baz'
+        text_bin = [ord(c) for c in text]
+        pages = {}
+        for page, addr in zip((0, 2, 6), (123, 1234, 12345)):
+            pages[page] = [0] * 16384
+            pages[page][addr:addr + len(text_bin)] = text_bin
+        exp_output = f"""
+            34002-34004 84D2-84D4: {text}
+            61497-61499 F039-F03B: {text}
+        """
+        self._test_z80(exp_output, f'--find-text {text} --page 6', pages=pages, machine_id=4)
+
     def test_option_t_with_no_occurrences(self):
         ram = [0] * 49152
         exp_output = ''

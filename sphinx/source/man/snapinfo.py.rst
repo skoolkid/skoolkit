@@ -57,7 +57,9 @@ OPTIONS
   Show configuration parameter values.
 
 -t, --find-text `TEXT`
-  Search for a text string.
+  Search for a text string. By default, all RAM banks in a 128K snapshot are
+  searched; use the ``--page`` option to restrict the search to the address
+  range 16384-65535 (0x4000-0xFFFF).
 
 -T, --find-tile `X,Y[-M[-N]]`
   Search for the graphic data of the tile at (X,Y) with distance ranging from M

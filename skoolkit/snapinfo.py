@@ -409,9 +409,16 @@ def _find_tile(snapshot, coords):
 def _find_text(snapshot, text, base_addr):
     size = len(text)
     byte_values = [ord(c) for c in text]
-    for a in range(base_addr, 65536 - size + 1):
-        if snapshot[a:a + size] == byte_values:
-            print("{0}-{1} {0:04X}-{1:04X}: {2}".format(a, a + size - 1, text))
+    if len(snapshot) == 0x20000:
+        for bank in range(8):
+            i = bank * 16384
+            for a in range(16385 - size):
+                if snapshot[i + a:i + a + size] == byte_values:
+                    print("{0}:{1:05}-{2:05} {0}:{1:04X}-{2:04X}: {3}".format(bank, a, a + size - 1, text))
+    else:
+        for a in range(base_addr, 65536 - size + 1):
+            if snapshot[a:a + size] == byte_values:
+                print("{0}-{1} {0:04X}-{1:04X}: {2}".format(a, a + size - 1, text))
 
 def _peek(snapshot, specs, fmt):
     for addr1, addr2, step in _get_address_ranges(specs):
@@ -429,7 +436,7 @@ def _word(snapshot, specs, fmt):
 def run(infile, options, config):
     if any((options.find, options.tile, options.text, options.call_graph, options.peek,
             options.word, options.basic, options.variables)):
-        if options.find and options.page is None:
+        if (options.find or options.text) and options.page is None:
             options.page = -1
         snapshot, start, end = make_snapshot(infile, options.org, page=options.page)
         if options.find:
