@@ -1283,9 +1283,9 @@ shown above, it can list the BASIC program and variables (if present), show the
 contents of a range of addresses, search the RAM for a sequence of byte values
 or a text string, or generate a call graph.
 
-By default, the ``--find`` and ``--find-text`` options search all RAM banks in
-a 128K snapshot; use the ``--page`` option to restrict the search to the
-address range 16384-65535 (0x4000-0xFFFF).
+By default, the ``--find``, ``--find-text`` and ``--find-tile`` options search
+all RAM banks in a 128K snapshot; use the ``--page`` option to restrict the
+search to the address range 16384-65535 (0x4000-0xFFFF).
 
 .. _snapinfo-call-graph:
 
@@ -1372,8 +1372,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.3     | The ``--find`` and ``--find-text`` options search all RAM banks   |
-|         | in a 128K snapshot by default                                     |
+| 9.3     | The ``--find``, ``--find-text`` and ``--find-tile`` options       |
+|         | search all RAM banks in a 128K snapshot by default                |
 +---------+-------------------------------------------------------------------+
 | 9.0     | Shows the current AY register in 128K SZX and Z80 snapshots       |
 +---------+-------------------------------------------------------------------+

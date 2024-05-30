@@ -64,7 +64,9 @@ OPTIONS
 -T, --find-tile `X,Y[-M[-N]]`
   Search for the graphic data of the tile at (X,Y) with distance ranging from M
   to N (default=1) between bytes. `M` and `N` must each be a decimal number, or
-  a hexadecimal number prefixed by '0x'.
+  a hexadecimal number prefixed by '0x'. By default, all RAM banks in a 128K
+  snapshot are searched; use the ``--page`` option to restrict the search to
+  the address range 16384-65535 (0x4000-0xFFFF).
 
 -v, --variables
   List the contents of the variables area.

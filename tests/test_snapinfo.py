@@ -47,10 +47,10 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, exp_error)
         self.assertEqual(dedent(exp_output).lstrip('\n').rstrip(), output.rstrip())
 
-    def _test_z80(self, exp_output, options='', header=None, ram=None, version=3, compress=False, machine_id=0, pages=None):
+    def _test_z80(self, exp_output, options='', header=None, ram=None, version=3, compress=False, machine_id=0, pages=None, out7ffd=0):
         if ram is None:
             ram = [0] * 49152
-        z80file = self.write_z80_file(header, ram, version, compress, machine_id, pages=pages or {})
+        z80file = self.write_z80_file(header, ram, version, compress, machine_id, pages=pages or {}, out7ffd=out7ffd)
         output, error = self.run_snapinfo(f'{options} {z80file}')
         self.assertEqual(error, '')
         self.assertEqual(dedent(exp_output).lstrip(), output)
@@ -1902,6 +1902,79 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         self._test_sna(ram, exp_output, '-T {},{}'.format(x, y))
 
+    def test_option_T_128k_ram_banks(self):
+        ram = [0] * 49152
+        tile_data = [0, 24, 12, 6, 127, 6, 12, 24]
+        x, y = 3, 7
+        df_addr = 16384 + 2048 * (y // 8) + 32 * (y & 7) + x
+        ram[df_addr - 16384:df_addr - 14336:256] = tile_data
+        pages = {}
+        for page, addr in zip((1, 3, 6), (2, 4000, 12121)):
+            pages[page] = [0] * 16384
+            pages[page][addr:addr + 8] = tile_data
+        exp_output = """
+            |        |
+            |   **   |
+            |    **  |
+            |     ** |
+            | *******|
+            |     ** |
+            |    **  |
+            |   **   |
+            1:00002-00009-1 1:0002-0009-1: 0,24,12,6,127,6,12,24
+            3:04000-04007-1 3:0FA0-0FA7-1: 0,24,12,6,127,6,12,24
+            6:12121-12128-1 6:2F59-2F60-1: 0,24,12,6,127,6,12,24
+        """
+        self._test_z80(exp_output, f'-T {x},{y}', ram=ram, pages=pages, machine_id=4)
+
+    def test_option_T_128k_ram_banks_shadow_screen(self):
+        tile_data = [0, 24, 12, 6, 127, 6, 12, 24]
+        x, y = 3, 7
+        pages = {7: [0] * 16384}
+        df_addr = 2048 * (y // 8) + 32 * (y & 7) + x
+        pages[7][df_addr:df_addr + 2048:256] = tile_data
+        for page, addr in zip((1, 3, 6), (2, 4000, 12121)):
+            pages[page] = [0] * 16384
+            pages[page][addr:addr + 8] = tile_data
+        exp_output = """
+            |        |
+            |   **   |
+            |    **  |
+            |     ** |
+            | *******|
+            |     ** |
+            |    **  |
+            |   **   |
+            1:00002-00009-1 1:0002-0009-1: 0,24,12,6,127,6,12,24
+            3:04000-04007-1 3:0FA0-0FA7-1: 0,24,12,6,127,6,12,24
+            6:12121-12128-1 6:2F59-2F60-1: 0,24,12,6,127,6,12,24
+        """
+        self._test_z80(exp_output, f'-T {x},{y}', pages=pages, machine_id=4, out7ffd=8)
+
+    def test_options_T_and_page_128k(self):
+        ram = [0] * 49152
+        tile_data = [0, 24, 12, 6, 127, 6, 12, 24]
+        x, y = 5, 9
+        df_addr = 16384 + 2048 * (y // 8) + 32 * (y & 7) + x
+        ram[df_addr - 16384:df_addr - 14336:256] = tile_data
+        pages = {}
+        for page, addr in zip((2, 4, 7), (1024, 2048, 10101)):
+            pages[page] = [0] * 16384
+            pages[page][addr:addr + 8] = tile_data
+        exp_output = """
+            |        |
+            |   **   |
+            |    **  |
+            |     ** |
+            | *******|
+            |     ** |
+            |    **  |
+            |   **   |
+            33792-33799-1 8400-8407-1: 0,24,12,6,127,6,12,24
+            51200-51207-1 C800-C807-1: 0,24,12,6,127,6,12,24
+        """
+        self._test_z80(exp_output, f'-T {x},{y} --page 4', ram=ram, pages=pages, machine_id=4)
+
     def test_option_find_tile_with_step(self):
         ram = [0] * 49152
         tile_addr = 27483
@@ -1924,6 +1997,56 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         self._test_sna(ram, exp_output, '--find-tile {},{}-{}'.format(x, y, step))
 
+    def test_option_find_tile_with_step_128k_ram_banks(self):
+        ram = [0] * 49152
+        tile_data = [0, 127, 127, 96, 96, 103, 103, 102]
+        x, y = 9, 15
+        step = 2
+        df_addr = 16384 + 2048 * (y // 8) + 32 * (y & 7) + x
+        ram[df_addr - 16384:df_addr - 14336:256] = tile_data
+        pages = {}
+        for page, addr in zip((0, 3, 4), (100, 1000, 10000)):
+            pages[page] = [0] * 16384
+            pages[page][addr:addr + 8 * step:step] = tile_data
+        exp_output = """
+            |        |
+            | *******|
+            | *******|
+            | **     |
+            | **     |
+            | **  ***|
+            | **  ***|
+            | **  ** |
+            0:00100-00114-2 0:0064-0072-2: 0,127,127,96,96,103,103,102
+            3:01000-01014-2 3:03E8-03F6-2: 0,127,127,96,96,103,103,102
+            4:10000-10014-2 4:2710-271E-2: 0,127,127,96,96,103,103,102
+        """
+        self._test_z80(exp_output, f'--find-tile {x},{y}-{step}', ram=ram, pages=pages, machine_id=4)
+
+    def test_options_find_tile_with_step_and_page_128k(self):
+        ram = [0] * 49152
+        tile_data = [0, 127, 127, 96, 96, 103, 103, 102]
+        x, y = 9, 15
+        step = 2
+        df_addr = 16384 + 2048 * (y // 8) + 32 * (y & 7) + x
+        ram[df_addr - 16384:df_addr - 14336:256] = tile_data
+        pages = {}
+        for page, addr in zip((0, 3, 4), (100, 1000, 10000)):
+            pages[page] = [0] * 16384
+            pages[page][addr:addr + 8 * step:step] = tile_data
+        exp_output = """
+            |        |
+            | *******|
+            | *******|
+            | **     |
+            | **     |
+            | **  ***|
+            | **  ***|
+            | **  ** |
+            50152-50166-2 C3E8-C3F6-2: 0,127,127,96,96,103,103,102
+        """
+        self._test_z80(exp_output, f'--find-tile {x},{y}-{step} --page 3', ram=ram, pages=pages, machine_id=4)
+
     def test_option_T_with_step_range(self):
         ram = [0] * 49152
         tile_addr = 46987
@@ -1945,6 +2068,54 @@ class SnapinfoTest(SkoolKitTestCase):
             46987-47008-3 B78B-B7A0-3: 0,254,254,6,6,230,230,102
         """
         self._test_sna(ram, exp_output, '-T {},{}-2-3'.format(x, y))
+
+    def test_option_T_with_step_range_128k_ram_banks(self):
+        ram = [0] * 49152
+        tile_data = [0, 254, 254, 6, 6, 230, 230, 102]
+        x, y = 27, 2
+        df_addr = 16384 + 2048 * (y // 8) + 32 * (y & 7) + x
+        ram[df_addr - 16384:df_addr - 14336:256] = tile_data
+        pages = {}
+        for page, addr, step in zip((1, 6, 7), (2, 9004, 15995), (2, 3, 4)):
+            pages[page] = [0] * 16384
+            pages[page][addr:addr + 8 * step:step] = tile_data
+        exp_output = """
+            |        |
+            |******* |
+            |******* |
+            |     ** |
+            |     ** |
+            |***  ** |
+            |***  ** |
+            | **  ** |
+            1:00002-00016-2 1:0002-0010-2: 0,254,254,6,6,230,230,102
+            6:09004-09025-3 6:232C-2341-3: 0,254,254,6,6,230,230,102
+            7:15995-16023-4 7:3E7B-3E97-4: 0,254,254,6,6,230,230,102
+        """
+        self._test_z80(exp_output, f'-T {x},{y}-2-4', ram=ram, pages=pages, machine_id=4)
+
+    def test_options_T_with_step_range_and_page_128k(self):
+        ram = [0] * 49152
+        tile_data = [0, 254, 254, 6, 6, 230, 230, 102]
+        x, y = 15, 0
+        df_addr = 16384 + 2048 * (y // 8) + 32 * (y & 7) + x
+        ram[df_addr - 16384:df_addr - 14336:256] = tile_data
+        pages = {}
+        for page, addr, step in zip((1, 6, 7), (2, 9004, 15995), (2, 3, 4)):
+            pages[page] = [0] * 16384
+            pages[page][addr:addr + 8 * step:step] = tile_data
+        exp_output = """
+            |        |
+            |******* |
+            |******* |
+            |     ** |
+            |     ** |
+            |***  ** |
+            |***  ** |
+            | **  ** |
+            49154-49168-2 C002-C010-2: 0,254,254,6,6,230,230,102
+        """
+        self._test_z80(exp_output, f'-T {x},{y}-2-4 --page 1', ram=ram, pages=pages, machine_id=4)
 
     def test_option_T_with_hex_step_range_limits(self):
         ram = [0] * 49152

@@ -390,7 +390,7 @@ def _find(snapshot, byte_seq, base_addr):
                 if snapshot[a:a + offset:step] == byte_values:
                     print("{0}-{1}-{2} {0:04X}-{1:04X}-{2:X}: {3}".format(a, a + offset - step, step, byte_seq))
 
-def _find_tile(snapshot, coords):
+def _find_tile(snapshot, coords, df_base):
     steps = '1'
     if '-' in coords:
         coords, steps = coords.split('-', 1)
@@ -400,7 +400,7 @@ def _find_tile(snapshot, coords):
             raise ValueError
     except ValueError:
         raise SkoolKitError('Invalid tile coordinates: {}'.format(coords))
-    df_addr = 16384 + 2048 * (y // 8) + 32 * (y & 7) + x
+    df_addr = df_base + 2048 * (y // 8) + 32 * (y % 8) + x
     byte_seq = snapshot[df_addr:df_addr + 2048:256]
     for b in byte_seq:
         print('|{:08b}|'.format(b).replace('0', ' ').replace('1', '*'))
@@ -436,13 +436,18 @@ def _word(snapshot, specs, fmt):
 def run(infile, options, config):
     if any((options.find, options.tile, options.text, options.call_graph, options.peek,
             options.word, options.basic, options.variables)):
-        if (options.find or options.text) and options.page is None:
+        if (options.find or options.text or options.tile) and options.page is None:
             options.page = -1
         snapshot, start, end = make_snapshot(infile, options.org, page=options.page)
         if options.find:
             _find(snapshot, options.find, start)
         elif options.tile:
-            _find_tile(snapshot, options.tile)
+            if len(snapshot) == 0x20000:
+                out7ffd = Snapshot.get(infile).out7ffd
+                df_base = (5 + (out7ffd & 8) // 4) * 16384
+            else:
+                df_base = 16384
+            _find_tile(snapshot, options.tile, df_base)
         elif options.text:
             _find_text(snapshot, options.text, start)
         elif options.call_graph:
