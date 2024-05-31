@@ -5364,6 +5364,24 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         with self.assertRaisesRegex(SkoolKitError, "^Failed to expand '#R32768'$"):
             self._get_writer(skool=skool)
 
+    def test_macro_eval_invalid_with_ampersand_in_error_message_not_html_escaped(self):
+        writer = self._get_writer(skool='c32768 RET ; #EVAL(&x)')
+        with self.assertRaises(SkoolParsingError) as cm:
+            writer.write_asm_entries()
+        self.assertEqual(cm.exception.args[0], "Error while parsing #EVAL macro: Cannot parse integer '&x' in parameter string: '&x'")
+
+    def test_macro_eval_invalid_with_left_angle_bracket_in_error_message_not_html_escaped(self):
+        writer = self._get_writer(skool='c32768 RET ; #EVAL(x<)')
+        with self.assertRaises(SkoolParsingError) as cm:
+            writer.write_asm_entries()
+        self.assertEqual(cm.exception.args[0], "Error while parsing #EVAL macro: Cannot parse integer 'x<' in parameter string: 'x<'")
+
+    def test_macro_eval_invalid_with_right_angle_bracket_in_error_message_not_html_escaped(self):
+        writer = self._get_writer(skool='c32768 RET ; #EVAL(>x)')
+        with self.assertRaises(SkoolParsingError) as cm:
+            writer.write_asm_entries()
+        self.assertEqual(cm.exception.args[0], "Error while parsing #EVAL macro: Cannot parse integer '>x' in parameter string: '>x'")
+
     def test_macro_for_loop_variable_with_escaped_ampersand(self):
         skool = """
             ; Don't replace the 'a' in '&amp;' with the loop variable value

@@ -555,7 +555,10 @@ def expand_macros(writer, text, *cwd):
         except UnsupportedMacroError:
             raise SkoolParsingError('Found unsupported macro: {}'.format(marker))
         except MacroParsingError as e:
-            raise SkoolParsingError('Error while parsing {} macro: {}'.format(marker, e.args[0]))
+            msg = e.args[0]
+            if writer.fields['mode']['html']:
+                msg = html.unescape(msg)
+            raise SkoolParsingError(f'Error while parsing {marker} macro: {msg}')
         text = text[:index] + rep + text[abs(end):]
         if end < 0:
             index += len(rep)
