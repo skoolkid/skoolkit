@@ -5,7 +5,7 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit import components
 from skoolkit.disassembler import Disassembler
 
-Config = namedtuple('Config', 'asm_hex asm_lower defb_size defm_size defw_size opcodes wrap')
+Config = namedtuple('Config', 'asm_hex asm_lower defb_size defm_size defw_size imaker opcodes wrap')
 
 ASM = {
     '000000': ('NOP', 'NOP', 'NOP'),
@@ -1860,8 +1860,10 @@ BOUNDARY_ASM = (
 )
 
 class DisassemblerTest(SkoolKitTestCase):
-    def _get_disassembler(self, snapshot=(), asm_hex=False, asm_lower=False, defw_size=1, opcodes='', wrap=False):
-        config = Config(asm_hex, asm_lower, 8, 66, defw_size, opcodes, wrap)
+    def _get_disassembler(self, snapshot=(), asm_hex=False, asm_lower=False, defw_size=1, imaker=None, opcodes='', wrap=False):
+        if imaker is None:
+            imaker = lambda addr, op, data: (addr, op, data)
+        config = Config(asm_hex, asm_lower, 8, 66, defw_size, imaker, opcodes, wrap)
         return Disassembler(snapshot, config)
 
     def _get_snapshot(self, start, data):
@@ -2059,6 +2061,14 @@ class DisassemblerTest(SkoolKitTestCase):
         ]
         instructions = disassembler.defw_range(65529, 65536, ((0, 'n'),))
         self.assertEqual(exp_instructions, instructions)
+
+    def test_imaker(self):
+        snapshot = [175] # 00000 XOR A
+        imaker = lambda addr, op, data: op
+        disassembler = self._get_disassembler(snapshot, imaker=imaker)
+        instructions = disassembler.disassemble(0, 1, 'n')
+        self.assertEqual(len(instructions), 1)
+        self.assertEqual(instructions[0], 'XOR A')
 
     def test_lower_case_conversion(self):
         snapshot = [

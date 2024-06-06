@@ -4826,10 +4826,11 @@ class SkoolWriterTest(SkoolKitTestCase):
     def test_custom_disassembler(self):
         custom_disassembler = """
             from skoolkit.disassembler import Disassembler
+            from skoolkit.snaskool import Instruction
 
             class CustomDisassembler(Disassembler):
                 def disassemble(self, start, end, base):
-                    return [(start, 'Hi', ())]
+                    return [Instruction(start, 'Hi', ())]
         """
         self.write_component_config('Disassembler', '*.CustomDisassembler', custom_disassembler)
         snapshot = [0]

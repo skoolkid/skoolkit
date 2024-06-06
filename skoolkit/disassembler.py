@@ -113,16 +113,11 @@ class Disassembler:
                      DEFM statement
                    * `defw_size` - default maximum number of words in a DEFW
                      statement
+                   * `imaker` - callable that returns an instruction object
                    * `opcodes` - comma-separated list of additional opcode
                      sequences to disassemble
                    * `wrap` - if `True`, disassemble an instruction that wraps
                      around the 64K boundary
-
-    The `opcodes` list may contain any of the following hexadecimal opcode
-    sequences:
-
-    * ``ED70`` - IN F,(C)
-    * ``ED71`` - OUT (C),0
     """
     # Component API
     def __init__(self, snapshot, config):
@@ -130,6 +125,7 @@ class Disassembler:
         self.defb_size = config.defb_size
         self.defm_size = config.defm_size
         self.defw_size = config.defw_size
+        self.imaker = config.imaker
         self.wrap = config.wrap
         self.op_formatter = get_component('OperandFormatter', config)
         self.defb = 'DEFB '
@@ -163,7 +159,7 @@ class Disassembler:
                      instructions with two numeric operands (e.g.
                      'LD (IX+d),n'), the indicator may consist of two letters,
                      one for each operand (e.g. 'dh').
-        :return: A list of tuples of the form ``(address, operation, bytes)``.
+        :return: A list of instruction objects created by *imaker*.
         """
         instructions = []
         address = start
@@ -174,16 +170,16 @@ class Disassembler:
             else:
                 operation, length = decoder(template, address, base)
             if address + length <= 65536:
-                instructions.append((address, operation, self.snapshot[address:address + length]))
+                instructions.append(self.imaker(address, operation, self.snapshot[address:address + length]))
             elif self.wrap:
-                instructions.append((address, operation, self.snapshot[address:65536] + self.snapshot[:(address + length) & 65535]))
+                instructions.append(self.imaker(address, operation, self.snapshot[address:65536] + self.snapshot[:(address + length) & 65535]))
             else:
                 instructions.append(self._defb_line(address, self.snapshot[address:65536]))
             address += length
         return instructions
 
     def _defb_line(self, address, data, sublengths=((0, DEFAULT_BASE),), defm=False):
-        return (address, self.defb_dir(data, sublengths, defm), data)
+        return self.imaker(address, self.defb_dir(data, sublengths, defm), data)
 
     def _defb_lines(self, start, end, sublengths, defm=False):
         if defm:
@@ -210,7 +206,7 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param sublengths: Sequence of sublength identifiers.
-        :return: A list of tuples of the form ``(address, operation, bytes)``.
+        :return: A list of instruction objects created by *imaker*.
         """
         return self._defb_lines(start, end, sublengths)
 
@@ -221,7 +217,7 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param sublengths: Sequence of sublength identifiers.
-        :return: A list of tuples of the form ``(address, operation, bytes)``.
+        :return: A list of instruction objects created by *imaker*.
         """
         return self._defb_lines(start, end, sublengths, True)
 
@@ -239,7 +235,7 @@ class Disassembler:
                     items.append(self.op_formatter.format_word(data[j] + 256 * data[j + 1], base))
             i += length
         if items:
-            instructions.insert(0, (start, self.defw + ','.join(items), data))
+            instructions.insert(0, self.imaker(start, self.defw + ','.join(items), data))
         return instructions
 
     # Component API
@@ -249,7 +245,7 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param sublengths: Sequence of sublength identifiers.
-        :return: A list of tuples of the form ``(address, operation, bytes)``.
+        :return: A list of instruction objects created by *imaker*.
         """
         if sublengths[0][0]:
             return self._defw_lines(start, end, sublengths)
@@ -270,7 +266,7 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param sublengths: Sequence of sublength identifiers.
-        :return: A list of tuples of the form ``(address, operation, bytes)``.
+        :return: A list of instruction objects created by *imaker*.
         """
         data = self.snapshot[start:end]
         values = set(data)
@@ -284,7 +280,7 @@ class Disassembler:
         elif value:
             items.append(self.op_formatter.format_byte(value, DEFAULT_BASE))
         defs_dir = self.defs + ','.join(items)
-        return [(start, defs_dir, data)]
+        return [self.imaker(start, defs_dir, data)]
 
     def get_message(self, data):
         items = []

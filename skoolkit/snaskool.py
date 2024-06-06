@@ -33,7 +33,7 @@ MIN_COMMENT_WIDTH = 10
 AD_LABEL_PREFIX = AD_LABEL + '='
 AD_REFS_PREFIX = AD_REFS + '='
 
-DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size opcodes wrap')
+DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size imaker opcodes wrap')
 
 # Component API
 def calculate_references(entries, operations):
@@ -130,6 +130,7 @@ class Disassembly:
             self.config.get('DefbSize', 8),
             self.config.get('DefmSize', 65),
             self.config.get('DefwSize', 1),
+            Instruction,
             self.config.get('Opcodes', ''),
             self.config.get('Wrap', 0)
         )
@@ -198,7 +199,7 @@ class Disassembly:
                             instructions += self.disassembler.defb_range(address, end, sublengths)
                         address += length
                 else:
-                    instructions = [(sub_block.start, '', ())]
+                    instructions = [Instruction(sub_block.start, '', ())]
                 self._add_instructions(sub_block, instructions)
 
             sub_blocks = []
@@ -225,11 +226,9 @@ class Disassembly:
         if address in self.entry_map:
             del self.entry_map[address]
 
-    def _add_instructions(self, sub_block, specs):
-        sub_block.instructions = []
-        for spec in specs:
-            instruction = Instruction(*spec)
-            sub_block.instructions.append(instruction)
+    def _add_instructions(self, sub_block, instructions):
+        sub_block.instructions = instructions
+        for instruction in instructions:
             self.instructions[instruction.address] = instruction
             instruction.asm_directives = sub_block.asm_directives.get(instruction.address, ())
             for asm_dir in instruction.asm_directives:
