@@ -3416,19 +3416,23 @@ class SkoolWriterTest(SkoolKitTestCase):
 
     def test_opcodes(self):
         snapshot = [
-            0xED, 0x70, # IN F,(C)
-            0xED, 0x71  # OUT (C),0
+            0xED, 0x70,             # IN F,(C)
+            0xED, 0x71,             # OUT (C),0
+            0xDD, 0xCB, 0x00, 0x00, # RLC (IX+0),B
+            0xFD, 0xCB, 0x00, 0xFF, # SET 7,(IY+0),A
         ]
         ctl = """
             c 00000
-            i 00004
+            i 00012
         """
         exp_skool = """
             ; Routine at 0
-            c00000 IN F,(C)      ;
-             00002 OUT (C),0     ;
+            c00000 IN F,(C)       ;
+             00002 OUT (C),0      ;
+             00004 RLC (IX+0),B   ;
+             00008 SET 7,(IY+0),A ;
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, params={'Opcodes': 'ED70,ED71'})
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Opcodes': 'ED70,ED71,XYCB'})
 
     def test_semicolons_bcgi(self):
         snapshot = [0, 201, 0, 0, 0, 65, 0, 0, 0]

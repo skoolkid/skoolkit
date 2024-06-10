@@ -114,8 +114,8 @@ class Disassembler:
                    * `defw_size` - default maximum number of words in a DEFW
                      statement
                    * `imaker` - callable that returns an instruction object
-                   * `opcodes` - comma-separated list of additional opcode
-                     sequences to disassemble
+                   * `opcodes` - comma-separated list of values specifying
+                     additional opcode sequences to disassemble
                    * `wrap` - if `True`, disassemble an instruction that wraps
                      around the 64K boundary
     """
@@ -138,6 +138,14 @@ class Disassembler:
                 self.after_ED[0x70] = (self.no_arg, 'IN F,(C)')
             elif opcode == 'ED71':
                 self.after_ED[0x71] = (self.no_arg, 'OUT (C),0')
+            elif opcode == 'XYCB':
+                for b, op in enumerate(('RLC', 'RRC', 'RL', 'RR', 'SLA', 'SRA', 'SLL', 'SRL')):
+                    for i, r in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '', 'A')):
+                        if r:
+                            self.after_DDCB[0x00 + 8 * b + i] = (self.index, f'{op} (IX{{}}),{r}')
+                            self.after_DDCB[0x40 + 8 * b + i] = (self.index, f'BIT {b},(IX{{}})')
+                            self.after_DDCB[0x80 + 8 * b + i] = (self.index, f'RES {b},(IX{{}}),{r}')
+                            self.after_DDCB[0xC0 + 8 * b + i] = (self.index, f'SET {b},(IX{{}}),{r}')
         if config.asm_lower:
             self.defb = self.defb.lower()
             self.defm = self.defm.lower()

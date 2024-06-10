@@ -1106,8 +1106,8 @@ configuration parameters are:
 * ``ListRefs`` - when to add a comment that lists routine or entry point
   referrers: never (``0``), if no other comment is defined at the entry point
   (``1``, the default), or always (``2``)
-* ``Opcodes`` - comma-separated list of additional opcode sequences to
-  disassemble (see below)
+* ``Opcodes`` - comma-separated list of values specifying additional opcode
+  sequences to disassemble (see below)
 * ``Ref`` - template used to format the comment for a routine with exactly one
   referrer (default: ``Used by the routine at {ref}.``)
 * ``RefFormat`` - template used to format referrers in the ``{ref}`` and
@@ -1144,14 +1144,22 @@ configuration parameters are:
   (``1``), or don't (``0``, the default)
 
 The ``Opcodes`` list is empty by default, but may contain any of the following
-hexadecimal opcode sequences:
+values:
 
 * ``ED70`` - IN F,(C)
 * ``ED71`` - OUT (C),0
+* ``XYCB`` - undocumented instructions with 0xDDCB or 0xFDCB opcode prefixes
 
-Note that assemblers may not recognise these instructions, so if your skool
-file contains any of them, care must be taken when using an assembler on the
-output of :ref:`skool2asm.py`.
+Note that if your skool file contains any non-standard instructions (such as
+'IN F,(C)') or instructions that derive from non-standard opcode sequences
+(such as 'BIT 0,(IX+0)' from 0xDDCB0040 instead of the standard 0xDDCB0046),
+care must be taken when using an assembler on the output of
+:ref:`skool2asm.py` to ensure that instructions not only assemble successfully,
+but also assemble back to the original byte values, if desired. The :ref:`isub`
+directive may be used for this purpose; for example::
+
+  @isub=DEFB 221,203,0,64 ; This is BIT 0,(IX+0)
+   40000 BIT 0,(IX+0) ; The opcode sequence here is 0xDDCB0040
 
 Configuration parameters must appear in a ``[sna2skool]`` section. For example,
 to make `sna2skool.py` generate hexadecimal skool files with a line width of
