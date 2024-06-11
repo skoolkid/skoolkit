@@ -2363,6 +2363,15 @@ class DisassemblerTest(SkoolKitTestCase):
             self.assertEqual(len(instructions), 1)
             self.assertEqual(instructions[0][1], 'NEG')
 
+    def test_additional_opcodes_retn(self):
+        snapshot = [0xED, 0, 0, 0]
+        disassembler = self._get_disassembler(snapshot, opcodes='RETN')
+        for opcode in range(0x55, 0x7E, 8):
+            snapshot[1] = opcode
+            instructions = disassembler.disassemble(0, 2, 'n')
+            self.assertEqual(len(instructions), 1)
+            self.assertEqual(instructions[0][1], 'RETN')
+
     def test_additional_opcodes_xycb(self):
         snapshot = [0] * 4
         disassembler = self._get_disassembler(snapshot, opcodes='XYCB')

@@ -3421,10 +3421,11 @@ class SkoolWriterTest(SkoolKitTestCase):
             0xDD, 0xCB, 0x00, 0x00, # RLC (IX+0),B
             0xFD, 0xCB, 0x00, 0xFF, # SET 7,(IY+0),A
             0xED, 0x54,             # NEG
+            0xED, 0x55,             # RETN
         ]
         ctl = """
             c 00000
-            i 00014
+            i 00016
         """
         exp_skool = """
             ; Routine at 0
@@ -3433,8 +3434,9 @@ class SkoolWriterTest(SkoolKitTestCase):
              00004 RLC (IX+0),B   ;
              00008 SET 7,(IY+0),A ;
              00012 NEG            ;
+             00014 RETN           ;
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, params={'Opcodes': 'ED70,ED71,NEG,XYCB'})
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Opcodes': 'ED70,ED71,NEG,RETN,XYCB'})
 
     def test_semicolons_bcgi(self):
         snapshot = [0, 201, 0, 0, 0, 65, 0, 0, 0]

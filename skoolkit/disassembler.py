@@ -141,6 +141,9 @@ class Disassembler:
             elif opcode == 'NEG':
                 for i in range(0x4C, 0x7D, 8):
                     self.after_ED[i] = (self.no_arg, 'NEG')
+            elif opcode == 'RETN':
+                for i in range(0x55, 0x7E, 8):
+                    self.after_ED[i] = (self.no_arg, 'RETN')
             elif opcode == 'XYCB':
                 for b, op in enumerate(('RLC', 'RRC', 'RL', 'RR', 'SLA', 'SRA', 'SLL', 'SRL')):
                     for i, r in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '', 'A')):
