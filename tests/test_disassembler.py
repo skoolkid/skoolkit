@@ -2354,6 +2354,15 @@ class DisassemblerTest(SkoolKitTestCase):
             self.assertEqual(len(instructions), 1)
             self.assertEqual(instructions[0][1], op)
 
+    def test_additional_opcodes_im(self):
+        snapshot = [0xED, 0, 0, 0]
+        disassembler = self._get_disassembler(snapshot, opcodes='IM')
+        for opcode, mode in ((0x4E, 0), (0x66, 0), (0x6E, 0), (0x76, 1), (0x7E, 2)):
+            snapshot[1] = opcode
+            instructions = disassembler.disassemble(0, 2, 'n')
+            self.assertEqual(len(instructions), 1)
+            self.assertEqual(instructions[0][1], f'IM {mode}')
+
     def test_additional_opcodes_neg(self):
         snapshot = [0xED, 0, 0, 0]
         disassembler = self._get_disassembler(snapshot, opcodes='NEG')

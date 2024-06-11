@@ -1148,6 +1148,7 @@ values:
 
 * ``ED70`` - IN F,(C)
 * ``ED71`` - OUT (C),0
+* ``IM`` - IM 0/1/2 variants (ED followed by 4E/66/6E/76/7E)
 * ``NEG`` - NEG variants (ED followed by 4C/54/5C/64/6C/74/7C)
 * ``RETN`` - RETN variants (ED followed by 55/5D/65/6D/75/7D)
 * ``XYCB`` - undocumented instructions with DDCB or FDCB opcode prefixes

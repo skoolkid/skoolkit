@@ -138,6 +138,12 @@ class Disassembler:
                 self.after_ED[0x70] = (self.no_arg, 'IN F,(C)')
             elif opcode == 'ED71':
                 self.after_ED[0x71] = (self.no_arg, 'OUT (C),0')
+            elif opcode == 'IM':
+                self.after_ED[0x4E] = (self.no_arg, 'IM 0')
+                self.after_ED[0x66] = (self.no_arg, 'IM 0')
+                self.after_ED[0x6E] = (self.no_arg, 'IM 0')
+                self.after_ED[0x76] = (self.no_arg, 'IM 1')
+                self.after_ED[0x7E] = (self.no_arg, 'IM 2')
             elif opcode == 'NEG':
                 for i in range(0x4C, 0x7D, 8):
                     self.after_ED[i] = (self.no_arg, 'NEG')
