@@ -1148,18 +1148,19 @@ values:
 
 * ``ED70`` - IN F,(C)
 * ``ED71`` - OUT (C),0
-* ``XYCB`` - undocumented instructions with 0xDDCB or 0xFDCB opcode prefixes
+* ``NEG`` - NEG variants (ED followed by 4C/54/5C/64/6C/74/7C)
+* ``XYCB`` - undocumented instructions with DDCB or FDCB opcode prefixes
 
 Note that if your skool file contains any non-standard instructions (such as
 'IN F,(C)') or instructions that derive from non-standard opcode sequences
-(such as 'BIT 0,(IX+0)' from 0xDDCB0040 instead of the standard 0xDDCB0046),
-care must be taken when using an assembler on the output of
-:ref:`skool2asm.py` to ensure that instructions not only assemble successfully,
-but also assemble back to the original byte values, if desired. The :ref:`isub`
-directive may be used for this purpose; for example::
+(such as 'BIT 0,(IX+0)' from DDCB0040 instead of the standard DDCB0046), care
+must be taken when using an assembler on the output of :ref:`skool2asm.py` to
+ensure that instructions not only assemble successfully, but also assemble back
+to the original byte values, if desired. The :ref:`isub` directive may be used
+for this purpose; for example::
 
   @isub=DEFB 221,203,0,64 ; This is BIT 0,(IX+0)
-   40000 BIT 0,(IX+0) ; The opcode sequence here is 0xDDCB0040
+   40000 BIT 0,(IX+0) ; The opcode sequence here is DDCB0040
 
 Configuration parameters must appear in a ``[sna2skool]`` section. For example,
 to make `sna2skool.py` generate hexadecimal skool files with a line width of
