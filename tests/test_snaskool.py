@@ -3418,6 +3418,40 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [
             0xED, 0x70,             # IN F,(C)
             0xED, 0x71,             # OUT (C),0
+            0xDD, 0xCB, 0x00, 0x3F, # SRL (IX+0),A
+            0xFD, 0xCB, 0x00, 0x80, # RES 0,(IY+0),B
+            0xED, 0x7C,             # NEG
+            0xED, 0x7D,             # RETN
+            0xED, 0x66,             # IM 0
+            0xED, 0x76,             # IM 1
+            0xED, 0x7E,             # IM 2
+            0xED, 0x63, 0x01, 0x80, # LD (32769),HL
+            0xED, 0x6B, 0x01, 0xC0, # LD HL,(49153)
+        ]
+        ctl = """
+            c 00000
+            i 00030
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 IN F,(C)       ;
+             00002 OUT (C),0      ;
+             00004 SRL (IX+0),A   ;
+             00008 RES 0,(IY+0),B ;
+             00012 NEG            ;
+             00014 RETN           ;
+             00016 IM 0           ;
+             00018 IM 1           ;
+             00020 IM 2           ;
+             00022 LD (32769),HL  ;
+             00026 LD HL,(49153)  ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Opcodes': 'ED63,ED6B,ED70,ED71,IM,NEG,RETN,XYCB'})
+
+    def test_opcodes_all(self):
+        snapshot = [
+            0xED, 0x70,             # IN F,(C)
+            0xED, 0x71,             # OUT (C),0
             0xDD, 0xCB, 0x00, 0x00, # RLC (IX+0),B
             0xFD, 0xCB, 0x00, 0xFF, # SET 7,(IY+0),A
             0xED, 0x54,             # NEG
@@ -3425,10 +3459,12 @@ class SkoolWriterTest(SkoolKitTestCase):
             0xED, 0x6E,             # IM 0
             0xED, 0x76,             # IM 1
             0xED, 0x7E,             # IM 2
+            0xED, 0x63, 0x00, 0x80, # LD (32768),HL
+            0xED, 0x6B, 0x00, 0xC0, # LD HL,(49152)
         ]
         ctl = """
             c 00000
-            i 00022
+            i 00030
         """
         exp_skool = """
             ; Routine at 0
@@ -3441,8 +3477,10 @@ class SkoolWriterTest(SkoolKitTestCase):
              00016 IM 0           ;
              00018 IM 1           ;
              00020 IM 2           ;
+             00022 LD (32768),HL  ;
+             00026 LD HL,(49152)  ;
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, params={'Opcodes': 'ED70,ED71,IM,NEG,RETN,XYCB'})
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Opcodes': 'ALL'})
 
     def test_semicolons_bcgi(self):
         snapshot = [0, 201, 0, 0, 0, 65, 0, 0, 0]

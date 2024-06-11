@@ -1803,6 +1803,8 @@ ASM = {
 }
 
 ADDITIONAL_OPCODES_ED = {
+    'ED630180': ('ED63', 'LD (32769),HL'),
+    'ED6BFEFF': ('ED6B', 'LD HL,(65534)'),
     'ED70': ('ED70', 'IN F,(C)'),
     'ED71': ('ED71', 'OUT (C),0'),
 }
@@ -2354,9 +2356,28 @@ class DisassemblerTest(SkoolKitTestCase):
             self.assertEqual(len(instructions), 1)
             self.assertEqual(instructions[0][1], op)
 
+    def test_additional_opcodes_ed_all(self):
+        snapshot = [0] * 4
+        disassembler = self._get_disassembler(snapshot, opcodes='ALL')
+        for hex_bytes, (opcodes, op) in ADDITIONAL_OPCODES_ED.items():
+            end = len(hex_bytes) // 2
+            snapshot[0:end] = [int(hex_bytes[i:i + 2], 16) for i in range(0, len(hex_bytes), 2)]
+            instructions = disassembler.disassemble(0, end, 'n')
+            self.assertEqual(len(instructions), 1)
+            self.assertEqual(instructions[0][1], op)
+
     def test_additional_opcodes_im(self):
         snapshot = [0xED, 0, 0, 0]
         disassembler = self._get_disassembler(snapshot, opcodes='IM')
+        for opcode, mode in ((0x4E, 0), (0x66, 0), (0x6E, 0), (0x76, 1), (0x7E, 2)):
+            snapshot[1] = opcode
+            instructions = disassembler.disassemble(0, 2, 'n')
+            self.assertEqual(len(instructions), 1)
+            self.assertEqual(instructions[0][1], f'IM {mode}')
+
+    def test_additional_opcodes_im_all(self):
+        snapshot = [0xED, 0, 0, 0]
+        disassembler = self._get_disassembler(snapshot, opcodes='ALL')
         for opcode, mode in ((0x4E, 0), (0x66, 0), (0x6E, 0), (0x76, 1), (0x7E, 2)):
             snapshot[1] = opcode
             instructions = disassembler.disassemble(0, 2, 'n')
@@ -2372,6 +2393,15 @@ class DisassemblerTest(SkoolKitTestCase):
             self.assertEqual(len(instructions), 1)
             self.assertEqual(instructions[0][1], 'NEG')
 
+    def test_additional_opcodes_neg_all(self):
+        snapshot = [0xED, 0, 0, 0]
+        disassembler = self._get_disassembler(snapshot, opcodes='ALL')
+        for opcode in range(0x4C, 0x7D, 8):
+            snapshot[1] = opcode
+            instructions = disassembler.disassemble(0, 2, 'n')
+            self.assertEqual(len(instructions), 1)
+            self.assertEqual(instructions[0][1], 'NEG')
+
     def test_additional_opcodes_retn(self):
         snapshot = [0xED, 0, 0, 0]
         disassembler = self._get_disassembler(snapshot, opcodes='RETN')
@@ -2381,9 +2411,27 @@ class DisassemblerTest(SkoolKitTestCase):
             self.assertEqual(len(instructions), 1)
             self.assertEqual(instructions[0][1], 'RETN')
 
+    def test_additional_opcodes_retn_all(self):
+        snapshot = [0xED, 0, 0, 0]
+        disassembler = self._get_disassembler(snapshot, opcodes='ALL')
+        for opcode in range(0x55, 0x7E, 8):
+            snapshot[1] = opcode
+            instructions = disassembler.disassemble(0, 2, 'n')
+            self.assertEqual(len(instructions), 1)
+            self.assertEqual(instructions[0][1], 'RETN')
+
     def test_additional_opcodes_xycb(self):
         snapshot = [0] * 4
         disassembler = self._get_disassembler(snapshot, opcodes='XYCB')
+        for hex_bytes, op in ADDITIONAL_OPCODES_XYCB.items():
+            snapshot[0:4] = [int(hex_bytes[i:i + 2], 16) for i in range(0, 8, 2)]
+            instructions = disassembler.disassemble(0, 4, 'n')
+            self.assertEqual(len(instructions), 1)
+            self.assertEqual(instructions[0][1], op)
+
+    def test_additional_opcodes_xycb_all(self):
+        snapshot = [0] * 4
+        disassembler = self._get_disassembler(snapshot, opcodes='ALL')
         for hex_bytes, op in ADDITIONAL_OPCODES_XYCB.items():
             snapshot[0:4] = [int(hex_bytes[i:i + 2], 16) for i in range(0, 8, 2)]
             instructions = disassembler.disassemble(0, 4, 'n')

@@ -133,8 +133,15 @@ class Disassembler:
         self.defs = 'DEFS '
         self.defw = 'DEFW '
         self.create_opcodes()
-        for opcode in [e.strip() for e in config.opcodes.upper().split(',')]:
-            if opcode == 'ED70':
+        opcodes = [e.strip() for e in config.opcodes.upper().split(',')]
+        if 'ALL' in opcodes:
+            opcodes = 'ED63,ED6B,ED70,ED71,IM,NEG,RETN,XYCB'.split(',')
+        for opcode in opcodes:
+            if opcode == 'ED63':
+                self.after_ED[0x63] = (self.word_arg, 'LD ({}),HL')
+            elif opcode == 'ED6B':
+                self.after_ED[0x6B] = (self.word_arg, 'LD HL,({})')
+            elif opcode == 'ED70':
                 self.after_ED[0x70] = (self.no_arg, 'IN F,(C)')
             elif opcode == 'ED71':
                 self.after_ED[0x71] = (self.no_arg, 'OUT (C),0')
