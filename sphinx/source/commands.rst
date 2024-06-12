@@ -1926,7 +1926,8 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.3     | Recognises deprecated TZX block types 0x16, 0x17, 0x34 and 0x40   |
+| 9.3     | Shows info for TZX block type 0x18 (CSW recording); recognises    |
+|         | deprecated TZX block types 0x16, 0x17, 0x34 and 0x40              |
 +---------+-------------------------------------------------------------------+
 | 9.2     | Shows info for TZX block type 0x15 (direct recording)             |
 +---------+-------------------------------------------------------------------+

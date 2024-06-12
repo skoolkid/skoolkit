@@ -319,6 +319,11 @@ def _get_block_info(data, i, block_num):
         i += get_dword(data, i) + 4
     elif block_id == 24:
         header = 'CSW recording'
+        info.append('Number of pulses: {}'.format(get_dword(data, i + 10)))
+        info.append('Sampling rate: {} Hz'.format(get_word3(data, i + 6)))
+        ctype = {1: 'RLE', 2: 'Z-RLE'}.get(data[i + 9], 'Unknown')
+        info.append('Compression type: {}'.format(ctype))
+        info.append('Pause: {}ms'.format(get_word(data, i + 4)))
         i += get_dword(data, i) + 4
     elif block_id == 25:
         header = 'Generalized data'

@@ -294,12 +294,61 @@ class TapinfoTest(SkoolKitTestCase):
         exp_output = '1: C64 turbo tape data (0x17)'
         self._test_tzx_block(block, exp_output)
 
-    def test_tzx_block_0x18(self):
-        block = [24] # Block ID
-        block.extend((12, 0, 0, 0)) # Block length
-        block.extend([0] * 10)
-        block.extend((1, 1)) # CSW data
-        exp_output = '1: CSW recording (0x18)'
+    def test_tzx_block_0x18_rle_compression(self):
+        block = (
+            24,          # Block ID
+            12, 0, 0, 0, # Block length
+            100, 0,      # Pause
+            68, 172, 0,  # Sampling rate
+            1,           # Compression type
+            2, 0, 0, 0,  # Number of pulses
+            1, 1         # CSW data
+        )
+        exp_output = """
+            1: CSW recording (0x18)
+              Number of pulses: 2
+              Sampling rate: 44100 Hz
+              Compression type: RLE
+              Pause: 100ms
+        """
+        self._test_tzx_block(block, exp_output)
+
+    def test_tzx_block_0x18_zrle_compression(self):
+        block = (
+            24,          # Block ID
+            13, 0, 0, 0, # Block length
+            200, 0,      # Pause
+            34, 86, 0,   # Sampling rate
+            2,           # Compression type
+            3, 0, 0, 0,  # Number of pulses
+            1, 2, 1      # CSW data
+        )
+        exp_output = """
+            1: CSW recording (0x18)
+              Number of pulses: 3
+              Sampling rate: 22050 Hz
+              Compression type: Z-RLE
+              Pause: 200ms
+        """
+        self._test_tzx_block(block, exp_output)
+
+    def test_tzx_block_0x18_unknown_compression(self):
+        block = (
+            24,          # Block ID
+            14, 0, 0, 0, # Block length
+            232, 3,      # Pause
+            128, 187, 0, # Sampling rate
+            3,           # Compression type
+            4, 0, 0, 0,  # Number of pulses
+            1, 2, 1, 3   # CSW data
+        )
+        exp_output = """
+            1: CSW recording (0x18)
+              Number of pulses: 4
+              Sampling rate: 48000 Hz
+              Compression type: Unknown
+              Pause: 1000ms
+        """
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x19(self):
