@@ -29,6 +29,7 @@ following:
 
 * :ref:`assemble`
 * :ref:`asm-bank`
+* :ref:`bytes`
 * :ref:`defb`
 * :ref:`defs`
 * :ref:`defw`

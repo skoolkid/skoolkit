@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -634,7 +634,12 @@ class SkoolParser:
                 last_instruction = end_instruction
         if last_entry is not None and last_entry.ctl != 'i':
             address = last_instruction.address
-            self.end_address = address + (self.assembler.get_size(last_instruction.operation, address) or 1)
+            for asm_directive in last_instruction.asm_directives:
+                if asm_directive.startswith('bytes='):
+                    self.end_address = address + asm_directive.count(',') + 1
+                    break
+            else:
+                self.end_address = address + (self.assembler.get_size(last_instruction.operation, address) or 1)
 
         parse_address_comments(address_comments, self.keep_lines)
 

@@ -1952,6 +1952,26 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_bytes_directives(self):
+        ctl = """
+            c 00000
+            @ 00000 bytes=237,107,0,192
+            @ 00004 bytes=$ED,$63,$02,$C0
+            i 00008
+        """
+        exp_skool = """
+            ; Routine at 0
+            @bytes=237,107,0,192
+            c00000 LD HL,(49152) ;
+            @bytes=$ED,$63,$02,$C0
+             00004 LD (49154),HL ;
+        """
+        snapshot = [
+            237, 107, 0, 192, # 00000 LD HL,(49152)
+            237, 99, 2, 192,  # 00004 LD (49154),HL
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Opcodes': 'ED63,ED6B'})
+
     def test_defb_directives(self):
         snapshot = [0] * 5
         ctl = """

@@ -14,6 +14,8 @@ Changelog
 * Added the ``Opcodes`` configuration parameter to
   :ref:`sna2skool.py <sna2skool-conf>` (for specifying additional opcode
   sequences to disassemble)
+* Added the :ref:`bytes` directive (for specifying the byte values to which an
+  instruction should assemble)
 * The ``--find``, ``--find-text`` and ``--find-tile`` options of
   :ref:`snapinfo.py` now search all RAM banks in a 128K snapshot by default
 * Added support for path ID replacement fields in the ``destDir`` parameter of

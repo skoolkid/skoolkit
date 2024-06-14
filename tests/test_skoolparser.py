@@ -1953,6 +1953,42 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         self.assert_error(skool, "Error while parsing @bank directive: nonexistent.skool: file not found")
 
+    def test_bytes_directives(self):
+        skool = """
+            @bytes=237,107,0,192
+            c32768 LD HL,(49152)
+             32772 INC HL
+            @bytes=$ED,$63,$02,$C0
+             32773 LD (49154),HL
+        """
+        parser = self._get_parser(skool)
+        snapshot = parser.snapshot
+        self.assertEqual([237, 107, 0, 192], snapshot[32768:32772])
+        self.assertEqual((237, 107, 0, 192), parser.get_instruction(32768).bytes)
+        self.assertEqual(snapshot[32772], 35)
+        self.assertEqual((35,), parser.get_instruction(32772).bytes)
+        self.assertEqual([237, 99, 2, 192], snapshot[32773:32777])
+        self.assertEqual((237, 99, 2, 192), parser.get_instruction(32773).bytes)
+
+    def test_bytes_directive_with_assembly_disabled(self):
+        skool = """
+            @assemble=1,1
+            @bytes=$ED,$64
+            c32768 NEG
+        """
+        parser = self._get_parser(skool)
+        self.assertEqual([0, 0], parser.snapshot[32768:32770])
+        self.assertEqual((), parser.get_instruction(32768).bytes)
+
+    def test_invalid_bytes_directive_is_ignored(self):
+        skool = """
+            @bytes=0,?
+            c32768 NEG
+        """
+        parser = self._get_parser(skool)
+        self.assertEqual([237, 68], parser.snapshot[32768:32770])
+        self.assertEqual((237, 68), parser.get_instruction(32768).bytes)
+
     def test_defb_directives(self):
         skool = """
             @defb=23296:1,$0A,%10101010,"01",32768/256

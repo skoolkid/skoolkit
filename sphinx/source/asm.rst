@@ -463,6 +463,37 @@ For example::
          JR NZ,32232   ;
   @bfix+end
 
+.. _bytes:
+
+@bytes
+^^^^^^
+The ``@bytes`` directive specifies the byte values to which the next
+instruction should assemble. ::
+
+  @bytes=value1[,value2...]
+
+* ``value1``, ``value2`` etc. are the byte values
+
+This directive is useful only for specifying an alternative set of opcodes for
+an instruction that has two or more valid sets, such as 'LD HL,(nn)' (2A or
+ED6B) and 'IM 1' (ED56 or ED76). It ensures that the memory snapshot
+constructed by :ref:`skool2asm.py` or :ref:`skool2html.py` will contain the
+correct byte values at the instruction's address.
+
+For example::
+
+  @bytes=$ED,$4C
+   40000 NEG
+
+This ``@bytes`` directive makes the NEG instruction that follows assemble to
+ED4C (instead of the standard ED44).
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 9.3     | New     |
++---------+---------+
+
 .. _defb:
 
 @defb

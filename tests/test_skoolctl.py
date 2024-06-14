@@ -1012,6 +1012,22 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         self._test_ctl(skool, exp_ctl)
 
+    def test_bytes_directives(self):
+        skool = """
+            ; Routine
+            @bytes=237,107,0,192
+            c32768 LD HL,(49152)
+            @bytes=$ED,$63,$02,$C0
+             32772 LD (49154),HL
+        """
+        exp_ctl = """
+            c 32768 Routine
+            @ 32768 bytes=237,107,0,192
+            @ 32772 bytes=$ED,$63,$02,$C0
+            i 32776
+        """
+        self._test_ctl(skool, exp_ctl)
+
     def test_ignoreua_directives(self):
         skool = """
             @ignoreua

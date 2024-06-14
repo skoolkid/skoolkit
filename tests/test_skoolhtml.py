@@ -5935,6 +5935,138 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
 
+    def test_parameter_Bytes_with_bytes_directives(self):
+        ref = """
+            [Game]
+            Bytes=02X
+        """
+        skool = """
+            ; Routine at 32768
+            @bytes=237,107,0,192
+            c32768 LD HL,(49152)
+             32772 INC HL
+            @bytes=$ED,$63,$02,$C0
+             32773 LD (49154),HL
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Routine at 32768</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="bytes">ED6B00C0</td>
+            <td class="instruction">LD HL,(49152)</td>
+            <td class="comment-0" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="address-1"><span id="32772"></span>32772</td>
+            <td class="bytes">23</td>
+            <td class="instruction">INC HL</td>
+            <td class="comment-0" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="address-1"><span id="32773"></span>32773</td>
+            <td class="bytes">ED6302C0</td>
+            <td class="instruction">LD (49154),HL</td>
+            <td class="comment-0" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_parameter_Bytes_with_bytes_directive_and_unassembled_code(self):
+        ref = """
+            [Game]
+            Bytes=02X
+        """
+        skool = """
+            ; Routine at 32768
+            @assemble=1
+            @bytes=$ED,$54
+            c32768 NEG
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Routine at 32768</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="instruction">NEG</td>
+            <td class="comment-0" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_parameter_Bytes_with_invalid_bytes_directive(self):
+        ref = """
+            [Game]
+            Bytes=02X
+        """
+        skool = """
+            ; Routine at 32768
+            @bytes=$ED,$54,?
+            c32768 NEG
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Routine at 32768</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="bytes">ED44</td>
+            <td class="instruction">NEG</td>
+            <td class="comment-0" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
     def test_parameter_Bytes_with_unassembled_code(self):
         ref = """
             [Game]

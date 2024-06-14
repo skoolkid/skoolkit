@@ -17,7 +17,8 @@
 from collections import namedtuple
 import re
 
-from skoolkit import CASE_LOWER, CASE_UPPER, ROM128, SkoolParsingError, parse_int, read_bin_file, wrap, z80
+from skoolkit import (CASE_LOWER, CASE_UPPER, ROM128, SkoolParsingError,
+                      get_int_param, parse_int, read_bin_file, wrap, z80)
 from skoolkit.skoolmacro import ClosingBracketError, MacroParsingError, parse_brackets, parse_strings
 from skoolkit.textutils import partition_unquoted
 
@@ -493,6 +494,12 @@ def parse_asm_block_directive(directive, stack):
             stack.pop()
         return True
     return False
+
+def parse_asm_bytes_directive(directive):
+    try:
+        return tuple(get_int_param(b) for b in directive[6:].split(','))
+    except ValueError:
+        return ()
 
 def parse_asm_data_directive(snapshot, address, directive, advance=True):
     a, sep, values = directive[5:].rpartition(':')

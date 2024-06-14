@@ -2029,6 +2029,54 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(asm[3], 'START_0:')
         self.assertEqual(asm[5], 'START_1:')
 
+    def test_bytes_directives(self):
+        skool = """
+            @start
+            @expand=#DEF(#BYTES(size) #FOR(#PC,#PC+$size-1,,1)(a,#PEEK(a)))
+            ; Routine at 32768
+            @bytes=237,107,0,192
+            c32768 LD HL,(49152)   ; #BYTES4
+             32772 INC HL          ; #BYTES1
+            @bytes=$ED,$63,$02,$C0
+             32773 LD (49154),HL   ; #BYTES4
+        """
+        exp_asm = """
+            ; Routine at 32768
+              LD HL,(49152)           ; 237,107,0,192
+              INC HL                  ; 35
+              LD (49154),HL           ; 237,99,2,192
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_bytes_directive_with_assembly_disabled(self):
+        skool = """
+            @start
+            @expand=#DEF(#BYTES(size) #FOR(#PC,#PC+$size-1,,1)(a,#PEEK(a)))
+            @assemble=,1
+            ; Routine at 32768
+            @bytes=237,107,0,192
+            c32768 LD HL,(49152)   ; #BYTES4
+        """
+        exp_asm = """
+            ; Routine at 32768
+              LD HL,(49152)           ; 0,0,0,0
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_invalid_bytes_directive_is_ignored(self):
+        skool = """
+            @start
+            @expand=#DEF(#BYTES(size) #FOR(#PC,#PC+$size-1,,1)(a,#PEEK(a)))
+            ; Routine at 32768
+            @bytes=237,?
+            c32768 NEG   ; #BYTES2
+        """
+        exp_asm = """
+            ; Routine at 32768
+              NEG                     ; 237,68
+        """
+        self._test_asm(skool, exp_asm)
+
     def test_equ_directives(self):
         skool = """
             @start

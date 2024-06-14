@@ -571,6 +571,25 @@ class BinWriterTest(BinWriterTestCase):
             self.run_skool2bin(f'--banks {skoolfile}')
         self.assertEqual(cm.exception.args[0], 'nonexistent.skool: file not found')
 
+    def test_bytes_directives(self):
+        skool = """
+            @bytes=237,107,0,192
+            c32768 LD HL,(49152)
+             32772 INC HL
+            @bytes=$ED,$63,$02,$C0
+             32773 LD (49154),HL
+        """
+        exp_data = [237, 107, 0, 192, 35, 0xED, 0x63, 0x02, 0xC0]
+        self._test_write(skool, 32768, exp_data)
+
+    def test_invalid_bytes_directive_is_ignored(self):
+        skool = """
+            @bytes=0,?
+            c40000 NEG
+        """
+        exp_data = [237, 68]
+        self._test_write(skool, 40000, exp_data)
+
     def test_data_directives_ignored(self):
         skool = """
             @defb=30001:1

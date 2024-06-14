@@ -1,4 +1,4 @@
-# Copyright 2015-2021, 2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015-2021, 2023, 2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -22,7 +22,7 @@ from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file,
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
 from skoolkit.skoolutils import (DIRECTIVES, Memory, parse_address_range, parse_asm_bank_directive,
-                                 parse_asm_data_directive, parse_asm_keep_directive,
+                                 parse_asm_bytes_directive, parse_asm_data_directive, parse_asm_keep_directive,
                                  parse_asm_nowarn_directive, parse_asm_sub_fix_directive, read_skool)
 from skoolkit.textutils import partition_unquoted
 
@@ -31,7 +31,7 @@ VALID_CTLS = DIRECTIVES + ' *'
 Entry = namedtuple('Entry', 'ctl instructions')
 
 class Instruction:
-    def __init__(self, skool_address, address=None, operation=None, sub=False, keep=None, nowarn=None, data=None, marker=' '):
+    def __init__(self, skool_address, address=None, operation=None, sub=False, keep=None, nowarn=None, bvalues=None, data=None, marker=' '):
         self.address = skool_address # API (InstructionUtility)
         self.operation = operation   # API (InstructionUtility)
         self.sub = sub               # API (InstructionUtility)
@@ -39,6 +39,7 @@ class Instruction:
         self.nowarn = nowarn         # API (InstructionUtility)
         self.original = operation
         self.real_address = address
+        self.bvalues = bvalues
         self.data = data
         self.marker = marker
 
@@ -93,6 +94,7 @@ class BinWriter:
         self.subs = defaultdict(list, {(0, 0): ()})
         self.keep = None
         self.nowarn = None
+        self.bvalues = None
         if data:
             self.data = []
         else:
@@ -152,14 +154,16 @@ class BinWriter:
             else:
                 operation, sub = original_op, False
         if operation:
-            address += self._get_size(operation, address, ' ', overwrite, removed, offset, sub, skool_address)
+            address += self._get_size(operation, address, ' ', overwrite, removed, offset, sub, skool_address, self.bvalues)
         for overwrite, operation, append in after:
             if operation:
                 address += self._get_size(operation, address, '+', overwrite, removed, offset)
         return address
 
-    def _get_size(self, operation, address, marker, overwrite=False, removed=None, offset=0, sub=True, skool_address=None):
-        if operation.upper().startswith(('DJNZ ', 'JR ')):
+    def _get_size(self, operation, address, marker, overwrite=False, removed=None, offset=0, sub=True, skool_address=None, bvalues=None):
+        if bvalues:
+            size = len(bvalues)
+        elif operation.upper().startswith(('DJNZ ', 'JR ')):
             size = 2
         else:
             size = self.assembler.get_size(operation, address)
@@ -168,7 +172,7 @@ class BinWriter:
                 removed.update(range(address + offset, address + offset + size))
                 marker = '|'
             if self.start <= address < self.end:
-                self.instructions.append(Instruction(skool_address, address, operation, sub, self.keep, self.nowarn, self.data, marker))
+                self.instructions.append(Instruction(skool_address, address, operation, sub, self.keep, self.nowarn, bvalues, self.data, marker))
             return size
         raise SkoolParsingError("Failed to assemble:\n {} {}".format(address, operation))
 
@@ -199,6 +203,8 @@ class BinWriter:
             self.keep = parse_asm_keep_directive(directive)
         elif directive.startswith('nowarn'):
             self.nowarn = parse_asm_nowarn_directive(directive)
+        elif directive.startswith('bytes='):
+            self.bvalues = parse_asm_bytes_directive(directive)
         elif self.data is not None and directive.startswith(('defb=', 'defs=', 'defw=')):
             self.data.append(directive)
         elif directive.startswith('remote='):
@@ -239,7 +245,10 @@ class BinWriter:
                     address, data = parse_asm_data_directive(self.snapshot, address, data_dir, False)
                     self._poke(Instruction(None, address, '@' + data_dir), data)
                     address += len(data)
-                self._poke(i, self.assembler.assemble(i.operation, i.real_address))
+                if i.bvalues:
+                    self._poke(i, i.bvalues)
+                else:
+                    self._poke(i, self.assembler.assemble(i.operation, i.real_address))
 
     def write(self, binfile):
         if len(self.snapshot) == 0x20000:

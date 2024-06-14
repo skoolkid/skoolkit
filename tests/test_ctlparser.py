@@ -1089,6 +1089,21 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
+    def test_bytes_directives(self):
+        ctl = """
+            @ 50000 bytes=237,84
+            c 50000 Routine at 50000
+            @ 50002 bytes=$ED,$55
+        """
+        exp_entry_directives = {
+            50000: []
+        }
+        exp_instruction_directives = {
+            50000: ['bytes=237,84'],
+            50002: ['bytes=$ED,$55']
+        }
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
+
     def test_defb_directives(self):
         ctl = """
             @ 30000 defb=49152:13

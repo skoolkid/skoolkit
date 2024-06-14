@@ -1,4 +1,4 @@
-# Copyright 2008-2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -25,9 +25,9 @@ from skoolkit.skool2bin import BinWriter
 from skoolkit.skoolmacro import INTEGER, MacroParsingError, parse_if
 from skoolkit.skoolutils import (DIRECTIVES, Z80_ASSEMBLER, Comment, Memory, get_address, join_comments,
                                  parse_address_comments, parse_address_range, parse_addresses, parse_asm_bank_directive,
-                                 parse_asm_data_directive, parse_asm_keep_directive, parse_asm_nowarn_directive,
-                                 parse_asm_refs_directive, parse_asm_sub_fix_directive, parse_entry_header,
-                                 parse_instruction, read_skool, set_bytes)
+                                 parse_asm_bytes_directive, parse_asm_data_directive, parse_asm_keep_directive,
+                                 parse_asm_nowarn_directive, parse_asm_refs_directive, parse_asm_sub_fix_directive,
+                                 parse_entry_header, parse_instruction, read_skool, set_bytes)
 from skoolkit.textutils import split_quoted, split_unquoted
 
 Reference = namedtuple('Reference', 'entry address addr_str use_label')
@@ -260,11 +260,14 @@ class SkoolParser:
                 self.mode.apply_asm_directives(self.snapshot, instruction, map_entry, self._instructions, address_comments, removed)
                 self.ignores.clear()
 
-                # Set bytes in the snapshot if the instruction is DEF{B,M,S,W}
                 if address is not None:
                     assemble = self.utility.set_byte_values(instruction, self.mode.assemble)
                     if assemble:
-                        data = set_bytes(self.snapshot, self._assembler, address, instruction.operation)
+                        if instruction.bytes:
+                            # Byte values have been specified by a @bytes directive
+                            data = self.snapshot[address:address + len(instruction.bytes)] = instruction.bytes
+                        else:
+                            data = set_bytes(self.snapshot, self._assembler, address, instruction.operation)
                         if assemble > 1:
                             instruction.bytes = data
 
@@ -349,6 +352,9 @@ class SkoolParser:
     def _parse_asm_directive(self, directive, removed):
         if directive.startswith('label='):
             self.mode.label = directive[6:].rstrip()
+        elif directive.startswith('bytes='):
+            if self.mode.assemble:
+                self.mode.bvalues = parse_asm_bytes_directive(directive)
         elif directive.startswith(('defb=', 'defs=', 'defw=')):
             if self.mode.assemble:
                 self.mode.data.append(directive)
@@ -521,6 +527,7 @@ class Mode:
         self.refs = ((), ())
         self.ignoreua = {'i': None, 'm': None}
         self.org = None
+        self.bvalues = ()
 
     def add_sub(self, directive, value):
         weight = self.weights[directive]
@@ -567,6 +574,8 @@ class Mode:
                 return instruction.address + size
 
     def apply_asm_directives(self, snapshot, instruction, map_entry, instructions, address_comments, removed):
+        if self.assemble > 1:
+            instruction.bytes = self.bvalues
         instruction.keep = self.keep
         instruction.refs, instruction.rrefs = self.refs
 
