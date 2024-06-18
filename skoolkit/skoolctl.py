@@ -38,6 +38,7 @@ AD_ORG = 'org'
 AD_IGNOREUA = 'ignoreua'
 AD_LABEL = 'label'
 AD_REFS = 'refs'
+AD_BYTES = 'bytes'
 
 # An entry ASM directive is one that should be placed before the entry title
 # when it is associated with the first instruction in the entry

@@ -21,7 +21,7 @@ from skoolkit import (SkoolKitError, warn, write_line, wrap, parse_int,
                       get_address_format, format_template)
 from skoolkit.components import get_component, get_value
 from skoolkit.skoolasm import UDGTABLE_MARKER
-from skoolkit.skoolctl import (AD_LABEL, AD_REFS, TITLE, DESCRIPTION,
+from skoolkit.skoolctl import (AD_BYTES, AD_LABEL, AD_REFS, TITLE, DESCRIPTION,
                                REGISTERS, MID_BLOCK, INSTRUCTION, END)
 from skoolkit.skoolmacro import INTEGER, ClosingBracketError, parse_brackets
 from skoolkit.skoolutils import (get_address, parse_asm_refs_directive,
@@ -30,6 +30,7 @@ from skoolkit.skoolutils import (get_address, parse_asm_refs_directive,
 from skoolkit.z80 import get_timing
 
 MIN_COMMENT_WIDTH = 10
+AD_BYTES_PREFIX = AD_BYTES + '='
 AD_LABEL_PREFIX = AD_LABEL + '='
 AD_REFS_PREFIX = AD_REFS + '='
 
@@ -79,6 +80,7 @@ class Instruction:
         self.entry = None
         self.ctl = None
         self.comment = None
+        self.variant = 0
 
     def add_referrer(self, entry_address, self_refs):
         if not self.ctl:
@@ -139,10 +141,13 @@ class Disassembly:
         self.ctl_parser = ctl_parser
         if asm_hex:
             if asm_lower:
+                self.byte_fmt = '${:02x}'
                 self.address_fmt = '{0:04x}'
             else:
+                self.byte_fmt = '${:02X}'
                 self.address_fmt = '{0:04X}'
         else:
+            self.byte_fmt = '{}'
             self.address_fmt = '{0}'
         self.entry_map = {}
         self.build(final, self_refs)
@@ -231,6 +236,7 @@ class Disassembly:
         for instruction in instructions:
             self.instructions[instruction.address] = instruction
             instruction.asm_directives = sub_block.asm_directives.get(instruction.address, ())
+            has_bytes = False
             for asm_dir in instruction.asm_directives:
                 if asm_dir.startswith(AD_LABEL_PREFIX):
                     instruction.label = asm_dir[len(AD_LABEL_PREFIX):]
@@ -238,6 +244,11 @@ class Disassembly:
                         instruction.ctl = '*'
                 elif asm_dir.startswith(AD_REFS_PREFIX):
                     instruction.refs, instruction.rrefs = parse_asm_refs_directive(asm_dir)
+                elif asm_dir.startswith(AD_BYTES_PREFIX):
+                    has_bytes = True
+            if instruction.variant and not has_bytes:
+                bvalues = ','.join(self.byte_fmt.format(b) for b in instruction.bytes)
+                instruction.asm_directives += (f'{AD_BYTES}={bvalues}',)
 
     def _calculate_references(self, self_refs):
         regexes = get_value('SnapshotReferenceOperations')

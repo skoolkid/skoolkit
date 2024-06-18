@@ -477,8 +477,9 @@ instruction should assemble. ::
 This directive is useful only for specifying an alternative set of opcodes for
 an instruction that has two or more valid sets, such as 'LD HL,(nn)' (2A or
 ED6B) and 'IM 1' (ED56 or ED76). It ensures that the memory snapshot
-constructed by :ref:`skool2asm.py` or :ref:`skool2html.py` will contain the
-correct byte values at the instruction's address.
+constructed by :ref:`skool2asm.py` or :ref:`skool2html.py`, and the output
+produced by :ref:`skool2bin.py`, will contain the correct byte values at the
+instruction's address.
 
 For example::
 

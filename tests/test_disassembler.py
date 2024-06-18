@@ -1803,10 +1803,10 @@ ASM = {
 }
 
 ADDITIONAL_OPCODES_ED = {
-    'ED630180': ('ED63', 'LD (32769),HL'),
-    'ED6BFEFF': ('ED6B', 'LD HL,(65534)'),
-    'ED70': ('ED70', 'IN F,(C)'),
-    'ED71': ('ED71', 'OUT (C),0'),
+    'ED630180': ('ED63', 'LD (32769),HL', 1),
+    'ED6BFEFF': ('ED6B', 'LD HL,(65534)', 1),
+    'ED70': ('ED70', 'IN F,(C)', 0),
+    'ED71': ('ED71', 'OUT (C),0', 0),
 }
 
 ADDITIONAL_OPCODES_XYCB = {
@@ -2312,10 +2312,14 @@ BOUNDARY_ASM = (
     (65533, [253, 203, 3, 6], 'RLC (IY+3)')
 )
 
+class Instruction:
+    def __init__(self, address, operation, data):
+        self.address = address
+        self.operation = operation
+        self.data = data
+
 class DisassemblerTest(SkoolKitTestCase):
-    def _get_disassembler(self, snapshot=(), asm_hex=False, asm_lower=False, defw_size=1, imaker=None, opcodes='', wrap=False):
-        if imaker is None:
-            imaker = lambda addr, op, data: (addr, op, data)
+    def _get_disassembler(self, snapshot=(), asm_hex=False, asm_lower=False, defw_size=1, imaker=Instruction, opcodes='', wrap=False):
         config = Config(asm_hex, asm_lower, 8, 66, defw_size, imaker, opcodes, wrap)
         return Disassembler(snapshot, config)
 
@@ -2342,29 +2346,31 @@ class DisassemblerTest(SkoolKitTestCase):
         for hex_bytes, ops in ASM.items():
             end = 16384 + len(hex_bytes) // 2
             snapshot[16384:end] = [int(hex_bytes[i:i + 2], 16) for i in range(0, len(hex_bytes), 2)]
-            instructions = disassembler.disassemble(16384, end, 'n')
-            operations = tuple([inst[1] for inst in instructions])
-            self.assertEqual(ops, operations)
+            for i, instruction in enumerate(disassembler.disassemble(16384, end, 'n')):
+                self.assertEqual(instruction.operation, ops[i])
+                self.assertEqual(instruction.variant, 0)
 
     def test_additional_opcodes_ed(self):
         snapshot = [0] * 4
-        for hex_bytes, (opcodes, op) in ADDITIONAL_OPCODES_ED.items():
+        for hex_bytes, (opcodes, op, variant) in ADDITIONAL_OPCODES_ED.items():
             end = len(hex_bytes) // 2
             snapshot[0:end] = [int(hex_bytes[i:i + 2], 16) for i in range(0, len(hex_bytes), 2)]
             disassembler = self._get_disassembler(snapshot, opcodes=opcodes)
             instructions = disassembler.disassemble(0, end, 'n')
             self.assertEqual(len(instructions), 1)
-            self.assertEqual(instructions[0][1], op)
+            self.assertEqual(instructions[0].operation, op)
+            self.assertEqual(instructions[0].variant, variant)
 
     def test_additional_opcodes_ed_all(self):
         snapshot = [0] * 4
         disassembler = self._get_disassembler(snapshot, opcodes='ALL')
-        for hex_bytes, (opcodes, op) in ADDITIONAL_OPCODES_ED.items():
+        for hex_bytes, (opcodes, op, variant) in ADDITIONAL_OPCODES_ED.items():
             end = len(hex_bytes) // 2
             snapshot[0:end] = [int(hex_bytes[i:i + 2], 16) for i in range(0, len(hex_bytes), 2)]
             instructions = disassembler.disassemble(0, end, 'n')
             self.assertEqual(len(instructions), 1)
-            self.assertEqual(instructions[0][1], op)
+            self.assertEqual(instructions[0].operation, op)
+            self.assertEqual(instructions[0].variant, variant)
 
     def test_additional_opcodes_im(self):
         snapshot = [0xED, 0, 0, 0]
@@ -2373,7 +2379,8 @@ class DisassemblerTest(SkoolKitTestCase):
             snapshot[1] = opcode
             instructions = disassembler.disassemble(0, 2, 'n')
             self.assertEqual(len(instructions), 1)
-            self.assertEqual(instructions[0][1], f'IM {mode}')
+            self.assertEqual(instructions[0].operation, f'IM {mode}')
+            self.assertEqual(instructions[0].variant, 1)
 
     def test_additional_opcodes_im_all(self):
         snapshot = [0xED, 0, 0, 0]
@@ -2382,7 +2389,8 @@ class DisassemblerTest(SkoolKitTestCase):
             snapshot[1] = opcode
             instructions = disassembler.disassemble(0, 2, 'n')
             self.assertEqual(len(instructions), 1)
-            self.assertEqual(instructions[0][1], f'IM {mode}')
+            self.assertEqual(instructions[0].operation, f'IM {mode}')
+            self.assertEqual(instructions[0].variant, 1)
 
     def test_additional_opcodes_neg(self):
         snapshot = [0xED, 0, 0, 0]
@@ -2391,7 +2399,8 @@ class DisassemblerTest(SkoolKitTestCase):
             snapshot[1] = opcode
             instructions = disassembler.disassemble(0, 2, 'n')
             self.assertEqual(len(instructions), 1)
-            self.assertEqual(instructions[0][1], 'NEG')
+            self.assertEqual(instructions[0].operation, 'NEG')
+            self.assertEqual(instructions[0].variant, 1)
 
     def test_additional_opcodes_neg_all(self):
         snapshot = [0xED, 0, 0, 0]
@@ -2400,7 +2409,8 @@ class DisassemblerTest(SkoolKitTestCase):
             snapshot[1] = opcode
             instructions = disassembler.disassemble(0, 2, 'n')
             self.assertEqual(len(instructions), 1)
-            self.assertEqual(instructions[0][1], 'NEG')
+            self.assertEqual(instructions[0].operation, 'NEG')
+            self.assertEqual(instructions[0].variant, 1)
 
     def test_additional_opcodes_retn(self):
         snapshot = [0xED, 0, 0, 0]
@@ -2409,7 +2419,8 @@ class DisassemblerTest(SkoolKitTestCase):
             snapshot[1] = opcode
             instructions = disassembler.disassemble(0, 2, 'n')
             self.assertEqual(len(instructions), 1)
-            self.assertEqual(instructions[0][1], 'RETN')
+            self.assertEqual(instructions[0].operation, 'RETN')
+            self.assertEqual(instructions[0].variant, 1)
 
     def test_additional_opcodes_retn_all(self):
         snapshot = [0xED, 0, 0, 0]
@@ -2418,7 +2429,8 @@ class DisassemblerTest(SkoolKitTestCase):
             snapshot[1] = opcode
             instructions = disassembler.disassemble(0, 2, 'n')
             self.assertEqual(len(instructions), 1)
-            self.assertEqual(instructions[0][1], 'RETN')
+            self.assertEqual(instructions[0].operation, 'RETN')
+            self.assertEqual(instructions[0].variant, 1)
 
     def test_additional_opcodes_xycb(self):
         snapshot = [0] * 4
@@ -2427,7 +2439,8 @@ class DisassemblerTest(SkoolKitTestCase):
             snapshot[0:4] = [int(hex_bytes[i:i + 2], 16) for i in range(0, 8, 2)]
             instructions = disassembler.disassemble(0, 4, 'n')
             self.assertEqual(len(instructions), 1)
-            self.assertEqual(instructions[0][1], op)
+            self.assertEqual(instructions[0].operation, op)
+            self.assertEqual(instructions[0].variant, int(op.startswith('BIT')))
 
     def test_additional_opcodes_xycb_all(self):
         snapshot = [0] * 4
@@ -2436,7 +2449,8 @@ class DisassemblerTest(SkoolKitTestCase):
             snapshot[0:4] = [int(hex_bytes[i:i + 2], 16) for i in range(0, 8, 2)]
             instructions = disassembler.disassemble(0, 4, 'n')
             self.assertEqual(len(instructions), 1)
-            self.assertEqual(instructions[0][1], op)
+            self.assertEqual(instructions[0].operation, op)
+            self.assertEqual(instructions[0].variant, int(op.startswith('BIT')))
 
     def test_boundary_asm(self):
         for start, data, op in BOUNDARY_ASM:
@@ -2444,18 +2458,18 @@ class DisassemblerTest(SkoolKitTestCase):
             self.assertEqual(len(instructions), 1)
             exp_data = data[:65536 - start]
             exp_op = 'DEFB {}'.format(','.join([str(b) for b in exp_data]))
-            self.assertEqual(instructions[0][1], exp_op)
-            self.assertEqual(instructions[0][2], exp_data)
+            self.assertEqual(instructions[0].operation, exp_op)
+            self.assertEqual(instructions[0].data, exp_data)
 
     def test_boundary_asm_wrap(self):
         for start, data, exp_op in BOUNDARY_ASM:
             instructions = self._get_instructions(start, data, wrap=True)
             self.assertEqual(len(instructions), 1)
-            self.assertEqual(instructions[0][1], exp_op)
+            self.assertEqual(instructions[0].operation, exp_op)
             if exp_op.startswith('DEFB'):
-                self.assertEqual(instructions[0][2], data[:exp_op.count(',') + 1])
+                self.assertEqual(instructions[0].data, data[:exp_op.count(',') + 1])
             else:
-                self.assertEqual(instructions[0][2], data)
+                self.assertEqual(instructions[0].data, data)
 
     def test_dded1(self):
         # 65534 DDED
@@ -2464,15 +2478,15 @@ class DisassemblerTest(SkoolKitTestCase):
         # that there will be no suffix after ED
         instructions = self._get_instructions(65534, [221, 237])
         self.assertEqual(len(instructions), 2)
-        self.assertEqual(instructions[0][1], 'DEFB 221')
-        self.assertEqual(instructions[1][1], 'DEFB 237')
+        self.assertEqual(instructions[0].operation, 'DEFB 221')
+        self.assertEqual(instructions[1].operation, 'DEFB 237')
 
     def test_dded1_wrap(self):
         # 65534 DDED
         instructions = self._get_instructions(65534, [221, 237, 64], wrap=True)
         self.assertEqual(len(instructions), 2)
-        self.assertEqual(instructions[0][1], 'DEFB 221')
-        self.assertEqual(instructions[1][1], 'IN B,(C)')
+        self.assertEqual(instructions[0].operation, 'DEFB 221')
+        self.assertEqual(instructions[1].operation, 'IN B,(C)')
 
     def test_dded2(self):
         # 65532 DDED4300
@@ -2481,15 +2495,15 @@ class DisassemblerTest(SkoolKitTestCase):
         # that there will be no room for the 2-byte suffix after ED43
         instructions = self._get_instructions(65532, [221, 237, 67, 0, 1])
         self.assertEqual(len(instructions), 2)
-        self.assertEqual(instructions[0][1], 'DEFB 221')
-        self.assertEqual(instructions[1][1], 'DEFB 237,67,0')
+        self.assertEqual(instructions[0].operation, 'DEFB 221')
+        self.assertEqual(instructions[1].operation, 'DEFB 237,67,0')
 
     def test_dded2_wrap(self):
         # 65532 DDED4300
         instructions = self._get_instructions(65532, [221, 237, 67, 0, 1], wrap=True)
         self.assertEqual(len(instructions), 2)
-        self.assertEqual(instructions[0][1], 'DEFB 221')
-        self.assertEqual(instructions[1][1], 'LD (256),BC')
+        self.assertEqual(instructions[0].operation, 'DEFB 221')
+        self.assertEqual(instructions[1].operation, 'LD (256),BC')
 
     def test_defb_range(self):
         snapshot = self._get_snapshot(32768, (97, 98, 99, 94, 96, 65, 66, 67, 127))
@@ -2498,18 +2512,18 @@ class DisassemblerTest(SkoolKitTestCase):
         sublengths = ((0, 'n'),)
         instructions = disassembler.defb_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 2)
-        operations = [i[1] for i in instructions]
+        operations = [i.operation for i in instructions]
         self.assertEqual(operations, ['DEFB 97,98,99,94,96,65,66,67', 'DEFB 127'])
 
         sublengths = [(3, 'c'), (2, 'n'), (3, 'c'), (1, 'n')]
         instructions = disassembler.defb_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0][1], 'DEFB "abc",94,96,"ABC",127')
+        self.assertEqual(instructions[0].operation, 'DEFB "abc",94,96,"ABC",127')
 
         sublengths = [(3, 'c'), (2, 'n'), (3, 'c'), (1, 'n')]
         instructions = disassembler.defb_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0][1], 'DEFB "abc",94,96,"ABC",127')
+        self.assertEqual(instructions[0].operation, 'DEFB "abc",94,96,"ABC",127')
 
     def test_defm_range(self):
         snapshot = self._get_snapshot(32768, (97, 98, 99, 94, 96, 65, 66, 67, 127))
@@ -2518,31 +2532,31 @@ class DisassemblerTest(SkoolKitTestCase):
         sublengths = ((0, 'c'),)
         instructions = disassembler.defm_range(32768, 32771, sublengths)
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0][1], 'DEFM "abc"')
+        self.assertEqual(instructions[0].operation, 'DEFM "abc"')
 
         instructions = disassembler.defm_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0][1], 'DEFM "abc",94,96,"ABC",127')
+        self.assertEqual(instructions[0].operation, 'DEFM "abc",94,96,"ABC",127')
 
         sublengths = [(3, 'c'), (2, 'n'), (3, 'c'), (1, 'n')]
         instructions = disassembler.defm_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0][1], 'DEFM "abc",94,96,"ABC",127')
+        self.assertEqual(instructions[0].operation, 'DEFM "abc",94,96,"ABC",127')
 
         sublengths = [(3, 'c'), (2, 'n'), (3, 'c'), (1, 'h')]
         instructions = disassembler.defm_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0][1], 'DEFM "abc",94,96,"ABC",$7F')
+        self.assertEqual(instructions[0].operation, 'DEFM "abc",94,96,"ABC",$7F')
 
     def test_defm_with_escaped_characters(self):
         snapshot = self._get_snapshot(30000, (34, 72, 101, 108, 108, 111, 34, 67, 58, 92, 84, 69, 77, 80))
         disassembler = self._get_disassembler(snapshot)
 
         instruction = disassembler.defm_range(30000, 30007, ((0, 'c'),))[0]
-        self.assertEqual(instruction[1], r'DEFM "\"Hello\""')
+        self.assertEqual(instruction.operation, r'DEFM "\"Hello\""')
 
         instruction = disassembler.defm_range(30007, 30014, ((0, 'c'),))[0]
-        self.assertEqual(instruction[1], r'DEFM "C:\\TEMP"')
+        self.assertEqual(instruction.operation, r'DEFM "C:\\TEMP"')
 
     def test_defw_range(self):
         start = 32768
@@ -2557,18 +2571,18 @@ class DisassemblerTest(SkoolKitTestCase):
         for address in range(start, start + len(data), 2):
             defw = instructions[i]
             defw_data = data[i * 2:i * 2 + 2]
-            self.assertEqual(defw[0], address)
-            self.assertEqual(defw[1], 'DEFW {}'.format(defw_data[0] + 256 * defw_data[1]))
-            self.assertEqual(defw[2], defw_data)
+            self.assertEqual(defw.address, address)
+            self.assertEqual(defw.operation, 'DEFW {}'.format(defw_data[0] + 256 * defw_data[1]))
+            self.assertEqual(defw.data, defw_data)
             i += 1
 
         sublengths = ((8, 'n'),)
         instructions = disassembler.defw_range(start, start + len(data), sublengths)
         self.assertEqual(len(instructions), 1)
         defw = instructions[0]
-        self.assertEqual(defw[0], start)
-        self.assertEqual(defw[1], 'DEFW 1,257,514,65283')
-        self.assertEqual(defw[2], data)
+        self.assertEqual(defw.address, start)
+        self.assertEqual(defw.operation, 'DEFW 1,257,514,65283')
+        self.assertEqual(defw.data, data)
 
     def test_defw_range_with_custom_defw_size(self):
         snapshot = self._get_snapshot(30000, [1, 0, 1, 1, 2, 2])
@@ -2578,13 +2592,18 @@ class DisassemblerTest(SkoolKitTestCase):
             (30004, 'DEFW 514', [2, 2])
         ]
         instructions = disassembler.defw_range(30000, 30006, ((0, 'n'),))
-        self.assertEqual(exp_instructions, instructions)
+        for i, (exp_addr, exp_op, exp_data) in enumerate(exp_instructions):
+            self.assertEqual(instructions[i].address, exp_addr)
+            self.assertEqual(instructions[i].operation, exp_op)
+            self.assertEqual(exp_data, instructions[i].data)
 
     def test_defw_range_at_64k_boundary(self):
         snapshot = self._get_snapshot(65535, [1])
         disassembler = self._get_disassembler(snapshot)
         instructions = disassembler.defw_range(65535, 65536, ((0, 'n'),))
-        self.assertEqual([(65535, 'DEFB 1', [1])], instructions)
+        self.assertEqual(instructions[0].address, 65535)
+        self.assertEqual(instructions[0].operation, 'DEFB 1')
+        self.assertEqual([1], instructions[0].data)
 
     def test_defw_range_with_custom_defw_size_at_64k_boundary(self):
         snapshot = self._get_snapshot(65529, [1, 0, 1, 1, 2, 2, 3])
@@ -2595,15 +2614,22 @@ class DisassemblerTest(SkoolKitTestCase):
             (65535, 'DEFB 3', [3])
         ]
         instructions = disassembler.defw_range(65529, 65536, ((0, 'n'),))
-        self.assertEqual(exp_instructions, instructions)
+        for i, (exp_addr, exp_op, exp_data) in enumerate(exp_instructions):
+            self.assertEqual(instructions[i].address, exp_addr)
+            self.assertEqual(instructions[i].operation, exp_op)
+            self.assertEqual(exp_data, instructions[i].data)
 
     def test_imaker(self):
+        class Inst:
+            def __init__(self, op):
+                self.op = op
+                self.variant = 0
         snapshot = [175] # 00000 XOR A
-        imaker = lambda addr, op, data: op
+        imaker = lambda addr, op, data: Inst(op)
         disassembler = self._get_disassembler(snapshot, imaker=imaker)
         instructions = disassembler.disassemble(0, 1, 'n')
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0], 'XOR A')
+        self.assertEqual(instructions[0].op, 'XOR A')
 
     def test_lower_case_conversion(self):
         snapshot = [
@@ -2630,8 +2656,8 @@ class DisassemblerTest(SkoolKitTestCase):
         instructions = disassembler.disassemble(0, 18, 'n')
         self.assertEqual(len(instructions), len(exp_instructions))
         for instruction, (address, operation) in zip(instructions, exp_instructions):
-            self.assertEqual(instruction[0], address)
-            self.assertEqual(instruction[1], operation)
+            self.assertEqual(instruction.address, address)
+            self.assertEqual(instruction.operation, operation)
 
     def test_lower_case_conversion_with_character_operands(self):
         snapshot = [
@@ -2650,8 +2676,8 @@ class DisassemblerTest(SkoolKitTestCase):
         instructions = disassembler.disassemble(0, 12, 'c')
         self.assertEqual(len(instructions), len(exp_instructions))
         for instruction, (address, operation) in zip(instructions, exp_instructions):
-            self.assertEqual(instruction[0], address)
-            self.assertEqual(instruction[1], operation)
+            self.assertEqual(instruction.address, address)
+            self.assertEqual(instruction.operation, operation)
 
     def test_lower_case_conversion_of_defb_statement(self):
         snapshot = [65, 255]
@@ -2659,7 +2685,7 @@ class DisassemblerTest(SkoolKitTestCase):
         sublengths = ((1, 'c'), (1, 'h'))
         instructions = disassembler.defb_range(0, 2, sublengths)
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0][1], 'defb "A",$ff')
+        self.assertEqual(instructions[0].operation, 'defb "A",$ff')
 
     def test_lower_case_conversion_of_defm_statement(self):
         snapshot = [34, 65, 34, 255]
@@ -2667,7 +2693,7 @@ class DisassemblerTest(SkoolKitTestCase):
         sublengths = ((3, 'c'), (1, 'h'))
         instructions = disassembler.defm_range(0, 4, sublengths)
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0][1], r'defm "\"A\"",$ff')
+        self.assertEqual(instructions[0].operation, r'defm "\"A\"",$ff')
 
     def test_lower_case_conversion_of_defm_statement_no_sublengths(self):
         snapshot = [65, 66]
@@ -2675,7 +2701,7 @@ class DisassemblerTest(SkoolKitTestCase):
         sublengths = ((0, 'c'),)
         instructions = disassembler.defm_range(0, 2, sublengths)
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0][1], 'defm "AB"')
+        self.assertEqual(instructions[0].operation, 'defm "AB"')
 
     def test_lower_case_conversion_of_defs_statement(self):
         snapshot = [15] * 10
@@ -2683,7 +2709,7 @@ class DisassemblerTest(SkoolKitTestCase):
         sublengths = ((0, 'h'), (0, 'h'))
         instructions = disassembler.defs_range(0, 10, sublengths)
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0][1], 'defs $0a,$0f')
+        self.assertEqual(instructions[0].operation, 'defs $0a,$0f')
 
     def test_lower_case_conversion_of_defw_statement(self):
         snapshot = [255, 255]
@@ -2691,7 +2717,7 @@ class DisassemblerTest(SkoolKitTestCase):
         sublengths = ((0, 'h'),)
         instructions = disassembler.defw_range(0, 2, sublengths)
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0][1], 'defw $ffff')
+        self.assertEqual(instructions[0].operation, 'defw $ffff')
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_operand_formatter(self):
@@ -2711,13 +2737,19 @@ class DisassemblerTest(SkoolKitTestCase):
         disassembler = self._get_disassembler(snapshot)
 
         instructions = disassembler.defb_range(0, 2, ((0, 'n'),))
-        self.assertEqual([(0, 'DEFB @101,@102', [65, 66])], instructions)
+        self.assertEqual(instructions[0].address, 0)
+        self.assertEqual(instructions[0].operation, 'DEFB @101,@102')
+        self.assertEqual([65, 66], instructions[0].data)
 
         instructions = disassembler.defw_range(0, 2, ((0, 'n'),))
-        self.assertEqual([(0, 'DEFW 4241h', [65, 66])], instructions)
+        self.assertEqual(instructions[0].address, 0)
+        self.assertEqual(instructions[0].operation, 'DEFW 4241h')
+        self.assertEqual([65, 66], instructions[0].data)
 
         instructions = disassembler.defm_range(0, 2, ((0, 'c'),))
-        self.assertEqual([(0, 'DEFM "A",@102', [65, 66])], instructions)
+        self.assertEqual(instructions[0].address, 0)
+        self.assertEqual(instructions[0].operation, 'DEFM "A",@102')
+        self.assertEqual([65, 66], instructions[0].data)
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_operand_formatter_api(self):
@@ -2743,7 +2775,11 @@ class DisassemblerTest(SkoolKitTestCase):
         disassembler = self._get_disassembler(snapshot, asm_hex=True)
 
         instructions = disassembler.defw_range(0, 2, ((0, 'h'),))
-        self.assertEqual([(0, 'DEFW 0', [65, 66])], instructions)
+        self.assertEqual(instructions[0].address, 0)
+        self.assertEqual(instructions[0].operation, 'DEFW 0')
+        self.assertEqual([65, 66], instructions[0].data)
 
         instructions = disassembler.defm_range(0, 1, ((0, 'c'),))
-        self.assertEqual([(0, "DEFM 'A'", [65])], instructions)
+        self.assertEqual(instructions[0].address, 0)
+        self.assertEqual(instructions[0].operation, "DEFM 'A'")
+        self.assertEqual([65], instructions[0].data)

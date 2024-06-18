@@ -18,6 +18,8 @@
 from skoolkit.components import get_component
 from skoolkit.ctlparser import DEFAULT_BASE
 
+VARIANT = 1
+
 class OperandFormatter:
     """Initialise the operand formatter.
 
@@ -138,33 +140,33 @@ class Disassembler:
             opcodes = 'ED63,ED6B,ED70,ED71,IM,NEG,RETN,XYCB'.split(',')
         for opcode in opcodes:
             if opcode == 'ED63':
-                self.after_ED[0x63] = (self.word_arg, 'LD ({}),HL')
+                self.after_ED[0x63] = (self.word_arg, 'LD ({}),HL', VARIANT)
             elif opcode == 'ED6B':
-                self.after_ED[0x6B] = (self.word_arg, 'LD HL,({})')
+                self.after_ED[0x6B] = (self.word_arg, 'LD HL,({})', VARIANT)
             elif opcode == 'ED70':
-                self.after_ED[0x70] = (self.no_arg, 'IN F,(C)')
+                self.after_ED[0x70] = (self.no_arg, 'IN F,(C)', 0)
             elif opcode == 'ED71':
-                self.after_ED[0x71] = (self.no_arg, 'OUT (C),0')
+                self.after_ED[0x71] = (self.no_arg, 'OUT (C),0', 0)
             elif opcode == 'IM':
-                self.after_ED[0x4E] = (self.no_arg, 'IM 0')
-                self.after_ED[0x66] = (self.no_arg, 'IM 0')
-                self.after_ED[0x6E] = (self.no_arg, 'IM 0')
-                self.after_ED[0x76] = (self.no_arg, 'IM 1')
-                self.after_ED[0x7E] = (self.no_arg, 'IM 2')
+                self.after_ED[0x4E] = (self.no_arg, 'IM 0', VARIANT)
+                self.after_ED[0x66] = (self.no_arg, 'IM 0', VARIANT)
+                self.after_ED[0x6E] = (self.no_arg, 'IM 0', VARIANT)
+                self.after_ED[0x76] = (self.no_arg, 'IM 1', VARIANT)
+                self.after_ED[0x7E] = (self.no_arg, 'IM 2', VARIANT)
             elif opcode == 'NEG':
                 for i in range(0x4C, 0x7D, 8):
-                    self.after_ED[i] = (self.no_arg, 'NEG')
+                    self.after_ED[i] = (self.no_arg, 'NEG', VARIANT)
             elif opcode == 'RETN':
                 for i in range(0x55, 0x7E, 8):
-                    self.after_ED[i] = (self.no_arg, 'RETN')
+                    self.after_ED[i] = (self.no_arg, 'RETN', VARIANT)
             elif opcode == 'XYCB':
                 for b, op in enumerate(('RLC', 'RRC', 'RL', 'RR', 'SLA', 'SRA', 'SLL', 'SRL')):
                     for i, r in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '', 'A')):
                         if r:
-                            self.after_DDCB[0x00 + 8 * b + i] = (self.index, f'{op} (IX{{}}),{r}')
-                            self.after_DDCB[0x40 + 8 * b + i] = (self.index, f'BIT {b},(IX{{}})')
-                            self.after_DDCB[0x80 + 8 * b + i] = (self.index, f'RES {b},(IX{{}}),{r}')
-                            self.after_DDCB[0xC0 + 8 * b + i] = (self.index, f'SET {b},(IX{{}}),{r}')
+                            self.after_DDCB[0x00 + 8 * b + i] = (self.index, f'{op} (IX{{}}),{r}', 0)
+                            self.after_DDCB[0x40 + 8 * b + i] = (self.index, f'BIT {b},(IX{{}})', VARIANT)
+                            self.after_DDCB[0x80 + 8 * b + i] = (self.index, f'RES {b},(IX{{}}),{r}', 0)
+                            self.after_DDCB[0xC0 + 8 * b + i] = (self.index, f'SET {b},(IX{{}}),{r}', 0)
         if config.asm_lower:
             self.defb = self.defb.lower()
             self.defm = self.defm.lower()
@@ -173,8 +175,8 @@ class Disassembler:
             self.ops = {k: (v[0], v[1].lower()) for k, v in self.ops.items()}
             self.after_CB = {k: v.lower() for k, v in self.after_CB.items()}
             self.after_DD = {k: (v[0], v[1].lower()) for k, v in self.after_DD.items()}
-            self.after_ED = {k: (v[0], v[1].lower()) for k, v in self.after_ED.items()}
-            self.after_DDCB = {k: (v[0], v[1].lower()) for k, v in self.after_DDCB.items()}
+            self.after_ED = {k: (v[0], v[1].lower(), v[2]) for k, v in self.after_ED.items()}
+            self.after_DDCB = {k: (v[0], v[1].lower(), v[2]) for k, v in self.after_DDCB.items()}
 
     # Component API
     def disassemble(self, start, end, base):
@@ -191,17 +193,20 @@ class Disassembler:
         instructions = []
         address = start
         while address < end:
+            flags = 0
             decoder, template = self.ops[self.snapshot[address]]
             if template == '':
-                operation, length = decoder(address, base)
+                operation, length, flags = decoder(address, base)
             else:
                 operation, length = decoder(template, address, base)
             if address + length <= 65536:
-                instructions.append(self.imaker(address, operation, self.snapshot[address:address + length]))
+                instruction = self.imaker(address, operation, self.snapshot[address:address + length])
             elif self.wrap:
-                instructions.append(self.imaker(address, operation, self.snapshot[address:65536] + self.snapshot[:(address + length) & 65535]))
+                instruction = self.imaker(address, operation, self.snapshot[address:65536] + self.snapshot[:(address + length) & 65535])
             else:
-                instructions.append(self._defb_line(address, self.snapshot[address:65536]))
+                instruction = self._defb_line(address, self.snapshot[address:65536])
+            instruction.variant = flags & VARIANT
+            instructions.append(instruction)
             address += length
         return instructions
 
@@ -390,37 +395,37 @@ class Disassembler:
         return '-{}'.format(self.op_formatter.format_byte(abs(i - 256), base))
 
     def cb_arg(self, a, base):
-        return self.after_CB[self.snapshot[(a + 1) & 65535]], 2
+        return self.after_CB[self.snapshot[(a + 1) & 65535]], 2, 0
 
     def ed_arg(self, a, base):
-        decoder, template = self.after_ED.get(self.snapshot[(a + 1) & 65535], (None, None))
+        decoder, template, flags = self.after_ED.get(self.snapshot[(a + 1) & 65535], (None, None, None))
         if template:
             operation, length = decoder(template, a + 1, base)
-            return operation, length + 1
+            return operation, length + 1, flags
         if decoder:
-            return decoder(a, base)
-        return self._defb(a, 2)
+            return decoder(a, base) + (flags,)
+        return self._defb(a, 2) + (0,)
 
     def dd_arg(self, a, base):
         decoder, template = self.after_DD.get(self.snapshot[(a + 1) & 65535], (None, None))
         if template:
             operation, length = decoder(template, a + 1, base)
-            return operation, length + 1
+            return operation, length + 1, 0
         if decoder:
             return decoder(a, base)
         # The instruction is unchanged by the DD prefix
-        return self._defb(a, 1)
+        return self._defb(a, 1) + (0,)
 
     def fd_arg(self, a, base):
-        operation, length = self.dd_arg(a, base)
-        return operation.replace('IX', 'IY').replace('ix', 'iy'), length
+        operation, length, flags = self.dd_arg(a, base)
+        return operation.replace('IX', 'IY').replace('ix', 'iy'), length, flags
 
     def ddcb_arg(self, a, base):
-        decoder, template = self.after_DDCB.get(self.snapshot[(a + 3) & 65535], (None, None))
+        decoder, template, flags = self.after_DDCB.get(self.snapshot[(a + 3) & 65535], (None, None, None))
         if template:
             operation = decoder(template, a + 1, base)[0]
-            return operation, 4
-        return self._defb(a, 4)
+            return operation, 4, flags
+        return self._defb(a, 4) + (0,)
 
     def create_opcodes(self):
         self.ops = {
@@ -1031,101 +1036,101 @@ class Disassembler:
         }
 
         self.after_ED = {
-            0x40: (self.no_arg, 'IN B,(C)'),
-            0x41: (self.no_arg, 'OUT (C),B'),
-            0x42: (self.no_arg, 'SBC HL,BC'),
-            0x43: (self.word_arg, 'LD ({}),BC'),
-            0x44: (self.no_arg, 'NEG'),
-            0x45: (self.no_arg, 'RETN'),
-            0x46: (self.no_arg, 'IM 0'),
-            0x47: (self.no_arg, 'LD I,A'),
-            0x48: (self.no_arg, 'IN C,(C)'),
-            0x49: (self.no_arg, 'OUT (C),C'),
-            0x4A: (self.no_arg, 'ADC HL,BC'),
-            0x4B: (self.word_arg, 'LD BC,({})'),
-            0x4D: (self.no_arg, 'RETI'),
-            0x4F: (self.no_arg, 'LD R,A'),
-            0x50: (self.no_arg, 'IN D,(C)'),
-            0x51: (self.no_arg, 'OUT (C),D'),
-            0x52: (self.no_arg, 'SBC HL,DE'),
-            0x53: (self.word_arg, 'LD ({}),DE'),
-            0x56: (self.no_arg, 'IM 1'),
-            0x57: (self.no_arg, 'LD A,I'),
-            0x58: (self.no_arg, 'IN E,(C)'),
-            0x59: (self.no_arg, 'OUT (C),E'),
-            0x5A: (self.no_arg, 'ADC HL,DE'),
-            0x5B: (self.word_arg, 'LD DE,({})'),
-            0x5E: (self.no_arg, 'IM 2'),
-            0x5F: (self.no_arg, 'LD A,R'),
-            0x60: (self.no_arg, 'IN H,(C)'),
-            0x61: (self.no_arg, 'OUT (C),H'),
-            0x62: (self.no_arg, 'SBC HL,HL'),
+            0x40: (self.no_arg, 'IN B,(C)', 0),
+            0x41: (self.no_arg, 'OUT (C),B', 0),
+            0x42: (self.no_arg, 'SBC HL,BC', 0),
+            0x43: (self.word_arg, 'LD ({}),BC', 0),
+            0x44: (self.no_arg, 'NEG', 0),
+            0x45: (self.no_arg, 'RETN', 0),
+            0x46: (self.no_arg, 'IM 0', 0),
+            0x47: (self.no_arg, 'LD I,A', 0),
+            0x48: (self.no_arg, 'IN C,(C)', 0),
+            0x49: (self.no_arg, 'OUT (C),C', 0),
+            0x4A: (self.no_arg, 'ADC HL,BC', 0),
+            0x4B: (self.word_arg, 'LD BC,({})', 0),
+            0x4D: (self.no_arg, 'RETI', 0),
+            0x4F: (self.no_arg, 'LD R,A', 0),
+            0x50: (self.no_arg, 'IN D,(C)', 0),
+            0x51: (self.no_arg, 'OUT (C),D', 0),
+            0x52: (self.no_arg, 'SBC HL,DE', 0),
+            0x53: (self.word_arg, 'LD ({}),DE', 0),
+            0x56: (self.no_arg, 'IM 1', 0),
+            0x57: (self.no_arg, 'LD A,I', 0),
+            0x58: (self.no_arg, 'IN E,(C)', 0),
+            0x59: (self.no_arg, 'OUT (C),E', 0),
+            0x5A: (self.no_arg, 'ADC HL,DE', 0),
+            0x5B: (self.word_arg, 'LD DE,({})', 0),
+            0x5E: (self.no_arg, 'IM 2', 0),
+            0x5F: (self.no_arg, 'LD A,R', 0),
+            0x60: (self.no_arg, 'IN H,(C)', 0),
+            0x61: (self.no_arg, 'OUT (C),H', 0),
+            0x62: (self.no_arg, 'SBC HL,HL', 0),
             # ED63 is 'LD (nn),HL', but if we disassemble to that, it won't
             # assemble back to the same bytes
-            0x63: (self.defb4, ''),
-            0x67: (self.no_arg, 'RRD'),
-            0x68: (self.no_arg, 'IN L,(C)'),
-            0x69: (self.no_arg, 'OUT (C),L'),
-            0x6A: (self.no_arg, 'ADC HL,HL'),
+            0x63: (self.defb4, '', 0),
+            0x67: (self.no_arg, 'RRD', 0),
+            0x68: (self.no_arg, 'IN L,(C)', 0),
+            0x69: (self.no_arg, 'OUT (C),L', 0),
+            0x6A: (self.no_arg, 'ADC HL,HL', 0),
             # ED6B is 'LD HL,(nn)', but if we disassemble to that, it won't
             # assemble back to the same bytes
-            0x6B: (self.defb4, ''),
-            0x6F: (self.no_arg, 'RLD'),
-            0x72: (self.no_arg, 'SBC HL,SP'),
-            0x73: (self.word_arg, 'LD ({}),SP'),
-            0x78: (self.no_arg, 'IN A,(C)'),
-            0x79: (self.no_arg, 'OUT (C),A'),
-            0x7A: (self.no_arg, 'ADC HL,SP'),
-            0x7B: (self.word_arg, 'LD SP,({})'),
-            0xA0: (self.no_arg, 'LDI'),
-            0xA1: (self.no_arg, 'CPI'),
-            0xA2: (self.no_arg, 'INI'),
-            0xA3: (self.no_arg, 'OUTI'),
-            0xA8: (self.no_arg, 'LDD'),
-            0xA9: (self.no_arg, 'CPD'),
-            0xAA: (self.no_arg, 'IND'),
-            0xAB: (self.no_arg, 'OUTD'),
-            0xB0: (self.no_arg, 'LDIR'),
-            0xB1: (self.no_arg, 'CPIR'),
-            0xB2: (self.no_arg, 'INIR'),
-            0xB3: (self.no_arg, 'OTIR'),
-            0xB8: (self.no_arg, 'LDDR'),
-            0xB9: (self.no_arg, 'CPDR'),
-            0xBA: (self.no_arg, 'INDR'),
-            0xBB: (self.no_arg, 'OTDR')
+            0x6B: (self.defb4, '', 0),
+            0x6F: (self.no_arg, 'RLD', 0),
+            0x72: (self.no_arg, 'SBC HL,SP', 0),
+            0x73: (self.word_arg, 'LD ({}),SP', 0),
+            0x78: (self.no_arg, 'IN A,(C)', 0),
+            0x79: (self.no_arg, 'OUT (C),A', 0),
+            0x7A: (self.no_arg, 'ADC HL,SP', 0),
+            0x7B: (self.word_arg, 'LD SP,({})', 0),
+            0xA0: (self.no_arg, 'LDI', 0),
+            0xA1: (self.no_arg, 'CPI', 0),
+            0xA2: (self.no_arg, 'INI', 0),
+            0xA3: (self.no_arg, 'OUTI', 0),
+            0xA8: (self.no_arg, 'LDD', 0),
+            0xA9: (self.no_arg, 'CPD', 0),
+            0xAA: (self.no_arg, 'IND', 0),
+            0xAB: (self.no_arg, 'OUTD', 0),
+            0xB0: (self.no_arg, 'LDIR', 0),
+            0xB1: (self.no_arg, 'CPIR', 0),
+            0xB2: (self.no_arg, 'INIR', 0),
+            0xB3: (self.no_arg, 'OTIR', 0),
+            0xB8: (self.no_arg, 'LDDR', 0),
+            0xB9: (self.no_arg, 'CPDR', 0),
+            0xBA: (self.no_arg, 'INDR', 0),
+            0xBB: (self.no_arg, 'OTDR', 0)
         }
 
         self.after_DDCB = {
-            0x06: (self.index, 'RLC (IX{})'),
-            0x0E: (self.index, 'RRC (IX{})'),
-            0x16: (self.index, 'RL (IX{})'),
-            0x1E: (self.index, 'RR (IX{})'),
-            0x26: (self.index, 'SLA (IX{})'),
-            0x2E: (self.index, 'SRA (IX{})'),
-            0x36: (self.index, 'SLL (IX{})'),
-            0x3E: (self.index, 'SRL (IX{})'),
-            0x46: (self.index, 'BIT 0,(IX{})'),
-            0x4E: (self.index, 'BIT 1,(IX{})'),
-            0x56: (self.index, 'BIT 2,(IX{})'),
-            0x5E: (self.index, 'BIT 3,(IX{})'),
-            0x66: (self.index, 'BIT 4,(IX{})'),
-            0x6E: (self.index, 'BIT 5,(IX{})'),
-            0x76: (self.index, 'BIT 6,(IX{})'),
-            0x7E: (self.index, 'BIT 7,(IX{})'),
-            0x86: (self.index, 'RES 0,(IX{})'),
-            0x8E: (self.index, 'RES 1,(IX{})'),
-            0x96: (self.index, 'RES 2,(IX{})'),
-            0x9E: (self.index, 'RES 3,(IX{})'),
-            0xA6: (self.index, 'RES 4,(IX{})'),
-            0xAE: (self.index, 'RES 5,(IX{})'),
-            0xB6: (self.index, 'RES 6,(IX{})'),
-            0xBE: (self.index, 'RES 7,(IX{})'),
-            0xC6: (self.index, 'SET 0,(IX{})'),
-            0xCE: (self.index, 'SET 1,(IX{})'),
-            0xD6: (self.index, 'SET 2,(IX{})'),
-            0xDE: (self.index, 'SET 3,(IX{})'),
-            0xE6: (self.index, 'SET 4,(IX{})'),
-            0xEE: (self.index, 'SET 5,(IX{})'),
-            0xF6: (self.index, 'SET 6,(IX{})'),
-            0xFE: (self.index, 'SET 7,(IX{})')
+            0x06: (self.index, 'RLC (IX{})', 0),
+            0x0E: (self.index, 'RRC (IX{})', 0),
+            0x16: (self.index, 'RL (IX{})', 0),
+            0x1E: (self.index, 'RR (IX{})', 0),
+            0x26: (self.index, 'SLA (IX{})', 0),
+            0x2E: (self.index, 'SRA (IX{})', 0),
+            0x36: (self.index, 'SLL (IX{})', 0),
+            0x3E: (self.index, 'SRL (IX{})', 0),
+            0x46: (self.index, 'BIT 0,(IX{})', 0),
+            0x4E: (self.index, 'BIT 1,(IX{})', 0),
+            0x56: (self.index, 'BIT 2,(IX{})', 0),
+            0x5E: (self.index, 'BIT 3,(IX{})', 0),
+            0x66: (self.index, 'BIT 4,(IX{})', 0),
+            0x6E: (self.index, 'BIT 5,(IX{})', 0),
+            0x76: (self.index, 'BIT 6,(IX{})', 0),
+            0x7E: (self.index, 'BIT 7,(IX{})', 0),
+            0x86: (self.index, 'RES 0,(IX{})', 0),
+            0x8E: (self.index, 'RES 1,(IX{})', 0),
+            0x96: (self.index, 'RES 2,(IX{})', 0),
+            0x9E: (self.index, 'RES 3,(IX{})', 0),
+            0xA6: (self.index, 'RES 4,(IX{})', 0),
+            0xAE: (self.index, 'RES 5,(IX{})', 0),
+            0xB6: (self.index, 'RES 6,(IX{})', 0),
+            0xBE: (self.index, 'RES 7,(IX{})', 0),
+            0xC6: (self.index, 'SET 0,(IX{})', 0),
+            0xCE: (self.index, 'SET 1,(IX{})', 0),
+            0xD6: (self.index, 'SET 2,(IX{})', 0),
+            0xDE: (self.index, 'SET 3,(IX{})', 0),
+            0xE6: (self.index, 'SET 4,(IX{})', 0),
+            0xEE: (self.index, 'SET 5,(IX{})', 0),
+            0xF6: (self.index, 'SET 6,(IX{})', 0),
+            0xFE: (self.index, 'SET 7,(IX{})', 0)
         }

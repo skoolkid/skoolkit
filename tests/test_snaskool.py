@@ -3458,12 +3458,19 @@ class SkoolWriterTest(SkoolKitTestCase):
              00002 OUT (C),0      ;
              00004 SRL (IX+0),A   ;
              00008 RES 0,(IY+0),B ;
+            @bytes=237,124
              00012 NEG            ;
+            @bytes=237,125
              00014 RETN           ;
+            @bytes=237,102
              00016 IM 0           ;
+            @bytes=237,118
              00018 IM 1           ;
+            @bytes=237,126
              00020 IM 2           ;
+            @bytes=237,99,1,128
              00022 LD (32769),HL  ;
+            @bytes=237,107,1,192
              00026 LD HL,(49153)  ;
         """
         self._test_write_skool(snapshot, ctl, exp_skool, params={'Opcodes': 'ED63,ED6B,ED70,ED71,IM,NEG,RETN,XYCB'})
@@ -3492,15 +3499,173 @@ class SkoolWriterTest(SkoolKitTestCase):
              00002 OUT (C),0      ;
              00004 RLC (IX+0),B   ;
              00008 SET 7,(IY+0),A ;
+            @bytes=237,84
              00012 NEG            ;
+            @bytes=237,85
              00014 RETN           ;
+            @bytes=237,110
              00016 IM 0           ;
+            @bytes=237,118
              00018 IM 1           ;
+            @bytes=237,126
              00020 IM 2           ;
+            @bytes=237,99,0,128
              00022 LD (32768),HL  ;
+            @bytes=237,107,0,192
              00026 LD HL,(49152)  ;
         """
         self._test_write_skool(snapshot, ctl, exp_skool, params={'Opcodes': 'ALL'})
+
+    def test_opcodes_hex_upper(self):
+        snapshot = [
+            0xED, 0x70,             # IN F,(C)
+            0xED, 0x71,             # OUT (C),0
+            0xDD, 0xCB, 0x00, 0x00, # RLC (IX+0),B
+            0xFD, 0xCB, 0x00, 0xFF, # SET 7,(IY+0),A
+            0xED, 0x54,             # NEG
+            0xED, 0x55,             # RETN
+            0xED, 0x6E,             # IM 0
+            0xED, 0x76,             # IM 1
+            0xED, 0x7E,             # IM 2
+            0xED, 0x63, 0x00, 0x80, # LD ($8000),HL
+            0xED, 0x6B, 0x00, 0xC0, # LD HL,($C000)
+        ]
+        ctl = """
+            c 00000
+            i 00030
+        """
+        exp_skool = """
+            ; Routine at 0000
+            c$0000 IN F,(C)         ;
+             $0002 OUT (C),0        ;
+             $0004 RLC (IX+$00),B   ;
+             $0008 SET 7,(IY+$00),A ;
+            @bytes=$ED,$54
+             $000C NEG              ;
+            @bytes=$ED,$55
+             $000E RETN             ;
+            @bytes=$ED,$6E
+             $0010 IM 0             ;
+            @bytes=$ED,$76
+             $0012 IM 1             ;
+            @bytes=$ED,$7E
+             $0014 IM 2             ;
+            @bytes=$ED,$63,$00,$80
+             $0016 LD ($8000),HL    ;
+            @bytes=$ED,$6B,$00,$C0
+             $001A LD HL,($C000)    ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, base=16, params={'Opcodes': 'ALL'})
+
+    def test_opcodes_hex_lower(self):
+        snapshot = [
+            0xED, 0x70,             # IN F,(C)
+            0xED, 0x71,             # OUT (C),0
+            0xDD, 0xCB, 0x00, 0x00, # RLC (IX+0),B
+            0xFD, 0xCB, 0x00, 0xFF, # SET 7,(IY+0),A
+            0xED, 0x54,             # NEG
+            0xED, 0x55,             # RETN
+            0xED, 0x6E,             # IM 0
+            0xED, 0x76,             # IM 1
+            0xED, 0x7E,             # IM 2
+            0xED, 0x63, 0x00, 0x80, # LD ($8000),HL
+            0xED, 0x6B, 0x00, 0xC0, # LD HL,($C000)
+        ]
+        ctl = """
+            c 00000
+            i 00030
+        """
+        exp_skool = """
+            ; Routine at 0000
+            c$0000 in f,(c)         ;
+             $0002 out (c),0        ;
+             $0004 rlc (ix+$00),b   ;
+             $0008 set 7,(iy+$00),a ;
+            @bytes=$ed,$54
+             $000c neg              ;
+            @bytes=$ed,$55
+             $000e retn             ;
+            @bytes=$ed,$6e
+             $0010 im 0             ;
+            @bytes=$ed,$76
+             $0012 im 1             ;
+            @bytes=$ed,$7e
+             $0014 im 2             ;
+            @bytes=$ed,$63,$00,$80
+             $0016 ld ($8000),hl    ;
+            @bytes=$ed,$6b,$00,$c0
+             $001a ld hl,($c000)    ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, base=16, case=1, params={'Opcodes': 'ALL'})
+
+    def test_opcodes_keeps_existing_bytes_directives(self):
+        snapshot = [
+            0xED, 0x70,             # IN F,(C)
+            0xED, 0x71,             # OUT (C),0
+            0xDD, 0xCB, 0x00, 0x00, # RLC (IX+0),B
+            0xFD, 0xCB, 0x00, 0xFF, # SET 7,(IY+0),A
+            0xED, 0x54,             # NEG
+            0xED, 0x55,             # RETN
+            0xED, 0x6E,             # IM 0
+            0xED, 0x76,             # IM 1
+            0xED, 0x7E,             # IM 2
+            0xED, 0x63, 0x00, 0x80, # LD (32768),HL
+            0xED, 0x6B, 0x00, 0xC0, # LD HL,(49152)
+        ]
+        ctl = """
+            c 00000
+            @ 00012 bytes=$ED,$54
+            @ 00016 bytes=$ED,$6E
+            @ 00020 bytes=$ED,$7E
+            @ 00026 bytes=$ed,$6b,$00,$c0
+            i 00030
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 IN F,(C)       ;
+             00002 OUT (C),0      ;
+             00004 RLC (IX+0),B   ;
+             00008 SET 7,(IY+0),A ;
+            @bytes=$ED,$54
+             00012 NEG            ;
+            @bytes=237,85
+             00014 RETN           ;
+            @bytes=$ED,$6E
+             00016 IM 0           ;
+            @bytes=237,118
+             00018 IM 1           ;
+            @bytes=$ED,$7E
+             00020 IM 2           ;
+            @bytes=237,99,0,128
+             00022 LD (32768),HL  ;
+            @bytes=$ed,$6b,$00,$c0
+             00026 LD HL,(49152)  ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Opcodes': 'ALL'})
+
+    def test_opcodes_appends_bytes_directive_to_existing_asm_directives(self):
+        snapshot = [
+            0xED, 0x7C,             # NEG
+            0xDD, 0xCB, 0x00, 0x40, # BIT 0,(IX+0)
+        ]
+        ctl = """
+            c 00000
+            @ 00000 keep
+            @ 00002 label=CHECKBIT
+            @ 00002 rem=variant
+            i 00006
+        """
+        exp_skool = """
+            ; Routine at 0
+            @keep
+            @bytes=237,124
+            c00000 NEG           ;
+            @label=CHECKBIT
+            @rem=variant
+            @bytes=221,203,0,64
+             00002 BIT 0,(IX+0)  ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Opcodes': 'NEG,XYCB'})
 
     def test_semicolons_bcgi(self):
         snapshot = [0, 201, 0, 0, 0, 65, 0, 0, 0]

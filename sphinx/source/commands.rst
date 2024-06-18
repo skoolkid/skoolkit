@@ -1153,16 +1153,38 @@ values:
 * ``IM`` - IM 0/1/2 variants (ED followed by 4E/66/6E/76/7E)
 * ``NEG`` - NEG variants (ED followed by 4C/54/5C/64/6C/74/7C)
 * ``RETN`` - RETN variants (ED followed by 55/5D/65/6D/75/7D)
-* ``XYCB`` - undocumented instructions with DDCB or FDCB opcode prefixes
+* ``XYCB`` - undocumented instructions with DDCB or FDCB opcode prefixes (see
+  below)
 * ``ALL`` - all of the above
 
-Note that if your skool file contains any non-standard instructions (such as
-'IN F,(C)') or instructions that derive from non-standard opcode sequences
-(such as 'BIT 0,(IX+0)' from DDCB0040 instead of the standard DDCB0046), care
-must be taken when using an assembler on the output of :ref:`skool2asm.py` to
-ensure that instructions not only assemble successfully, but also assemble back
-to the original byte values, if desired. The :ref:`isub` directive may be used
-for this purpose; for example::
+When ``XYCB`` is in the list, the following instructions are disassembled
+(where 'XY' is IX or IY, and 'r' is B, C, D, E, H, L or A):
+
+* RLC (XY+d),r
+* RRC (XY+d),r
+* RL (XY+d),r
+* RR (XY+d),r
+* SLA (XY+d),r
+* SRA (XY+d),r
+* SLL (XY+d),r
+* SRL (XY+d),r
+* BIT n,(XY+d) (variants)
+* RES n,(XY+d),r
+* SET n,(XY+d),r
+
+Whenever an instruction with a variant opcode sequence is disassembled,
+`sna2skool.py` will insert a :ref:`bytes` directive into the skool file (if one
+is not already provided by a control file) to ensure that the instruction
+assembles back to the same byte values when processed by :ref:`skool2asm.py`,
+:ref:`skool2html.py` or :ref:`skool2bin.py`.
+
+Also note that if your skool file contains any non-standard instructions (such
+as 'IN F,(C)') or instructions that derive from variant opcode sequences (such
+as 'BIT 0,(IX+0)' from DDCB0040 instead of the standard DDCB0046), care must be
+taken when using an assembler on the output of :ref:`skool2asm.py` to ensure
+that instructions not only assemble successfully, but also assemble back to the
+original byte values, if desired. The :ref:`isub` directive may be used for
+this purpose; for example::
 
   @isub=DEFB 221,203,0,64 ; This is BIT 0,(IX+0)
    40000 BIT 0,(IX+0) ; The opcode sequence here is DDCB0040
