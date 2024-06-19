@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -26,6 +26,8 @@ jobs:
       run: nose2 -C --coverage skoolkit --coverage-report xml
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v4
       with:
+        fail_ci_if_error: true
         files: ./coverage.xml
+        token: ${{ secrets.CODECOV_TOKEN }}
