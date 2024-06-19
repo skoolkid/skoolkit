@@ -1224,7 +1224,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(data, snapshot[start:start + len(data)])
 
     def test_tzx_with_unknown_block(self):
-        block_id = 22
+        block_id = 0x29
         block = [block_id, 0]
         tzxfile = self._write_tzx([block])
         with self.assertRaises(SkoolKitError) as cm:
@@ -2038,9 +2038,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(tzxfile)
         self.assertEqual(error, '')
         self.assertEqual(len(load_tracer.blocks), 1)
-        block_id, timings, data = load_tracer.blocks[0]
-        self.assertEqual([], data)
-        self.assertEqual([350, 50, 300, 50, 350, 100], timings.pulses)
+        block = load_tracer.blocks[0]
+        self.assertEqual([], block.data)
+        self.assertEqual([350, 50, 300, 50, 350, 100], block.timings.pulses)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
@@ -2059,9 +2059,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(tzxfile)
         self.assertEqual(error, '')
         self.assertEqual(len(load_tracer.blocks), 1)
-        block_id, timings, data = load_tracer.blocks[0]
-        self.assertEqual([], data)
-        self.assertEqual([0, 10, 130, 10, 70, 20], timings.pulses)
+        block = load_tracer.blocks[0]
+        self.assertEqual([], block.data)
+        self.assertEqual([0, 10, 130, 10, 70, 20], block.timings.pulses)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
@@ -2080,9 +2080,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(tzxfile)
         self.assertEqual(error, '')
         self.assertEqual(len(load_tracer.blocks), 1)
-        block_id, timings, data = load_tracer.blocks[0]
-        self.assertEqual([], data)
-        self.assertEqual([700, 100, 600, 100, 100, 400], timings.pulses)
+        block = load_tracer.blocks[0]
+        self.assertEqual([], block.data)
+        self.assertEqual([700, 100, 600, 100, 100, 400], block.timings.pulses)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
@@ -2105,6 +2105,34 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         load_cmd = [239, 34, 34, 13] # LOAD "" ENTER
         self.assertEqual(load_cmd, list(load_tracer.simulator.memory[23756:23760]))
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_sim_load_with_tzx_block_type_0x16(self):
+        block = [
+            22,         # Block ID
+            4, 0, 0, 0, # Block length
+            0, 0, 0, 0, # Contents
+        ]
+        tzxfile = self._write_tzx([block])
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'{tzxfile} out.z80')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: TZX C64 ROM type data (0x16) not supported')
+        self.assertEqual(self.out.getvalue(), '')
+        self.assertEqual(self.err.getvalue(), '')
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_sim_load_with_tzx_block_type_0x17(self):
+        block = [
+            23,         # Block ID
+            4, 0, 0, 0, # Block length
+            0, 0, 0, 0, # Contents
+        ]
+        tzxfile = self._write_tzx([block])
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'{tzxfile} out.z80')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: TZX C64 turbo tape data (0x17) not supported')
+        self.assertEqual(self.out.getvalue(), '')
+        self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x18(self):

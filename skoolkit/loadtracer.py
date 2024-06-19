@@ -59,7 +59,10 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
     if analyse:
         print('T-states    EAR  Description')
 
-    for i, (block_id, timings, data) in enumerate(blocks):
+    for i, block in enumerate(blocks):
+        timings = block.timings
+        data = block.data
+
         # Pilot tone
         if analyse and timings.pilot_len:
             ear = (len(edges) - 1) % 2

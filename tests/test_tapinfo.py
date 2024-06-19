@@ -95,6 +95,29 @@ class TapinfoTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
+    def test_tap_file_with_empty_block(self):
+        tap_data = create_tap_header_block('test_tap02', 32768, 3)
+        tap_data.extend(create_tap_data_block([1, 2, 3]))
+        tap_data.extend((0, 0))
+        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        output, error = self.run_tapinfo(tapfile)
+        self.assertEqual(error, '')
+        exp_output = """
+            1:
+              Type: Header block
+              Bytes: test_tap02
+              CODE: 32768,3
+              Length: 19
+              Data: 0, 3, 116, 101, 115, 116, 95 ... 3, 0, 0, 128, 0, 0, 174
+            2:
+              Type: Data block
+              Length: 5
+              Data: 255, 1, 2, 3, 255
+            3:
+              Length: 0
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
     def test_tap_file_with_extraneous_byte(self):
         data = [1, 2, 4]
         tap_data = create_tap_data_block(data)
@@ -187,7 +210,7 @@ class TapinfoTest(SkoolKitTestCase):
         tzxfile = self._write_tzx([block])
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tapinfo(tzxfile)
-        self.assertEqual(cm.exception.args[0], 'Unknown block ID: 0x{:02X}'.format(block_id))
+        self.assertEqual(cm.exception.args[0], f'Unknown TZX block ID: 0x{block_id:02X}')
 
     def test_tzx_block_0x11(self):
         data = [0, 1, 2]
