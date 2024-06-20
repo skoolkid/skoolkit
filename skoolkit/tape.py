@@ -227,7 +227,7 @@ class Tape:
         self.warnings = warnings
 
 class TapeBlock:
-    def __init__(self, number, tape_data, timings=None, block_data=None, block_id=None, name=None, info=()):
+    def __init__(self, number, tape_data, timings=None, block_data=None, block_id=None, name=None, info=(), standard=True):
         self.number = number
         self.data = tape_data
         self.timings = timings
@@ -235,6 +235,7 @@ class TapeBlock:
         self.block_id = block_id
         self.name = name
         self.info = info
+        self.standard = standard
 
 class TapeBlockTimings:
     def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0, used_bits=8, pulses=(), error=None):
@@ -275,6 +276,94 @@ def _format_text(prefix, data, start, length, dump=False):
             lines.append(f'{indent}  {line}')
     return lines
 
+def _get_pzx_block(data, i, block_num, prev_rom_pilot):
+    # http://zxds.raxoft.cz/docs/pzx.txt
+    block_id = ''.join(chr(b) for b in data[i:i + 4])
+    block_len = get_dword(data, i + 4)
+    tape_data = None
+    standard = False
+    rom_pilot = False
+    info = []
+    if block_id == 'PZXT':
+        name = 'PZX header block'
+        info.append(f'Version: {data[i + 8]}.{data[i + 9]}')
+        pairs = ['Title', '']
+        j = i + 10
+        while j < i + 8 + block_len:
+            b = data[j]
+            if b:
+                pairs[-1] += chr(b)
+            else:
+                if len(pairs) == 2:
+                    info.append(f'{pairs[0]}: {pairs[1]}')
+                    pairs.clear()
+                pairs.append('')
+            j += 1
+        if len(pairs) == 2 and pairs[1]:
+            info.append(f'{pairs[0]}: {pairs[1]}')
+    elif block_id == 'PULS':
+        name = 'Pulse sequence'
+        pulses = []
+        j = i + 8
+        while j < i + 8 + block_len:
+            count = 1
+            duration = get_word(data, j)
+            j += 2
+            if duration > 0x8000:
+                count = duration % 0x8000
+                duration = get_word(data, j)
+                j += 2
+            if duration >= 0x8000:
+                duration = (duration % 0x8000) * 65536 + get_word(data, j)
+                j += 2
+            info.append(f'{count} x {duration} T-states')
+            pulses.append((count, duration))
+        rom_pilot = len(pulses) == 3 and pulses[0] in ((3223, 2168), (8063, 2168)) and pulses[1:] == [(1, 667), (1, 735)]
+    elif block_id == 'DATA':
+        name = 'Data block'
+        count = get_dword(data, i + 8)
+        bits = count % 0x80000000
+        num_bytes = bits // 8
+        used_bits = bits % 8
+        tail = get_word(data, i + 12)
+        p0, p1 = data[i + 14:i + 16]
+        j = i + 16
+        s0 = [get_word(data, k) for k in range(j, j + 2 * p0, 2)]
+        j += 2 * p0
+        s1 = [get_word(data, k) for k in range(j, j + 2 * p1, 2)]
+        j += 2 * p1
+        tape_data = data[j:j + num_bytes + int(used_bits > 0)]
+        standard = prev_rom_pilot and p0 == 2 and p1 == 2 and s0 == [855, 855] and s1 == [1710, 1710]
+        if used_bits:
+            info.append(f'Bits: {bits} ({num_bytes} bytes + {used_bits} bits)')
+        else:
+            info.append(f'Bits: {bits} ({num_bytes} bytes)')
+        info.extend((
+            f'Initial pulse level: {count >> 31}',
+            '0-bit pulse sequence: {} (T-states)'.format(', '.join(str(p) for p in s0)),
+            '1-bit pulse sequence: {} (T-states)'.format(', '.join(str(p) for p in s1)),
+            f'Tail pulse: {tail} T-states'
+        ))
+    elif block_id == 'PAUS':
+        name = 'Pause'
+        duration = get_dword(data, i + 8)
+        info.extend((
+            f'Duration: {duration % 0x80000000} T-states',
+            f'Initial pulse level: {duration >> 31}',
+        ))
+    elif block_id == 'BRWS':
+        name = 'Browse point'
+        info.append(''.join(chr(b) for b in data[i + 8:i + 8 + block_len]))
+    elif block_id == 'STOP':
+        name = 'Stop tape command'
+        flags = get_word(data, i + 8)
+        mode = ('Always', '48K only')[flags & 1]
+        info.append(f'Mode: {mode}')
+    else:
+        name = block_id
+    block = TapeBlock(block_num, tape_data, block_id=block_id, name=name, info=info, standard=standard)
+    return i + 8 + block_len, block, rom_pilot
+
 def _get_tzx_block(data, i, block_num, get_info, get_timings):
     # https://worldofspectrum.net/features/TZXformat.html
     block_id = data[i]
@@ -282,6 +371,7 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
     tape_data = None
     info = []
     timings = None
+    standard = False
     i += 1
     if block_id == 0x10:
         # Standard speed data block
@@ -289,6 +379,7 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
         pause = get_word(data, i)
         length = get_word(data, i + 2)
         tape_data = data[i + 4:i + 4 + length]
+        standard = True
         if get_info:
             info.append(f'Pause: {pause}ms')
         if get_timings and tape_data:
@@ -571,7 +662,7 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
         i += 9
     else:
         raise SkoolKitError(f'Unknown TZX block ID: 0x{block_id:02X}')
-    return i, TapeBlock(block_num, tape_data, timings, block_data, block_id, header, info)
+    return i, TapeBlock(block_num, tape_data, timings, block_data, block_id, header, info, standard)
 
 def hex_dump(data, row_size=16):
     lines = []
@@ -581,6 +672,21 @@ def hex_dump(data, row_size=16):
         values_text = ''.join(get_char(b, '.', '.') for b in values)
         lines.append(f'{index:04X}  {values_hex} {values_text}')
     return lines
+
+def parse_pzx(pzx):
+    if isinstance(pzx, str):
+        pzx = read_bin_file(pzx)
+    if pzx[:4] != b'PZXT':
+        raise SkoolKitError('Not a PZX file')
+    blocks = []
+    block_num = 1
+    rom_pilot = False
+    i = 0
+    while i < len(pzx):
+        i, block, rom_pilot = _get_pzx_block(pzx, i, block_num, rom_pilot)
+        blocks.append(block)
+        block_num += 1
+    return Tape(blocks)
 
 def parse_tap(tap, start=1, stop=0):
     if isinstance(tap, str):

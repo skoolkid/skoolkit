@@ -10,7 +10,7 @@ SYNOPSIS
 
 DESCRIPTION
 ===========
-``tapinfo.py`` shows information on the blocks in a TAP or TZX file.
+``tapinfo.py`` shows information on the blocks in a PZX, TAP or TZX file.
 
 OPTIONS
 =======

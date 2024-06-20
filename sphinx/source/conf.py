@@ -250,7 +250,7 @@ man_pages = [
     ('man/tap2sna.py', 'tap2sna.py',
      'convert a TAP or TZX file into a snapshot file', _authors, 1),
     ('man/tapinfo.py', 'tapinfo.py',
-     'show the blocks in a TAP or TZX file', _authors, 1),
+     'show the blocks in a PZX, TAP or TZX file', _authors, 1),
     ('man/trace.py', 'trace.py',
      'simulate code execution in a 48K or 128K memory snapshot', _authors, 1)
 ]

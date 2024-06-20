@@ -27,6 +27,15 @@ Z80_REGISTERS = {
 def as_dword(num):
     return (num % 256, (num >> 8) % 256, (num >> 16) % 256, (num >> 24) % 256)
 
+def as_word(num):
+    return (num % 256, (num >> 8) % 256)
+
+def as_words(values):
+    data = []
+    for v in values:
+        data.extend(as_word(v))
+    return data
+
 def get_parity(data):
     parity = 0
     for b in data:
@@ -340,6 +349,106 @@ class RZX:
             data.extend(snapshot)
             data.extend(input_recording)
         return data
+
+class PZX:
+    def __init__(self, major=1, minor=0, info=(), null=True):
+        info_bytes = []
+        for key, value in info:
+            if key:
+                info_bytes.extend(ord(c) for c in key)
+                info_bytes.append(0)
+            info_bytes.extend(ord(c) for c in value)
+            info_bytes.append(0)
+        if info_bytes and info_bytes[-1] == 0 and not null:
+            info_bytes.pop()
+        length = 2 + len(info_bytes)
+        self.data = [
+            80, 90, 88, 84,    # PZXT
+            *as_dword(length), # Block length
+            major, minor,      # Version
+            *info_bytes        # Tape info
+        ]
+
+    def _encode_pulses(self, count, duration):
+        if count == 1 and duration < 0x8000:
+            return as_word(duration)
+        if duration < 0x8000:
+            return (*as_word(0x8000 + count), *as_word(duration))
+        return (*as_word(0x8000 + count), *as_word(0x8000 + (duration >> 16)), *as_word(duration % 65536))
+
+    def add_puls(self, standard=1, pulses=(), pulse_data=None):
+        if pulse_data is None:
+            pulse_data = []
+            if pulses:
+                count = 1
+                prev_p = pulses[0]
+                for p in pulses[1:] + [None]:
+                    if p == prev_p:
+                        count += 1
+                    else:
+                        while count > 0:
+                            pulse_data.extend(self._encode_pulses(min(count, 0x7FFF), prev_p))
+                            count -= 0x7FFF
+                        count = 1
+                    prev_p = p
+            else:
+                pulse_data.extend(self._encode_pulses(3223 + 4840 * (standard > 1), 2168))
+                pulse_data.extend(self._encode_pulses(1, 667))
+                pulse_data.extend(self._encode_pulses(1, 735))
+        length = len(pulse_data)
+        self.data.extend((
+            80, 85, 76, 83,    # PULS
+            *as_dword(length), # Block length
+            *pulse_data        # Pulses
+        ))
+
+    def add_data(self, data, s0=(855, 855), s1=(1710, 1710), tail=945, used_bits=0, polarity=0):
+        length = 8 + 2 * (len(s0) + len(s1)) + len(data)
+        bits = 8 * len(data)
+        if used_bits:
+            bits += used_bits - 8
+        bits += polarity * 0x80000000
+        self.data.extend((
+            68, 65, 84, 65,    # DATA
+            *as_dword(length), # Block length
+            *as_dword(bits),   # Polarity and bit count
+            *as_word(tail),    # Tail pulse
+            len(s0),           # p0
+            len(s1),           # p1
+            *as_words(s0),     # s0
+            *as_words(s1),     # s1
+            *data              # Data
+        ))
+
+    def add_paus(self, duration=3500000, polarity=0):
+        value = polarity * 0x80000000 + (duration % 0x80000000)
+        self.data.extend((
+            80, 65, 85, 83,   # PAUS
+            *as_dword(4),     # Block length
+            *as_dword(value)  # Duration
+        ))
+
+    def add_brws(self, text):
+        text_bytes = [ord(c) for c in text]
+        length = len(text)
+        self.data.extend((
+            66, 82, 87, 83,    # BRWS
+            *as_dword(length), # Block length
+            *text_bytes        # Text
+        ))
+
+    def add_stop(self, always=True):
+        flags = int(not always)
+        self.data.extend((
+            83, 84, 79, 80, # STOP
+            *as_dword(2),   # Block length
+            *as_word(flags) # Flags
+        ))
+
+    def add_block(self, name, data):
+        block = [32, 32, 32, 32, *as_dword(len(data)), *data]
+        block[:len(name)] = [ord(c) for c in name[:4]]
+        self.data.extend(block)
 
 class SkoolKitTestCase(TestCase):
     stdout_binary = False

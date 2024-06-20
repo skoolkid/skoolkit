@@ -1,7 +1,7 @@
 from textwrap import dedent
 from unittest.mock import patch
 
-from skoolkittest import (SkoolKitTestCase, create_data_block,
+from skoolkittest import (SkoolKitTestCase, PZX, create_data_block,
                           create_tap_header_block, create_tap_data_block,
                           create_tzx_header_block, create_tzx_data_block)
 from skoolkit import SkoolKitError, tapinfo, get_word, VERSION
@@ -60,6 +60,177 @@ class TapinfoTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tapinfo('unknown.tape')
         self.assertEqual(cm.exception.args[0], 'Unrecognised tape type')
+
+    def test_pzx_file(self):
+        info = (
+            ('', 'Flip Flap'),
+            ('Publisher', 'Software Inc.'),
+            ('Author', 'J. Bloggs'),
+            ('Author', 'J. Doe'),
+            ('Year', '1982'),
+            ('Language', 'Strong'),
+            ('Type', 'Game'),
+            ('Price', '5.99'),
+            ('Protection', 'None'),
+            ('Origin', 'Uncertain'),
+            ('Comment', 'No comment')
+        )
+        pzx = PZX(0, 3, info, False)
+        pzx.add_puls(pulses=[40, 40000, 400000])
+        pzx.add_data([1, 2, 3, 4], s0=(400, 405), s1=(800, 807), tail=1024, used_bits=5, polarity=1)
+        pzx.add_paus(1234567, polarity=1)
+        pzx.add_brws('End of tape')
+        pzx.add_stop(False)
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tapinfo(pzxfile)
+        self.assertEqual(error, '')
+        exp_output = """
+            1: PZX header block
+              Version: 0.3
+              Title: Flip Flap
+              Publisher: Software Inc.
+              Author: J. Bloggs
+              Author: J. Doe
+              Year: 1982
+              Language: Strong
+              Type: Game
+              Price: 5.99
+              Protection: None
+              Origin: Uncertain
+              Comment: No comment
+            2: Pulse sequence
+              1 x 40 T-states
+              1 x 40000 T-states
+              1 x 400000 T-states
+            3: Data block
+              Bits: 29 (3 bytes + 5 bits)
+              Initial pulse level: 1
+              0-bit pulse sequence: 400, 405 (T-states)
+              1-bit pulse sequence: 800, 807 (T-states)
+              Tail pulse: 1024 T-states
+              Length: 4
+              Data: 1, 2, 3, 4
+            4: Pause
+              Duration: 1234567 T-states
+              Initial pulse level: 1
+            5: Browse point
+              End of tape
+            6: Stop tape command
+              Mode: 48K only
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_pzx_with_standard_speed_blocks(self):
+        data0 = create_tap_header_block('test_pzx00', 100, 200, 0)
+        data1 = create_tap_header_block('test_pzx01', length=4, data_type=1)
+        data2 = create_tap_header_block('test_pzx02', length=5, data_type=2)
+        data3 = create_tap_header_block('test_pzx03', 32768, 3, 3)
+        data4 = create_tap_data_block([1, 2, 3])
+        pzx = PZX()
+        for standard, data in ((2, data0), (2, data1), (2, data2), (2, data3), (1, data4)):
+            pzx.add_puls(standard)
+            pzx.add_data(data[2:])
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tapinfo(pzxfile)
+        self.assertEqual(error, '')
+        exp_output = """
+            1: PZX header block
+              Version: 1.0
+            2: Pulse sequence
+              8063 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            3: Data block
+              Bits: 152 (19 bytes)
+              Initial pulse level: 0
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Header block
+              Program: test_pzx00
+              LINE: 100
+              Length: 19
+              Data: 0, 0, 116, 101, 115, 116, 95 ... 200, 0, 100, 0, 200, 0, 95
+            4: Pulse sequence
+              8063 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            5: Data block
+              Bits: 152 (19 bytes)
+              Initial pulse level: 0
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Header block
+              Number array: test_pzx01
+              Length: 19
+              Data: 0, 1, 116, 101, 115, 116, 95 ... 4, 0, 0, 0, 0, 0, 63
+            6: Pulse sequence
+              8063 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            7: Data block
+              Bits: 152 (19 bytes)
+              Initial pulse level: 0
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Header block
+              Character array: test_pzx02
+              Length: 19
+              Data: 0, 2, 116, 101, 115, 116, 95 ... 5, 0, 0, 0, 0, 0, 62
+            8: Pulse sequence
+              8063 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            9: Data block
+              Bits: 152 (19 bytes)
+              Initial pulse level: 0
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Header block
+              Bytes: test_pzx03
+              CODE: 32768,3
+              Length: 19
+              Data: 0, 3, 116, 101, 115, 116, 95 ... 3, 0, 0, 128, 0, 0, 184
+            10: Pulse sequence
+              3223 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            11: Data block
+              Bits: 40 (5 bytes)
+              Initial pulse level: 0
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Data block
+              Length: 5
+              Data: 255, 1, 2, 3, 255
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_pzx_with_unknown_block(self):
+        pzx = PZX()
+        pzx.add_block('????', [255])
+        pzx.add_stop()
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tapinfo(pzxfile)
+        self.assertEqual(error, '')
+        exp_output = """
+            1: PZX header block
+              Version: 1.0
+            2: ????
+            3: Stop tape command
+              Mode: Always
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_invalid_pzx_file(self):
+        invalid_pzx = self.write_text_file('This is not a PZX file', suffix='.pzx')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tapinfo(invalid_pzx)
+        self.assertEqual(cm.exception.args[0], 'Not a PZX file')
 
     def test_tap_file(self):
         tap_data = create_tap_header_block('program_01', 100, 200, 0)
@@ -694,6 +865,19 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
     @patch.object(tapinfo, 'BasicLister', MockBasicLister)
+    def test_option_b_pzx(self):
+        prog = [10] * 10
+        data = create_tap_data_block(prog)[2:]
+        pzx = PZX()
+        pzx.add_data(data)
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        exp_snapshot = [0] * 23755 + prog
+        output, error = self.run_tapinfo(f'-b 2 {pzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(output, 'BASIC DONE!\n')
+        self.assertEqual(exp_snapshot, mock_basic_lister.snapshot)
+
+    @patch.object(tapinfo, 'BasicLister', MockBasicLister)
     def test_option_b_tap(self):
         prog = [10] * 10
         tap_data = create_tap_data_block(prog)
@@ -738,6 +922,29 @@ class TapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('--basic', '1,z', exp_error)
         self._test_bad_spec('-b', '1,2,3', exp_error)
         self._test_bad_spec('--basic', '?,+', exp_error)
+
+    def test_option_data_with_pzx_file(self):
+        pzx = PZX()
+        pzx.add_data(list(range(32, 94)))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tapinfo(f'--data {pzxfile}')
+        self.assertEqual(error, '')
+        exp_output = r"""
+            1: PZX header block
+              Version: 1.0
+            2: Data block
+              Bits: 496 (62 bytes)
+              Initial pulse level: 0
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Length: 62
+              0000  20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F   !"#$%&'()*+,-./
+              0010  30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F  0123456789:;<=>?
+              0020  40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F  @ABCDEFGHIJKLMNO
+              0030  50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D        PQRSTUVWXYZ[\]
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
 
     def test_option_d_with_tap_file(self):
         data = [1, 2, 4, 8]

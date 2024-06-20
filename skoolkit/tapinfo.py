@@ -19,7 +19,7 @@ import argparse
 
 from skoolkit import SkoolKitError, get_word, get_int_param, warn, VERSION
 from skoolkit.basic import BasicLister, TextReader
-from skoolkit.tape import hex_dump, parse_tap, parse_tzx
+from skoolkit.tape import hex_dump, parse_pzx, parse_tap, parse_tzx
 
 def _bytes_to_str(data):
     return ', '.join(str(b) for b in data)
@@ -27,14 +27,16 @@ def _bytes_to_str(data):
 def _print_info(text):
     print('  ' + text)
 
-def _print_block(index, data, show_data, text_reader, info=(), block_id=None, header=None):
+def _print_block(index, data, show_data, text_reader, info, block_id, header, standard):
     if block_id is None:
-        print("{}:".format(index))
+        print(f'{index}:')
+    elif isinstance(block_id, int):
+        print(f'{index}: {header} (0x{block_id:02X})')
     else:
-        print("{}: {} (0x{:02X})".format(index, header, block_id))
+        print(f'{index}: {header}')
     for line in info:
         _print_info(line)
-    if data and block_id in (None, 16):
+    if data and standard:
         data_type = "Unknown"
         name_str = None
         line = 0xC000
@@ -101,14 +103,14 @@ def _analyse_tape(tape, basic_block, text_reader, show_data):
         if basic_block:
             _list_basic(block.number, block.data, *basic_block)
         else:
-            _print_block(block.number, block.data, show_data, text_reader, block.info, block.block_id, block.name)
+            _print_block(block.number, block.data, show_data, text_reader, block.info, block.block_id, block.name, block.standard)
     for msg in tape.warnings:
         warn(msg)
 
 def main(args):
     parser = argparse.ArgumentParser(
         usage="tapinfo.py FILE",
-        description="Show the blocks in a TAP or TZX file.",
+        description="Show the blocks in a PZX, TAP or TZX file.",
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
@@ -125,7 +127,9 @@ def main(args):
     basic_block = _get_basic_block(namespace.basic)
     text_reader = TextReader()
     tape_type = namespace.infile.lower()[-4:]
-    if tape_type == '.tap':
+    if tape_type == '.pzx':
+        tape = parse_pzx(namespace.infile)
+    elif tape_type == '.tap':
         tape = parse_tap(namespace.infile)
     elif tape_type == '.tzx':
         tape = parse_tzx(namespace.infile)
