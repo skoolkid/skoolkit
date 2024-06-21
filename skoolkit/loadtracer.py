@@ -71,11 +71,33 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
             tstates += timings.pilot
             edges.append(tstates)
 
-        # Sync pulses / Pulse Sequence / Direct Recording
-        for s in timings.sync or timings.pulses:
+        # Sync pulses
+        for s in timings.sync:
             if analyse:
                 ear = (len(edges) - 1) % 2
                 print(f'{tstates:>10}  {ear:>3}  Pulse ({s} T-states)')
+            tstates += s
+            edges.append(tstates)
+
+        # Pulse Sequence / Direct Recording
+        if analyse and timings.pulses:
+            t = tstates
+            ear = (len(edges) - 1) % 2
+            count = 1
+            prev_p = timings.pulses[0]
+            for p in timings.pulses[1:] + [None]:
+                if p == prev_p:
+                    count += 1
+                else:
+                    if count == 1:
+                        print(f'{t:>10}  {ear:>3}  Pulse ({prev_p} T-states)')
+                    else:
+                        print(f'{t:>10}  {ear:>3}  Tone ({count} x {prev_p} T-states)')
+                    t += count * prev_p
+                    ear ^= count % 2
+                    count = 1
+                prev_p = p
+        for s in timings.pulses:
             tstates += s
             edges.append(tstates)
 
@@ -107,7 +129,7 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
                     b *= 2
             indexes.append((start, len(edges) - 1))
             data_blocks.append(data)
-        elif i == len(blocks) - 1 or timings.pulses: # pragma: no cover
+        elif i == len(blocks) - 1 or timings.data: # pragma: no cover
             # If this block contains a Direct Recording, or is the last block
             # on the tape and contains a Pulse Sequence, add a dummy (empty)
             # data block to ensure that the pulses are read

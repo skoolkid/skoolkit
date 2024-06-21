@@ -227,29 +227,30 @@ class Tape:
         self.warnings = warnings
 
 class TapeBlock:
-    def __init__(self, number, tape_data, timings=None, block_data=None, block_id=None, name=None, info=(), standard=True):
+    def __init__(self, number, tape_data, timings=None, block_id=None, name=None, info=(), standard=True, block_data=None):
         self.number = number
         self.data = tape_data
         self.timings = timings
-        self.block_data = block_data
         self.block_id = block_id
         self.name = name
         self.info = info
         self.standard = standard
+        self.block_data = block_data
 
 class TapeBlockTimings:
-    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0, used_bits=8, pulses=(), error=None):
+    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0, used_bits=8, pulses=(), data=False, error=None):
         self.pilot_len = pilot_len
         self.pilot = pilot
         self.sync = sync
         self.zero = zero
         self.one = one
-        self.pause = pause * 3500
+        self.pause = pause
         self.used_bits = used_bits
         self.pulses = pulses
+        self.data = data
         self.error = error
 
-def _get_tape_block_timings(first_byte, pause=1000):
+def _get_tape_block_timings(first_byte, pause=3500000):
     if first_byte == 0:
         # Header block
         return TapeBlockTimings(8063, 2168, (667, 735), 855, 1710, pause)
@@ -280,7 +281,9 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
     # http://zxds.raxoft.cz/docs/pzx.txt
     block_id = ''.join(chr(b) for b in data[i:i + 4])
     block_len = get_dword(data, i + 4)
+    block_data = None
     tape_data = None
+    timings = None
     standard = False
     rom_pilot = False
     info = []
@@ -303,7 +306,7 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
             info.append(f'{pairs[0]}: {pairs[1]}')
     elif block_id == 'PULS':
         name = 'Pulse sequence'
-        pulses = []
+        pseq = []
         j = i + 8
         while j < i + 8 + block_len:
             count = 1
@@ -317,14 +320,21 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
                 duration = (duration % 0x8000) * 65536 + get_word(data, j)
                 j += 2
             info.append(f'{count} x {duration} T-states')
-            pulses.append((count, duration))
-        rom_pilot = len(pulses) == 3 and pulses[0] in ((3223, 2168), (8063, 2168)) and pulses[1:] == [(1, 667), (1, 735)]
+            pseq.append((count, duration))
+        rom_pilot = len(pseq) == 3 and pseq[0] in ((3223, 2168), (8063, 2168)) and pseq[1:] == [(1, 667), (1, 735)]
+        if len(pseq) == 3 and pseq[1][0] == 1 and pseq[2][0] == 1:
+            timings = TapeBlockTimings(pseq[0][0], pseq[0][1], (pseq[1][1], pseq[2][1]))
+        else:
+            pulses = []
+            for count, duration in pseq:
+                pulses.extend([duration] * count)
+            timings = TapeBlockTimings(pulses=pulses)
     elif block_id == 'DATA':
         name = 'Data block'
         count = get_dword(data, i + 8)
         bits = count % 0x80000000
         num_bytes = bits // 8
-        used_bits = bits % 8
+        used_bits = (bits % 8) or 8
         tail = get_word(data, i + 12)
         p0, p1 = data[i + 14:i + 16]
         j = i + 16
@@ -332,9 +342,9 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
         j += 2 * p0
         s1 = [get_word(data, k) for k in range(j, j + 2 * p1, 2)]
         j += 2 * p1
-        tape_data = data[j:j + num_bytes + int(used_bits > 0)]
+        tape_data = data[j:j + num_bytes + int(used_bits < 8)]
         standard = prev_rom_pilot and p0 == 2 and p1 == 2 and s0 == [855, 855] and s1 == [1710, 1710]
-        if used_bits:
+        if used_bits < 8:
             info.append(f'Bits: {bits} ({num_bytes} bytes + {used_bits} bits)')
         else:
             info.append(f'Bits: {bits} ({num_bytes} bytes)')
@@ -344,6 +354,7 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
             '1-bit pulse sequence: {} (T-states)'.format(', '.join(str(p) for p in s1)),
             f'Tail pulse: {tail} T-states'
         ))
+        timings = TapeBlockTimings(zero=s0[0], one=s1[0], used_bits=used_bits)
     elif block_id == 'PAUS':
         name = 'Pause'
         duration = get_dword(data, i + 8)
@@ -351,6 +362,7 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
             f'Duration: {duration % 0x80000000} T-states',
             f'Initial pulse level: {duration >> 31}',
         ))
+        timings = TapeBlockTimings(pause=duration)
     elif block_id == 'BRWS':
         name = 'Browse point'
         info.append(''.join(chr(b) for b in data[i + 8:i + 8 + block_len]))
@@ -359,9 +371,10 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
         flags = get_word(data, i + 8)
         mode = ('Always', '48K only')[flags & 1]
         info.append(f'Mode: {mode}')
+        block_data = data[i + 8:i + 8 + block_len]
     else:
         name = block_id
-    block = TapeBlock(block_num, tape_data, block_id=block_id, name=name, info=info, standard=standard)
+    block = TapeBlock(block_num, tape_data, timings, block_id, name, info, standard, block_data)
     return i + 8 + block_len, block, rom_pilot
 
 def _get_tzx_block(data, i, block_num, get_info, get_timings):
@@ -383,7 +396,7 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
         if get_info:
             info.append(f'Pause: {pause}ms')
         if get_timings and tape_data:
-            timings = _get_tape_block_timings(tape_data[0], pause)
+            timings = _get_tape_block_timings(tape_data[0], pause * 3500)
         i += 4 + length
     elif block_id == 0x11:
         # Turbo speed data block
@@ -408,7 +421,7 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
                 f'Pause: {pause}ms'
             ))
         if get_timings:
-            timings = TapeBlockTimings(pilot_len, pilot, (sync1, sync2), zero, one, pause, used_bits)
+            timings = TapeBlockTimings(pilot_len, pilot, (sync1, sync2), zero, one, pause * 3500, used_bits)
         length = get_word3(data, i + 15)
         tape_data = data[i + 18:i + 18 + length]
         i += 18 + length
@@ -455,7 +468,7 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
                 f'Pause: {pause}ms'
             ))
         if get_timings:
-            timings = TapeBlockTimings(zero=zero, one=one, pause=pause, used_bits=used_bits)
+            timings = TapeBlockTimings(zero=zero, one=one, pause=pause * 3500, used_bits=used_bits)
         length = get_word3(data, i + 7)
         tape_data = data[i + 10:i + 10 + length]
         i += length + 10
@@ -496,7 +509,7 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
                     b *= 2
             pulses.append(bit_count * tps)
             tape_data = []
-            timings = TapeBlockTimings(pause=pause, pulses=pulses)
+            timings = TapeBlockTimings(pause=pause * 3500, pulses=pulses, data=True)
         i += 8 + num_bytes
     elif block_id == 0x16:
         # C64 ROM type data
@@ -539,7 +552,7 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
         else:
             header = "'Stop the tape' command"
         if get_timings:
-            timings = TapeBlockTimings(pause=pause)
+            timings = TapeBlockTimings(pause=pause * 3500)
         i += 2
     elif block_id == 0x21:
         # Group start
@@ -662,7 +675,7 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
         i += 9
     else:
         raise SkoolKitError(f'Unknown TZX block ID: 0x{block_id:02X}')
-    return i, TapeBlock(block_num, tape_data, timings, block_data, block_id, header, info, standard)
+    return i, TapeBlock(block_num, tape_data, timings, block_id, header, info, standard, block_data)
 
 def hex_dump(data, row_size=16):
     lines = []
@@ -673,7 +686,7 @@ def hex_dump(data, row_size=16):
         lines.append(f'{index:04X}  {values_hex} {values_text}')
     return lines
 
-def parse_pzx(pzx):
+def parse_pzx(pzx, start=1, stop=0):
     if isinstance(pzx, str):
         pzx = read_bin_file(pzx)
     if pzx[:4] != b'PZXT':
@@ -683,8 +696,11 @@ def parse_pzx(pzx):
     rom_pilot = False
     i = 0
     while i < len(pzx):
+        if block_num >= stop > 0:
+            break
         i, block, rom_pilot = _get_pzx_block(pzx, i, block_num, rom_pilot)
-        blocks.append(block)
+        if block_num >= start:
+            blocks.append(block)
         block_num += 1
     return Tape(blocks)
 

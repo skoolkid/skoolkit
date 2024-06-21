@@ -35,7 +35,9 @@ from skoolkit.pagingtracer import Memory
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import FRAME_DURATIONS, INT_ACTIVE, PC, T, get_state
 from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_snapshot
-from skoolkit.tape import parse_tap, parse_tzx
+from skoolkit.tape import parse_pzx, parse_tap, parse_tzx
+
+SUPPORTED_TAPES = ('.pzx', '.tap', '.tzx')
 
 SYSVARS = (
     255, 0, 0, 0,         # 23552 - KSTATE0
@@ -549,7 +551,21 @@ def _get_tzx_blocks(data, sim, start, stop, is48):
             loop = None
     return blocks
 
+def _get_pzx_blocks(data, sim, start, stop, is48):
+    tape = parse_pzx(data, start, stop)
+    blocks = []
+    for block in tape.blocks:
+        if sim:
+            if block.block_id == 'STOP':
+                mode = block.block_data[0]
+                if mode != 1 or is48:
+                    break
+        blocks.append(block)
+    return blocks
+
 def _get_tape_blocks(tape_type, tape, sim, start, stop, is48):
+    if tape_type.lower() == 'pzx':
+        return _get_pzx_blocks(tape, sim, start, stop, is48)
     if tape_type.lower() == 'tzx':
         return _get_tzx_blocks(tape, sim, start, stop, is48)
     tap = parse_tap(tape, start, stop)
@@ -575,12 +591,12 @@ def _get_tape(urlstring, user_agent, member):
         z = zipfile.ZipFile(f)
         if member is None:
             for name in z.namelist():
-                if name.lower().endswith(('.tap', '.tzx')):
+                if name.lower().endswith(SUPPORTED_TAPES):
                     member = name
                     break
             else:
                 f.close()
-                raise TapeError('No TAP or TZX file found')
+                raise TapeError('No PZX, TAP or TZX file found')
         write_line(f'Extracting {member}')
         try:
             tape = z.open(member)
@@ -852,7 +868,7 @@ def make_snapshot(url, options, outfile, config):
         blocks = [block.data for block in tape_blocks]
         ram = _get_ram(blocks, options)
     if outfile is None:
-        if tape_name.lower().endswith(('.tap', '.tzx')):
+        if tape_name.lower().endswith(SUPPORTED_TAPES):
             tape_name = tape_name[:-4]
         fmt = config['DefaultSnapshotFormat']
         outfile = f'{tape_name}.{fmt}'
@@ -864,8 +880,8 @@ def main(args):
     config = get_config('tap2sna')
     parser = SkoolKitArgumentParser(
         usage='\n  tap2sna.py [options] INPUT [OUTFILE]\n  tap2sna.py @FILE [args]',
-        description="Convert a TAP or TZX file (which may be inside a zip archive) into an SZX or Z80 snapshot. "
-                    "INPUT may be the full URL to a remote zip archive or TAP/TZX file, or the path to a local file. "
+        description="Convert a PZX, TAP or TZX file (which may be inside a zip archive) into an SZX or Z80 snapshot. "
+                    "INPUT may be the full URL to a remote zip archive or tape file, or the path to a local file. "
                     "Arguments may be read from FILE instead of (or as well as) being given on the command line.",
         fromfile_prefix_chars='@',
         add_help=False
@@ -898,13 +914,13 @@ def main(args):
     group.add_argument('--tape-analysis', action='store_true',
                        help="Show an analysis of the tape's tones, pulse sequences and data blocks.")
     group.add_argument('--tape-name', metavar='NAME',
-                       help="Specify the name of a TAP/TZX file in a zip archive.")
+                       help="Specify the name of a tape file in a zip archive.")
     group.add_argument('--tape-start', metavar='BLOCK', type=int, default=1,
                        help="Start the tape at this block number.")
     group.add_argument('--tape-stop', metavar='BLOCK', type=int, default=0,
                        help="Stop the tape at this block number.")
     group.add_argument('--tape-sum', metavar='MD5SUM',
-                       help="Specify the MD5 checksum of the TAP/TZX file.")
+                       help="Specify the MD5 checksum of the tape file.")
     group.add_argument('-u', '--user-agent', dest='user_agent', metavar='AGENT', default='',
                        help="Set the User-Agent header.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),

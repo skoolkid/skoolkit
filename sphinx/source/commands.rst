@@ -1493,8 +1493,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 
 tap2sna.py
 ----------
-`tap2sna.py` converts a TAP or TZX file (which may be inside a zip archive)
-into an SZX or Z80 snapshot. For example::
+`tap2sna.py` converts a PZX, TAP or TZX file (which may be inside a zip
+archive) into an SZX or Z80 snapshot. For example::
 
   $ tap2sna.py game.tap game.z80
 
@@ -1504,8 +1504,8 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     tap2sna.py [options] INPUT [OUTFILE]
     tap2sna.py @FILE [args]
 
-  Convert a TAP or TZX file (which may be inside a zip archive) into an SZX or
-  Z80 snapshot. INPUT may be the full URL to a remote zip archive or TAP/TZX
+  Convert a PZX, TAP or TZX file (which may be inside a zip archive) into an SZX
+  or Z80 snapshot. INPUT may be the full URL to a remote zip archive or tape
   file, or the path to a local file. Arguments may be read from FILE instead of
   (or as well as) being given on the command line.
 
@@ -1533,10 +1533,10 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           times.
     --tape-analysis       Show an analysis of the tape's tones, pulse sequences
                           and data blocks.
-    --tape-name NAME      Specify the name of a TAP/TZX file in a zip archive.
+    --tape-name NAME      Specify the name of a tape file in a zip archive.
     --tape-start BLOCK    Start the tape at this block number.
     --tape-stop BLOCK     Stop the tape at this block number.
-    --tape-sum MD5SUM     Specify the MD5 checksum of the TAP/TZX file.
+    --tape-sum MD5SUM     Specify the MD5 checksum of the tape file.
     -u AGENT, --user-agent AGENT
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
@@ -1552,7 +1552,7 @@ addresses. For example::
   $ tap2sna.py --ram load=3,30000 game.tzx game.z80
 
 loads the third block on the tape at address 30000, and ignores all other
-blocks. (To see information on the blocks in a TAP or TZX file, use the
+blocks. (To see information on the blocks in a tape file, use the
 :ref:`tapinfo.py` command.)
 
 The ``--ram`` option can also be used to move blocks of bytes from one location
@@ -1851,8 +1851,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.3     | Added support for the ``m`` (memory) replacement field in the     |
-|         | ``TraceLine`` configuration parameter                             |
+| 9.3     | Added support for PZX files; added support for the ``m`` (memory) |
+|         | replacement field in the ``TraceLine`` configuration parameter    |
 +---------+-------------------------------------------------------------------+
 | 9.2     | Added support for TZX block type 0x15 (direct recording); added   |
 |         | the ``python`` simulated LOAD configuration parameter             |

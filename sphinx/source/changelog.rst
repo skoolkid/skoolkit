@@ -3,7 +3,7 @@ Changelog
 
 9.3b1
 -----
-* Added support to :ref:`tapinfo.py` for PZX files
+* Added support to :ref:`tapinfo.py` and :ref:`tap2sna.py` for PZX files
 * Added support to :ref:`tap2sna.py <tap2sna-conf>` for the ``m`` (memory)
   replacement field in the ``TraceLine`` configuration parameter
 * Added support to :ref:`trace.py <trace-conf>` for the ``m`` (memory)

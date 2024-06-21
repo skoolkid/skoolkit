@@ -376,25 +376,27 @@ class PZX:
             return (*as_word(0x8000 + count), *as_word(duration))
         return (*as_word(0x8000 + count), *as_word(0x8000 + (duration >> 16)), *as_word(duration % 65536))
 
-    def add_puls(self, standard=1, pulses=(), pulse_data=None):
-        if pulse_data is None:
-            pulse_data = []
-            if pulses:
-                count = 1
-                prev_p = pulses[0]
-                for p in pulses[1:] + [None]:
-                    if p == prev_p:
-                        count += 1
-                    else:
-                        while count > 0:
-                            pulse_data.extend(self._encode_pulses(min(count, 0x7FFF), prev_p))
-                            count -= 0x7FFF
-                        count = 1
-                    prev_p = p
-            else:
-                pulse_data.extend(self._encode_pulses(3223 + 4840 * (standard > 1), 2168))
-                pulse_data.extend(self._encode_pulses(1, 667))
-                pulse_data.extend(self._encode_pulses(1, 735))
+    def add_puls(self, standard=1, pulses=(), pulse_counts=()):
+        pulse_data = []
+        if pulses:
+            count = 1
+            prev_p = pulses[0]
+            for p in pulses[1:] + [None]:
+                if p == prev_p:
+                    count += 1
+                else:
+                    while count > 0:
+                        pulse_data.extend(self._encode_pulses(min(count, 0x7FFF), prev_p))
+                        count -= 0x7FFF
+                    count = 1
+                prev_p = p
+        elif pulse_counts:
+            for count, duration in pulse_counts:
+                pulse_data.extend(self._encode_pulses(count, duration))
+        else:
+            pulse_data.extend(self._encode_pulses(3223 + 4840 * (standard > 1), 2168))
+            pulse_data.extend(self._encode_pulses(1, 667))
+            pulse_data.extend(self._encode_pulses(1, 735))
         length = len(pulse_data)
         self.data.extend((
             80, 85, 76, 83,    # PULS
@@ -402,7 +404,7 @@ class PZX:
             *pulse_data        # Pulses
         ))
 
-    def add_data(self, data, s0=(855, 855), s1=(1710, 1710), tail=945, used_bits=0, polarity=0):
+    def add_data(self, data, s0=(855, 855), s1=(1710, 1710), tail=945, used_bits=0, polarity=1):
         length = 8 + 2 * (len(s0) + len(s1)) + len(data)
         bits = 8 * len(data)
         if used_bits:

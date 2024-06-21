@@ -6,10 +6,11 @@ from zipfile import ZipFile
 from io import BytesIO
 from unittest.mock import patch, Mock
 
-from skoolkittest import (SkoolKitTestCase, create_data_block,
-                          create_tap_header_block, create_tap_data_block,
-                          create_tzx_header_block, create_tzx_data_block,
-                          create_tzx_turbo_data_block, create_tzx_pure_data_block)
+from skoolkittest import (SkoolKitTestCase, PZX, create_header_block,
+                          create_data_block, create_tap_header_block,
+                          create_tap_data_block, create_tzx_header_block,
+                          create_tzx_data_block, create_tzx_turbo_data_block,
+                          create_tzx_pure_data_block)
 from skoolkit import tap2sna, VERSION, SkoolKitError, CSimulator, CCMIOSimulator
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.config import COMMANDS
@@ -202,13 +203,16 @@ class Tap2SnaTest(SkoolKitTestCase):
             return self._write_tap(blocks), basic_data
         return blocks, basic_data
 
-    def _load_tape(self, start=16384, data=None, options='', load_options=None, blocks=None, tzx=False):
-        if blocks is None:
-            blocks = [create_tap_data_block(data)]
-        if tzx:
-            tape_file = self._write_tzx(blocks)
+    def _load_tape(self, start=16384, data=None, options='', load_options=None, blocks=None, tzx=False, pzx=None):
+        if pzx:
+            tape_file = self.write_bin_file(pzx.data, suffix='.pzx')
         else:
-            tape_file = self._write_tap(blocks)
+            if blocks is None:
+                blocks = [create_tap_data_block(data)]
+            if tzx:
+                tape_file = self._write_tzx(blocks)
+            else:
+                tape_file = self._write_tap(blocks)
         if load_options is None:
             load_options = f'--ram load=1,{start}'
         output, error = self.run_tap2sna(f'{load_options} {options} {tape_file} out.z80')
@@ -616,6 +620,44 @@ class Tap2SnaTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
+    def test_option_tape_analysis_with_pzx_file(self):
+        pzx = PZX()
+        pzx.add_puls(2)
+        pzx.add_data((1, 2, 3, 4, 5))
+        pzx.add_paus()
+        pzx.add_puls(1)
+        pzx.add_data((6, 7, 8, 9, 10))
+        pzx.add_paus()
+        pzx.add_puls(pulse_counts=((5000, 2168), (1, 430), (1, 870)))
+        pzx.add_data((11, 12, 13, 14, 15), (570, 570), (1050, 1050), used_bits=5)
+        pzx.add_puls(pulse_counts=((2000, 1234), (2, 500), (1, 1000)))
+        pzx.add_data((16, 17, 18), (570, 600), (1050, 1100))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tap2sna(f'--tape-analysis {pzxfile}', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            T-states    EAR  Description
+                     0    0  Tone (8063 x 2168 T-states)
+              17480584    1  Pulse (667 T-states)
+              17481251    0  Pulse (735 T-states)
+              17481986    1  Data (5 bytes; 855/1710 T-states)
+              17562356    1  Pause (3500000 T-states)
+              21062356    1  Tone (3223 x 2168 T-states)
+              28049820    0  Pulse (667 T-states)
+              28050487    1  Pulse (735 T-states)
+              28051222    0  Data (5 bytes; 855/1710 T-states)
+              28136722    0  Pause (3500000 T-states)
+              31636722    0  Tone (5000 x 2168 T-states)
+              42476722    0  Pulse (430 T-states)
+              42477152    1  Pulse (870 T-states)
+              42478022    0  Data (4 bytes + 5 bits; 570/1050 T-states)
+              42531722    0  Tone (2000 x 1234 T-states)
+              44999722    0  Tone (2 x 500 T-states)
+              45000722    0  Pulse (1000 T-states)
+              45001722    1  Data (3 bytes; 570/1050 T-states)
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_tape_name(self):
         code1 = [1, 2, 3, 4, 5]
@@ -646,6 +688,21 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_tape_start_with_pzx(self):
+        pzx = PZX()
+        pzx.add_puls()
+        pzx.add_data(create_header_block())
+        pzx.add_puls()
+        data = create_data_block([4, 5, 6])
+        pzx.add_data(data)
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tap2sna(f'--tape-start 4 {pzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 2)
+        self.assertEqual(data, list(load_tracer.blocks[1].data))
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_tape_start_with_tap(self):
         blocks = [
             create_tap_header_block(),
@@ -667,6 +724,21 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--tape-start 2 {tzxfile}')
         self.assertEqual(error, '')
         self.assertEqual(len(load_tracer.blocks), 1)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_tape_stop_with_pzx(self):
+        pzx = PZX()
+        pzx.add_puls()
+        data = create_header_block()
+        pzx.add_data(data)
+        pzx.add_puls()
+        pzx.add_data(create_data_block([4, 5, 6]))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tap2sna(f'--tape-stop 4 {pzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 2)
+        self.assertEqual(data, list(load_tracer.blocks[1].data))
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
@@ -757,7 +829,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80_fname = 'test.z80'
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{archive_fname} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {archive_fname}: No TAP or TZX file found')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {archive_fname}: No PZX, TAP or TZX file found')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_ram_call(self):
@@ -808,6 +880,16 @@ class Tap2SnaTest(SkoolKitTestCase):
         start = 16384
         data = [237, 1, 1, 1, 1, 1]
         self._load_tape(start, data)
+        self.assertEqual(data, snapshot[start:start + len(data)])
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_ram_load_pzx(self):
+        start = 32768
+        data = [1, 4, 9, 16, 25]
+        pzx = PZX()
+        pzx.add_puls()
+        pzx.add_data(create_data_block(data))
+        self._load_tape(start, load_options=f'--ram load=3,{start}', pzx=pzx)
         self.assertEqual(data, snapshot[start:start + len(data)])
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
@@ -1061,6 +1143,72 @@ class Tap2SnaTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{tzxfile} test.z80')
         self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: Not a TZX file')
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_tape_stops_at_pzx_48k_stop_block_in_48k_mode(self):
+        pzx = PZX()
+        pzx.add_puls()
+        pzx.add_data(create_header_block())
+        pzx.add_puls()
+        pzx.add_data(create_data_block([1, 2, 3]))
+        pzx.add_stop(False)
+        pzx.add_puls()
+        pzx.add_data(create_data_block([4, 5, 6]))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tap2sna(pzxfile)
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 4)
+
+    @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_tape_does_not_stop_at_pzx_48k_stop_block_in_128k_mode(self):
+        pzx = PZX()
+        pzx.add_puls()
+        pzx.add_data(create_header_block())
+        pzx.add_puls()
+        pzx.add_data(create_data_block([1, 2, 3]))
+        pzx.add_stop(False)
+        pzx.add_puls()
+        pzx.add_data(create_data_block([4, 5, 6]))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tap2sna(f'-c machine=128 {pzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 6)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_tape_stops_at_pzx_always_stop_block_in_48k_mode(self):
+        pzx = PZX()
+        pzx.add_puls()
+        pzx.add_data(create_header_block())
+        pzx.add_puls()
+        pzx.add_data(create_data_block([1, 2, 3]))
+        pzx.add_stop(True)
+        pzx.add_puls()
+        pzx.add_data(create_data_block([4, 5, 6]))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tap2sna(pzxfile)
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 4)
+
+    @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_tape_stops_at_pzx_always_stop_block_in_128k_mode(self):
+        pzx = PZX()
+        pzx.add_puls()
+        pzx.add_data(create_header_block())
+        pzx.add_puls()
+        pzx.add_data(create_data_block([1, 2, 3]))
+        pzx.add_stop(True)
+        pzx.add_puls()
+        pzx.add_data(create_data_block([4, 5, 6]))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tap2sna(f'-c machine=128 {pzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 4)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)

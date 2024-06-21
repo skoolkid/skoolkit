@@ -1,9 +1,10 @@
 from unittest.mock import patch
 
-from skoolkittest import (SkoolKitTestCase, create_data_block,
-                          create_tap_header_block, create_tap_data_block,
-                          create_tzx_header_block, create_tzx_data_block,
-                          create_tzx_turbo_data_block, create_tzx_pure_data_block)
+from skoolkittest import (SkoolKitTestCase, PZX, create_header_block,
+                          create_data_block, create_tap_header_block,
+                          create_tap_data_block, create_tzx_header_block,
+                          create_tzx_data_block, create_tzx_turbo_data_block,
+                          create_tzx_pure_data_block)
 from skoolkit import tap2sna, ROM48, read_bin_file
 
 def mock_write_snapshot(ram, namespace, z80):
@@ -98,6 +99,76 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(error, '')
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_standard_loader_pzx(self):
+        code = [201] # RET
+        code_start = 32768
+        code_end = code_start + len(code)
+        basic_data = self._get_basic_data(code_start)
+        pzx = PZX()
+        pzx.add_puls(2)
+        pzx.add_data(create_header_block('simloadpzx', 10, len(basic_data), 0))
+        pzx.add_paus()
+        pzx.add_puls(1)
+        pzx.add_data(create_data_block(basic_data))
+        pzx.add_paus()
+        pzx.add_puls(2)
+        pzx.add_data(create_header_block('simloadbyt', code_start, len(code)))
+        pzx.add_paus()
+        pzx.add_puls(1)
+        pzx.add_data(create_data_block(code))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+        )
+        exp_reg = set(('SP=65344', f'IX={code_end}', 'IY=23610', f'PC={code_start}'))
+        exp_output = [
+            'Program: simloadpzx',
+            'Fast loading data block: 23755,20',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,1',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32768'
+        ]
+        self._test_sim_load(f'{pzxfile} out.z80', exp_data, exp_reg, exp_output)
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_standard_loader_pzx_with_polarity_inverted(self):
+        code = [201] # RET
+        code_start = 32768
+        code_end = code_start + len(code)
+        basic_data = self._get_basic_data(code_start)
+        pilot1 = ((1, 0), (3223, 2168), (1, 667), (1, 735))
+        pilot2 = ((1, 0), (8063, 2168), (1, 667), (1, 735))
+        pzx = PZX()
+        pzx.add_puls(pulse_counts=pilot2)
+        pzx.add_data(create_header_block('simloadpzx', 10, len(basic_data), 0), polarity=0)
+        pzx.add_paus()
+        pzx.add_puls(pulse_counts=pilot1)
+        pzx.add_data(create_data_block(basic_data), polarity=0)
+        pzx.add_paus()
+        pzx.add_puls(pulse_counts=pilot2)
+        pzx.add_data(create_header_block('simloadbyt', code_start, len(code)), polarity=0)
+        pzx.add_paus()
+        pzx.add_puls(pulse_counts=pilot1)
+        pzx.add_data(create_data_block(code), polarity=0)
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+        )
+        exp_reg = set(('SP=65344', f'IX={code_end}', 'IY=23610', f'PC={code_start}'))
+        exp_output = [
+            'Program: simloadpzx',
+            'Fast loading data block: 23755,20',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,1',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32768'
+        ]
+        self._test_sim_load(f'{pzxfile} out.z80', exp_data, exp_reg, exp_output)
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_custom_standard_speed_loader(self):
         code2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         code2_start = 49152
@@ -180,7 +251,52 @@ class SimLoadTest(SkoolKitTestCase):
         self._test_sim_load(f'-c accelerator=rom {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
-    def test_turbo_loader(self):
+    def test_turbo_loader_pzx(self):
+        code2 = [1, 2, 4, 8, 16, 32, 64, 128, 0, 255]
+        code2_start = 65280
+        code2_end = code2_start + len(code2)
+        code = [
+            221, 33, 0, 255,  # LD IX,65280
+            17, 10, 0,        # LD DE,10
+            55,               # SCF
+            159,              # SBC A,A
+        ]
+        loader_start = 32768
+        code_start = loader_start - len(code)
+        code += get_loader(loader_start, (0xE0, 0xEC))
+        basic_data = self._get_basic_data(code_start)
+        pzx = PZX()
+        pzx.add_puls(2)
+        pzx.add_data(create_header_block("simloadbas", 10, len(basic_data), 0))
+        pzx.add_puls(1)
+        pzx.add_data(create_data_block(basic_data))
+        pzx.add_puls(2)
+        pzx.add_data(create_header_block("simloadbyt", code_start, len(code), 3))
+        pzx.add_puls(1)
+        pzx.add_data(create_data_block(code))
+        pzx.add_puls(1)
+        pzx.add_data(create_data_block(code2), (600, 600), (1200, 1200))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            (code2, code2_start)
+        )
+        exp_reg = set(('SP=65340', f'IX={code2_end}', 'IY=23610', 'PC=32925'))
+        exp_output = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32759,184',
+            'Data (12 bytes)',
+            'Tape finished',
+            'Simulation stopped (end of tape): PC=32925'
+        ]
+        self._test_sim_load(f'{pzxfile} out.z80', exp_data, exp_reg, exp_output)
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_turbo_loader_tzx(self):
         code2 = [1, 2, 4, 8, 16, 32, 64, 128, 0, 255]
         code2_start = 49152
         code2_end = code2_start + len(code2)

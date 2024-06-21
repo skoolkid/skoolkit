@@ -11,10 +11,10 @@ SYNOPSIS
 
 DESCRIPTION
 ===========
-``tap2sna.py`` converts a TAP or TZX file (which may be inside a zip archive)
-into an SZX or Z80 snapshot. INPUT may be the full URL to a remote zip archive
-or TAP/TZX file, or the path to a local file. Arguments may be read from FILE
-instead of (or as well as) being given on the command line.
+``tap2sna.py`` converts a PZX, TAP or TZX file (which may be inside a zip
+archive) into an SZX or Z80 snapshot. INPUT may be the full URL to a remote zip
+archive or tape file, or the path to a local file. Arguments may be read from
+FILE instead of (or as well as) being given on the command line.
 
 OPTIONS
 =======
@@ -62,20 +62,20 @@ OPTIONS
   Show an analysis of the tape's tones, pulse sequences and data blocks.
 
 --tape-name NAME
-  Specify the name of a TAP/TZX file in a zip archive. By default, the first
-  TAP/TZX file found in the zip archive is selected.
+  Specify the name of a tape file in a zip archive. By default, the first tape
+  file found in the zip archive is selected.
 
 --tape-start BLOCK
-  Start the tape at this block number. In a TAP/TZX file, the first block is
+  Start the tape at this block number. In a tape file, the first block is
   number 1, the second is 2, etc.
 
 --tape-stop BLOCK
-  Stop the tape at this block number. In a TAP/TZX file, the first block is
-  number 1, the second is 2, etc.
+  Stop the tape at this block number. In a tape file, the first block is number
+  1, the second is 2, etc.
 
 --tape-sum MD5SUM
-  Specify the MD5 checksum of the TAP/TZX file. ``tap2sna.py`` will abort if
-  there is a checksum mismatch.
+  Specify the MD5 checksum of the tape file. ``tap2sna.py`` will abort if there
+  is a checksum mismatch.
 
 -u, --user-agent `AGENT`
   Set the User-Agent header used in an HTTP(S) request.
@@ -500,7 +500,7 @@ configuration parameters are:
 replacement fields:
 
 |
-|  ``i``  - the current instruction
+|  ``i`` - the current instruction
 |  ``m[address]`` - the contents of a memory address
 |  ``pc`` - the address of the current instruction (program counter)
 |  ``r[X]`` - the X register (see below)
@@ -541,13 +541,13 @@ Configuration parameters may also be set on the command line by using the
 
 EXAMPLES
 ========
-1. Extract the TAP or TZX file from a remote zip archive and convert it into a
-   Z80 snapshot:
+1. Extract the tape file from a remote zip archive and convert it into a Z80
+   snapshot:
 
    |
    |   ``tap2sna.py ftp://example.com/game.zip game.z80``
 
-2. Extract the TAP or TZX file from a zip archive, and convert it into an SZX
+2. Extract the tape file from a zip archive, and convert it into an SZX
    snapshot with the program counter set to 32768:
 
    |

@@ -1,9 +1,10 @@
 from textwrap import dedent
 from unittest.mock import patch
 
-from skoolkittest import (SkoolKitTestCase, PZX, create_data_block,
-                          create_tap_header_block, create_tap_data_block,
-                          create_tzx_header_block, create_tzx_data_block)
+from skoolkittest import (SkoolKitTestCase, PZX, create_header_block,
+                          create_data_block, create_tap_header_block,
+                          create_tap_data_block, create_tzx_header_block,
+                          create_tzx_data_block)
 from skoolkit import SkoolKitError, tapinfo, get_word, VERSION
 
 TZX_DATA_BLOCK = (16, 0, 0, 3, 0, 255, 0, 0)
@@ -121,15 +122,15 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
     def test_pzx_with_standard_speed_blocks(self):
-        data0 = create_tap_header_block('test_pzx00', 100, 200, 0)
-        data1 = create_tap_header_block('test_pzx01', length=4, data_type=1)
-        data2 = create_tap_header_block('test_pzx02', length=5, data_type=2)
-        data3 = create_tap_header_block('test_pzx03', 32768, 3, 3)
-        data4 = create_tap_data_block([1, 2, 3])
+        data0 = create_header_block('test_pzx00', 100, 200, 0)
+        data1 = create_header_block('test_pzx01', length=4, data_type=1)
+        data2 = create_header_block('test_pzx02', length=5, data_type=2)
+        data3 = create_header_block('test_pzx03', 32768, 3, 3)
+        data4 = create_data_block([1, 2, 3])
         pzx = PZX()
         for standard, data in ((2, data0), (2, data1), (2, data2), (2, data3), (1, data4)):
             pzx.add_puls(standard)
-            pzx.add_data(data[2:])
+            pzx.add_data(data)
         pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
         output, error = self.run_tapinfo(pzxfile)
         self.assertEqual(error, '')
@@ -142,7 +143,7 @@ class TapinfoTest(SkoolKitTestCase):
               1 x 735 T-states
             3: Data block
               Bits: 152 (19 bytes)
-              Initial pulse level: 0
+              Initial pulse level: 1
               0-bit pulse sequence: 855, 855 (T-states)
               1-bit pulse sequence: 1710, 1710 (T-states)
               Tail pulse: 945 T-states
@@ -157,7 +158,7 @@ class TapinfoTest(SkoolKitTestCase):
               1 x 735 T-states
             5: Data block
               Bits: 152 (19 bytes)
-              Initial pulse level: 0
+              Initial pulse level: 1
               0-bit pulse sequence: 855, 855 (T-states)
               1-bit pulse sequence: 1710, 1710 (T-states)
               Tail pulse: 945 T-states
@@ -171,7 +172,7 @@ class TapinfoTest(SkoolKitTestCase):
               1 x 735 T-states
             7: Data block
               Bits: 152 (19 bytes)
-              Initial pulse level: 0
+              Initial pulse level: 1
               0-bit pulse sequence: 855, 855 (T-states)
               1-bit pulse sequence: 1710, 1710 (T-states)
               Tail pulse: 945 T-states
@@ -185,7 +186,7 @@ class TapinfoTest(SkoolKitTestCase):
               1 x 735 T-states
             9: Data block
               Bits: 152 (19 bytes)
-              Initial pulse level: 0
+              Initial pulse level: 1
               0-bit pulse sequence: 855, 855 (T-states)
               1-bit pulse sequence: 1710, 1710 (T-states)
               Tail pulse: 945 T-states
@@ -200,7 +201,7 @@ class TapinfoTest(SkoolKitTestCase):
               1 x 735 T-states
             11: Data block
               Bits: 40 (5 bytes)
-              Initial pulse level: 0
+              Initial pulse level: 1
               0-bit pulse sequence: 855, 855 (T-states)
               1-bit pulse sequence: 1710, 1710 (T-states)
               Tail pulse: 945 T-states
@@ -867,9 +868,8 @@ class TapinfoTest(SkoolKitTestCase):
     @patch.object(tapinfo, 'BasicLister', MockBasicLister)
     def test_option_b_pzx(self):
         prog = [10] * 10
-        data = create_tap_data_block(prog)[2:]
         pzx = PZX()
-        pzx.add_data(data)
+        pzx.add_data(create_data_block(prog))
         pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
         exp_snapshot = [0] * 23755 + prog
         output, error = self.run_tapinfo(f'-b 2 {pzxfile}')
@@ -934,7 +934,7 @@ class TapinfoTest(SkoolKitTestCase):
               Version: 1.0
             2: Data block
               Bits: 496 (62 bytes)
-              Initial pulse level: 0
+              Initial pulse level: 1
               0-bit pulse sequence: 855, 855 (T-states)
               1-bit pulse sequence: 1710, 1710 (T-states)
               Tail pulse: 945 T-states
