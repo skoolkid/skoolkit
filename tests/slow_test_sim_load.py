@@ -275,7 +275,7 @@ class SimLoadTest(SkoolKitTestCase):
         pzx.add_puls(1)
         pzx.add_data(create_data_block(code))
         pzx.add_puls(1)
-        pzx.add_data(create_data_block(code2), (600, 600), (1200, 1200))
+        pzx.add_data(create_data_block(code2), (600, 600), (1200, 1200), tail=0)
         pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
 
         exp_data = (

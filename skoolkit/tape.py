@@ -238,7 +238,7 @@ class TapeBlock:
         self.block_data = block_data
 
 class TapeBlockTimings:
-    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0, used_bits=8, pulses=(), data=False, error=None):
+    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0, used_bits=8, pulses=(), data=False, tail=0, error=None):
         self.pilot_len = pilot_len
         self.pilot = pilot
         self.sync = sync
@@ -248,6 +248,7 @@ class TapeBlockTimings:
         self.used_bits = used_bits
         self.pulses = pulses
         self.data = data
+        self.tail = tail
         self.error = error
 
 def _get_tape_block_timings(first_byte, pause=3500000):
@@ -354,7 +355,7 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
             '1-bit pulse sequence: {} (T-states)'.format(', '.join(str(p) for p in s1)),
             f'Tail pulse: {tail} T-states'
         ))
-        timings = TapeBlockTimings(zero=s0[0], one=s1[0], used_bits=used_bits)
+        timings = TapeBlockTimings(zero=s0[0], one=s1[0], used_bits=used_bits, tail=tail)
     elif block_id == 'PAUS':
         name = 'Pause'
         duration = get_dword(data, i + 8)

@@ -136,6 +136,14 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
             indexes.append((len(edges) - 1, len(edges) - 1))
             data_blocks.append(())
 
+        # Tail pulse
+        if timings.tail:
+            if analyse:
+                ear = (len(edges) - 1) % 2
+                print(f'{tstates:>10}  {ear:>3}  Tail pulse ({timings.tail} T-states)')
+            tstates += timings.tail
+            edges.append(tstates)
+
         # Pause
         if i + 1 < len(blocks) and timings.pause:
             if analyse:
