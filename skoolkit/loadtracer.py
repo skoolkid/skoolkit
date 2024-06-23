@@ -48,6 +48,14 @@ INC = tuple(tuple((
     ) for c in (0, 1)
 )
 
+def _check_polarity(timings, polarity, edges, tstates, analyse):
+    if timings.polarity is not None:
+        ear = (len(edges) - 1) % 2
+        if ear != timings.polarity ^ (polarity % 2):
+            if analyse:
+                print(f'{tstates:>10}  {ear:>3}  Polarity adjustment ({ear}->{ear ^ 1})')
+            edges.append(tstates)
+
 def get_edges(blocks, first_edge, polarity, analyse=False):
     edges = [first_edge]
     if polarity % 2:
@@ -64,12 +72,14 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
         data = block.data
 
         # Pilot tone
-        if analyse and timings.pilot_len:
-            ear = (len(edges) - 1) % 2
-            print(f'{tstates:>10}  {ear:>3}  Tone ({timings.pilot_len} x {timings.pilot} T-states)')
-        for n in range(timings.pilot_len):
-            tstates += timings.pilot
-            edges.append(tstates)
+        if timings.pilot_len:
+            _check_polarity(timings, polarity, edges, tstates, analyse)
+            if analyse:
+                ear = (len(edges) - 1) % 2
+                print(f'{tstates:>10}  {ear:>3}  Tone ({timings.pilot_len} x {timings.pilot} T-states)')
+            for n in range(timings.pilot_len):
+                tstates += timings.pilot
+                edges.append(tstates)
 
         # Sync pulses
         for s in timings.sync:
@@ -80,29 +90,32 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
             edges.append(tstates)
 
         # Pulse Sequence / Direct Recording
-        if analyse and timings.pulses:
-            t = tstates
-            ear = (len(edges) - 1) % 2
-            count = 1
-            prev_p = timings.pulses[0]
-            for p in timings.pulses[1:] + [None]:
-                if p == prev_p:
-                    count += 1
-                else:
-                    if count == 1:
-                        print(f'{t:>10}  {ear:>3}  Pulse ({prev_p} T-states)')
+        if timings.pulses:
+            _check_polarity(timings, polarity, edges, tstates, analyse)
+            if analyse:
+                t = tstates
+                ear = (len(edges) - 1) % 2
+                count = 1
+                prev_p = timings.pulses[0]
+                for p in timings.pulses[1:] + [None]:
+                    if p == prev_p:
+                        count += 1
                     else:
-                        print(f'{t:>10}  {ear:>3}  Tone ({count} x {prev_p} T-states)')
-                    t += count * prev_p
-                    ear ^= count % 2
-                    count = 1
-                prev_p = p
-        for s in timings.pulses:
-            tstates += s
-            edges.append(tstates)
+                        if count == 1:
+                            print(f'{t:>10}  {ear:>3}  Pulse ({prev_p} T-states)')
+                        else:
+                            print(f'{t:>10}  {ear:>3}  Tone ({count} x {prev_p} T-states)')
+                        t += count * prev_p
+                        ear ^= count % 2
+                        count = 1
+                    prev_p = p
+            for s in timings.pulses:
+                tstates += s
+                edges.append(tstates)
 
         # Data
         if data:
+            _check_polarity(timings, polarity, edges, tstates, analyse)
             if analyse:
                 if timings.used_bits < 8:
                     bits = f' + {timings.used_bits} bits'
@@ -146,6 +159,7 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
 
         # Pause
         if i + 1 < len(blocks) and timings.pause:
+            _check_polarity(timings, polarity, edges, tstates, analyse)
             if analyse:
                 ear = (len(edges) - 1) % 2
                 print(f'{tstates:>10}  {ear:>3}  Pause ({timings.pause} T-states)')

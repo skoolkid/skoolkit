@@ -381,7 +381,7 @@ class PZX:
         if pulses:
             count = 1
             prev_p = pulses[0]
-            for p in pulses[1:] + [None]:
+            for p in list(pulses[1:]) + [None]:
                 if p == prev_p:
                     count += 1
                 else:

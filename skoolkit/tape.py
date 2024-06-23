@@ -238,7 +238,8 @@ class TapeBlock:
         self.block_data = block_data
 
 class TapeBlockTimings:
-    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0, used_bits=8, pulses=(), data=False, tail=0, error=None):
+    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0, used_bits=8,
+                 pulses=(), data=False, tail=0, polarity=None, error=None):
         self.pilot_len = pilot_len
         self.pilot = pilot
         self.sync = sync
@@ -249,6 +250,7 @@ class TapeBlockTimings:
         self.pulses = pulses
         self.data = data
         self.tail = tail
+        self.polarity = polarity
         self.error = error
 
 def _get_tape_block_timings(first_byte, pause=3500000):
@@ -324,16 +326,22 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
             pseq.append((count, duration))
         rom_pilot = len(pseq) == 3 and pseq[0] in ((3223, 2168), (8063, 2168)) and pseq[1:] == [(1, 667), (1, 735)]
         if len(pseq) == 3 and pseq[1][0] == 1 and pseq[2][0] == 1:
-            timings = TapeBlockTimings(pseq[0][0], pseq[0][1], (pseq[1][1], pseq[2][1]))
+            timings = TapeBlockTimings(pseq[0][0], pseq[0][1], (pseq[1][1], pseq[2][1]), polarity=0)
         else:
             pulses = []
             for count, duration in pseq:
                 pulses.extend([duration] * count)
-            timings = TapeBlockTimings(pulses=pulses)
+            if pulses and pulses[0] == 0:
+                pulses.pop(0)
+                polarity = 1
+            else:
+                polarity = 0
+            timings = TapeBlockTimings(pulses=pulses, polarity=polarity)
     elif block_id == 'DATA':
         name = 'Data block'
         count = get_dword(data, i + 8)
         bits = count % 0x80000000
+        polarity = count >> 31
         num_bytes = bits // 8
         used_bits = (bits % 8) or 8
         tail = get_word(data, i + 12)
@@ -350,20 +358,21 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
         else:
             info.append(f'Bits: {bits} ({num_bytes} bytes)')
         info.extend((
-            f'Initial pulse level: {count >> 31}',
+            f'Initial pulse level: {polarity}',
             '0-bit pulse sequence: {} (T-states)'.format(', '.join(str(p) for p in s0)),
             '1-bit pulse sequence: {} (T-states)'.format(', '.join(str(p) for p in s1)),
             f'Tail pulse: {tail} T-states'
         ))
-        timings = TapeBlockTimings(zero=s0[0], one=s1[0], used_bits=used_bits, tail=tail)
+        timings = TapeBlockTimings(zero=s0[0], one=s1[0], used_bits=used_bits, tail=tail, polarity=polarity)
     elif block_id == 'PAUS':
         name = 'Pause'
         duration = get_dword(data, i + 8)
+        polarity = duration >> 31
         info.extend((
             f'Duration: {duration % 0x80000000} T-states',
-            f'Initial pulse level: {duration >> 31}',
+            f'Initial pulse level: {polarity}',
         ))
-        timings = TapeBlockTimings(pause=duration)
+        timings = TapeBlockTimings(pause=duration % 0x80000000, polarity=polarity)
     elif block_id == 'BRWS':
         name = 'Browse point'
         info.append(''.join(chr(b) for b in data[i + 8:i + 8 + block_len]))
