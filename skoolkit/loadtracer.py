@@ -48,6 +48,13 @@ INC = tuple(tuple((
     ) for c in (0, 1)
 )
 
+class DataBlock:
+    def __init__(self, data, start, end, fast_load=True):
+        self.data = data
+        self.start = start
+        self.end = end
+        self.fast_load = fast_load
+
 def _check_polarity(timings, polarity, edges, tstates, analyse):
     if timings.polarity is not None:
         ear = (len(edges) - 1) % 2
@@ -60,7 +67,6 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
     edges = [first_edge]
     if polarity % 2:
         edges.append(first_edge)
-    indexes = []
     data_blocks = []
     tstates = first_edge
 
@@ -124,7 +130,9 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
                     bits = ''
                     data_len = len(data)
                 ear = (len(edges) - 1) % 2
-                print(f'{tstates:>10}  {ear:>3}  Data ({data_len} bytes{bits}; {timings.zero}/{timings.one} T-states)')
+                zero = ','.join(str(d) for d in timings.zero)
+                one = ','.join(str(d) for d in timings.one)
+                print(f'{tstates:>10}  {ear:>3}  Data ({data_len} bytes{bits}; {zero}/{one} T-states)')
             start = len(edges) - 1
             for k, b in enumerate(data, 1):
                 if k < len(data):
@@ -133,21 +141,24 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
                     num_bits = timings.used_bits
                 for j in range(num_bits):
                     if b & 0x80:
-                        duration = timings.one
+                        durations = timings.one
                     else:
-                        duration = timings.zero
-                    for k in range(2):
-                        tstates += duration
+                        durations = timings.zero
+                    for d in durations:
+                        tstates += d
                         edges.append(tstates)
                     b *= 2
-            indexes.append((start, len(edges) - 1))
-            data_blocks.append(data)
+            if 0 in timings.zero or 0 in timings.one:
+                # This is sample data as opposed to byte values, so ensure it's
+                # not fast-loaded
+                data_blocks.append(DataBlock(data, len(edges) - 1, len(edges) - 1, False))
+            else:
+                data_blocks.append(DataBlock(data, start, len(edges) - 1))
         elif i == len(blocks) - 1 or timings.data: # pragma: no cover
             # If this block contains a Direct Recording, or is the last block
-            # on the tape and contains a Pulse Sequence, add a dummy (empty)
-            # data block to ensure that the pulses are read
-            indexes.append((len(edges) - 1, len(edges) - 1))
-            data_blocks.append(())
+            # on the tape and contains a Pulse Sequence, add a data block to
+            # ensure that the pulses are read
+            data_blocks.append(DataBlock((), len(edges) - 1, len(edges) - 1, False))
 
         # Tail pulse
         if timings.tail:
@@ -165,7 +176,7 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
                 print(f'{tstates:>10}  {ear:>3}  Pause ({timings.pause} T-states)')
             tstates += timings.pause
 
-    return edges, indexes, data_blocks
+    return edges, data_blocks
 
 class LoadTracer(PagingTracer):
     def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity,
@@ -177,7 +188,7 @@ class LoadTracer(PagingTracer):
         self.dec_a_jp_hits = 0
         self.dec_a_misses = 0
         self.simulator = simulator
-        self.edges, self.indexes, self.blocks = get_edges(blocks, first_edge, polarity)
+        self.edges, self.blocks = get_edges(blocks, first_edge, polarity)
         self.pause = pause
         self.in_min_addr = in_min_addr
         self.announce_data = True
@@ -217,7 +228,7 @@ class LoadTracer(PagingTracer):
                     elif dec_b_acc:
                         opcodes[0x05] = partial(self.dec_b_auto, registers, memory, dec_b_acc)
         self.block_index = 0
-        self.block_data_index = self.indexes[0][0]
+        self.block_data_index = self.blocks[0].start
         self.max_index = len(self.edges) - 1
         self.border = border
         if len(simulator.memory) == 65536:
@@ -232,7 +243,7 @@ class LoadTracer(PagingTracer):
             0,                  # state[0]: next edge (timestamp)
             0,                  # state[1]: edge index
             0,                  # state[2]: end of tape reached
-            self.indexes[0][1], # state[3]: index of final edge in current block
+            self.blocks[0].end, # state[3]: index of final edge in current block
             0,                  # state[4]: tape running
             accel_dec_a,        # state[5]
             list_accelerators,  # state[6]
@@ -565,7 +576,7 @@ class LoadTracer(PagingTracer):
                     self.announce_data = False
                     state[4] = 1 # Signal: tape is running
                     registers[T] = self.edges[index]
-                    length = len(self.blocks[self.block_index])
+                    length = len(self.blocks[self.block_index].data)
                     if length:
                         write_line(f'Data ({length} bytes)')
                 elif index == self.max_index:
@@ -592,7 +603,8 @@ class LoadTracer(PagingTracer):
         else:
             self.state[1] = self.state[3] + 1
             self.state[0] = self.edges[self.state[1]]
-            self.block_data_index, self.state[3] = self.indexes[self.block_index]
+            self.block_data_index = self.blocks[self.block_index].start
+            self.state[3] = self.blocks[self.block_index].end
             self.state[4] = int(not self.pause) # Pause tape unless configured not to
             self.announce_data = True
 
@@ -609,18 +621,17 @@ class LoadTracer(PagingTracer):
         while self.block_data_index <= self.state[1] < self.max_index:
             self.next_block(registers[T])
         if self.block_index < len(self.blocks):
-            block = self.blocks[self.block_index]
+            data_block = self.blocks[self.block_index]
         else:
             raise SkoolKitError("Failed to fast load block: unexpected end of tape")
-        if not block:
-            # This block has no separately defined data (e.g. Direct Recording
-            # block), so it can't be fast-loaded
+        if not data_block.fast_load:
             return False # pragma: no cover
 
         memory = simulator.memory
         ix = registers[IXl] + 256 * registers[IXh] # Start address
         de = registers[E] + 256 * registers[D] # Block length
         a = registers[A]
+        block = data_block.data
         data_len = len(block) - 2
 
         # Exchange AF register pairs (as done at 0x0557), disable interrupts
