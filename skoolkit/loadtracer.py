@@ -55,12 +55,16 @@ class DataBlock:
         self.end = end
         self.fast_load = fast_load
 
-def _check_polarity(timings, polarity, edges, tstates, analyse):
+    def adjust(self, max_index):
+        self.start = min(self.start, max_index)
+        self.end = min(self.end, max_index)
+
+def _check_polarity(timings, polarity, edges, tstates, analysis):
     if timings.polarity is not None:
         ear = (len(edges) - 1) % 2
         if ear != timings.polarity ^ (polarity % 2):
-            if analyse:
-                print(f'{tstates:>10}  {ear:>3}  Polarity adjustment ({ear}->{ear ^ 1})')
+            if analysis:
+                analysis.append(f'{tstates:>10}  {ear:>3}  Polarity adjustment ({ear}->{ear ^ 1})')
             edges.append(tstates)
 
 def get_edges(blocks, first_edge, polarity, analyse=False):
@@ -69,20 +73,23 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
         edges.append(first_edge)
     data_blocks = []
     tstates = first_edge
-
+    tail = first_edge - 1
     if analyse:
-        print('T-states    EAR  Description')
+        analysis = ['T-states    EAR  Description']
+    else:
+        analysis = ()
 
     for i, block in enumerate(blocks):
         timings = block.timings
         data = block.data
+        has_pulses = timings.pilot_len or timings.sync or timings.pulses
 
         # Pilot tone
         if timings.pilot_len:
-            _check_polarity(timings, polarity, edges, tstates, analyse)
+            _check_polarity(timings, polarity, edges, tstates, analysis)
             if analyse:
                 ear = (len(edges) - 1) % 2
-                print(f'{tstates:>10}  {ear:>3}  Tone ({timings.pilot_len} x {timings.pilot} T-states)')
+                analysis.append(f'{tstates:>10}  {ear:>3}  Tone ({timings.pilot_len} x {timings.pilot} T-states)')
             for n in range(timings.pilot_len):
                 tstates += timings.pilot
                 edges.append(tstates)
@@ -91,13 +98,13 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
         for s in timings.sync:
             if analyse:
                 ear = (len(edges) - 1) % 2
-                print(f'{tstates:>10}  {ear:>3}  Pulse ({s} T-states)')
+                analysis.append(f'{tstates:>10}  {ear:>3}  Pulse ({s} T-states)')
             tstates += s
             edges.append(tstates)
 
         # Pulse Sequence / Direct Recording
         if timings.pulses:
-            _check_polarity(timings, polarity, edges, tstates, analyse)
+            _check_polarity(timings, polarity, edges, tstates, analysis)
             if analyse:
                 t = tstates
                 ear = (len(edges) - 1) % 2
@@ -108,9 +115,9 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
                         count += 1
                     else:
                         if count == 1:
-                            print(f'{t:>10}  {ear:>3}  Pulse ({prev_p} T-states)')
+                            analysis.append(f'{t:>10}  {ear:>3}  Pulse ({prev_p} T-states)')
                         else:
-                            print(f'{t:>10}  {ear:>3}  Tone ({count} x {prev_p} T-states)')
+                            analysis.append(f'{t:>10}  {ear:>3}  Tone ({count} x {prev_p} T-states)')
                         t += count * prev_p
                         ear ^= count % 2
                         count = 1
@@ -121,7 +128,7 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
 
         # Data
         if data:
-            _check_polarity(timings, polarity, edges, tstates, analyse)
+            _check_polarity(timings, polarity, edges, tstates, analysis)
             if analyse:
                 if timings.used_bits < 8:
                     bits = f' + {timings.used_bits} bits'
@@ -132,7 +139,7 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
                 ear = (len(edges) - 1) % 2
                 zero = ','.join(str(d) for d in timings.zero)
                 one = ','.join(str(d) for d in timings.one)
-                print(f'{tstates:>10}  {ear:>3}  Data ({data_len} bytes{bits}; {zero}/{one} T-states)')
+                analysis.append(f'{tstates:>10}  {ear:>3}  Data ({data_len} bytes{bits}; {zero}/{one} T-states)')
             start = len(edges) - 1
             for k, b in enumerate(data, 1):
                 if k < len(data):
@@ -148,33 +155,45 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
                         tstates += d
                         edges.append(tstates)
                     b *= 2
+
+            # Tail pulse
+            if timings.tail:
+                if analyse:
+                    ear = (len(edges) - 1) % 2
+                    analysis.append(f'{tstates:>10}  {ear:>3}  Tail pulse ({timings.tail} T-states)')
+                tstates += timings.tail
+                tail = tstates
+                edges.append(tstates)
+
             if 0 in timings.zero or 0 in timings.one:
                 # This is sample data as opposed to byte values, so ensure it's
                 # not fast-loaded
                 data_blocks.append(DataBlock(data, len(edges) - 1, len(edges) - 1, False))
             else:
                 data_blocks.append(DataBlock(data, start, len(edges) - 1))
-        elif i == len(blocks) - 1 or timings.data: # pragma: no cover
+        elif timings.data or (i == len(blocks) - 1 and has_pulses): # pragma: no cover
             # If this block contains a Direct Recording, or is the last block
-            # on the tape and contains a Pulse Sequence, add a data block to
+            # on the tape and contains pulses but no data, add a data block to
             # ensure that the pulses are read
             data_blocks.append(DataBlock((), len(edges) - 1, len(edges) - 1, False))
 
-        # Tail pulse
-        if timings.tail:
-            if analyse:
-                ear = (len(edges) - 1) % 2
-                print(f'{tstates:>10}  {ear:>3}  Tail pulse ({timings.tail} T-states)')
-            tstates += timings.tail
-            edges.append(tstates)
-
         # Pause
         if i + 1 < len(blocks) and timings.pause:
-            _check_polarity(timings, polarity, edges, tstates, analyse)
+            _check_polarity(timings, polarity, edges, tstates, analysis)
             if analyse:
                 ear = (len(edges) - 1) % 2
-                print(f'{tstates:>10}  {ear:>3}  Pause ({timings.pause} T-states)')
+                analysis.append(f'{tstates:>10}  {ear:>3}  Pause ({timings.pause} T-states)')
             tstates += timings.pause
+
+    if edges[-1] == tail:
+        edges.pop()
+        if analysis:
+            analysis.pop()
+        if data_blocks:
+            data_blocks[-1].adjust(len(edges) - 1)
+
+    for line in analysis:
+        print(line)
 
     return edges, data_blocks
 

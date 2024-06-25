@@ -695,7 +695,6 @@ class Tap2SnaTest(SkoolKitTestCase):
               38625131    1  Pulse (667 T-states)
               38625798    0  Pulse (735 T-states)
               38626533    1  Data (3 bytes; 855,855/1710,1710 T-states)
-              38681253    1  Tail pulse (945 T-states)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -732,7 +731,6 @@ class Tap2SnaTest(SkoolKitTestCase):
               38625131    0  Pulse (667 T-states)
               38625798    1  Pulse (735 T-states)
               38626533    0  Data (3 bytes; 855,855/1710,1710 T-states)
-              38681253    0  Tail pulse (945 T-states)
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
