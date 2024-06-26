@@ -1049,6 +1049,241 @@ class TapinfoTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
+    def test_option_tape_start_with_pzx_file(self):
+        pzx = PZX()
+        pzx.add_puls()
+        pzx.add_data(create_header_block('test_start', 32768, 3))
+        pzx.add_puls()
+        pzx.add_data(create_data_block([1, 2, 3]))
+        pzx.add_puls()
+        pzx.add_data(create_data_block([4, 5, 6]))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tapinfo(f'--tape-start 4 {pzxfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            4: Pulse sequence
+              3223 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            5: Data block
+              Bits: 40 (5 bytes)
+              Initial pulse level: 1
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Data block
+              Length: 5
+              Data: 255, 1, 2, 3, 255
+            6: Pulse sequence
+              3223 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            7: Data block
+              Bits: 40 (5 bytes)
+              Initial pulse level: 1
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Data block
+              Length: 5
+              Data: 255, 4, 5, 6, 248
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_stop_with_pzx_file(self):
+        pzx = PZX()
+        pzx.add_puls()
+        pzx.add_data(create_header_block('test__stop', 32768, 3))
+        pzx.add_puls()
+        pzx.add_data(create_data_block([1, 2, 3]))
+        pzx.add_puls()
+        pzx.add_data(create_data_block([4, 5, 6]))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tapinfo(f'--tape-stop 6 {pzxfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            1: PZX header block
+              Version: 1.0
+            2: Pulse sequence
+              3223 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            3: Data block
+              Bits: 152 (19 bytes)
+              Initial pulse level: 1
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Header block
+              Bytes: test__stop
+              CODE: 32768,3
+              Length: 19
+              Data: 0, 3, 116, 101, 115, 116, 95 ... 3, 0, 0, 128, 0, 0, 142
+            4: Pulse sequence
+              3223 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            5: Data block
+              Bits: 40 (5 bytes)
+              Initial pulse level: 1
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Data block
+              Length: 5
+              Data: 255, 1, 2, 3, 255
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_options_tape_start_and_tape_stop_with_pzx_file(self):
+        pzx = PZX()
+        pzx.add_puls()
+        pzx.add_data(create_header_block('test__both', 32768, 3))
+        pzx.add_puls()
+        pzx.add_data(create_data_block([1, 2, 3]))
+        pzx.add_puls()
+        pzx.add_data(create_data_block([4, 5, 6]))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tapinfo(f'--tape-start 4 --tape-stop 6 {pzxfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            4: Pulse sequence
+              3223 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            5: Data block
+              Bits: 40 (5 bytes)
+              Initial pulse level: 1
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Data block
+              Length: 5
+              Data: 255, 1, 2, 3, 255
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_start_with_tap_file(self):
+        tap_data = create_tap_header_block('test_start', 32768, 3)
+        tap_data.extend(create_tap_data_block([1, 2, 3]))
+        tap_data.extend(create_tap_data_block([4, 5, 6]))
+        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        output, error = self.run_tapinfo(f'--tape-start 2 {tapfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            2:
+              Type: Data block
+              Length: 5
+              Data: 255, 1, 2, 3, 255
+            3:
+              Type: Data block
+              Length: 5
+              Data: 255, 4, 5, 6, 248
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_stop_with_tap_file(self):
+        tap_data = create_tap_header_block('test__stop', 32768, 3)
+        tap_data.extend(create_tap_data_block([1, 2, 3]))
+        tap_data.extend(create_tap_data_block([4, 5, 6]))
+        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        output, error = self.run_tapinfo(f'--tape-stop 3 {tapfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            1:
+              Type: Header block
+              Bytes: test__stop
+              CODE: 32768,3
+              Length: 19
+              Data: 0, 3, 116, 101, 115, 116, 95 ... 3, 0, 0, 128, 0, 0, 142
+            2:
+              Type: Data block
+              Length: 5
+              Data: 255, 1, 2, 3, 255
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_options_tape_start_and_tape_stop_with_tap_file(self):
+        tap_data = create_tap_header_block('test__both', 32768, 3)
+        tap_data.extend(create_tap_data_block([1, 2, 3]))
+        tap_data.extend(create_tap_data_block([4, 5, 6]))
+        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        output, error = self.run_tapinfo(f'--tape-start 2 --tape-stop 3 {tapfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            2:
+              Type: Data block
+              Length: 5
+              Data: 255, 1, 2, 3, 255
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_start_with_tzx_file(self):
+        tzxfile = self._write_tzx((
+            create_tzx_header_block('test_start', 32768, 3),
+            create_tzx_data_block([1, 2, 3]),
+            create_tzx_data_block([4, 5, 6])
+        ))
+        output, error = self.run_tapinfo(f'--tape-start 2 {tzxfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            Version: 1.20
+            2: Standard speed data (0x10)
+              Pause: 0ms
+              Type: Data block
+              Length: 5
+              Data: 255, 1, 2, 3, 255
+            3: Standard speed data (0x10)
+              Pause: 0ms
+              Type: Data block
+              Length: 5
+              Data: 255, 4, 5, 6, 248
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_stop_with_tzx_file(self):
+        tzxfile = self._write_tzx((
+            create_tzx_header_block('test__stop', 32768, 3),
+            create_tzx_data_block([1, 2, 3]),
+            create_tzx_data_block([4, 5, 6])
+        ))
+        output, error = self.run_tapinfo(f'--tape-stop 3 {tzxfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            Version: 1.20
+            1: Standard speed data (0x10)
+              Pause: 0ms
+              Type: Header block
+              Bytes: test__stop
+              CODE: 32768,3
+              Length: 19
+              Data: 0, 3, 116, 101, 115, 116, 95 ... 3, 0, 0, 128, 0, 0, 142
+            2: Standard speed data (0x10)
+              Pause: 0ms
+              Type: Data block
+              Length: 5
+              Data: 255, 1, 2, 3, 255
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_options_tape_start_and_tape_stop_with_tzx_file(self):
+        tzxfile = self._write_tzx((
+            create_tzx_header_block('test__both', 32768, 3),
+            create_tzx_data_block([1, 2, 3]),
+            create_tzx_data_block([4, 5, 6])
+        ))
+        output, error = self.run_tapinfo(f'--tape-start 2 --tape-stop 3 {tzxfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            Version: 1.20
+            2: Standard speed data (0x10)
+              Pause: 0ms
+              Type: Data block
+              Length: 5
+              Data: 255, 1, 2, 3, 255
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_tapinfo(option, catch_exit=0)

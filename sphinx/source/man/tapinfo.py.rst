@@ -22,6 +22,12 @@ OPTIONS
 -d, --data
   Show the entire contents of header and data blocks.
 
+--tape-start `BLOCK`
+  Start at this tape block number.
+
+--tape-stop `BLOCK`
+  Stop at this tape block number.
+
 -V, --version
   Show the SkoolKit version number and exit.
 

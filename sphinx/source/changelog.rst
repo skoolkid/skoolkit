@@ -17,12 +17,14 @@ Changelog
   sequences to disassemble)
 * Added the :ref:`bytes` directive (for specifying the byte values to which an
   instruction should assemble)
+* Added the ``--tape-start`` and ``--tape-stop`` options to :ref:`tapinfo.py`
+  (for specifying the block numbers at which to start or stop showing info)
+* :ref:`tapinfo.py` now shows info for TZX block type 0x18 (CSW recording) and
+  also recognises the deprecated TZX block types 0x16, 0x17, 0x34 and 0x40
 * The ``--find``, ``--find-text`` and ``--find-tile`` options of
   :ref:`snapinfo.py` now search all RAM banks in a 128K snapshot by default
 * Added support for path ID replacement fields in the ``destDir`` parameter of
   items in the :ref:`resources` section
-* :ref:`tapinfo.py` now shows info for TZX block type 0x18 (CSW recording) and
-  also recognises the deprecated TZX block types 0x16, 0x17, 0x34 and 0x40
 * Fixed the bug that prevents the ``--reg`` option of :ref:`trace.py` from
   accepting hexadecimal values prefixed by '0x'
 

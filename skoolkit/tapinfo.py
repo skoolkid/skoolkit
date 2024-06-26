@@ -119,6 +119,10 @@ def main(args):
                        help='List the BASIC program in block N loaded at address A (default 23755).')
     group.add_argument('-d', '--data', action='store_true',
                        help='Show the entire contents of header and data blocks.')
+    group.add_argument('--tape-start', metavar='BLOCK', type=int, default=1,
+                       help="Start at this tape block number.")
+    group.add_argument('--tape-stop', metavar='BLOCK', type=int, default=0,
+                       help="Stop at this tape block number.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
@@ -128,11 +132,11 @@ def main(args):
     text_reader = TextReader()
     tape_type = namespace.infile.lower()[-4:]
     if tape_type == '.pzx':
-        tape = parse_pzx(namespace.infile)
+        tape = parse_pzx(namespace.infile, namespace.tape_start, namespace.tape_stop)
     elif tape_type == '.tap':
-        tape = parse_tap(namespace.infile)
+        tape = parse_tap(namespace.infile, namespace.tape_start, namespace.tape_stop)
     elif tape_type == '.tzx':
-        tape = parse_tzx(namespace.infile)
+        tape = parse_tzx(namespace.infile, namespace.tape_start, namespace.tape_stop)
     else:
         raise SkoolKitError('Unrecognised tape type')
     _analyse_tape(tape, basic_block, text_reader, namespace.data)
