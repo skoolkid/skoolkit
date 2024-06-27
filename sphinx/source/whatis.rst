@@ -39,8 +39,8 @@ With SkoolKit you can:
 * use :ref:`skool2ctl.py` to convert a disassembly back into a control file
   (with annotations retained)
 * use :ref:`skool2bin.py` to convert a disassembly into a raw memory file
-* use :ref:`tap2sna.py` to convert a TAP or TZX file into a 'pristine' Z80 or
-  SZX snapshot
+* use :ref:`tap2sna.py` to convert a PZX, TAP or TZX file into a 'pristine' Z80
+  or SZX snapshot
 * use :ref:`snapinfo.py` to analyse a snapshot or raw memory file and list the
   BASIC program it contains, show register values, produce a call graph, find
   tile graphic data, find text, or find sequences of arbitrary byte values
@@ -48,8 +48,8 @@ With SkoolKit you can:
   raw memory file
 * use :ref:`rzxplay.py` to trace the execution of machine code in an RZX file,
   and produce a code execution map for :ref:`sna2ctl.py`
-* use :ref:`tapinfo.py` to analyse the blocks in a TAP or TZX file, and list
-  the BASIC program it contains
+* use :ref:`tapinfo.py` to analyse the blocks in a PZX, TAP or TZX file, and
+  list the BASIC program it contains
 * use :ref:`rzxinfo.py` to analyse the blocks in an RZX file, and extract
   snapshots from it
 * use :ref:`bin2tap.py` to convert a snapshot or raw memory file into a TAP
