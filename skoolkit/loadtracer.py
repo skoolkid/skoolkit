@@ -82,49 +82,20 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
     for i, block in enumerate(blocks):
         timings = block.timings
         data = block.data
-        has_pulses = timings.pilot_len or timings.sync or timings.pulses
 
-        # Pilot tone
-        if timings.pilot_len:
-            _check_polarity(timings, polarity, edges, tstates, analysis)
-            if analyse:
-                ear = (len(edges) - 1) % 2
-                analysis.append(f'{tstates:>10}  {ear:>3}  Tone ({timings.pilot_len} x {timings.pilot} T-states)')
-            for n in range(timings.pilot_len):
-                tstates += timings.pilot
-                edges.append(tstates)
-
-        # Sync pulses
-        for s in timings.sync:
-            if analyse:
-                ear = (len(edges) - 1) % 2
-                analysis.append(f'{tstates:>10}  {ear:>3}  Pulse ({s} T-states)')
-            tstates += s
-            edges.append(tstates)
-
-        # Pulse Sequence / Direct Recording
+        # Pulses
         if timings.pulses:
             _check_polarity(timings, polarity, edges, tstates, analysis)
-            if analyse:
-                t = tstates
-                ear = (len(edges) - 1) % 2
-                count = 1
-                prev_p = timings.pulses[0]
-                for p in timings.pulses[1:] + [None]:
-                    if p == prev_p:
-                        count += 1
+            for count, duration in timings.pulses:
+                if analyse:
+                    ear = (len(edges) - 1) % 2
+                    if count == 1:
+                        analysis.append(f'{tstates:>10}  {ear:>3}  Pulse ({duration} T-states)')
                     else:
-                        if count == 1:
-                            analysis.append(f'{t:>10}  {ear:>3}  Pulse ({prev_p} T-states)')
-                        else:
-                            analysis.append(f'{t:>10}  {ear:>3}  Tone ({count} x {prev_p} T-states)')
-                        t += count * prev_p
-                        ear ^= count % 2
-                        count = 1
-                    prev_p = p
-            for s in timings.pulses:
-                tstates += s
-                edges.append(tstates)
+                        analysis.append(f'{tstates:>10}  {ear:>3}  Tone ({count} x {duration} T-states)')
+                for n in range(count):
+                    tstates += duration
+                    edges.append(tstates)
 
         # Data
         if data:
@@ -171,7 +142,7 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
                 data_blocks.append(DataBlock(data, len(edges) - 1, len(edges) - 1, False))
             else:
                 data_blocks.append(DataBlock(data, start, len(edges) - 1))
-        elif timings.data or (i == len(blocks) - 1 and has_pulses): # pragma: no cover
+        elif timings.data or (i == len(blocks) - 1 and timings.pulses):
             # If this block contains a Direct Recording, or is the last block
             # on the tape and contains pulses but no data, add a data block to
             # ensure that the pulses are read

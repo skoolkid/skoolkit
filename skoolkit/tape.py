@@ -238,27 +238,21 @@ class TapeBlock:
         self.block_data = block_data
 
 class TapeBlockTimings:
-    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=None, one=None, pause=0,
-                 used_bits=8, pulses=(), data=False, tail=0, polarity=None, error=None):
-        self.pilot_len = pilot_len
-        self.pilot = pilot
-        self.sync = sync
-        self.zero = (zero, zero) if isinstance(zero, int) else zero
-        self.one = (one, one) if isinstance(one, int) else one
+    def __init__(self, pulses=(), zero=None, one=None, pause=0, used_bits=8,
+                 data=False, tail=0, polarity=None, error=None):
+        self.pulses = pulses
+        self.zero = zero
+        self.one = one
         self.pause = pause
         self.used_bits = used_bits
-        self.pulses = pulses
         self.data = data
         self.tail = tail
         self.polarity = polarity
         self.error = error
 
 def _get_tape_block_timings(first_byte, pause=3500000):
-    if first_byte == 0:
-        # Header block
-        return TapeBlockTimings(8063, 2168, (667, 735), 855, 1710, pause)
-    # Data block
-    return TapeBlockTimings(3223, 2168, (667, 735), 855, 1710, pause)
+    pulses = ((3223 + 4840 * (first_byte == 0), 2168), (1, 667), (1, 735))
+    return TapeBlockTimings(pulses, (855, 855), (1710, 1710), pause)
 
 def _get_str(data, dump=False):
     if dump and any(b > 127 or (b < 31 and b not in CHARS) for b in data):
@@ -309,7 +303,7 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
             info.append(f'{pairs[0]}: {pairs[1]}')
     elif block_id == 'PULS':
         name = 'Pulse sequence'
-        pseq = []
+        pulses = []
         j = i + 8
         while j < i + 8 + block_len:
             count = 1
@@ -323,20 +317,14 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
                 duration = (duration % 0x8000) * 65536 + get_word(data, j)
                 j += 2
             info.append(f'{count} x {duration} T-states')
-            pseq.append((count, duration))
-        rom_pilot = len(pseq) == 3 and pseq[0] in ((3223, 2168), (8063, 2168)) and pseq[1:] == [(1, 667), (1, 735)]
-        if len(pseq) == 3 and pseq[1][0] == 1 and pseq[2][0] == 1:
-            timings = TapeBlockTimings(pseq[0][0], pseq[0][1], (pseq[1][1], pseq[2][1]), polarity=0)
+            pulses.append((count, duration))
+        rom_pilot = len(pulses) == 3 and pulses[0] in ((3223, 2168), (8063, 2168)) and pulses[1:] == [(1, 667), (1, 735)]
+        if pulses and pulses[0][0] % 2 and pulses[0][1] == 0:
+            pulses.pop(0)
+            polarity = 1
         else:
-            pulses = []
-            for count, duration in pseq:
-                pulses.extend([duration] * count)
-            if pulses and pulses[0] == 0:
-                pulses.pop(0)
-                polarity = 1
-            else:
-                polarity = 0
-            timings = TapeBlockTimings(pulses=pulses, polarity=polarity)
+            polarity = 0
+        timings = TapeBlockTimings(pulses, polarity=polarity)
     elif block_id == 'DATA':
         name = 'Data block'
         count = get_dword(data, i + 8)
@@ -431,7 +419,8 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
                 f'Pause: {pause}ms'
             ))
         if get_timings:
-            timings = TapeBlockTimings(pilot_len, pilot, (sync1, sync2), zero, one, pause * 3500, used_bits)
+            pulses = ((pilot_len, pilot), (1, sync1), (1, sync2))
+            timings = TapeBlockTimings(pulses, (zero, zero), (one, one), pause * 3500, used_bits)
         length = get_word3(data, i + 15)
         tape_data = data[i + 18:i + 18 + length]
         i += 18 + length
@@ -446,7 +435,7 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
                 f'Pulses: {num_pulses}'
             ))
         if get_timings:
-            timings = TapeBlockTimings(num_pulses, pulse_len)
+            timings = TapeBlockTimings([(num_pulses, pulse_len)])
         i += 4
     elif block_id == 0x13:
         # Sequence of pulses of various lengths
@@ -459,10 +448,10 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
             if get_info:
                 info.append('Pulse {}/{}: {}'.format(pulse + 1, num_pulses, pulse_len))
             if get_timings:
-                pulses.append(pulse_len)
+                pulses.append((1, pulse_len))
             i += 2
         if get_timings:
-            timings = TapeBlockTimings(sync=pulses)
+            timings = TapeBlockTimings(pulses)
     elif block_id == 0x14:
         # Pure data block
         header = 'Pure data'
@@ -478,7 +467,7 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
                 f'Pause: {pause}ms'
             ))
         if get_timings:
-            timings = TapeBlockTimings(zero=zero, one=one, pause=pause * 3500, used_bits=used_bits)
+            timings = TapeBlockTimings((), (zero, zero), (one, one), pause * 3500, used_bits)
         length = get_word3(data, i + 7)
         tape_data = data[i + 10:i + 10 + length]
         i += length + 10
@@ -501,7 +490,7 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
             pulses = []
             prev_bit = data[i + 8] & 0x80
             if prev_bit:
-                pulses.append(0)
+                pulses.append((1, 0))
             bit_count = 0
             for j, b in enumerate(data[i + 8:i + 8 + num_bytes], 1):
                 if j < num_bytes:
@@ -513,13 +502,13 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
                     if bit == prev_bit:
                         bit_count += 1
                     else:
-                        pulses.append(bit_count * tps)
+                        pulses.append((1, bit_count * tps))
                         prev_bit = bit
                         bit_count = 1
                     b *= 2
-            pulses.append(bit_count * tps)
+            pulses.append((1, bit_count * tps))
             tape_data = []
-            timings = TapeBlockTimings(pause=pause * 3500, pulses=pulses, data=True)
+            timings = TapeBlockTimings(pulses, pause=pause * 3500, data=True)
         i += 8 + num_bytes
     elif block_id == 0x16:
         # C64 ROM type data

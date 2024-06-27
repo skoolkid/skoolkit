@@ -2264,7 +2264,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(load_tracer.blocks), 1)
         block = load_tracer.blocks[0]
         self.assertEqual([], block.data)
-        self.assertEqual([350, 50, 300, 50, 350, 100], block.timings.pulses)
+        self.assertEqual([(1, 350), (1, 50), (1, 300), (1, 50), (1, 350), (1, 100)], block.timings.pulses)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
@@ -2285,7 +2285,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(load_tracer.blocks), 1)
         block = load_tracer.blocks[0]
         self.assertEqual([], block.data)
-        self.assertEqual([0, 10, 130, 10, 70, 20], block.timings.pulses)
+        self.assertEqual([(1, 0), (1, 10), (1, 130), (1, 10), (1, 70), (1, 20)], block.timings.pulses)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
@@ -2306,7 +2306,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(load_tracer.blocks), 1)
         block = load_tracer.blocks[0]
         self.assertEqual([], block.data)
-        self.assertEqual([700, 100, 600, 100, 100, 400], block.timings.pulses)
+        self.assertEqual([(1, 700), (1, 100), (1, 600), (1, 100), (1, 100), (1, 400)], block.timings.pulses)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
