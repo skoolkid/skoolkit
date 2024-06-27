@@ -214,6 +214,143 @@ SIM_LOAD_CODE_PATCH = {
     0xFF36: 0x5CD0
 }
 
+SIM_LOAD_CONFIG_HELP = """
+Usage: --sim-load-config accelerate-dec-a=0/1/2
+       --sim-load-config accelerator=NAME
+       --sim-load-config cmio=0/1
+       --sim-load-config fast-load=0/1
+       --sim-load-config finish-tape=0/1
+       --sim-load-config first-edge=N
+       --sim-load-config in-flags=FLAGS
+       --sim-load-config load=KEYS
+       --sim-load-config machine=48/128
+       --sim-load-config pause=0/1
+       --sim-load-config polarity=0/1
+       --sim-load-config python=0/1
+       --sim-load-config timeout=N
+       --sim-load-config trace=FILE
+
+Configure various properties of a simulated LOAD.
+
+--sim-load-config accelerate-dec-a=0/1/2
+
+  Specify whether to accelerate 'DEC A: JR NZ,$-1' loops (1, the default), or
+  'DEC A: JP NZ,$-1' loops (2), or neither (0).
+
+--sim-load-config accelerator=auto/none/list/NAME[,NAME...]
+
+  Use one or more specific accelerators to speed up the simulation of the
+  tape-sampling loops in a loading routine, disable acceleration entirely, or
+  list the accelerators used during a simulated LOAD. (By default, appropriate
+  accelerators are automatically selected, if available.) Recognised
+  accelerator names are:
+
+  {accelerators}
+
+--sim-load-config cmio=0/1
+
+  By default, memory contention and I/O contention delays are not simulated.
+  This improves performance and does not affect most loaders. Set cmio=1 to
+  enable simulation of memory and I/O contention delays. Note that when cmio=1,
+  all acceleration is disabled.
+
+--sim-load-config fast-load=0/1
+
+  By default, whenever the Spectrum ROM's load routine is called, a shortcut is
+  taken by "fast loading" the next block on the tape. This significantly
+  reduces the load time for many tapes, but can also cause some loaders to
+  fail. Set fast-load=0 to disable fast loading.
+
+--sim-load-config finish-tape=0/1
+
+  By default, the simulated LOAD stops as soon as the program counter hits the
+  address specified by the '--start' option (if any), regardless of whether the
+  tape has finished running. Set finish-tape=1 to ensure that the end of the
+  tape is reached before stopping the simulation at the given start address.
+
+--sim-load-config first-edge=N
+
+  Set the time (in T-states) from the start of the tape at which to place the
+  leading edge of the first pulse (default: 0).
+
+--sim-load-config in-flags=FLAGS
+
+  Specify how to handle 'IN' instructions. FLAGS is the sum of the following
+  values, chosen according to the desired behaviour:
+
+    1 - interpret 'IN A,($FE)' instructions in the address range $4000-$7FFF as
+        reading the tape (by default they are ignored)
+    2 - ignore 'IN' instructions in the address range $4000-$FFFF (i.e. in RAM)
+        that read port $FE
+    4 - yield a simulated port reading when executing an 'IN r,(C)' instruction
+        (by default such an instruction always yields the value $FF)
+
+--sim-load-config load=KEYS
+
+  By default, the simulated LOAD begins by executing either 'LOAD ""' or
+  'LOAD ""CODE' (depending on whether the tape begins with a Bytes block). If
+  an alternative command line is required to load the tape, it can be specified
+  by this parameter. KEYS is a space-separated list of 'words' (a 'word' being
+  a sequence of any characters other than space), each of which is broken down
+  into a sequence of one or more keypresses. If a word contains the '+' symbol,
+  the tokens it separates are converted into keypresses made simultaneously. If
+  a word matches a BASIC token, the corresponding sequence of keypresses to
+  produce that token are substituted. Otherwise, each character in the word is
+  converted individually into the appropriate keypresses.
+
+  The following special tokens are also recognised:
+
+    CS         - CAPS SHIFT
+    SS         - SYMBOL SHIFT
+    SPACE      - SPACE
+    ENTER      - ENTER
+    DOWN       - Cursor down (CS+6)
+    GOTO       - GO TO (g)
+    GOSUB      - GO SUB (h)
+    DEFFN      - DEF FN (CS+SS SS+1)
+    OPEN#      - OPEN # (CS+SS SS+4)
+    CLOSE#     - CLOSE # (CS+SS SS+5)
+    PC=address - Stop the keyboard input simulation at this address
+
+  The 'PC=address' token, if present, must appear last. The default address is
+  either 0x0605 (when a 48K Spectrum is being simulated) or 0x13BE (on a 128K
+  Spectrum). The simulated LOAD begins at this address.
+
+  ENTER is automatically appended to the command line if not already present.
+
+--sim-load-config machine=48/128
+
+  By default, tap2sna.py simulates a 48K Spectrum. Set machine=128 to simulate
+  a 128K Spectrum.
+
+--sim-load-config pause=0/1
+
+  By default, the tape is paused between blocks, and resumed whenever port 254
+  is read. While this can help with tapes that require (but do not actually
+  contain) long pauses between blocks, it can cause some loaders to fail. Set
+  pause=0 to disable this behaviour and run the tape continuously.
+
+--sim-load-config polarity=0/1
+
+  By default, the first pulse on the tape produces an EAR bit reading of 0
+  (polarity=0), and subsequent pulses give readings that alternate between 1
+  and 0. This works for most loaders, but some require polarity=1.
+
+--sim-load-config python=0/1
+
+  By default, tap2sna.py will use the C version of the Z80 simulator if it's
+  available. Set python=1 to force usage of the pure Python Z80 simulator.
+
+--sim-load-config timeout=N
+
+  Set the timeout to N seconds (default: 900). A simulated LOAD still in
+  progress after this period of Z80 CPU time will automatically abort.
+
+--sim-load-config trace=FILE
+
+  Log to FILE all instructions executed during the simulated LOAD.
+""".strip()
+
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
         args = []
@@ -702,7 +839,7 @@ snapshot in an arbitrary way.
   suitable for a 48K ZX Spectrum.
 """.lstrip())
 
-def _print_sim_load_config_help():
+def _print_sim_load_config_help(param):
     width = max(len(n) for n in ACCELERATORS) + 2
     names = [n.ljust(width) for n in sorted(ACCELERATORS)]
     num_cols = 3
@@ -710,142 +847,19 @@ def _print_sim_load_config_help():
     cl = len(names) // num_cols
     columns = [names[i:i + cl] for i in range(0, len(names), cl)]
     accelerators = '\n  '.join(''.join(n) for n in zip(*columns))
-    print(f"""
-Usage: --sim-load-config accelerate-dec-a=0/1/2
-       --sim-load-config accelerator=NAME
-       --sim-load-config cmio=0/1
-       --sim-load-config fast-load=0/1
-       --sim-load-config finish-tape=0/1
-       --sim-load-config first-edge=N
-       --sim-load-config in-flags=FLAGS
-       --sim-load-config load=KEYS
-       --sim-load-config machine=48/128
-       --sim-load-config pause=0/1
-       --sim-load-config polarity=0/1
-       --sim-load-config python=0/1
-       --sim-load-config timeout=N
-       --sim-load-config trace=FILE
-
-Configure various properties of a simulated LOAD.
-
---sim-load-config accelerate-dec-a=0/1/2
-
-  Specify whether to accelerate 'DEC A: JR NZ,$-1' loops (1, the default), or
-  'DEC A: JP NZ,$-1' loops (2), or neither (0).
-
---sim-load-config accelerator=auto/none/list/NAME[,NAME...]
-
-  Use one or more specific accelerators to speed up the simulation of the
-  tape-sampling loops in a loading routine, disable acceleration entirely, or
-  list the accelerators used during a simulated LOAD. (By default, appropriate
-  accelerators are automatically selected, if available.) Recognised
-  accelerator names are:
-
-  {accelerators}
-
---sim-load-config cmio=0/1
-
-  By default, memory contention and I/O contention delays are not simulated.
-  This improves performance and does not affect most loaders. Set cmio=1 to
-  enable simulation of memory and I/O contention delays. Note that when cmio=1,
-  all acceleration is disabled.
-
---sim-load-config fast-load=0/1
-
-  By default, whenever the Spectrum ROM's load routine is called, a shortcut is
-  taken by "fast loading" the next block on the tape. This significantly
-  reduces the load time for many tapes, but can also cause some loaders to
-  fail. Set fast-load=0 to disable fast loading.
-
---sim-load-config finish-tape=0/1
-
-  By default, the simulated LOAD stops as soon as the program counter hits the
-  address specified by the '--start' option (if any), regardless of whether the
-  tape has finished running. Set finish-tape=1 to ensure that the end of the
-  tape is reached before stopping the simulation at the given start address.
-
---sim-load-config first-edge=N
-
-  Set the time (in T-states) from the start of the tape at which to place the
-  leading edge of the first pulse (default: 0).
-
---sim-load-config in-flags=FLAGS
-
-  Specify how to handle 'IN' instructions. FLAGS is the sum of the following
-  values, chosen according to the desired behaviour:
-
-    1 - interpret 'IN A,($FE)' instructions in the address range $4000-$7FFF as
-        reading the tape (by default they are ignored)
-    2 - ignore 'IN' instructions in the address range $4000-$FFFF (i.e. in RAM)
-        that read port $FE
-    4 - yield a simulated port reading when executing an 'IN r,(C)' instruction
-        (by default such an instruction always yields the value $FF)
-
---sim-load-config load=KEYS
-
-  By default, the simulated LOAD begins by executing either 'LOAD ""' or
-  'LOAD ""CODE' (depending on whether the tape begins with a Bytes block). If
-  an alternative command line is required to load the tape, it can be specified
-  by this parameter. KEYS is a space-separated list of 'words' (a 'word' being
-  a sequence of any characters other than space), each of which is broken down
-  into a sequence of one or more keypresses. If a word contains the '+' symbol,
-  the tokens it separates are converted into keypresses made simultaneously. If
-  a word matches a BASIC token, the corresponding sequence of keypresses to
-  produce that token are substituted. Otherwise, each character in the word is
-  converted individually into the appropriate keypresses.
-
-  The following special tokens are also recognised:
-
-    CS         - CAPS SHIFT
-    SS         - SYMBOL SHIFT
-    SPACE      - SPACE
-    ENTER      - ENTER
-    DOWN       - Cursor down (CS+6)
-    GOTO       - GO TO (g)
-    GOSUB      - GO SUB (h)
-    DEFFN      - DEF FN (CS+SS SS+1)
-    OPEN#      - OPEN # (CS+SS SS+4)
-    CLOSE#     - CLOSE # (CS+SS SS+5)
-    PC=address - Stop the keyboard input simulation at this address
-
-  The 'PC=address' token, if present, must appear last. The default address is
-  either 0x0605 (when a 48K Spectrum is being simulated) or 0x13BE (on a 128K
-  Spectrum). The simulated LOAD begins at this address.
-
-  ENTER is automatically appended to the command line if not already present.
-
---sim-load-config machine=48/128
-
-  By default, tap2sna.py simulates a 48K Spectrum. Set machine=128 to simulate
-  a 128K Spectrum.
-
---sim-load-config pause=0/1
-
-  By default, the tape is paused between blocks, and resumed whenever port 254
-  is read. While this can help with tapes that require (but do not actually
-  contain) long pauses between blocks, it can cause some loaders to fail. Set
-  pause=0 to disable this behaviour and run the tape continuously.
-
---sim-load-config polarity=0/1
-
-  By default, the first pulse on the tape produces an EAR bit reading of 0
-  (polarity=0), and subsequent pulses give readings that alternate between 1
-  and 0. This works for most loaders, but some require polarity=1.
-
---sim-load-config python=0/1
-
-  By default, tap2sna.py will use the C version of the Z80 simulator if it's
-  available. Set python=1 to force usage of the pure Python Z80 simulator.
-
---sim-load-config timeout=N
-
-  Set the timeout to N seconds (default: 900). A simulated LOAD still in
-  progress after this period of Z80 CPU time will automatically abort.
-
---sim-load-config trace=FILE
-
-  Log to FILE all instructions executed during the simulated LOAD.
-""".strip())
+    help_text = SIM_LOAD_CONFIG_HELP.format(accelerators=accelerators)
+    if param:
+        params = {}
+        name = None
+        for line in help_text.split('\n'):
+            if line.startswith('--sim-load-config '):
+                name = line[18:].split('=', 1)[0]
+                params[name] = [line]
+            elif name == param:
+                params[name].append(line)
+        if param in params:
+            help_text = '\n'.join(params[param]).rstrip()
+    print(help_text)
 
 def make_snapshot(url, options, outfile, config):
     tape_name, tape_type, tape = _get_tape(url, options.user_agent, options.tape_name)
@@ -891,7 +905,8 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--sim-load-config', metavar='name=value', action='append', default=[],
                        help="Set the value of a simulated LOAD configuration parameter. "
-                            "Do '-c help' for more information. This option may be used multiple times.")
+                            "Do '-c help' for more information, or '-c help-name' for help on a specific parameter. "
+                            "This option may be used multiple times.")
     group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR',
                        help="Write the snapshot file in this directory.")
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
@@ -928,9 +943,10 @@ def main(args):
     namespace, unknown_args = parser.parse_known_intermixed_args(args)
     if namespace.show_config:
         show_config('tap2sna', config)
-    if 'help' in namespace.sim_load_config:
-        _print_sim_load_config_help()
-        return
+    for param in namespace.sim_load_config:
+        if param.startswith('help'):
+            _print_sim_load_config_help(param[5:])
+            return
     if 'help' in namespace.ram_ops:
         _print_ram_help()
         return

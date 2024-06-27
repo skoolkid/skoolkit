@@ -2537,6 +2537,23 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertTrue(output.startswith('Usage: --sim-load-config accelerate-dec-a=0/1/2\n'))
             self.assertEqual(error, '')
 
+    def test_sim_load_config_help_specific_parameter(self):
+        for param in (
+                'accelerate-dec-a', 'accelerator', 'cmio', 'fast-load',
+                'finish-tape', 'first-edge', 'in-flags', 'load', 'machine',
+                'pause', 'polarity', 'python', 'timeout', 'trace'
+        ):
+            for option in ('-c', '--sim-load-config'):
+                output, error = self.run_tap2sna(f'{option} help-{param}')
+                self.assertTrue(output.startswith(f'--sim-load-config {param}='))
+                self.assertEqual(error, '')
+
+    def test_sim_load_config_help_invalid_parameter(self):
+        for option in ('-c', '--sim-load-config'):
+            output, error = self.run_tap2sna(f'{option} help-foo')
+            self.assertTrue(output.startswith('Usage: --sim-load-config accelerate-dec-a=0/1/2\n'))
+            self.assertEqual(error, '')
+
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_default_state(self):
         block = create_tap_data_block([0])

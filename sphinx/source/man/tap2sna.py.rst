@@ -20,8 +20,9 @@ OPTIONS
 =======
 -c, --sim-load-config name=value
   Set the value of a simulated LOAD configuration parameter. Do ``-c help`` for
-  more information, and see the section on ``SIMULATED LOAD`` below. This
-  option may be used multiple times.
+  more information, or ``-c help-name`` for help on a specific parameter. Also
+  see the section on ``SIMULATED LOAD`` below. This option may be used multiple
+  times.
 
 -d, --output-dir `DIR`
   Write the snapshot file in this directory.
@@ -194,56 +195,11 @@ This means that:
   loops were executed
 
 Specifying by name the types of tape-sampling loop used by a game's custom
-loader may reduce the loading time. The names of the available tape-sampling
-loop accelerators are:
+loader may reduce the loading time. To show the names of the available
+tape-sampling loop accelerators:
 
 |
-|  ``alkatraz`` (Alkatraz)
-|  ``alkatraz-05`` (Italy 1990, Italy 1990 - Winners Edition)
-|  ``alkatraz-09`` (Italy 1990, Italy 1990 - Winners Edition)
-|  ``alkatraz-0a`` (various games published by U.S. Gold)
-|  ``alkatraz-0b`` (Fast 'n' Furious)
-|  ``alkatraz2`` (Alkatraz 2)
-|  ``alternative`` (Fireman Sam, Huxley Pig)
-|  ``alternative2`` (Kentucky Racing)
-|  ``antirom`` (Boxe)
-|  ``bleepload`` (Firebird BleepLoad)
-|  ``boguslaw-juza`` (Euro Biznes)
-|  ``bulldog`` (Rigel's Revenge)
-|  ``crl`` (Ball Breaker, Ballbreaker II)
-|  ``crl2`` (Terrahawks)
-|  ``crl3`` (Oink)
-|  ``crl4`` (Federation)
-|  ``cybexlab`` (17.11.1989, Belegost, Starfox)
-|  ``d-and-h`` (Multi-Player Soccer Manager)
-|  ``delphine`` (Zakliaty zámok programátorov)
-|  ``design-design`` (various games published by Design Design Software)
-|  ``digital-integration`` (Digital Integration)
-|  ``dinaload`` (Dinaload)
-|  ``ernieware`` (The Evolution, Golem)
-|  ``gargoyle2`` (various games created or published by Gargoyle Games)
-|  ``gremlin`` (various games published by Gremlin Graphics)
-|  ``gremlin2`` (Super Cars)
-|  ``housenka`` (Housenka)
-|  ``microprose`` (F-15 Strike Eagle)
-|  ``microsphere`` (Back to Skool, Contact Sam Cruise, Skool Daze, Sky Ranger)
-|  ``micro-style`` (Xenophobe)
-|  ``mirrorsoft`` (Action Reflex)
-|  ``palas`` (Bad Night)
-|  ``paul-owens`` (Paul Owens Protection System)
-|  ``raxoft`` (Piskworks, Podraz 4)
-|  ``realtime`` (Starstrike II)
-|  ``rom`` (any loader whose sampling loop is the same as the ROM's)
-|  ``search-loader`` (Search Loader)
-|  ``silverbird`` (Olli & Lissa II: Halloween)
-|  ``software-projects`` (BC's Quest for Tires, Lode Runner)
-|  ``sparklers`` (Bargain Basement, Flunky)
-|  ``speedlock`` (Speedlock - all versions)
-|  ``suzy-soft`` (Big Trouble, Joe Banker, The Drinker)
-|  ``suzy-soft2`` (Western Girl)
-|  ``tiny`` (Il Cobra di Cristallo, Negy a Nyero, Phantomasa, and others)
-|  ``us-gold`` (Gauntlet II)
-|  ``weird-science`` (Flash Beer Trilogy, Ghost Castles, TV-Game)
+|  ``tap2sna.py -c help-accelerator``
 
 LOAD COMMAND
 ============
