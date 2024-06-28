@@ -1,4 +1,4 @@
-# Copyright 2010-2013, 2015-2017, 2019-2020, 2023
+# Copyright 2010-2013, 2015-2017, 2019-2020, 2023, 2024
 # Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
@@ -20,6 +20,7 @@ import argparse
 
 from skoolkit import SkoolKitError, integer, parse_int, read_bin_file, VERSION
 from skoolkit.components import get_snapshot_reader
+from skoolkit.tape import write_tap
 
 def _get_str(chars):
     return [ord(c) for c in chars]
@@ -27,18 +28,17 @@ def _get_str(chars):
 def _get_word(word):
     return (word % 256, word // 256)
 
-def _make_tap_block(data, header=False):
+def _make_block(data, header=False):
     if header:
         flag = 0
     else:
         flag = 255
-    block = [0, 0, flag]
+    block = [flag]
     block.extend(data)
     parity = 0
     for b in block:
         parity ^= b
     block.append(parity)
-    block[:2] = _get_word(len(block) - 2)
     return block
 
 def _get_header(title, length, start=None, line=None):
@@ -52,7 +52,7 @@ def _get_header(title, length, start=None, line=None):
         data.insert(0, 0)                   # BASIC program follows
         data.extend(_get_word(line))        # RUN this line after LOADing
         data.extend(_get_word(length))      # Length of BASIC program only
-    return _make_tap_block(data, True)
+    return _make_block(data, True)
 
 def _get_basic_loader(title, clear, start, scr, banks=None):
     data = [0, 10]                          # Line 10
@@ -89,7 +89,7 @@ def _get_basic_loader(title, clear, start, scr, banks=None):
     data.extend(_get_str(start_addr))       # "address"
     data.append(13)                         # ENTER
 
-    return _get_header(title, len(data), line=10) + _make_tap_block(data)
+    return [_get_header(title, len(data), line=10), _make_block(data)]
 
 def _get_data_loader(title, org, length, start, stack, scr):
     if scr:
@@ -111,7 +111,7 @@ def _get_data_loader(title, org, length, start, stack, scr):
     data.append(197)                        # PUSH BC
     data.extend((195, 86, 5))               # JP 1366
 
-    return _get_header(title, len(data), address) + _make_tap_block(data)
+    return (_get_header(title, len(data), address), _make_block(data))
 
 def _get_bank_loader(title, address, start_addr, banks, out7ffd):
     table_addr = address + 38
@@ -140,16 +140,16 @@ def _get_bank_loader(title, address, start_addr, banks, out7ffd):
     ]
     data.extend(b + 0x10 for b in sorted(banks))
     data.append(0x80 | out7ffd) # End marker
-    return _get_header(title, len(data), address) + _make_tap_block(data)
+    return (_get_header(title, len(data), address), _make_block(data))
 
 def run(ram, clear, org, start, stack, tapfile, scr, banks, out7ffd, loader_addr):
     title = os.path.basename(tapfile)
     if title.lower().endswith('.tap'):
         title = title[:-4]
     if banks is None:
-        tap_data = _get_basic_loader(title, clear, start, scr)
+        blocks = _get_basic_loader(title, clear, start, scr)
     else:
-        tap_data = _get_basic_loader(title, clear, loader_addr, scr, banks)
+        blocks = _get_basic_loader(title, clear, loader_addr, scr, banks)
 
     length = len(ram)
     if clear is None:
@@ -165,21 +165,20 @@ def run(ram, clear, org, start, stack, tapfile, scr, banks, out7ffd, loader_addr
                 if 0 <= index < length:
                     ram[index] = byte
                     index += 1
-        tap_data.extend(_get_data_loader(title, org, length, start, stack, scr))
+        blocks.extend(_get_data_loader(title, org, length, start, stack, scr))
     else:
         if scr:
-            tap_data.extend(_get_header(title, 6912, 16384))
-            tap_data.extend(_make_tap_block(scr))
-        tap_data.extend(_get_header(title, length, org))
-    tap_data.extend(_make_tap_block(ram))
+            blocks.append(_get_header(title, 6912, 16384))
+            blocks.append(_make_block(scr))
+        blocks.append(_get_header(title, length, org))
+    blocks.append(_make_block(ram))
 
     if banks is not None:
-        tap_data.extend(_get_bank_loader(title, loader_addr, start, banks, out7ffd))
+        blocks.extend(_get_bank_loader(title, loader_addr, start, banks, out7ffd))
         for b in sorted(banks):
-            tap_data.extend(_make_tap_block(banks[b]))
+            blocks.append(_make_block(banks[b]))
 
-    with open(tapfile, 'wb') as f:
-        f.write(bytearray(tap_data))
+    write_tap(tapfile, blocks)
 
 def main(args):
     parser = argparse.ArgumentParser(

@@ -750,3 +750,10 @@ def parse_tzx(tzx, start=1, stop=0, info=True, timings=False):
             blocks.append(block)
         block_num += 1
     return Tape(blocks, version)
+
+def write_tap(fname, blocks):
+    with open(fname, 'wb') as f:
+        for data in blocks:
+            length = len(data)
+            f.write(bytes((length % 256, length // 256)))
+            f.write(bytes(data))
