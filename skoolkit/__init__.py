@@ -199,6 +199,9 @@ def get_word(data, index):
 def get_word3(data, index):
     return get_word(data, index) + 65536 * data[index + 2]
 
+def as_dword(num):
+    return (num % 256, (num >> 8) % 256, (num >> 16) % 256, (num >> 24) % 256)
+
 def get_dword(data, index):
     return get_word3(data, index) + 16777216 * data[index + 3]
 

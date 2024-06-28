@@ -87,7 +87,7 @@ Run `bin2sna.py` with no arguments to see the list of available options::
 bin2tap.py
 ----------
 `bin2tap.py` converts a binary (raw memory) file or a SNA, SZX or Z80 snapshot
-into a TAP file. For example::
+into a PZX or TAP file. For example::
 
   $ bin2tap.py game.bin
 
@@ -97,16 +97,16 @@ of code to run) and the stack pointer are set to 65536 minus the length of
 `game.bin`. These values can be changed by passing options to `bin2tap.py`. Run
 it with no arguments to see the list of available options::
 
-  usage: bin2tap.py [options] FILE [file.tap]
+  usage: bin2tap.py [options] FILE [OUTFILE]
 
-  Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a TAP
-  file. FILE may be a regular file, or '-' to read a binary file from standard
-  input.
+  Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a PZX or
+  TAP file. FILE may be a regular file, or '-' to read a binary file from
+  standard input. If OUTFILE is not given, a TAP file is created.
 
   Options:
-    --7ffd N              Add 128K RAM banks to the TAP file and write N to port
-                          0x7ffd after they've loaded.
-    --banks N[,N...]      Add only these 128K RAM banks to the TAP file
+    --7ffd N              Add 128K RAM banks to the tape file and write N to
+                          port 0x7ffd after they've loaded.
+    --banks N[,N...]      Add only these 128K RAM banks to the tape file
                           (default: 0,1,3,4,6,7).
     -b BEGIN, --begin BEGIN
                           Begin conversion at this address (default: ORG for a
@@ -123,7 +123,7 @@ it with no arguments to see the list of available options::
     -s START, --start START
                           Set the start address to JP to (default: BEGIN).
     -S FILE, --screen FILE
-                          Add a loading screen to the TAP file. FILE may be a
+                          Add a loading screen to the tape file. FILE may be a
                           snapshot or a 6912-byte SCR file.
     -V, --version         Show SkoolKit version number and exit.
 
@@ -145,7 +145,7 @@ crashing. The lowest usable address with the ``--clear`` option on a bare 48K
 Spectrum is 23972 (5DA4) if a loading screen is used, or 23952 (0x5D90)
 otherwise.
 
-To create a TAP file that loads a 128K game, use the ``--7ffd``, ``--begin``
+To create a tape file that loads a 128K game, use the ``--7ffd``, ``--begin``
 and ``--clear`` options along with a 128K snapshot or a 128K binary file as
 input, where:
 
@@ -161,7 +161,7 @@ the number of RAM banks to load) is placed one above the CLEAR address. Use the
 address with the ``--clear`` option on a bare 128K Spectrum is 23977 (0x5DA9)
 if a loading screen is used, or 23957 (0x5D95) otherwise.
 
-By default, 128K RAM banks 0, 1, 3, 4, 6 and 7 are added to the TAP file. If
+By default, 128K RAM banks 0, 1, 3, 4, 6 and 7 are added to the tape file. If
 one or more of these RAM banks are not required, use the ``--banks`` option to
 specify a smaller set of RAM banks to add. If none of these RAM banks are
 required, use ``,`` (a single comma) as the argument to the ``--banks`` option.
@@ -172,6 +172,8 @@ block on the tape.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.3     | Added support for writing PZX files                               |
++---------+-------------------------------------------------------------------+
 | 9.1     | Added the ``--7ffd``, ``--banks`` and ``--loader`` options and    |
 |         | support for writing 128K TAP files                                |
 +---------+-------------------------------------------------------------------+

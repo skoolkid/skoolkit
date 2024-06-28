@@ -28,8 +28,8 @@ with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
     except ImportError: # pragma: no cover
         pygame = None
 
-from skoolkit import (VERSION, SkoolKitError, CSimulator, get_dword, get_word,
-                      parse_int, read_bin_file, warn, write)
+from skoolkit import (VERSION, SkoolKitError, CSimulator, as_dword, get_dword,
+                      get_word, parse_int, read_bin_file, warn, write)
 from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import from_snapshot, get_state
@@ -129,9 +129,6 @@ class RZXContext:
         self.total_frames = 0
         self.frame_count = 0
         self.stop = False
-
-def as_dword(num):
-    return (num % 256, (num >> 8) % 256, (num >> 16) % 256, (num >> 24) % 256)
 
 def write_rzx(fname, context, rzx_blocks):
     creator_b = (83, 107, 111, 111, 108, 75, 105, 116, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)

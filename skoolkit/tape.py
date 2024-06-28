@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from skoolkit import SkoolKitError, get_word, get_word3, get_dword, read_bin_file
+from skoolkit import SkoolKitError, as_dword, get_word, get_word3, get_dword, read_bin_file
 from skoolkit.basic import get_char
 
 ARCHIVE_INFO = {
@@ -757,3 +757,27 @@ def write_tap(fname, blocks):
             length = len(data)
             f.write(bytes((length % 256, length // 256)))
             f.write(bytes(data))
+
+def write_pzx(fname, blocks):
+    with open(fname, 'wb') as f:
+        f.write(b'PZXT\x02\x00\x00\x00\x01\x00')
+        for i, data in enumerate(blocks):
+            if i:
+                f.write(b'PAUS\x04\x00\x00\x00\xe0\x67\x35\x00')
+            if data[0]:
+                f.write(b'PULS\x08\x00\x00\x00\x97\x8c\x78\x08\x9b\x02\xdf\x02')
+            else:
+                f.write(b'PULS\x08\x00\x00\x00\x7f\x9f\x78\x08\x9b\x02\xdf\x02')
+            length = len(data)
+            bits = 0x80000000 + length * 8
+            f.write(bytes((
+                68, 65, 84, 65,         # DATA
+                *as_dword(length + 16), # Block length
+                *as_dword(bits),        # Polarity and bit count
+                177, 3,                 # Tail pulse (945)
+                2,                      # p0
+                2,                      # p1
+                87, 3, 87, 3,           # s0 (855, 855)
+                174, 6, 174, 6,         # s1 (1710, 1710)
+                *data                   # Data
+            )))

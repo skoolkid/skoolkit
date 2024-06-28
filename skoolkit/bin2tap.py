@@ -20,7 +20,7 @@ import argparse
 
 from skoolkit import SkoolKitError, integer, parse_int, read_bin_file, VERSION
 from skoolkit.components import get_snapshot_reader
-from skoolkit.tape import write_tap
+from skoolkit.tape import write_pzx, write_tap
 
 def _get_str(chars):
     return [ord(c) for c in chars]
@@ -142,9 +142,9 @@ def _get_bank_loader(title, address, start_addr, banks, out7ffd):
     data.append(0x80 | out7ffd) # End marker
     return (_get_header(title, len(data), address), _make_block(data))
 
-def run(ram, clear, org, start, stack, tapfile, scr, banks, out7ffd, loader_addr):
-    title = os.path.basename(tapfile)
-    if title.lower().endswith('.tap'):
+def run(ram, clear, org, start, stack, tape_file, scr, banks, out7ffd, loader_addr):
+    title = os.path.basename(tape_file)
+    if title.lower().endswith(('.tap', '.pzx')):
         title = title[:-4]
     if banks is None:
         blocks = _get_basic_loader(title, clear, start, scr)
@@ -178,22 +178,26 @@ def run(ram, clear, org, start, stack, tapfile, scr, banks, out7ffd, loader_addr
         for b in sorted(banks):
             blocks.append(_make_block(banks[b]))
 
-    write_tap(tapfile, blocks)
+    if tape_file.lower().endswith('.pzx'):
+        write_pzx(tape_file, blocks)
+    else:
+        write_tap(tape_file, blocks)
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='bin2tap.py [options] FILE [file.tap]',
-        description="Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a TAP file. "
-                    "FILE may be a regular file, or '-' to read a binary file from standard input.",
+        usage='bin2tap.py [options] FILE [OUTFILE]',
+        description="Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a PZX or TAP file. "
+                    "FILE may be a regular file, or '-' to read a binary file from standard input. "
+                    "If OUTFILE is not given, a TAP file is created.",
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('--7ffd', metavar='N', dest='out7ffd', type=integer,
-                       help="Add 128K RAM banks to the TAP file and write N to port 0x7ffd after they've loaded.")
+                       help="Add 128K RAM banks to the tape file and write N to port 0x7ffd after they've loaded.")
     group.add_argument('--banks', metavar='N[,N...]',
-                       help="Add only these 128K RAM banks to the TAP file (default: 0,1,3,4,6,7).")
+                       help="Add only these 128K RAM banks to the tape file (default: 0,1,3,4,6,7).")
     group.add_argument('-b', '--begin', dest='begin', metavar='BEGIN', type=integer,
                        help="Begin conversion at this address (default: ORG for a binary file, 16384 for a snapshot).")
     group.add_argument('-c', '--clear', dest='clear', metavar='N', type=integer,
@@ -209,7 +213,7 @@ def main(args):
     group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
                        help="Set the start address to JP to (default: BEGIN).")
     group.add_argument('-S', '--screen', dest='screen', metavar='FILE',
-                       help="Add a loading screen to the TAP file. FILE may be a snapshot or a 6912-byte SCR file.")
+                       help="Add a loading screen to the tape file. FILE may be a snapshot or a 6912-byte SCR file.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
 
@@ -258,19 +262,19 @@ def main(args):
             del banks[b]
     start = namespace.start or begin
     stack = namespace.stack or begin
-    tapfile = namespace.outfile
-    if tapfile is None:
+    tape_file = namespace.outfile
+    if tape_file is None:
         if infile.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
             prefix = os.path.basename(infile)[:-4]
         elif infile == '-':
             prefix = 'program'
         else:
             prefix = os.path.basename(infile)
-        tapfile = prefix + ".tap"
+        tape_file = prefix + ".tap"
     scr = namespace.screen
     if scr is not None:
         if snapshot_reader.can_read(scr):
             scr = snapshot_reader.get_snapshot(scr)[16384:23296]
         else:
             scr = read_bin_file(scr, 6912)
-    run(ram, clear, begin, start, stack, tapfile, scr, banks, out7ffd, loader_addr)
+    run(ram, clear, begin, start, stack, tape_file, scr, banks, out7ffd, loader_addr)

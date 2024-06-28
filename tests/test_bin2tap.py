@@ -8,20 +8,20 @@ def mock_run(*args):
     global run_args
     run_args = args
 
-def mock_write_tap(fname, blocks):
+def mock_write_tape(fname, blocks):
     global tape_fname, tape_blocks
     tape_fname = fname
     tape_blocks = blocks
 
 class Bin2TapTest(SkoolKitTestCase):
-    @patch.object(bin2tap, 'write_tap', mock_write_tap)
-    def _run(self, args, tapfile=None):
-        if tapfile is None:
-            tapfile = args.split()[-1][:-4] + '.tap'
+    @patch.object(bin2tap, 'write_tap', mock_write_tape)
+    def _run(self, args, tape_file=None):
+        if tape_file is None:
+            tape_file = args.split()[-1][:-4] + '.tap'
         output, error = self.run_bin2tap(args)
         self.assertEqual(output, '')
         self.assertEqual(error, '')
-        self.assertEqual(tape_fname, tapfile)
+        self.assertEqual(tape_fname, tape_file)
         return tape_blocks
 
     def _get_word(self, num):
@@ -385,6 +385,14 @@ class Bin2TapTest(SkoolKitTestCase):
         blocks = self._run(binfile)
         self._check_tape(blocks, bin_data, binfile)
 
+    @patch.object(bin2tap, 'write_pzx', mock_write_tape)
+    def test_write_pzx(self):
+        bin_data = [1, 2, 3, 4, 5]
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
+        pzxfile = 'out.pzx'
+        blocks = self._run(f'{binfile} {pzxfile}', pzxfile)
+        self._check_tape(blocks, bin_data, binfile, name=pzxfile[:-4])
+
     def test_nonstandard_bin_name(self):
         bin_data = [0]
         binfile = self.write_bin_file(bin_data, suffix='.ram')
@@ -392,7 +400,7 @@ class Bin2TapTest(SkoolKitTestCase):
         blocks = self._run(binfile, tapfile)
         self._check_tape(blocks, bin_data, binfile)
 
-    @patch.object(bin2tap, 'write_tap', mock_write_tap)
+    @patch.object(bin2tap, 'write_tap', mock_write_tape)
     def test_bin_in_subdirectory(self):
         tapfile = self.write_bin_file(suffix='.tap')
         bin_data = [1]
@@ -402,7 +410,7 @@ class Bin2TapTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self._check_tape(tape_blocks, bin_data, binfile)
 
-    @patch.object(bin2tap, 'write_tap', mock_write_tap)
+    @patch.object(bin2tap, 'write_tap', mock_write_tape)
     def test_nonstandard_bin_name_in_subdirectory(self):
         tapfile = self.write_bin_file(suffix='.ram.tap')
         bin_data = [1]

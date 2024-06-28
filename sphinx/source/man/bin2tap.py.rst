@@ -6,22 +6,23 @@ bin2tap.py
 
 SYNOPSIS
 ========
-``bin2tap.py`` [options] FILE [file.tap]
+``bin2tap.py`` [options] FILE [OUTFILE]
 
 DESCRIPTION
 ===========
 ``bin2tap.py`` converts a binary (raw memory) file or a SNA, SZX or Z80
-snapshot into a TAP file. FILE may be a regular file, or '-' to read a binary
-file from standard input.
+snapshot into a PZX or TAP file. FILE may be a regular file, or '-' to read a
+binary file from standard input. If OUTFILE is not given, a TAP file is
+created.
 
 OPTIONS
 =======
 --7ffd `N`
-  Add 128K RAM banks to the TAP file and write `N` to port 0x7ffd after they've
-  loaded.
+  Add 128K RAM banks to the tape file and write `N` to port 0x7ffd after
+  they've loaded.
 
 --banks `N[,N...]`
-  Add only these 128K RAM banks to the TAP file (default: 0,1,3,4,6,7).
+  Add only these 128K RAM banks to the tape file (default: 0,1,3,4,6,7).
 
 -b, --begin `BEGIN`
   Begin conversion at this address. The default begin address is the origin
@@ -55,8 +56,8 @@ OPTIONS
   must be a decimal number, or a hexadecimal number prefixed by '0x'.
 
 -S, --screen `FILE`
-  Add a loading screen to the TAP file. `FILE` may be a snapshot or a 6912-byte
-  SCR file.
+  Add a loading screen to the tape file. `FILE` may be a snapshot or a
+  6912-byte SCR file.
 
 -V, --version
   Show the SkoolKit version number and exit.
@@ -82,7 +83,7 @@ Spectrum is 23952 (0x5D90).
 
 128K TAPES
 ==========
-To create a TAP file that loads a 128K game, use the ``--7ffd``, ``--begin``
+To create a tape file that loads a 128K game, use the ``--7ffd``, ``--begin``
 and ``--clear`` options along with a 128K snapshot or a 128K binary file as
 input, where:
 
@@ -97,7 +98,7 @@ the number of RAM banks to load) is placed one above the CLEAR address. Use the
 ``--loader`` option to place it at an alternative address. The lowest usable
 address with the ``--clear`` option on a bare 128K Spectrum is 23977 (0x5DA9).
 
-By default, 128K RAM banks 0, 1, 3, 4, 6 and 7 are added to the TAP file. If
+By default, 128K RAM banks 0, 1, 3, 4, 6 and 7 are added to the tape file. If
 one or more of these RAM banks are not required, use the ``--banks`` option to
 specify a smaller set of RAM banks to add. If none of these RAM banks are
 required, use ``,`` (a single comma) as the argument to the ``--banks`` option.
@@ -112,8 +113,8 @@ EXAMPLES
    |
    |   ``bin2tap.py game.bin``
 
-2. Convert ``game.bin`` into a TAP file that starts execution at 32768 when
+2. Convert ``game.bin`` into a PZX file that starts execution at 32768 when
    loaded:
 
    |
-   |   ``bin2tap.py -s 32768 game.bin``
+   |   ``bin2tap.py -s 32768 game.bin game.pzx``

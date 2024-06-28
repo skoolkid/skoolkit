@@ -52,8 +52,8 @@ With SkoolKit you can:
   list the BASIC program it contains
 * use :ref:`rzxinfo.py` to analyse the blocks in an RZX file, and extract
   snapshots from it
-* use :ref:`bin2tap.py` to convert a snapshot or raw memory file into a TAP
-  file
+* use :ref:`bin2tap.py` to convert a snapshot or raw memory file into a PZX or
+  TAP file
 * use :ref:`bin2sna.py` to convert a raw memory file into a Z80 or SZX snapshot
 * use :ref:`snapmod.py` to modify the register values or memory contents in a
   Z80 or SZX snapshot
