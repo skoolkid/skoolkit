@@ -1,0 +1,39 @@
+name: z80-timing-tests
+
+on:
+  push:
+    paths:
+    - 'skoolkit/simulator.py'
+    - 'skoolkit/cmiosimulator.py'
+    - 'c/csimulator.c'
+  workflow_dispatch:
+
+jobs:
+  z80-timing-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sim: [--cmio, --ccmio]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Download TAP file
+      run: |
+        wget -O tests.tap "https://zxe.io/depot/software/ZX Spectrum/ZX Spectrum Timing Tests - 48K v1.0 (2010-04-14)(Butler, Richard; Butler, Tim)[!].tap"
+
+    - if: matrix.sim == '--ccmio'
+      name: Build csimulator
+      run: python setup.py build_ext -b .
+
+    - name: Run tests
+      run: |
+        export SKOOLKIT_HOME=$(pwd)
+        tools/z80-timing-tests.py ${{ matrix.sim }} tests.tap
