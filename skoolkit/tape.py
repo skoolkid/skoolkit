@@ -608,6 +608,10 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
     elif block_id == 0x2B:
         # Set signal level
         header = 'Set signal level'
+        if get_info:
+            level = data[i + 4]
+            level_desc = ('low', 'high')[level > 0]
+            info.append(f'Signal level: {level} ({level_desc})')
         i += 5
     elif block_id == 0x30:
         # Text description

@@ -653,11 +653,24 @@ class TapinfoTest(SkoolKitTestCase):
         exp_output = '1: Stop the tape if in 48K mode (0x2A)'
         self._test_tzx_block(block, exp_output)
 
-    def test_tzx_block_0x2B(self):
+    def test_tzx_block_0x2B_low(self):
         block = [43] # Block ID
         block.extend((1, 0, 0, 0))
         block.append(0) # Signal level
-        exp_output = '1: Set signal level (0x2B)'
+        exp_output = """
+            1: Set signal level (0x2B)
+              Signal level: 0 (low)
+        """
+        self._test_tzx_block(block, exp_output)
+
+    def test_tzx_block_0x2B_high(self):
+        block = [43] # Block ID
+        block.extend((1, 0, 0, 0))
+        block.append(1) # Signal level
+        exp_output = """
+            1: Set signal level (0x2B)
+              Signal level: 1 (high)
+        """
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x30(self):
