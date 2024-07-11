@@ -1624,9 +1624,10 @@ parameters are:
   (``1``), or disable it (``0``); this is disabled by default to improve
   performance, but some loaders may require it; when this is enabled, all
   acceleration is disabled
-* ``fast-load`` - enable fast loading (``1``, the default), or disable it
-  (``0``); fast loading significantly reduces the load time for many tapes, but
-  can also cause some loaders to fail
+* ``fast-load`` - enable fast loading whenever the ROM loader is called (``1``,
+  the default), or disable it (``0``); fast loading (also known as "flash
+  loading") significantly reduces the load time for many tapes, but can also
+  cause some loaders to fail
 * ``finish-tape`` - run the tape to the end before stopping the simulation at
   the address specified by the ``--start`` option (``1``), or stop the
   simulation as soon as that address is reached, regardless of whether the tape
@@ -1683,6 +1684,10 @@ special values:
 * ``none`` - disable acceleration; the loading time for a game with a custom
   loader that uses an unrecognised tape-sampling loop may be reduced by
   specifying this value
+
+A tape-sampling loop accelerator works by effectively fast-forwarding the tape
+(and the state of the loop itself) to the next edge whenever the loop is
+entered. This technique is known as "edge loading".
 
 The output produced by ``accelerator=list`` looks something like this::
 

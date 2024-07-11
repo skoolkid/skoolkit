@@ -257,9 +257,9 @@ Configure various properties of a simulated LOAD.
 --sim-load-config fast-load=0/1
 
   By default, whenever the Spectrum ROM's load routine is called, a shortcut is
-  taken by "fast loading" the next block on the tape. This significantly
-  reduces the load time for many tapes, but can also cause some loaders to
-  fail. Set fast-load=0 to disable fast loading.
+  taken by "fast loading" (also known as "flash loading") the next block on the
+  tape. This significantly reduces the load time for many tapes, but can also
+  cause some loaders to fail. Set fast-load=0 to disable fast loading.
 
 --sim-load-config finish-tape=0/1
 
