@@ -1,4 +1,4 @@
-# Copyright 2022, 2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -210,7 +210,7 @@ ACCELERATORS = {
             0x04,       # LD_SAMPLE INC B           [4]
             0xC8,       #           RET Z           [11/5]
             0x3E, 0x7F, #           LD A,$7F        [7]
-            0xDB, 0xFE, #           IN A,($F E)     [11]
+            0xDB, 0xFE, #           IN A,($FE)      [11]
             0x1F,       #           RRA             [4]
             0xD0,       #           RET NC          [11/5]
             0xA9,       #           XOR C           [4]
