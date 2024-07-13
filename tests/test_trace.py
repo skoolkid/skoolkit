@@ -2049,6 +2049,14 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_config_TraceLine_bad_values(self):
+        self._test_bad_spec('-I TraceLine={q} -vm 1', "Invalid format string: '{q}'")
+        self._test_bad_spec('-I TraceLine={q -vm 1', "Invalid format string: '{q'")
+        self._test_bad_spec('-I TraceLine=q} -vm 1', "Invalid format string: 'q}'")
+        self._test_bad_spec('-I TraceLine={m[65536]} -vm 1', "Invalid format string: '{m[65536]}'")
+        self._test_bad_spec('-I TraceLine={m[$10000]} -vm 1', "Invalid format string: '{m[$10000]}'")
+        self._test_bad_spec('-I TraceLine={m[0x10000]} -vm 1', "Invalid format string: '{m[0x10000]}'")
+
     def test_config_TraceLine2_read_from_file(self):
         ini = """
             [trace]
@@ -2110,6 +2118,14 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_config_TraceLine2_bad_values(self):
+        self._test_bad_spec('-I TraceLine2={q} -vvm 1', "Invalid format string: '{q}'")
+        self._test_bad_spec('-I TraceLine2={q -vvm 1', "Invalid format string: '{q'")
+        self._test_bad_spec('-I TraceLine2=q} -vvm 1', "Invalid format string: 'q}'")
+        self._test_bad_spec('-I TraceLine2={m[65536]} -vvm 1', "Invalid format string: '{m[65536]}'")
+        self._test_bad_spec('-I TraceLine2={m[$10000]} -vvm 1', "Invalid format string: '{m[$10000]}'")
+        self._test_bad_spec('-I TraceLine2={m[0x10000]} -vvm 1', "Invalid format string: '{m[0x10000]}'")
+
     def test_config_TraceLineDecimal_read_from_file(self):
         ini = """
             [trace]
@@ -2168,6 +2184,14 @@ class TraceTest(SkoolKitTestCase):
             Stopped at 32774
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceLineDecimal_bad_values(self):
+        self._test_bad_spec('-I TraceLineDecimal={q} -Dvm 1', "Invalid format string: '{q}'")
+        self._test_bad_spec('-I TraceLineDecimal={q -Dvm 1', "Invalid format string: '{q'")
+        self._test_bad_spec('-I TraceLineDecimal=q} -Dvm 1', "Invalid format string: 'q}'")
+        self._test_bad_spec('-I TraceLineDecimal={m[65536]} -Dvm 1', "Invalid format string: '{m[65536]}'")
+        self._test_bad_spec('-I TraceLineDecimal={m[$10000]} -Dvm 1', "Invalid format string: '{m[$10000]}'")
+        self._test_bad_spec('-I TraceLineDecimal={m[0x10000]} -Dvm 1', "Invalid format string: '{m[0x10000]}'")
 
     def test_config_TraceLineDecimal2_read_from_file(self):
         ini = """
@@ -2235,6 +2259,14 @@ class TraceTest(SkoolKitTestCase):
             Stopped at 32774
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceLineDecimal2_bad_values(self):
+        self._test_bad_spec('-I TraceLineDecimal2={q} -Dvvm 1', "Invalid format string: '{q}'")
+        self._test_bad_spec('-I TraceLineDecimal2={q -Dvvm 1', "Invalid format string: '{q'")
+        self._test_bad_spec('-I TraceLineDecimal2=q} -Dvvm 1', "Invalid format string: 'q}'")
+        self._test_bad_spec('-I TraceLineDecimal2={m[65536]} -Dvvm 1', "Invalid format string: '{m[65536]}'")
+        self._test_bad_spec('-I TraceLineDecimal2={m[$10000]} -Dvvm 1', "Invalid format string: '{m[$10000]}'")
+        self._test_bad_spec('-I TraceLineDecimal2={m[0x10000]} -Dvvm 1', "Invalid format string: '{m[0x10000]}'")
 
     def test_config_TraceOperand_read_from_file(self):
         ini = """
