@@ -19,10 +19,12 @@ os.chdir(SKOOLKIT_HOME)
 IGNORE_MSG_IDS = [
     'C0103', # Invalid name for variable, constant, class
     'C0111', # Missing docstring
+    'C0200', # Consider using enumerate
     'C0209', # Formatting a regular string which could be an f-string
     'C0301', # Line too long
     'C0302', # Too many lines in module
     'C0325', # Unnecessary parens after 'print' keyword
+    'C0415', # Import outside top level
     'C3001', # Unnecessary lambda assignment
     'E0601', # Variable used before assignment
     'E0611', # No such name in module
@@ -38,6 +40,9 @@ IGNORE_MSG_IDS = [
     'R0915', # Too many statements
     'R1702', # Too many nested blocks
     'R1710', # Inconsistent return statements
+    'R1717', # Consider using a dictionary comprehension
+    'R1728', # Consider using a generator
+    'W0123', # Use of eval
     'W0201', # Attribute defined outside __init__
     'W0601', # Global variable undefined at the module level
     'W0603', # Using the global statement
@@ -47,6 +52,7 @@ IGNORE_MSG_IDS = [
     'W0707', # Consider explicitly re-raising using 'raise * from *'
     'W1401', # Anomalous backslash in string
     'W1514', # Using open without explicitly specifying an encoding
+    'W3301', # Do not use nested min/max
 ]
 
 # pylint options
@@ -65,6 +71,8 @@ parser = argparse.ArgumentParser(
 group = parser.add_argument_group('Options')
 group.add_argument('-d', dest='message_ids', metavar='LIST',
                    help='Disable the messages in this comma-separated list (in addition to those disabled by default)')
+group.add_argument('-r', dest='ignore_redefinitions', action='store_true',
+                   help='Ignore messages about redefining names from outer scope (W0621)')
 group.add_argument('-s', dest='ignore_similarities', action='store_true',
                    help='Ignore messages about code similarities (R0801)')
 group.add_argument('-t', dest='test', action='store_true',
@@ -78,6 +86,8 @@ if unknown_args:
 extra_ignores = []
 if namespace.message_ids:
     extra_ignores.extend(namespace.message_ids.split(','))
+if namespace.ignore_redefinitions:
+    extra_ignores.append('W0621')
 if namespace.ignore_similarities:
     extra_ignores.append('R0801')
 if namespace.ignore_unused:
