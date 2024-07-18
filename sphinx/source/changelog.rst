@@ -1,7 +1,7 @@
 Changelog
 =========
 
-9.3b1
+9.3rc
 -----
 * Added support to :ref:`tapinfo.py` and :ref:`tap2sna.py` for reading PZX
   files
