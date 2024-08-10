@@ -52,7 +52,7 @@ With SkoolKit you can:
 * use [skool2bin.py](https://skoolkid.github.io/skoolkit/commands.html#skool2bin-py)
   to convert a disassembly into a raw memory file
 * use [tap2sna.py](https://skoolkid.github.io/skoolkit/commands.html#tap2sna-py)
-  to convert a TAP or TZX file into a 'pristine' Z80 or SZX snapshot
+  to convert a PZX, TAP or TZX file into a 'pristine' Z80 or SZX snapshot
 * use [snapinfo.py](https://skoolkid.github.io/skoolkit/commands.html#snapinfo-py)
   to analyse a snapshot or raw memory file and list the BASIC program it
   contains, show register values, produce a call graph, find tile graphic data,
@@ -64,12 +64,12 @@ With SkoolKit you can:
   execution map for
   [sna2ctl.py](https://skoolkid.github.io/skoolkit/commands.html#sna2ctl-py)
 * use [tapinfo.py](https://skoolkid.github.io/skoolkit/commands.html#tapinfo-py)
-  to analyse the blocks in a TAP or TZX file, and list the BASIC program it
-  contains
+  to analyse the blocks in a PZX, TAP or TZX file, and list the BASIC program
+  it contains
 * use [rzxinfo.py](https://skoolkid.github.io/skoolkit/commands.html#rzxinfo-py)
   to analyse the blocks in an RZX file, and extract snapshots from it
 * use [bin2tap.py](https://skoolkid.github.io/skoolkit/commands.html#bin2tap-py)
-  to convert a snapshot or raw memory file into a TAP file
+  to convert a snapshot or raw memory file into a PZX or TAP file
 * use [bin2sna.py](https://skoolkid.github.io/skoolkit/commands.html#bin2sna-py)
   to convert a raw memory file into a Z80 or SZX snapshot
 * use [snapmod.py](https://skoolkid.github.io/skoolkit/commands.html#snapmod-py)

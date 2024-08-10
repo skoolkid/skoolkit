@@ -1,8 +1,8 @@
 Changelog
 =========
 
-9.3rc
------
+9.3 (2024-08-10)
+----------------
 * Added support to :ref:`tapinfo.py` and :ref:`tap2sna.py` for reading PZX
   files
 * Added support to :ref:`bin2tap.py` for writing PZX files
