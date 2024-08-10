@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Ref files &#8212; SkoolKit 9.2 documentation</title>
+    <title>Ref files &#8212; SkoolKit 9.3 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.3 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
     </div>  
@@ -1036,6 +1036,9 @@ which are expanded as follows:</p>
 sequence of characters (e.g. <code class="docutils literal notranslate"><span class="pre">abcde</span></code>) or a range (e.g. <code class="docutils literal notranslate"><span class="pre">a-e</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">[!seq]</span></code> - matches any character not in <code class="docutils literal notranslate"><span class="pre">seq</span></code></p></li>
 </ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">destDir</span></code> contains a path ID replacement field (e.g. <code class="docutils literal notranslate"><span class="pre">{AudioPath}</span></code>), the
+corresponding parameter value from the <a class="reference internal" href="#paths"><span class="std std-ref">[Paths]</span></a> section will be
+substituted.</p>
 <p>If your disassembly requires pre-built images or other resources that SkoolKit
 does not build, listing them in this section ensures that they will be copied
 into place whenever the disassembly is built.</p>
@@ -1046,14 +1049,18 @@ into place whenever the disassembly is built.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.0</p></td>
+<tr class="row-even"><td><p>9.3</p></td>
+<td><p>Added support for path ID replacement fields in the <code class="docutils literal notranslate"><span class="pre">destDir</span></code>
+parameter</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.0</p></td>
 <td><p>Added support for the <code class="docutils literal notranslate"><span class="pre">**</span></code> pattern</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.3</p></td>
+<tr class="row-even"><td><p>6.3</p></td>
 <td><p>Added support for pathname pattern expansion using wildcard
 characters</p></td>
 </tr>
-<tr class="row-even"><td><p>3.6</p></td>
+<tr class="row-odd"><td><p>3.6</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1397,7 +1404,7 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.3 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
     </div>

@@ -111,13 +111,16 @@ API methods, in common with skoolkit.disassembler.Disassembler:
    :members: disassemble, defb_range, defm_range, defs_range, defw_range
    :noindex:
 
-The 3-element tuples returned by these methods should have the form
-``(address, operation, bytes)``, where:
+The *imaker* callable used by these methods must accept three positional
+arguments:
 
-* ``address`` is the address of the instruction
-* ``operation`` is the operation (e.g. 'XOR A', 'DEFB 1')
-* ``bytes`` is a sequence of byte values for the instruction (e.g. ``(62, 0)``
-  for 'LD A,0')
+* ``address`` - the address of the instruction
+* ``operation`` - the operation (e.g. 'XOR A', 'DEFB 1')
+* ``data`` - a sequence of byte values for the instruction (e.g. (62, 0) for
+  'LD A,0')
+
+The *opcodes* list is defined by the ``Opcodes`` configuration parameter of
+:ref:`sna2skool.py <sna2skool-conf>`.
 
 The *sublengths* argument of the :meth:`defb_range`, :meth:`defm_range`,
 :meth:`defs_range` and :meth:`defw_range` methods is a sequence of 2-element
@@ -135,6 +138,11 @@ tuples of the form ``(size, base)``, each of which specifies the desired size
 If the first element of *sublengths* has a ``size`` value of 0, then the method
 should produce a list of statements with default sizes (as determined by
 `defb_size`, `defm_size` and `defw_size`), using the specified base.
+
+.. versionchanged:: 9.3
+   Added the *imaker* and *opcodes* attributes to the disassembler
+   configuration object. API methods must now return objects created by
+   *imaker*.
 
 .. versionchanged:: 8.5
    Added the ability to disassemble an instruction that wraps around the 64K

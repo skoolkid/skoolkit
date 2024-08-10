@@ -87,7 +87,7 @@ Run `bin2sna.py` with no arguments to see the list of available options::
 bin2tap.py
 ----------
 `bin2tap.py` converts a binary (raw memory) file or a SNA, SZX or Z80 snapshot
-into a TAP file. For example::
+into a PZX or TAP file. For example::
 
   $ bin2tap.py game.bin
 
@@ -97,16 +97,16 @@ of code to run) and the stack pointer are set to 65536 minus the length of
 `game.bin`. These values can be changed by passing options to `bin2tap.py`. Run
 it with no arguments to see the list of available options::
 
-  usage: bin2tap.py [options] FILE [file.tap]
+  usage: bin2tap.py [options] FILE [OUTFILE]
 
-  Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a TAP
-  file. FILE may be a regular file, or '-' to read a binary file from standard
-  input.
+  Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a PZX or
+  TAP file. FILE may be a regular file, or '-' to read a binary file from
+  standard input. If OUTFILE is not given, a TAP file is created.
 
   Options:
-    --7ffd N              Add 128K RAM banks to the TAP file and write N to port
-                          0x7ffd after they've loaded.
-    --banks N[,N...]      Add only these 128K RAM banks to the TAP file
+    --7ffd N              Add 128K RAM banks to the tape file and write N to
+                          port 0x7ffd after they've loaded.
+    --banks N[,N...]      Add only these 128K RAM banks to the tape file
                           (default: 0,1,3,4,6,7).
     -b BEGIN, --begin BEGIN
                           Begin conversion at this address (default: ORG for a
@@ -123,7 +123,7 @@ it with no arguments to see the list of available options::
     -s START, --start START
                           Set the start address to JP to (default: BEGIN).
     -S FILE, --screen FILE
-                          Add a loading screen to the TAP file. FILE may be a
+                          Add a loading screen to the tape file. FILE may be a
                           snapshot or a 6912-byte SCR file.
     -V, --version         Show SkoolKit version number and exit.
 
@@ -145,7 +145,7 @@ crashing. The lowest usable address with the ``--clear`` option on a bare 48K
 Spectrum is 23972 (5DA4) if a loading screen is used, or 23952 (0x5D90)
 otherwise.
 
-To create a TAP file that loads a 128K game, use the ``--7ffd``, ``--begin``
+To create a tape file that loads a 128K game, use the ``--7ffd``, ``--begin``
 and ``--clear`` options along with a 128K snapshot or a 128K binary file as
 input, where:
 
@@ -161,7 +161,7 @@ the number of RAM banks to load) is placed one above the CLEAR address. Use the
 address with the ``--clear`` option on a bare 128K Spectrum is 23977 (0x5DA9)
 if a loading screen is used, or 23957 (0x5D95) otherwise.
 
-By default, 128K RAM banks 0, 1, 3, 4, 6 and 7 are added to the TAP file. If
+By default, 128K RAM banks 0, 1, 3, 4, 6 and 7 are added to the tape file. If
 one or more of these RAM banks are not required, use the ``--banks`` option to
 specify a smaller set of RAM banks to add. If none of these RAM banks are
 required, use ``,`` (a single comma) as the argument to the ``--banks`` option.
@@ -172,6 +172,8 @@ block on the tape.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.3     | Added support for writing PZX files                               |
++---------+-------------------------------------------------------------------+
 | 9.1     | Added the ``--7ffd``, ``--banks`` and ``--loader`` options and    |
 |         | support for writing 128K TAP files                                |
 +---------+-------------------------------------------------------------------+
@@ -1052,7 +1054,7 @@ list::
                           standard input, or '0' to use no control file. This
                           option may be used multiple times.
     -d SIZE, --defb SIZE  Disassemble as DEFB statements of this size.
-    -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
+    -e ADDR, --end ADDR   Stop disassembling at this address (default: 65536).
     -H, --hex             Write hexadecimal addresses and operands in the
                           disassembly.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
@@ -1106,6 +1108,8 @@ configuration parameters are:
 * ``ListRefs`` - when to add a comment that lists routine or entry point
   referrers: never (``0``), if no other comment is defined at the entry point
   (``1``, the default), or always (``2``)
+* ``Opcodes`` - comma-separated list of values specifying additional opcode
+  sequences to disassemble (see below)
 * ``Ref`` - template used to format the comment for a routine with exactly one
   referrer (default: ``Used by the routine at {ref}.``)
 * ``RefFormat`` - template used to format referrers in the ``{ref}`` and
@@ -1141,6 +1145,52 @@ configuration parameters are:
 * ``Wrap`` - disassemble an instruction that wraps around the 64K boundary
   (``1``), or don't (``0``, the default)
 
+The ``Opcodes`` list is empty by default, but may contain any of the following
+values:
+
+* ``ED63`` - LD (nn),HL (4-byte variant)
+* ``ED6B`` - LD HL,(nn) (4-byte variant)
+* ``ED70`` - IN F,(C)
+* ``ED71`` - OUT (C),0
+* ``IM`` - IM 0/1/2 variants (ED followed by 4E/66/6E/76/7E)
+* ``NEG`` - NEG variants (ED followed by 4C/54/5C/64/6C/74/7C)
+* ``RETN`` - RETN variants (ED followed by 55/5D/65/6D/75/7D)
+* ``XYCB`` - undocumented instructions with DDCB or FDCB opcode prefixes (see
+  below)
+* ``ALL`` - all of the above
+
+When ``XYCB`` is in the list, the following instructions are disassembled
+(where 'XY' is IX or IY, and 'r' is B, C, D, E, H, L or A):
+
+* RLC (XY+d),r
+* RRC (XY+d),r
+* RL (XY+d),r
+* RR (XY+d),r
+* SLA (XY+d),r
+* SRA (XY+d),r
+* SLL (XY+d),r
+* SRL (XY+d),r
+* BIT n,(XY+d) (variants)
+* RES n,(XY+d),r
+* SET n,(XY+d),r
+
+Whenever an instruction with a variant opcode sequence is disassembled,
+`sna2skool.py` will insert a :ref:`bytes` directive into the skool file (if one
+is not already provided by a control file) to ensure that the instruction
+assembles back to the same byte values when processed by :ref:`skool2asm.py`,
+:ref:`skool2html.py` or :ref:`skool2bin.py`.
+
+Also note that if your skool file contains any non-standard instructions (such
+as 'IN F,(C)') or instructions that derive from variant opcode sequences (such
+as 'BIT 0,(IX+0)' from DDCB0040 instead of the standard DDCB0046), care must be
+taken when using an assembler on the output of :ref:`skool2asm.py` to ensure
+that instructions not only assemble successfully, but also assemble back to the
+original byte values, if desired. The :ref:`isub` directive may be used for
+this purpose; for example::
+
+  @isub=DEFB 221,203,0,64 ; This is BIT 0,(IX+0)
+   40000 BIT 0,(IX+0) ; The opcode sequence here is DDCB0040
+
 Configuration parameters must appear in a ``[sna2skool]`` section. For example,
 to make `sna2skool.py` generate hexadecimal skool files with a line width of
 120 characters by default (without having to use the ``-H`` and ``-w`` options
@@ -1157,6 +1207,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.3     | Added the ``Opcodes`` configuration parameter                     |
++---------+-------------------------------------------------------------------+
 | 8.7     | Added the ``--defb`` option and the ``Timings`` configuration     |
 |         | parameter                                                         |
 +---------+-------------------------------------------------------------------+
@@ -1269,6 +1321,10 @@ shown above, it can list the BASIC program and variables (if present), show the
 contents of a range of addresses, search the RAM for a sequence of byte values
 or a text string, or generate a call graph.
 
+By default, the ``--find``, ``--find-text`` and ``--find-tile`` options search
+all RAM banks in a 128K snapshot; use the ``--page`` option to restrict the
+search to the address range 16384-65535 (0x4000-0xFFFF).
+
 .. _snapinfo-call-graph:
 
 Call graphs
@@ -1354,6 +1410,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.3     | The ``--find``, ``--find-text`` and ``--find-tile`` options       |
+|         | search all RAM banks in a 128K snapshot by default                |
++---------+-------------------------------------------------------------------+
 | 9.0     | Shows the current AY register in 128K SZX and Z80 snapshots       |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Shows the value of the T-states counter and the issue 2 emulation |
@@ -1436,8 +1495,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 
 tap2sna.py
 ----------
-`tap2sna.py` converts a TAP or TZX file (which may be inside a zip archive)
-into an SZX or Z80 snapshot. For example::
+`tap2sna.py` converts a PZX, TAP or TZX file (which may be inside a zip
+archive) into an SZX or Z80 snapshot. For example::
 
   $ tap2sna.py game.tap game.z80
 
@@ -1447,15 +1506,16 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     tap2sna.py [options] INPUT [OUTFILE]
     tap2sna.py @FILE [args]
 
-  Convert a TAP or TZX file (which may be inside a zip archive) into an SZX or
-  Z80 snapshot. INPUT may be the full URL to a remote zip archive or TAP/TZX
+  Convert a PZX, TAP or TZX file (which may be inside a zip archive) into an SZX
+  or Z80 snapshot. INPUT may be the full URL to a remote zip archive or tape
   file, or the path to a local file. Arguments may be read from FILE instead of
   (or as well as) being given on the command line.
 
   Options:
     -c name=value, --sim-load-config name=value
                           Set the value of a simulated LOAD configuration
-                          parameter. Do '-c help' for more information. This
+                          parameter. Do '-c help' for more information, or '-c
+                          help-name' for help on a specific parameter. This
                           option may be used multiple times.
     -d DIR, --output-dir DIR
                           Write the snapshot file in this directory.
@@ -1476,10 +1536,10 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           times.
     --tape-analysis       Show an analysis of the tape's tones, pulse sequences
                           and data blocks.
-    --tape-name NAME      Specify the name of a TAP/TZX file in a zip archive.
+    --tape-name NAME      Specify the name of a tape file in a zip archive.
     --tape-start BLOCK    Start the tape at this block number.
     --tape-stop BLOCK     Stop the tape at this block number.
-    --tape-sum MD5SUM     Specify the MD5 checksum of the TAP/TZX file.
+    --tape-sum MD5SUM     Specify the MD5 checksum of the tape file.
     -u AGENT, --user-agent AGENT
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
@@ -1495,7 +1555,7 @@ addresses. For example::
   $ tap2sna.py --ram load=3,30000 game.tzx game.z80
 
 loads the third block on the tape at address 30000, and ignores all other
-blocks. (To see information on the blocks in a TAP or TZX file, use the
+blocks. (To see information on the blocks in a tape file, use the
 :ref:`tapinfo.py` command.)
 
 The ``--ram`` option can also be used to move blocks of bytes from one location
@@ -1564,9 +1624,10 @@ parameters are:
   (``1``), or disable it (``0``); this is disabled by default to improve
   performance, but some loaders may require it; when this is enabled, all
   acceleration is disabled
-* ``fast-load`` - enable fast loading (``1``, the default), or disable it
-  (``0``); fast loading significantly reduces the load time for many tapes, but
-  can also cause some loaders to fail
+* ``fast-load`` - enable fast loading whenever the ROM loader is called (``1``,
+  the default), or disable it (``0``); fast loading (also known as "flash
+  loading") significantly reduces the load time for many tapes, but can also
+  cause some loaders to fail
 * ``finish-tape`` - run the tape to the end before stopping the simulation at
   the address specified by the ``--start`` option (``1``), or stop the
   simulation as soon as that address is reached, regardless of whether the tape
@@ -1624,6 +1685,10 @@ special values:
   loader that uses an unrecognised tape-sampling loop may be reduced by
   specifying this value
 
+A tape-sampling loop accelerator works by effectively fast-forwarding the tape
+(and the state of the loop itself) to the next edge whenever the loop is
+entered. This technique is known as "edge loading".
+
 The output produced by ``accelerator=list`` looks something like this::
 
   Accelerators: microsphere: 6695; rom: 794013; misses: 19/9; dec-a: 800708/0/224
@@ -1639,55 +1704,10 @@ This means that:
   loops were executed
 
 Specifying by name the types of tape-sampling loop used by a game's custom
-loader may reduce the loading time. The names of the available tape-sampling
-loop accelerators are:
+loader may reduce the loading time. To show the names of the available
+tape-sampling loop accelerators::
 
-* ``alkatraz`` (Alkatraz)
-* ``alkatraz-05`` (Italy 1990, Italy 1990 - Winners Edition)
-* ``alkatraz-09`` (Italy 1990, Italy 1990 - Winners Edition)
-* ``alkatraz-0a`` (various games published by U.S. Gold)
-* ``alkatraz-0b`` (Fast 'n' Furious)
-* ``alkatraz2`` (Alkatraz 2)
-* ``alternative`` (Fireman Sam, Huxley Pig)
-* ``alternative2`` (Kentucky Racing)
-* ``antirom`` (Boxe)
-* ``bleepload`` (Firebird BleepLoad)
-* ``boguslaw-juza`` (Euro Biznes)
-* ``bulldog`` (Rigel's Revenge)
-* ``crl`` (Ball Breaker, Ballbreaker II)
-* ``crl2`` (Terrahawks)
-* ``crl3`` (Oink)
-* ``crl4`` (Federation)
-* ``cybexlab`` (17.11.1989, Belegost, Starfox)
-* ``d-and-h`` (Multi-Player Soccer Manager)
-* ``delphine`` (Zakliaty zámok programátorov)
-* ``design-design`` (various games published by Design Design Software)
-* ``digital-integration`` (Digital Integration)
-* ``dinaload`` (Dinaload)
-* ``ernieware`` (The Evolution, Golem)
-* ``gargoyle2`` (various games created or published by Gargoyle Games)
-* ``gremlin`` (various games published by Gremlin Graphics)
-* ``gremlin2`` (Super Cars)
-* ``housenka`` (Housenka)
-* ``microprose`` (F-15 Strike Eagle)
-* ``microsphere`` (Back to Skool, Contact Sam Cruise, Skool Daze, Sky Ranger)
-* ``micro-style`` (Xenophobe)
-* ``mirrorsoft`` (Action Reflex)
-* ``palas`` (Bad Night)
-* ``paul-owens`` (Paul Owens Protection System)
-* ``raxoft`` (Piskworks, Podraz 4)
-* ``realtime`` (Starstrike II)
-* ``rom`` (any loader whose sampling loop is the same as the ROM's)
-* ``search-loader`` (Search Loader)
-* ``silverbird`` (Olli & Lissa II: Halloween)
-* ``software-projects`` (BC's Quest for Tires, Lode Runner)
-* ``sparklers`` (Bargain Basement, Flunky)
-* ``speedlock`` (Speedlock - all versions)
-* ``suzy-soft`` (Big Trouble, Joe Banker, The Drinker)
-* ``suzy-soft2`` (Western Girl)
-* ``tiny`` (Il Cobra di Cristallo, Negy a Nyero, Phantomasa, and others)
-* ``us-gold`` (Gauntlet II)
-* ``weird-science`` (Flash Beer Trilogy, Ghost Castles, TV-Game)
+  $ tap2sna.py -c help-accelerator
 
 .. _tap2sna-load:
 
@@ -1753,9 +1773,13 @@ configuration parameters are:
 replacement fields:
 
 * ``i`` - the current instruction
+* ``m[address]`` - the contents of a memory address
 * ``pc`` - the address of the current instruction (program counter)
 * ``r[X]`` - the 'X' register (see below)
 * ``t`` - the current timestamp
+
+When using the ``m`` (memory) replacement field, ``address`` must be either a
+decimal number, or a hexadecimal number prefixed by '$' or '0x'.
 
 The register name ``X`` in ``r[X]`` must be one of the following::
 
@@ -1790,6 +1814,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.3     | Added support for PZX files; added support for the ``m`` (memory) |
+|         | replacement field in the ``TraceLine`` configuration parameter    |
++---------+-------------------------------------------------------------------+
 | 9.2     | Added support for TZX block type 0x15 (direct recording); added   |
 |         | the ``python`` simulated LOAD configuration parameter             |
 +---------+-------------------------------------------------------------------+
@@ -1863,7 +1890,7 @@ Configuration parameters may also be set on the command line by using the
 
 tapinfo.py
 ----------
-`tapinfo.py` shows information on the blocks in a TAP or TZX file. For
+`tapinfo.py` shows information on the blocks in a PZX, TAP or TZX file. For
 example::
 
   $ tapinfo.py game.tzx
@@ -1872,18 +1899,25 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 
   usage: tapinfo.py FILE
 
-  Show the blocks in a TAP or TZX file.
+  Show the blocks in a PZX, TAP or TZX file.
 
   Options:
     -b N[,A], --basic N[,A]
                           List the BASIC program in block N loaded at address A
                           (default 23755).
     -d, --data            Show the entire contents of header and data blocks.
+    --tape-start BLOCK    Start at this tape block number.
+    --tape-stop BLOCK     Stop at this tape block number.
     -V, --version         Show SkoolKit version number and exit.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.3     | Added support for PZX files; added the ``--tape-start`` and       |
+|         | ``--tape-stop`` options; shows info for TZX block types 0x18 (CSW |
+|         | recording) and 0x2B (set signal level); recognises deprecated TZX |
+|         | block types 0x16, 0x17,0x34 and 0x40                              |
++---------+-------------------------------------------------------------------+
 | 9.2     | Shows info for TZX block type 0x15 (direct recording)             |
 +---------+-------------------------------------------------------------------+
 | 9.0     | Shows the LINE number (if present) for 'Program:' header blocks;  |
@@ -1922,7 +1956,8 @@ To list the options supported by `trace.py`, run it with no arguments::
 
   Trace Z80 machine code execution. FILE may be a binary (raw memory) file, a
   SNA, SZX or Z80 snapshot, or '48', '128' or '+2' for no snapshot. If 'OUTFILE'
-  is given, an SZX or Z80 snapshot is written after execution has completed.
+  is given, an SZX/Z80 snapshot or WAV file is written after execution has
+  completed.
 
   Options:
     --audio               Show audio delays.
@@ -1939,19 +1974,23 @@ To list the options supported by `trace.py`, run it with no arguments::
     -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
                           file (default: 65536 - length).
     -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
-                          POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
-                          Prefix 'v' with '^' to perform an XOR operation, or
-                          '+' to perform an ADD operation. This option may be
-                          used multiple times.
+                          POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}
+                          before execution begins. Prefix 'v' with '^' to
+                          perform an XOR operation, or '+' to perform an ADD
+                          operation. This option may be used multiple times.
     --python              Use the pure Python Z80 simulator.
     -r name=value, --reg name=value
-                          Set the value of a register. Do '--reg help' for more
-                          information. This option may be used multiple times.
+                          Set the value of a register before execution begins.
+                          Do '--reg help' for more information. This option may
+                          be used multiple times.
     --rom FILE            Patch in a ROM at address 0 from this file.
     --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
                           Start execution at this address.
     -S ADDR, --stop ADDR  Stop execution at this address.
+    --state name=value    Set a hardware state attribute before execution
+                          begins. Do '--state help' for more information. This
+                          option may be used multiple times.
     --stats               Show stats after execution.
     -v, --verbose         Show executed instructions. Repeat this option to show
                           register values too.
@@ -1997,9 +2036,13 @@ The ``TraceLine*`` parameters are standard Python format strings that recognise
 the following replacement fields:
 
 * ``i`` - the current instruction
+* ``m[address]`` - the contents of a memory address
 * ``pc`` - the address of the current instruction (program counter)
 * ``r[X]`` - the 'X' register (see below)
 * ``t`` - the current timestamp (in T-states)
+
+When using the ``m`` (memory) replacement field, ``address`` must be either a
+decimal number, or a hexadecimal number prefixed by '$' or '0x'.
 
 The register name ``X`` in ``r[X]`` must be one of the following::
 
@@ -2027,6 +2070,11 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.3     | Added the ``--state`` option; added support for writing a WAV     |
+|         | file after execution has completed; added support for the ``m``   |
+|         | (memory) replacement field in the ``TraceLine*`` configuration    |
+|         | parameters                                                        |
++---------+-------------------------------------------------------------------+
 | 9.2     | Added the ``--python`` option; added support for +2 snapshots     |
 +---------+-------------------------------------------------------------------+
 | 9.1     | The ``--poke`` option can modify specific RAM banks; added the    |

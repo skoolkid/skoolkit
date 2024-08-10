@@ -1,6 +1,36 @@
 Changelog
 =========
 
+9.3 (2024-08-10)
+----------------
+* Added support to :ref:`tapinfo.py` and :ref:`tap2sna.py` for reading PZX
+  files
+* Added support to :ref:`bin2tap.py` for writing PZX files
+* Added support to :ref:`tap2sna.py <tap2sna-conf>` for the ``m`` (memory)
+  replacement field in the ``TraceLine`` configuration parameter
+* Added support to :ref:`trace.py <trace-conf>` for the ``m`` (memory)
+  replacement field in the ``TraceLine*`` configuration parameters
+* Added the ``--state`` option to :ref:`trace.py` (for setting hardware state
+  attributes before code execution begins)
+* Added support to :ref:`trace.py` for writing a WAV file after code execution
+  has completed
+* Added the ``Opcodes`` configuration parameter to
+  :ref:`sna2skool.py <sna2skool-conf>` (for specifying additional opcode
+  sequences to disassemble)
+* Added the :ref:`bytes` directive (for specifying the byte values to which an
+  instruction should assemble)
+* Added the ``--tape-start`` and ``--tape-stop`` options to :ref:`tapinfo.py`
+  (for specifying the block numbers at which to start or stop showing info)
+* :ref:`tapinfo.py` now shows info for TZX block types 0x18 (CSW recording) and
+  0x2B (set signal level), and also recognises the deprecated TZX block types
+  0x16, 0x17, 0x34 and 0x40
+* The ``--find``, ``--find-text`` and ``--find-tile`` options of
+  :ref:`snapinfo.py` now search all RAM banks in a 128K snapshot by default
+* Added support for path ID replacement fields in the ``destDir`` parameter of
+  items in the :ref:`resources` section
+* Fixed the bug that prevents the ``--reg`` option of :ref:`trace.py` from
+  accepting hexadecimal values prefixed by '0x'
+
 9.2 (2024-05-11)
 ----------------
 * Added a Z80 instruction set simulator implemented in C (as a faster

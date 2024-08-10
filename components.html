@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>SkoolKit components &#8212; SkoolKit 9.2 documentation</title>
+    <title>SkoolKit components &#8212; SkoolKit 9.3 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -29,7 +29,7 @@
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.3 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit components</a></li> 
       </ul>
     </div>  
@@ -258,6 +258,9 @@ statement</p></li>
 DEFM statement</p></li>
 <li><p><cite>defw_size</cite> - default maximum number of words in a DEFW
 statement</p></li>
+<li><p><cite>imaker</cite> - callable that returns an instruction object</p></li>
+<li><p><cite>opcodes</cite> - comma-separated list of values specifying
+additional opcode sequences to disassemble</p></li>
 <li><p><cite>wrap</cite> - if <cite>True</cite>, disassemble an instruction that wraps
 around the 64K boundary</p></li>
 </ul>
@@ -278,7 +281,7 @@ around the 64K boundary</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
+<dd class="field-even"><p>A list of instruction objects created by <em>imaker</em>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -296,7 +299,7 @@ around the 64K boundary</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
+<dd class="field-even"><p>A list of instruction objects created by <em>imaker</em>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -314,7 +317,7 @@ around the 64K boundary</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
+<dd class="field-even"><p>A list of instruction objects created by <em>imaker</em>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -332,7 +335,7 @@ around the 64K boundary</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
+<dd class="field-even"><p>A list of instruction objects created by <em>imaker</em>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -353,21 +356,23 @@ one for each operand (e.g. ‘dh’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
+<dd class="field-even"><p>A list of instruction objects created by <em>imaker</em>.</p>
 </dd>
 </dl>
 </dd></dl>
 
 </dd></dl>
 
-<p>The 3-element tuples returned by these methods should have the form
-<code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>, where:</p>
+<p>The <em>imaker</em> callable used by these methods must accept three positional
+arguments:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address of the instruction</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">operation</span></code> is the operation (e.g. ‘XOR A’, ‘DEFB 1’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">bytes</span></code> is a sequence of byte values for the instruction (e.g. <code class="docutils literal notranslate"><span class="pre">(62,</span> <span class="pre">0)</span></code>
-for ‘LD A,0’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> - the address of the instruction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">operation</span></code> - the operation (e.g. ‘XOR A’, ‘DEFB 1’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code> - a sequence of byte values for the instruction (e.g. (62, 0) for
+‘LD A,0’)</p></li>
 </ul>
+<p>The <em>opcodes</em> list is defined by the <code class="docutils literal notranslate"><span class="pre">Opcodes</span></code> configuration parameter of
+<a class="reference internal" href="commands.html#sna2skool-conf"><span class="std std-ref">sna2skool.py</span></a>.</p>
 <p>The <em>sublengths</em> argument of the <code class="xref py py-meth docutils literal notranslate"><span class="pre">defb_range()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">defm_range()</span></code>,
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">defs_range()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">defw_range()</span></code> methods is a sequence of 2-element
 tuples of the form <code class="docutils literal notranslate"><span class="pre">(size,</span> <span class="pre">base)</span></code>, each of which specifies the desired size
@@ -384,6 +389,11 @@ tuples of the form <code class="docutils literal notranslate"><span class="pre">
 <p>If the first element of <em>sublengths</em> has a <code class="docutils literal notranslate"><span class="pre">size</span></code> value of 0, then the method
 should produce a list of statements with default sizes (as determined by
 <cite>defb_size</cite>, <cite>defm_size</cite> and <cite>defw_size</cite>), using the specified base.</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 9.3: </span>Added the <em>imaker</em> and <em>opcodes</em> attributes to the disassembler
+configuration object. API methods must now return objects created by
+<em>imaker</em>.</p>
+</div>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 8.5: </span>Added the ability to disassemble an instruction that wraps around the 64K
 boundary, along with the <em>wrap</em> attribute on the disassembler configuration
@@ -994,7 +1004,7 @@ other values declared in the <code class="docutils literal notranslate"><span cl
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.3 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit components</a></li> 
       </ul>
     </div>
