@@ -1347,7 +1347,7 @@ static void bit_xy(CSimulatorObject* self, void* lookup, int args[]) {
     }
 #endif
     byte value = BIT[REG(F) & 1][b][PEEK(addr)];
-    LD(F, (value & 0xD7) + ((xy / 256) & 0x28));
+    LD(F, (value & 0xD7) + ((addr / 256) & 0x28));
 
     INC_R(2);
     INC_T(20);
