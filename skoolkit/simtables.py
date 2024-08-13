@@ -1,4 +1,4 @@
-# Copyright 2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022, 2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -27,7 +27,7 @@ ADC = tuple(tuple(tuple((
         v % 256,
         (v & 0xA8)                                           # S.5.3.N.
         + (v % 256 == 0) * 0x40                              # .Z......
-        + (((a % 16) + ((v - a) % 16)) & 0x10)               # ...H....
+        + ((v ^ a ^ (v - c - a)) & 0x10)                     # ...H....
         + ((a ^ (v - c - a) ^ 0x80) & (a ^ v) & 0x80) // 32  # .....P..
         + (v > 0xFF)                                         # .......C
     ) for v in range(a + c, a + c + 256)
@@ -236,7 +236,7 @@ SBC = tuple(tuple(tuple((
         v % 256,
         (v & 0xA8)                                    # S.5.3...
         + (v % 256 == 0) * 0x40                       # .Z......
-        + (((a % 16) - ((a - v) % 16)) & 0x10)        # ...H....
+        + ((v ^ a ^ (a - v - c)) & 0x10)              # ...H....
         + ((a ^ (a - v - c)) & (a ^ v) & 0x80) // 32  # .....P..
         + 0x02                                        # ......N.
         + (v < 0)                                     # .......C

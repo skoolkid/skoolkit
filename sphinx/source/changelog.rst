@@ -3,6 +3,7 @@ Changelog
 
 9.4b1
 -----
+* Fixed how the 'ADC A,*' and 'SBC A,*' instructions affect the half-carry flag
 
 9.3 (2024-08-10)
 ----------------

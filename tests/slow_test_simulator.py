@@ -460,7 +460,7 @@ class ALOTest(SimulatorTest):
         self._verify(AFTracer(135), '8a5b656618120683ff1e8b2c91e55315')
 
     def test_adc_a_r(self):
-        self._verify(AFRTracer(136), '0ae2d98f422d958f8ca77645a3b17aad')
+        self._verify(AFRTracer(136), '88c87db326d118846416ca8c4a18ee8f')
 
     def test_adc_a_a(self):
         self._verify(AFTracer(143), 'af1966e41681c026ad6c9d6e12fc3ed8')
@@ -472,7 +472,7 @@ class ALOTest(SimulatorTest):
         self._verify(AFTracer(151), 'f83836b3beef2cf62227b74fa2db50d5')
 
     def test_sbc_a_r(self):
-        self._verify(AFRTracer(152), 'b4cbffcca3bdc458fd705d0b3dbcd3d9')
+        self._verify(AFRTracer(152), '9fc1dc7e21f660f87fbcc7649e0303b6')
 
     def test_sbc_a_a(self):
         self._verify(AFTracer(159), '56af67d5c20e1fe7956207a4059edcc6')
