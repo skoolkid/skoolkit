@@ -250,9 +250,9 @@ class Simulator:
     def adc_hl(self, registers, rh, rl):
         # ADC HL,BC/DE/HL/SP
         rr = registers[rl] + 256 * registers[rh]
-        hl = registers[7] + 256 * registers[6]
-        rr_c = rr + registers[1] % 2
-        result = hl + rr_c
+        h = registers[6]
+        hl = registers[7] + 256 * h
+        result = hl + rr + registers[1] % 2
 
         if result > 0xFFFF:
             result %= 65536
@@ -261,17 +261,16 @@ class Simulator:
             f = 0
         if result == 0:
             f += 0x40 # .Z......
-        if (hl % 4096) + (rr_c % 4096) > 0x0FFF:
-            f += 0x10 # ...H....
+        r_h = result // 256
+        f += (h ^ (rr // 256) ^ r_h) & 0x10 # ...H....
         if hl ^ rr < 0x8000 and hl ^ result > 0x7FFF:
             # Augend and addend signs are the same - overflow if their sign
             # differs from the sign of the result
             f += 0x04 # .....P..
 
-        h = result // 256
-        registers[1] = f + (h & 0xA8)
+        registers[1] = f + (r_h & 0xA8)
         registers[7] = result % 256
-        registers[6] = h
+        registers[6] = r_h
         registers[15] = R2[registers[15]] # R
         registers[25] += 15 # T-states
         registers[24] = (registers[24] + 2) % 65536 # PC
@@ -966,9 +965,11 @@ class Simulator:
     def sbc_hl(self, registers, rh, rl):
         # SBC HL,BC/DE/HL/SP
         rr = registers[rl] + 256 * registers[rh]
-        hl = registers[7] + 256 * registers[6]
+        h = registers[6]
+        hl = registers[7] + 256 * h
         rr_c = rr + (registers[1] % 2)
         result = (hl - rr_c) % 65536
+        r_h = result // 256
 
         if hl < rr_c:
             f = 0x03 # ......NC
@@ -976,17 +977,15 @@ class Simulator:
             f = 0x02 # ......N.
         if result == 0:
             f += 0x40 # .Z......
-        if hl % 4096 < rr_c % 4096:
-            f += 0x10 # ...H....
+        f += (h ^ (rr // 256) ^ r_h) & 0x10 # ...H....
         if hl ^ rr > 0x7FFF and hl ^ result > 0x7FFF:
             # Minuend and subtrahend signs are different - overflow if the
             # minuend's sign differs from the sign of the result
             f += 0x04 # .....P..
 
-        h = result // 256
-        registers[1] = f + (h & 0xA8)
+        registers[1] = f + (r_h & 0xA8)
         registers[7] = result % 256
-        registers[6] = h
+        registers[6] = r_h
         registers[15] = R2[registers[15]] # R
         registers[25] += 15 # T-states
         registers[24] = (registers[24] + 2) % 65536 # PC

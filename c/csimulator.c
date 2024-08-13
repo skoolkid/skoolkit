@@ -1218,7 +1218,8 @@ static void adc_hl(CSimulatorObject* self, void* lookup, int args[]) {
     }
 #endif
     unsigned rr = REG(rl) + 256 * REG(rh);
-    unsigned hl = REG(L) + 256 * REG(H);
+    unsigned h = REG(H);
+    unsigned hl = REG(L) + 256 * h;
     unsigned rr_c = rr + (REG(F) & 1);
     unsigned result = hl + rr_c;
     unsigned f = 0;
@@ -1229,18 +1230,16 @@ static void adc_hl(CSimulatorObject* self, void* lookup, int args[]) {
     if (result == 0) {
         f += 0x40; // .Z......
     }
-    if ((hl % 4096) + (rr_c % 4096) > 0x0FFF) {
-        f += 0x10; // ...H....
-    }
+    unsigned r_h = result / 256;
+    f += (h ^ (rr / 256) ^ r_h) & 0x10; // ...H....
     if ((hl ^ rr) < 0x8000 && (hl ^ result) > 0x7FFF) {
         // Augend and addend signs are the same - overflow if their sign
         // differs from the sign of the result
         f += 0x04; // .....P..
     }
-    unsigned h = result / 256;
-    LD(F, f + (h & 0xA8));
+    LD(F, f + (r_h & 0xA8));
     LD(L, result % 256);
-    LD(H, h);
+    LD(H, r_h);
 
     INC_R(2);
     INC_T(15);
@@ -2835,11 +2834,12 @@ static void sbc_hl(CSimulatorObject* self, void* lookup, int args[]) {
     }
 #endif
     unsigned rr = REG(rl) + 256 * REG(rh);
-    unsigned hl = REG(L) + 256 * REG(H);
+    unsigned h = REG(H);
+    unsigned hl = REG(L) + 256 * h;
     unsigned rr_c = rr + (REG(F) & 1);
-    unsigned result = (hl - rr_c) % 65536;
+    unsigned result = (hl - rr_c) & 0xFFFF;
+    unsigned r_h = result / 256;
     unsigned f = 0;
-
     if (hl < rr_c) {
         f = 0x03; // ......NC
     } else {
@@ -2848,19 +2848,15 @@ static void sbc_hl(CSimulatorObject* self, void* lookup, int args[]) {
     if (result == 0) {
         f += 0x40; // .Z......
     }
-    if (hl % 4096 < rr_c % 4096) {
-        f += 0x10; // ...H....
-    }
+    f += (h ^ (rr / 256) ^ r_h) & 0x10; // ...H....
     if ((hl ^ rr) > 0x7FFF && (hl ^ result) > 0x7FFF) {
         // Minuend and subtrahend signs are different - overflow if the
         // minuend's sign differs from the sign of the result
         f += 0x04; // .....P..
     }
-
-    unsigned h = result / 256;
-    LD(F, f + (h & 0xA8));
+    LD(F, f + (r_h & 0xA8));
     LD(L, result % 256);
-    LD(H, h);
+    LD(H, r_h);
 
     INC_R(2);
     INC_T(15);

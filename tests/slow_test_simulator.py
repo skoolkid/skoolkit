@@ -594,19 +594,19 @@ class AHLTest(SimulatorTest):
         self._verify(HLRRFTracer(9), '72f5c0ca1f607654448d41ba83f51c52')
 
     def test_adc_hl_rr(self):
-        self._verify(HLRRFTracer(237, 74), '239e29da51c0bef37b131f3e0b1c731c')
+        self._verify(HLRRFTracer(237, 74), 'd9be5b1c55b9596dfb1369962b22de45')
 
     def test_sbc_hl_rr(self):
-        self._verify(HLRRFTracer(237, 66), '0d97517afe1301cec29656ecd4a8d6aa')
+        self._verify(HLRRFTracer(237, 66), '7b1dd67c26449c0c6d921b5a95b53b61')
 
     def test_add_hl_hl(self):
         self._verify(HLFTracer(41), 'c1e9d4ef148c912ed4d5ddbd3d761eb4')
 
     def test_adc_hl_hl(self):
-        self._verify(HLFTracer(237, 106), '7540639ced53d305f2ebff71af813cc8')
+        self._verify(HLFTracer(237, 106), '9cb91b3725b05e904432cef9ae801371')
 
     def test_sbc_hl_hl(self):
-        self._verify(HLFTracer(237, 98), 'b2352766d380075636c4cf0a38a7e7d8')
+        self._verify(HLFTracer(237, 98), '26f9c69cc72c2509a7156fc1f596d938')
 
 class BLKTest(SimulatorTest):
     def test_ldi(self):
