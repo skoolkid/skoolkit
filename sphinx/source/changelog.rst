@@ -7,6 +7,8 @@ Changelog
   affect the half-carry flag
 * Fixed how 'BIT n,(IX/Y+d)' affects bits 3 and 5 of the flags in the C version
   of the Z80 simulator
+* Fixed how IX/IY offset addresses are calculated in the C version of the Z80
+  simulator
 
 9.3 (2024-08-10)
 ----------------

@@ -35,6 +35,7 @@
 #endif
 #define INC_PC(i) LD(PC, (REG(PC) + (i)) % 65536)
 #define OUT(p, v) if (mem == NULL && (p & 0x8002) == 0 && (self->out7ffd & 0x20) == 0) out7ffd(self, v)
+#define ADDR(a) (a) & 0xFFFF
 #define CHECK_SIGNALS if ((TIME & 0xFFFFFF) < 10) PyErr_CheckSignals()
 
 typedef unsigned char byte;
@@ -910,7 +911,7 @@ static void af_xy(CSimulatorObject* self, void* lookup, int args[]) {
 
     int xy = REG(xyl) + 256 * REG(xyh);
     int d = PEEK((REG(PC) + 2) % 65536);
-    int addr = (xy + (d < 128 ? d : d - 256)) % 65536;
+    int addr = ADDR(xy + (d < 128 ? d : d - 256));
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
@@ -1007,7 +1008,7 @@ static void afc_xy(CSimulatorObject* self, void* lookup, int args[]) {
 
     int xy = REG(xyl) + 256 * REG(xyh);
     int d = PEEK((REG(PC) + 2) % 65536);
-    int addr = (xy + (d < 128 ? d : d - 256)) % 65536;
+    int addr = ADDR(xy + (d < 128 ? d : d - 256));
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
@@ -1084,7 +1085,7 @@ static void f_xy(CSimulatorObject* self, void* lookup, int args[]) {
 
     int xy = REG(xyl) + 256 * REG(xyh);
     int d = PEEK((REG(PC) + 2) % 65536);
-    int addr = (xy + (d < 128 ? d : d - 256)) % 65536;
+    int addr = ADDR(xy + (d < 128 ? d : d - 256));
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
@@ -1177,7 +1178,7 @@ static void fc_xy(CSimulatorObject* self, void* lookup, int args[]) {
 
     int xy = REG(xyl) + 256 * REG(xyh);
     int d = PEEK((REG(PC) + 2) % 65536);
-    int addr = (xy + (d < 128 ? d : d - 256)) % 65536;
+    int addr = ADDR(xy + (d < 128 ? d : d - 256));
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
@@ -1338,7 +1339,7 @@ static void bit_xy(CSimulatorObject* self, void* lookup, int args[]) {
 
     int xy = REG(xyl) + 256 * REG(xyh);
     int d = PEEK((REG(PC) + 2) % 65536);
-    int addr = (xy + (d < 128 ? d : d - 256)) % 65536;
+    int addr = ADDR(xy + (d < 128 ? d : d - 256));
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
