@@ -188,6 +188,30 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(len(error), 0)
             self._check_values(skoolfile, exp_binfile, fix_mode=3)
 
+    @patch.object(skool2bin, 'get_config', mock_config)
+    def test_option_show_config(self):
+        output, error = self.run_skool2bin('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            [skool2bin]
+            Warnings=1
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_show_config_read_from_file(self):
+        ini = """
+            [skool2bin]
+            Warnings=0
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        output, error = self.run_skool2bin('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            [skool2bin]
+            Warnings=0
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_s(self):
         skoolfile = 'test-s.skool'

@@ -484,6 +484,7 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
                           --ofix).
     -R, --rfix            Apply @ofix, @bfix and @rfix directives (implies
                           --rsub).
+    --show-config         Show configuration parameter values.
     -s, --ssub            Apply @isub and @ssub directives.
     -S ADDR, --start ADDR
                           Start converting at this address.
@@ -538,7 +539,7 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.4     | Configuration is read from `skoolkit.ini` if present; added the   |
-|         | ``--ini`` option                                                  |
+|         | ``--ini`` and ``--show-config`` options                           |
 +---------+-------------------------------------------------------------------+
 | 9.1     | Added the ``--banks`` option                                      |
 +---------+-------------------------------------------------------------------+

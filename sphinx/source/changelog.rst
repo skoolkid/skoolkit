@@ -5,8 +5,9 @@ Changelog
 -----
 * Added support to :ref:`skool2bin.py <skool2bin-conf>` for reading
   configuration from `skoolkit.ini`
-* Added the ``--ini`` option to :ref:`skool2bin.py` (for setting the value of
-  a configuration parameter)
+* Added the ``--ini`` and ``--show-config`` options to :ref:`skool2bin.py` (for
+  setting the value of a configuration parameter and for showing all
+  configuration parameter values)
 * Fixed how the 'ADC A,*', 'SBC A,*', 'ADC HL,rr' and 'SBC HL,rr' instructions
   affect the half-carry flag
 * Fixed how 'BIT n,(IX/Y+d)' affects bits 3 and 5 of the flags in the C version

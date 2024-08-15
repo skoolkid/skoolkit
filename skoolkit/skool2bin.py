@@ -19,7 +19,7 @@ from collections import defaultdict, namedtuple
 from os.path import basename
 
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, parse_int, warn, VERSION
-from skoolkit.config import get_config, update_options
+from skoolkit.config import get_config, show_config, update_options
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
 from skoolkit.skoolutils import (DIRECTIVES, Memory, parse_address_range, parse_asm_bank_directive,
@@ -311,6 +311,8 @@ def main(args):
                        help="Apply @isub, @ssub and @rsub directives (implies --ofix).")
     group.add_argument('-R', '--rfix', dest='fix_mode', action='store_const', const=3, default=0,
                        help="Apply @ofix, @bfix and @rfix directives (implies --rsub).")
+    group.add_argument('--show-config', dest='show_config', action='store_true',
+                       help="Show configuration parameter values.")
     group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=0,
                        help="Apply @isub and @ssub directives.")
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer, default=-1,
@@ -322,6 +324,8 @@ def main(args):
     group.add_argument('-w', '--no-warnings', dest='warn', action='store_false',
                        help="Suppress warnings.")
     namespace, unknown_args = parser.parse_known_args(args)
+    if namespace.show_config:
+        show_config('skool2bin', config)
     skoolfile = namespace.skoolfile
     if unknown_args or skoolfile is None:
         parser.exit(2, parser.format_help())

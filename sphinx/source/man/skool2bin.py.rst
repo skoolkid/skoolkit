@@ -47,6 +47,9 @@ OPTIONS
 -R, --rfix
   Apply @ofix, @bfix and @rfix directives (implies ``--rsub``).
 
+--show-config
+  Show configuration parameter values.
+
 -s, --ssub
   Apply @isub and @ssub directives.
 
