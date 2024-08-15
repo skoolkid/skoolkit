@@ -476,6 +476,8 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
     -b, --bfix            Apply @ofix and @bfix directives.
     -d, --data            Process @defb, @defs and @defw directives.
     -E ADDR, --end ADDR   Stop converting at this address.
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'. This option may be used multiple times.
     -i, --isub            Apply @isub directives.
     -o, --ofix            Apply @ofix directives.
     -r, --rsub            Apply @isub, @ssub and @rsub directives (implies
@@ -511,9 +513,33 @@ This output shows that:
 * The instruction at 40006 (RET) was originally at 40003 (before other
   instructions were inserted, removed or replaced)
 
+.. _skool2bin-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`skool2bin.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``Warnings`` - show warnings (``1``, the default), or suppress them (``0``)
+
+Configuration parameters must appear in a ``[skool2bin]`` section. For example,
+to make `skool2bin.py` suppress warnings (without having to use the ``-w``
+option on the command line), add the following section to `skoolkit.ini`::
+
+  [skool2bin]
+  Warnings=0
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.4     | Configuration is read from `skoolkit.ini` if present; added the   |
+|         | ``--ini`` option                                                  |
++---------+-------------------------------------------------------------------+
 | 9.1     | Added the ``--banks`` option                                      |
 +---------+-------------------------------------------------------------------+
 | 8.1     | Added the ``--data``, ``--rsub``, ``--rfix``, ``--verbose`` and   |

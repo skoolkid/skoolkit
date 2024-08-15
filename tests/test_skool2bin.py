@@ -3,6 +3,10 @@ from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, VERSION, components, skool2bin
+from skoolkit.config import COMMANDS
+
+def mock_config(name):
+    return {k: v[0] for k, v in COMMANDS[name].items()}
 
 class MockBinWriter:
     def __init__(self, skoolfile, asm_mode, fix_mode, banks, start, end, data, verbose, warn):
@@ -126,6 +130,27 @@ class Skool2BinTest(SkoolKitTestCase):
             output, error = self.run_skool2bin('{} {} {}'.format(option, value, skoolfile))
             self.assertEqual(len(error), 0)
             self._check_values(skoolfile, exp_binfile, end=int(value[2:], 16))
+
+    @patch.object(skool2bin, 'get_config', mock_config)
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_I(self):
+        skoolfile = 'in.skool'
+        binfile = 'out.bin'
+        for option in ('-I', '--ini'):
+            self.run_skool2bin(f'{option} Warnings=0 {skoolfile} {binfile}')
+            self._check_values(skoolfile, binfile, warn=0)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_I_overrides_config_read_from_file(self):
+        ini = """
+            [skool2bin]
+            Warnings=1
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        skoolfile = 'in.skool'
+        binfile = 'out.bin'
+        self.run_skool2bin(f'--ini Warnings=0 {skoolfile} {binfile}')
+        self._check_values(skoolfile, binfile, warn=0)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_i(self):

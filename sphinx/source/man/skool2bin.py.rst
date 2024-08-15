@@ -30,6 +30,11 @@ OPTIONS
   Stop converting at this address. `ADDR` must be a decimal number, or a
   hexadecimal number prefixed by '0x'.
 
+-I, --ini `param=value`
+  Set the value of a configuration parameter (see ``CONFIGURATION``),
+  overriding any value found in ``skoolkit.ini``. This option may be used
+  multiple times.
+
 -i, --isub
   Apply @isub directives.
 
@@ -57,6 +62,25 @@ OPTIONS
 
 -w, --no-warnings
   Suppress warnings.
+
+CONFIGURATION
+=============
+``skool2bin.py`` will read configuration from a file named ``skoolkit.ini`` in
+the current working directory or in ``~/.skoolkit``, if present. The recognised
+configuration parameters are:
+
+  :Warnings: Show warnings (``1``, the default), or suppress them (``0``).
+
+Configuration parameters must appear in a ``[skool2bin]`` section. For example,
+to make ``skool2bin.py`` suppress warnings (without having to use the ``-w``
+option on the command line), add the following section to ``skoolkit.ini``::
+
+  [skool2bin]
+  Warnings=0
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+``skoolkit.ini``.
 
 EXAMPLES
 ========

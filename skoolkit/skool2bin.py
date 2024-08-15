@@ -19,6 +19,7 @@ from collections import defaultdict, namedtuple
 from os.path import basename
 
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, parse_int, warn, VERSION
+from skoolkit.config import get_config, update_options
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
 from skoolkit.skoolutils import (DIRECTIVES, Memory, parse_address_range, parse_asm_bank_directive,
@@ -280,6 +281,7 @@ def run(skoolfile, binfile, options):
     binwriter.write(binfile)
 
 def main(args):
+    config = get_config('skool2bin')
     parser = argparse.ArgumentParser(
         usage='skool2bin.py [options] file.skool [file.bin]',
         description="Convert a skool file into a binary (raw memory) file. "
@@ -299,6 +301,8 @@ def main(args):
                        help="Process @defb, @defs and @defw directives.")
     group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=integer, default=65537,
                        help='Stop converting at this address.')
+    group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
+                       help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
     group.add_argument('-i', '--isub', dest='asm_mode', action='store_const', const=1, default=0,
                        help="Apply @isub directives.")
     group.add_argument('-o', '--ofix', dest='fix_mode', action='store_const', const=1, default=0,
@@ -322,6 +326,7 @@ def main(args):
     if unknown_args or skoolfile is None:
         parser.exit(2, parser.format_help())
 
+    update_options('skool2bin', namespace, namespace.params, config)
     binfile = namespace.binfile
     if binfile is None:
         if skoolfile.lower().endswith('.skool'):
