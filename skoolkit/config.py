@@ -82,6 +82,9 @@ COMMANDS = {
         'Word': ('{address:>5} {address:04X}: {value:>5}  {value:04X}', '')
     },
     'skool2bin': {
+        'Banks': (0, 'banks'),
+        'Data': (0, 'data'),
+        'Verbose': (0, 'verbose'),
         'Warnings': (1, 'warn')
     },
     'skool2ctl': {

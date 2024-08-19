@@ -136,21 +136,26 @@ class Skool2BinTest(SkoolKitTestCase):
     def test_option_I(self):
         skoolfile = 'in.skool'
         binfile = 'out.bin'
+        params = ('Banks=1', 'Data=1', 'Verbose=1', 'Warnings=0')
         for option in ('-I', '--ini'):
-            self.run_skool2bin(f'{option} Warnings=0 {skoolfile} {binfile}')
-            self._check_values(skoolfile, binfile, warn=0)
+            options = ' '.join(f'{option} {p}' for p in params)
+            self.run_skool2bin(f'{options} {skoolfile} {binfile}')
+            self._check_values(skoolfile, binfile, banks=1, data=1, verbose=1, warn=0)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_I_overrides_config_read_from_file(self):
         ini = """
             [skool2bin]
+            Banks=1
+            Data=0
+            Verbose=1
             Warnings=1
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         skoolfile = 'in.skool'
         binfile = 'out.bin'
-        self.run_skool2bin(f'--ini Warnings=0 {skoolfile} {binfile}')
-        self._check_values(skoolfile, binfile, warn=0)
+        self.run_skool2bin(f'-I Banks=0 --ini Data=1 -I Verbose=0 --ini Warnings=0 {skoolfile} {binfile}')
+        self._check_values(skoolfile, binfile, banks=0, data=1, verbose=0, warn=0)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_i(self):
@@ -194,6 +199,9 @@ class Skool2BinTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [skool2bin]
+            Banks=0
+            Data=0
+            Verbose=0
             Warnings=1
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -201,6 +209,9 @@ class Skool2BinTest(SkoolKitTestCase):
     def test_option_show_config_read_from_file(self):
         ini = """
             [skool2bin]
+            Banks=1
+            Data=1
+            Verbose=1
             Warnings=0
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
@@ -208,6 +219,9 @@ class Skool2BinTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [skool2bin]
+            Banks=1
+            Data=1
+            Verbose=1
             Warnings=0
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())

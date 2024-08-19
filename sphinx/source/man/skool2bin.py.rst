@@ -72,6 +72,12 @@ CONFIGURATION
 the current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
+  :Banks: Process ``@bank`` directives and write RAM banks 0-7 to a 128K file
+    (``1``), or don't (``0``, the default).
+  :Data: Process ``@defb``, ``@defs`` and ``@defw`` directives (``1``), or
+    don't (``0``, the default).
+  :Verbose: Show info on each converted instruction (``1``), or don't (``0``,
+    the default).
   :Warnings: Show warnings (``1``, the default), or suppress them (``0``).
 
 Configuration parameters must appear in a ``[skool2bin]`` section. For example,
