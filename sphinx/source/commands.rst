@@ -526,6 +526,10 @@ configuration parameters are:
   128K file (``1``), or don't (``0``, the default)
 * ``Data`` - process :ref:`defb`, :ref:`defs` and :ref:`defw` directives
   (``1``), or don't (``0``, the default)
+* ``PadLeft`` - address at which to start padding the output on the left with
+  zeroes; the default value is ``65536``, which produces no padding
+* ``PadRight`` - address at which to stop padding the output on the right with
+  zeroes; the default value is ``0``, which produces no padding
 * ``Verbose`` - show info on each converted instruction (``1``), or don't
   (``0``, the default)
 * ``Warnings`` - show warnings (``1``, the default), or suppress them (``0``)
@@ -545,7 +549,8 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.4     | Configuration is read from `skoolkit.ini` if present; added the   |
-|         | ``--ini`` and ``--show-config`` options                           |
+|         | ``--ini`` and ``--show-config`` options; added support for        |
+|         | padding the output with zeroes                                    |
 +---------+-------------------------------------------------------------------+
 | 9.1     | Added the ``--banks`` option                                      |
 +---------+-------------------------------------------------------------------+

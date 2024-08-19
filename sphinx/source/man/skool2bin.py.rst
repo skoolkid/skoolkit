@@ -76,6 +76,10 @@ configuration parameters are:
     (``1``), or don't (``0``, the default).
   :Data: Process ``@defb``, ``@defs`` and ``@defw`` directives (``1``), or
     don't (``0``, the default).
+  :PadLeft: Address at which to start padding the output on the left with
+    zeroes. The default value is ``65536``, which produces no padding.
+  :PadRight: Address at which to stop padding the output on the right with
+    zeroes. The default value is ``0``, which produces no padding.
   :Verbose: Show info on each converted instruction (``1``), or don't (``0``,
     the default).
   :Warnings: Show warnings (``1``, the default), or suppress them (``0``).

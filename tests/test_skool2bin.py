@@ -9,7 +9,7 @@ def mock_config(name):
     return {k: v[0] for k, v in COMMANDS[name].items()}
 
 class MockBinWriter:
-    def __init__(self, skoolfile, asm_mode, fix_mode, banks, start, end, data, verbose, warn):
+    def __init__(self, skoolfile, asm_mode, fix_mode, banks, start, end, data, verbose, warn, pad_left, pad_right):
         global mock_bin_writer
         mock_bin_writer = self
         self.skoolfile = skoolfile
@@ -21,13 +21,16 @@ class MockBinWriter:
         self.data = data
         self.verbose = verbose
         self.warn = warn
+        self.pad_left = pad_left
+        self.pad_right = pad_right
         self.binfile = None
 
     def write(self, binfile):
         self.binfile = binfile
 
 class Skool2BinTest(SkoolKitTestCase):
-    def _check_values(self, skoolfile, binfile, asm_mode=0, fix_mode=0, banks=False, data=False, verbose=False, warn=True, start=-1, end=65537):
+    def _check_values(self, skoolfile, binfile, asm_mode=0, fix_mode=0, banks=False, data=False,
+                      verbose=False, warn=True, start=-1, end=65537, pad_left=65536, pad_right=0):
         self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
         self.assertEqual(mock_bin_writer.binfile, binfile)
         self.assertEqual(mock_bin_writer.asm_mode, asm_mode)
@@ -38,6 +41,8 @@ class Skool2BinTest(SkoolKitTestCase):
         self.assertIs(mock_bin_writer.warn, warn)
         self.assertEqual(mock_bin_writer.start, start)
         self.assertEqual(mock_bin_writer.end, end)
+        self.assertEqual(mock_bin_writer.pad_left, pad_left)
+        self.assertEqual(mock_bin_writer.pad_right, pad_right)
 
     def test_no_arguments(self):
         output, error = self.run_skool2bin(catch_exit=2)
@@ -85,6 +90,46 @@ class Skool2BinTest(SkoolKitTestCase):
         output, error = self.run_skool2bin('{} {}'.format(skoolfile, binfile))
         self.assertEqual(len(error), 0)
         self.assertEqual(mock_bin_writer.binfile, binfile)
+
+    @patch.object(skool2bin, 'get_config', mock_config)
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_config_PadLeft_set_on_command_line(self):
+        skoolfile = 'in.skool'
+        binfile = 'out.bin'
+        self.run_skool2bin(f'-I PadLeft=16384 {skoolfile} {binfile}')
+        self._check_values(skoolfile, binfile, pad_left=16384)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_config_PadLeft_read_from_file(self):
+        ini = """
+            [skool2bin]
+            PadLeft=16384
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        skoolfile = 'in.skool'
+        binfile = 'out.bin'
+        self.run_skool2bin(f'{skoolfile} {binfile}')
+        self._check_values(skoolfile, binfile, pad_left=16384)
+
+    @patch.object(skool2bin, 'get_config', mock_config)
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_config_PadRight_set_on_command_line(self):
+        skoolfile = 'in.skool'
+        binfile = 'out.bin'
+        self.run_skool2bin(f'-I PadRight=65536 {skoolfile} {binfile}')
+        self._check_values(skoolfile, binfile, pad_right=65536)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_config_PadLeft_read_from_file(self):
+        ini = """
+            [skool2bin]
+            PadRight=65536
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        skoolfile = 'in.skool'
+        binfile = 'out.bin'
+        self.run_skool2bin(f'{skoolfile} {binfile}')
+        self._check_values(skoolfile, binfile, pad_right=65536)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_B(self):
@@ -201,6 +246,8 @@ class Skool2BinTest(SkoolKitTestCase):
             [skool2bin]
             Banks=0
             Data=0
+            PadLeft=65536
+            PadRight=0
             Verbose=0
             Warnings=1
         """
@@ -211,6 +258,8 @@ class Skool2BinTest(SkoolKitTestCase):
             [skool2bin]
             Banks=1
             Data=1
+            PadLeft=16384
+            PadRight=65536
             Verbose=1
             Warnings=0
         """
@@ -221,6 +270,8 @@ class Skool2BinTest(SkoolKitTestCase):
             [skool2bin]
             Banks=1
             Data=1
+            PadLeft=16384
+            PadRight=65536
             Verbose=1
             Warnings=0
         """
@@ -277,7 +328,8 @@ class Skool2BinTest(SkoolKitTestCase):
             self._check_values(skoolfile, exp_binfile, warn=False)
 
 class BinWriterTestCase(SkoolKitTestCase):
-    def _test_write(self, skool, base_address, exp_data, *modes, banks=False, data=False, start=-1, end=65537, warn=True, exp_output='', exp_warnings=''):
+    def _test_write(self, skool, base_address, exp_data, *modes, banks=False, data=False, start=-1,
+                    end=65537, warn=True, pad_left=65536, pad_right=0, exp_output='', exp_warnings=''):
         if skool is None:
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
@@ -291,7 +343,8 @@ class BinWriterTestCase(SkoolKitTestCase):
                 asm_mode = {'isub': 1, 'ssub': 2, 'rsub': 3}[mode]
             elif mode.endswith('fix'):
                 fix_mode = {'ofix': 1, 'bfix': 2, 'rfix': 3}[mode]
-        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode, banks, start, end, data, bool(exp_output), warn)
+        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode, banks, start, end, data,
+                                         bool(exp_output), warn, pad_left, pad_right)
         bin_writer.write(binfile)
         with open(binfile, 'rb') as f:
             bdata = list(f.read())
@@ -739,6 +792,30 @@ class BinWriterTest(BinWriterTestCase):
         """
         exp_data = [1, 2]
         self._test_write(skool, 32768, exp_data)
+
+    def test_pad_left(self):
+        skool = """
+            ; Data
+            b32770 DEFB 1,2
+        """
+        exp_data = [0, 0, 1, 2]
+        self._test_write(skool, 32768, exp_data, pad_left=32768)
+
+    def test_pad_right(self):
+        skool = """
+            ; Data
+            b32768 DEFB 3,4
+        """
+        exp_data = [3, 4, 0, 0]
+        self._test_write(skool, 32768, exp_data, pad_right=32772)
+
+    def test_pad_left_and_right(self):
+        skool = """
+            ; Data
+            b32769 DEFB 5,6
+        """
+        exp_data = [0, 5, 6, 0]
+        self._test_write(skool, 32768, exp_data, pad_left=32768, pad_right=32772)
 
     def test_verbose(self):
         skool = """

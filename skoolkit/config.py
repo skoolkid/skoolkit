@@ -84,6 +84,8 @@ COMMANDS = {
     'skool2bin': {
         'Banks': (0, 'banks'),
         'Data': (0, 'data'),
+        'PadLeft': (65536, ''),
+        'PadRight': (0, ''),
         'Verbose': (0, 'verbose'),
         'Warnings': (1, 'warn')
     },

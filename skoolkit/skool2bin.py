@@ -54,7 +54,8 @@ class Instruction:
         return '{0:05} {0:04X} {1} {2:13} {3}'.format(self.real_address, self.marker, self.operation, suffix).rstrip()
 
 class BinWriter:
-    def __init__(self, skoolfile, asm_mode=0, fix_mode=0, banks=False, start=-1, end=65537, data=False, verbose=False, warn=False):
+    def __init__(self, skoolfile, asm_mode=0, fix_mode=0, banks=False, start=-1, end=65537,
+                 data=False, verbose=False, warn=False, pad_left=65536, pad_right=0):
         if fix_mode > 2:
             asm_mode = 3
         elif asm_mode > 2:
@@ -66,6 +67,8 @@ class BinWriter:
         self.end = end
         self.verbose = verbose
         self.warn = warn
+        self.pad_left = pad_left
+        self.pad_right = pad_right
         self.weights = {
             'isub': (0, int(asm_mode > 0)),
             'ssub': (0, 2 * int(asm_mode > 1)),
@@ -269,15 +272,22 @@ class BinWriter:
             end_address = min(self.end, self.end_address)
         base_address = min(base_address, end_address)
         data = self.snapshot[base_address:end_address]
+        if self.pad_left < base_address:
+            data = [0] * (base_address - self.pad_left) + data
+            base_address = self.pad_left
+        if self.pad_right > end_address:
+            data += [0] * (self.pad_right - end_address)
+            end_address = self.pad_right
         with open_file(binfile, 'wb') as f:
             f.write(bytearray(data))
         if binfile == '-':
             binfile = 'stdout'
         info("Wrote {}: start={}, end={}, size={}".format(binfile, base_address, end_address, len(data)))
 
-def run(skoolfile, binfile, options):
+def run(skoolfile, binfile, options, config):
     binwriter = BinWriter(skoolfile, options.asm_mode, options.fix_mode, options.banks, options.start,
-                          options.end, options.data, options.verbose, options.warn)
+                          options.end, options.data, options.verbose, options.warn,
+                          config['PadLeft'], config['PadRight'])
     binwriter.write(binfile)
 
 def main(args):
@@ -339,4 +349,4 @@ def main(args):
             binfile = 'program.bin'
         else:
             binfile = basename(skoolfile) + '.bin'
-    run(skoolfile, binfile, namespace)
+    run(skoolfile, binfile, namespace, config)
