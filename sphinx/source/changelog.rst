@@ -10,6 +10,8 @@ Changelog
   configuration parameter values)
 * Added support to :ref:`skool2bin.py` for padding the output with zeroes (as
   specified by the ``PadLeft`` and ``PadRight`` configuration parameters)
+* Added support to the :ref:`FOREACH` macro for the ``POKEname`` special
+  variable
 * Fixed how the 'ADC A,*', 'SBC A,*', 'ADC HL,rr' and 'SBC HL,rr' instructions
   affect the half-carry flag
 * Fixed how 'BIT n,(IX/Y+d)' affects bits 3 and 5 of the flags in the C version

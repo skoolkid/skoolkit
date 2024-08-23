@@ -990,6 +990,70 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#FOREACH(REFx)(n,n)'), 'REFx')
         self.assertEqual(writer.expand('#FOREACH[REF(x)](n,n)'), 'REF(x)')
 
+    def test_macro_foreach_with_poke(self):
+        skool = """
+            @start
+            b30000 DEFB 1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#PUSHSfoo #POKES30000,2 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEfoo)(p,p)'), 'POKE 30000,2')
+
+    def test_macro_foreach_with_poke_length(self):
+        skool = """
+            @start
+            b30000 DEFB 1,1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#PUSHSbar #POKES30000,3,2 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEbar)(p,p)'), 'FOR n=30000 TO 30001: POKE n,3: NEXT n')
+
+    def test_macro_foreach_with_poke_length_and_step(self):
+        skool = """
+            @start
+            b30000 DEFB 1,0,1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#PUSHSbaz #POKES30000,4,2,2 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEbaz)(p,p)'), 'FOR n=30000 TO 30002 STEP 2: POKE n,4: NEXT n')
+
+    def test_macro_foreach_with_poke_multiple(self):
+        skool = """
+            @start
+            b30000 DEFB 1,1,1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#PUSHSqux #POKES30000,5;30001,6;30002,7 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEqux)(p,[p])'), '[POKE 30000,5][POKE 30001,6][POKE 30002,7]')
+
+    def test_macro_foreach_with_poke_none(self):
+        skool = """
+            @start
+            b30000 DEFB 1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#PUSHSxyzzy #POKES30000,2 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEnope)(p,p)'), '')
+
+    def test_macro_foreach_with_poke_nameless_snapshot(self):
+        skool = """
+            @start
+            b30000 DEFB 1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#PUSHS #POKES30000,8 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKE)(n,n)'), 'POKE 30000,8')
+
+    def test_macro_foreach_with_poke_two_snapshots(self):
+        skool = """
+            @start
+            b30000 DEFB 1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#PUSHSthud #POKES30000,9 #POPS')
+        writer.expand('#PUSHSthud #POKES30000,10 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEthud)(a,a)'), 'POKE 30000,10')
+
     def test_macro_foreach_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('FOREACH')

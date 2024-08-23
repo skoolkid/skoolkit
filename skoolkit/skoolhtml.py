@@ -76,6 +76,7 @@ class HtmlWriter:
 
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]
+        self.pokes = defaultdict(list)
         self.asm_entry_dicts = {}
         self.map_entry_dicts = {}
         self.nonexistent_entry_dict = defaultdict(lambda: '', exists=0)
@@ -458,6 +459,10 @@ class HtmlWriter:
         :param name: An optional name for the snapshot.
         """
         self._snapshots.append((self.snapshot.copy(), name))
+        self.pokes[name].clear()
+
+    def save_pokes(self, addr, byte, length, step):
+        self.pokes[self.get_snapshot_name()].append((addr, byte, length, step))
 
     def get_page_ids(self):
         return self.page_ids

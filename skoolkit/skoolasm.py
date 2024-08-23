@@ -1,4 +1,4 @@
-# Copyright 2008-2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from collections import defaultdict
 import re
 
 from skoolkit import (CASE_LOWER, skoolmacro, SkoolKitError, SkoolParsingError,
@@ -95,6 +96,7 @@ class AsmWriter:
 
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]
+        self.pokes = defaultdict(list)
 
         self.list_parser = ListParser(properties.get('bullet', '*'))
 
@@ -227,6 +229,10 @@ class AsmWriter:
         :param name: An optional name for the snapshot.
         """
         self._snapshots.append((self.snapshot.copy(), name))
+        self.pokes[name].clear()
+
+    def save_pokes(self, addr, byte, length, step):
+        self.pokes[self._snapshots[-1][1]].append((addr, byte, length, step))
 
     def expand_audio(self, text, index):
         if self.handle_unsupported_macros:

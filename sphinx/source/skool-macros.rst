@@ -461,6 +461,8 @@ expands to a specific sequence of strings. The special variables are:
   the memory map; if ``types`` is not given, every type is included
 * ``EREFaddr`` - the addresses of the routines that jump to or call a given
   instruction (at ``addr``)
+* ``POKEname`` - the POKEs made by the :ref:`POKES` macro on the named snapshot
+  created by the :ref:`PUSHS` macro
 * ``REFaddr`` - the addresses of the routines that jump to or call a given
   routine (at ``addr``), or jump to or call any entry point within that routine
 
@@ -471,14 +473,24 @@ For example::
 This instance of the ``#FOREACH`` macro expands to a list of the addresses of
 the entries of type ``t`` (text).
 
+The format of an item produced by ``POKEname`` depends on the values of the
+``length`` and ``step`` parameters of the corresponding :ref:`POKES` macro. For
+example:
+
+* ``#POKES30000,1`` gives 'POKE 30000,1'
+* ``#POKES30000,1,2`` gives 'FOR n=30000 TO 30001: POKE n,1: NEXT n'
+* ``#POKES30000,1,2,3`` gives 'FOR n=30000 TO 30003 STEP 3: POKE n,1: NEXT n'
+
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``s1,s2,...`` and ``var,string[,sep,fsep]`` parameter strings.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.1     | New     |
-+---------+---------+
++---------+-----------------------------------------------------+
+| Version | Changes                                             |
++=========+=====================================================+
+| 9.4     | Added support for the ``POKEname`` special variable |
++---------+-----------------------------------------------------+
+| 5.1     | New                                                 |
++---------+-----------------------------------------------------+
 
 .. _FORMAT:
 

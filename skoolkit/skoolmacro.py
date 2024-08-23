@@ -501,7 +501,7 @@ def get_macros(writer):
         '#DEF': partial(parse_def, writer),
         '#EVAL': partial(parse_eval, writer.fields, writer.case == CASE_LOWER),
         '#FOR': partial(parse_for, writer.fields),
-        '#FOREACH': partial(parse_foreach, writer.parser),
+        '#FOREACH': partial(parse_foreach, writer),
         '#FORMAT': partial(parse_format, writer.fields),
         '#IF': partial(parse_if, writer.fields),
         '#LET': partial(parse_let, writer),
@@ -912,7 +912,7 @@ def parse_for(fields, text, index, *cwd):
         return end, html.escape(''.join(elements))
     return end, ''.join(elements)
 
-def parse_foreach(entry_holder, text, index, *cwd):
+def parse_foreach(writer, text, index, *cwd):
     # #FOREACH([v1,v2,...])(var,string[,sep,fsep])
     try:
         end, values = parse_strings(text, index)
@@ -922,6 +922,7 @@ def parse_foreach(entry_holder, text, index, *cwd):
         end, (var, s, sep, fsep) = parse_strings(text, end, 4, ('', None))
     except (NoParametersError, MissingParameterError) as e:
         raise MacroParsingError("No variable name: {}".format(text[index:e.args[1]]))
+    entry_holder = writer.parser
     if len(values) == 1:
         value = values[0]
         if value.startswith(('EREF', 'REF')):
@@ -940,6 +941,18 @@ def parse_foreach(entry_holder, text, index, *cwd):
         elif value.startswith('ENTRY'):
             types = value[5:]
             values = [str(e.address) for e in entry_holder.memory_map if e.ctl != 'i' and (not types or e.ctl in types)]
+        elif value.startswith('POKE'):
+            name = value[4:]
+            values = []
+            for addr, byte, length, step in writer.pokes[name]:
+                if length == 1:
+                    values.append(f'POKE {addr},{byte}')
+                else:
+                    end = addr + (length - 1) * step
+                    if step == 1:
+                        values.append(f'FOR n={addr} TO {end}: POKE n,{byte}: NEXT n')
+                    else:
+                        values.append(f'FOR n={addr} TO {end} STEP {step}: POKE n,{byte}: NEXT n')
     if not values:
         return end, ''
     if fsep is None:
@@ -1156,6 +1169,7 @@ def parse_pokes(writer, text, index, *cwd):
     while end < index or (end < len(text) and text[end] == ';'):
         end, addr, byte, length, step = parse_ints(text, end + 1, 4, (1, 1), fields=writer.fields)
         writer.snapshot[addr:addr + length * step:step] = [byte] * length
+        writer.save_pokes(addr, byte, length, step)
     return end, ''
 
 def parse_pops(writer, text, index, *cwd):
