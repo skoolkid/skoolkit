@@ -481,6 +481,16 @@ example:
 * ``#POKES30000,1,2`` gives 'FOR n=30000 TO 30001: POKE n,1: NEXT n'
 * ``#POKES30000,1,2,3`` gives 'FOR n=30000 TO 30003 STEP 3: POKE n,1: NEXT n'
 
+To specify a subset of the POKEs in a list, use either an index parameter, or
+start and stop parameters separated by a colon, enclosed in square brackets and
+appended to ``name``. As with Python sequences, these parameters are 0-based,
+and the start and stop parameters are optional, so:
+
+* ``POKEname[1]`` yields the second POKE in the list
+* ``POKEname[1:3]`` yields the second and third POKEs in the list
+* ``POKEname[1:]`` yields all POKEs in the list except the first
+* ``POKEname[:3]`` yields the first three POKEs in the list
+
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``s1,s2,...`` and ``var,string[,sep,fsep]`` parameter strings.
 

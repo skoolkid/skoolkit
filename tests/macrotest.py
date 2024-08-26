@@ -1054,6 +1054,31 @@ class CommonSkoolMacroTest:
         writer.expand('#PUSHSthud #POKES30000,10 #POPS')
         self.assertEqual(writer.expand('#FOREACH(POKEthud)(a,a)'), 'POKE 30000,10')
 
+    def test_macro_foreach_with_poke_indexing(self):
+        skool = """
+            @start
+            b30000 DEFB 1,1,1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#PUSHSaaa #POKES30000,11;30001,12;30002,13 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEaaa[0])(p,p)'), 'POKE 30000,11')
+        self.assertEqual(writer.expand('#FOREACH(POKEaaa[1])(p,p)'), 'POKE 30001,12')
+        self.assertEqual(writer.expand('#FOREACH(POKEaaa[2])(p,p)'), 'POKE 30002,13')
+
+    def test_macro_foreach_with_poke_slicing(self):
+        skool = """
+            @start
+            b30000 DEFB 0,0,0
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#PUSHSbbb #POKES30000,1;30001,2;30002,3 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEbbb[0:1])(p,p)'), 'POKE 30000,1')
+        self.assertEqual(writer.expand('#FOREACH(POKEbbb[0:2])(p,[p])'), '[POKE 30000,1][POKE 30001,2]')
+        self.assertEqual(writer.expand('#FOREACH(POKEbbb[:2])(p,[p])'), '[POKE 30000,1][POKE 30001,2]')
+        self.assertEqual(writer.expand('#FOREACH(POKEbbb[1:3])(p,[p])'), '[POKE 30001,2][POKE 30002,3]')
+        self.assertEqual(writer.expand('#FOREACH(POKEbbb[1:])(p,[p])'), '[POKE 30001,2][POKE 30002,3]')
+        self.assertEqual(writer.expand('#FOREACH(POKEbbb[:])(p,[p])'), '[POKE 30000,1][POKE 30001,2][POKE 30002,3]')
+
     def test_macro_foreach_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('FOREACH')

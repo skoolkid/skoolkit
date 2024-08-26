@@ -943,8 +943,18 @@ def parse_foreach(writer, text, index, *cwd):
             values = [str(e.address) for e in entry_holder.memory_map if e.ctl != 'i' and (not types or e.ctl in types)]
         elif value.startswith('POKE'):
             name = value[4:]
+            m = re.match(r'(.*)\[([0-9]+|[0-9]*:[0-9]*)\]$', name)
+            if m:
+                name = m.group(1)
+                elements = [e or (0, None)[i] for i, e in enumerate(m.group(2).split(':', 1))]
+                if len(elements) == 1:
+                    indexes = [int(elements[0]), int(elements[0]) + 1]
+                else:
+                    indexes = [int(e) if e else None for e in elements]
+            else:
+                indexes = (None, None)
             values = []
-            for addr, byte, length, step in writer.pokes[name]:
+            for addr, byte, length, step in writer.pokes[name][slice(*indexes)]:
                 if length == 1:
                     values.append(f'POKE {addr},{byte}')
                 else:
