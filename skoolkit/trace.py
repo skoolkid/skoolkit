@@ -22,7 +22,9 @@ from skoolkit import (ROM48, VERSION, SkoolKitError, CSimulator,
                       CCMIOSimulator, get_int_param, integer, read_bin_file)
 from skoolkit.audio import CLOCK_SPEED, AudioWriter
 from skoolkit.cmiosimulator import CMIOSimulator
+from skoolkit.components import get_image_writer
 from skoolkit.config import get_config, show_config, update_options
+from skoolkit.graphics import Frame, scr_udgs
 from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import PC, T, from_snapshot, get_state
@@ -275,7 +277,8 @@ def run(snafile, options, config):
         lines = textwrap.wrap(simplify(delays, options.depth), 78)
         print('Delays:\n {}'.format('\n '.join(lines)))
     if options.dump:
-        if options.dump.lower().endswith('.wav'):
+        ext = options.dump.lower()[-4:]
+        if ext == '.wav':
             delays = tracer.get_delays()
             if delays:
                 audio_writer = AudioWriter({CLOCK_SPEED: cpu_freq})
@@ -283,6 +286,10 @@ def run(snafile, options, config):
                     audio_writer.write_audio(f, delays, ma_filter=True)
             else:
                 raise SkoolKitError('No audio detected')
+        elif ext == '.png':
+            frame = Frame(scr_udgs(simulator.memory, 0, 0, 32, 24), 2)
+            with open(options.dump, 'wb') as f:
+                get_image_writer().write_image([frame], f)
         else:
             ram, registers, state, machine = get_state(simulator)
             write_snapshot(options.dump, ram, registers, state, machine)
@@ -294,7 +301,7 @@ def main(args):
         usage='trace.py [options] FILE [OUTFILE]',
         description="Trace Z80 machine code execution. "
                     "FILE may be a binary (raw memory) file, a SNA, SZX or Z80 snapshot, or '48', '128' or '+2' for no snapshot. "
-                    "If 'OUTFILE' is given, an SZX/Z80 snapshot or WAV file is written after execution has completed.",
+                    "If 'OUTFILE' is given, an SZX/Z80 snapshot, WAV file or PNG file is written after execution has completed.",
         add_help=False
     )
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')

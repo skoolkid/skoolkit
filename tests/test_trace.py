@@ -46,6 +46,17 @@ class MockAudioWriter:
         self.delays = delays
         self.ma_filter = ma_filter
 
+class MockImageWriter:
+    def __init__(self, config=None, palette=None):
+        global image_writer
+        image_writer = self
+        self.config = config
+        self.palette = palette
+
+    def write_image(self, frames, img_file):
+        self.frames = frames
+        self.fname = img_file.name
+
 def mock_run(*args):
     global run_args
     run_args = args
@@ -2524,6 +2535,48 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(s_banks[2][0], 2)
         self.assertEqual(s_memory[0xC000], 2)
         self.assertEqual(s_banks[0][0], 0)
+
+    @patch.object(trace, 'get_image_writer', MockImageWriter)
+    def test_write_png(self):
+        data = (
+            0x06, 0x08,             # $8000 LD B,$08
+            0x21, 0x00, 0x40,       # $8002 LD HL,$4000
+            0x74,                   # $8005 LD (HL),H
+            0x24,                   # $8006 INC H
+            0x10, 0xFC,             # $8007 DJNZ $8005
+            0x26, 0x58,             # $8009 LD H,$58
+            0x36, 0x04,             # $800B LD (HL),$04
+        )
+        infile = self.write_bin_file(data, suffix='.bin')
+        outfile = 'out.png'
+        start = 32768
+        stop = start + len(data)
+        output, error = self.run_trace(f'-o {start} -S {stop} {infile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertIsNone(image_writer.config)
+        self.assertIsNone(image_writer.palette)
+        self.assertEqual(len(image_writer.frames), 1)
+
+        frame = image_writer.frames[0]
+        self.assertEqual(frame.scale, 2)
+        self.assertEqual(frame.mask, 0)
+        self.assertEqual(frame.x, 0)
+        self.assertEqual(frame.y, 0)
+        self.assertEqual(frame.width, 512)
+        self.assertEqual(frame.height, 384)
+        self.assertEqual(frame.tindex, 0)
+        self.assertEqual(frame.alpha, -1)
+
+        udgs = frame.udgs
+        self.assertEqual(len(udgs), 24)
+        self.assertEqual(len(udgs[0]), 32)
+        self.assertEqual([64, 65, 66, 67, 68, 69, 70, 71], list(udgs[0][0].data))
+        self.assertEqual(udgs[0][0].attr, 4)
+        self.assertEqual(image_writer.fname, outfile)
 
     @patch.object(trace, 'AudioWriter', MockAudioWriter)
     def test_write_wav_48k(self):
