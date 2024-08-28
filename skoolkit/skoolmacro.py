@@ -37,6 +37,12 @@ _writer = None
 
 _cwd = ()
 
+CFG = {
+    'poke': 'POKE {addr},{byte}',
+    'pokes': 'FOR n={start} TO {end}: POKE n,{byte}: NEXT n',
+    'pokes-step': 'FOR n={start} TO {end} STEP {step}: POKE n,{byte}: NEXT n',
+}
+
 FILL_UDG = Udg(66, [129, 66, 36, 24, 24, 36, 66, 128])
 
 MACRO_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -954,15 +960,23 @@ def parse_foreach(writer, text, index, *cwd):
             else:
                 indexes = (None, None)
             values = []
+            cfg = writer.fields['cfg']
             for addr, byte, length, step in writer.pokes[name][slice(*indexes)]:
                 if length == 1:
-                    values.append(f'POKE {addr},{byte}')
+                    fmt = cfg['poke']
+                    fvals = {'addr': addr, 'byte': byte}
                 else:
-                    end = addr + (length - 1) * step
+                    addr2 = addr + (length - 1) * step
                     if step == 1:
-                        values.append(f'FOR n={addr} TO {end}: POKE n,{byte}: NEXT n')
+                        fmt = cfg['pokes']
+                        fvals = {'start': addr, 'end': addr2, 'byte': byte}
                     else:
-                        values.append(f'FOR n={addr} TO {end} STEP {step}: POKE n,{byte}: NEXT n')
+                        fmt = cfg['pokes-step']
+                        fvals = {'start': addr, 'end': addr2, 'step': step, 'byte': byte}
+                try:
+                    values.append(fmt.format(**fvals))
+                except KeyError as e:
+                    raise FormattingError(f"Unrecognised field '{e.args[0]}': {fmt}")
     if not values:
         return end, ''
     if fsep is None:
@@ -1052,18 +1066,21 @@ def parse_let(writer, text, index, *cwd):
     end, stmt = parse_strings(text, index, 1)
     name, sep, value = stmt.partition('=')
     if name and sep:
-        value = _format_params(writer.expand(value, *cwd), text[index:end], **writer.fields)
-        if name.endswith('[]'):
-            try:
-                args = parse_strings(value, 0)[1]
-            except NoParametersError:
-                raise NoParametersError(f"No values provided: '{name}={value}'")
-            writer.fields[name[:-2]] = _eval_map(args, value, name.endswith('$[]'))
+        if name.startswith('cfg[') and name.endswith(']'):
+            writer.fields['cfg'][name[4:-1]] = value
         else:
-            try:
-                writer.fields[name] = eval_variable(name, value)
-            except ValueError:
-                raise InvalidParameterError("Cannot parse integer value '{}': {}".format(value, stmt))
+            value = _format_params(writer.expand(value, *cwd), text[index:end], **writer.fields)
+            if name.endswith('[]'):
+                try:
+                    args = parse_strings(value, 0)[1]
+                except NoParametersError:
+                    raise NoParametersError(f"No values provided: '{name}={value}'")
+                writer.fields[name[:-2]] = _eval_map(args, value, name.endswith('$[]'))
+            else:
+                try:
+                    writer.fields[name] = eval_variable(name, value)
+                except ValueError:
+                    raise InvalidParameterError("Cannot parse integer value '{}': {}".format(value, stmt))
     elif name:
         raise InvalidParameterError("Missing variable value: '{}'".format(stmt))
     else:

@@ -999,6 +999,24 @@ class CommonSkoolMacroTest:
         writer.expand('#PUSHSfoo #POKES30000,2 #POPS')
         self.assertEqual(writer.expand('#FOREACH(POKEfoo)(p,p)'), 'POKE 30000,2')
 
+    def test_macro_foreach_with_poke_formatted(self):
+        skool = """
+            @start
+            b30000 DEFB 1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#LET(cfg[poke]=POKE ${addr:04X},${byte:02X}) #PUSHSfoo #POKES30000,2 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEfoo)(p,p)'), 'POKE $7530,$02')
+
+    def test_macro_foreach_with_poke_formatted_using_macros(self):
+        skool = """
+            @start
+            b30000 DEFB 1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#LET(cfg[poke]=#N({addr}),#N{byte}) #PUSHSfoo #POKES30000,2 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEfoo)(p,p)'), '30000,2')
+
     def test_macro_foreach_with_poke_length(self):
         skool = """
             @start
@@ -1008,6 +1026,24 @@ class CommonSkoolMacroTest:
         writer.expand('#PUSHSbar #POKES30000,3,2 #POPS')
         self.assertEqual(writer.expand('#FOREACH(POKEbar)(p,p)'), 'FOR n=30000 TO 30001: POKE n,3: NEXT n')
 
+    def test_macro_foreach_with_poke_length_formatted(self):
+        skool = """
+            @start
+            b30000 DEFB 1,1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#LET(cfg[pokes]=POKE {start}-{end},{byte}) #PUSHSbar #POKES30000,3,2 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEbar)(p,p)'), 'POKE 30000-30001,3')
+
+    def test_macro_foreach_with_poke_length_formatted_using_macros(self):
+        skool = """
+            @start
+            b30000 DEFB 1,1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#LET(cfg[pokes]=#FOR({start},{end})//a/POKE a,{byte}/: //) #PUSHSbar #POKES30000,3,2 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEbar)(p,p)'), 'POKE 30000,3: POKE 30001,3')
+
     def test_macro_foreach_with_poke_length_and_step(self):
         skool = """
             @start
@@ -1016,6 +1052,24 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(skool=skool)
         writer.expand('#PUSHSbaz #POKES30000,4,2,2 #POPS')
         self.assertEqual(writer.expand('#FOREACH(POKEbaz)(p,p)'), 'FOR n=30000 TO 30002 STEP 2: POKE n,4: NEXT n')
+
+    def test_macro_foreach_with_poke_length_and_step_formatted(self):
+        skool = """
+            @start
+            b30000 DEFB 1,0,1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#LET(cfg[pokes-step]=POKE {start}-{end}-{step},{byte}) #PUSHSbaz #POKES30000,4,2,2 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEbaz)(p,p)'), 'POKE 30000-30002-2,4')
+
+    def test_macro_foreach_with_poke_length_and_step_formatted_using_macros(self):
+        skool = """
+            @start
+            b30000 DEFB 1,0,1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#LET(cfg[pokes-step]=#FOR({start},{end},{step})//p/POKE p,{byte}/: //) #PUSHSbaz #POKES30000,4,2,2 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEbaz)(p,p)'), 'POKE 30000,4: POKE 30002,4')
 
     def test_macro_foreach_with_poke_multiple(self):
         skool = """
@@ -1078,6 +1132,20 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#FOREACH(POKEbbb[1:3])(p,[p])'), '[POKE 30001,2][POKE 30002,3]')
         self.assertEqual(writer.expand('#FOREACH(POKEbbb[1:])(p,[p])'), '[POKE 30001,2][POKE 30002,3]')
         self.assertEqual(writer.expand('#FOREACH(POKEbbb[:])(p,[p])'), '[POKE 30000,1][POKE 30001,2][POKE 30002,3]')
+
+    def test_macro_foreach_with_poke_invalid(self):
+        writer = self._get_writer(skool='b16384 DEFS 49152')
+        writer.expand('#LET(cfg[poke]=POKE {no})')
+        writer.expand('#LET(cfg[pokes]=POKE {nope})')
+        writer.expand('#LET(cfg[pokes-step]=POKE {nah})')
+        writer.expand('#PUSHSsnap1 #POKES16384,255 #POPS')
+        writer.expand('#PUSHSsnap2 #POKES16384,255,2 #POPS')
+        writer.expand('#PUSHSsnap3 #POKES16384,255,2,2 #POPS')
+        prefix = ERROR_PREFIX.format('FOREACH')
+
+        self._assert_error(writer, '#FOREACH(POKEsnap1)(p,p)', "Unrecognised field 'no': POKE {no}", prefix)
+        self._assert_error(writer, '#FOREACH(POKEsnap2)(p,p)', "Unrecognised field 'nope': POKE {nope}", prefix)
+        self._assert_error(writer, '#FOREACH(POKEsnap3)(p,p)', "Unrecognised field 'nah': POKE {nah}", prefix)
 
     def test_macro_foreach_invalid(self):
         writer = self._get_writer()

@@ -22,7 +22,7 @@ from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, ROM48, SkoolPars
                       warn, get_int_param, parse_int, read_bin_file, open_file, z80)
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skool2bin import BinWriter
-from skoolkit.skoolmacro import INTEGER, MacroParsingError, parse_if
+from skoolkit.skoolmacro import CFG, INTEGER, MacroParsingError, parse_if
 from skoolkit.skoolutils import (DIRECTIVES, Z80_ASSEMBLER, Comment, Memory, get_address, join_comments,
                                  parse_address_comments, parse_address_range, parse_addresses, parse_asm_bank_directive,
                                  parse_asm_bytes_directive, parse_asm_data_directive, parse_asm_keep_directive,
@@ -113,6 +113,7 @@ class SkoolParser:
                 'html': int(html)
             }
             self.fields.update({
+                'cfg': CFG.copy(),
                 'mode': self.fields.copy(),
                 'vars': defaultdict(int, variables)
             })
