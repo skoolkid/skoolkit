@@ -287,7 +287,7 @@ def run(snafile, options, config):
             else:
                 raise SkoolKitError('No audio detected')
         elif ext == '.png':
-            frame = Frame(scr_udgs(simulator.memory, 0, 0, 32, 24), 2)
+            frame = Frame(scr_udgs(simulator.memory, 0, 0, 32, 24), config['PNGScale'])
             with open(options.dump, 'wb') as f:
                 get_image_writer().write_image([frame], f)
         else:

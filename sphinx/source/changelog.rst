@@ -12,6 +12,8 @@ Changelog
   specified by the ``PadLeft`` and ``PadRight`` configuration parameters)
 * Added support to :ref:`trace.py` for writing a PNG file after code execution
   has completed
+* Added the ``PNGScale`` configuration parameter for
+  :ref:`trace.py <trace-conf>` (to specify the scale factor of the PNG image)
 * Added support to the :ref:`FOREACH` macro for the ``POKEname`` special
   variable
 * Fixed how the 'ADC A,*', 'SBC A,*', 'ADC HL,rr' and 'SBC HL,rr' instructions

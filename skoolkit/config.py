@@ -128,6 +128,7 @@ COMMANDS = {
         'TraceOperand': ('$,02X,04X', '')
     },
     'trace': {
+        'PNGScale': (2, ''),
         'TraceLine': ("${pc:04X} {i}", ''),
         'TraceLine2': (
             "${pc:04X} {i:<15}  "

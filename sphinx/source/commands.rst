@@ -2055,6 +2055,7 @@ Configuration
 current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
+* ``PNGScale`` - the PNG image scale factor (default: ``2``)
 * ``TraceLine`` - the format of each instruction line when ``-v`` is used
   (default: ``${pc:04X} {i}``)
 * ``TraceLine2`` - the format of each instruction line when ``-vv`` is used
@@ -2109,7 +2110,7 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.4     | Added support for writing a PNG file after execution has          |
-|         | completed                                                         |
+|         | completed; added the ``PNGScale`` configuration parameter         |
 +---------+-------------------------------------------------------------------+
 | 9.3     | Added the ``--state`` option; added support for writing a WAV     |
 |         | file after execution has completed; added support for the ``m``   |

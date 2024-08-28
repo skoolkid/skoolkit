@@ -1654,6 +1654,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = (
             "[trace]\n"
+            "PNGScale=2\n"
             "TraceLine=${pc:04X} {i}\n"
             "TraceLine2=${pc:04X} {i:<15}  "
             "A={r[a]:02X}  F={r[f]:08b}  BC={r[bc]:04X}  DE={r[de]:04X}  HL={r[hl]:04X}  IX={r[ix]:04X} IY={r[iy]:04X}\\n                       "
@@ -1678,6 +1679,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [trace]
+            PNGScale=2
             TraceLine=${pc:04X} {i}
             TraceLine2=${pc:04x} {i:<15} A={r[a]:02X}
             TraceLineDecimal={pc:05} {i}
@@ -2000,6 +2002,63 @@ class TraceTest(SkoolKitTestCase):
         for option in ('-V', '--version'):
             output, error = self.run_trace(option, catch_exit=0)
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
+
+    @patch.object(trace, 'get_image_writer', MockImageWriter)
+    def test_config_PNGScale_read_from_file(self):
+        ini = """
+            [trace]
+            PNGScale=1
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        data = (
+            0x21, 0x00, 0x58,       # $8000 LD HL,$5800
+            0x36, 0x07,             # $8003 LD (HL),$07
+        )
+        infile = self.write_bin_file(data, suffix='.bin')
+        outfile = 'out.png'
+        start = 32768
+        stop = start + len(data)
+        output, error = self.run_trace(f'-o {start} -S {stop} {infile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(len(image_writer.frames), 1)
+        frame = image_writer.frames[0]
+        self.assertEqual(frame.scale, 1)
+        self.assertEqual(frame.width, 256)
+        self.assertEqual(frame.height, 192)
+        udgs = frame.udgs
+        self.assertEqual(len(udgs), 24)
+        self.assertEqual(len(udgs[0]), 32)
+        self.assertEqual(udgs[0][0].attr, 7)
+
+    @patch.object(trace, 'get_image_writer', MockImageWriter)
+    def test_config_PNGScale_set_on_command_line(self):
+        data = (
+            0x21, 0x00, 0x58,       # $8000 LD HL,$5800
+            0x36, 0x02,             # $8003 LD (HL),$02
+        )
+        infile = self.write_bin_file(data, suffix='.bin')
+        outfile = 'out.png'
+        start = 32768
+        stop = start + len(data)
+        output, error = self.run_trace(f'-I PNGScale=3 -o {start} -S {stop} {infile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(len(image_writer.frames), 1)
+        frame = image_writer.frames[0]
+        self.assertEqual(frame.scale, 3)
+        self.assertEqual(frame.width, 768)
+        self.assertEqual(frame.height, 576)
+        udgs = frame.udgs
+        self.assertEqual(len(udgs), 24)
+        self.assertEqual(len(udgs[0]), 32)
+        self.assertEqual(udgs[0][0].attr, 2)
 
     def test_config_TraceLine_read_from_file(self):
         ini = """
