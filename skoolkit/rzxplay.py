@@ -15,48 +15,19 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import contextlib
 from functools import partial
-import io
 import os
 import re
 import zlib
 
-with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
-    try:
-        import pygame
-    except ImportError: # pragma: no cover
-        pygame = None
-
 from skoolkit import (VERSION, SkoolKitError, CSimulator, as_dword, get_dword,
                       get_word, parse_int, read_bin_file, warn, write)
 from skoolkit.pagingtracer import PagingTracer
+from skoolkit.screen import pygame, Screen
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import from_snapshot, get_state
 from skoolkit.snapshot import Snapshot, write_snapshot
 from skoolkit.traceutils import disassemble
-
-if pygame: # pragma: no cover
-    COLOURS = (
-        pygame.Color(0x00, 0x00, 0x00), # Black
-        pygame.Color(0x00, 0x00, 0xc5), # Blue
-        pygame.Color(0xc5, 0x00, 0x00), # Red
-        pygame.Color(0xc5, 0x00, 0xc5), # Magenta
-        pygame.Color(0x00, 0xc6, 0x00), # Green
-        pygame.Color(0x00, 0xc6, 0xc5), # Cyan
-        pygame.Color(0xc5, 0xc6, 0x00), # Yellow
-        pygame.Color(0xcd, 0xc6, 0xcd), # White
-        pygame.Color(0x00, 0x00, 0x00), # Bright black
-        pygame.Color(0x00, 0x00, 0xff), # Bright blue
-        pygame.Color(0xff, 0x00, 0x00), # Bright red
-        pygame.Color(0xff, 0x00, 0xff), # Bright magenta
-        pygame.Color(0x00, 0xff, 0x00), # Bright green
-        pygame.Color(0x00, 0xff, 0xff), # Bright cyan
-        pygame.Color(0xff, 0xff, 0x00), # Bright yellow
-        pygame.Color(0xff, 0xff, 0xff), # Bright white
-    )
-
-CELLS = tuple((x, y, 2048 * (y // 8) + 32 * (y % 8) + x, 6144 + 32 * y + x) for x in range(32) for y in range(24))
 
 class RZXBlock:
     def __init__(self, data, obj):
@@ -117,11 +88,8 @@ class RZXTracer(PagingTracer):
         raise SkoolKitError(f'Port readings exhausted for frame {self.context.frame_count}')
 
 class RZXContext:
-    def __init__(self, screen=None, p_rectangles=None, c_rectangles=None, clock=None):
+    def __init__(self, screen):
         self.screen = screen
-        self.p_rectangles = p_rectangles
-        self.c_rectangles = c_rectangles
-        self.clock = clock
         self.exec_map = None
         self.tracefile = None
         self.snapshot = None
@@ -238,38 +206,6 @@ def parse_rzx(rzxfile):
         i += block_len
     return contents
 
-def draw(screen, memory, frame, pixel_rects, cell_rects, prev_scr): # pragma: no cover
-    current_scr = memory[16384:23296]
-    flash_change = (frame % 16) == 0
-    flash_switch = (frame // 16) % 2
-
-    for (x, y, df_addr, af_addr) in CELLS:
-        update = False
-        attr = current_scr[af_addr]
-        for a in range(df_addr, df_addr + 2048, 256):
-            if current_scr[a] != prev_scr[a]:
-                update = True
-                break
-        else:
-            update = attr != prev_scr[af_addr] or (flash_change and attr & 0x80)
-        if update:
-            bright = (attr & 64) // 8
-            ink = COLOURS[bright + (attr % 8)]
-            paper = COLOURS[bright + ((attr // 8) % 8)]
-            if attr & 0x80 and flash_switch:
-                ink, paper = paper, ink
-            py = 8 * y
-            screen.fill(paper, cell_rects[x][y])
-            for addr in range(df_addr, df_addr + 2048, 256):
-                b = current_scr[addr]
-                px = 8 * x
-                while b % 256:
-                    if b & 0x80:
-                        screen.fill(ink, pixel_rects[px][py])
-                    b *= 2
-                    px += 1
-                py += 1
-
 def check_supported(snapshot, options):
     if options.force:
         return
@@ -325,9 +261,7 @@ def process_block(block, options, context):
     registers = simulator.registers
     total_frames = context.total_frames
     context.fnwidth = len(str(total_frames)) - 1
-    prev_scr = [None] * 6912
     show_progress = not options.quiet
-    fps = options.fps
     stop = options.stop or total_frames
     flags = parse_int(options.flags, 0)
     flags_ldair = flags & 1
@@ -338,11 +272,10 @@ def process_block(block, options, context):
         trace = partial(trace_exec, tracefile, context)
     else:
         trace = None
-    screen = context.screen
-    if screen: # pragma: no cover
-        p_rectangles = context.p_rectangles
-        c_rectangles = context.c_rectangles
-        clock = context.clock
+    if context.screen: # pragma: no cover
+        draw = context.screen.draw
+    else:
+        draw = None
     fetch_counter = tracer.next_frame()
     run = True
     csimulator = hasattr(simulator, 'exec_frame')
@@ -365,15 +298,8 @@ def process_block(block, options, context):
                     fetch_counter -= 2
                 else:
                     fetch_counter -= 2 - ((registers[15] ^ r0) % 2)
-        if screen: # pragma: no cover
-            draw(screen, memory, context.frame_count, p_rectangles, c_rectangles, prev_scr)
-            pygame.display.update()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-            if fps > 0:
-                clock.tick(fps)
-            prev_scr = memory[16384:23296]
+        if draw: # pragma: no cover
+            run = draw(memory[16384:23296], context.frame_count)
         registers[25] = 0
         fetch_counter = tracer.next_frame()
         if registers[26]:
@@ -403,18 +329,11 @@ def process_block(block, options, context):
 
 def run(infile, options):
     if options.screen and pygame: # pragma: no cover
-        print(pygame_io.getvalue())
-        pygame.init()
-        scale = options.scale
-        pygame.display.set_mode((256 * scale, 192 * scale))
-        pygame.display.set_caption(os.path.basename(infile))
-        p_rectangles = [[pygame.Rect(px * scale, py * scale, scale, scale) for py in range(192)] for px in range(256)]
-        c_rectangles = [[pygame.Rect(px * scale, py * scale, 8 * scale, 8 * scale) for py in range(0, 192, 8)] for px in range(0, 256, 8)]
-        screen = pygame.display.get_surface()
-        clock = pygame.time.Clock()
-        context = RZXContext(screen, p_rectangles, c_rectangles, clock)
+        screen = Screen(options.scale, options.fps, os.path.basename(infile))
+        print(screen.pygame_msg)
     else:
-        context = RZXContext()
+        screen = None
+    context = RZXContext(screen)
     if options.map:
         context.exec_map = set()
         if os.path.isfile(options.map):
