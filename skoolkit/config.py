@@ -129,6 +129,7 @@ COMMANDS = {
     },
     'trace': {
         'PNGScale': (2, ''),
+        'ScreenFps': (50, ''),
         'TraceLine': ("${pc:04X} {i}", ''),
         'TraceLine2': (
             "${pc:04X} {i:<15}  "

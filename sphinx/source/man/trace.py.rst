@@ -154,6 +154,8 @@ current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
   :PNGScale: The PNG image scale factor (default: ``2``).
+  :ScreenFps: Frames per second to display when ``--screen`` is used (default:
+    50). If set to 0, ``trace.py`` runs at maximum speed.
   :TraceLine: The format of each instruction line when ``-v`` is used
     (default: ``${pc:04X} {i}``).
   :TraceLine2: The format of each instruction line when ``-vv`` is used. Use

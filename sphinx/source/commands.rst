@@ -2048,7 +2048,8 @@ running on a real ZX Spectrum.
 
 If the ``--screen`` option is given and `pygame`_ is installed, `trace.py` will
 use it to render the Spectrum's screen contents at 50 frames per second while
-running.
+running. The frame rate can be changed by setting the ``ScreenFps``
+configuration parameter.
 
 .. _trace-conf:
 
@@ -2059,6 +2060,8 @@ current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
 * ``PNGScale`` - the PNG image scale factor (default: ``2``)
+* ``ScreenFps`` - frames per second to display when ``--screen`` is used
+  (default: 50); if set to 0, `trace.py` runs at maximum speed
 * ``TraceLine`` - the format of each instruction line when ``-v`` is used
   (default: ``${pc:04X} {i}``)
 * ``TraceLine2`` - the format of each instruction line when ``-vv`` is used
@@ -2112,9 +2115,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.4     | Added support for writing a PNG file after execution has          |
-|         | completed; added the ``PNGScale`` configuration parameter; added  |
-|         | the ``--screen`` option                                           |
+| 9.4     | Added the ``--screen`` option; added support for writing a PNG    |
+|         | file after execution has completed; added the ``PNGScale`` and    |
+|         | ``ScreenFps`` configuration parameters                            |
 +---------+-------------------------------------------------------------------+
 | 9.3     | Added the ``--state`` option; added support for writing a WAV     |
 |         | file after execution has completed; added support for the ``m``   |

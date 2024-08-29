@@ -12,6 +12,9 @@ Changelog
   specified by the ``PadLeft`` and ``PadRight`` configuration parameters)
 * Added the ``--screen`` option to :ref:`trace.py` (for displaying screen
   contents while running)
+* Added the ``ScreenFps`` configuration parameter for
+  :ref:`trace.py <trace-conf>` (to specify the frame rate when displaying
+  screen contents)
 * Added support to :ref:`trace.py` for writing a PNG file after code execution
   has completed
 * Added the ``PNGScale`` configuration parameter for

@@ -266,7 +266,7 @@ def run(snafile, options, config):
         except Exception as e:
             raise SkoolKitError(f"Invalid format string: '{orig_trace_line}'")
     if options.screen and pygame:
-        screen = Screen(2, 50, 'trace.py')
+        screen = Screen(2, config['ScreenFps'], 'trace.py')
         print(screen.pygame_msg)
         draw = screen.draw
     else:
