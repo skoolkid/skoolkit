@@ -57,6 +57,20 @@ class MockImageWriter:
         self.frames = frames
         self.fname = img_file.name
 
+class MockScreen:
+    def __init__(self, scale, fps, caption):
+        global screen
+        screen = self
+        self.scale = scale
+        self.fps = fps
+        self.caption = caption
+        self.pygame_msg = 'Using pygame'
+
+    def draw(self, scr, frame):
+        self.scr = scr
+        self.frame = frame
+        return True
+
 def mock_run(*args):
     global run_args
     run_args = args
@@ -122,6 +136,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertFalse(options.python)
         self.assertEqual(options.reg, [])
         self.assertIsNone(options.rom)
+        self.assertFalse(options.screen)
         self.assertEqual(options.state, [])
         self.assertFalse(options.stats)
         self.assertEqual(options.verbose, 0)
@@ -1647,6 +1662,33 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $0001
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    @patch.object(trace, 'pygame', True)
+    @patch.object(trace, 'Screen', MockScreen)
+    def test_option_screen(self):
+        data = (
+            0x00, # $8000 NOP ; T=69886 (screen draw follows)
+            0x00, # $8001 NOP ; T=69890
+        )
+        start = 0x8000
+        stop = start + len(data)
+        ram = [0] * 49152
+        ram[0] = 255
+        ram[start - 0x4000:stop - 0x4000] = data
+        registers = {'PC': start, 'tstates': 69886}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} --screen {z80file}')
+        self.assertEqual(error, '')
+        exp_output = f"""
+            Using pygame
+            Stopped at ${stop:04X}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(screen.scale, 2)
+        self.assertEqual(screen.fps, 50)
+        self.assertEqual(screen.caption, 'trace.py')
+        self.assertEqual(screen.scr[0], 255)
+        self.assertEqual(screen.frame, 1)
 
     @patch.object(trace, 'get_config', mock_config)
     def test_option_show_config(self):

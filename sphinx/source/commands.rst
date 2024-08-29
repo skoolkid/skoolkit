@@ -297,8 +297,6 @@ However, this makes sense only if ``--stop`` is used to end playback somewhere
 in the middle of the input RZX file, otherwise the output RZX file will be
 empty (i.e. contain no frames).
 
-.. _pygame: https://pygame.org/
-
 +---------+---------+
 | Version | Changes |
 +=========+=========+
@@ -2026,6 +2024,7 @@ To list the options supported by `trace.py`, run it with no arguments::
     -s ADDR, --start ADDR
                           Start execution at this address.
     -S ADDR, --stop ADDR  Stop execution at this address.
+    --screen              Display screen contents while running.
     --state name=value    Set a hardware state attribute before execution
                           begins. Do '--state help' for more information. This
                           option may be used multiple times.
@@ -2046,6 +2045,10 @@ of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)
 between those changes. This list can be supplied to the :ref:`AUDIO` macro to
 produce a WAV file for the sound effect that would be produced by the same code
 running on a real ZX Spectrum.
+
+If the ``--screen`` option is given and `pygame`_ is installed, `trace.py` will
+use it to render the Spectrum's screen contents at 50 frames per second while
+running.
 
 .. _trace-conf:
 
@@ -2110,7 +2113,8 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.4     | Added support for writing a PNG file after execution has          |
-|         | completed; added the ``PNGScale`` configuration parameter         |
+|         | completed; added the ``PNGScale`` configuration parameter; added  |
+|         | the ``--screen`` option                                           |
 +---------+-------------------------------------------------------------------+
 | 9.3     | Added the ``--state`` option; added support for writing a WAV     |
 |         | file after execution has completed; added support for the ``m``   |
@@ -2133,3 +2137,5 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | 8.8     | New                                                               |
 +---------+-------------------------------------------------------------------+
+
+.. _pygame: https://pygame.org/

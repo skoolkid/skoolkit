@@ -26,6 +26,7 @@ from skoolkit.components import get_image_writer
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.graphics import Frame, scr_udgs
 from skoolkit.pagingtracer import Memory, PagingTracer
+from skoolkit.screen import pygame, Screen
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import PC, T, from_snapshot, get_state
 from skoolkit.snapshot import (Snapshot, make_snapshot, poke, print_reg_help,
@@ -44,7 +45,7 @@ class Tracer(PagingTracer):
         self.spkr = None
         self.out_times = []
 
-    def run(self, start, stop, max_operations, max_tstates, interrupts, trace_line, prefix, byte_fmt, word_fmt):
+    def run(self, start, stop, max_operations, max_tstates, interrupts, draw, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
         memory = simulator.memory
         registers = simulator.registers
@@ -62,10 +63,11 @@ class Tracer(PagingTracer):
                 tf = lambda pc, i, t0: print(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
             else:
                 df = tf = None
-            stop_cond, operations = simulator.trace(start, stop, max_operations, max_time, interrupts, df, tf)
+            stop_cond, operations = simulator.trace(start, stop, max_operations, max_time, interrupts, draw, df, tf)
         else:
             opcodes = simulator.opcodes
             frame_duration = simulator.frame_duration
+            prev_frame = start_time // frame_duration
             int_active = simulator.int_active
             pc = registers[PC] = start
             operations = 0
@@ -86,6 +88,14 @@ class Tracer(PagingTracer):
 
                 pc = registers[24]
                 operations += 1
+
+                if draw:
+                    frame = tstates // frame_duration
+                    if frame > prev_frame:
+                        if not draw(memory[16384:23296], frame): # pragma: no cover
+                            stop_cond = 0
+                            break
+                        prev_frame = frame
 
                 if operations >= max_operations > 0:
                     stop_cond = 1
@@ -255,8 +265,14 @@ def run(snafile, options, config):
             trace_line.format(pc=0, i='.', r=Registers(simulator.registers), t=0, m=simulator.memory)
         except Exception as e:
             raise SkoolKitError(f"Invalid format string: '{orig_trace_line}'")
+    if options.screen and pygame:
+        screen = Screen(2, 50, 'trace.py')
+        print(screen.pygame_msg)
+        draw = screen.draw
+    else:
+        draw = None
     tracer.run(start, options.stop, options.max_operations, options.max_tstates,
-               options.interrupts, trace_line, prefix, byte_fmt, word_fmt)
+               options.interrupts, draw, trace_line, prefix, byte_fmt, word_fmt)
     rt = time.time() - begin
     if len(simulator.memory) == 65536:
         cpu_freq = 3500000
@@ -342,6 +358,8 @@ def main(args):
                        help='Start execution at this address.')
     group.add_argument('-S', '--stop', metavar='ADDR', type=integer,
                        help='Stop execution at this address.')
+    group.add_argument('--screen', dest='screen', action='store_true',
+                       help="Display screen contents while running.")
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute before execution begins. Do '--state help' for more information. "
                             "This option may be used multiple times.")

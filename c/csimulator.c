@@ -37,6 +37,7 @@
 #define OUT(p, v) if (mem == NULL && (p & 0x8002) == 0 && (self->out7ffd & 0x20) == 0) out7ffd(self, v)
 #define ADDR(a) (a) & 0xFFFF
 #define CHECK_SIGNALS if ((TIME & 0xFFFFFF) < 10) PyErr_CheckSignals()
+#define SCR_LEN 6912
 
 typedef unsigned char byte;
 
@@ -5354,16 +5355,17 @@ static PyObject* CSimulator_accept_interrupt(CSimulatorObject* self, PyObject* a
 }
 
 static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", "", "", "", "", NULL};
+    static char* kwlist[] = {"", "", "", "", "", "", "", "", NULL};
     PyObject* start_obj;
     PyObject* stop_obj;
     unsigned long long max_operations;
     unsigned long long max_time;
     int interrupts;
+    PyObject* draw;
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKKiOO", kwlist, &start_obj, &stop_obj, &max_operations, &max_time, &interrupts, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKKiOOO", kwlist, &start_obj, &stop_obj, &max_operations, &max_time, &interrupts, &draw, &disassemble, &trace)) {
         return NULL;
     }
 
@@ -5381,6 +5383,7 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
     while (1) {
         PyObject* i = NULL;
         unsigned long long t0 = TIME;
+        unsigned long long prev_frame = t0 / frame_duration;
         unsigned pc = REG(PC);
         byte opcode = PEEK(pc);
         OpcodeFunction* opcode_func = &opcodes[opcode];
@@ -5443,6 +5446,33 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
         }
 
         operations += 1;
+
+        if (draw != Py_None) {
+            unsigned long long frame = TIME / frame_duration;
+            if (frame > prev_frame) {
+                PyObject* scr = PyList_New(SCR_LEN);
+                if (scr == NULL) {
+                    return NULL;
+                }
+                for (unsigned j = 0; j < SCR_LEN; j++) {
+                    PyObject* byte = PyLong_FromLong(PEEK(j + 0x4000));
+                    if (byte == NULL || PyList_SetItem(scr, j, byte)) {
+                        return NULL;
+                    }
+                }
+                PyObject* args = Py_BuildValue("(OI)", scr, frame);
+                i = PyObject_CallObject(draw, args);
+                Py_XDECREF(args);
+                Py_XDECREF(scr);
+                if (i == NULL) {
+                    return NULL;
+                }
+                if (!PyObject_IsTrue(i)) {
+                    return Py_BuildValue("(IL)", 0, operations);
+                }
+                prev_frame = frame;
+            }
+        }
 
         if (max_operations > 0 && operations >= max_operations) {
             return Py_BuildValue("(IL)", 1, operations);

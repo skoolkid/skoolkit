@@ -85,6 +85,9 @@ OPTIONS
   Stop execution at this address. `ADDR` must be a decimal number, or a
   hexadecimal number prefixed by '0x'.
 
+--screen
+  Display screen contents while running (requires pygame).
+
 --state name=value
   Set a hardware state attribute before execution begins. Do ``--state help``
   for more information, or see the section on ``HARDWARE STATE`` below. This
