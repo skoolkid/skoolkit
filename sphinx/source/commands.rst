@@ -2047,9 +2047,9 @@ produce a WAV file for the sound effect that would be produced by the same code
 running on a real ZX Spectrum.
 
 If the ``--screen`` option is given and `pygame`_ is installed, `trace.py` will
-use it to render the Spectrum's screen contents at 50 frames per second while
-running. The frame rate can be changed by setting the ``ScreenFps``
-configuration parameter.
+use it to render the Spectrum's screen contents at 50 frames per second with a
+scale factor of 2 while running. The frame rate and scale factor can be changed
+by setting the ``ScreenFps`` and ``ScreenScale`` configuration parameters.
 
 .. _trace-conf:
 
@@ -2061,7 +2061,9 @@ configuration parameters are:
 
 * ``PNGScale`` - the PNG image scale factor (default: ``2``)
 * ``ScreenFps`` - frames per second to display when ``--screen`` is used
-  (default: 50); if set to 0, `trace.py` runs at maximum speed
+  (default: ``50``); if set to 0, `trace.py` runs at maximum speed
+* ``ScreenScale`` - screen scale factor when ``--screen`` is used (default:
+  ``2``)
 * ``TraceLine`` - the format of each instruction line when ``-v`` is used
   (default: ``${pc:04X} {i}``)
 * ``TraceLine2`` - the format of each instruction line when ``-vv`` is used
@@ -2116,8 +2118,8 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.4     | Added the ``--screen`` option; added support for writing a PNG    |
-|         | file after execution has completed; added the ``PNGScale`` and    |
-|         | ``ScreenFps`` configuration parameters                            |
+|         | file after execution has completed; added the ``PNGScale``,       |
+|         | ``ScreenFps`` and ``ScreenScale`` configuration parameters        |
 +---------+-------------------------------------------------------------------+
 | 9.3     | Added the ``--state`` option; added support for writing a WAV     |
 |         | file after execution has completed; added support for the ``m``   |
