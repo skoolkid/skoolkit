@@ -1408,6 +1408,24 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.fields['g$'], {1: '5'})
         self.assertEqual(writer.fields['g$'][0], ':')
 
+    def test_macro_let_dictionary_of_strings_set_item(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#LET(d$[]=(?))'), '')
+
+        # Set item
+        self.assertEqual(writer.expand('#LET(d$[0]=foo)'), '')
+        self.assertEqual(writer.fields['d$'], {0: 'foo'})
+
+        # Set item using replacement fields
+        self.assertEqual(writer.expand('#LET(a=1)#LET(v$=bar)'), '')
+        self.assertEqual(writer.expand('#LET(d$[{a}]={v$})'), '')
+        self.assertEqual(writer.fields['d$'], {0: 'foo', 1: 'bar'})
+
+        # Set item using skool macros
+        self.assertEqual(writer.expand('#LET(b=2)'), '')
+        self.assertEqual(writer.expand('#LET(d$[#IF(0)({a},{b})]=#IF(1)(baz))'), '')
+        self.assertEqual(writer.fields['d$'], {0: 'foo', 1: 'bar', 2: 'baz'})
+
     def test_macro_let_dictionary_of_integers(self):
         writer = self._get_writer()
 
@@ -1453,6 +1471,24 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.fields['e'], {1: 1, 2: 2, 3: 3, 4: 4})
         self.assertEqual(writer.fields['e'][0], 256)
 
+    def test_macro_let_dictionary_of_integers_set_item(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#LET(d[]=(0))'), '')
+
+        # Set item
+        self.assertEqual(writer.expand('#LET(d[0]=1)'), '')
+        self.assertEqual(writer.fields['d'], {0: 1})
+
+        # Set item using replacement fields
+        self.assertEqual(writer.expand('#LET(a=1)#LET(v=2)'), '')
+        self.assertEqual(writer.expand('#LET(d[{a}]={v})'), '')
+        self.assertEqual(writer.fields['d'], {0: 1, 1: 2})
+
+        # Set item using skool macros
+        self.assertEqual(writer.expand('#LET(b=2)'), '')
+        self.assertEqual(writer.expand('#LET(d[#IF(0)({a},{b})]=#IF(1)(4))'), '')
+        self.assertEqual(writer.fields['d'], {0: 1, 1: 2, 2: 4})
+
     def test_macro_let_dictionary_with_alternative_delimiters(self):
         writer = self._get_writer()
 
@@ -1484,6 +1520,13 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#LET(f[]=(1,x1:3))', "Invalid key (x1): (1,x1:3)", prefix)
         self._assert_error(writer, '#LET(f[]=(0,1:y))', "Invalid integer value (y): (0,1:y)", prefix)
         self._assert_error(writer, '#LET(f[]=1,2:2)', "No terminating delimiter: 1,2:2", prefix)
+        self._assert_error(writer, '#LET(g[q]=1)', "Cannot parse integer value 'q': g[q]=1", prefix)
+        self._assert_error(writer, '#LET(g[{no}]=1)', "Unrecognised field 'no': (g[{no}]=1)", prefix)
+        self._assert_error(writer, '#LET(g[{bad]=1)', 'Invalid format string: (g[{bad]=1)', prefix)
+        self._assert_error(writer, '#LET(g[0]=q)', "Cannot parse integer value 'q': g[0]=q", prefix)
+        self._assert_error(writer, '#LET(g[0]={no})', "Unrecognised field 'no': (g[0]={no})", prefix)
+        self._assert_error(writer, '#LET(g[0]={bad)', 'Invalid format string: (g[0]={bad)', prefix)
+        self._assert_error(writer, '#LET(g[0]=1)', "Unrecognised dictionary 'g': g[0]=1", prefix)
 
     def test_macro_link_invalid(self):
         writer = self._get_writer()

@@ -21,6 +21,8 @@ Changelog
   :ref:`trace.py <trace-conf>` (to specify the scale factor of the PNG image)
 * Added support to the :ref:`FOREACH` macro for the ``POKEname`` special
   variable
+* Added support to the :ref:`LET` macro for setting individual key-value pairs
+  in dictionary variables
 * Fixed how the 'ADC A,*', 'SBC A,*', 'ADC HL,rr' and 'SBC HL,rr' instructions
   affect the half-carry flag
 * Fixed how 'BIT n,(IX/Y+d)' affects bits 3 and 5 of the flags in the C version

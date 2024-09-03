@@ -680,6 +680,14 @@ string value '?', and keys '1' and '2' mapping to the string values 'a' and
 'b'. The values in this dictionary are accessible to other macros via the
 replacement fields ``{d$[1]}`` and ``{d$[2]}``.
 
+An individual key-value pair in a dictionary can be set by using the following
+syntax::
+
+  #LET(name[key]=value)
+
+Here ``key`` is the integer key, which may be expressed using skool macros and
+replacement fields.
+
 The ``#LET`` macro may also be used to set skool macro
 :ref:`configuration parameter <configurationParameters>` values.
 
@@ -690,13 +698,16 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 entire ``name=value`` parameter string, or the part after the equals sign when
 defining a dictionary variable.
 
-+---------+--------------------------------------------------+
-| Version | Changes                                          |
-+=========+==================================================+
-| 8.6     | Added the ability to define dictionary variables |
-+---------+--------------------------------------------------+
-| 8.2     | New                                              |
-+---------+--------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 9.4     | Added the ability to set individual key-value pairs in dictionary |
+|         | variables                                                         |
++---------+-------------------------------------------------------------------+
+| 8.6     | Added the ability to define dictionary variables                  |
++---------+-------------------------------------------------------------------+
+| 8.2     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _MAP:
 

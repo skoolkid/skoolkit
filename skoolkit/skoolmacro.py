@@ -1066,21 +1066,38 @@ def parse_let(writer, text, index, *cwd):
     end, stmt = parse_strings(text, index, 1)
     name, sep, value = stmt.partition('=')
     if name and sep:
-        if name.startswith('cfg[') and name.endswith(']'):
-            writer.fields['cfg'][name[4:-1]] = value
+        m = re.match(r'(.+)\[([^]]*)\]$', name)
+        if m:
+            dname = m.group(1)
+            key = m.group(2)
+            if dname == 'cfg':
+                writer.fields['cfg'][key] = value
+            else:
+                value = _format_params(writer.expand(value, *cwd), text[index:end], **writer.fields)
+                if key:
+                    key = _format_params(writer.expand(key, *cwd), text[index:end], **writer.fields)
+                    try:
+                        key = evaluate(key)
+                    except ValueError:
+                        raise InvalidParameterError(f"Cannot parse integer value '{key}': {stmt}")
+                    try:
+                        writer.fields[dname][key] = eval_variable(dname, value)
+                    except ValueError:
+                        raise InvalidParameterError(f"Cannot parse integer value '{value}': {stmt}")
+                    except KeyError as e:
+                        raise InvalidParameterError(f"Unrecognised dictionary '{e.args[0]}': {stmt}")
+                else:
+                    try:
+                        args = parse_strings(value, 0)[1]
+                    except NoParametersError:
+                        raise NoParametersError(f"No values provided: '{name}={value}'")
+                    writer.fields[dname] = _eval_map(args, value, dname.endswith('$'))
         else:
             value = _format_params(writer.expand(value, *cwd), text[index:end], **writer.fields)
-            if name.endswith('[]'):
-                try:
-                    args = parse_strings(value, 0)[1]
-                except NoParametersError:
-                    raise NoParametersError(f"No values provided: '{name}={value}'")
-                writer.fields[name[:-2]] = _eval_map(args, value, name.endswith('$[]'))
-            else:
-                try:
-                    writer.fields[name] = eval_variable(name, value)
-                except ValueError:
-                    raise InvalidParameterError("Cannot parse integer value '{}': {}".format(value, stmt))
+            try:
+                writer.fields[name] = eval_variable(name, value)
+            except ValueError:
+                raise InvalidParameterError(f"Cannot parse integer value '{value}': {stmt}")
     elif name:
         raise InvalidParameterError("Missing variable value: '{}'".format(stmt))
     else:
