@@ -288,6 +288,9 @@ Recognised parameters are:
 * ``LinkInternalOperands`` - ``1`` to hyperlink instruction operands that refer
   to an address in the same entry as the instruction, or ``0`` to leave them
   unlinked (default: ``0``)
+* ``LinkInternalOperandsMinDistance`` - when ``LinkInternalOperands`` is ``1``,
+  avoid hyperlinking if the distance between the addresses of an instruction
+  and its operand is less than this value (default: ``0``)
 * ``LinkOperands`` - a comma-separated list of instruction types whose operands
   will be hyperlinked when possible (default: ``CALL,DEFW,DJNZ,JP,JR``); add
   ``LD`` to the list to enable the address operands of LD instructions to be
@@ -321,6 +324,8 @@ hexadecimal addresses if the ``--hex`` option is used with
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.4     | Added the ``LinkInternalOperandsMinDistance`` parameter           |
++---------+-------------------------------------------------------------------+
 | 8.7     | Added the ``AudioFormats`` parameter                              |
 +---------+-------------------------------------------------------------------+
 | 8.4     | Added the ``Address`` and ``Length`` parameters                   |

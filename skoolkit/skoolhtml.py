@@ -216,6 +216,7 @@ class HtmlWriter:
         link_operands = self.game_vars['LinkOperands']
         self.link_operands = tuple(op.upper() for op in link_operands.split(','))
         self.link_internal_operands = self.game_vars['LinkInternalOperands'] != '0'
+        self.lio_min_distance = parse_int(self.game_vars['LinkInternalOperandsMinDistance'], 0)
         self.js_files = ()
         global_js = self.game_vars.get('JavaScript')
         if global_js:
@@ -704,7 +705,8 @@ class HtmlWriter:
             if reference and operation_u.startswith(self.link_operands):
                 asm_label = self.parser.get_asm_label(reference.address)
                 external_ref = entry != reference.entry
-                if external_ref or asm_label or self.link_internal_operands:
+                link_io = self.link_internal_operands and abs(instruction.address - reference.address) >= self.lio_min_distance
+                if asm_label or external_ref or link_io:
                     if self.asm_single_page:
                         href = '#{}'.format(self.asm_anchor(reference.address))
                     else:

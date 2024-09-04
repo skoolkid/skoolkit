@@ -51,6 +51,7 @@ AudioFormats=flac,mp3,ogg
 Created=
 Length={{size}}
 LinkInternalOperands=0
+LinkInternalOperandsMinDistance=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 [Paths]
 CodePath={ASMDIR}
@@ -67,6 +68,7 @@ AudioFormats=flac,mp3,ogg
 Created=
 Length={{size}}
 LinkInternalOperands=0
+LinkInternalOperandsMinDistance=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 [Paths]
 CodePath={ASMDIR}
@@ -87,6 +89,7 @@ AudioFormats=flac,mp3,ogg
 Created=
 Length={{size}}
 LinkInternalOperands=0
+LinkInternalOperandsMinDistance=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 StyleSheet=skoolkit.css
 {REF_SECTIONS[Page_Bugs]}
@@ -6300,6 +6303,42 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         ):
             operation = '{0} <a href="40000.html#{1}">{1}</a>'.format(inst, address)
             self.assertEqual(html[line_no], '<td class="instruction">{}</td>'.format(operation))
+            line_no += 5
+
+    def test_parameter_LinkInternalOperandsMinDistance(self):
+        ref = """
+            [Game]
+            LinkInternalOperands=1
+            LinkInternalOperandsMinDistance=4
+        """
+        skool = """
+            ; Routine at 50000
+            c50000 JR 50008
+             50002 CALL 50008
+             50005 JP 50008
+            *50008 DJNZ 50008
+             50010 JR 50008
+             50012 DEFW 50008
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        self.assertTrue(writer.link_internal_operands)
+        self.assertEqual(writer.lio_min_distance, 4)
+        writer.write_asm_entries()
+        html = self._read_file(join(ASMDIR, '50000.html'), True)
+        line_no = 33
+        for inst, linked in (
+            ('JR', True),
+            ('CALL', True),
+            ('JP', False),
+            ('DJNZ', False),
+            ('JR', False),
+            ('DEFW', True)
+        ):
+            if linked:
+                operation = f'{inst} <a href="50000.html#50008">50008</a>'
+            else:
+                operation = f'{inst} 50008'
+            self.assertEqual(html[line_no], f'<td class="instruction">{operation}</td>')
             line_no += 5
 
     def test_parameter_LinkInternalOperands_containing_skool_macro(self):

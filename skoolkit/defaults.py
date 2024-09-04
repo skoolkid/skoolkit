@@ -1,4 +1,4 @@
-# Copyright 2014-2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2014-2022, 2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -72,6 +72,7 @@ InputRegisterTableHeader=Input
 Length={size}
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
+LinkInternalOperandsMinDistance=0
 ; Logo=
 ; LogoImage=
 OutputRegisterTableHeader=Output

@@ -23,6 +23,8 @@ Changelog
   variable
 * Added support to the :ref:`LET` macro for setting individual key-value pairs
   in dictionary variables
+* Added the ``LinkInternalOperandsMinDistance`` parameter to the
+  :ref:`ref-Game` section (for avoiding hyperlinks to nearby instructions)
 * Fixed how the 'ADC A,*', 'SBC A,*', 'ADC HL,rr' and 'SBC HL,rr' instructions
   affect the half-carry flag
 * Fixed how 'BIT n,(IX/Y+d)' affects bits 3 and 5 of the flags in the C version
