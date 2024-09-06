@@ -65,6 +65,7 @@ Bytes=
 Copyright=
 Created=Created using <a href="https://skoolkit.ca">SkoolKit</a> #VERSION.
 DisassemblyTableNumCols=5
+Download=
 ; Font=
 ; Game=
 InputRegisterTableHeader=Input
@@ -556,6 +557,9 @@ SECTIONS['Template:footer'] = """
 <div class="release">{Game[Release]}</div>
 <div class="copyright">{Game[Copyright]}</div>
 <div class="created">{Game[Created]}</div>
+<# if(Game[Download]) #>
+<div class="download">{Game[Download]}</div>
+<# endif #>
 </footer>
 """
 

@@ -23,6 +23,9 @@ Changelog
   variable
 * Added support to the :ref:`LET` macro for setting individual key-value pairs
   in dictionary variables
+* Added the ``Download`` parameter to the :ref:`ref-Game` section (for
+  specifying a download message/link to appear in the :ref:`t_footer` of every
+  page)
 * Added the ``LinkInternalOperandsMinDistance`` parameter to the
   :ref:`ref-Game` section (for avoiding hyperlinks to nearby instructions)
 * Fixed how the 'ADC A,*', 'SBC A,*', 'ADC HL,rr' and 'SBC HL,rr' instructions

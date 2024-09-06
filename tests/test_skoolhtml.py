@@ -6181,6 +6181,31 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_parameter_DisassemblyTableNumCols_containing_skool_macro(self):
         self._test_Game_parameter_containing_skool_macro('DisassemblyTableNumCols')
 
+    def test_parameter_Download(self):
+        ref = """
+            [Game]
+            Created=
+            Download=Get the <a href="http://example.org/download">source</a>
+
+            [Template:Asm]
+            <# include(footer) #>
+        """
+        skool = "c32768 RET"
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        exp_html = """
+            <footer>
+            <div class="release"></div>
+            <div class="copyright"></div>
+            <div class="created"></div>
+            <div class="download">Get the <a href="http://example.org/download">source</a></div>
+            </footer>
+        """
+        self._assert_content_equal(dedent(exp_html).strip(), 'asm/32768.html')
+
+    def test_parameter_Download_containing_skool_macro(self):
+        self._test_Game_parameter_containing_skool_macro('Download')
+
     def test_parameter_Expand(self):
         skool = """
             ; Routine
