@@ -962,17 +962,18 @@ def parse_foreach(writer, text, index, *cwd):
             values = []
             cfg = writer.fields['cfg']
             for addr, byte, length, step in writer.pokes[name][slice(*indexes)]:
+                fvals = writer.fields.copy()
                 if length == 1:
                     fmt = cfg['poke']
-                    fvals = {'addr': addr, 'byte': byte}
+                    fvals.update({'addr': addr, 'byte': byte})
                 else:
                     addr2 = addr + (length - 1) * step
                     if step == 1:
                         fmt = cfg['pokes']
-                        fvals = {'start': addr, 'end': addr2, 'byte': byte}
+                        fvals.update({'start': addr, 'end': addr2, 'byte': byte})
                     else:
                         fmt = cfg['pokes-step']
-                        fvals = {'start': addr, 'end': addr2, 'step': step, 'byte': byte}
+                        fvals.update({'start': addr, 'end': addr2, 'step': step, 'byte': byte})
                 try:
                     values.append(fmt.format(**fvals))
                 except KeyError as e:

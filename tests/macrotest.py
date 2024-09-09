@@ -1017,6 +1017,18 @@ class CommonSkoolMacroTest:
         writer.expand('#LET(cfg[poke]=#N({addr}),#N{byte}) #PUSHSfoo #POKES30000,2 #POPS')
         self.assertEqual(writer.expand('#FOREACH(POKEfoo)(p,p)'), '30000,2')
 
+    def test_macro_foreach_with_poke_formatted_using_replacement_fields(self):
+        skool = """
+            @start
+            b30000 DEFB 1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#LET(addr=0) #LET(byte=0)') # These should be ignored when expanding #FOREACH
+        writer.expand('#LET(afmt$=04X) #LET(bfmt$=02X)')
+        writer.expand('#LET(cfg[poke]=${addr:{afmt$}},${byte:{bfmt$}}) #PUSHSfoo #POKES40000,128 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEfoo)(p,p)'), '$9C40,$80')
+        self.assertEqual(writer.expand('#FORMAT0({addr}-{byte})'), '0-0')
+
     def test_macro_foreach_with_poke_length(self):
         skool = """
             @start
@@ -1044,6 +1056,18 @@ class CommonSkoolMacroTest:
         writer.expand('#LET(cfg[pokes]=#FOR({start},{end})//a/POKE a,{byte}/: //) #PUSHSbar #POKES30000,3,2 #POPS')
         self.assertEqual(writer.expand('#FOREACH(POKEbar)(p,p)'), 'POKE 30000,3: POKE 30001,3')
 
+    def test_macro_foreach_with_poke_length_formatted_using_replacement_fields(self):
+        skool = """
+            @start
+            b30000 DEFB 1,1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#LET(start=0) #LET(end=0) #LET(byte=0)') # These should be ignored when expanding #FOREACH
+        writer.expand('#LET(afmt$=04X) #LET(bfmt$=02X)')
+        writer.expand('#LET(cfg[pokes]={start:{afmt$}}h-{end:{afmt$}}h,{byte:{bfmt$}}h) #PUSHSbar #POKES40000,3,2 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEbar)(p,p)'), '9C40h-9C41h,03h')
+        self.assertEqual(writer.expand('#FORMAT0({start}-{end}-{byte})'), '0-0-0')
+
     def test_macro_foreach_with_poke_length_and_step(self):
         skool = """
             @start
@@ -1070,6 +1094,18 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(skool=skool)
         writer.expand('#LET(cfg[pokes-step]=#FOR({start},{end},{step})//p/POKE p,{byte}/: //) #PUSHSbaz #POKES30000,4,2,2 #POPS')
         self.assertEqual(writer.expand('#FOREACH(POKEbaz)(p,p)'), 'POKE 30000,4: POKE 30002,4')
+
+    def test_macro_foreach_with_poke_length_and_step_formatted_using_replacement_fields(self):
+        skool = """
+            @start
+            b30000 DEFB 1,0,1
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#LET(start=0) #LET(end=0) #LET(step=0) #LET(byte=0)') # These should be ignored when expanding #FOREACH
+        writer.expand('#LET(afmt$=04x) #LET(bfmt$=02x)')
+        writer.expand('#LET(cfg[pokes-step]={start:{afmt$}}-{end:{afmt$}}-{step},{byte:{bfmt$}}) #PUSHSbaz #POKES40000,4,2,2 #POPS')
+        self.assertEqual(writer.expand('#FOREACH(POKEbaz)(p,p)'), '9c40-9c42-2,04')
+        self.assertEqual(writer.expand('#FORMAT0({start}-{end}-{step}-{byte})'), '0-0-0-0')
 
     def test_macro_foreach_with_poke_multiple(self):
         skool = """
