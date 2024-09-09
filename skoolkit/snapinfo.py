@@ -158,6 +158,7 @@ def _analyse_z80(header, reg, ram_blocks):
     if is128:
         print(f'Port $FFFD: {reg.outfffd}')
         bank = reg.out7ffd % 8
+        print('AY: {}'.format(' '.join(f'{r:02X}' for r in reg.ay)))
         print('Port $7FFD: {} - bank {} (block {}) paged into 49152-65535 C000-FFFF'.format(reg.out7ffd, bank, bank + 3))
 
     # Print register contents
@@ -219,7 +220,10 @@ def get_szx_machine_type(header):
     return SZX_MACHINES.get(header[6], 'Unknown')
 
 def _print_ay(block, reg):
-    return [f'Current AY register: {reg.outfffd}']
+    return (
+        f'Current AY register: {reg.outfffd}',
+        'Registers: {}'.format(' '.join(f'{r:02X}' for r in reg.ay))
+    )
 
 def _print_keyb(block, reg):
     issue2 = get_dword(block, 0) & 1

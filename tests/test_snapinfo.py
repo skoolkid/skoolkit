@@ -466,6 +466,7 @@ class SnapinfoTest(SkoolKitTestCase):
         header.append(3) # Port 0x7ffd
         header += [0] * (header[-6] - 4)
         header[38] = 2 # Port 0xfffd
+        header[39:55] = range(4, 65, 4) # AY registers
         pages = {bank: [0] * 16384 for bank in (1, 3, 4, 6, 7)}
         exp_output = """
             Version: 3
@@ -476,6 +477,7 @@ class SnapinfoTest(SkoolKitTestCase):
             T-states: 35453
             Border: 4
             Port $FFFD: 2
+            AY: 04 08 0C 10 14 18 1C 20 24 28 2C 30 34 38 3C 40
             Port $7FFD: 3 - bank 3 (block 6) paged into 49152-65535 C000-FFFF
             Registers:
               PC  25883 651B    SP  10536 2928
@@ -515,6 +517,7 @@ class SnapinfoTest(SkoolKitTestCase):
         header.append(3) # Port 0x7ffd
         header += [0] * (header[-6] - 4)
         header[38] = 7 # Port 0xfffd
+        header[39:55] = range(7, 143, 9) # AY registers
         header[55:58] = [62, 69, 3] # T-states
         pages = {bank: [0] * 16384 for bank in (1, 3, 4, 6, 7)}
         exp_output = """
@@ -526,6 +529,7 @@ class SnapinfoTest(SkoolKitTestCase):
             T-states: 0
             Border: 7
             Port $FFFD: 7
+            AY: 07 10 19 22 2B 34 3D 46 4F 58 61 6A 73 7C 85 8E
             Port $7FFD: 3 - bank 3 (block 6) paged into 49152-65535 C000-FFFF
             Registers:
               PC  65261 FEED    SP  10536 2928
@@ -730,6 +734,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Issue 2 emulation: disabled
             AY: 18 bytes
               Current AY register: 5
+              Registers: 0D 15 1D 25 2D 35 3D 45 4D 55 5D 65 6D 75 7D 85
             Z80R: 37 bytes
               Interrupts: disabled
               Interrupt mode: 1
@@ -774,7 +779,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Page: 7
               RAM: 16384 bytes, uncompressed
         """
-        self._test_szx(exp_output, registers, border=6, keyb=True, issue2=0, compress=False, machine_id=2, ch7ffd=1, pages=None, ay=[5])
+        self._test_szx(exp_output, registers, border=6, keyb=True, issue2=0, compress=False, machine_id=2, ch7ffd=1, pages=None, ay=range(5, 134, 8))
 
     def test_szx_128k_compressed(self):
         registers = list(range(16, 42)) # Registers
@@ -790,6 +795,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Port $7FFD: 1 (bank 1 paged into 49152-65535 C000-FFFF)
             AY: 18 bytes
               Current AY register: 13
+              Registers: 0F 11 13 15 17 19 1B 1D 1F 21 23 25 27 29 2B 2D
             Z80R: 37 bytes
               Interrupts: disabled
               Interrupt mode: 1
@@ -834,7 +840,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Page: 7
               RAM: 39 bytes, compressed
         """
-        self._test_szx(exp_output, registers, border=7, compress=True, machine_id=2, ch7ffd=1, pages=None, ay=[13])
+        self._test_szx(exp_output, registers, border=7, compress=True, machine_id=2, ch7ffd=1, pages=None, ay=range(13, 46, 2))
 
     def test_szx_without_magic_number(self):
         non_szx = self.write_bin_file((1, 2, 3), suffix='.szx')

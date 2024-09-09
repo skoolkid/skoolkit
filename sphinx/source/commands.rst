@@ -1446,6 +1446,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.4     | Shows AY register values in 128K SZX and Z80 snapshots            |
++---------+-------------------------------------------------------------------+
 | 9.3     | The ``--find``, ``--find-text`` and ``--find-tile`` options       |
 |         | search all RAM banks in a 128K snapshot by default                |
 +---------+-------------------------------------------------------------------+
