@@ -20,6 +20,7 @@ Changelog
 * Added the ``PNGScale`` configuration parameter for
   :ref:`trace.py <trace-conf>` (to specify the scale factor of the PNG image)
 * :ref:`snapinfo.py` now shows AY register values in 128K SZX and Z80 snapshots
+  and the last value written to port $FE in SZX snapshots
 * Added support to the :ref:`FOREACH` macro for the ``POKEname`` special
   variable
 * Added support to the :ref:`LET` macro for setting individual key-value pairs

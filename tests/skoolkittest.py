@@ -674,17 +674,21 @@ class SkoolKitTestCase(TestCase):
     def write_z80_file(self, header, ram, version=3, compress=False, machine_id=0, modify=False, out7ffd=0, pages={}, registers=None, ay=None, ret_data=False):
         return self.write_z80(ram, version, compress, machine_id, modify, out7ffd, pages, header, registers, ay, ret_data)[1]
 
-    def _get_szx_header(self, machine_id=1, ch7ffd=0, specregs=True, border=0):
+    def _get_szx_header(self, machine_id=1, ch7ffd=0, border=0, chFe=0, specregs=True):
         header = [90, 88, 83, 84] # ZXST
         header.extend((1, 4)) # Version 1.4
         header.append(machine_id) # 0=16K, 1=48K, 2+=128K
         header.append(0) # Flags
         if specregs:
-            header.extend((83, 80, 67, 82)) # SPCR
-            header.extend((8, 0, 0, 0)) # Size
-            header.append(border) # BORDER
-            header.append(ch7ffd) # Last OUT to port $7FFD
-            header.extend((0, 0, 0, 0, 0, 0))
+            header.extend((
+                83, 80, 67, 82, # SPCR
+                8, 0, 0, 0,     # Size
+                border,         # chBorder
+                ch7ffd,         # ch7ffd
+                0,              # ch1ffd/chEff7
+                chFe,           # chFe
+                0, 0, 0, 0      # Reserved
+            ))
         return header
 
     def _get_zxstz80regs(self, registers):
@@ -707,8 +711,8 @@ class SkoolKitTestCase(TestCase):
         ramp.extend(ram)
         return ramp
 
-    def write_szx(self, ram, compress=True, machine_id=1, ch7ffd=0, pages={}, registers=(), border=0, keyb=False, issue2=0, ay=None, blocks=(), ret_data=False):
-        szx = self._get_szx_header(machine_id, ch7ffd, border=border)
+    def write_szx(self, ram, compress=True, machine_id=1, ch7ffd=0, pages={}, registers=(), border=0, keyb=False, issue2=0, ay=None, chFe=0, blocks=(), ret_data=False):
+        szx = self._get_szx_header(machine_id, ch7ffd, border, chFe)
         if keyb:
             szx.extend((75, 69, 89, 66)) # KEYB
             szx.extend((5, 0, 0, 0)) # Size
