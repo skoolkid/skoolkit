@@ -272,7 +272,7 @@ def process_block(block, options, context):
         trace = partial(trace_exec, tracefile, context)
     else:
         trace = None
-    if context.screen: # pragma: no cover
+    if context.screen:
         draw = context.screen.draw
     else:
         draw = None
@@ -298,7 +298,7 @@ def process_block(block, options, context):
                     fetch_counter -= 2
                 else:
                     fetch_counter -= 2 - ((registers[15] ^ r0) % 2)
-        if draw: # pragma: no cover
+        if draw:
             run = draw(memory[16384:23296], context.frame_count)
         registers[25] = 0
         fetch_counter = tracer.next_frame()
@@ -328,7 +328,7 @@ def process_block(block, options, context):
             break
 
 def run(infile, options):
-    if options.screen and pygame: # pragma: no cover
+    if options.screen and pygame:
         screen = Screen(options.scale, options.fps, os.path.basename(infile))
         print(screen.pygame_msg)
     else:

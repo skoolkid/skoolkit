@@ -20,6 +20,20 @@ class MockSimulator:
     def nop(self):
         pass
 
+class MockScreen:
+    def __init__(self, scale, fps, caption):
+        global screen
+        screen = self
+        self.scale = scale
+        self.fps = fps
+        self.caption = caption
+        self.pygame_msg = 'Using pygame'
+
+    def draw(self, scr, frame):
+        self.scr = scr
+        self.frame = frame
+        return True
+
 def mock_run(*args):
     global run_args
     run_args = args
@@ -65,6 +79,7 @@ class RzxplayTest(SkoolKitTestCase):
             with open(logfile) as f:
                 trace = f.read()
             self.assertEqual(dedent(exp_trace).lstrip(), trace)
+        return rzxfile
 
     def _check_rzx_snapshot(self, rzxfile):
         with open(rzxfile, 'rb') as f:
@@ -1369,6 +1384,25 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = ''
         self._test_rzx(rzx, exp_output, '--force --quiet --no-screen')
 
+    @patch.object(rzxplay, 'pygame', True)
+    @patch.object(rzxplay, 'Screen', MockScreen)
+    def test_option_fps(self):
+        ram = [0] * 0xC000
+        ram[0] = 1
+        pc = 0xF000
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = 'Using pygame\n'
+        rzxfile = self._test_rzx(rzx, exp_output, '--quiet --fps 100')
+        self.assertEqual(screen.scale, 2)
+        self.assertEqual(screen.fps, 100)
+        self.assertEqual(screen.caption, rzxfile)
+        self.assertEqual(screen.scr[0], 1)
+        self.assertEqual(screen.frame, 0)
+
     def test_option_map(self):
         ram = [0] * 0xC000
         pc = 0xFF00
@@ -1449,6 +1483,25 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = ''
         self._test_rzx(rzx, exp_output, '--python --quiet --no-screen')
         self.assertIsNotNone(simulator)
+
+    @patch.object(rzxplay, 'pygame', True)
+    @patch.object(rzxplay, 'Screen', MockScreen)
+    def test_option_scale(self):
+        ram = [0] * 0xC000
+        ram[0] = 255
+        pc = 0xF000
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = 'Using pygame\n'
+        rzxfile = self._test_rzx(rzx, exp_output, '--quiet --scale 3')
+        self.assertEqual(screen.scale, 3)
+        self.assertEqual(screen.fps, 50)
+        self.assertEqual(screen.caption, rzxfile)
+        self.assertEqual(screen.scr[0], 255)
+        self.assertEqual(screen.frame, 0)
 
     def test_option_snapshot(self):
         ram = [0] * 0xC000
