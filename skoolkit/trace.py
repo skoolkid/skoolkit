@@ -292,36 +292,36 @@ def run(snafile, options, config):
         print(f'Sound duration: {z80t} T-states ({z80s:.3f}s)')
         lines = textwrap.wrap(simplify(delays, options.depth), 78)
         print('Delays:\n {}'.format('\n '.join(lines)))
-    if options.dump:
-        ext = options.dump.lower()[-4:]
+    for fname in options.dump:
+        ext = fname.lower()[-4:]
         if ext == '.wav':
             delays = tracer.get_delays()
             if delays:
                 audio_writer = AudioWriter({CLOCK_SPEED: cpu_freq})
-                with open(options.dump, 'wb') as f:
+                with open(fname, 'wb') as f:
                     audio_writer.write_audio(f, delays, ma_filter=True)
             else:
                 raise SkoolKitError('No audio detected')
         elif ext == '.png':
             frame = Frame(scr_udgs(simulator.memory, 0, 0, 32, 24), config['PNGScale'])
-            with open(options.dump, 'wb') as f:
+            with open(fname, 'wb') as f:
                 get_image_writer().write_image([frame], f)
         else:
             ram, registers, state, machine = get_state(simulator)
-            write_snapshot(options.dump, ram, registers, state, machine)
-        print(f'Wrote {options.dump}')
+            write_snapshot(fname, ram, registers, state, machine)
+        print(f'Wrote {fname}')
 
 def main(args):
     config = get_config('trace')
     parser = argparse.ArgumentParser(
-        usage='trace.py [options] FILE [OUTFILE]',
+        usage='trace.py [options] FILE [OUTFILE...]',
         description="Trace Z80 machine code execution. "
                     "FILE may be a binary (raw memory) file, a SNA, SZX or Z80 snapshot, or '48', '128' or '+2' for no snapshot. "
                     "If 'OUTFILE' is given, an SZX/Z80 snapshot, WAV file or PNG file is written after execution has completed.",
         add_help=False
     )
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')
-    parser.add_argument('dump', help=argparse.SUPPRESS, nargs='?')
+    parser.add_argument('dump', help=argparse.SUPPRESS, nargs='*')
     group = parser.add_argument_group('Options')
     group.add_argument('--audio', action='store_true',
                        help="Show audio delays.")

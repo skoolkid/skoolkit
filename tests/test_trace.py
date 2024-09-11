@@ -126,7 +126,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertFalse(options.audio)
         self.assertFalse(options.cmio)
         self.assertEqual(options.depth, 2)
-        self.assertIsNone(options.dump)
+        self.assertEqual([], options.dump)
         self.assertTrue(options.interrupts)
         self.assertEqual(options.max_operations, 0)
         self.assertEqual(options.max_tstates, 0)
@@ -177,7 +177,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertFalse(options.audio)
         self.assertFalse(options.cmio)
         self.assertEqual(options.depth, 2)
-        self.assertIsNone(options.dump)
+        self.assertEqual([], options.dump)
         self.assertTrue(options.interrupts)
         self.assertEqual(options.max_operations, 0)
         self.assertEqual(options.max_tstates, 0)
@@ -2758,6 +2758,44 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(s_banks[2][0], 2)
         self.assertEqual(s_memory[0xC000], 2)
         self.assertEqual(s_banks[0][0], 0)
+
+    @patch.object(trace, 'get_image_writer', MockImageWriter)
+    @patch.object(trace, 'AudioWriter', MockAudioWriter)
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_write_multiple_files(self):
+        data = [
+            0x21, 0x00, 0x40,       # $8000 LD HL,$4000
+            0xD3, 0xFE,             # $8003 OUT ($FE),A
+            0x74,                   # $8005 LD (HL),H
+            0xEE, 0x10,             # $8006 XOR $10
+            0x24,                   # $8008 INC H
+            0xCB, 0x5C,             # $8009 BIT 3,H
+            0x28, 0xF6,             # $800B JR Z,$8003
+        ]
+        infile = self.write_bin_file(data, suffix='.bin')
+        start = 32768
+        stop = start + len(data)
+        output, error = self.run_trace(f'-n -o {start} -S {stop} {infile} out.png out.wav out.z80')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote out.png
+            Wrote out.wav
+            Wrote out.z80
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+        self.assertEqual(len(image_writer.frames), 1)
+        udgs = image_writer.frames[0].udgs
+        self.assertEqual(len(udgs), 24)
+        self.assertEqual(len(udgs[0]), 32)
+        self.assertEqual([64, 65, 66, 67, 68, 69, 70, 71], list(udgs[0][0].data))
+        self.assertEqual(image_writer.fname, 'out.png')
+
+        self.assertEqual([49] * 7, audio_writer.delays)
+        self.assertEqual(audio_writer.fname, 'out.wav')
+
+        self.assertEqual(data, s_memory[start:stop])
+        self.assertEqual(s_fname, 'out.z80')
 
     @patch.object(trace, 'get_image_writer', MockImageWriter)
     def test_write_png(self):

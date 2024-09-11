@@ -1991,7 +1991,7 @@ snapshot. For example::
 
 To list the options supported by `trace.py`, run it with no arguments::
 
-  usage: trace.py [options] FILE [OUTFILE]
+  usage: trace.py [options] FILE [OUTFILE...]
 
   Trace Z80 machine code execution. FILE may be a binary (raw memory) file, a
   SNA, SZX or Z80 snapshot, or '48', '128' or '+2' for no snapshot. If 'OUTFILE'
@@ -2122,7 +2122,8 @@ Configuration parameters may also be set on the command line by using the
 +=========+===================================================================+
 | 9.4     | Added the ``--screen`` option; added support for writing a PNG    |
 |         | file after execution has completed; added the ``PNGScale``,       |
-|         | ``ScreenFps`` and ``ScreenScale`` configuration parameters        |
+|         | ``ScreenFps`` and ``ScreenScale`` configuration parameters; added |
+|         | support for multiple output file arguments                        |
 +---------+-------------------------------------------------------------------+
 | 9.3     | Added the ``--state`` option; added support for writing a WAV     |
 |         | file after execution has completed; added support for the ``m``   |

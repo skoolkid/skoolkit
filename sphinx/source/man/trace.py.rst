@@ -6,7 +6,7 @@ trace.py
 
 SYNOPSIS
 ========
-``trace.py`` [options] FILE [OUTFILE]
+``trace.py`` [options] FILE [OUTFILE...]
 
 DESCRIPTION
 ===========
