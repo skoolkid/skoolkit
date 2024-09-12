@@ -1060,7 +1060,7 @@ class TraceTest(SkoolKitTestCase):
         ]
         binfile = self.write_bin_file(data, suffix='.bin')
         start, stop = 32768, 32776
-        output, error = self.run_trace(f'-o {start} -S {stop} --audio {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} --audio {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             Stopped at $8008
@@ -1082,7 +1082,7 @@ class TraceTest(SkoolKitTestCase):
         )
         binfile = self.write_bin_file(data, suffix='.bin')
         start, stop = 32768, 32780
-        output, error = self.run_trace(f'-o {start} -S {stop} --audio {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} --audio {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             Stopped at $800C
@@ -1229,7 +1229,7 @@ class TraceTest(SkoolKitTestCase):
         )
         binfile = self.write_bin_file(data, suffix='.bin')
         start, stop = 32768, 32776
-        output, error = self.run_trace(f'-o {start} -S {stop} --audio --depth 0 {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} --audio --depth 0 {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             Stopped at $8008
@@ -1248,7 +1248,7 @@ class TraceTest(SkoolKitTestCase):
         )
         binfile = self.write_bin_file(data, suffix='.bin')
         start, stop = 32768, 32776
-        output, error = self.run_trace(f'-o {start} -S {stop} --audio --depth 1 {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} --audio --depth 1 {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             Stopped at $8008
@@ -1269,7 +1269,7 @@ class TraceTest(SkoolKitTestCase):
         )
         binfile = self.write_bin_file(data, suffix='.bin')
         start, stop = 32768, 32780
-        output, error = self.run_trace(f'-o {start} -S {stop} --audio --depth 2 {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} --audio --depth 2 {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             Stopped at $800C
@@ -1292,7 +1292,7 @@ class TraceTest(SkoolKitTestCase):
         )
         binfile = self.write_bin_file(data, suffix='.bin')
         start, stop = 32768, 32784
-        output, error = self.run_trace(f'-o {start} -S {stop} --audio --depth 3 {binfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} --audio --depth 3 {binfile}')
         self.assertEqual(error, '')
         exp_output = """
             Stopped at $8010
@@ -2064,7 +2064,7 @@ class TraceTest(SkoolKitTestCase):
         outfile = 'out.png'
         start = 32768
         stop = start + len(data)
-        output, error = self.run_trace(f'-o {start} -S {stop} {infile} {outfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} {infile} {outfile}')
         exp_output = f"""
             Stopped at ${stop:04X}
             Wrote {outfile}
@@ -2090,7 +2090,7 @@ class TraceTest(SkoolKitTestCase):
         outfile = 'out.png'
         start = 32768
         stop = start + len(data)
-        output, error = self.run_trace(f'-I PNGScale=3 -o {start} -S {stop} {infile} {outfile}')
+        output, error = self.run_trace(f'-n -I PNGScale=3 -o {start} -S {stop} {infile} {outfile}')
         exp_output = f"""
             Stopped at ${stop:04X}
             Wrote {outfile}
@@ -2812,7 +2812,7 @@ class TraceTest(SkoolKitTestCase):
         outfile = 'out.png'
         start = 32768
         stop = start + len(data)
-        output, error = self.run_trace(f'-o {start} -S {stop} {infile} {outfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} {infile} {outfile}')
         exp_output = f"""
             Stopped at ${stop:04X}
             Wrote {outfile}
@@ -2852,7 +2852,7 @@ class TraceTest(SkoolKitTestCase):
         outfile = 'out.wav'
         start = 32768
         stop = start + len(data)
-        output, error = self.run_trace(f'-o {start} -S {stop} {infile} {outfile}')
+        output, error = self.run_trace(f'-n -o {start} -S {stop} {infile} {outfile}')
         exp_output = f"""
             Stopped at ${stop:04X}
             Wrote {outfile}
@@ -2902,7 +2902,7 @@ class TraceTest(SkoolKitTestCase):
         start = 32768
         stop = start + len(data)
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_trace(f'-o {start} -S {stop} {infile} out.wav')
+            self.run_trace(f'-n -o {start} -S {stop} {infile} out.wav')
         self.assertEqual(cm.exception.args[0], 'No audio detected')
         self.assertIsNone(audio_writer)
 
