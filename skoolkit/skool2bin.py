@@ -303,11 +303,11 @@ def main(args):
     parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('binfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-B', '--banks', action='store_true',
+    group.add_argument('-B', '--banks', action='store_const', const=1, default=config['Banks'],
                        help="Process @bank directives and write RAM banks 0-7 to a 128K file.")
     group.add_argument('-b', '--bfix', dest='fix_mode', action='store_const', const=2, default=0,
                        help="Apply @ofix and @bfix directives.")
-    group.add_argument('-d', '--data', dest='data', action='store_true',
+    group.add_argument('-d', '--data', action='store_const', const=1, default=config['Data'],
                        help="Process @defb, @defs and @defw directives.")
     group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=integer, default=65537,
                        help='Stop converting at this address.')
@@ -327,11 +327,11 @@ def main(args):
                        help="Apply @isub and @ssub directives.")
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer, default=-1,
                        help='Start converting at this address.')
-    group.add_argument('-v', '--verbose', action='store_true',
+    group.add_argument('-v', '--verbose', action='store_const', const=1, default=config['Verbose'],
                        help='Show info on each converted instruction.')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
-    group.add_argument('-w', '--no-warnings', dest='warn', action='store_false',
+    group.add_argument('-w', '--no-warnings', dest='warn', action='store_const', const=0, default=config['Warnings'],
                        help="Suppress warnings.")
     namespace, unknown_args = parser.parse_known_args(args)
     if namespace.show_config:

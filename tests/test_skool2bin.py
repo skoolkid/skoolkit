@@ -29,8 +29,8 @@ class MockBinWriter:
         self.binfile = binfile
 
 class Skool2BinTest(SkoolKitTestCase):
-    def _check_values(self, skoolfile, binfile, asm_mode=0, fix_mode=0, banks=False, data=False,
-                      verbose=False, warn=True, start=-1, end=65537, pad_left=65536, pad_right=0):
+    def _check_values(self, skoolfile, binfile, asm_mode=0, fix_mode=0, banks=0, data=0,
+                      verbose=0, warn=1, start=-1, end=65537, pad_left=65536, pad_right=0):
         self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
         self.assertEqual(mock_bin_writer.binfile, binfile)
         self.assertEqual(mock_bin_writer.asm_mode, asm_mode)
@@ -93,6 +93,54 @@ class Skool2BinTest(SkoolKitTestCase):
 
     @patch.object(skool2bin, 'get_config', mock_config)
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_config_Banks_set_on_command_line(self):
+        skoolfile = 'test-Banks.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option, value in (('-I', 0), ('--ini', 1)):
+            output, error = self.run_skool2bin(f'{option} Banks={value} {skoolfile}')
+            self.assertEqual(len(error), 0)
+            self._check_values(skoolfile, exp_binfile, banks=value)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_config_Banks_read_from_file(self):
+        skoolfile = 'test-Banks.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for value in (0, 1):
+            ini = f"""
+                [skool2bin]
+                Banks={value}
+            """
+            self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+            output, error = self.run_skool2bin(skoolfile)
+            self.assertEqual(len(error), 0)
+            self._check_values(skoolfile, exp_binfile, banks=value)
+
+    @patch.object(skool2bin, 'get_config', mock_config)
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_config_Data_set_on_command_line(self):
+        skoolfile = 'test-Data.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option, value in (('-I', 0), ('--ini', 1)):
+            output, error = self.run_skool2bin(f'{option} Data={value} {skoolfile}')
+            self.assertEqual(len(error), 0)
+            self._check_values(skoolfile, exp_binfile, data=value)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_config_Data_read_from_file(self):
+        skoolfile = 'test-Data.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for value in (0, 1):
+            ini = f"""
+                [skool2bin]
+                Data={value}
+            """
+            self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+            output, error = self.run_skool2bin(skoolfile)
+            self.assertEqual(len(error), 0)
+            self._check_values(skoolfile, exp_binfile, data=value)
+
+    @patch.object(skool2bin, 'get_config', mock_config)
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_config_PadLeft_set_on_command_line(self):
         skoolfile = 'in.skool'
         binfile = 'out.bin'
@@ -120,7 +168,7 @@ class Skool2BinTest(SkoolKitTestCase):
         self._check_values(skoolfile, binfile, pad_right=65536)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
-    def test_config_PadLeft_read_from_file(self):
+    def test_config_PadRight_read_from_file(self):
         ini = """
             [skool2bin]
             PadRight=65536
@@ -131,6 +179,54 @@ class Skool2BinTest(SkoolKitTestCase):
         self.run_skool2bin(f'{skoolfile} {binfile}')
         self._check_values(skoolfile, binfile, pad_right=65536)
 
+    @patch.object(skool2bin, 'get_config', mock_config)
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_config_Verbose_set_on_command_line(self):
+        skoolfile = 'test-Verbose.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option, value in (('-I', 0), ('--ini', 1)):
+            output, error = self.run_skool2bin(f'{option} Verbose={value} {skoolfile}')
+            self.assertEqual(len(error), 0)
+            self._check_values(skoolfile, exp_binfile, verbose=value)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_config_Verbose_read_from_file(self):
+        skoolfile = 'test-Verbose.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for value in (0, 1):
+            ini = f"""
+                [skool2bin]
+                Verbose={value}
+            """
+            self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+            output, error = self.run_skool2bin(skoolfile)
+            self.assertEqual(len(error), 0)
+            self._check_values(skoolfile, exp_binfile, verbose=value)
+
+    @patch.object(skool2bin, 'get_config', mock_config)
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_config_Warnings_set_on_command_line(self):
+        skoolfile = 'test-Warnings.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option, value in (('-I', 0), ('--ini', 1)):
+            output, error = self.run_skool2bin(f'{option} Warnings={value} {skoolfile}')
+            self.assertEqual(len(error), 0)
+            self._check_values(skoolfile, exp_binfile, warn=value)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_config_Warnings_read_from_file(self):
+        skoolfile = 'test-Warnings.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for value in (0, 1):
+            ini = f"""
+                [skool2bin]
+                Warnings={value}
+            """
+            self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+            output, error = self.run_skool2bin(skoolfile)
+            self.assertEqual(len(error), 0)
+            self._check_values(skoolfile, exp_binfile, warn=value)
+
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_B(self):
         skoolfile = 'test-B.skool'
@@ -138,7 +234,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option in ('-B', '--banks'):
             output, error = self.run_skool2bin(f'{option} {skoolfile}')
             self.assertEqual(len(error), 0)
-            self._check_values(skoolfile, exp_binfile, banks=True)
+            self._check_values(skoolfile, exp_binfile, banks=1)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_b(self):
@@ -156,7 +252,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option in ('-d', '--data'):
             output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
             self.assertEqual(len(error), 0)
-            self._check_values(skoolfile, exp_binfile, data=True)
+            self._check_values(skoolfile, exp_binfile, data=1)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_E(self):
@@ -311,7 +407,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option in ('-v', '--verbose'):
             output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
             self.assertEqual(len(error), 0)
-            self._check_values(skoolfile, exp_binfile, verbose=True)
+            self._check_values(skoolfile, exp_binfile, verbose=1)
 
     def test_option_V(self):
         for option in ('-V', '--version'):
@@ -325,7 +421,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option in ('-w', '--no-warnings'):
             output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
             self.assertEqual(len(error), 0)
-            self._check_values(skoolfile, exp_binfile, warn=False)
+            self._check_values(skoolfile, exp_binfile, warn=0)
 
 class BinWriterTestCase(SkoolKitTestCase):
     def _test_write(self, skool, base_address, exp_data, *modes, banks=False, data=False, start=-1,
