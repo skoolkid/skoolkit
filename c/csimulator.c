@@ -5008,18 +5008,22 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
        return -1;
     }
 
-    if (PyObject_Size(memory) == 0x10000) {
+    Py_ssize_t mem_size = PyObject_Size(memory);
+    if (mem_size == 0x10000) {
         memory = convert_memory(memory);
         if (memory == NULL) {
             return -1;
         }
-    } else {
+    } else if (mem_size == 0x20000) {
         PyObject* convert = PyObject_CallMethod(memory, "convert", NULL);
         if (convert == NULL) {
             return -1;
         }
         Py_DECREF(convert);
         Py_INCREF(memory);
+    } else {
+        PyErr_SetString(PyExc_TypeError, "Simulator memory length is neither 65536 nor 131072");
+        return -1;
     }
     if (set_memory(self, memory) == -1) {
         return -1;
