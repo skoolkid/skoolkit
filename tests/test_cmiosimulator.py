@@ -1,4 +1,5 @@
 from skoolkittest import SkoolKitTestCase
+from test_simulator import SimulatorTest
 from skoolkit.pagingtracer import Memory
 from skoolkit.cmiosimulator import CMIOSimulator
 
@@ -1791,7 +1792,7 @@ TIMINGS = {
     "FF000000": ("RST $38", 17, 11),
 }
 
-class CMIOSimulatorTest(SkoolKitTestCase):
+class CMIOSimulatorTimingTest(SkoolKitTestCase):
     def _check_time(self, cs, op, data, t0, exp_time, addr=0x6000):
         cs.registers[:] = [0] * len(cs.registers)
         cs.registers[0] = 1   # A (to exercise long CPIR/CPDR)
@@ -1901,3 +1902,43 @@ class CMIOSimulatorTest(SkoolKitTestCase):
             cs.registers[25] = t0         # T
             cs.run(addr)
             self.assertEqual(cs.registers[25] - t0, exp_time, f'Timing failed with port=0x{port:04X}, page={page}')
+
+class CMIOSimulatorTest(SimulatorTest):
+    simulator_cls = CMIOSimulator
+
+    def test_djnz_fast(self):
+        # Fast DJNZ is disabled for CMIOSimulator
+        pc = 32768
+        simulator = self.simulator_cls([0] * 65536, {'PC': pc}, config={'fast_djnz': True})
+        simulator.memory[pc:pc + 2] = (0x10, 0xFE) # $8000 DJNZ $8000
+        simulator.run()
+        reg = simulator.registers
+        self.assertEqual(reg[2], 255) # B
+        self.assertEqual(reg[24], pc) # PC
+        self.assertEqual(reg[25], 13) # T-states
+
+    def test_lddr_fast(self):
+        # Fast LDDR is disabled for CMIOSimulator
+        pc = 32768
+        simulator = self.simulator_cls([0] * 65536, {'PC': pc}, config={'fast_ldir': True})
+        simulator.memory[pc:pc + 2] = (0xED, 0xB8) # $8000 LDDR
+        simulator.run()
+        reg = simulator.registers
+        self.assertEqual(reg[3] + 256 * reg[2], 65535) # BC
+        self.assertEqual(reg[5] + 256 * reg[4], 65535) # DE
+        self.assertEqual(reg[7] + 256 * reg[6], 65535) # HL
+        self.assertEqual(reg[24], pc) # PC
+        self.assertEqual(reg[25], 21) # T-states
+
+    def test_ldir_fast(self):
+        # Fast LDIR is disabled for CMIOSimulator
+        pc = 32768
+        simulator = self.simulator_cls([0] * 65536, {'PC': pc}, config={'fast_ldir': True})
+        simulator.memory[pc:pc + 2] = (0xED, 0xB0) # $8000 LDIR
+        simulator.run()
+        reg = simulator.registers
+        self.assertEqual(reg[3] + 256 * reg[2], 65535) # BC
+        self.assertEqual(reg[5] + 256 * reg[4], 1) # DE
+        self.assertEqual(reg[7] + 256 * reg[6], 1) # HL
+        self.assertEqual(reg[24], pc) # PC
+        self.assertEqual(reg[25], 21) # T-states

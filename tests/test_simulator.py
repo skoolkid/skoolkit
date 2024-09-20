@@ -32,6 +32,8 @@ class PortTracer:
         self.out_ports.append((port, value))
 
 class SimulatorTest(SkoolKitTestCase):
+    simulator_cls = Simulator
+
     def _test_instruction(self, simulator, inst, data, timing, reg_out=None, sna_out=None,
                           start=None, end=None, state_out=None):
         if start is None:
@@ -78,7 +80,7 @@ class SimulatorTest(SkoolKitTestCase):
                 self.assertEqual(simulator.registers[IFF], state_out['iff'])
 
     def _test_arithmetic(self, op, opcode1, opcode2, *specs):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
 
@@ -147,7 +149,7 @@ class SimulatorTest(SkoolKitTestCase):
                 self._test_instruction(simulator, operation, data, 19, reg_out)
 
     def _test_res_set(self, op):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
 
@@ -195,7 +197,7 @@ class SimulatorTest(SkoolKitTestCase):
                 self._test_instruction(simulator, operation, data, 23, reg_out, sna_out)
 
     def _test_rotate_shift(self, op, opcode, specs):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
 
@@ -384,7 +386,7 @@ class SimulatorTest(SkoolKitTestCase):
         )
 
     def test_bit(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         hl = 50000
@@ -433,7 +435,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_res_set('RES')
 
     def test_res_with_dest_reg(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         ix = 32768
@@ -456,7 +458,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_res_set('SET')
 
     def test_set_with_dest_reg(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         ix = 32768
@@ -485,7 +487,7 @@ class SimulatorTest(SkoolKitTestCase):
         ))
 
     def test_rl_with_dest_reg(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         ix = 32768
@@ -514,7 +516,7 @@ class SimulatorTest(SkoolKitTestCase):
         ))
 
     def test_rlc_with_dest_reg(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         ix = 32768
@@ -542,7 +544,7 @@ class SimulatorTest(SkoolKitTestCase):
         ))
 
     def test_rr_with_dest_reg(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         ix = 32768
@@ -571,7 +573,7 @@ class SimulatorTest(SkoolKitTestCase):
         ))
 
     def test_rrc_with_dest_reg(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         ix = 32768
@@ -599,7 +601,7 @@ class SimulatorTest(SkoolKitTestCase):
         ))
 
     def test_sla_with_dest_reg(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         ix = 32768
@@ -626,7 +628,7 @@ class SimulatorTest(SkoolKitTestCase):
         ))
 
     def test_sll_with_dest_reg(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         ix = 32768
@@ -655,7 +657,7 @@ class SimulatorTest(SkoolKitTestCase):
         ))
 
     def test_sra_with_dest_reg(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         ix = 32768
@@ -682,7 +684,7 @@ class SimulatorTest(SkoolKitTestCase):
         ))
 
     def test_srl_with_dest_reg(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         ix = 32768
@@ -700,7 +702,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
     def test_rla(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
 
         for a_in, f_in, a_out, f_out in (
@@ -716,7 +718,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, 'RLA', [23], 4, reg_out)
 
     def test_rlca(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
 
         for a_in, f_in, a_out, f_out in (
@@ -733,7 +735,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, 'RLCA', [7], 4, reg_out)
 
     def test_rra(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
 
         for a_in, f_in, a_out, f_out in (
@@ -749,7 +751,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, 'RRA', [31], 4, reg_out)
 
     def test_rrca(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
 
         for a_in, f_in, a_out, f_out in (
@@ -766,7 +768,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, 'RRCA', [15], 4, reg_out)
 
     def _test_inc_dec8(self, op, opcode, specs):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         hl = 49152
@@ -839,7 +841,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_dec16(self):
         # DEC BC/DE/HL/SP/IX/IY
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
 
         for rr_in, rr_out in ((61276, 61275), (0, 65535)):
@@ -866,7 +868,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_inc16(self):
         # INC BC/DE/HL/SP/IX/IY
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
 
         for rr_in, rr_out in ((61275, 61276), (65535, 0)):
@@ -893,7 +895,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_add16(self):
         # ADD HL/IX/IY,BC/DE/HL/SP/IX/IY
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
 
         for r1, r2, f_out, f_out_hl in (
@@ -948,7 +950,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_adc16(self):
         # ADC HL,BC/DE/HL/SP
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
 
         for r1, r2, f_in, f_out, f_out_hl in (
@@ -985,7 +987,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_sbc16(self):
         # SBC HL,BC/DE/HL/SP
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
 
         for r1, r2, f_in, f_out, f_out_hl in (
@@ -1019,7 +1021,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_ld_r_n(self):
         # LD r,n (r: A, B, C, D, E, H, L, (HL))
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         hl = 49152
@@ -1040,7 +1042,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_ld_r_r(self):
         # LD r,r (r: A, B, C, D, E, H, L, (HL))
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         hl = 32768
@@ -1081,7 +1083,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_ld_r_n_with_ix_iy_halves(self):
         # LD r,n (r: IXh, IXl, IYh, IYl)
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         r_in, r_out = 37, 85
 
@@ -1097,7 +1099,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_ld_r_r_with_ix_iy_halves(self):
         # LD r1,r2 (r1 or r2: IXh, IXl, IYh, IYl)
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         v1, v2 = 27, 99
         lookup = (B, C, D, E, H, L, None, A)
@@ -1145,7 +1147,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_ld_r_with_ix_iy_offsets(self):
         # LD r,(i+d); LD (i+d),r (i: IX, IY; r: A, B, C, D, E, H, L)
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         offset = 5
@@ -1182,7 +1184,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_ld_r_with_ix_iy_offsets_across_64K_boundary(self):
         # LD r,(i+d); LD (i+d),r (i: IX, IY; r: A, B, C, D, E, H, L)
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         r1, r2 = 14, 207
@@ -1208,7 +1210,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_ld_ix_iy_d_n(self):
         # LD (IX+d),n; LD (IY+d),n
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         offset, n = 7, 21
@@ -1225,7 +1227,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_ld_a_addr(self):
         # LD (nn),A; LD A,(nn)
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         a, addr, n = 5, 41278, 17
@@ -1248,7 +1250,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_ld_a_bc_de(self):
         # LD A,(BC); LD (BC),A; LD A,(DE); LD (DE),A
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         r1, r2, rr = 39, 102, 30000
@@ -1279,7 +1281,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_ld_a_i(self):
         # LD A,I
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         a = 29
         data = (237, 87)
@@ -1300,13 +1302,13 @@ class SimulatorTest(SkoolKitTestCase):
         memory = [0] * 65536
         start = 32768
         memory[start:start + 2] = (0xED, 0x57) # LD A,I
-        simulator = Simulator(memory, {'F': 0b00000100}, {'iff': 1})
+        simulator = self.simulator_cls(memory, {'F': 0b00000100}, {'iff': 1})
         simulator.run(start)
         self.assertEqual(simulator.registers[F], 0b00101000)
 
     def test_ld_a_r(self):
         # LD A,R
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         a = 29
         data = (237, 95)
@@ -1328,13 +1330,13 @@ class SimulatorTest(SkoolKitTestCase):
         memory = [0] * 65536
         start = 32768
         memory[start:start + 2] = (0xED, 0x5F) # LD A,R
-        simulator = Simulator(memory, {'F': 0b00000100}, {'iff': 1})
+        simulator = self.simulator_cls(memory, {'F': 0b00000100}, {'iff': 1})
         simulator.run(start)
         self.assertEqual(simulator.registers[F], 0b00000000)
 
     def test_ld_special_a(self):
         # LD I,A; LD R,A
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         r, a = 2, 99
 
@@ -1350,7 +1352,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 9, reg_out)
 
     def test_ld_rr_nn(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         lsb, msb = 3, 6
 
@@ -1376,7 +1378,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_ld_addr_rr(self):
         # LD (nn),BC/DE/HL/SP/IX/IY
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         rr, addr, nn = 35622, 52451, 257
@@ -1411,7 +1413,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_ld_rr_addr(self):
         # LD BC/DE/HL/SP/IX/IY,(nn)
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         rr, addr, nn = 35622, 52451, 41783
@@ -1445,7 +1447,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_ld_sp_rr(self):
         # LD SP,HL/IX/IY
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         sp, rr = 0, 55731
 
@@ -1468,7 +1470,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_pop(self):
         # POP BC/DE/HL/AF/IX/IY
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         sp = 49152
@@ -1496,7 +1498,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_push(self):
         # PUSH BC/DE/HL/AF/IX/IY
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         sp = 49152
@@ -1526,7 +1528,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_jp_rr(self):
         # JP (HL/IX/IY)
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         addr = 46327
 
@@ -1543,7 +1545,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, timing, end=addr)
 
     def test_jr_nn(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         start = 30000
 
         for offset in (13, -45):
@@ -1553,7 +1555,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 12, start=start, end=addr)
 
     def test_jr_conditional(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         start = 30000
 
@@ -1577,7 +1579,7 @@ class SimulatorTest(SkoolKitTestCase):
                 self._test_instruction(simulator, operation, data, timing, start=start, end=end)
 
     def test_jr_jumping_across_64K_boundary(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
 
         for start, opcode, condition, flags, offset, end in (
@@ -1603,7 +1605,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, timing, start=start, end=end)
 
     def test_call_nn(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         start = 30000
         addr = 51426
@@ -1616,7 +1618,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_instruction(simulator, operation, data, 17, reg_out, sna_out, start=start, end=addr)
 
     def test_call_nn_overwriting_its_operand(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         start = 30000
         addr = 51426
@@ -1629,7 +1631,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_instruction(simulator, operation, data, 17, reg_out, sna_out, start=start, end=addr)
 
     def test_call_conditional(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         start = 40000
         addr = 45271
@@ -1669,7 +1671,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, timing, reg_out, sna_out, start=start, end=end)
 
     def test_call_conditional_overwriting_its_operand(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         start = 40000
         addr = 45271
@@ -1695,7 +1697,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 17, reg_out, sna_out, start=start, end=addr)
 
     def test_jp_nn(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         start = 30000
         addr = 51426
         operation = f'JP ${addr:04X}'
@@ -1703,7 +1705,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_instruction(simulator, operation, data, 10, start=start, end=addr)
 
     def test_jp_conditional(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         start = 40000
         addr = 45271
@@ -1733,7 +1735,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 10, start=start, end=end)
 
     def test_ret(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         start = 40000
@@ -1747,7 +1749,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_instruction(simulator, operation, data, 10, reg_out, start=start, end=end)
 
     def test_ret_conditional(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         start = 40000
@@ -1787,7 +1789,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, timing, reg_out, start=start, end=end)
 
     def test_rst(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         start = 30000
         sp = 23456
@@ -1801,13 +1803,13 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 11, reg_out, sna_out, start=start, end=addr)
 
     def test_nop(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         operation = 'NOP'
         data = [0]
         self._test_instruction(simulator, operation, data, 4)
 
     def test_cpl(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         operation = 'CPL'
         data = [47]
@@ -1823,7 +1825,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 4, reg_out)
 
     def test_out_n_a(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         a = 128
         n = 56
@@ -1833,7 +1835,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_instruction(simulator, operation, data, 11)
 
     def test_out_c_r(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         c = 128
         v = 56
@@ -1848,13 +1850,13 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 12)
 
     def test_out_c_0(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         operation = 'OUT (C),0'
         data = (0xED, 0x71)
         self._test_instruction(simulator, operation, data, 12)
 
     def test_in_a_n(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         n = 56
         operation = f'IN A,(${n:02X})'
         data = (0xDB, n)
@@ -1862,7 +1864,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_instruction(simulator, operation, data, 11, reg_out)
 
     def test_in_r_c(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         tracer = InTestTracer()
         simulator.set_tracer(tracer)
@@ -1885,14 +1887,14 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 12, reg_out)
 
     def test_in_f_c(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         operation = f'IN F,(C)'
         data = (0xED, 0x70)
         reg_out = {F: 0b10101100}
         self._test_instruction(simulator, operation, data, 12, reg_out)
 
     def test_djnz(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         addr = 35732
 
@@ -1904,7 +1906,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, timing, reg_out, start=addr, end=end)
 
     def test_djnz_jumping_across_64K_boundary(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
 
         for start, offset, end in (
@@ -1919,7 +1921,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, timing, reg_out, start=start, end=end)
 
     def test_djnz_fast(self):
-        simulator = Simulator([0] * 65536, config={'fast_djnz': True})
+        simulator = self.simulator_cls([0] * 65536, config={'fast_djnz': True})
         registers = simulator.registers
         start = 35732
 
@@ -1943,14 +1945,14 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, timing, reg_out, start=start, end=end)
 
     def test_di(self):
-        simulator = Simulator([0] * 65536, state={'iff': 1})
+        simulator = self.simulator_cls([0] * 65536, state={'iff': 1})
         operation = 'DI'
         data = [243]
         state_out = {'iff': 0}
         self._test_instruction(simulator, operation, data, 4, state_out=state_out)
 
     def test_ei(self):
-        simulator = Simulator([0] * 65536, state={'iff': 0})
+        simulator = self.simulator_cls([0] * 65536, state={'iff': 0})
         operation = 'EI'
         data = [251]
         state_out = {'iff': 1}
@@ -1960,7 +1962,7 @@ class SimulatorTest(SkoolKitTestCase):
         memory = [0] * 65536
         start = 40000
         memory[start] = 0x76
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         simulator.run(start)
         self.assertEqual(simulator.registers[PC], start)
         self.assertEqual(simulator.registers[T], 4)
@@ -1969,7 +1971,7 @@ class SimulatorTest(SkoolKitTestCase):
         memory = [0] * 65536
         start = 40000
         memory[start] = 0x76
-        simulator = Simulator(memory, state={'iff': 1, 'tstates': 69882})
+        simulator = self.simulator_cls(memory, state={'iff': 1, 'tstates': 69882})
         simulator.run(start)
         self.assertEqual(simulator.registers[PC], start)
         simulator.run()
@@ -1979,14 +1981,14 @@ class SimulatorTest(SkoolKitTestCase):
         memory = [0] * 65536
         start = 40000
         memory[start] = 0x76
-        simulator = Simulator(memory, state={'iff': 0, 'tstates': 69882})
+        simulator = self.simulator_cls(memory, state={'iff': 0, 'tstates': 69882})
         simulator.run(start)
         self.assertEqual(simulator.registers[PC], start)
         simulator.run()
         self.assertEqual(simulator.registers[PC], start)
 
     def test_ccf(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         operation = 'CCF'
         data = [63]
@@ -2001,7 +2003,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 4, reg_out)
 
     def test_scf(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         operation = 'SCF'
         data = [55]
@@ -2016,7 +2018,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 4, reg_out)
 
     def _test_cpd_cpi(self, operation, opcode, inc, specs):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         data = (237, opcode)
@@ -2056,7 +2058,7 @@ class SimulatorTest(SkoolKitTestCase):
         ))
 
     def _test_cpdr_cpir(self, operation, opcode, inc, specs):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         data = (237, opcode)
@@ -2106,7 +2108,7 @@ class SimulatorTest(SkoolKitTestCase):
         ))
 
     def _test_block_in(self, operation, opcode, inc, repeat=False):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         tracer = InTestTracer()
         registers = simulator.registers
         data = (237, opcode)
@@ -2162,7 +2164,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_block_in('INIR', 178, 1, True)
 
     def _test_block_ld(self, operation, opcode, inc, repeat=False):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         data = (237, opcode)
@@ -2215,7 +2217,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_block_ld('LDIR', 176, 1, True)
 
     def test_lddr_fast(self):
-        simulator = Simulator([0] * 65536, config={'fast_ldir': True})
+        simulator = self.simulator_cls([0] * 65536, config={'fast_ldir': True})
         registers = simulator.registers
         memory = simulator.memory
         data = (0xED, 0xB8)
@@ -2258,7 +2260,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, 'LDDR', data, timing, reg_out, sna_out, start, end)
 
     def test_ldir_fast(self):
-        simulator = Simulator([0] * 65536, config={'fast_ldir': True})
+        simulator = self.simulator_cls([0] * 65536, config={'fast_ldir': True})
         registers = simulator.registers
         memory = simulator.memory
         data = (0xED, 0xB0)
@@ -2304,7 +2306,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, 'LDIR', data, timing, reg_out, sna_out, start, end)
 
     def _test_block_out(self, operation, opcode, inc, repeat=False):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         data = (237, opcode)
@@ -2353,7 +2355,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_block_out('OTIR', 179, 1, True)
 
     def test_ex_sp(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         sp1, sp2 = 27, 231
@@ -2377,7 +2379,7 @@ class SimulatorTest(SkoolKitTestCase):
                 self._test_instruction(simulator, operation, data, timing, reg_out, sna_out)
 
     def test_exx(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         operation = 'EXX'
         data = [217]
@@ -2406,7 +2408,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_instruction(simulator, operation, data, 4, reg_out)
 
     def test_ex_af(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         operation = "EX AF,AF'"
         data = [8]
@@ -2420,7 +2422,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_instruction(simulator, operation, data, 4, reg_out)
 
     def test_ex_de_hl(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         operation = 'EX DE,HL'
         data = [235]
@@ -2433,7 +2435,7 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_instruction(simulator, operation, data, 4, reg_out)
 
     def test_neg(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         operation = 'NEG'
 
@@ -2455,7 +2457,7 @@ class SimulatorTest(SkoolKitTestCase):
                 self._test_instruction(simulator, operation, data, 8, reg_out)
 
     def test_ret_from_interrupt(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         start = 40000
@@ -2483,12 +2485,12 @@ class SimulatorTest(SkoolKitTestCase):
             for opcode in opcodes:
                 operation = f'IM {mode}'
                 data = (0xED, opcode)
-                simulator = Simulator(memory, state = {'im': mode ^ 3})
+                simulator = self.simulator_cls(memory, state = {'im': mode ^ 3})
                 state_out = {'im': mode}
                 self._test_instruction(simulator, operation, data, 8, state_out=state_out)
 
     def test_rld(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         operation = 'RLD'
@@ -2509,7 +2511,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 18, reg_out, sna_out)
 
     def test_rrd(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         memory = simulator.memory
         operation = 'RRD'
@@ -2530,7 +2532,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 18, reg_out, sna_out)
 
     def test_daa(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         registers = simulator.registers
         operation = 'DAA'
         data = [39]
@@ -2552,7 +2554,7 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, 4, reg_out)
 
     def test_after_dd_fd_nop_dd_fd(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
 
         for opcode in (
                 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -2579,7 +2581,7 @@ class SimulatorTest(SkoolKitTestCase):
                 self._test_instruction(simulator, operation, data, 4, reg_out, start=start, end=start + 1)
 
     def test_after_ed_nop_ed(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
 
         for opcode in (
                 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -2627,7 +2629,7 @@ class SimulatorTest(SkoolKitTestCase):
             '^H': 6,
             '^L': 7,
         }
-        simulator = Simulator([0] * 65536, registers)
+        simulator = self.simulator_cls([0] * 65536, registers)
         self.assertEqual(simulator.registers[A], 0)
         self.assertEqual(simulator.registers[F], 1)
         self.assertEqual(simulator.registers[B], 2)
@@ -2692,12 +2694,12 @@ class SimulatorTest(SkoolKitTestCase):
             xH: 21,
             xL: 20,
         }
-        simulator = Simulator([0] * 65536, registers)
+        simulator = self.simulator_cls([0] * 65536, registers)
         for r, v in exp_register_values.items():
             self.assertEqual(simulator.registers[r], v)
 
     def test_instruction_crossing_64K_boundary(self):
-        simulator = Simulator([0] * 65536)
+        simulator = self.simulator_cls([0] * 65536)
         operation = 'LD BC,$0302'
         data = (1, 2, 3)
         reg_out = {B: 3, C: 2}
@@ -2705,7 +2707,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_no_tracer(self):
         memory = [0] * 65536
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         simulator.run(0)
         self.assertEqual(simulator.registers[PC], 1)
         self.assertEqual(simulator.registers[T], 4)
@@ -2725,7 +2727,7 @@ class SimulatorTest(SkoolKitTestCase):
         )
         end = start + len(code)
         memory[start:end] = code
-        simulator = Simulator(memory, {'A': 170, 'BC': 65311})
+        simulator = self.simulator_cls(memory, {'A': 170, 'BC': 65311})
         value = 128
         tracer = PortTracer(value)
         simulator.set_tracer(tracer)
@@ -2754,7 +2756,7 @@ class SimulatorTest(SkoolKitTestCase):
         memory[start:end] = code
         hl = 30000
         memory[hl:hl + 2] = (1, 2)
-        simulator = Simulator(memory, {'A': 171, 'BC': 65055, 'HL': hl})
+        simulator = self.simulator_cls(memory, {'A': 171, 'BC': 65055, 'HL': hl})
         tracer = PortTracer()
         simulator.set_tracer(tracer)
         simulator.run(start, end)
@@ -2779,7 +2781,7 @@ class SimulatorTest(SkoolKitTestCase):
         )
         end = start + len(code)
         memory[start:end] = code
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         simulator.run(start, end)
         self.assertEqual(memory[0xFFFF], 0x01)
         self.assertEqual(memory[0x0000], 0x00)
@@ -2788,7 +2790,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_resume(self):
         memory = [0] * 65536
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         simulator.run(0)
         simulator.run()
         self.assertEqual(simulator.registers[PC], 2)
@@ -2796,7 +2798,7 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_stop(self):
         memory = [0] * 65536
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         simulator.run(0, 2)
         self.assertEqual(simulator.registers[PC], 2)
         self.assertEqual(simulator.registers[T], 8)
@@ -2815,21 +2817,21 @@ class SimulatorTest(SkoolKitTestCase):
         i = 0xFE
         iv_addr = 255 + 256 * i
         memory[iv_addr:iv_addr + 2] = (int_start % 256, int_start // 256)
-        simulator = Simulator(memory, {'I': i}, {'iff': 1, 'im': 2, 'tstates': -4})
+        simulator = self.simulator_cls(memory, {'I': i}, {'iff': 1, 'im': 2, 'tstates': -4})
         simulator.run(start, end, True)
         self.assertEqual(memory[0x4000], 0xFF)
         self.assertEqual(simulator.registers[T], 49)
 
     def test_pc_register_value(self):
         memory = [0] * 65536
-        simulator = Simulator(memory, {'PC': 1})
+        simulator = self.simulator_cls(memory, {'PC': 1})
         simulator.run()
         self.assertEqual(simulator.registers[PC], 2)
         self.assertEqual(simulator.registers[T], 4)
 
     def test_initial_time(self):
         memory = [0] * 65536
-        simulator = Simulator(memory, state={'tstates': 100})
+        simulator = self.simulator_cls(memory, state={'tstates': 100})
         simulator.run(0)
         self.assertEqual(simulator.registers[PC], 1)
         self.assertEqual(simulator.registers[T], 104)
@@ -2838,7 +2840,7 @@ class SimulatorTest(SkoolKitTestCase):
         memory = [0] * 65536
         start = 32768
         memory[start:start + 2] = (0xED, 0x57) # LD A,I
-        simulator = Simulator(memory, state={'iff': 1, 'tstates': 32})
+        simulator = self.simulator_cls(memory, state={'iff': 1, 'tstates': 32})
         simulator.run(start)
         self.assertEqual(simulator.registers[PC], start + 2)
         self.assertEqual(simulator.registers[F], 0b00101100)
@@ -2846,7 +2848,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_accept_interrupt_mode_0(self):
         pc = 30000
         sp = 40000
-        simulator = Simulator([0] * 65536, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 0})
+        simulator = self.simulator_cls([0] * 65536, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 0})
         accepted = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
         self.assertTrue(accepted)
         self.assertEqual(simulator.registers[T], 13)
@@ -2859,7 +2861,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_accept_interrupt_mode_1(self):
         pc = 40000
         sp = 50000
-        simulator = Simulator([0] * 65536, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 1})
+        simulator = self.simulator_cls([0] * 65536, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 1})
         accepted = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
         self.assertTrue(accepted)
         self.assertEqual(simulator.registers[T], 13)
@@ -2877,7 +2879,7 @@ class SimulatorTest(SkoolKitTestCase):
         memory[vaddr:vaddr + 2] = (iaddr % 256, iaddr // 256)
         pc = 50000
         sp = 60000
-        simulator = Simulator(memory, {'PC': pc, 'SP': sp, 'I': i}, {'iff': 1, 'im': 2})
+        simulator = self.simulator_cls(memory, {'PC': pc, 'SP': sp, 'I': i}, {'iff': 1, 'im': 2})
         accepted = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
         self.assertTrue(accepted)
         self.assertEqual(simulator.registers[T], 19)
@@ -2892,7 +2894,7 @@ class SimulatorTest(SkoolKitTestCase):
         pc = 30000
         sp = 40000
         memory[pc - 1] = 0xFB # EI
-        simulator = Simulator(memory, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 1})
+        simulator = self.simulator_cls(memory, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 1})
         accepted = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
         self.assertFalse(accepted)
         self.assertEqual(simulator.registers[T], 0)
@@ -2907,7 +2909,7 @@ class SimulatorTest(SkoolKitTestCase):
         pc = 30000
         sp = 40000
         memory[pc - 1] = 0xDD
-        simulator = Simulator(memory, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 1})
+        simulator = self.simulator_cls(memory, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 1})
         accepted = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
         self.assertFalse(accepted)
         self.assertEqual(simulator.registers[T], 0)
@@ -2922,7 +2924,7 @@ class SimulatorTest(SkoolKitTestCase):
         pc = 30000
         sp = 40000
         memory[pc - 1] = 0xFD
-        simulator = Simulator(memory, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 1})
+        simulator = self.simulator_cls(memory, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 1})
         accepted = simulator.accept_interrupt(simulator.registers, simulator.memory, pc - 1)
         self.assertFalse(accepted)
         self.assertEqual(simulator.registers[T], 0)
