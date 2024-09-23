@@ -325,6 +325,7 @@ class LoadTracer(PagingTracer):
                         state[4] = 1 # Signal: tape is running
                         registers[25] = state[0] = edges[state[1]]
                     pc = registers[24]
+                    tstates = registers[25]
                 else:
                     if state[2] and stop is None:
                         # The tape has ended and no stop address is set

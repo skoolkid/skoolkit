@@ -2531,6 +2531,37 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[11185], '17891327 $1F3D HALT')
         self.assertEqual(trace_lines[11186], '17891344 $0038 PUSH AF')
 
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_sim_load_with_trace_logs_time_correctly_after_fast_load(self):
+        data = [0] * 20
+        blocks = (
+            create_tap_header_block("justheader", 10, len(data), 0),
+            create_tap_data_block(data),
+        )
+        tapfile = self._write_tap(blocks)
+        tracefile = 'sim-load.trace'
+        args = ('-c', f'trace={tracefile}', '-I', 'TraceLine={t:>8} ${pc:04X} {i}', '--start', '0x053F', '-c', 'finish-tape=1', tapfile, 'out.z80')
+        output, error = self.run_tap2sna(args)
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: justheader',
+            'Fast loading data block: 23755,20',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=1343',
+            'Writing out.z80'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        exp_reg = {'SP=65360', 'IX=23775', 'IY=23610', 'PC=1343'}
+        self.assertLessEqual(exp_reg, set(s_reg))
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 7281)
+        self.assertEqual(trace_lines[2263], '   27206 $076E CALL $0556') # LoadTracer.next_block()
+        self.assertEqual(trace_lines[2264], '17823986 $05E2 RET')        # advances the clock
+        self.assertEqual(trace_lines[7279], '17865775 $0802 CALL $0556') # LoadTracer.stop_tape()
+        self.assertEqual(trace_lines[7280], '17865803 $05E2 RET')        # does not
+
     def test_sim_load_config_help(self):
         for option in ('-c', '--sim-load-config'):
             output, error = self.run_tap2sna(f'{option} help')
