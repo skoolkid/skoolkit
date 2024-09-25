@@ -26,7 +26,6 @@ def generate(name, tclass, args):
 
 def run(suites):
     for suite in suites:
-        print(f"class {suite}Test(SimulatorTest):")
         for name, tclass, args in SUITES[suite][1:]:
             checksum = generate(name, tclass, args)
             targs = ', '.join(str(a) for a in args)

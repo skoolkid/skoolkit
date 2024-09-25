@@ -1,5 +1,6 @@
 from skoolkittest import SkoolKitTestCase
-from skoolkit import CSimulator
+from skoolkit import CSimulator, CCMIOSimulator
+from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.simulator import Simulator
 from sim_test_tracers import *
 
@@ -445,14 +446,21 @@ class ROMReadOnlyTest(SkoolKitTestCase):
                 if sp < 16385:
                     self.assertEqual(memory[sp - 1], 0)
 
+class CMIOROMReadOnlyTest(ROMReadOnlyTest):
+    def _get_simulator(self, memory):
+        simulator = (CCMIOSimulator or CMIOSimulator)(memory)
+        return simulator, simulator.memory, simulator.registers
+
 class SimulatorTest(SkoolKitTestCase):
+    def _get_simulator(self):
+        return (CSimulator or Simulator)([0] * 65536)
+
     def _verify(self, tracer, checksum):
-        simulator = (CSimulator or Simulator)([0] * 65536)
+        simulator = self._get_simulator()
         simulator.set_tracer(tracer)
         tracer.run(simulator)
         self.assertEqual(tracer.checksum, checksum)
 
-class ALOTest(SimulatorTest):
     def test_add_a_r(self):
         self._verify(AFRTracer(128), '1c6a3e0f330119a63fd3d46cda7e7acc')
 
@@ -501,26 +509,21 @@ class ALOTest(SimulatorTest):
     def test_cp_a(self):
         self._verify(AFTracer(191), '63cec365d0cfddd18244fb6025402450')
 
-class DAATest(SimulatorTest):
     def test_daa(self):
         self._verify(AFTracer(39), '34cfcda66d6592aded581d6b96ba7362')
 
-class SCFTest(SimulatorTest):
     def test_scf(self):
         self._verify(FTracer(55), 'c9a7fca843329542556862e58024cc72')
 
     def test_ccf(self):
         self._verify(FTracer(63), '1a50e83953cd4846305c4eade745d647')
 
-class CPLTest(SimulatorTest):
     def test_cpl(self):
         self._verify(AFTracer(47), 'deb05b693f42d3ec373590cd8feea460')
 
-class NEGTest(SimulatorTest):
     def test_neg(self):
         self._verify(AFTracer(237, 68), '70ade5872635e86f4cacbdc84fe5b724')
 
-class RA1Test(SimulatorTest):
     def test_rlca(self):
         self._verify(AFTracer(7), '9dc646a13ac28f1f95859834feb321fe')
 
@@ -533,7 +536,6 @@ class RA1Test(SimulatorTest):
     def test_rra(self):
         self._verify(AFTracer(31), '875b8df4ff9b0be8f80c91ec6a81a37d')
 
-class SROTest(SimulatorTest):
     def test_rlc_r(self):
         self._verify(FRTracer(203, 0), 'e512b2336da2db2924462a397db18989')
 
@@ -582,14 +584,12 @@ class SROTest(SimulatorTest):
     def test_srl_r_r(self):
         self._verify(RSTracer(56), 'ec2530a0940da922ad62680ee5cec23e')
 
-class INCTest(SimulatorTest):
     def test_inc_r(self):
         self._verify(FRTracer(4), '486b2838e58dd05b38b607d8817c0a3e')
 
     def test_dec_r(self):
         self._verify(FRTracer(5), '965cf60398a9a34a32b0870ba747e65e')
 
-class AHLTest(SimulatorTest):
     def test_add_hl_rr(self):
         self._verify(HLRRFTracer(9), '72f5c0ca1f607654448d41ba83f51c52')
 
@@ -608,7 +608,6 @@ class AHLTest(SimulatorTest):
     def test_sbc_hl_hl(self):
         self._verify(HLFTracer(237, 98), '26f9c69cc72c2509a7156fc1f596d938')
 
-class BLKTest(SimulatorTest):
     def test_ldi(self):
         self._verify(BlockTracer(237, 160), 'b45a630491a39fe5e60b08e8654cf885')
 
@@ -633,24 +632,24 @@ class BLKTest(SimulatorTest):
     def test_outd(self):
         self._verify(BlockTracer(237, 171), '1a944b9e160bb9232704479b70207f28')
 
-class BITTest(SimulatorTest):
     def test_bit_n(self):
         self._verify(BitTracer(), 'ed43b8246d6f0dd377d4c1451c98d7f6')
 
-class RRDTest(SimulatorTest):
     def test_rrd(self):
         self._verify(RRDRLDTracer(237, 103), 'd7b697dcdab00d201ac393244e9aebb2')
 
     def test_rld(self):
         self._verify(RRDRLDTracer(237, 111), '34620204b96b6cd1769cf1190e0c1353')
 
-class INRTest(SimulatorTest):
     def test_in_r_c(self):
         self._verify(InTracer(), 'b04d018542b09b48e749a0dc14344e38')
 
-class AIRTest(SimulatorTest):
     def test_ld_a_i(self):
         self._verify(AIRTracer(14, 237, 87), 'c9d853ee965280e89f31716900609e01')
 
     def test_ld_a_r(self):
         self._verify(AIRTracer(15, 237, 95), '0e93965958b098fc226bd46de0818383')
+
+class CMIOSimulatorTest(SimulatorTest):
+    def _get_simulator(self):
+        return (CCMIOSimulator or CMIOSimulator)([0] * 65536)

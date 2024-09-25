@@ -17,7 +17,7 @@ usage:
 	@echo "  test[-c]        run core tests [with C extension modules]"
 	@echo "  test[-c]-3X     run core tests with Python 3.X (8<=X<=12) [and C extension modules]"
 	@echo "  test[-c]-slow   run slow tests [with C extension modules]"
-	@echo "  test[-c]-cmio   run slow tests for [C]CMIOSimulator"
+	@echo "  test[-c]-cmio   run timing tests for [C]CMIOSimulator"
 	@echo "  test[-c]-all    run core and disassembly tests [with C extension modules]"
 	@echo "  test[-c]-3X-all run core and disassembly tests with Python 3.X (8<=X<=12) [and C extension modules]"
 	@echo "  test-cover      run core tests with coverage info"
@@ -103,11 +103,11 @@ test-c-3%-all: write-disassembly-tests
 
 .PHONY: test-slow
 test-slow: remove-c
-	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) -v -c tests/slow_test.cfg
+	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) -c tests/slow_test.cfg
 
 .PHONY: test-c-slow
 test-c-slow: cmods
-	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) -v -c tests/slow_test.cfg
+	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) -c tests/slow_test.cfg
 
 .PHONY: test-cmio
 test-cmio:
