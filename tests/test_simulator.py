@@ -901,6 +901,7 @@ class SimulatorTest(SkoolKitTestCase):
         for r1, r2, f_out, f_out_hl in (
                 #                SZ5H3PNC    SZ5H3PNC
                 (3, 1056,      0b00000000, 0b00000000),
+                (2048, 2048,   0b00010000, 0b00010000),
                 (32887, 45172, 0b00100001, 0b00000001)
         ):
             for i, (reg, rh, rl) in enumerate(REGISTER_PAIRS):
