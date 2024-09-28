@@ -1,7 +1,7 @@
 Changelog
 =========
 
-9.4b1
+9.4rc
 -----
 * Added support to :ref:`skool2bin.py <skool2bin-conf>` for reading
   configuration from `skoolkit.ini`
