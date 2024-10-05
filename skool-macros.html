@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Skool macros &#8212; SkoolKit 9.3 documentation</title>
+    <title>Skool macros &#8212; SkoolKit 9.4 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool macros</a></li> 
       </ul>
     </div>  
@@ -176,6 +176,8 @@ option is used</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">case</span></code> - 1 if the <code class="docutils literal notranslate"><span class="pre">--lower</span></code> option is used with <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>
 or <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>, 2 if the <code class="docutils literal notranslate"><span class="pre">--upper</span></code> option is used, or 0 if neither
 option is used</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cfg</span></code> - a dictionary of skool macro
+<a class="reference internal" href="#configurationparameters"><span class="std std-ref">configuration parameters</span></a></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fix</span></code> - 1 if in <a class="reference internal" href="asm.html#ofixmode"><span class="std std-ref">&#64;ofix mode</span></a>, 2 if in <a class="reference internal" href="asm.html#bfixmode"><span class="std std-ref">&#64;bfix mode</span></a>, 3 if in
 <a class="reference internal" href="asm.html#rfixmode"><span class="std std-ref">&#64;rfix mode</span></a>, or 0 otherwise</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">html</span></code> - 1 if in HTML mode, 0 otherwise</p></li>
@@ -198,6 +200,9 @@ always available in the <code class="docutils literal notranslate"><span class="
 <p>Note that if a replacement field is used, the parameter string must be
 enclosed in parentheses.</p>
 <div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 9.4: </span>Added the <code class="docutils literal notranslate"><span class="pre">cfg</span></code> dictionary.</p>
+</div>
+<div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 8.7: </span>Added the <code class="docutils literal notranslate"><span class="pre">sim</span></code> dictionary.</p>
 </div>
 <div class="versionchanged">
@@ -207,6 +212,36 @@ enclosed in parentheses.</p>
 <p><span class="versionmodified changed">Changed in version 6.4: </span>The <code class="docutils literal notranslate"><span class="pre">asm</span></code> replacement field indicates the exact ASM mode; added the
 <code class="docutils literal notranslate"><span class="pre">fix</span></code> and <code class="docutils literal notranslate"><span class="pre">vars</span></code> replacement fields.</p>
 </div>
+</section>
+<section id="configuration-parameters">
+<span id="configurationparameters"></span><h2>Configuration parameters<a class="headerlink" href="#configuration-parameters" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">cfg</span></code> dictionary contains skool macro configuration parameters.
+Recognised parameter names are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">poke</span></code> - the format used for a single POKE by the <code class="docutils literal notranslate"><span class="pre">POKEname</span></code> special
+variable of the <a class="reference internal" href="#foreach"><span class="std std-ref">#FOREACH</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">POKE</span> <span class="pre">{addr},{byte}</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pokes</span></code> - the format used for a contiguous range of POKEs by the
+<code class="docutils literal notranslate"><span class="pre">POKEname</span></code> special variable of the <a class="reference internal" href="#foreach"><span class="std std-ref">#FOREACH</span></a> macro (default:
+<code class="docutils literal notranslate"><span class="pre">FOR</span> <span class="pre">n={start}</span> <span class="pre">TO</span> <span class="pre">{end}:</span> <span class="pre">POKE</span> <span class="pre">n,{byte}:</span> <span class="pre">NEXT</span> <span class="pre">n</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pokes-step</span></code> - the format used for a range of POKEs with a STEP value by the
+<code class="docutils literal notranslate"><span class="pre">POKEname</span></code> special variable of the <a class="reference internal" href="#foreach"><span class="std std-ref">#FOREACH</span></a> macro (default:
+<code class="docutils literal notranslate"><span class="pre">FOR</span> <span class="pre">n={start}</span> <span class="pre">TO</span> <span class="pre">{end}</span> <span class="pre">STEP</span> <span class="pre">{step}:</span> <span class="pre">POKE</span> <span class="pre">n,{byte}:</span> <span class="pre">NEXT</span> <span class="pre">n</span></code>)</p></li>
+</ul>
+<p>To set the value of a configuration parameter, use the <a class="reference internal" href="#let"><span class="std std-ref">#LET</span></a> macro with
+the following special syntax:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#LET(cfg[name]=value)
+</pre></div>
+</div>
+<p>For example, to set the <code class="docutils literal notranslate"><span class="pre">poke</span></code> parameter to use hexadecimal values:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#LET(cfg[poke]=POKE ${addr:04X},${byte:02X})
+</pre></div>
+</div>
+<p>Parameter values may also contain skool macros:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#LET(cfg[pokes]=#FOR({start},{end})//a/POKE a,{byte}/: //)
+</pre></div>
+</div>
+<p>This would make the <code class="docutils literal notranslate"><span class="pre">POKEname</span></code> special variable emit a sequence of POKE
+statements separated by colons instead of a FOR loop.</p>
 </section>
 <section id="smpl-macros">
 <span id="smplmacros"></span><h2>SMPL macros<a class="headerlink" href="#smpl-macros" title="Permalink to this heading">¶</a></h2>
@@ -494,6 +529,8 @@ expands to a specific sequence of strings. The special variables are:</p>
 the memory map; if <code class="docutils literal notranslate"><span class="pre">types</span></code> is not given, every type is included</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">EREFaddr</span></code> - the addresses of the routines that jump to or call a given
 instruction (at <code class="docutils literal notranslate"><span class="pre">addr</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POKEname</span></code> - the POKEs made by the <a class="reference internal" href="#pokes"><span class="std std-ref">#POKES</span></a> macro on the named snapshot
+created by the <a class="reference internal" href="#pushs"><span class="std std-ref">#PUSHS</span></a> macro</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">REFaddr</span></code> - the addresses of the routines that jump to or call a given
 routine (at <code class="docutils literal notranslate"><span class="pre">addr</span></code>), or jump to or call any entry point within that routine</p></li>
 </ul>
@@ -503,6 +540,26 @@ routine (at <code class="docutils literal notranslate"><span class="pre">addr</s
 </div>
 <p>This instance of the <code class="docutils literal notranslate"><span class="pre">#FOREACH</span></code> macro expands to a list of the addresses of
 the entries of type <code class="docutils literal notranslate"><span class="pre">t</span></code> (text).</p>
+<p>The format of an item produced by <code class="docutils literal notranslate"><span class="pre">POKEname</span></code> depends on the values of the
+<code class="docutils literal notranslate"><span class="pre">length</span></code> and <code class="docutils literal notranslate"><span class="pre">step</span></code> parameters of the corresponding <a class="reference internal" href="#pokes"><span class="std std-ref">#POKES</span></a> macro. For
+example:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">#POKES30000,1</span></code> gives ‘POKE 30000,1’</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">#POKES30000,1,2</span></code> gives ‘FOR n=30000 TO 30001: POKE n,1: NEXT n’</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">#POKES30000,1,2,3</span></code> gives ‘FOR n=30000 TO 30003 STEP 3: POKE n,1: NEXT n’</p></li>
+</ul>
+<p>The format of these items can be changed by setting the <code class="docutils literal notranslate"><span class="pre">poke</span></code>, <code class="docutils literal notranslate"><span class="pre">pokes</span></code>
+and <code class="docutils literal notranslate"><span class="pre">pokes-step</span></code> <a class="reference internal" href="#configurationparameters"><span class="std std-ref">configuration parameters</span></a>.</p>
+<p>To specify a subset of the POKEs in a list, use either an index parameter, or
+start and stop parameters separated by a colon, enclosed in square brackets and
+appended to <code class="docutils literal notranslate"><span class="pre">name</span></code>. As with Python sequences, these parameters are 0-based,
+and the start and stop parameters are optional, so:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">POKEname[1]</span></code> yields the second POKE in the list</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POKEname[1:3]</span></code> yields the second and third POKEs in the list</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POKEname[1:]</span></code> yields all POKEs in the list except the first</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POKEname[:3]</span></code> yields the first three POKEs in the list</p></li>
+</ul>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">s1,s2,...</span></code> and <code class="docutils literal notranslate"><span class="pre">var,string[,sep,fsep]</span></code> parameter strings.</p>
 <table class="docutils align-default">
@@ -512,7 +569,10 @@ the entries of type <code class="docutils literal notranslate"><span class="pre"
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>5.1</p></td>
+<tr class="row-even"><td><p>9.4</p></td>
+<td><p>Added support for the <code class="docutils literal notranslate"><span class="pre">POKEname</span></code> special variable</p></td>
+</tr>
+<tr class="row-odd"><td><p>5.1</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -656,6 +716,15 @@ fields <code class="docutils literal notranslate"><span class="pre">{n[1]}</span
 string value ‘?’, and keys ‘1’ and ‘2’ mapping to the string values ‘a’ and
 ‘b’. The values in this dictionary are accessible to other macros via the
 replacement fields <code class="docutils literal notranslate"><span class="pre">{d$[1]}</span></code> and <code class="docutils literal notranslate"><span class="pre">{d$[2]}</span></code>.</p>
+<p>An individual key-value pair in a dictionary can be set by using the following
+syntax:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#LET(name[key]=value)
+</pre></div>
+</div>
+<p>Here <code class="docutils literal notranslate"><span class="pre">key</span></code> is the integer key, which may be expressed using skool macros and
+replacement fields.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">#LET</span></code> macro may also be used to set skool macro
+<a class="reference internal" href="#configurationparameters"><span class="std std-ref">configuration parameter</span></a> values.</p>
 <p>To define a variable that will be available for use immediately anywhere in the
 skool file or ref files, consider using the <a class="reference internal" href="asm.html#expand"><span class="std std-ref">&#64;expand</span></a> directive.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
@@ -668,10 +737,14 @@ defining a dictionary variable.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.6</p></td>
+<tr class="row-even"><td><p>9.4</p></td>
+<td><p>Added the ability to set individual key-value pairs in dictionary
+variables</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.6</p></td>
 <td><p>Added the ability to define dictionary variables</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.2</p></td>
+<tr class="row-even"><td><p>8.2</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -3136,6 +3209,7 @@ at 32768 like this:</p>
 <li><a class="reference internal" href="#numeric-parameters">Numeric parameters</a></li>
 <li><a class="reference internal" href="#string-parameters">String parameters</a></li>
 <li><a class="reference internal" href="#replacement-fields">Replacement fields</a></li>
+<li><a class="reference internal" href="#configuration-parameters">Configuration parameters</a></li>
 <li><a class="reference internal" href="#smpl-macros">SMPL macros</a><ul>
 <li><a class="reference internal" href="#hash">#()</a></li>
 <li><a class="reference internal" href="#def">#DEF</a></li>
@@ -3250,7 +3324,7 @@ at 32768 like this:</p>
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool macros</a></li> 
       </ul>
     </div>

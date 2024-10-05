@@ -297,8 +297,6 @@ However, this makes sense only if ``--stop`` is used to end playback somewhere
 in the middle of the input RZX file, otherwise the output RZX file will be
 empty (i.e. contain no frames).
 
-.. _pygame: https://pygame.org/
-
 +---------+---------+
 | Version | Changes |
 +=========+=========+
@@ -476,12 +474,15 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
     -b, --bfix            Apply @ofix and @bfix directives.
     -d, --data            Process @defb, @defs and @defw directives.
     -E ADDR, --end ADDR   Stop converting at this address.
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'. This option may be used multiple times.
     -i, --isub            Apply @isub directives.
     -o, --ofix            Apply @ofix directives.
     -r, --rsub            Apply @isub, @ssub and @rsub directives (implies
                           --ofix).
     -R, --rfix            Apply @ofix, @bfix and @rfix directives (implies
                           --rsub).
+    --show-config         Show configuration parameter values.
     -s, --ssub            Apply @isub and @ssub directives.
     -S ADDR, --start ADDR
                           Start converting at this address.
@@ -511,9 +512,44 @@ This output shows that:
 * The instruction at 40006 (RET) was originally at 40003 (before other
   instructions were inserted, removed or replaced)
 
+.. _skool2bin-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`skool2bin.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``Banks`` - process :ref:`asm-bank` directives and write RAM banks 0-7 to a
+  128K file (``1``), or don't (``0``, the default)
+* ``Data`` - process :ref:`defb`, :ref:`defs` and :ref:`defw` directives
+  (``1``), or don't (``0``, the default)
+* ``PadLeft`` - address at which to start padding the output on the left with
+  zeroes; the default value is ``65536``, which produces no padding
+* ``PadRight`` - address at which to stop padding the output on the right with
+  zeroes; the default value is ``0``, which produces no padding
+* ``Verbose`` - show info on each converted instruction (``1``), or don't
+  (``0``, the default)
+* ``Warnings`` - show warnings (``1``, the default), or suppress them (``0``)
+
+Configuration parameters must appear in a ``[skool2bin]`` section. For example,
+to make `skool2bin.py` suppress warnings (without having to use the ``-w``
+option on the command line), add the following section to `skoolkit.ini`::
+
+  [skool2bin]
+  Warnings=0
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.4     | Configuration is read from `skoolkit.ini` if present; added the   |
+|         | ``--ini`` and ``--show-config`` options; added support for        |
+|         | padding the output with zeroes                                    |
++---------+-------------------------------------------------------------------+
 | 9.1     | Added the ``--banks`` option                                      |
 +---------+-------------------------------------------------------------------+
 | 8.1     | Added the ``--data``, ``--rsub``, ``--rfix``, ``--verbose`` and   |
@@ -1410,6 +1446,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.4     | Shows AY register values in 128K SZX and Z80 snapshots and the    |
+|         | last value written to port $FE in SZX snapshots                   |
++---------+-------------------------------------------------------------------+
 | 9.3     | The ``--find``, ``--find-text`` and ``--find-tile`` options       |
 |         | search all RAM banks in a 128K snapshot by default                |
 +---------+-------------------------------------------------------------------+
@@ -1952,12 +1991,12 @@ snapshot. For example::
 
 To list the options supported by `trace.py`, run it with no arguments::
 
-  usage: trace.py [options] FILE [OUTFILE]
+  usage: trace.py [options] FILE [OUTFILE...]
 
   Trace Z80 machine code execution. FILE may be a binary (raw memory) file, a
   SNA, SZX or Z80 snapshot, or '48', '128' or '+2' for no snapshot. If 'OUTFILE'
-  is given, an SZX/Z80 snapshot or WAV file is written after execution has
-  completed.
+  is given, an SZX/Z80 snapshot, WAV file or PNG file is written after execution
+  has completed.
 
   Options:
     --audio               Show audio delays.
@@ -1988,6 +2027,7 @@ To list the options supported by `trace.py`, run it with no arguments::
     -s ADDR, --start ADDR
                           Start execution at this address.
     -S ADDR, --stop ADDR  Stop execution at this address.
+    --screen              Display screen contents while running.
     --state name=value    Set a hardware state attribute before execution
                           begins. Do '--state help' for more information. This
                           option may be used multiple times.
@@ -2009,6 +2049,11 @@ between those changes. This list can be supplied to the :ref:`AUDIO` macro to
 produce a WAV file for the sound effect that would be produced by the same code
 running on a real ZX Spectrum.
 
+If the ``--screen`` option is given and `pygame`_ is installed, `trace.py` will
+use it to render the Spectrum's screen contents at 50 frames per second with a
+scale factor of 2 while running. The frame rate and scale factor can be changed
+by setting the ``ScreenFps`` and ``ScreenScale`` configuration parameters.
+
 .. _trace-conf:
 
 Configuration
@@ -2017,6 +2062,11 @@ Configuration
 current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
+* ``PNGScale`` - the PNG image scale factor (default: ``2``)
+* ``ScreenFps`` - frames per second to display when ``--screen`` is used
+  (default: ``50``); if set to 0, `trace.py` runs at maximum speed
+* ``ScreenScale`` - screen scale factor when ``--screen`` is used (default:
+  ``2``)
 * ``TraceLine`` - the format of each instruction line when ``-v`` is used
   (default: ``${pc:04X} {i}``)
 * ``TraceLine2`` - the format of each instruction line when ``-vv`` is used
@@ -2070,6 +2120,11 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.4     | Added the ``--screen`` option; added support for writing a PNG    |
+|         | file after execution has completed; added the ``PNGScale``,       |
+|         | ``ScreenFps`` and ``ScreenScale`` configuration parameters; added |
+|         | support for multiple output file arguments                        |
++---------+-------------------------------------------------------------------+
 | 9.3     | Added the ``--state`` option; added support for writing a WAV     |
 |         | file after execution has completed; added support for the ``m``   |
 |         | (memory) replacement field in the ``TraceLine*`` configuration    |
@@ -2091,3 +2146,5 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | 8.8     | New                                                               |
 +---------+-------------------------------------------------------------------+
+
+.. _pygame: https://pygame.org/

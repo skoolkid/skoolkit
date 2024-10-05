@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Ref files &#8212; SkoolKit 9.3 documentation</title>
+    <title>Ref files &#8212; SkoolKit 9.4 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
     </div>  
@@ -332,6 +332,8 @@ SkoolKit #VERSION.’)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">DisassemblyTableNumCols</span></code> - the number of columns in the disassembly table
 on disassembly pages (default: 5); this value is used by the <a class="reference internal" href="html-templates.html#t-asm"><span class="std std-ref">asm</span></a> and
 <a class="reference internal" href="html-templates.html#t-asm-single-page"><span class="std std-ref">asm_single_page</span></a> templates</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Download</span></code> - the download message/link that appears in the footer of every
+page (default: ‘’)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Font</span></code> - the base name of the font file to use (default: None); multiple
 font files can be declared by separating their names with semicolons</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Game</span></code> - the name of the game, which appears in the title of every page,
@@ -350,6 +352,9 @@ bytes</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">LinkInternalOperands</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to hyperlink instruction operands that refer
 to an address in the same entry as the instruction, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to leave them
 unlinked (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LinkInternalOperandsMinDistance</span></code> - when <code class="docutils literal notranslate"><span class="pre">LinkInternalOperands</span></code> is <code class="docutils literal notranslate"><span class="pre">1</span></code>,
+avoid hyperlinking if the distance between the addresses of an instruction
+and its operand is less than this value (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">LinkOperands</span></code> - a comma-separated list of instruction types whose operands
 will be hyperlinked when possible (default: <code class="docutils literal notranslate"><span class="pre">CALL,DEFW,DJNZ,JP,JR</span></code>); add
 <code class="docutils literal notranslate"><span class="pre">LD</span></code> to the list to enable the address operands of LD instructions to be
@@ -385,50 +390,54 @@ hexadecimal addresses if the <code class="docutils literal notranslate"><span cl
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.7</p></td>
+<tr class="row-even"><td><p>9.4</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">Download</span></code> and <code class="docutils literal notranslate"><span class="pre">LinkInternalOperandsMinDistance</span></code>
+parameters</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.7</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">AudioFormats</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.4</p></td>
+<tr class="row-even"><td><p>8.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Address</span></code> and <code class="docutils literal notranslate"><span class="pre">Length</span></code> parameters</p></td>
 </tr>
-<tr class="row-even"><td><p>8.0</p></td>
+<tr class="row-odd"><td><p>8.0</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>7.2</p></td>
+<tr class="row-even"><td><p>7.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Bytes</span></code> and <code class="docutils literal notranslate"><span class="pre">DisassemblyTableNumCols</span></code> parameters</p></td>
 </tr>
-<tr class="row-even"><td><p>6.0</p></td>
+<tr class="row-odd"><td><p>6.0</p></td>
 <td><p>Every parameter (not just <code class="docutils literal notranslate"><span class="pre">Logo</span></code>) may contain
 <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>4.3</p></td>
+<tr class="row-even"><td><p>4.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>4.1</p></td>
+<tr class="row-odd"><td><p>4.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">LinkInternalOperands</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.0</p></td>
+<tr class="row-even"><td><p>4.0</p></td>
 <td><p>Set default values for the <code class="docutils literal notranslate"><span class="pre">InputRegisterTableHeader</span></code> and
 <code class="docutils literal notranslate"><span class="pre">OutputRegisterTableHeader</span></code> parameters; added the
 <code class="docutils literal notranslate"><span class="pre">Copyright</span></code>, <code class="docutils literal notranslate"><span class="pre">Created</span></code> and <code class="docutils literal notranslate"><span class="pre">Release</span></code> parameters (which used
 to live in the <code class="docutils literal notranslate"><span class="pre">[Info]</span></code> section in SkoolKit 3)</p></td>
 </tr>
-<tr class="row-even"><td><p>3.7</p></td>
+<tr class="row-odd"><td><p>3.7</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">JavaScript</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.5</p></td>
+<tr class="row-even"><td><p>3.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Font</span></code>, <code class="docutils literal notranslate"><span class="pre">LogoImage</span></code> and <code class="docutils literal notranslate"><span class="pre">StyleSheet</span></code> parameters
 (all of which used to live in the <a class="reference internal" href="#paths"><span class="std std-ref">[Paths]</span></a> section,
 <code class="docutils literal notranslate"><span class="pre">LogoImage</span></code> by the name <code class="docutils literal notranslate"><span class="pre">Logo</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p>3.4</p></td>
+<tr class="row-odd"><td><p>3.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">LinkOperands</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.1.2</p></td>
+<tr class="row-even"><td><p>3.1.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">InputRegisterTableHeader</span></code> and
 <code class="docutils literal notranslate"><span class="pre">OutputRegisterTableHeader</span></code> parameters</p></td>
 </tr>
-<tr class="row-even"><td><p>2.0.5</p></td>
+<tr class="row-odd"><td><p>2.0.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Logo</span></code> parameter</p></td>
 </tr>
 </tbody>
@@ -1404,7 +1413,7 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
     </div>

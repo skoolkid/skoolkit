@@ -1,6 +1,42 @@
 Changelog
 =========
 
+9.4 (2024-10-05)
+----------------
+* Added support to :ref:`skool2bin.py <skool2bin-conf>` for reading
+  configuration from `skoolkit.ini`
+* Added the ``--ini`` and ``--show-config`` options to :ref:`skool2bin.py` (for
+  setting the value of a configuration parameter and for showing all
+  configuration parameter values)
+* Added support to :ref:`skool2bin.py` for padding the output with zeroes (as
+  specified by the ``PadLeft`` and ``PadRight`` configuration parameters)
+* Added the ``--screen`` option to :ref:`trace.py` (for displaying screen
+  contents while running)
+* Added the ``ScreenFps`` and ``ScreenScale`` configuration parameters for
+  :ref:`trace.py <trace-conf>` (to specify the frame rate and scale factor when
+  displaying screen contents)
+* Added support to :ref:`trace.py` for writing a PNG file after code execution
+  has completed
+* Added the ``PNGScale`` configuration parameter for
+  :ref:`trace.py <trace-conf>` (to specify the scale factor of the PNG image)
+* Added support to :ref:`trace.py` for multiple output file arguments
+* :ref:`snapinfo.py` now shows AY register values in 128K SZX and Z80 snapshots
+  and the last value written to port $FE in SZX snapshots
+* Added support to the :ref:`FOREACH` macro for the ``POKEname`` special
+  variable
+* Added support to the :ref:`LET` macro for setting individual key-value pairs
+  in dictionary variables
+* Added the ``Download`` parameter to the :ref:`ref-Game` section (for
+  specifying a download message/link to appear in the :ref:`t_footer` of every
+  page)
+* Added the ``LinkInternalOperandsMinDistance`` parameter to the
+  :ref:`ref-Game` section (for avoiding hyperlinks to nearby instructions)
+* Fixed how ADC and SBC instructions affect the half-carry flag
+* Fixed how 'BIT n,(IX/Y+d)' affects bits 3 and 5 of the flags in the C version
+  of the Z80 simulator
+* Fixed how IX/IY offset addresses are calculated in the C version of the Z80
+  simulator
+
 9.3 (2024-08-10)
 ----------------
 * Added support to :ref:`tapinfo.py` and :ref:`tap2sna.py` for reading PZX

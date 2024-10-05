@@ -305,6 +305,10 @@ To see the default ``footer`` template, run the following command::
 
   $ skool2html.py -r Template:footer
 
+.. versionchanged:: 9.4
+   Added the download message/link specified by the ``Download`` parameter in
+   the :ref:`ref-Game` section.
+
 .. versionadded:: 5.0
 
 .. _t_home:

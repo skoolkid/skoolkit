@@ -139,6 +139,8 @@ macros:
 * ``case`` - 1 if the ``--lower`` option is used with :ref:`skool2asm.py`
   or :ref:`skool2html.py`, 2 if the ``--upper`` option is used, or 0 if neither
   option is used
+* ``cfg`` - a dictionary of skool macro
+  :ref:`configuration parameters <configurationParameters>`
 * ``fix`` - 1 if in :ref:`ofixMode`, 2 if in :ref:`bfixMode`, 3 if in
   :ref:`rfixMode`, or 0 otherwise
 * ``html`` - 1 if in HTML mode, 0 otherwise
@@ -163,6 +165,9 @@ expands to ``hl`` if in lower case mode, or ``HL`` otherwise.
 Note that if a replacement field is used, the parameter string must be
 enclosed in parentheses.
 
+.. versionchanged:: 9.4
+   Added the ``cfg`` dictionary.
+
 .. versionchanged:: 8.7
    Added the ``sim`` dictionary.
 
@@ -172,6 +177,38 @@ enclosed in parentheses.
 .. versionchanged:: 6.4
    The ``asm`` replacement field indicates the exact ASM mode; added the
    ``fix`` and ``vars`` replacement fields.
+
+.. _configurationParameters:
+
+Configuration parameters
+^^^^^^^^^^^^^^^^^^^^^^^^
+The ``cfg`` dictionary contains skool macro configuration parameters.
+Recognised parameter names are:
+
+* ``poke`` - the format used for a single POKE by the ``POKEname`` special
+  variable of the :ref:`FOREACH` macro (default: ``POKE {addr},{byte}``)
+* ``pokes`` - the format used for a contiguous range of POKEs by the
+  ``POKEname`` special variable of the :ref:`FOREACH` macro (default:
+  ``FOR n={start} TO {end}: POKE n,{byte}: NEXT n``)
+* ``pokes-step`` - the format used for a range of POKEs with a STEP value by the
+  ``POKEname`` special variable of the :ref:`FOREACH` macro (default:
+  ``FOR n={start} TO {end} STEP {step}: POKE n,{byte}: NEXT n``)
+
+To set the value of a configuration parameter, use the :ref:`LET` macro with
+the following special syntax::
+
+  #LET(cfg[name]=value)
+
+For example, to set the ``poke`` parameter to use hexadecimal values::
+
+  #LET(cfg[poke]=POKE ${addr:04X},${byte:02X})
+
+Parameter values may also contain skool macros::
+
+  #LET(cfg[pokes]=#FOR({start},{end})//a/POKE a,{byte}/: //)
+
+This would make the ``POKEname`` special variable emit a sequence of POKE
+statements separated by colons instead of a FOR loop.
 
 .. _SMPLmacros:
 
@@ -461,6 +498,8 @@ expands to a specific sequence of strings. The special variables are:
   the memory map; if ``types`` is not given, every type is included
 * ``EREFaddr`` - the addresses of the routines that jump to or call a given
   instruction (at ``addr``)
+* ``POKEname`` - the POKEs made by the :ref:`POKES` macro on the named snapshot
+  created by the :ref:`PUSHS` macro
 * ``REFaddr`` - the addresses of the routines that jump to or call a given
   routine (at ``addr``), or jump to or call any entry point within that routine
 
@@ -471,14 +510,37 @@ For example::
 This instance of the ``#FOREACH`` macro expands to a list of the addresses of
 the entries of type ``t`` (text).
 
+The format of an item produced by ``POKEname`` depends on the values of the
+``length`` and ``step`` parameters of the corresponding :ref:`POKES` macro. For
+example:
+
+* ``#POKES30000,1`` gives 'POKE 30000,1'
+* ``#POKES30000,1,2`` gives 'FOR n=30000 TO 30001: POKE n,1: NEXT n'
+* ``#POKES30000,1,2,3`` gives 'FOR n=30000 TO 30003 STEP 3: POKE n,1: NEXT n'
+
+The format of these items can be changed by setting the ``poke``, ``pokes``
+and ``pokes-step`` :ref:`configuration parameters <configurationParameters>`.
+
+To specify a subset of the POKEs in a list, use either an index parameter, or
+start and stop parameters separated by a colon, enclosed in square brackets and
+appended to ``name``. As with Python sequences, these parameters are 0-based,
+and the start and stop parameters are optional, so:
+
+* ``POKEname[1]`` yields the second POKE in the list
+* ``POKEname[1:3]`` yields the second and third POKEs in the list
+* ``POKEname[1:]`` yields all POKEs in the list except the first
+* ``POKEname[:3]`` yields the first three POKEs in the list
+
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``s1,s2,...`` and ``var,string[,sep,fsep]`` parameter strings.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.1     | New     |
-+---------+---------+
++---------+-----------------------------------------------------+
+| Version | Changes                                             |
++=========+=====================================================+
+| 9.4     | Added support for the ``POKEname`` special variable |
++---------+-----------------------------------------------------+
+| 5.1     | New                                                 |
++---------+-----------------------------------------------------+
 
 .. _FORMAT:
 
@@ -618,6 +680,17 @@ string value '?', and keys '1' and '2' mapping to the string values 'a' and
 'b'. The values in this dictionary are accessible to other macros via the
 replacement fields ``{d$[1]}`` and ``{d$[2]}``.
 
+An individual key-value pair in a dictionary can be set by using the following
+syntax::
+
+  #LET(name[key]=value)
+
+Here ``key`` is the integer key, which may be expressed using skool macros and
+replacement fields.
+
+The ``#LET`` macro may also be used to set skool macro
+:ref:`configuration parameter <configurationParameters>` values.
+
 To define a variable that will be available for use immediately anywhere in the
 skool file or ref files, consider using the :ref:`expand` directive.
 
@@ -625,13 +698,16 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 entire ``name=value`` parameter string, or the part after the equals sign when
 defining a dictionary variable.
 
-+---------+--------------------------------------------------+
-| Version | Changes                                          |
-+=========+==================================================+
-| 8.6     | Added the ability to define dictionary variables |
-+---------+--------------------------------------------------+
-| 8.2     | New                                              |
-+---------+--------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 9.4     | Added the ability to set individual key-value pairs in dictionary |
+|         | variables                                                         |
++---------+-------------------------------------------------------------------+
+| 8.6     | Added the ability to define dictionary variables                  |
++---------+-------------------------------------------------------------------+
+| 8.2     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _MAP:
 
