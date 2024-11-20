@@ -234,7 +234,7 @@ test_disassemblies() {
   btslog=$BACKTOSKOOL_HOME/build/tests.log
   mkdir -p $CONTACTSAMCRUISE_HOME/build
   csclog=$CONTACTSAMCRUISE_HOME/build/tests.log
-  targets="test39 test310 test311 test312"
+  targets="test39 test310 test311 test312 test313"
 
   _exec "Hungry Horace tests" "make -C $HUNGRYHORACE_HOME $targets" $hhlog
   _exec "Manic Miner tests" "make -C $MANICMINER_HOME $targets" $mmlog
