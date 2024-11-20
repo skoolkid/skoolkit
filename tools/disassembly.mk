@@ -14,7 +14,7 @@ usage:
 	@echo "  html      build the HTML disassembly"
 	@echo "  asm       build the ASM disassembly"
 	@echo "  test      run tests"
-	@echo "  test3X    run tests with Python 3.X (8<=X<=12)"
+	@echo "  test3X    run tests with Python 3.X (9<=X<=12)"
 	@$(MAKE) -s _targets
 	@echo ""
 	@echo "Variables:"
