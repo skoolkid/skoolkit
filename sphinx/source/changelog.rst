@@ -1,6 +1,9 @@
 Changelog
 =========
 
+9.5b1
+-----
+
 9.4 (2024-10-05)
 ----------------
 * Added support to :ref:`skool2bin.py <skool2bin-conf>` for reading
