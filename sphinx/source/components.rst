@@ -6,6 +6,7 @@ SkoolKit components
 SkoolKit relies on several components in order to function:
 
 * :ref:`assembler`
+* :ref:`commentGenerator`
 * :ref:`ctlComposer`
 * :ref:`ctlGenerator`
 * :ref:`disassembler`
@@ -30,6 +31,7 @@ or in `~/.skoolkit`. The default contents of this section are as follows::
 
   [skoolkit]
   Assembler=skoolkit.z80.Assembler
+  CommentGenerator=skoolkit.comment.CommentGenerator
   ControlDirectiveComposer=skoolkit.skoolctl.ControlDirectiveComposer
   ControlFileGenerator=skoolkit.snactl
   DefaultDisassemblyStartAddress=16384
@@ -64,6 +66,17 @@ must supply the following API functions, in common with skoolkit.z80.Assembler:
 
 .. autoclass:: skoolkit.z80.Assembler
    :members: assemble, get_size
+   :noindex:
+
+.. _commentGenerator:
+
+Comment generator
+-----------------
+This class is responsible for generating instruction comments. It must supply
+the following API method, in common with skoolkit.comment.CommentGenerator:
+
+.. autoclass:: skoolkit.comment.CommentGenerator
+   :members: get_comment
    :noindex:
 
 .. _ctlComposer:

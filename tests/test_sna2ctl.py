@@ -232,6 +232,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         sna2ctl.main(('test.sna',))
         snafile, options = run_args[:2]
         self.assertEqual(snafile, 'test.sna')
+        self.assertFalse(options.comments)
         self.assertEqual(options.ctl_hex, 0)
         self.assertIsNone(options.start)
         self.assertEqual(options.end, 65536)
@@ -763,6 +764,88 @@ class Sna2CtlTest(SkoolKitTestCase):
         """
         code_map = (65531, 65534)
         self._test_generation(data, exp_ctl, code_map)
+
+    def test_comment_generation(self):
+        data = [
+            175,                    # 65523 XOR A
+            79,                     # 65524 LD C,A
+            211, 254,               # 65525 OUT (254),A
+            238, 16,                # 65527 XOR 16
+            65,                     # 65529 LD B,C
+            16, 254,                # 65530 DJNZ 65530
+            13,                     # 65532 DEC C
+            32, 246,                # 65533 JR NZ,65525
+            201,                    # 65535 RET
+        ]
+        exp_ctl = """
+            c 65523
+              65523 #REGa=0
+              65524 #REGc=#REGa
+              65525 Output #REGa to port #N(254,2,,1)($)
+              65527 #REGa^=#N(16,2,,1)($)
+              65529 #REGb=#REGc
+              65530 Decrement #REGb and jump to #R65530 if #REGb>0
+              65532 #REGc-=1
+              65533 Jump to #R65525 if the zero flag is not set
+              65535 Return
+        """
+        self._test_generation(data, exp_ctl, options='-C')
+
+    def test_comment_generation_hex(self):
+        data = [
+            175,                    # 65534 XOR A
+            201,                    # 65535 RET
+        ]
+        exp_ctl = """
+            c $FFFE
+              $FFFE #REGa=0
+              $FFFF Return
+        """
+        self._test_generation(data, exp_ctl, options='-C -h')
+
+    def test_comment_generation_hex_lower(self):
+        data = [
+            175,                    # 65534 XOR A
+            201,                    # 65535 RET
+        ]
+        exp_ctl = """
+            c $fffe
+              $fffe #REGa=0
+              $ffff Return
+        """
+        self._test_generation(data, exp_ctl, options='-C -h -l')
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_comment_generator(self):
+        custom_cg = """
+            class CustomCommentGenerator:
+                def get_comment(self, address, values):
+                    hex_values = ''.join(f'{v:02X}' for v in values)
+                    return f'${address:04X}: {hex_values}'
+        """
+        self.write_component_config('CommentGenerator', '*.CustomCommentGenerator', custom_cg)
+        data = [
+            1, 0, 0,                # 65526 LD BC,0
+            17, 1, 0,               # 65529 LD DE,1
+            33, 2, 0,               # 65532 LD HL,2
+            201,                    # 65535 RET
+        ]
+        exp_ctl = """
+            c 65526
+              65526 $FFF6: 010000
+              65529 $FFF9: 110100
+              65532 $FFFC: 210200
+              65535 $FFFF: C9
+        """
+        self._test_generation(data, exp_ctl, options='--comments')
+
+    @patch.object(sna2ctl, 'run', mock_run)
+    @patch.object(sna2ctl, 'get_config', mock_config)
+    def test_option_C(self):
+        for options in ('-C', '--comments'):
+            self.run_sna2ctl('-C test-C.sna')
+            options, config = run_args[1:]
+            self.assertTrue(options.comments)
 
     @patch.object(sna2ctl, 'make_snapshot', mock_make_snapshot)
     def test_option_e(self):

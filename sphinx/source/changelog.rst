@@ -4,6 +4,9 @@ Changelog
 9.5b1
 -----
 * Dropped support for Python 3.8
+* Added the :ref:`comment generator <commentGenerator>` component
+* Added the ``--comments`` option to :ref:`sna2ctl.py` (for generating
+  instruction comments)
 
 9.4 (2024-10-05)
 ----------------

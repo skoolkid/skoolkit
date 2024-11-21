@@ -23,6 +23,7 @@ from skoolkit.refparser import RefParser
 COMMANDS = {
     'skoolkit': {
         'Assembler': 'skoolkit.z80.Assembler',
+        'CommentGenerator': 'skoolkit.comment.CommentGenerator',
         'ControlDirectiveComposer': 'skoolkit.skoolctl.ControlDirectiveComposer',
         'ControlFileGenerator': 'skoolkit.snactl',
         'DefaultDisassemblyStartAddress': '16384',

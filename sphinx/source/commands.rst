@@ -924,6 +924,7 @@ skool file split into blocks of code and data.
   snapshot. FILE may be a regular file, or '-' for standard input.
 
   Options:
+    -C, --comments        Generate instruction comments.
     -e ADDR, --end ADDR   Stop at this address (default=65536).
     -h, --hex             Write upper case hexadecimal addresses.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
@@ -990,6 +991,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.5     | Added the ``--comments`` option                                   |
++---------+-------------------------------------------------------------------+
 | 9.2     | Added support for reading code execution maps produced by         |
 |         | :ref:`rzxplay.py`                                                 |
 +---------+-------------------------------------------------------------------+

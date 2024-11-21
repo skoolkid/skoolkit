@@ -1,4 +1,4 @@
-# Copyright 2018, 2019, 2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2018, 2019, 2021, 2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -45,7 +45,7 @@ def run(snafile, options, config):
     if options.start is None:
         options.start = 0
     ctls = get_component('ControlFileGenerator').generate_ctls(snapshot, start, end, options.code_map, ctl_config)
-    write_ctl(ctls, options.ctl_hex)
+    write_ctl(ctls, snapshot, options)
 
 def main(args):
     config = get_config('sna2ctl')
@@ -57,6 +57,8 @@ def main(args):
     )
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-C', '--comments', action='store_true',
+                       help="Generate instruction comments.")
     group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=END,
                        help='Stop at this address (default={}).'.format(END))
     group.add_argument('-h', '--hex', dest='ctl_hex', action='store_const', const=2, default=config['Hex'],

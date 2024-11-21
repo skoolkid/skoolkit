@@ -1,4 +1,4 @@
-# Copyright 2019-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2019-2021, 2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -46,6 +46,9 @@ def get_component(name, *args):
 
 def get_assembler():
     return get_component('Assembler')
+
+def get_comment_generator():
+    return get_component('CommentGenerator')
 
 def get_image_writer(*args):
     return get_component('ImageWriter', *args)

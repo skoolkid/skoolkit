@@ -18,6 +18,7 @@ import sys
 import os
 
 from skoolkit import SkoolKitError, open_file, read_bin_file, write_line, get_address_format
+from skoolkit.components import get_comment_generator
 from skoolkit.ctlparser import CtlParser
 from skoolkit.opcodes import END, decode
 from skoolkit.skoolctl import AD_ORG, AD_START
@@ -397,13 +398,28 @@ def _generate_ctls_without_code_map(snapshot, start, end, config):
 
     return ctls
 
-def write_ctl(ctls, ctl_hex):
-    addr_fmt = get_address_format(ctl_hex, ctl_hex == 1)
+def _generate_comments(snapshot, ctls, comments):
+    cg = get_comment_generator()
+    blocks = [(a, ctls[a]) for a in sorted(ctls) if a < 65536] + [(65536, '')]
+    for i in range(len(blocks) - 1):
+        start, ctl = blocks[i]
+        if ctl == 'c':
+            comments[start] = []
+            for a, size, mc, op_id, op in decode(snapshot, start, blocks[i + 1][0]):
+                comments[start].append((a, cg.get_comment(a, snapshot[a:a + size])))
+
+def write_ctl(ctls, snapshot, options):
+    comments = {}
+    if options.comments:
+        _generate_comments(snapshot, ctls, comments)
+    addr_fmt = get_address_format(options.ctl_hex, options.ctl_hex == 1)
     start = addr_fmt.format(min(ctls))
     write_line('@ {} {}'.format(start, AD_START))
     write_line('@ {} {}'.format(start, AD_ORG))
     for address in [a for a in sorted(ctls) if a < 65536]:
         write_line('{} {}'.format(ctls[address], addr_fmt.format(address)))
+        for addr, comment in comments.get(address, ()):
+            write_line('  {} {}'.format(addr_fmt.format(addr), comment))
 
 # Component API
 def generate_ctls(snapshot, start, end, code_map, config):

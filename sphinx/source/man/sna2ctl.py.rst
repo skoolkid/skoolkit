@@ -16,6 +16,9 @@ FILE is '-', ``sna2ctl.py`` reads standard input as a binary file.
 
 OPTIONS
 =======
+-C, --comments
+  Generate instruction comments.
+
 -e, --end `ADDR`
   Stop at this address. The default end address is 65536. `ADDR` must be a
   decimal number, or a hexadecimal number prefixed by '0x'.
