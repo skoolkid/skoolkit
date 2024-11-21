@@ -44,6 +44,7 @@ class Tracer(PagingTracer):
         self.operations = 0
         self.spkr = None
         self.out_times = []
+        self.keyboard = None
 
     def run(self, start, stop, max_operations, max_tstates, interrupts, draw, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
@@ -54,6 +55,9 @@ class Tracer(PagingTracer):
             max_time = start_time + max_tstates
         else:
             max_time = 0
+        if draw:
+            self.keyboard = [0] * 8
+        keyboard = self.keyboard
         if trace_line:
             r = Registers(registers)
 
@@ -63,7 +67,7 @@ class Tracer(PagingTracer):
                 tf = lambda pc, i, t0: print(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
             else:
                 df = tf = None
-            stop_cond, operations = simulator.trace(start, stop, max_operations, max_time, interrupts, draw, df, tf)
+            stop_cond, operations = simulator.trace(start, stop, max_operations, max_time, interrupts, draw, keyboard, df, tf)
         else:
             opcodes = simulator.opcodes
             frame_duration = simulator.frame_duration
@@ -92,7 +96,7 @@ class Tracer(PagingTracer):
                 if draw:
                     frame = tstates // frame_duration
                     if frame > prev_frame:
-                        if not draw(memory[16384:23296], frame): # pragma: no cover
+                        if not draw(memory[16384:23296], frame, keyboard): # pragma: no cover
                             stop_cond = 0
                             break
                         prev_frame = frame
@@ -118,6 +122,16 @@ class Tracer(PagingTracer):
     def read_port(self, registers, port):
         if port == 0xFFFD:
             return self.ay[self.outfffd % 16]
+        if port % 2 == 0 and self.keyboard: # pragma: no cover
+            h = (port // 256) ^ 0xFF
+            v = 0x40
+            i = 0
+            while h:
+                if h % 2:
+                    v |= self.keyboard[i]
+                h //= 2
+                i += 1
+            return v ^ 0xFF
         return 0xFF
 
     def write_port(self, registers, port, value):
@@ -359,7 +373,7 @@ def main(args):
     group.add_argument('-S', '--stop', metavar='ADDR', type=integer,
                        help='Stop execution at this address.')
     group.add_argument('--screen', dest='screen', action='store_true',
-                       help="Display screen contents while running.")
+                       help="Display screen contents and respond to keypresses while running.")
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute before execution begins. Do '--state help' for more information. "
                             "This option may be used multiple times.")

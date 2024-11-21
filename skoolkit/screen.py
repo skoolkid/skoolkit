@@ -43,6 +43,49 @@ if pygame: # pragma: no cover
         pygame.Color(0xff, 0xff, 0xff), # Bright white
     )
 
+    KEYS = (
+        (pygame.K_1, 3, 0b00001),
+        (pygame.K_2, 3, 0b00010),
+        (pygame.K_3, 3, 0b00100),
+        (pygame.K_4, 3, 0b01000),
+        (pygame.K_5, 3, 0b10000),
+        (pygame.K_6, 4, 0b10000),
+        (pygame.K_7, 4, 0b01000),
+        (pygame.K_8, 4, 0b00100),
+        (pygame.K_9, 4, 0b00010),
+        (pygame.K_0, 4, 0b00001),
+        (pygame.K_q, 2, 0b00001),
+        (pygame.K_w, 2, 0b00010),
+        (pygame.K_e, 2, 0b00100),
+        (pygame.K_r, 2, 0b01000),
+        (pygame.K_t, 2, 0b10000),
+        (pygame.K_y, 5, 0b10000),
+        (pygame.K_u, 5, 0b01000),
+        (pygame.K_i, 5, 0b00100),
+        (pygame.K_o, 5, 0b00010),
+        (pygame.K_p, 5, 0b00001),
+        (pygame.K_a, 1, 0b00001),
+        (pygame.K_s, 1, 0b00010),
+        (pygame.K_d, 1, 0b00100),
+        (pygame.K_f, 1, 0b01000),
+        (pygame.K_g, 1, 0b10000),
+        (pygame.K_h, 6, 0b10000),
+        (pygame.K_j, 6, 0b01000),
+        (pygame.K_k, 6, 0b00100),
+        (pygame.K_l, 6, 0b00010),
+        (pygame.K_RETURN, 6, 0b00001), # ENTER
+        (pygame.K_LSHIFT, 0, 0b00001), # CAPS SHIFT
+        (pygame.K_z, 0, 0b00010),
+        (pygame.K_x, 0, 0b00100),
+        (pygame.K_c, 0, 0b01000),
+        (pygame.K_v, 0, 0b10000),
+        (pygame.K_b, 7, 0b10000),
+        (pygame.K_n, 7, 0b01000),
+        (pygame.K_m, 7, 0b00100),
+        (pygame.K_LCTRL, 7, 0b00010),  # SYMBOL SHIFT
+        (pygame.K_SPACE, 7, 0b00001),
+    )
+
 CELLS = tuple((x, y, 2048 * (y // 8) + 32 * (y % 8) + x, 6144 + 32 * y + x) for x in range(32) for y in range(24))
 
 class Screen: # pragma: no cover
@@ -58,7 +101,7 @@ class Screen: # pragma: no cover
         self.clock = pygame.time.Clock()
         self.prev_scr = [None] * 6912
 
-    def draw(self, scr, frame):
+    def draw(self, scr, frame, keyboard=None):
         screen = self.surface
         pixel_rects = self.pixel_rects
         cell_rects = self.cell_rects
@@ -101,4 +144,12 @@ class Screen: # pragma: no cover
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return False
+
+        if keyboard:
+            keyboard[:] = (0,) * 8
+            pressed = pygame.key.get_pressed()
+            for k, i, b in KEYS:
+                if pressed[k]:
+                    keyboard[i] |= b
+
         return True

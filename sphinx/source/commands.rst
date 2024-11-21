@@ -2030,7 +2030,8 @@ To list the options supported by `trace.py`, run it with no arguments::
     -s ADDR, --start ADDR
                           Start execution at this address.
     -S ADDR, --stop ADDR  Stop execution at this address.
-    --screen              Display screen contents while running.
+    --screen              Display screen contents and respond to keypresses
+                          while running.
     --state name=value    Set a hardware state attribute before execution
                           begins. Do '--state help' for more information. This
                           option may be used multiple times.
@@ -2056,6 +2057,9 @@ If the ``--screen`` option is given and `pygame`_ is installed, `trace.py` will
 use it to render the Spectrum's screen contents at 50 frames per second with a
 scale factor of 2 while running. The frame rate and scale factor can be changed
 by setting the ``ScreenFps`` and ``ScreenScale`` configuration parameters.
+While the screen is displayed, `trace.py` will also respond to keypresses, with
+the left shift key mapped to CAPS SHIFT on the Spectrum keyboard, and the left
+Ctrl key mapped to SYMBOL SHIFT.
 
 .. _trace-conf:
 
@@ -2123,6 +2127,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.5     | Responds to keypresses while the screen is displayed              |
++---------+-------------------------------------------------------------------+
 | 9.4     | Added the ``--screen`` option; added support for writing a PNG    |
 |         | file after execution has completed; added the ``PNGScale``,       |
 |         | ``ScreenFps`` and ``ScreenScale`` configuration parameters; added |

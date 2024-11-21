@@ -7,6 +7,8 @@ Changelog
 * Added the :ref:`comment generator <commentGenerator>` component
 * Added the ``--comments`` option to :ref:`sna2ctl.py` (for generating
   instruction comments)
+* :ref:`trace.py` now responds to keypresses while running with screen contents
+  displayed
 
 9.4 (2024-10-05)
 ----------------

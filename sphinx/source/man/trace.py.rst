@@ -86,7 +86,9 @@ OPTIONS
   hexadecimal number prefixed by '0x'.
 
 --screen
-  Display screen contents while running (requires pygame).
+  Display screen contents and respond to keypresses while running (requires
+  pygame). The left shift key is mapped to CAPS SHIFT on the Spectrum keyboard,
+  and the left Ctrl key is mapped to SYMBOL SHIFT.
 
 --state name=value
   Set a hardware state attribute before execution begins. Do ``--state help``

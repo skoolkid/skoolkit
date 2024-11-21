@@ -5359,17 +5359,18 @@ static PyObject* CSimulator_accept_interrupt(CSimulatorObject* self, PyObject* a
 }
 
 static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", "", "", "", "", "", NULL};
+    static char* kwlist[] = {"", "", "", "", "", "", "", "", "", NULL};
     PyObject* start_obj;
     PyObject* stop_obj;
     unsigned long long max_operations;
     unsigned long long max_time;
     int interrupts;
     PyObject* draw;
+    PyObject* keyboard;
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKKiOOO", kwlist, &start_obj, &stop_obj, &max_operations, &max_time, &interrupts, &draw, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKKiOOOO", kwlist, &start_obj, &stop_obj, &max_operations, &max_time, &interrupts, &draw, &keyboard, &disassemble, &trace)) {
         return NULL;
     }
 
@@ -5464,7 +5465,7 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
                         return NULL;
                     }
                 }
-                PyObject* args = Py_BuildValue("(OI)", scr, frame);
+                PyObject* args = Py_BuildValue("(OIO)", scr, frame, keyboard);
                 i = PyObject_CallObject(draw, args);
                 Py_XDECREF(args);
                 Py_XDECREF(scr);

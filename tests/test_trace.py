@@ -66,9 +66,10 @@ class MockScreen:
         self.caption = caption
         self.pygame_msg = 'Using pygame'
 
-    def draw(self, scr, frame):
+    def draw(self, scr, frame, keyboard):
         self.scr = scr
         self.frame = frame
+        self.keyboard = keyboard
         return True
 
 def mock_run(*args):
