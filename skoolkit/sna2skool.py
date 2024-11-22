@@ -76,7 +76,7 @@ def main(args):
                        help="Specify a control file to use, or a directory from which to read control files. "
                             "PATH may be '-' for standard input, or '0' to use no control file. "
                             "This option may be used multiple times.")
-    group.add_argument('-C', '--comments', action='store_true',
+    group.add_argument('-C', '--comments', action='store_const', const=1, default=config['Comments'],
                        help="Generate instruction comments.")
     group.add_argument('-d', '--defb', dest='defb', metavar='SIZE', type=int,
                        help='Disassemble as DEFB statements of this size.')

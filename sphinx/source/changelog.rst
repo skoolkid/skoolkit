@@ -8,7 +8,8 @@ Changelog
 * Added the ``--comments`` option to :ref:`sna2ctl.py` and :ref:`sna2skool.py`
   (for generating instruction comments)
 * Added the ``Comments`` configuration parameter for
-  :ref:`sna2ctl.py <sna2ctl-conf>` (to enable instruction comment generation)
+  :ref:`sna2ctl.py <sna2ctl-conf>` and :ref:`sna2skool.py <sna2skool-conf>` (to
+  enable instruction comment generation)
 * :ref:`trace.py` now responds to keypresses while running with screen contents
   displayed
 

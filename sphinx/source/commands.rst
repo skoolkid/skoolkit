@@ -1126,7 +1126,7 @@ There are three options and configuration parameters that control whether
 defined in a control file. They are mutually exclusive and operate in the
 following order:
 
-* the ``--comments`` option (uses the
+* the ``--comments`` option or ``Comments`` configuration parameter (uses the
   :ref:`comment generator <commentGenerator>` component)
 * the ``Text`` configuration parameter (shows byte values as ASCII text)
 * the ``Timings`` configuration parameter (shows instruction timings)
@@ -1143,6 +1143,8 @@ configuration parameters are:
   or decimal (``10``, the default)
 * ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``,
   the default)
+* ``Comments`` - generate instruction comments (``1``), or don't (``0``, the
+  default)
 * ``CommentWidthMin`` - minimum width of the instruction comment field in the
   skool file (default: ``10``)
 * ``DefbSize`` - maximum number of bytes in a DEFB statement (default: ``8``)
@@ -1260,7 +1262,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.5     | Added the ``--comments`` option                                   |
+| 9.5     | Added the ``--comments`` option and the ``Comments``              |
+|         | configuration parameter                                           |
 +---------+-------------------------------------------------------------------+
 | 9.3     | Added the ``Opcodes`` configuration parameter                     |
 +---------+-------------------------------------------------------------------+

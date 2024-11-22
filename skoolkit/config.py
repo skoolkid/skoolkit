@@ -48,6 +48,7 @@ COMMANDS = {
     'sna2skool': {
         'Base': (10, 'base'),
         'Case': (2, 'case'),
+        'Comments': (0, 'comments'),
         'CommentWidthMin': (10, ''),
         'DefbSize': (8, ''),
         'DefmSize': (65, ''),
@@ -197,7 +198,7 @@ def update_options(name, options, specs, config):
 
 def show_config(section_name, config):
     print('[{}]'.format(section_name))
-    for name in sorted(config):
+    for name in sorted(config, key=str.lower):
         value = config[name]
         if isinstance(value, list):
             value = ','.join(value)

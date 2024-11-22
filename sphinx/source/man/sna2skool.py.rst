@@ -76,6 +76,8 @@ configuration parameters are:
     decimal (``10``, the default).
   :Case: Write the disassembly in lower case (``1``) or upper case (``2``, the
     default).
+  :Comments: Generate instruction comments (``1``), or don't (``0``, the
+    default).
   :CommentWidthMin: Minimum width of the instruction comment field in the skool
     file (default: ``10``).
   :DefbSize: Maximum number of bytes in a DEFB statement (default: ``8``).

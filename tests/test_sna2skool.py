@@ -454,6 +454,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             [sna2skool]
             Base=10
             Case=2
+            Comments=0
             CommentWidthMin=10
             DefbSize=8
             DefmSize=65
@@ -496,6 +497,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             [sna2skool]
             Base=10
             Case=1
+            Comments=0
             CommentWidthMin=10
             DefbSize=8
             DefmSize=65
@@ -693,3 +695,20 @@ class Sna2SkoolTest(SkoolKitTestCase):
         exp_ctls = {24576: 'c', 65536: 'i'}
         self.assertEqual(exp_ctls, mock_ctl_parser.ctls)
         self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'run', mock_run)
+    @patch.object(sna2skool, 'get_config', mock_config)
+    def test_config_Comments_updates_option(self):
+        self.run_sna2skool('-I Comments=1 test-Comments.skool')
+        options, config = run_args[1:]
+        self.assertEqual(options.comments, 1)
+        self.assertEqual(config['Comments'], 1)
+
+    @patch.object(components, 'SK_CONFIG', None)
+    @patch.object(sna2skool, 'run', mock_run)
+    def test_config_Comments_read_from_file_updates_option(self):
+        self.write_text_file('[sna2skool]\nComments=1', 'skoolkit.ini')
+        self.run_sna2skool('test-Comments.skool')
+        options, config = run_args[1:]
+        self.assertEqual(options.comments, 1)
+        self.assertEqual(config['Comments'], 1)
