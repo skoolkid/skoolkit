@@ -1242,16 +1242,17 @@ class DisassemblyTest(SkoolKitTestCase):
                 Disassembly(snapshot, ctl_parser, config)
 
 class MockOptions:
-    def __init__(self, line_width, base, case):
+    def __init__(self, line_width, base, case, comments):
         self.line_width = line_width
         self.base = base
         self.case = case
+        self.comments = comments
 
 class SkoolWriterTest(SkoolKitTestCase):
-    def _get_writer(self, snapshot, ctl, params=None, line_width=79, base=10, case=2):
+    def _get_writer(self, snapshot, ctl, params=None, line_width=79, base=10, case=2, comments=False):
         ctl_parser = CtlParser()
         ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())])
-        options = MockOptions(line_width, base, case)
+        options = MockOptions(line_width, base, case, comments)
         config = CONFIG.copy()
         config.update(params or {})
         return SkoolWriter(snapshot, ctl_parser, options, config)
@@ -5229,3 +5230,123 @@ class SkoolWriterTest(SkoolKitTestCase):
             *00010 DEFB 0,0      ; Entry point marker created by LD (10),HL
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_comment_generation(self):
+        snapshot = [
+            175,                    # 00000 XOR A
+            79,                     # 00001 LD C,A
+            211, 254,               # 00002 OUT (254),A
+            238, 16,                # 00004 XOR 16
+            65,                     # 00006 LD B,C
+            16, 254,                # 00007 DJNZ 65530
+            13,                     # 00009 DEC C
+            32, 246,                # 00010 JR NZ,65525
+            201,                    # 00012 RET
+            1, 0, 0,                # 00013 DEFB 1,0,0
+            6, 1,                   # 00016 DEFW 262
+            14, 14,                 # 00018 DEFS 2,14
+            33, 65, 66,             # 00020 DEFM "!AB"
+            1,                      # 00023 DEFB 1
+            175,                    # 00024 XOR A
+            2,                      # 00025 DEFB 2
+            175,                    # 00026 XOR A
+            3, 3,                   # 00027 DEFS 2,3
+            175,                    # 00029 XOR A
+            65,                     # 00030 DEFM "A"
+            175,                    # 00031 XOR A
+            0,                      # 00032 DEFB 0
+            175,                    # 00033 XOR A
+            4, 4,                   # 00034 DEFW 1028
+            175,                    # 00036 XOR A
+        ]
+        ctl = """
+            c 00000 Generated comments for instructions
+            N 00013 No generated comments for DEF* statements
+            B 00013
+            W 00016
+            S 00018
+            T 00020
+            b 00023 Generated comments for instructions in a 'b' block
+            C 00024
+            g 00025 Generated comments for instructions in a 'g' block
+            C 00026
+            s 00027 Generated comments for instructions in an 's' block
+            C 00029
+            t 00030 Generated comments for instructions in a 't' block
+            C 00031
+            u 00032 Generated comments for instructions in a 'u' block
+            C 00033
+            w 00034 Generated comments for instructions in a 'w' block
+            C 00036
+            i 00037
+        """
+        exp_skool = """
+            ; Generated comments for instructions
+            c00000 XOR A         ; #REGa=0
+             00001 LD C,A        ; #REGc=#REGa
+            *00002 OUT (254),A   ; Output #REGa to port #N(254,2,,1)($)
+             00004 XOR 16        ; #REGa^=#N(16,2,,1)($)
+             00006 LD B,C        ; #REGb=#REGc
+            *00007 DJNZ 7        ; Decrement #REGb and jump to #R7 if #REGb>0
+             00009 DEC C         ; #REGc-=1
+             00010 JR NZ,2       ; Jump to #R2 if the zero flag is not set
+             00012 RET           ; Return
+            ; No generated comments for DEF* statements
+             00013 DEFB 1,0,0    ;
+             00016 DEFW 262      ;
+             00018 DEFS 2,14     ;
+             00020 DEFM "!AB"    ;
+
+            ; Generated comments for instructions in a 'b' block
+            b00023 DEFB 1
+             00024 XOR A         ; #REGa=0
+
+            ; Generated comments for instructions in a 'g' block
+            g00025 DEFB 2
+             00026 XOR A         ; #REGa=0
+
+            ; Generated comments for instructions in an 's' block
+            s00027 DEFS 2,3
+             00029 XOR A         ; #REGa=0
+
+            ; Generated comments for instructions in a 't' block
+            t00030 DEFM "A"
+             00031 XOR A         ; #REGa=0
+
+            ; Generated comments for instructions in a 'u' block
+            u00032 DEFB 0
+             00033 XOR A         ; #REGa=0
+
+            ; Generated comments for instructions in a 'w' block
+            w00034 DEFW 1028
+             00036 XOR A         ; #REGa=0
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, comments=True)
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_comment_generator(self):
+        custom_cg = """
+            class CustomCommentGenerator:
+                def get_comment(self, address, values):
+                    hex_values = ''.join(f'{v:02X}' for v in values)
+                    return f'${address:04X}: {hex_values}'
+        """
+        self.write_component_config('CommentGenerator', '*.CustomCommentGenerator', custom_cg)
+        snapshot = [
+            1, 0, 0,                # 00000 LD BC,0
+            17, 1, 0,               # 00003 LD DE,1
+            33, 2, 0,               # 00006 LD HL,2
+            201,                    # 00009 RET
+        ]
+        ctl = """
+            c 00000
+            i 00010
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 LD BC,0       ; $0000: 010000
+             00003 LD DE,1       ; $0003: 110100
+             00006 LD HL,2       ; $0006: 210200
+             00009 RET           ; $0009: C9
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, comments=True)

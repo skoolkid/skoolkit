@@ -1095,6 +1095,7 @@ list::
                           which to read control files. PATH may be '-' for
                           standard input, or '0' to use no control file. This
                           option may be used multiple times.
+    -C, --comments        Generate instruction comments.
     -d SIZE, --defb SIZE  Disassemble as DEFB statements of this size.
     -e ADDR, --end ADDR   Stop disassembling at this address (default: 65536).
     -H, --hex             Write hexadecimal addresses and operands in the
@@ -1119,6 +1120,16 @@ to be a binary file.
 By default, any files whose names start with the input filename (minus the
 '.bin', '.sna', '.szx' or '.z80' suffix, if any) and end with '.ctl' will be
 used as :ref:`control files <controlFiles>`.
+
+There are three options and configuration parameters that control whether
+`sna2skool.py` generates a comment for an instruction that has no comment
+defined in a control file. They are mutually exclusive and operate in the
+following order:
+
+* the ``--comments`` option (uses the
+  :ref:`comment generator <commentGenerator>` component)
+* the ``Text`` configuration parameter (shows byte values as ASCII text)
+* the ``Timings`` configuration parameter (shows instruction timings)
 
 .. _sna2skool-conf:
 
@@ -1249,6 +1260,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.5     | Added the ``--comments`` option                                   |
++---------+-------------------------------------------------------------------+
 | 9.3     | Added the ``Opcodes`` configuration parameter                     |
 +---------+-------------------------------------------------------------------+
 | 8.7     | Added the ``--defb`` option and the ``Timings`` configuration     |

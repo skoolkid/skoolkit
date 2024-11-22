@@ -19,7 +19,7 @@ import re
 
 from skoolkit import (SkoolKitError, warn, write_line, wrap, parse_int,
                       get_address_format, format_template)
-from skoolkit.components import get_component, get_value
+from skoolkit.components import get_comment_generator, get_component, get_value
 from skoolkit.skoolasm import UDGTABLE_MARKER
 from skoolkit.skoolctl import (AD_BYTES, AD_LABEL, AD_REFS, TITLE, DESCRIPTION,
                                REGISTERS, MID_BLOCK, INSTRUCTION, END)
@@ -267,6 +267,10 @@ class Disassembly:
 
 class SkoolWriter:
     def __init__(self, snapshot, ctl_parser, options, config):
+        if options.comments:
+            self.comment_gen = get_comment_generator()
+        else:
+            self.comment_gen = None
         self.comment_width = max(options.line_width - 2, MIN_COMMENT_WIDTH)
         self.asm_hex = options.base == 16
         self.disassembly = Disassembly(snapshot, ctl_parser, config, self.asm_hex, options.case == 1)
@@ -389,6 +393,8 @@ class SkoolWriter:
                     instruction.comment[0] = block.comment.pop(0)[1]
                     while block.comment and block.comment[0][0]:
                         instruction.comment.append(block.comment.pop(0)[1])
+            elif self.comment_gen and not instruction.operation.upper().startswith('DEF'):
+                instruction.comment[0] = self.comment_gen.get_comment(instruction.address, instruction.bytes)
             elif show_text:
                 instruction.comment[0] = self.to_ascii(instruction.bytes)
             elif self.config['Timings']:

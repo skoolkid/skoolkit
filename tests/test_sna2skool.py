@@ -49,6 +49,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         snafile, options = run_args[:2]
         self.assertEqual(snafile, sna)
         self.assertEqual([], options.ctls)
+        self.assertFalse(options.comments)
         self.assertEqual(None, options.defb)
         self.assertEqual(options.base, 10)
         self.assertEqual(options.case, 2)
@@ -158,6 +159,16 @@ class Sna2SkoolTest(SkoolKitTestCase):
         for option in ('-V', '--version'):
             output, error = self.run_sna2skool(option, catch_exit=0)
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
+
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_C(self):
+        for option in ('-C', '--comments'):
+            output, error = self.run_sna2skool(f'{option} test.sna')
+            self.assertEqual(error, '')
+            self.assertTrue(mock_skool_writer.options.comments)
+            self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)

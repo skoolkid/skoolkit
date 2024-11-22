@@ -23,6 +23,9 @@ OPTIONS
   used, if present. If `PATH` is '-', standard input is used. If `PATH` is '0',
   no control file is used. This option may be used multiple times.
 
+-C, --comments
+  Generate instruction comments.
+
 -d, --defb `SIZE`
   Disassemble as DEFB statements of this size (instead of as code).
 
