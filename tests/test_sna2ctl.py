@@ -548,6 +548,18 @@ class Sna2CtlTest(SkoolKitTestCase):
         """
         self._test_generation(data, exp_ctl)
 
+    def test_config_Comments(self):
+        data = [
+            175,                    # 65534 XOR A
+            201,                    # 65535 RET
+        ]
+        exp_ctl = """
+            c 65534
+              65534 #REGa=0
+              65535 Return
+        """
+        self._test_generation(data, exp_ctl, options='-I Comments=1')
+
     def test_config_TextChars(self):
         data = [
             104, 101, 108, 108, 111, # 65526 DEFM "hello"
@@ -1086,6 +1098,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [sna2ctl]
+            Comments=0
             Dictionary=
             Hex=0
             TextChars=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ !"$%&'()*+,-./:;<=>?[]
@@ -1097,6 +1110,7 @@ class Sna2CtlTest(SkoolKitTestCase):
     def test_option_show_config_read_from_file(self):
         ini = """
             [sna2ctl]
+            Comments=1
             Dictionary=words.txt
             Hex=1
             TextChars=abcdefghijklmnopqrstuvwxyz
@@ -1108,6 +1122,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [sna2ctl]
+            Comments=1
             Dictionary=words.txt
             Hex=1
             TextChars=abcdefghijklmnopqrstuvwxyz

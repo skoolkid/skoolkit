@@ -57,7 +57,7 @@ def main(args):
     )
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-C', '--comments', action='store_true',
+    group.add_argument('-C', '--comments', action='store_const', const=1, default=config['Comments'],
                        help="Generate instruction comments.")
     group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=END,
                        help='Stop at this address (default={}).'.format(END))

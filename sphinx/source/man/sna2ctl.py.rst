@@ -63,6 +63,8 @@ CONFIGURATION
 the current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
+  :Comments: Generate instruction comments (``1``), or don't (``0``, the
+    default).
   :Dictionary: The name of a file containing a list of allowed words, one per
     line. If specified, a string of characters will be marked as text only if
     it contains at least one of the words in this file.

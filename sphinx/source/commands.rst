@@ -963,6 +963,8 @@ Configuration
 current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
+* ``Comments`` - generate instruction comments (``1``), or don't (``0``, the
+  default)
 * ``Dictionary`` - the name of a file containing a list of allowed words, one
   per line; if specified, a string of characters will be marked as text only if
   it contains at least one of the words in this file
@@ -991,7 +993,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.5     | Added the ``--comments`` option                                   |
+| 9.5     | Added the ``--comments`` option and the ``Comments``              |
+|         | configuration parameter                                           |
 +---------+-------------------------------------------------------------------+
 | 9.2     | Added support for reading code execution maps produced by         |
 |         | :ref:`rzxplay.py`                                                 |

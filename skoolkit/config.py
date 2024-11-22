@@ -38,6 +38,7 @@ COMMANDS = {
         'SnapshotReferenceOperations': 'DJ,JR,JP,CA,RS'
     },
     'sna2ctl' : {
+        'Comments': (0, 'comments'),
         'Dictionary': ('', ''),
         'Hex': (0, 'ctl_hex'),
         'TextChars': ('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ !"$%&\'()*+,-./:;<=>?[]', ''),
