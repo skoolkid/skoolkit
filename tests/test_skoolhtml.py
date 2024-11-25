@@ -1435,13 +1435,16 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def _assert_img_equals(self, html, alt, src):
         self.assertEqual(html, '<img alt="{0}" src="{1}" />'.format(alt, src))
 
-    def _assert_error(self, writer, text, error_msg=None, prefix=None, error=SkoolParsingError):
+    def _assert_error(self, writer, text, error_msg=None, prefix=None, func=None, error=SkoolParsingError):
         with self.assertRaises(error) as cm:
             writer.expand(text, ASMDIR)
         if error_msg is not None:
             if prefix:
                 error_msg = '{}: {}'.format(prefix, error_msg)
-            self.assertEqual(cm.exception.args[0], error_msg)
+            if func:
+                self.assertTrue(func(cm.exception.args[0], error_msg))
+            else:
+                self.assertEqual(cm.exception.args[0], error_msg)
 
     def _test_image_macro(self, snapshot, macros, path, udgs=None, scale=2, mask=0, tindex=0, alpha=-1,
                           x=0, y=0, width=None, height=None, ref=None, alt=None, base=0):

@@ -23,7 +23,7 @@ from string import Template
 
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
                       SkoolKitError, SkoolParsingError, CSimulator,
-                      CCMIOSimulator, eval_variable, evaluate)
+                      CCMIOSimulator, eval_variable, evaluate, get_object)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.graphics import Udg
 from skoolkit.simulator import Simulator
@@ -689,32 +689,54 @@ def parse_bank(writer, text, index, *cwd):
     return end, ''
 
 def parse_call(writer, text, index, *cwd):
-    # #CALL:methodName(args)
+    # #CALL(method(args))
+    # #CALL:method(args)
+    # #CALL([/path/to/moduledir:]module.func(args))
     macro = '#CALL'
+    method_name = m_args = None
     if index >= len(text):
         raise MacroParsingError("No parameters")
-    if text[index] != ':':
-        raise MacroParsingError("Malformed macro: {}{}...".format(macro, text[index]))
-
-    end = index + 1
-    match = RE_METHOD_NAME.match(text, end)
-    if match:
+    if text[index] == '(':
+        end, spec = parse_brackets(text, index)
+        p_end = end - 1
+        args_idx = spec.find('(')
+        if args_idx >= 0:
+            fspec = spec[:args_idx]
+            if not fspec:
+                raise MacroParsingError("No function name")
+            if '.' in fspec:
+                f = get_object(fspec)
+                if not callable(f):
+                    raise MacroParsingError(f"{fspec} is not callable")
+            else:
+                method_name = fspec
+            m_args = parse_brackets(spec, args_idx)[1]
+    elif text[index] == ':':
+        match = RE_METHOD_NAME.match(text, index + 1)
+        if not match:
+            raise MacroParsingError("No method name")
         method_name = match.group()
-        end += len(method_name)
+        end, m_args = parse_brackets(text, index + 1 + len(method_name))
+        p_end = end
     else:
-        raise MacroParsingError("No method name")
-    end, m_args = parse_brackets(text, end)
-
-    if not hasattr(writer, method_name):
-        writer.warn("Unknown method name in {} macro: {}".format(macro, method_name))
-        return end, ''
-    method = getattr(writer, method_name)
-    if not inspect.ismethod(method):
-        raise MacroParsingError("Uncallable method name: {}".format(method_name))
+        raise MacroParsingError(f"Malformed macro: {macro}{text[index]}...")
 
     if m_args is None:
-        raise MacroParsingError("No argument list specified: {}{}".format(macro, text[index:end]))
-    args = list(cwd)
+        raise MacroParsingError(f"No argument list specified: {macro}{text[index:end]}")
+
+    args = []
+    if method_name:
+        ftype = 'Method'
+        if not hasattr(writer, method_name):
+            writer.warn(f"Unknown method name in {macro} macro: {method_name}")
+            return end, ''
+        f = getattr(writer, method_name)
+        if not inspect.ismethod(f):
+            raise MacroParsingError(f"Uncallable method name: {method_name}")
+        args.extend(cwd)
+    else:
+        ftype = 'Function'
+
     kwargs = {}
     if m_args:
         for arg in _format_params(writer.expand(m_args), m_args, **writer.fields).split(','):
@@ -736,9 +758,9 @@ def parse_call(writer, text, index, *cwd):
                 args.append(value)
 
     try:
-        retval = method(*args, **kwargs)
+        retval = f(*args, **kwargs)
     except Exception as e:
-        raise MacroParsingError("Method call {} failed: {}".format(text[index + 1:end], e))
+        raise MacroParsingError(f"{ftype} call {text[index + 1:p_end]} failed: {e}")
     if retval is None:
         retval = ''
     return end, retval

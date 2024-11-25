@@ -1067,38 +1067,37 @@ in the skool file is expanded.
 
 #CALL
 -----
-In HTML mode, the ``#CALL`` macro expands to the return value of a method on
-the `HtmlWriter` class or subclass that is being used to create the HTML
-disassembly (as defined by the ``HtmlWriterClass`` parameter in the
-:ref:`ref-Config` section of the ref file).
+The ``#CALL`` macro expands to the return value of either a method on the
+`HtmlWriter` or `AsmWriter` object currently in use, or an arbitrary function.
+The macro takes one of the following forms::
 
-In ASM mode, the ``#CALL`` macro expands to the return value of a method on the
-`AsmWriter` class or subclass that is being used to generate the ASM output (as
-defined by the :ref:`writer` ASM directive in the skool file). ::
+  #CALL(method(args))
+  #CALL:method(args)
+  #CALL([/path/to/moduledir:]module.func(args))
 
-  #CALL:methodName(args)
-
-* ``methodName`` is the name of the method to call
-* ``args`` is a comma-separated list of arguments to pass to the method, which
-  may contain :ref:`replacement fields <replacementFields>`
-
-Each argument can be expressed either as a plain value (e.g. ``32768``) or as a
-keyword argument (e.g. ``address=32768``).
+In each form, ``args`` is a comma-separated list of arguments to pass to the
+method or function. The list may contain
+:ref:`replacement fields <replacementFields>`. Each argument can be expressed
+either as a plain value (e.g. ``32768``) or as a keyword argument (e.g.
+``address=32768``).
 
 For example::
 
-  ; The word at address 32768 is #CALL:word(32768).
+  ; The word at address 32768 is #CALL(word(32768)).
 
 This instance of the ``#CALL`` macro expands to the return value of the `word`
 method (on the `HtmlWriter` or `AsmWriter` subclass being used) when called
 with the argument ``32768``.
 
-For information on writing methods that may be called by a ``#CALL`` macro, see
-the documentation on :ref:`extending SkoolKit <extendingSkoolKit>`.
+For information on writing methods or functions that may be called by a
+``#CALL`` macro, see the documentation on
+:ref:`extending SkoolKit <extendingSkoolKit>`.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.5     | Added support for calling an arbitrary function                   |
++---------+-------------------------------------------------------------------+
 | 8.3     | Added support for replacement fields in the ``args`` parameter    |
 +---------+-------------------------------------------------------------------+
 | 8.1     | Added support for keyword arguments                               |

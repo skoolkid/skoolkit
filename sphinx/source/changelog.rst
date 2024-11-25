@@ -12,6 +12,7 @@ Changelog
   enable instruction comment generation)
 * :ref:`trace.py` now responds to keypresses while running with screen contents
   displayed
+* Added support to the :ref:`CALL` macro for calling an arbitrary function
 
 9.4 (2024-10-05)
 ----------------

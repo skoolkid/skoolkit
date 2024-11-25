@@ -146,6 +146,30 @@ With this method in place, it's possible to use a ``#CALL`` macro like this::
 Note that if the return value of a ``#CALL`` method contains skool macros, then
 they will be expanded.
 
+#CALL functions
+---------------
+The :ref:`CALL` macro can be used not only to call a method on an HtmlWriter or
+AsmWriter subclass, but also to call an arbitrary function. This approach might
+be preferable if you don't need to make use of any of the methods or attributes
+on the HtmlWriter/AsmWriter object, and the desired output is the same
+regardless of the output mode (HTML or ASM).
+
+Suppose you have the following string-reversing function defined in
+`mods/custom.py`:
+
+.. code-block:: python
+
+  def rev(s):
+      return s[::-1]
+
+Then you could call the **rev** function like this::
+
+  ; This string reversed is "#CALL(mods:custom.rev(#STR40000))".
+  t40000 DEFM "hello",0
+
+Note that unlike when calling a method on an HtmlWriter subclass, no `cwd`
+parameter is passed to the function.
+
 Skool macros
 ------------
 Another way to add a custom method is to implement it as a skool macro. The

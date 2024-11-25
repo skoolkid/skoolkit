@@ -76,13 +76,16 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         warnings = self._get_asm(skool, warn=True, **kwargs)[1]
         self.assertEqual(dedent(exp_warnings).strip(), warnings.rstrip())
 
-    def _assert_error(self, writer, text, error_msg=None, prefix=None):
+    def _assert_error(self, writer, text, error_msg=None, prefix=None, func=None):
         with self.assertRaises(SkoolParsingError) as cm:
             writer.expand(text)
         if error_msg is not None:
             if prefix:
                 error_msg = '{}: {}'.format(prefix, error_msg)
-            self.assertEqual(cm.exception.args[0], error_msg)
+            if func:
+                self.assertTrue(func(cm.exception.args[0], error_msg))
+            else:
+                self.assertEqual(cm.exception.args[0], error_msg)
 
     def _test_unsupported_macro(self, writer, text, error_msg=None):
         search = re.search('#[A-Z]+', text)
