@@ -1170,6 +1170,28 @@ class Sna2CtlTest(SkoolKitTestCase):
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
     @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_code_map_reader(self):
+        custom_map_reader = """
+            def read_map(fname, snapshot, start, end):
+                return ((65530, 2), (65534, 2))
+        """
+        self.write_component_config('CodeMapReader', '*', custom_map_reader)
+        data = (
+            0,   # 65530 NOP
+            201, # 65531 RET
+            0,   # 65532 NOP
+            0,   # 65533 NOP
+            0,   # 65534 NOP
+            201  # 65535 RET
+        )
+        exp_ctl = """
+            c 65530
+            s 65532
+            c 65534
+        """
+        self._test_generation(data, exp_ctl, options='-m code.map')
+
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_ctl_generator(self):
         custom_ctl_generator = """
             def generate_ctls(snapshot, start, end, code_map, config):

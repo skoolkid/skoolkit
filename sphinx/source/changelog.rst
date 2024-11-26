@@ -14,6 +14,7 @@ Changelog
   displayed
 * Added support to the :ref:`CALL` macro for calling an arbitrary function
 * Made the :ref:`audio writer <audioWriter>` a pluggable component
+* Made the :ref:`code map reader <codeMapReader>` a pluggable component
 
 9.4 (2024-10-05)
 ----------------

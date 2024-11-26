@@ -18,16 +18,29 @@ import sys
 import os
 
 from skoolkit import SkoolKitError, open_file, read_bin_file, write_line, get_address_format
-from skoolkit.components import get_comment_generator
+from skoolkit.components import get_comment_generator, get_component
 from skoolkit.ctlparser import CtlParser
 from skoolkit.opcodes import END, decode
 from skoolkit.skoolctl import AD_ORG, AD_START
 from skoolkit.snaskool import Disassembly
 
+# API (CodeMapReader)
 class CodeMapError(SkoolKitError):
-    pass
+    """Raised when an error occurs while reading a code map file."""
 
-def _get_code_blocks(snapshot, start, end, fname):
+# Component API
+def read_map(fname, snapshot, start, end):
+    """
+    Read a code map.
+
+    :param fname: The name of the code map file.
+    :param snapshot: The snapshot (list of 65536 byte values) corresponding to
+                     the code map.
+    :param start: The start address.
+    :param end: The end address.
+    :return: A list of 2-element sequences of the form ``(address, length)``
+             corresponding to the code blocks in *snapshot*.
+    """
     if os.path.isdir(fname):
         raise SkoolKitError('{0} is a directory'.format(fname))
     try:
@@ -191,7 +204,8 @@ def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
     # (1) Mark all executed blocks as 'c' and unexecuted blocks as 'U'
     # (unknown)
     ctls = {start: 'U', end: 'i'}
-    for address, length in _get_code_blocks(snapshot, start, end, code_map):
+    map_reader = get_component('CodeMapReader')
+    for address, length in map_reader.read_map(code_map, snapshot, start, end):
         ctls[address] = 'c'
         if address + length < end:
             ctls[address + length] = 'U'
