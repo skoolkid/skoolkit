@@ -5,7 +5,7 @@ from textwrap import dedent
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import trace, SkoolKitError, VERSION, CSimulator
+from skoolkit import SkoolKitError, VERSION, CSimulator, components, trace
 from skoolkit.config import COMMANDS
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import PC, IFF, IM, T
@@ -2761,7 +2761,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(s_banks[0][0], 0)
 
     @patch.object(trace, 'get_image_writer', MockImageWriter)
-    @patch.object(trace, 'AudioWriter', MockAudioWriter)
+    @patch.object(trace, 'get_audio_writer', MockAudioWriter)
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_write_multiple_files(self):
         data = [
@@ -2840,7 +2840,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(udgs[0][0].attr, 4)
         self.assertEqual(image_writer.fname, outfile)
 
-    @patch.object(trace, 'AudioWriter', MockAudioWriter)
+    @patch.object(trace, 'get_audio_writer', MockAudioWriter)
     def test_write_wav_48k(self):
         data = (
             0x0E, 0x0A,             # $8000 LD C,$0A
@@ -2866,7 +2866,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(exp_delays, audio_writer.delays)
         self.assertTrue(audio_writer.ma_filter)
 
-    @patch.object(trace, 'AudioWriter', MockAudioWriter)
+    @patch.object(trace, 'get_audio_writer', MockAudioWriter)
     def test_write_wav_128k(self):
         data = (
             0x0E, 0x0A,             # $8000 LD C,$0A
@@ -2894,7 +2894,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(exp_delays, audio_writer.delays)
         self.assertTrue(audio_writer.ma_filter)
 
-    @patch.object(trace, 'AudioWriter', MockAudioWriter)
+    @patch.object(trace, 'get_audio_writer', MockAudioWriter)
     def test_write_wav_no_audio(self):
         global audio_writer
         audio_writer = None
@@ -2906,6 +2906,37 @@ class TraceTest(SkoolKitTestCase):
             self.run_trace(f'-n -o {start} -S {stop} {infile} out.wav')
         self.assertEqual(cm.exception.args[0], 'No audio detected')
         self.assertIsNone(audio_writer)
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_audio_writer(self):
+        custom_audio_writer = f"""
+            class CustomAudioWriter:
+                def __init__(self, config):
+                    pass
+                def formats(self):
+                    return ('.wav',)
+                def write_audio(self, audio_file, delays, *args, **kwargs):
+                    audio_file.write(bytes(delays))
+        """
+        self.write_component_config('AudioWriter', '*.CustomAudioWriter', custom_audio_writer)
+        data = (
+            0xD3, 0xFE,             # $8000 OUT ($FE),A
+            0xEE, 0x10,             # $8002 XOR $10
+            0xD3, 0xFE,             # $8004 OUT ($FE),A
+            0xEE, 0x10,             # $8006 XOR $10
+            0xD3, 0xFE,             # $8008 OUT ($FE),A
+        )
+        infile = self.write_bin_file(data, suffix='.bin')
+        outfile = 'out.wav'
+        start = 32768
+        stop = start + len(data)
+        output, error = self.run_trace(f'-n -o {start} -S {stop} {infile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        with open(outfile, 'rb') as f:
+            self.assertEqual(f.read(), bytes((18, 18)))
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_write_z80_48k(self):

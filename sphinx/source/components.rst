@@ -6,6 +6,7 @@ SkoolKit components
 SkoolKit relies on several components in order to function:
 
 * :ref:`assembler`
+* :ref:`audioWriter`
 * :ref:`commentGenerator`
 * :ref:`ctlComposer`
 * :ref:`ctlGenerator`
@@ -31,6 +32,7 @@ or in `~/.skoolkit`. The default contents of this section are as follows::
 
   [skoolkit]
   Assembler=skoolkit.z80.Assembler
+  AudioWriter=skoolkit.audio.AudioWriter
   CommentGenerator=skoolkit.comment.CommentGenerator
   ControlDirectiveComposer=skoolkit.skoolctl.ControlDirectiveComposer
   ControlFileGenerator=skoolkit.snactl
@@ -66,6 +68,17 @@ must supply the following API functions, in common with skoolkit.z80.Assembler:
 
 .. autoclass:: skoolkit.z80.Assembler
    :members: assemble, get_size
+   :noindex:
+
+.. _audioWriter:
+
+Audio writer
+------------
+This class is responsible for writing audio files. It must supply the following
+API methods, in common with skoolkit.audio.AudioWriter:
+
+.. autoclass:: skoolkit.audio.AudioWriter
+   :members: formats, write_audio
    :noindex:
 
 .. _commentGenerator:

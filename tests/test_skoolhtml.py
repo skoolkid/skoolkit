@@ -242,7 +242,7 @@ class MockFileInfo:
         return True
 
     def add_audio(self, audio_path):
-        pass
+        self.files[audio_path] = self.files[audio_path].getvalue()
 
     def need_audio(self, audio_path):
         return True
@@ -314,7 +314,7 @@ class HtmlWriterTestCase(SkoolKitTestCase):
         if mock_image_writer:
             patch.object(skoolhtml, 'get_image_writer', TestImageWriter).start()
         if mock_audio_writer:
-            patch.object(skoolhtml, 'AudioWriter', TestAudioWriter).start()
+            patch.object(skoolhtml, 'get_audio_writer', TestAudioWriter).start()
         self.addCleanup(patch.stopall)
         writer = HtmlWriter(skool_parser, ref_parser, file_info)
         if mock_write_file:
@@ -11380,6 +11380,28 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         writer = self._get_writer(ref=ref)
         with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'this_will_not_work' in Custom template$"):
             writer.write_page(page_id)
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_audio_writer(self):
+        custom_audio_writer = """
+            class CustomAudioWriter:
+                def __init__(self, config):
+                    pass
+                def formats(self):
+                    return ('.wav',)
+                def write_audio(self, audio_file, delays, contention, interrupts, offset, ma_filter, is128k):
+                    audio_file.write(b'sound')
+        """
+        self.write_component_config('AudioWriter', '*.CustomAudioWriter', custom_audio_writer)
+        page_id = 'Sounds'
+        wavfile = 'sound.wav'
+        ref = f"""
+            [Page:{page_id}]
+            PageContent=#AUDIO({wavfile})(1,2)
+        """
+        writer = self._get_writer(ref=ref, mock_audio_writer=False, mock_file_info=True)
+        writer.write_page(page_id)
+        self.assertEqual(writer.file_info.files[f'audio/{wavfile}'], b'sound')
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_image_writer(self):

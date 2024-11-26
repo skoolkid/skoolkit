@@ -13,6 +13,7 @@ Changelog
 * :ref:`trace.py` now responds to keypresses while running with screen contents
   displayed
 * Added support to the :ref:`CALL` macro for calling an arbitrary function
+* Made the :ref:`audio writer <audioWriter>` a pluggable component
 
 9.4 (2024-10-05)
 ----------------

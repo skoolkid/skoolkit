@@ -27,8 +27,7 @@ import re
 from io import StringIO
 
 from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, evaluate, format_template, parse_int, warn
-from skoolkit.audio import AudioWriter
-from skoolkit.components import get_component, get_image_writer
+from skoolkit.components import get_audio_writer, get_component, get_image_writer
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.refparser import RefParser
@@ -106,7 +105,7 @@ class HtmlWriter:
         self.page_headers = self.get_dictionary('PageHeaders')
         links = self.get_dictionary('Links')
 
-        self.audio_writer = AudioWriter(self.get_dictionary('AudioWriter'))
+        self.audio_writer = get_audio_writer(self.get_dictionary('AudioWriter'))
         self.audio_formats = ['.' + f for f in self.game_vars['AudioFormats'].split(',')]
 
         self.page_ids = []

@@ -20,9 +20,9 @@ import time
 
 from skoolkit import (ROM48, VERSION, SkoolKitError, CSimulator,
                       CCMIOSimulator, get_int_param, integer, read_bin_file)
-from skoolkit.audio import CLOCK_SPEED, AudioWriter
+from skoolkit.audio import CLOCK_SPEED
 from skoolkit.cmiosimulator import CMIOSimulator
-from skoolkit.components import get_image_writer
+from skoolkit.components import get_audio_writer, get_image_writer
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.graphics import Frame, scr_udgs
 from skoolkit.pagingtracer import Memory, PagingTracer
@@ -311,7 +311,7 @@ def run(snafile, options, config):
         if ext == '.wav':
             delays = tracer.get_delays()
             if delays:
-                audio_writer = AudioWriter({CLOCK_SPEED: cpu_freq})
+                audio_writer = get_audio_writer({CLOCK_SPEED: cpu_freq})
                 with open(fname, 'wb') as f:
                     audio_writer.write_audio(f, delays, ma_filter=True)
             else:

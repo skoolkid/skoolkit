@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2022, 2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2014, 2022-2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -25,6 +25,13 @@ INTERRUPT_DELAY = 'InterruptDelay'
 SAMPLE_RATE = 'SampleRate'
 
 class AudioWriter:
+    """
+    Initialise the audio writer.
+
+    :param config: A dictionary constructed from the contents of the
+                   :ref:`ref-AudioWriter` section of the ref file.
+    """
+    # Component API
     def __init__(self, config=None):
         self.options = ({
             CLOCK_SPEED: 3500000,
@@ -50,7 +57,24 @@ class AudioWriter:
                 except ValueError:
                     pass
 
+    # Component API
     def write_audio(self, audio_file, delays, contention=False, interrupts=False, offset=0, ma_filter=False, is128k=False):
+        """
+        Write an audio file.
+
+        :param audio_file: The file object to write the audio to.
+        :param delays: A sequence of integers representing the intervals (in
+                       T-states) between speaker flips.
+        :param contention: Whether to simulate additional delays due to memory
+                           and I/O contention.
+        :param interrupts: Whether to simulate additional delays due to
+                           interrupts.
+        :param offset: The offset (in T-states) of the first speaker flip from
+                       the start of the frame. Used when simulating delays due
+                       to contention and interrupts.
+        :param ma_filter: Whether to apply a moving average filter.
+        :param is128k: Whether to use 128K timings.
+        """
         options = self.options[is128k]
         if contention or interrupts:
             self._add_contention(delays, contention, interrupts, offset, options)
@@ -60,7 +84,12 @@ class AudioWriter:
             samples = self._delays_to_samples(delays, options)
         self._write_wav(audio_file, samples, options)
 
+    # Component API
     def formats(self):
+        """
+        Return a sequence of filename extensions (including the '.')
+        corresponding to the audio formats supported by this writer.
+        """
         return ('.wav',)
 
     def _add_contention(self, delays, contention, interrupts, cycle, options):

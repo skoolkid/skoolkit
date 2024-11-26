@@ -23,6 +23,7 @@ from skoolkit.refparser import RefParser
 COMMANDS = {
     'skoolkit': {
         'Assembler': 'skoolkit.z80.Assembler',
+        'AudioWriter': 'skoolkit.audio.AudioWriter',
         'CommentGenerator': 'skoolkit.comment.CommentGenerator',
         'ControlDirectiveComposer': 'skoolkit.skoolctl.ControlDirectiveComposer',
         'ControlFileGenerator': 'skoolkit.snactl',

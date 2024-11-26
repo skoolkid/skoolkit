@@ -47,6 +47,9 @@ def get_component(name, *args):
 def get_assembler():
     return get_component('Assembler')
 
+def get_audio_writer(*args):
+    return get_component('AudioWriter', *args)
+
 def get_comment_generator():
     return get_component('CommentGenerator')
 
