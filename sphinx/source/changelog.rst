@@ -15,6 +15,9 @@ Changelog
 * Added support to the :ref:`CALL` macro for calling an arbitrary function
 * Made the :ref:`audio writer <audioWriter>` a pluggable component
 * Made the :ref:`code map reader <codeMapReader>` a pluggable component
+* Fixed the bug that prevents :ref:`skool2asm.py`, :ref:`skool2bin.py` and
+  :ref:`skool2html.py` from handling an instruction that crosses the 64K
+  boundary
 
 9.4 (2024-10-05)
 ----------------

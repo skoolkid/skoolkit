@@ -53,14 +53,14 @@ class Memory:
     def __getitem__(self, index):
         if isinstance(index, int):
             return self.memory[index // 0x4000][index % 0x4000]
-        return [self.memory[a // 0x4000][a % 0x4000] for a in range(index.start or 0, INDEX_STOP.get(index.stop, index.stop), index.step or 1)]
+        return [self.memory[(a % 0x10000) // 0x4000][a % 0x4000] for a in range(index.start or 0, INDEX_STOP.get(index.stop, index.stop), index.step or 1)]
 
     def __setitem__(self, index, value):
         if isinstance(index, int):
             self.memory[index // 0x4000][index % 0x4000] = value
         else:
             for a, b in zip(range(index.start or 0, INDEX_STOP.get(index.stop, index.stop), index.step or 1), value):
-                self.memory[a // 0x4000][a % 0x4000] = b
+                self.memory[(a % 0x10000) // 0x4000][a % 0x4000] = b
 
     def __len__(self):
         if None in self.banks:

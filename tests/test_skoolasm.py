@@ -2781,6 +2781,18 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm, asm_mode=5)
 
+    def test_instruction_crossing_64k_boundary(self):
+        skool = """
+            @start
+            ; Routine
+            c65535 LD B,0
+        """
+        exp_asm = """
+            ; Routine
+              LD B,0
+        """
+        self._test_asm(skool, exp_asm)
+
     def test_push_snapshot_keeps_original_in_place(self):
         writer = self._get_writer(snapshot=[0])
         snapshot = writer.snapshot

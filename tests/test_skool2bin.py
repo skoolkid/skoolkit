@@ -1129,6 +1129,14 @@ class BinWriterTest(BinWriterTestCase):
         """
         self._test_write(skool, 50000, exp_data, data=True, exp_output=exp_output)
 
+    def test_instruction_crossing_64k_boundary(self):
+        skool = """
+            ; Routine
+            c65535 LD B,1
+        """
+        exp_data = [6, 1]
+        self._test_write(skool, 65535, exp_data)
+
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_assembler(self):
         custom_assembler = """
