@@ -558,6 +558,120 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         self._test_z80(exp_output, header=header, compress=True, machine_id=4, pages=pages)
 
+    def test_z80v3_tc2048_uncompressed(self):
+        header = list(range(30)) + [0] * 56
+        header[6:8] = [0, 0] # Version 2+
+        header[29] &= 251 # Issue 2 emulation disabled
+        header[30] = 54 # Remaining header length (version 3)
+        header[32:34] = (0xCD, 0xAB) # PC
+        header[34] = 14 # TC2048
+        header[55:58] = [1, 2, 3] # T-states
+        exp_output = """
+            Version: 3
+            Machine: TC2048
+            Interrupts: enabled
+            Interrupt mode: 1
+            Issue 2 emulation: disabled
+            T-states: 16958
+            Border: 6
+            Registers:
+              PC  43981 ABCD    SP   2312 0908
+              IX   6681 1A19    IY   6167 1817
+              I      10   0A    R      11   0B
+              B       3   03    B'     16   10
+              C       2   02    C'     15   0F
+              BC    770 0302    BC'  4111 100F
+              D      14   0E    D'     18   12
+              E      13   0D    E'     17   11
+              DE   3597 0E0D    DE'  4625 1211
+              H       5   05    H'     20   14
+              L       4   04    L'     19   13
+              HL   1284 0504    HL'  5139 1413
+              A       0   00    A'     21   15
+                SZ5H3PNC           SZ5H3PNC
+              F 00000001        F' 00010110
+            RAM block 4 (32768-49151 8000-BFFF): 16384 bytes (uncompressed)
+            RAM block 5 (49152-65535 C000-FFFF): 16384 bytes (uncompressed)
+            RAM block 8 (16384-32767 4000-7FFF): 16384 bytes (uncompressed)
+        """
+        self._test_z80(exp_output, header=header)
+
+    def test_z80v3_tc2068_uncompressed(self):
+        header = list(range(30)) + [0] * 56
+        header[6:8] = [0, 0] # Version 2+
+        header[29] &= 251 # Issue 2 emulation disabled
+        header[30] = 54 # Remaining header length (version 3)
+        header[32:34] = (0xAD, 0xDE) # PC
+        header[34] = 15 # TC2068
+        header[55:58] = [3, 2, 1] # T-states
+        exp_output = """
+            Version: 3
+            Machine: TC2068
+            Interrupts: enabled
+            Interrupt mode: 1
+            Issue 2 emulation: disabled
+            T-states: 51900
+            Border: 6
+            Registers:
+              PC  57005 DEAD    SP   2312 0908
+              IX   6681 1A19    IY   6167 1817
+              I      10   0A    R      11   0B
+              B       3   03    B'     16   10
+              C       2   02    C'     15   0F
+              BC    770 0302    BC'  4111 100F
+              D      14   0E    D'     18   12
+              E      13   0D    E'     17   11
+              DE   3597 0E0D    DE'  4625 1211
+              H       5   05    H'     20   14
+              L       4   04    L'     19   13
+              HL   1284 0504    HL'  5139 1413
+              A       0   00    A'     21   15
+                SZ5H3PNC           SZ5H3PNC
+              F 00000001        F' 00010110
+            RAM block 4 (32768-49151 8000-BFFF): 16384 bytes (uncompressed)
+            RAM block 5 (49152-65535 C000-FFFF): 16384 bytes (uncompressed)
+            RAM block 8 (16384-32767 4000-7FFF): 16384 bytes (uncompressed)
+        """
+        self._test_z80(exp_output, header=header)
+
+    def test_z80v3_ts2068_uncompressed(self):
+        header = list(range(30)) + [0] * 56
+        header[6:8] = [0, 0] # Version 2+
+        header[29] &= 251 # Issue 2 emulation disabled
+        header[30] = 54 # Remaining header length (version 3)
+        header[32:34] = (0xEF, 0xBE) # PC
+        header[34] = 128 # TS2068
+        header[55:58] = [4, 3, 2] # T-states
+        exp_output = """
+            Version: 3
+            Machine: TS2068
+            Interrupts: enabled
+            Interrupt mode: 1
+            Issue 2 emulation: disabled
+            T-states: 69115
+            Border: 6
+            Registers:
+              PC  48879 BEEF    SP   2312 0908
+              IX   6681 1A19    IY   6167 1817
+              I      10   0A    R      11   0B
+              B       3   03    B'     16   10
+              C       2   02    C'     15   0F
+              BC    770 0302    BC'  4111 100F
+              D      14   0E    D'     18   12
+              E      13   0D    E'     17   11
+              DE   3597 0E0D    DE'  4625 1211
+              H       5   05    H'     20   14
+              L       4   04    L'     19   13
+              HL   1284 0504    HL'  5139 1413
+              A       0   00    A'     21   15
+                SZ5H3PNC           SZ5H3PNC
+              F 00000001        F' 00010110
+            RAM block 4 (32768-49151 8000-BFFF): 16384 bytes (uncompressed)
+            RAM block 5 (49152-65535 C000-FFFF): 16384 bytes (uncompressed)
+            RAM block 8 (16384-32767 4000-7FFF): 16384 bytes (uncompressed)
+        """
+        self._test_z80(exp_output, header=header)
+
     def test_szx_16k_uncompressed(self):
         registers = list(range(32, 58)) # Registers
         registers.extend((0, 0)) # IFF1, IFF2

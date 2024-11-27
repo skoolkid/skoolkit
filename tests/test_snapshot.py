@@ -203,6 +203,18 @@ class Z80Test(SnapshotTest):
         pages = {p: [p] * 16384 for p in (1, 3, 4, 6, 7)}
         self._test_z80(exp_ram, 3, False, machine_id=4, pages=pages, page=-1)
 
+    def test_z80v3_tc2048(self):
+        exp_ram = [(n + 16) & 255 for n in range(49152)]
+        self._test_z80(exp_ram, 3, False, machine_id=14)
+
+    def test_z80v3_tc2068(self):
+        exp_ram = [(n + 17) & 255 for n in range(49152)]
+        self._test_z80(exp_ram, 3, False, machine_id=15)
+
+    def test_z80v3_ts2068(self):
+        exp_ram = [(n + 18) & 255 for n in range(49152)]
+        self._test_z80(exp_ram, 3, False, machine_id=128)
+
     def test_z80v3_48k_compressed_block_ending_with_ED(self):
         exp_ram = [0] * 49152
         exp_ram[16383] = 237

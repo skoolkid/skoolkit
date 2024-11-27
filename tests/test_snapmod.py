@@ -654,6 +654,33 @@ class SnapmodTest(SkoolKitTestCase):
         options = '-s 7ffd=7 -s ay[0]=1 -s border=2 -s fffd=5 -s iff=1 -s im=2 -s issue2=1 -s tstates=51233'
         self._test_z80_128k(options, header, exp_header)
 
+    def test_option_s_z80_tc2048(self):
+        header = [0] * 86
+        header[30] = 54 # Version 3
+        header[34] = 14 # TC2048
+        exp_header = header[:]
+        exp_header[55:58] = (158, 4, 1) # T-states
+        options = '-s tstates=51233'
+        self._test_z80(options, header, exp_header)
+
+    def test_option_s_z80_tc2068(self):
+        header = [0] * 86
+        header[30] = 54 # Version 3
+        header[34] = 15 # TC2068
+        exp_header = header[:]
+        exp_header[55:58] = (3, 2, 1) # T-states
+        options = '-s tstates=51900'
+        self._test_z80(options, header, exp_header)
+
+    def test_option_s_z80_ts2068(self):
+        header = [0] * 86
+        header[30] = 54 # Version 3
+        header[34] = 128 # TS2068
+        exp_header = header[:]
+        exp_header[55:58] = (1, 2, 3) # T-states
+        options = '-s tstates=16958'
+        self._test_z80(options, header, exp_header)
+
     def test_option_s_szx_16k(self):
         state = {
             'border': 4,

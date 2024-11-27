@@ -484,7 +484,7 @@ class Z80(Snapshot):
             machine_id = (self.header[34], self.header[37] // 128)
             if i > 55:
                 # Version 3
-                frame_duration = FRAME_DURATIONS[self.header[34] > 3]
+                frame_duration = FRAME_DURATIONS[3 < self.header[34] < 14]
                 qframe_duration = frame_duration // 4
                 t1 = (self.header[55] + 256 * self.header[56]) % qframe_duration
                 t2 = (2 - self.header[57]) % 4
@@ -502,7 +502,7 @@ class Z80(Snapshot):
                     self.machine = '+2'
                 else:
                     self.machine = '128K'
-            if (i == 55 and machine_id[0] > 2) or (i > 55 and machine_id[0] > 3):
+            if (i == 55 and 2 < machine_id[0] < 14) or (i > 55 and 3 < machine_id[0] < 14):
                 page = data[35] % 8 # 128K
             while i < len(data):
                 length = data[i] + 256 * data[i + 1]
@@ -605,7 +605,7 @@ class Z80(Snapshot):
                     self.header[12] |= (get_int_param(val) & 7) * 2 # Border colour
                 elif name == 'tstates':
                     if len(self.header) > 58:
-                        frame_duration = FRAME_DURATIONS[self.header[34] > 3]
+                        frame_duration = FRAME_DURATIONS[3 < self.header[34] < 14]
                         qframe_duration = frame_duration // 4
                         t = frame_duration - 1 - (get_int_param(val) % frame_duration)
                         t1, t2 = t % qframe_duration, t // qframe_duration

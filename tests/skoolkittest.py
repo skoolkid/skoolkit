@@ -225,7 +225,7 @@ class Z80:
                 else:
                     banks[bank] = self._decompress_block(data[i + 3:i + 3 + length])
                 i += 3 + length
-            if (i == 55 and data[34] > 2) or (i > 55 and data[34] > 3):
+            if (i == 55 and 2 < data[34] < 14) or (i > 55 and 3 < data[34] < 14):
                 self.ram = banks[0] + banks[1] + banks[2] + banks[3] + banks[4] + banks[5] + banks[6] + banks[7]
             else:
                 self.ram = banks[5] + banks[1] + banks[2]
@@ -647,7 +647,7 @@ class SkoolKitTestCase(TestCase):
             else:
                 machine_id = header[34]
             banks = {5: ram[:16384]}
-            if (version == 2 and machine_id < 2) or (version == 3 and machine_id in (0, 1, 3)):
+            if (version == 2 and machine_id < 2) or (version == 3 and machine_id in (0, 1, 3)) or machine_id in (14, 15, 128):
                 # 16K/48K
                 model = 0 if modify else 1
                 banks[1] = ram[16384:32768]

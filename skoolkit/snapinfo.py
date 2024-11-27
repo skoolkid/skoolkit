@@ -143,7 +143,7 @@ def _analyse_z80(header, reg, ram_blocks):
     # Print version, machine, interrupt status, border, port $7FFD
     version = _get_z80_version(header)
     print('Version: {}'.format(version))
-    is128 = (version == 2 and header[34] > 1) or (version == 3 and header[34] not in (0, 1, 3))
+    is128 = (version == 2 and 2 < header[34] < 14) or (version == 3 and 3 < header[34] < 14)
     if is128:
         block_dict = BLOCK_ADDRESSES_128K
     else:
