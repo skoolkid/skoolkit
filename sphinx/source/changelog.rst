@@ -13,6 +13,8 @@ Changelog
 * :ref:`trace.py` now responds to keypresses while running with screen contents
   displayed
 * Added support to the :ref:`CALL` macro for calling an arbitrary function
+* The :ref:`REG` macro now always renders the IXh, IXl, IYh and IYl registers
+  with a lower case 'h' or 'l'
 * Made the :ref:`audio writer <audioWriter>` a pluggable component
 * Made the :ref:`code map reader <codeMapReader>` a pluggable component
 * Improved handling of TC2048, TC2068 and TS2068 Z80 snapshots

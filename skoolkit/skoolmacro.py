@@ -1294,7 +1294,7 @@ def parse_reg(get_reg, lower, text, index, *cwd):
             raise MacroParsingError('Missing register argument')
     if lower:
         return end, get_reg(reg.lower())
-    return end, get_reg(reg.upper())
+    return end, get_reg(reg.upper().replace('IXH', 'IXh').replace('IXL', 'IXl').replace('IYH', 'IYh').replace('IYL', 'IYl'))
 
 def parse_scr(text, index=0, fields=None):
     # #SCR[scale,x,y,w,h,df,af,tindex,alpha][{x,y,width,height}][(fname)]

@@ -6,6 +6,16 @@ from skoolkit.skoolparser import CASE_LOWER, CASE_UPPER
 
 ERROR_PREFIX = 'Error while parsing #{} macro'
 
+REG = (
+    ('a', 'A'), ('b', 'B'), ('c', 'C'), ('d', 'D'), ('e', 'E'), ('f', 'F'),
+    ('h', 'H'), ('l', 'L'), ("a'", "A'"), ("b'", "B'"), ("c'", "C'"),
+    ("d'", "D'"), ("e'", "E'"), ("f'", "F'"), ("h'", "H'"), ("l'", "L'"),
+    ('af', 'AF'), ('bc', 'BC'), ('de', 'DE'), ('hl', 'HL'), ("af'", "AF'"),
+    ("bc'", "BC'"), ("de'", "DE'"), ("hl'", "HL'"), ('ix', 'IX'), ('iy', 'IY'),
+    ('ixh', 'IXh'), ('iyh', 'IYh'), ('ixl', 'IXl'), ('iyl', 'IYl'), ('i', 'I'),
+    ('r', 'R'), ('sp', 'SP'), ('pc', 'PC')
+)
+
 def nest_macros(template, *values):
     nested_macros = ['#IF(#EVAL1)({})'.format(v) for v in values]
     return template.format(*nested_macros)
@@ -2005,35 +2015,50 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#RAW', 'No text parameter', prefix)
         self._assert_error(writer, '#RAW:unterminated', 'No terminating delimiter: :unterminated', prefix)
 
-    def test_macro_reg(self):
+    def test_macro_reg_default_case(self):
         writer = self._get_writer()
         template = '<span class="register">{}</span>' if isinstance(writer, HtmlWriter) else '{}'
+        for reg, reg_u in REG:
+            output = writer.expand(f'#REG{reg}')
+            self.assertEqual(output, template.format(reg_u))
 
-        # Upper case, all registers
-        for reg in ('a', 'b', 'c', 'd', 'e', 'f', 'h', 'l', "a'", "b'", "c'", "d'", "e'", "f'", "h'", "l'", 'af', 'bc', 'de', 'hl',
-                    "af'", "bc'", "de'", "hl'", 'ix', 'iy', 'ixh', 'iyh', 'ixl', 'iyl', 'i', 'r', 'sp', 'pc'):
-            output = writer.expand('#REG{}'.format(reg))
-            self.assertEqual(output, template.format(reg.upper()))
+    def test_macro_reg_upper_case(self):
+        writer = self._get_writer(case=CASE_UPPER)
+        template = '<span class="register">{}</span>' if isinstance(writer, HtmlWriter) else '{}'
+        for reg, reg_u in REG:
+            output = writer.expand(f'#REG{reg}')
+            self.assertEqual(output, template.format(reg_u))
 
-        # Nested macros
+    def test_macro_reg_lower_case(self):
+        writer = self._get_writer(case=CASE_LOWER)
+        template = '<span class="register">{}</span>' if isinstance(writer, HtmlWriter) else '{}'
+        for reg, reg_u in REG:
+            output = writer.expand(f'#REG{reg}')
+            self.assertEqual(output, template.format(reg))
+
+    def test_macro_reg_nested(self):
+        writer = self._get_writer()
+        template = '<span class="register">{}</span>' if isinstance(writer, HtmlWriter) else '{}'
         output = writer.expand(nest_macros('#REG#({})', 'hl'))
         self.assertEqual(output, template.format('HL'))
 
-        # Arbitrary text argument
+    def test_macro_reg_with_arbitrary_text_argument(self):
+        writer = self._get_writer()
+        template = '<span class="register">{}</span>' if isinstance(writer, HtmlWriter) else '{}'
         output = writer.expand("#REG(hlh'l')")
         self.assertEqual(output, template.format("HLH'L'"))
         output = writer.expand("#REG/hl(de)/")
         self.assertEqual(output, template.format("HL(DE)"))
+        output = writer.expand("#REG|ixh/iyh|")
+        self.assertEqual(output, template.format("IXh/IYh"))
 
-        # Lower case
+    def test_macro_reg_with_arbitrary_text_argument_lower_case(self):
         writer = self._get_writer(case=CASE_LOWER)
-        output = writer.expand('#REGhl')
-        self.assertEqual(output, template.format('hl'))
-
-        # Arbitrary text argument, lower case
-        writer = self._get_writer(case=CASE_LOWER)
+        template = '<span class="register">{}</span>' if isinstance(writer, HtmlWriter) else '{}'
         output = writer.expand("#REG[ded'e']")
         self.assertEqual(output, template.format("ded'e'"))
+        output = writer.expand("#REG:ixh/iyh:")
+        self.assertEqual(output, template.format("ixh/iyh"))
 
     def test_macro_reg_invalid(self):
         writer = self._get_writer()
