@@ -21,6 +21,7 @@ Changelog
 * Fixed the bug that prevents :ref:`skool2asm.py`, :ref:`skool2bin.py` and
   :ref:`skool2html.py` from handling an instruction that crosses the 64K
   boundary
+* Fixed how BIN expressions are evaluated in BASIC listings
 
 9.4 (2024-10-05)
 ----------------

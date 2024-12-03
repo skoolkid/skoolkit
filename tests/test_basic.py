@@ -199,6 +199,41 @@ class BasicListerTest(SkoolKitTestCase):
         ]
         self._test_basic(basic, exp_output)
 
+    def test_bin(self):
+        basic = []
+        exp_output = []
+        ln = 10
+        for n in range(16):
+            n_bin = f'{n:04b}'
+            length = 9 + len(n_bin)
+            basic.extend((ln // 256, ln % 256)) # Line number
+            basic.extend((length, 0))           # Line length
+            basic.extend((245, 196))            # PRINT BIN
+            basic.extend(ord(d) for d in n_bin) # Digits of 'n'
+            basic.extend((14, 0, 0, n, 0, 0))   # 'n' in floating point form
+            basic.append(13)                    # ENTER
+            exp_output.append(f'{ln:>4} PRINT BIN {n_bin}')
+            ln += 10
+        self._test_basic(basic, exp_output)
+
+    def test_bin_with_fake_floating_point_numbers(self):
+        basic = []
+        exp_output = []
+        ln = 10
+        for n in range(16):
+            m = n + 1
+            n_bin = f'{n:04b}'
+            length = 9 + len(n_bin)
+            basic.extend((ln // 256, ln % 256)) # Line number
+            basic.extend((length, 0))           # Line length
+            basic.extend((245, 196))            # PRINT BIN
+            basic.extend(ord(d) for d in n_bin) # Digits of 'n'
+            basic.extend((14, 0, 0, m, 0, 0))   # 'm' in floating point form
+            basic.append(13)                    # ENTER
+            exp_output.append(f'{ln:>4} PRINT BIN {n_bin}{{{m}}}')
+            ln += 10
+        self._test_basic(basic, exp_output)
+
     def test_non_ascii_characters(self):
         basic = [
             0, 10, 7, 0,              # Line 10, length

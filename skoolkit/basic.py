@@ -202,7 +202,7 @@ class BasicLister:
             code = self.snapshot[i]
             if code == 14:
                 if i + 5 < len(self.snapshot):
-                    line += self._get_fp_num(i)
+                    line += self._get_fp_num(line, i)
                     i += 6
                 else:
                     while i < len(self.snapshot):
@@ -219,14 +219,18 @@ class BasicLister:
                 i += 1
         return i + 1, line
 
-    def _get_fp_num(self, i):
+    def _get_fp_num(self, line, i):
         num_str = self._get_num_str(i - 1)
         if num_str:
             num = _get_number(self.snapshot, i + 1)
-            try:
-                str_val = float(num_str)
-            except ValueError:
-                return f'{{{num}}}'
+            re_bin = re.search('BIN +([01]+)$', line)
+            if re_bin:
+                str_val = int(re_bin.group(1), 2)
+            else:
+                try:
+                    str_val = float(num_str)
+                except ValueError:
+                    return f'{{{num}}}'
             if num:
                 delta = abs(1 - str_val / num)
             else:
