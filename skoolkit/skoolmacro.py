@@ -1128,20 +1128,27 @@ def parse_let(writer, text, index, *cwd):
     return end, ''
 
 def parse_link(text, index):
+    # #LINK(PageId[#name])(link text)
     # #LINK:PageId[#name](link text)
     macro = '#LINK'
     if index >= len(text):
         raise MacroParsingError("No parameters")
-    if text[index] != ':':
-        raise MacroParsingError("Malformed macro: {}{}...".format(macro, text[index]))
-    end = index + 1
-    page_id = None
-    match = RE_LINK_PARAMS.match(text, end)
-    if match:
-        page_id, sep, anchor = match.group().partition('#')
+    if text[index] == '(':
+        end, page = parse_brackets(text, index)
+        page_id, sep, anchor = page.partition('#')
         if sep:
             anchor = sep + anchor
-        end = match.end()
+    elif text[index] == ':':
+        end = index + 1
+        page_id = None
+        match = RE_LINK_PARAMS.match(text, end)
+        if match:
+            page_id, sep, anchor = match.group().partition('#')
+            if sep:
+                anchor = sep + anchor
+            end = match.end()
+    else:
+        raise MacroParsingError("Malformed macro: {}{}...".format(macro, text[index]))
     end, link_text = parse_brackets(text, end)
     if not page_id:
         raise MacroParsingError("No page ID: {}{}".format(macro, text[index:end]))

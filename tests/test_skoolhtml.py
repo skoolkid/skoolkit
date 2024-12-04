@@ -2547,34 +2547,31 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         """
         writer = self._get_writer(ref=ref)
 
-        link_text = 'bugs'
-        output = writer.expand('#LINK:Bugs({0})'.format(link_text), ASMDIR)
-        self._assert_link_equals(output, '../{0}/bugs.html'.format(REFERENCE_DIR), link_text)
-
-        link_text = 'pokes'
-        anchor = '#poke1'
-        output = writer.expand('#LINK:Pokes{0}({1})'.format(anchor, link_text), ASMDIR)
-        self._assert_link_equals(output, '../{0}/pokes.html{1}'.format(REFERENCE_DIR, anchor), link_text)
-
-        output = writer.expand('#LINK:page()', ASMDIR)
-        self._assert_link_equals(output, '../page.html', 'Custom page')
-
-        output = writer.expand('#LINK:page2#anchor~1()', ASMDIR)
-        self._assert_link_equals(output, '../page2.html#anchor~1', 'Custom page 2')
+        for page, link_text, href, exp_link_text in (
+                ('Bugs', 'bugs', f'../{REFERENCE_DIR}/bugs.html', None),
+                ('Pokes#poke1', 'pokes', f'../{REFERENCE_DIR}/pokes.html#poke1', None),
+                ('page', '', f'../page.html', 'Custom page'),
+                ('page2#anchor~1', '', f'../page2.html#anchor~1', 'Custom page 2'),
+        ):
+            for fmt in ('#LINK({})({})', '#LINK:{}({})'):
+                output = writer.expand(fmt.format(page, link_text), ASMDIR)
+                self._assert_link_equals(output, href, link_text or exp_link_text)
 
         link_text = 'test nested SMPL macros'
-        output = writer.expand(nest_macros('#LINK:page2({})', link_text), ASMDIR)
-        self._assert_link_equals(output, '../page2.html', link_text)
+        for fmt in ('#LINK({})({})', '#LINK:{}({})'):
+            output = writer.expand(nest_macros(fmt.format('page2', link_text), link_text), ASMDIR)
+            self._assert_link_equals(output, '../page2.html', link_text)
 
         anchor = 'testNestedSmplMacros'
         link_text = 'Testing2'
-        output = writer.expand(nest_macros('#LINK#(:page2#{{}})({})'.format(link_text), anchor), ASMDIR)
-        self._assert_link_equals(output, '../page2.html#{}'.format(anchor), link_text)
+        for fmt in ('#LINK#(({}#{{}}))({})', '#LINK#(:{}#{{}})({})'):
+            output = writer.expand(nest_macros(fmt.format('page2', link_text), anchor), ASMDIR)
+            self._assert_link_equals(output, f'../page2.html#{anchor}', link_text)
 
-        page_id = 'page2'
         link_text = 'Testing3'
-        output = writer.expand(nest_macros('#LINK#(:{{}})({})'.format(link_text), page_id), ASMDIR)
-        self._assert_link_equals(output, '../page2.html', link_text)
+        for fmt in ('#LINK#(({{}}))({})', '#LINK#(:{{}})({})'):
+            output = writer.expand(nest_macros(fmt.format(link_text), 'page2'), ASMDIR)
+            self._assert_link_equals(output, '../page2.html', link_text)
 
     def test_macro_link_to_memory_map_page(self):
         skool = """
@@ -2603,9 +2600,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             ('MemoryMap', 40001),
             ('CustomMap', 40002),
         ):
-            output = writer.expand('#LINK:{0}#{1}({1})'.format(page_id, address), ASMDIR)
-            exp_anchor = address_fmt.format(address=address)
-            self._assert_link_equals(output, '../maps/{}.html#{}'.format(page_id, exp_anchor), str(address))
+            for fmt in ('#LINK({0}#{1})({1})', '#LINK:{0}#{1}({1})'):
+                output = writer.expand(fmt.format(page_id, address), ASMDIR)
+                exp_anchor = address_fmt.format(address=address)
+                self._assert_link_equals(output, '../maps/{}.html#{}'.format(page_id, exp_anchor), str(address))
 
         # Anchor doesn't match an entry address - anchor should be unchanged
         for page_id, anchor in (
@@ -2616,8 +2614,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             ('MemoryMap', 'bar'),
             ('CustomMap', 'baz')
         ):
-            output = writer.expand('#LINK:{0}#{1}({1})'.format(page_id, anchor), ASMDIR)
-            self._assert_link_equals(output, '../maps/{}.html#{}'.format(page_id, anchor), anchor)
+            for fmt in ('#LINK({0}#{1})({1})', '#LINK:{0}#{1}({1})'):
+                output = writer.expand(fmt.format(page_id, anchor), ASMDIR)
+                self._assert_link_equals(output, '../maps/{}.html#{}'.format(page_id, anchor), anchor)
 
     def test_macro_link_to_memory_map_page_with_upper_case_hexadecimal_asm_anchor(self):
         skool = "c43981 RET"
@@ -2628,8 +2627,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             EntryTypes=c
         """
         writer = self._get_writer(skool=skool, ref=ref)
-        output = writer.expand('#LINK:MemoryMap#43981(ABCD)', ASMDIR)
-        self._assert_link_equals(output, '../maps/MemoryMap.html#ABCD', 'ABCD')
+        link_text = 'ABCD'
+        for fmt in ('#LINK({})({})', '#LINK:{}({})'):
+            output = writer.expand(fmt.format('MemoryMap#43981', link_text), ASMDIR)
+            self._assert_link_equals(output, '../maps/MemoryMap.html#ABCD', link_text)
 
     def test_macro_link_to_non_memory_map_page_with_entry_address_anchor(self):
         skool = 'c40000 RET'
@@ -2640,8 +2641,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             PageContent=Hello
         """
         writer = self._get_writer(skool=skool, ref=ref)
-        output = writer.expand('#LINK:CustomPage#40000(foo)', ASMDIR)
-        self._assert_link_equals(output, '../CustomPage.html#40000', 'foo')
+        link_text = 'foo'
+        for fmt in ('#LINK({})({})', '#LINK:{}({})'):
+            output = writer.expand(fmt.format('CustomPage#40000', link_text), ASMDIR)
+            self._assert_link_equals(output, '../CustomPage.html#40000', link_text)
 
     def test_macro_link_to_box_page_item_with_blank_link_text(self):
         ref = """
@@ -2651,12 +2654,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             This is item 1.
         """
         writer = self._get_writer(ref=ref)
-        output = writer.expand('#LINK:Boxes#item1()', ASMDIR)
-        self._assert_link_equals(output, '../Boxes.html#item1', 'Item 1')
+        for fmt in ('#LINK({})()', '#LINK:{}()'):
+            output = writer.expand(fmt.format('Boxes#item1'), ASMDIR)
+            self._assert_link_equals(output, '../Boxes.html#item1', 'Item 1')
 
     def test_macro_link_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_link_invalid(self)
         self._assert_error(writer, '#LINK:nonexistentPageID(text)', 'Unknown page ID: nonexistentPageID', prefix)
+        self._assert_error(writer, '#LINK(nonexistentPageID)(text)', 'Unknown page ID: nonexistentPageID', prefix)
 
     def test_macro_list(self):
         writer = self._get_writer(skool='c32768 RET')

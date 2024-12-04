@@ -1618,6 +1618,9 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#LINK:(text', 'No closing bracket: (text', prefix)
         self._assert_error(writer, '#LINKpageID', 'Malformed macro: #LINKp...', prefix)
         self._assert_error(writer, '#LINK:Bugs', 'No link text: #LINK:Bugs', prefix)
+        self._assert_error(writer, '#LINK(pageID', 'No closing bracket: (pageID', prefix)
+        self._assert_error(writer, '#LINK(pageID)', 'No link text: #LINK(pageID)', prefix)
+        self._assert_error(writer, '#LINK(pageID)(text', 'No closing bracket: (text', prefix)
 
         return writer, prefix
 

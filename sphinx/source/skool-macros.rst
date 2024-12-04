@@ -1272,6 +1272,10 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 In HTML mode, the ``#LINK`` macro expands to a hyperlink (``<a>`` element) to
 another page. ::
 
+  #LINK(PageId[#name])(link text)
+
+or::
+
   #LINK:PageId[#name](link text)
 
 * ``PageId`` is the ID of the page to link to
@@ -1290,7 +1294,7 @@ sections.
 
 For example::
 
-  ; See the #LINK:Glossary(glossary) for a definition of 'chuntey'.
+  ; See the #LINK(Glossary)(glossary) for a definition of 'chuntey'.
 
 In HTML mode, this instance of the ``#LINK`` macro expands to a hyperlink to
 the 'Glossary' page, with link text 'glossary'.
@@ -1300,7 +1304,7 @@ In ASM mode, this instance of the ``#LINK`` macro expands to 'glossary'.
 To create a hyperlink to an entry on a memory map page, use the address of the
 entry as the anchor. For example::
 
-  ; Now we update the #LINK:GameStatusBuffer#40000(number of lives).
+  ; Now we update the #LINK(GameStatusBuffer#40000)(number of lives).
 
 In HTML mode, the anchor of this ``#LINK`` macro (40000) is converted to the
 format specified by the ``AddressAnchor`` parameter in the :ref:`ref-Game`
@@ -1309,6 +1313,8 @@ section.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 9.5     | Added support for the ``#LINK(PageId[#name])(link text)`` syntax |
++---------+------------------------------------------------------------------+
 | 5.4     | When linking to an entry on a :ref:`box page <boxpages>`, the    |
 |         | link text, if left blank, defaults to the title of the entry (in |
 |         | HTML mode)                                                       |
