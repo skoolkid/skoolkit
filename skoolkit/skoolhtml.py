@@ -1063,8 +1063,8 @@ class HtmlWriter:
 
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index, self.fields)
-        message, addr, chars, attr, scale, tindex, alpha = params
-        udgs = font_udgs(self.snapshot, addr, attr, unescape(message)[:chars])
+        addr, attr, scale, tindex, alpha, message = params
+        udgs = font_udgs(self.snapshot, addr, attr, unescape(message))
         frame = Frame(udgs, scale, 0, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
         return end, self.handle_image(frame, fname, cwd, alt, 'FontImagePath')
 

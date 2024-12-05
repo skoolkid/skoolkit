@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2021, 2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -28,8 +28,8 @@ from skoolkit.skool2bin import BinWriter
 
 def _parse_font(snapshot, param_str):
     end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(param_str)
-    message, addr, chars, attr, scale, tindex, alpha = params
-    udgs = font_udgs(snapshot, addr, attr, message[:chars])
+    addr, attr, scale, tindex, alpha, message = params
+    udgs = font_udgs(snapshot, addr, attr, message)
     return Frame(udgs, scale, 0, *crop_rect, tindex=tindex, alpha=alpha)
 
 def _parse_scr(snapshot, param_str):

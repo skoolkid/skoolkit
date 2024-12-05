@@ -2064,13 +2064,18 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 In HTML mode, the ``#FONT`` macro expands to an ``<img>`` element for an image
 of text rendered in the game font. ::
 
+  #FONTaddr[,chars,attr,scale,tindex,alpha][(text)][{CROP}][(fname)]
+
+or::
+
   #FONT[:(text)]addr[,chars,attr,scale,tindex,alpha][{CROP}][(fname)]
 
 * ``text`` is the text to render (default: the 96 characters from code 32 to
   code 127)
 * ``addr`` is the base address of the font graphic data
 * ``chars`` is the number of characters to render (default: the length of
-  ``text``)
+  ``text``); in the first form of the macro, ``chars`` must be 0 if the
+  ``text`` parameter is present
 * ``attr`` is the attribute byte to use (default: 56)
 * ``scale`` is the scale of the image (default: 2)
 * ``tindex`` is the index (0-15) of the entry in the palette to use as the
@@ -2086,7 +2091,7 @@ For example::
 
   ; Font graphic data
   ;
-  ; #HTML[#FONT:(0123456789)49152]
+  ; #HTML[#FONT49152,0(0123456789)]
 
 In HTML mode, this instance of the ``#FONT`` macro expands to an ``<img>``
 element for the image of the digits 0-9 in the 8x8 font whose graphic data
@@ -2101,6 +2106,9 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 9.5     | Added support for the ``#FONTparams[(text)][{CROP}][(fname)]``   |
+|         | syntax                                                           |
++---------+------------------------------------------------------------------+
 | 8.3     | Added support for replacement fields in the integer parameters   |
 |         | and the cropping specification                                   |
 +---------+------------------------------------------------------------------+
@@ -2666,9 +2674,9 @@ them are optional, but recommended. Each frame specification has the form::
 For example::
 
   ; #UDGTABLE {
-  ; #FONT:(hello)$3D00(hello*) |
-  ; #FONT:(there)$3D00(there*) |
-  ; #FONT:(peeps)$3D00(peeps*) |
+  ; #FONT$3D00,0(hello)(hello*) |
+  ; #FONT$3D00,0(there)(there*) |
+  ; #FONT$3D00,0(peeps)(peeps*) |
   ; #UDGARRAY*(hello,50;there;peeps)(hello_there_peeps)
   ; } TABLE#
 

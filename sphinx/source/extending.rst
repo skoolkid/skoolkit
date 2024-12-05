@@ -277,6 +277,9 @@ to parse the parameters of a skool macro.
 .. autofunction:: skoolkit.skoolmacro.parse_image_macro
    :noindex:
 
+   .. versionchanged:: 9.5
+      Added the *extra* parameter.
+
    .. versionchanged:: 8.3
       Added the *fields* parameter.
 

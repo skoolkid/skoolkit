@@ -240,8 +240,9 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs = [[char1, char2]]
         scale = 2
         data = char1.data + char2.data
-        macro = '#FONT:({}){}'.format(text, font_addr)
-        self._test_sna2img(mock_open, '--expand {}'.format(macro), data, exp_udgs, scale, address=addr, ftype='sna')
+        for fmt in ('#FONT{},0({})', '#FONT:({1}){0}'):
+            macro = fmt.format(font_addr, text)
+            self._test_sna2img(mock_open, '--expand {}'.format(macro), data, exp_udgs, scale, address=addr, ftype='sna')
 
     def test_option_e_font_invalid_parameters(self):
         scrfile = self.write_bin_file(suffix='.scr')

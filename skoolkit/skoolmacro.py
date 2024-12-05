@@ -278,14 +278,16 @@ def parse_brackets(text, index=0, default=None, opening='(', closing=')'):
     return end, text[index + 1:end - 1]
 
 # API
-def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=None):
+def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=None, extra=None):
     """Parse a string of the form:
 
-    ``[params][{x,y,width,height}][(fname[*frame][|alt])]``
+    ``[params][xparams][{x,y,width,height}][(fname[*frame][|alt])]``
 
     The parameter string ``params`` may contain comma-separated integer values,
     and may optionally be enclosed in parentheses. Parentheses are *required*
     if any parameter is expressed using arithmetic operations or skool macros.
+    The extra parameter string ``xparams`` is parsed only if the parsing
+    function *extra* is specified.
 
     :param text: The text to parse.
     :param index: The index at which to start parsing.
@@ -296,6 +298,10 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=Non
                    fields named in this dictionary are replaced by their values
                    wherever they appear in ``params`` or
                    ``{x,y,width,height}``.
+    :param extra: A function that returns the result of parsing ``xparams``. It
+                  must accept three arguments: *text*, *index* and *params*,
+                  where *index* indicates where to start parsing, and *params*
+                  is a list of the parameter values from ``params``.
     :return: A tuple of the form
              ``(end, crop_rect, fname, frame, alt, values)``, where:
 
@@ -304,17 +310,22 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=Non
              * ``fname`` is the base name of the image file
              * ``frame`` is the frame name (`None` if no frame is specified)
              * ``alt`` is the alt text (`None` if no alt text is specified)
-             * ``values`` is a list of the parameter values
+             * ``values`` is a list of the parameter values, including the
+               value returned by *extra* (if specified)
     """
     try:
         result = parse_ints(text, index, defaults=defaults, names=names, fields=fields)
+        end = result.pop(0)
     except InvalidParameterError:
         if len(defaults) != len(names):
             raise
-        result = [index] + list(defaults)
-    end, crop_rect = _parse_crop_spec(text, result[0], fields)
+        end, result = index, list(defaults)
+    if extra:
+        end, xparams = extra(text, end, result)
+        result.append(xparams)
+    end, crop_rect = _parse_crop_spec(text, end, fields)
     end, fname, frame, alt = _parse_image_fname(text, end, fname)
-    return end, crop_rect, fname, frame, alt, result[1:]
+    return end, crop_rect, fname, frame, alt, result
 
 def _format_params(params, full_params, *args, **kwargs):
     try:
@@ -899,18 +910,28 @@ def parse_eval(fields, lower, text, index, *cwd):
         raise MacroParsingError("Invalid base ({}): {}".format(base, text[index:end]))
     return end, fmt.format(value, width)
 
+def _get_text(text, index, params):
+    if params[1] == 0:
+        return parse_strings(text, index, 1)
+    return index, None
+
 def parse_font(text, index=0, fields=None):
+    # #FONTaddr[,chars,attr,scale,tindex,alpha][(text)][{x,y,width,height}][(fname)]
     # #FONT[:(text)]addr[,chars,attr,scale,tindex,alpha][{x,y,width,height}][(fname)]
     if index < len(text) and text[index] == ':':
-        index, message = parse_strings(text, index + 1, 1)
+        end, message = parse_strings(text, index + 1, 1)
         if not message:
-            raise MacroParsingError("Empty message: {}".format(text[index - 2:index]))
+            raise MacroParsingError("Empty message: {}".format(text[index + 1:end]))
     else:
-        message = ''.join([chr(n) for n in range(32, 128)])
+        end, message = index, ''.join([chr(n) for n in range(32, 128)])
     names = ('addr', 'chars', 'attr', 'scale', 'tindex', 'alpha')
     defaults = (len(message), 56, 2, 0, -1)
-    end, crop_rect, fname, frame, alt, params = parse_image_macro(text, index, defaults, names, 'font', fields)
-    params.insert(0, message)
+    end, crop_rect, fname, frame, alt, params = parse_image_macro(text, end, defaults, names, 'font', fields, _get_text)
+    chars = params.pop(1)
+    if chars:
+        params[-1] = message[:chars]
+    if not params[-1]:
+        raise MacroParsingError(f'Empty message: {text[index:end]}')
     return end, crop_rect, fname, frame, alt, params
 
 def parse_for(fields, text, index, *cwd):
