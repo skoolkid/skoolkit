@@ -1,3 +1,4 @@
+import re
 import textwrap
 from unittest.mock import patch
 
@@ -262,14 +263,14 @@ class Bin2SnaTest(SkoolKitTestCase):
 
     def test_option_page_invalid(self):
         for option, exp_error in (
-                ('--page 8', "invalid choice: 8 (choose from 0, 1, 2, 3, 4, 5, 6, 7)"),
-                ('--page x', "invalid int value: 'x'")
+                ('--page 8', r"invalid choice: '?8'? \(choose from 0, 1, 2, 3, 4, 5, 6, 7\)$"),
+                ('--page x', "invalid int value: 'x'$")
         ):
             output, error = self.run_bin2sna(f'{option} in.bin', catch_exit=2)
             self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: bin2sna.py [options] file.bin [OUTFILE]\n'))
             line = error.rstrip().split('\n')[-1]
-            self.assertTrue(line.endswith('error: argument --page: ' + exp_error), line)
+            self.assertTrue(re.search('error: argument --page: ' + exp_error, line), line)
 
     @patch.object(bin2sna, 'run', mock_run)
     def test_options_p_stack(self):
