@@ -1270,6 +1270,21 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FORMAT({bad)(x)', 'Invalid format string: {bad', prefix)
         self._assert_error(writer, '#FORMAT0({bad)', 'Invalid format string: ({bad)', prefix)
 
+    def test_macro_frames_invalid(self):
+        writer = self._get_writer(snapshot=[0] * 8)
+        prefix = ERROR_PREFIX.format('FRAMES')
+
+        self._test_invalid_image_macro(writer, '#FRAMES()(img)', 'No frames specified: #FRAMES()(img)', prefix)
+        self._test_invalid_image_macro(writer, '#FRAMES(foo)', 'Missing filename: #FRAMES(foo)', prefix)
+        self._test_invalid_image_macro(writer, '#FRAMES(foo)()', 'Missing filename: #FRAMES(foo)()', prefix)
+        self._test_invalid_image_macro(writer, '#FRAMES(foo)(bar', 'No closing bracket: (bar', prefix)
+        self._test_invalid_image_macro(writer, '#FRAMES(foo(bar)', 'No closing bracket: (foo(bar)', prefix)
+        self._test_invalid_image_macro(writer, '#FRAMES(foo,(d,x))(bar', "Cannot parse integer 'd' in parameter string: 'd,x'", prefix)
+        self._test_invalid_image_macro(writer, '#FRAMES(foo,({no}))(bar', "Unrecognised field 'no': {no}", prefix)
+        self._test_invalid_image_macro(writer, '#FRAMES(foo,({bar))(bar', "Invalid format string: {bar", prefix)
+
+        return writer, prefix
+
     def test_macro_html_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('HTML')

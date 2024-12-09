@@ -2037,11 +2037,11 @@ For example::
 
   ; #UDGARRAY4(30000-30120-8)(*original)
   ; #COPY1,1,2,2(original,centre)
-  ; #UDGARRAY*centre(img)
+  ; #FRAMES(centre)(img)
 
 This instance of the ``#COPY`` macro creates a new frame from a copy of the
 central 2x2 portion of the 4x4 frame created by the ``#UDGARRAY`` macro.  The
-``#UDGARRAY*`` macro then creates an image of the new frame.
+``#FRAMES`` macro then creates an image of the new frame.
 
 The integer parameters and the cropping specification of the ``#COPY`` macro
 may contain :ref:`replacement fields <replacementFields>`.
@@ -2134,6 +2134,69 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 | 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts  |
 +---------+------------------------------------------------------------------+
 
+.. _FRAMES:
+
+#FRAMES
+-------
+In HTML mode, the ``#FRAMES`` macro expands to an ``<img>`` element for an
+image built from one or more frames already created by other image macros. ::
+
+  #FRAMES(FRAME1[;FRAME2;...])(fname)
+
+* ``FRAME1``, ``FRAME2`` etc. are frame specifications
+* ``fname`` is the name of the image file (see :ref:`Filenames`)
+
+Each frame specification has the form::
+
+  name[,delay,x,y]
+
+* ``name`` is the name of the frame
+* ``delay`` is the delay between this frame and the next in 1/100ths of a
+  second; it also sets the default delay for any frames that follow (default:
+  32)
+* ``x`` and ``y`` are the coordinates at which to render the frame, relative to
+  the top-left corner of the first frame (default: (0,0))
+
+To create a frame, use a :ref:`FONT`, :ref:`SCR`, :ref:`UDG`, :ref:`UDGARRAY`
+or :ref:`UDGS` macro with the ``fname`` parameter in one of the following
+forms:
+
+* ``name*`` - writes an image file with this name, and also creates a frame
+  with the same name
+* ``name1*name2`` - writes an image file named `name1`, and also creates a
+  frame named `name2`
+* ``*name`` - writes no image file, but creates a frame with this name
+
+For example::
+
+  ; #UDGTABLE {
+  ; #FONT$3D00,0(hello)(hello*) |
+  ; #FONT$3D00,0(there)(there*) |
+  ; #FONT$3D00,0(peeps)(peeps*) |
+  ; #FRAMES(hello,50;there;peeps)(hello_there_peeps)
+  ; } TABLE#
+
+The ``#FONT`` macros create the required frames (and write images of them); the
+``#FRAMES`` macro combines the three frames into a single animated image, with
+a delay of 0.5s between each frame.
+
+The integer parameters of a frame specification may contain
+:ref:`replacement fields <replacementFields>`.
+
+Note that the first frame of an animated image determines the size of the image
+as a whole. Therefore, the region defined by the width, height and coordinates
+of any subsequent frame must fall entirely inside the first frame.
+
+.. note::
+   The ``#FRAMES`` macro has the same syntax and function as the older
+   ``#UDGARRAY*`` macro, which is deprecated since version 9.5.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 9.5     | New     |
++---------+---------+
+
 .. _OVER:
 
 #OVER
@@ -2190,11 +2253,11 @@ For example::
   ; #UDGARRAY2(30000-30024-8)(*background)
   ; #UDG30032:30040(*object)
   ; #OVER0,1(background,object)
-  ; #UDGARRAY*background(image)
+  ; #FRAMES(background)(image)
 
 This instance of the ``#OVER`` macro superimposes the frame created by the
 ``#UDG`` macro at tile coordinates (0, 1) on the background frame created by
-the ``#UDGARRAY`` macro. The ``#UDGARRAY*`` macro then creates an image of the
+the ``#UDGARRAY`` macro. The ``#FRAMES`` macro then creates an image of the
 modified background frame.
 
 The integer parameters of the ``#OVER`` macro may contain
@@ -2227,11 +2290,11 @@ For example::
 
   ; #UDG30000(*tile)
   ; #PLOT1,2(tile)
-  ; #UDGARRAY*tile(tile)
+  ; #FRAMES(tile)(tile)
 
 This instance of the ``#PLOT`` macro sets the second pixel from the left in the
 third row from the top in the frame created by the ``#UDG`` macro. The
-``#UDGARRAY*`` macro then creates an image of the modified frame.
+``#FRAMES`` macro then creates an image of the modified frame.
 
 The integer parameters of the ``#PLOT`` macro may contain
 :ref:`replacement fields <replacementFields>`.
@@ -2610,7 +2673,7 @@ Filenames
 The ``fname`` parameter of the :ref:`FONT`, :ref:`SCR`, :ref:`UDG`,
 :ref:`UDGARRAY` and :ref:`UDGS` macros can be used to specify not only an image
 filename, but also its exact location, the ``alt`` attribute of the ``<img>``
-element, and a frame name (see :ref:`Animation`).
+element, and a frame name (see :ref:`FRAMES`).
 
 If ``fname`` contains an image path ID replacement field (e.g.
 ``{ScreenshotImagePath}/udgs``), the corresponding parameter value from the
@@ -2640,68 +2703,6 @@ example::
 
 This ``#SCR`` macro creates an image named `screenshot1.png` with alt text
 'Screenshot 1'.
-
-.. _Animation:
-
-Animation
----------
-The image macros may be used to create the frames of an animated image. To
-create a frame, the ``fname`` parameter must have one of the following forms:
-
-* ``name*`` - writes an image file with this name, and also creates a frame
-  with the same name
-* ``name1*name2`` - writes an image file named `name1`, and also creates a
-  frame named `name2`
-* ``*name`` - writes no image file, but creates a frame with this name
-
-Then a special form of the ``#UDGARRAY`` macro creates the animated image from
-a set of frames::
-
-  #UDGARRAY*(FRAME1[;FRAME2;...])(fname)
-
-``FRAME1``, ``FRAME2`` etc. are frame specifications. The parentheses around
-them are optional, but recommended. Each frame specification has the form::
-
-  name[,delay,x,y]
-
-* ``name`` is the name of the frame
-* ``delay`` is the delay between this frame and the next in 1/100ths of a
-  second; it also sets the default delay for any frames that follow (default:
-  32)
-* ``x`` and ``y`` are the coordinates at which to render the frame, relative to
-  the top-left corner of the first frame (default: (0,0))
-
-For example::
-
-  ; #UDGTABLE {
-  ; #FONT$3D00,0(hello)(hello*) |
-  ; #FONT$3D00,0(there)(there*) |
-  ; #FONT$3D00,0(peeps)(peeps*) |
-  ; #UDGARRAY*(hello,50;there;peeps)(hello_there_peeps)
-  ; } TABLE#
-
-The ``#FONT`` macros create the required frames (and write images of them); the
-``#UDGARRAY`` macro combines the three frames into a single animated image,
-with a delay of 0.5s between each frame.
-
-The integer parameters of a frame specification may contain
-:ref:`replacement fields <replacementFields>`.
-
-Note that the first frame of an animated image determines the size of the image
-as a whole. Therefore, the region defined by the width, height and coordinates
-of any subsequent frame must fall entirely inside the first frame.
-
-+---------+-------------------------------------------------------------------+
-| Version | Changes                                                           |
-+=========+===================================================================+
-| 8.6     | The frame specifications may be enclosed in parentheses           |
-+---------+-------------------------------------------------------------------+
-| 8.3     | Added the ``x`` and ``y`` parameters to the frame specification;  |
-|         | added support for replacement fields in the integer parameters of |
-|         | a frame specification                                             |
-+---------+-------------------------------------------------------------------+
-| 3.6     | New                                                               |
-+---------+-------------------------------------------------------------------+
 
 .. _cropping:
 

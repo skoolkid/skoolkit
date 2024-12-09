@@ -1068,6 +1068,10 @@ class HtmlWriter:
         frame = Frame(udgs, scale, 0, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
         return end, self.handle_image(frame, fname, cwd, alt, 'FontImagePath')
 
+    def expand_frames(self, text, index, cwd):
+        end, fname, alt, frames = skoolmacro.parse_frames(text, index, self.fields, self.frames)
+        return end, self.handle_image(frames, fname, cwd, alt, UDG_IMAGE_PATH)
+
     def expand_html(self, text, index, cwd):
         end, content = skoolmacro.parse_html(text, index)
         return end, unescape(content)

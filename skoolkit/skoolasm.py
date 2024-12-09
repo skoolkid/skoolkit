@@ -249,6 +249,11 @@ class AsmWriter:
             return skoolmacro.parse_font(text, index, self.fields)[0], ''
         raise skoolmacro.UnsupportedMacroError()
 
+    def expand_frames(self, text, index):
+        if self.handle_unsupported_macros:
+            return skoolmacro.parse_frames(text, index, self.fields)[0], ''
+        raise skoolmacro.UnsupportedMacroError()
+
     def expand_html(self, text, index):
         end, message = skoolmacro.parse_html(text, index)
         return end, ''

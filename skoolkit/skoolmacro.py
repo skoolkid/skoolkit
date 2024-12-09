@@ -1049,6 +1049,51 @@ def parse_format(fields, text, index, *cwd):
         return end, formatted.upper()
     return end, formatted
 
+def _parse_frame_specs(text, index, fields):
+    frame_specs = []
+    delay, x, y = 32, 0, 0
+    end = index
+    while end == index or (end < len(text) and text[end] == ';'):
+        end += 1
+        match = RE_FRAME_ID.match(text, end)
+        if match:
+            frame_id = match.group()
+            end += len(frame_id)
+            if end < len(text) and text[end] == ',':
+                end, delay, x, y = parse_ints(text, end + 1, defaults=(delay, 0, 0), names=('delay', 'x', 'y'), fields=fields)
+            frame_specs.append((frame_id, delay, x, y))
+    return end, frame_specs
+
+def _get_frames(frame_map, specs):
+    frames = []
+    if frame_map is not None:
+        for frame_id, delay, x_offset, y_offset in specs:
+            if frame_id not in frame_map:
+                raise MacroParsingError('No such frame: "{}"'.format(frame_id))
+            frame = frame_map[frame_id]
+            frame.delay, frame.x_offset, frame.y_offset = delay, x_offset, y_offset
+            if frames and (frame.width > frames[0].width or frame.height > frames[0].height):
+                raise MacroParsingError("Frame '{}' ({}x{}) is larger than the first frame ({}x{})".format(
+                    frame_id, frame.width, frame.height, frames[0].width, frames[0].height))
+            frames.append(frame)
+    return frames
+
+def parse_frames(text, index, fields, frame_map=None):
+    # #FRAMES(frame1[,delay,x,y];frame2[,delay,x,y];...)(fname)
+    end, params = parse_brackets(text, index)
+    frame_specs = _parse_frame_specs(params, -1, fields)[1]
+    end, fname = parse_brackets(text, end)
+
+    if not fname:
+        raise MacroParsingError(f'Missing filename: #FRAMES{text[index:end]}')
+    if not frame_specs:
+        raise MacroParsingError(f"No frames specified: #FRAMES{text[index:end]}")
+
+    alt = None
+    if '|' in fname:
+        fname, alt = fname.split('|', 1)
+    return end, fname, alt, _get_frames(frame_map, frame_specs)
+
 def parse_html(text, index):
     # #HTML(text)
     return parse_strings(text, index, 1)
@@ -1545,52 +1590,24 @@ def parse_udgarray(text, index, snapshot=None, req_fname=True, fields=None):
             raise MacroParsingError('Missing filename or frame ID: #UDGARRAY{}'.format(text[index:end]))
     return end, crop_rect, fname, frame, alt, (udg_array, scale, flip, rotate, mask, tindex, alpha)
 
-def _parse_frame_specs(text, index, fields):
-    params = []
-    delay, x, y = 32, 0, 0
-    end = index
-    while end == index or (end < len(text) and text[end] == ';'):
-        end += 1
-        match = RE_FRAME_ID.match(text, end)
-        if match:
-            frame_id = match.group()
-            end += len(frame_id)
-            if end < len(text) and text[end] == ',':
-                end, delay, x, y = parse_ints(text, end + 1, defaults=(delay, 0, 0), names=('delay', 'x', 'y'), fields=fields)
-            params.append((frame_id, delay, x, y))
-    return end, params
-
 def parse_udgarray_with_frames(text, index, fields, frame_map=None):
     # #UDGARRAY*frame1[,delay,x,y];frame2[,delay,x,y];...(fname)
     if text[index:].startswith('*('):
-        end, frame_specs = parse_brackets(text, index + 1)
-        params = _parse_frame_specs(frame_specs, -1, fields)[1]
+        end, params = parse_brackets(text, index + 1)
+        frame_specs = _parse_frame_specs(params, -1, fields)[1]
     else:
-        end, params = _parse_frame_specs(text, index, fields)
-
+        end, frame_specs = _parse_frame_specs(text, index, fields)
     end, fname = parse_brackets(text, end)
+
     if not fname:
-        raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
+        raise MacroParsingError(f'Missing filename: #UDGARRAY{text[index:end]}')
+    if not frame_specs:
+        raise MacroParsingError(f"No frames specified: #UDGARRAY{text[index:end]}")
+
     alt = None
     if '|' in fname:
         fname, alt = fname.split('|', 1)
-
-    if not params:
-        raise MacroParsingError("No frames specified: #UDGARRAY{}".format(text[index:end]))
-
-    frames = []
-    if frame_map is not None:
-        for frame_id, delay, x_offset, y_offset in params:
-            if frame_id not in frame_map:
-                raise MacroParsingError('No such frame: "{}"'.format(frame_id))
-            frame = frame_map[frame_id]
-            frame.delay, frame.x_offset, frame.y_offset = delay, x_offset, y_offset
-            if frames and (frame.width > frames[0].width or frame.height > frames[0].height):
-                raise MacroParsingError("Frame '{}' ({}x{}) is larger than the first frame ({}x{})".format(
-                    frame_id, frame.width, frame.height, frames[0].width, frames[0].height))
-            frames.append(frame)
-
-    return end, fname, alt, frames
+    return end, fname, alt, _get_frames(frame_map, frame_specs)
 
 def parse_udgs(writer, text, index, *cwd):
     # #UDGSwidth,height[,scale,flip,rotate,mask,tindex,alpha][{CROP}](fname)(uframe)
