@@ -278,7 +278,7 @@ to parse the parameters of a skool macro.
    :noindex:
 
    .. versionchanged:: 9.5
-      Added the *extra* parameter.
+      Added the *xparse* parameter.
 
    .. versionchanged:: 8.3
       Added the *fields* parameter.

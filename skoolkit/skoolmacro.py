@@ -278,7 +278,7 @@ def parse_brackets(text, index=0, default=None, opening='(', closing=')'):
     return end, text[index + 1:end - 1]
 
 # API
-def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=None, extra=None):
+def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=None, xparse=None):
     """Parse a string of the form:
 
     ``[params][xparams][{x,y,width,height}][(fname[*frame][|alt])]``
@@ -287,7 +287,7 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=Non
     and may optionally be enclosed in parentheses. Parentheses are *required*
     if any parameter is expressed using arithmetic operations or skool macros.
     The extra parameter string ``xparams`` is parsed only if the parsing
-    function *extra* is specified.
+    function *xparse* is specified.
 
     :param text: The text to parse.
     :param index: The index at which to start parsing.
@@ -298,10 +298,15 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=Non
                    fields named in this dictionary are replaced by their values
                    wherever they appear in ``params`` or
                    ``{x,y,width,height}``.
-    :param extra: A function that returns the result of parsing ``xparams``. It
-                  must accept three arguments: *text*, *index* and *params*,
-                  where *index* indicates where to start parsing, and *params*
-                  is a list of the parameter values from ``params``.
+    :param xparse: A function that can parse ``xparams``. It must accept four
+                   arguments: *text*, *index*, *fields* and *pvals*, where
+                   *text* and *fields* are the same as the arguments passed to
+                   **parse_image_macro**, *index* indicates where to start
+                   parsing *text*, and *pvals* is a list of the parameter
+                   values from ``params``. The return value must be of the form
+                   ``(end, xpvals)``, where ``end`` is the index at which
+                   parsing terminated, and ``xpvals`` is a list of the
+                   parameter values.
     :return: A tuple of the form
              ``(end, crop_rect, fname, frame, alt, values)``, where:
 
@@ -310,8 +315,8 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=Non
              * ``fname`` is the base name of the image file
              * ``frame`` is the frame name (`None` if no frame is specified)
              * ``alt`` is the alt text (`None` if no alt text is specified)
-             * ``values`` is a list of the parameter values, including the
-               value returned by *extra* (if specified)
+             * ``values`` is a list of the parameter values, including those
+               returned by *xparse* (if specified)
     """
     try:
         result = parse_ints(text, index, defaults=defaults, names=names, fields=fields)
@@ -320,9 +325,9 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=Non
         if len(defaults) != len(names):
             raise
         end, result = index, list(defaults)
-    if extra:
-        end, xparams = extra(text, end, result)
-        result.append(xparams)
+    if xparse:
+        end, xparams = xparse(text, end, fields, result)
+        result.extend(xparams)
     end, crop_rect = _parse_crop_spec(text, end, fields)
     end, fname, frame, alt = _parse_image_fname(text, end, fname)
     return end, crop_rect, fname, frame, alt, result
@@ -910,10 +915,12 @@ def parse_eval(fields, lower, text, index, *cwd):
         raise MacroParsingError("Invalid base ({}): {}".format(base, text[index:end]))
     return end, fmt.format(value, width)
 
-def _get_text(text, index, params):
-    if params[1] == 0:
-        return parse_strings(text, index, 1)
-    return index, None
+def _get_text(text, index, fields, pvals):
+    if pvals[1] == 0:
+        end, msg = parse_strings(text, index, 1)
+    else:
+        end, msg = index, None
+    return end, [msg]
 
 def parse_font(text, index=0, fields=None):
     # #FONTaddr[,chars,attr,scale,tindex,alpha][(text)][{x,y,width,height}][(fname)]
@@ -1492,19 +1499,19 @@ def parse_tstates(writer, text, index, *cwd):
         return end, str(lower)
     return end, Template(msg).safe_substitute(min=lower, max=higher)
 
+def _get_udg_mask(text, index, fields, pvals):
+    if index < len(text) and text[index] == ':':
+        end, mask_addr, mask_step = parse_ints(text, index + 1, defaults=(pvals[3],), names=('addr', 'step'), fields=fields)
+    else:
+        pvals[7] = 0 # Set mask=0
+        end, mask_addr, mask_step = index, None, None
+    return end, (mask_addr, mask_step)
+
 def parse_udg(text, index=0, fields=None):
     # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:addr[,step]][{x,y,width,height}][(fname)]
     names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask', 'tindex', 'alpha')
     defaults = (56, 4, 1, 0, 0, 0, 1, 0, -1)
-    end, addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha = parse_ints(text, index, defaults=defaults, names=names, fields=fields)
-    if end < len(text) and text[end] == ':':
-        end, mask_addr, mask_step = parse_ints(text, end + 1, defaults=(step,), names=('addr', 'step'), fields=fields)
-    else:
-        mask_addr = mask_step = None
-        mask = 0
-    end, crop_rect = _parse_crop_spec(text, end, fields)
-    end, fname, frame, alt = _parse_image_fname(text, end)
-    return end, crop_rect, fname, frame, alt, (addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha, mask_addr, mask_step)
+    return parse_image_macro(text, index, defaults, names, fields=fields, xparse=_get_udg_mask)
 
 def _parse_udg_specs(text, index, prefix, width, attr, step, inc, mask, snapshot, fields):
     end = index
