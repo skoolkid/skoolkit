@@ -278,7 +278,7 @@ def parse_brackets(text, index=0, default=None, opening='(', closing=')'):
     return end, text[index + 1:end - 1]
 
 # API
-def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=None, xparse=None):
+def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=None, xparse=None, xpargs=()):
     """Parse a string of the form:
 
     ``[params][xparams][{x,y,width,height}][(fname[*frame][|alt])]``
@@ -298,15 +298,16 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=Non
                    fields named in this dictionary are replaced by their values
                    wherever they appear in ``params`` or
                    ``{x,y,width,height}``.
-    :param xparse: A function that can parse ``xparams``. It must accept four
-                   arguments: *text*, *index*, *fields* and *pvals*, where
-                   *text* and *fields* are the same as the arguments passed to
+    :param xparse: A function that can parse ``xparams``. It must accept at
+                   least three arguments: *text*, *index* and *pvals*, where
+                   *text* is the same as the argument passed to
                    **parse_image_macro**, *index* indicates where to start
                    parsing *text*, and *pvals* is a list of the parameter
                    values from ``params``. The return value must be of the form
                    ``(end, xpvals)``, where ``end`` is the index at which
                    parsing terminated, and ``xpvals`` is a list of the
-                   parameter values.
+                   parameter values from ``xparams``.
+    :param xpargs: Additional arguments to pass to *xparse*.
     :return: A tuple of the form
              ``(end, crop_rect, fname, frame, alt, values)``, where:
 
@@ -326,7 +327,7 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=Non
             raise
         end, result = index, list(defaults)
     if xparse:
-        end, xparams = xparse(text, end, fields, result)
+        end, xparams = xparse(text, end, result, *xpargs)
         result.extend(xparams)
     end, crop_rect = _parse_crop_spec(text, end, fields)
     end, fname, frame, alt = _parse_image_fname(text, end, fname)
@@ -915,7 +916,7 @@ def parse_eval(fields, lower, text, index, *cwd):
         raise MacroParsingError("Invalid base ({}): {}".format(base, text[index:end]))
     return end, fmt.format(value, width)
 
-def _get_text(text, index, fields, pvals):
+def _get_text(text, index, pvals):
     if pvals[1] == 0:
         end, msg = parse_strings(text, index, 1)
     else:
@@ -1499,7 +1500,7 @@ def parse_tstates(writer, text, index, *cwd):
         return end, str(lower)
     return end, Template(msg).safe_substitute(min=lower, max=higher)
 
-def _get_udg_mask(text, index, fields, pvals):
+def _get_udg_mask(text, index, pvals, fields):
     if index < len(text) and text[index] == ':':
         end, mask_addr, mask_step = parse_ints(text, index + 1, defaults=(pvals[3],), names=('addr', 'step'), fields=fields)
     else:
@@ -1511,7 +1512,7 @@ def parse_udg(text, index=0, fields=None):
     # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:addr[,step]][{x,y,width,height}][(fname)]
     names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask', 'tindex', 'alpha')
     defaults = (56, 4, 1, 0, 0, 0, 1, 0, -1)
-    return parse_image_macro(text, index, defaults, names, fields=fields, xparse=_get_udg_mask)
+    return parse_image_macro(text, index, defaults, names, '', fields, _get_udg_mask, [fields])
 
 def _parse_udg_specs(text, index, prefix, width, attr, step, inc, mask, snapshot, fields):
     end = index
@@ -1554,32 +1555,28 @@ def _parse_udg_specs(text, index, prefix, width, attr, step, inc, mask, snapshot
 
     return end, udg_array, has_masks
 
-def parse_udgarray(text, index, snapshot=None, req_fname=True, fields=None):
-    # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha](addr[,attr,step,inc][:addr[,step]];...)[{x,y,width,height}](fname)
-    names = ('width', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask', 'tindex', 'alpha')
-    defaults = (56, 2, 1, 0, 0, 0, 1, 0, -1)
-    end, width, attr, scale, step, inc, flip, rotate, mask, tindex, alpha = parse_ints(text, index, defaults=defaults, names=names, fields=fields)
-
-    if end < len(text) and text[end] == '(':
-        prefix = text[index:end + 1]
-        end, udg_specs = parse_brackets(text, end)
+def _get_udgs(text, index, pvals, start, snapshot, fields):
+    width, attr, step, inc, mask = pvals[0], pvals[1], pvals[3], pvals[4], pvals[7]
+    if index < len(text) and text[index] == '(':
+        prefix = text[start:index + 1]
+        end, udg_specs = parse_brackets(text, index)
         udg_array, has_masks = _parse_udg_specs(udg_specs, -1, prefix, width, attr, step, inc, mask, snapshot, fields)[1:]
     else:
-        end, udg_array, has_masks = _parse_udg_specs(text, end, text[index:end], width, attr, step, inc, mask, snapshot, fields)
+        end, udg_array, has_masks = _parse_udg_specs(text, index, text[start:index], width, attr, step, inc, mask, snapshot, fields)
 
     if len(udg_array) > 1 and len(udg_array[-1]) < width:
         udg_array[-1].extend((FILL_UDG,) * (width - len(udg_array[-1])))
     if not has_masks:
-        mask = 0
+        pvals[7] = 0 # Set mask=0
 
     if end < len(text) and text[end] == '@':
         end, attr_addresses = parse_address_range(text, end + 1, width, fields)
         if attr_addresses is None:
-            raise MacroParsingError('Expected attribute address range specification: #UDGARRAY{}'.format(text[index:end]))
+            raise MacroParsingError(f'Expected attribute address range specification: #UDGARRAY{text[start:end]}')
         while end < len(text) and text[end] == ';':
             end, addresses = parse_address_range(text, end + 1, width, fields)
             if addresses is None:
-                raise MacroParsingError('Expected attribute address range specification: #UDGARRAY{}'.format(text[index:end]))
+                raise MacroParsingError(f'Expected attribute address range specification: #UDGARRAY{text[start:end]}')
             attr_addresses.extend(addresses)
         if snapshot:
             for i, attr_addr in enumerate(attr_addresses):
@@ -1588,13 +1585,19 @@ def parse_udgarray(text, index, snapshot=None, req_fname=True, fields=None):
                     break
                 udg_array[y][i % width].attr = snapshot[attr_addr & 65535]
 
-    end, crop_rect = _parse_crop_spec(text, end, fields)
-    end, fname, frame, alt = _parse_image_fname(text, end)
+    return end, [udg_array]
+
+def parse_udgarray(text, index, snapshot=None, req_fname=True, fields=None):
+    # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha](UDGS)[@ATTRS][{x,y,width,height}](fname)
+    names = ('width', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask', 'tindex', 'alpha')
+    defaults = (56, 2, 1, 0, 0, 0, 1, 0, -1)
+    end, crop_rect, fname, frame, alt, values = parse_image_macro(text, index, defaults, names, '', fields, _get_udgs, (index, snapshot, fields))
     if req_fname:
         if not fname and frame is None:
-            raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
+            raise MacroParsingError(f'Missing filename: #UDGARRAY{text[index:end]}')
         if not fname and not frame:
-            raise MacroParsingError('Missing filename or frame ID: #UDGARRAY{}'.format(text[index:end]))
+            raise MacroParsingError(f'Missing filename or frame ID: #UDGARRAY{text[index:end]}')
+    scale, flip, rotate, mask, tindex, alpha, udg_array = values[2], *values[5:]
     return end, crop_rect, fname, frame, alt, (udg_array, scale, flip, rotate, mask, tindex, alpha)
 
 def parse_udgarray_with_frames(text, index, fields, frame_map=None):
