@@ -122,7 +122,7 @@ With this method (and an appropriate implementation of the `build_sprite`
 method) in place, it's possible to use a ``#CALL`` macro like this::
 
   #UDGTABLE
-  { #CALL:sprite(3,jumping) }
+  { #CALL(sprite(3,jumping)) }
   { Sprite 3 (jumping) }
   TABLE#
 
@@ -141,7 +141,7 @@ this:
 
 With this method in place, it's possible to use a ``#CALL`` macro like this::
 
-  ; This ASM file was generated on #CALL:timestamp()
+  ; This ASM file was generated on #CALL(timestamp())
 
 Note that if the return value of a ``#CALL`` method contains skool macros, then
 they will be expanded.

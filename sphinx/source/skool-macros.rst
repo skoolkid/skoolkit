@@ -1069,14 +1069,13 @@ in the skool file is expanded.
 -----
 The ``#CALL`` macro expands to the return value of either a method on the
 `HtmlWriter` or `AsmWriter` object currently in use, or an arbitrary function.
-The macro takes one of the following forms::
+::
 
   #CALL(method(args))
-  #CALL:method(args)
   #CALL([/path/to/moduledir:]module.func(args))
 
-In each form, ``args`` is a comma-separated list of arguments to pass to the
-method or function. The list may contain
+In each form of the macro, ``args`` is a comma-separated list of arguments to
+pass to the method or function. The list may contain
 :ref:`replacement fields <replacementFields>`. Each argument can be expressed
 either as a plain value (e.g. ``32768``) or as a keyword argument (e.g.
 ``address=32768``).
@@ -1092,6 +1091,9 @@ with the argument ``32768``.
 For information on writing methods or functions that may be called by a
 ``#CALL`` macro, see the documentation on
 :ref:`extending SkoolKit <extendingSkoolKit>`.
+
+.. note::
+   The ``#CALL:method(args)`` syntax is deprecated since version 9.5.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
@@ -1274,10 +1276,6 @@ another page. ::
 
   #LINK(PageId[#name])(link text)
 
-or::
-
-  #LINK:PageId[#name](link text)
-
 * ``PageId`` is the ID of the page to link to
 * ``name`` is the name of an anchor on the page to link to
 * ``link text`` is the link text to use
@@ -1309,6 +1307,10 @@ entry as the anchor. For example::
 In HTML mode, the anchor of this ``#LINK`` macro (40000) is converted to the
 format specified by the ``AddressAnchor`` parameter in the :ref:`ref-Game`
 section.
+
+.. note::
+   The ``#LINK:PageId[#name](link text)`` syntax is deprecated since version
+   9.5.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -2066,15 +2068,8 @@ of text rendered in the game font. ::
 
   #FONTaddr[,chars,attr,scale,tindex,alpha][(text)][{CROP}][(fname)]
 
-or::
-
-  #FONT[:(text)]addr[,chars,attr,scale,tindex,alpha][{CROP}][(fname)]
-
-* ``text`` is the text to render (default: the 96 characters from code 32 to
-  code 127)
 * ``addr`` is the base address of the font graphic data
-* ``chars`` is the number of characters to render (default: the length of
-  ``text``); in the first form of the macro, ``chars`` must be 0 if the
+* ``chars`` is the number of characters to render (default: 96), or 0 if the
   ``text`` parameter is present
 * ``attr`` is the attribute byte to use (default: 56)
 * ``scale`` is the scale of the image (default: 2)
@@ -2083,6 +2078,8 @@ or::
 * ``alpha`` is the alpha value (0-255) to use for the transparent colour
   (default: the value of the ``PNGAlpha`` parameter in the
   :ref:`ref-ImageWriter` section)
+* ``text`` is the text to render (default: the 96 characters from code 32 to
+  code 127); if specified, ``chars`` must be 0
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (see :ref:`Filenames`; default:
   '`font`')
@@ -2102,6 +2099,10 @@ may contain :ref:`replacement fields <replacementFields>`.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``text`` parameter.
+
+.. note::
+   The ``#FONT:(text)params[{CROP}][(fname)]`` syntax is deprecated since
+   version 9.5.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -2490,9 +2491,7 @@ image of an array of UDGs (8x8 blocks of pixels). ::
 * ``fname`` is the name of the image file (see :ref:`Filenames`)
 
 ``SPEC1``, ``SPEC2`` etc. are UDG specifications for the sets of UDGs that make
-up the array. The parentheses around them are optional, but recommended. If the
-parentheses are omitted, ``SPEC1`` must be prefixed by a semicolon to separate
-it from the main parameters. Each UDG specification has the form::
+up the array. Each UDG specification has the form::
 
   addr[,attr,step,inc][:MASK]
 
@@ -2565,6 +2564,10 @@ specification and cropping specification of the ``#UDGARRAY`` macro may contain
 :ref:`replacement fields <replacementFields>`.
 
 See also :ref:`UDGS`.
+
+.. note::
+   Omitting the parentheses around the UDG specifications is deprecated since
+   version 9.5.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
