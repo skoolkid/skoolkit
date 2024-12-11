@@ -5463,13 +5463,15 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
                     }
                 }
                 PyObject* args = Py_BuildValue("(OIO)", scr, frame, keyboard);
-                i = PyObject_CallObject(draw, args);
+                PyObject* rv = PyObject_CallObject(draw, args);
                 Py_XDECREF(args);
                 Py_XDECREF(scr);
-                if (i == NULL) {
+                if (rv == NULL) {
                     return NULL;
                 }
-                if (!PyObject_IsTrue(i)) {
+                int quit = !PyObject_IsTrue(rv);
+                Py_DECREF(rv);
+                if (quit) {
                     return Py_BuildValue("(IL)", 0, operations);
                 }
                 prev_frame = frame;
