@@ -20,19 +20,19 @@ PREFIXES = (0xDD, 0xED, 0xFD)
 REGISTERS = ('#REGb', '#REGc', '#REGd', '#REGe', '#REGh', '#REGl', '(#REGhl)', '#REGa')
 BITS = tuple(tuple(b for b in range(8) if (n >> b) % 2) for n in range(256))
 
-ADD = '{}+={}'
-ADD_A = '#REGa+={}'
-ADC = '{}+=carry+{}'
-ADC_A = '#REGa+=carry+{}'
-AND = '#REGa&={}'
+ADD = '{0}={0}+{1}'
+ADD_A = '#REGa=#REGa+{}'
+ADC = '{0}={0}+carry+{1}'
+ADC_A = '#REGa=#REGa+carry+{}'
+AND = '#REGa=#REGa&{}'
 BIT = 'Set the zero flag if bit {} of {} is 0'
 CALL_cc = 'CALL #R{{}} if the {}'
 CP = 'Set the zero flag if #REGa={0}, or the carry flag if #REGa<{0}'
-DEC = '{}-=1'
+DEC = '{0}={0}-1'
 EX_SP = 'Exchange the last item on the stack with {}'
 IM = 'Set interrupt mode {}'
 IN_C = 'Read from port #REGbc into {}'
-INC = '{}+=1'
+INC = '{0}={0}+1'
 JP_cc = 'Jump to #R{{}} if the {}'
 JP_rr = 'Jump to #REG{}'
 JR_cc = 'Jump to #R{{}} if the {}'
@@ -41,7 +41,7 @@ LD_mm_rr = 'POKE {0},#REG{1}; POKE {0},#REG{2}'
 LD_rr_mm = '#REG{1}=PEEK {0}; #REG{2}=PEEK {0}'
 NEG = '#REGa=#N(256,2,,1)($)-#REGa'
 NOP = 'Do nothing'
-OR = '#REGa|={}'
+OR = '#REGa=#REGa|{}'
 OUT_C = 'Output {} to port #REGbc'
 POP = 'Pop last item from stack into #REG{}'
 PUSH = 'Push #REG{} onto the stack'
@@ -54,15 +54,15 @@ RLC = 'Rotate {} left circular (copying bit 7 into bit 0 and into the carry flag
 RR = 'Rotate {} right through the carry flag'
 RRC = 'Rotate {} right circular (copying bit 0 into bit 7 and into the carry flag)'
 RST = 'CALL #R{}'
-SBC = '{}-=carry+{}'
-SBC_A = '#REGa-=carry+{}'
+SBC = '{0}={0}-carry-{1}'
+SBC_A = '#REGa=#REGa-carry-{}'
 SET = 'Set bit {} of {}'
 SLA = 'Shift {} left (copying bit 7 into the carry flag, and resetting bit 0)'
 SLL = 'Shift {} left (copying bit 7 into the carry flag, and setting bit 0)'
 SRA = 'Shift {} right (copying bit 0 into the carry flag, and leaving bit 7 unchanged)'
 SRL = 'Shift {} right (copying bit 0 into the carry flag, and resetting bit 7)'
-SUB = '#REGa-={}'
-XOR = '#REGa^={}'
+SUB = '#REGa=#REGa-{}'
+XOR = '#REGa=#REGa^{}'
 
 class CommentGenerator:
     def __init__(self):
@@ -279,22 +279,22 @@ class CommentGenerator:
             0x73: (self.addr_arg, LD_mm_rr.format(WORD, 'sp-lo', 'sp-hi')),
             0x7A: (None, ADC.format('#REGhl', '#REGsp')),
             0x7B: (self.addr_arg, f'#REGsp=PEEK {WORD}+#N(256,2,,1)($)*PEEK {WORD}'),
-            0xA0: (None, 'POKE #REGde,PEEK #REGhl; #REGhl+=1; #REGde+=1; #REGbc-=1'),
-            0xA1: (None, 'Compare #REGa with PEEK #REGhl; #REGhl+=1; #REGbc-=1'),
-            0xA2: (None, 'POKE #REGhl,IN #REGbc; #REGhl+=1; #REGb-=1'),
-            0xA3: (None, '#REGb-=1; OUT #REGbc,PEEK #REGhl; #REGhl+=1'),
-            0xA8: (None, 'POKE #REGde,PEEK #REGhl; #REGhl-=1; #REGde-=1; #REGbc-=1'),
-            0xA9: (None, 'Compare #REGa with PEEK #REGhl; #REGhl-=1; #REGbc-=1'),
-            0xAA: (None, 'POKE #REGhl,IN #REGbc; #REGhl-=1; #REGb-=1'),
-            0xAB: (None, '#REGb-=1; OUT #REGbc,PEEK #REGhl; #REGhl-=1'),
-            0xB0: (None, 'POKE #REGde,PEEK #REGhl; #REGhl+=1; #REGde+=1; #REGbc-=1; repeat until #REGbc=0'),
-            0xB1: (None, 'Compare #REGa with PEEK #REGhl; #REGhl+=1; #REGbc-=1; repeat until #REGbc=0 or #REGa=PEEK #REGhl'),
-            0xB2: (None, 'POKE #REGhl,IN #REGbc; #REGhl+=1; #REGb-=1; repeat until #REGb=0'),
-            0xB3: (None, '#REGb-=1; OUT #REGbc,PEEK #REGhl; #REGhl+=1; repeat until #REGb=0'),
-            0xB8: (None, 'POKE #REGde,PEEK #REGhl; #REGhl-=1; #REGde-=1; #REGbc-=1; repeat until #REGbc=0'),
-            0xB9: (None, 'Compare #REGa with PEEK #REGhl; #REGhl-=1; #REGbc-=1; repeat until #REGbc=0 or #REGa=PEEK #REGhl'),
-            0xBA: (None, 'POKE #REGhl,IN #REGbc; #REGhl-=1; #REGb-=1; repeat until #REGb=0'),
-            0xBB: (None, '#REGb-=1; OUT #REGbc,PEEK #REGhl; #REGhl-=1; repeat until #REGb=0')
+            0xA0: (None, 'POKE #REGde,PEEK #REGhl; #REGhl=#REGhl+1; #REGde=#REGde+1; #REGbc=#REGbc-1'),
+            0xA1: (None, 'Compare #REGa with PEEK #REGhl; #REGhl=#REGhl+1; #REGbc=#REGbc-1'),
+            0xA2: (None, 'POKE #REGhl,IN #REGbc; #REGhl=#REGhl+1; #REGb=#REGb-1'),
+            0xA3: (None, '#REGb=#REGb-1; OUT #REGbc,PEEK #REGhl; #REGhl=#REGhl+1'),
+            0xA8: (None, 'POKE #REGde,PEEK #REGhl; #REGhl=#REGhl-1; #REGde=#REGde-1; #REGbc=#REGbc-1'),
+            0xA9: (None, 'Compare #REGa with PEEK #REGhl; #REGhl=#REGhl-1; #REGbc=#REGbc-1'),
+            0xAA: (None, 'POKE #REGhl,IN #REGbc; #REGhl=#REGhl-1; #REGb=#REGb-1'),
+            0xAB: (None, '#REGb=#REGb-1; OUT #REGbc,PEEK #REGhl; #REGhl=#REGhl-1'),
+            0xB0: (None, 'POKE #REGde,PEEK #REGhl; #REGhl=#REGhl+1; #REGde=#REGde+1; #REGbc=#REGbc-1; repeat until #REGbc=0'),
+            0xB1: (None, 'Compare #REGa with PEEK #REGhl; #REGhl=#REGhl+1; #REGbc=#REGbc-1; repeat until #REGbc=0 or #REGa=PEEK #REGhl'),
+            0xB2: (None, 'POKE #REGhl,IN #REGbc; #REGhl=#REGhl+1; #REGb=#REGb-1; repeat until #REGb=0'),
+            0xB3: (None, '#REGb=#REGb-1; OUT #REGbc,PEEK #REGhl; #REGhl=#REGhl+1; repeat until #REGb=0'),
+            0xB8: (None, 'POKE #REGde,PEEK #REGhl; #REGhl=#REGhl-1; #REGde=#REGde-1; #REGbc=#REGbc-1; repeat until #REGbc=0'),
+            0xB9: (None, 'Compare #REGa with PEEK #REGhl; #REGhl=#REGhl-1; #REGbc=#REGbc-1; repeat until #REGbc=0 or #REGa=PEEK #REGhl'),
+            0xBA: (None, 'POKE #REGhl,IN #REGbc; #REGhl=#REGhl-1; #REGb=#REGb-1; repeat until #REGb=0'),
+            0xBB: (None, '#REGb=#REGb-1; OUT #REGbc,PEEK #REGhl; #REGhl=#REGhl-1; repeat until #REGb=0')
         }
 
         self.after_CB = {}
