@@ -18,6 +18,7 @@ BYTE = '#N({0},2,,1)($)'
 WORD = '#N({},4,,1)($)'
 PREFIXES = (0xDD, 0xED, 0xFD)
 REGISTERS = ('#REGb', '#REGc', '#REGd', '#REGe', '#REGh', '#REGl', '(#REGhl)', '#REGa')
+BITS = tuple(tuple(b for b in range(8) if (n >> b) % 2) for n in range(256))
 
 ADD = '{}+={}'
 ADD_A = '#REGa+={}'
@@ -147,21 +148,21 @@ class CommentGenerator:
             0xE3: (None, EX_SP.format('#REGhl')),
             0xE4: (self.word_arg, CALL_cc.format('parity/overflow flag is not set (parity odd)')),
             0xE5: (None, PUSH.format('hl')),
-            0xE6: (self.byte_arg, AND.format(BYTE)),
+            0xE6: (self.and_n, None),
             0xE8: (None, RET_cc.format('parity/overflow flag is set (parity even)')),
             0xE9: (None, JP_rr.format('hl')),
             0xEA: (self.word_arg, JP_cc.format('parity/overflow flag is set (parity even)')),
             0xEB: (None, 'Exchange #REGde and #REGhl'),
             0xEC: (self.word_arg, CALL_cc.format('parity/overflow flag is set (parity even)')),
             0xED: (self.ed_arg, None),
-            0xEE: (self.byte_arg, XOR.format(BYTE)),
+            0xEE: (self.xor_n, None),
             0xF0: (None, RET_cc.format('sign flag is not set (positive)')),
             0xF1: (None, POP.format('af')),
             0xF2: (self.word_arg, JP_cc.format('sign flag is not set (positive)')),
             0xF3: (None, 'Disable interrupts'),
             0xF4: (self.word_arg, CALL_cc.format('sign flag is not set (positive)')),
             0xF5: (None, PUSH.format('af')),
-            0xF6: (self.byte_arg, OR.format(BYTE)),
+            0xF6: (self.or_n, None),
             0xF8: (None, RET_cc.format('sign flag is set (negative)')),
             0xF9: (None, LD.format('#REGsp', '#REGhl')),
             0xFA: (self.word_arg, JP_cc.format('sign flag is set (negative)')),
@@ -365,6 +366,45 @@ class CommentGenerator:
         if values[0] in PREFIXES:
             return template.format(values[2] + 256 * values[3])
         return template.format(values[1] + 256 * values[2])
+
+    def and_n(self, address, values):
+        bits = BITS[values[1]]
+        if len(bits) == 0:
+            return f'#REGa={BYTE}'.format(0)
+        if len(bits) == 1:
+            return f'Keep only bit {bits[0]} of #REGa'
+        if len(bits) < 5:
+            bits_str = ', '.join(str(b) for b in bits[:-1]) + f' and {bits[-1]}'
+            return f'Keep only bits {bits_str} of #REGa'
+        nbits = [b for b in range(8) if b not in bits]
+        if len(nbits) == 0:
+            return 'Set the zero flag if #REGa=0, and reset the carry flag'
+        if len(nbits) == 1:
+            return f'Reset bit {nbits[0]} of #REGa'
+        nbits_str = ', '.join(str(b) for b in nbits[:-1]) + f' and {nbits[-1]}'
+        return f'Reset bits {nbits_str} of #REGa'
+
+    def or_n(self, address, values):
+        bits = BITS[values[1]]
+        if len(bits) == 0:
+            return 'Set the zero flag if #REGa=0, and reset the carry flag'
+        if len(bits) == 1:
+            return f'Set bit {bits[0]} of #REGa'
+        if len(bits) < 8:
+            bits_str = ', '.join(str(b) for b in bits[:-1]) + f' and {bits[-1]}'
+            return f'Set bits {bits_str} of #REGa'
+        return f'#REGa={BYTE}'.format(255)
+
+    def xor_n(self, address, values):
+        bits = BITS[values[1]]
+        if len(bits) == 0:
+            return 'Set the zero flag if #REGa=0, and reset the carry flag'
+        if len(bits) == 1:
+            return f'Flip bit {bits[0]} of #REGa'
+        if len(bits) < 8:
+            bits_str = ', '.join(str(b) for b in bits[:-1]) + f' and {bits[-1]}'
+            return f'Flip bits {bits_str} of #REGa'
+        return 'Flip every bit of #REGa'
 
     def addr_arg(self, template, address, values):
         if values[0] in PREFIXES:

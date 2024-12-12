@@ -3,6 +3,7 @@ from skoolkit.comment import CommentGenerator
 
 IX_01 = '(#REGix+#N(1,2,,1)($))'
 IX_FF = '(#REGix-#N(1,2,,1)($))'
+BITS = tuple(tuple(b for b in range(8) if (n >> b) % 2) for n in range(256))
 
 RLC = 'Rotate {} left circular (copying bit 7 into bit 0 and into the carry flag)'
 RLC_r = 'Rotate {} left circular (copying bit 7 into bit 0 and into the carry flag) and copy the result to #REG{}'
@@ -255,14 +256,14 @@ INSTRUCTIONS = {
     'E3': "Exchange the last item on the stack with #REGhl",
     'E40000': "CALL #R0 if the parity/overflow flag is not set (parity odd)",
     'E5': "Push #REGhl onto the stack",
-    'E600': "#REGa&=#N(0,2,,1)($)",
+    'E600': "#REGa=#N(0,2,,1)($)",
     'E7': "CALL #R32",
     'E8': "Return if the parity/overflow flag is set (parity even)",
     'E9': "Jump to #REGhl",
     'EA0000': "Jump to #R0 if the parity/overflow flag is set (parity even)",
     'EB': "Exchange #REGde and #REGhl",
     'EC0000': "CALL #R0 if the parity/overflow flag is set (parity even)",
-    'EE00': "#REGa^=#N(0,2,,1)($)",
+    'EE00': "Set the zero flag if #REGa=0, and reset the carry flag",
     'EF': "CALL #R40",
     'F0': "Return if the sign flag is not set (positive)",
     'F1': "Pop last item from stack into #REGaf",
@@ -270,7 +271,7 @@ INSTRUCTIONS = {
     'F3': "Disable interrupts",
     'F40000': "CALL #R0 if the sign flag is not set (positive)",
     'F5': "Push #REGaf onto the stack",
-    'F600': "#REGa|=#N(0,2,,1)($)",
+    'F600': "Set the zero flag if #REGa=0, and reset the carry flag",
     'F7': "CALL #R48",
     'F8': "Return if the sign flag is set (negative)",
     'F9': "#REGsp=#REGhl",
@@ -979,3 +980,55 @@ class CommentGeneratorTest(SkoolKitTestCase):
             exp_comment = c.replace('ix', 'iy')
             values = [int(hex_bytes[i:i + 2], 16) for i in range(0, len(hex_bytes), 2)]
             self.assertEqual(cg.get_comment(0x8000, values), exp_comment)
+
+    def test_and_n(self):
+        cg = CommentGenerator()
+        for n in range(256):
+            bits = BITS[n]
+            if len(bits) == 0:
+                exp_comment = '#REGa=#N(0,2,,1)($)'
+            elif len(bits) == 1:
+                exp_comment = f'Keep only bit {bits[0]} of #REGa'
+            elif len(bits) < 5:
+                bits_str = ', '.join(str(b) for b in bits[:-1]) + f' and {bits[-1]}'
+                exp_comment = f'Keep only bits {bits_str} of #REGa'
+            else:
+                nbits = [b for b in range(8) if b not in bits]
+                if len(nbits) == 0:
+                    exp_comment = 'Set the zero flag if #REGa=0, and reset the carry flag'
+                elif len(nbits) == 1:
+                    exp_comment = f'Reset bit {nbits[0]} of #REGa'
+                else:
+                    nbits_str = ', '.join(str(b) for b in nbits[:-1]) + f' and {nbits[-1]}'
+                    exp_comment = f'Reset bits {nbits_str} of #REGa'
+            self.assertEqual(cg.get_comment(0x8000, (0xE6, n)), exp_comment)
+
+    def test_or_n(self):
+        cg = CommentGenerator()
+        for n in range(256):
+            bits = BITS[n]
+            if len(bits) == 0:
+                exp_comment = 'Set the zero flag if #REGa=0, and reset the carry flag'
+            elif len(bits) == 1:
+                exp_comment = f'Set bit {bits[0]} of #REGa'
+            elif len(bits) < 8:
+                bits_str = ', '.join(str(b) for b in bits[:-1]) + f' and {bits[-1]}'
+                exp_comment = f'Set bits {bits_str} of #REGa'
+            else:
+                exp_comment = '#REGa=#N(255,2,,1)($)'
+            self.assertEqual(cg.get_comment(0x8000, (0xF6, n)), exp_comment)
+
+    def test_xor_n(self):
+        cg = CommentGenerator()
+        for n in range(256):
+            bits = BITS[n]
+            if len(bits) == 0:
+                exp_comment = 'Set the zero flag if #REGa=0, and reset the carry flag'
+            elif len(bits) == 1:
+                exp_comment = f'Flip bit {bits[0]} of #REGa'
+            elif len(bits) < 8:
+                bits_str = ', '.join(str(b) for b in bits[:-1]) + f' and {bits[-1]}'
+                exp_comment = f'Flip bits {bits_str} of #REGa'
+            else:
+                exp_comment = 'Flip every bit of #REGa'
+            self.assertEqual(cg.get_comment(0x8000, (0xEE, n)), exp_comment)
