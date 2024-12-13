@@ -793,7 +793,7 @@ class Sna2CtlTest(SkoolKitTestCase):
             c 65523
               65523 #REGa=0
               65524 #REGc=#REGa
-              65525 Output #REGa to port #N(254,2,,1)($)
+              65525 OUT #N(254,2,,1)($),#REGa
               65527 Flip bit 4 of #REGa
               65529 #REGb=#REGc
               65530 Decrement #REGb and jump to #R65530 if #REGb>0

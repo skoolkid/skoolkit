@@ -31,7 +31,7 @@ CP = 'Set the zero flag if #REGa={0}, or the carry flag if #REGa<{0}'
 DEC = '{0}={0}-1'
 EX_SP = 'Exchange the last item on the stack with {}'
 IM = 'Set interrupt mode {}'
-IN_C = 'Read from port #REGbc into {}'
+IN = '{}=IN {}'
 INC = '{0}={0}+1'
 JP_cc = 'Jump to #R{{}} if the {}'
 JP_rr = 'Jump to #REG{}'
@@ -42,7 +42,7 @@ LD_rr_mm = '#REG{1}=PEEK {0}; #REG{2}=PEEK {0}'
 NEG = '#REGa=#N(256,2,,1)($)-#REGa'
 NOP = 'Do nothing'
 OR = '#REGa=#REGa|{}'
-OUT_C = 'Output {} to port #REGbc'
+OUT = 'OUT {},{}'
 POP = 'Pop last item from stack into #REG{}'
 PUSH = 'Push #REG{} onto the stack'
 RES = 'Reset bit {} of {}'
@@ -131,14 +131,14 @@ class CommentGenerator:
             0xD0: (None, RET_cc.format('carry flag is not set')),
             0xD1: (None, POP.format('de')),
             0xD2: (self.word_arg, JP_cc.format('carry flag is not set')),
-            0xD3: (self.byte_arg, f'Output #REGa to port {BYTE}'),
+            0xD3: (self.byte_arg, OUT.format(BYTE, '#REGa')),
             0xD4: (self.word_arg, CALL_cc.format('carry flag is not set')),
             0xD5: (None, PUSH.format('de')),
             0xD6: (self.byte_arg, SUB.format(BYTE)),
             0xD8: (None, RET_cc.format('carry flag is set')),
             0xD9: (None, "Exchange #REGbc, #REGde and #REGhl with #REGbc', #REGde' and #REGhl'"),
             0xDA: (self.word_arg, JP_cc.format('carry flag is set')),
-            0xDB: (self.byte_arg, f'Read from port {BYTE} into #REGa'),
+            0xDB: (self.byte_arg, IN.format('#REGa', f'(#N(256,,,1)($)*#REGa+{BYTE})')),
             0xDC: (self.word_arg, CALL_cc.format('carry flag is set')),
             0xDD: (self.dd_arg, None),
             0xDE: (self.byte_arg, SBC_A.format(BYTE)),
@@ -274,7 +274,7 @@ class CommentGenerator:
             0x6B: (self.addr_arg, LD_rr_mm.format(WORD, 'l', 'h')),
             0x6F: (None, 'Rotate the low nibble of #REGa and all of (#REGhl) left 4 bits'),
             0x70: (None, 'Read from port #REGbc and set flags accordingly'),
-            0x71: (None, OUT_C.format(0)),
+            0x71: (None, OUT.format('#REGbc', 0)),
             0x72: (None, SBC.format('#REGhl', '#REGsp')),
             0x73: (self.addr_arg, LD_mm_rr.format(WORD, 'sp-lo', 'sp-hi')),
             0x7A: (None, ADC.format('#REGhl', '#REGsp')),
@@ -333,8 +333,8 @@ class CommentGenerator:
             self.ops[0xC7 + 8 * i] = (None, RST.format(8 * i))
             if i != 6:
                 self.after_DD[0x70 + i] = (self.index, f'POKE {{ixd}},{r}')
-                self.after_ED[0x40 + 8 * i] = (None, IN_C.format(r))
-                self.after_ED[0x41 + 8 * i] = (None, OUT_C.format(r))
+                self.after_ED[0x40 + 8 * i] = (None, IN.format(r, '#REGbc'))
+                self.after_ED[0x41 + 8 * i] = (None, OUT.format('#REGbc', r))
             self.after_ED[0x44 + 8 * i] = (None, NEG)
             self.after_ED[0x45 + 8 * i] = (None, (RETN, RETI)[i == 1])
             self.after_ED[0x46 + 8 * i] = (None, IM.format((0, 0, 1, 2)[i % 4]))

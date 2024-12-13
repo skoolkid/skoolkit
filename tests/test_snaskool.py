@@ -5284,7 +5284,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Generated comments for instructions
             c00000 XOR A         ; #REGa=0
              00001 LD C,A        ; #REGc=#REGa
-            *00002 OUT (254),A   ; Output #REGa to port #N(254,2,,1)($)
+            *00002 OUT (254),A   ; OUT #N(254,2,,1)($),#REGa
              00004 XOR 16        ; Flip bit 4 of #REGa
              00006 LD B,C        ; #REGb=#REGc
             *00007 DJNZ 7        ; Decrement #REGb and jump to #R7 if #REGb>0
