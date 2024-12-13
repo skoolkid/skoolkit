@@ -73,8 +73,9 @@ if pygame: # pragma: no cover
         (pygame.K_j, 6, 0b01000),
         (pygame.K_k, 6, 0b00100),
         (pygame.K_l, 6, 0b00010),
-        (pygame.K_RETURN, 6, 0b00001), # ENTER
-        (pygame.K_LSHIFT, 0, 0b00001), # CAPS SHIFT
+        (pygame.K_RETURN, 6, 0b00001),      # ENTER
+        (pygame.K_KP_ENTER, 6, 0b00001),    # ENTER
+        (pygame.K_LSHIFT, 0, 0b00001),      # CAPS SHIFT
         (pygame.K_z, 0, 0b00010),
         (pygame.K_x, 0, 0b00100),
         (pygame.K_c, 0, 0b01000),
@@ -82,8 +83,31 @@ if pygame: # pragma: no cover
         (pygame.K_b, 7, 0b10000),
         (pygame.K_n, 7, 0b01000),
         (pygame.K_m, 7, 0b00100),
-        (pygame.K_LCTRL, 7, 0b00010),  # SYMBOL SHIFT
+        (pygame.K_LCTRL, 7, 0b00010),       # SYMBOL SHIFT
         (pygame.K_SPACE, 7, 0b00001),
+    )
+
+    CS_KEYS = (
+        (pygame.K_BACKSPACE, 4, 0b00001),   # CAPS SHIFT + 0
+        (pygame.K_LEFT, 3, 0b10000),        # CAPS SHIFT + 5
+        (pygame.K_DOWN, 4, 0b10000),        # CAPS SHIFT + 6
+        (pygame.K_UP, 4, 0b01000),          # CAPS SHIFT + 7
+        (pygame.K_RIGHT, 4, 0b00100),       # CAPS SHIFT + 8
+    )
+
+    SS_KEYS = (
+        (pygame.K_QUOTE, 4, 0b01000),       # SYMBOL SHIFT + 7
+        (pygame.K_SEMICOLON, 5, 0b00010),   # SYMBOL SHIFT + O
+        (pygame.K_MINUS, 6, 0b01000),       # SYMBOL SHIFT + J
+        (pygame.K_KP_MINUS, 6, 0b01000),    # SYMBOL SHIFT + J
+        (pygame.K_KP_PLUS, 6, 0b00100),     # SYMBOL SHIFT + K
+        (pygame.K_EQUALS, 6, 0b00010),      # SYMBOL SHIFT + L
+        (pygame.K_SLASH, 0, 0b10000),       # SYMBOL SHIFT + V
+        (pygame.K_KP_DIVIDE, 0, 0b10000),   # SYMBOL SHIFT + V
+        (pygame.K_KP_MULTIPLY, 7, 0b10000), # SYMBOL SHIFT + B
+        (pygame.K_COMMA, 7, 0b01000),       # SYMBOL SHIFT + N
+        (pygame.K_PERIOD, 7, 0b00100),      # SYMBOL SHIFT + M
+        (pygame.K_KP_PERIOD, 7, 0b00100),   # SYMBOL SHIFT + M
     )
 
 CELLS = tuple((x, y, 2048 * (y // 8) + 32 * (y % 8) + x, 6144 + 32 * y + x) for x in range(32) for y in range(24))
@@ -150,6 +174,14 @@ class Screen: # pragma: no cover
             pressed = pygame.key.get_pressed()
             for k, i, b in KEYS:
                 if pressed[k]:
+                    keyboard[i] |= b
+            for k, i, b in CS_KEYS:
+                if pressed[k]:
+                    keyboard[0] |= 1 # CAPS SHIFT
+                    keyboard[i] |= b
+            for k, i, b in SS_KEYS:
+                if pressed[k]:
+                    keyboard[7] |= 2 # SYMBOL SHIFT
                     keyboard[i] |= b
 
         return True
