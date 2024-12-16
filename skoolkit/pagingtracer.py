@@ -29,7 +29,7 @@ class Memory:
     def __getitem__(self, index):
         if isinstance(index, int):
             return self.memory[index // 0x4000][index % 0x4000]
-        return [self.memory[a // 0x4000][a % 0x4000] for a in range(index.start, min(index.stop, 65536))]
+        return [self.memory[a // 0x4000][a % 0x4000] for a in range(index.start, min(index.stop, 65536), index.step or 1)]
 
     def __setitem__(self, index, value):
         self.memory[index // 0x4000][index % 0x4000] = value

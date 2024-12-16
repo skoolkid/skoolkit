@@ -2799,7 +2799,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(s_fname, 'out.z80')
 
     @patch.object(trace, 'get_image_writer', MockImageWriter)
-    def test_write_png(self):
+    def test_write_png_48k(self):
         data = (
             0x06, 0x08,             # $8000 LD B,$08
             0x21, 0x00, 0x40,       # $8002 LD HL,$4000
@@ -2838,6 +2838,50 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(len(udgs[0]), 32)
         self.assertEqual([64, 65, 66, 67, 68, 69, 70, 71], list(udgs[0][0].data))
         self.assertEqual(udgs[0][0].attr, 4)
+        self.assertEqual(image_writer.fname, outfile)
+
+    @patch.object(trace, 'get_image_writer', MockImageWriter)
+    def test_write_png_128k(self):
+        data = (
+            0x06, 0x08,             # $8000 LD B,$08
+            0x21, 0x00, 0x40,       # $8002 LD HL,$4000
+            0x74,                   # $8005 LD (HL),H
+            0x24,                   # $8006 INC H
+            0x10, 0xFC,             # $8007 DJNZ $8005
+            0x26, 0x58,             # $8009 LD H,$58
+            0x36, 0x05,             # $800B LD (HL),$05
+        )
+        ram = [0] * 49152
+        start = 32768
+        stop = start + len(data)
+        ram[start - 0x4000:stop - 0x4000] = data
+        infile = self.write_z80_file(None, ram, machine_id=4)
+        outfile = 'out.png'
+        output, error = self.run_trace(f'-s {start} -S {stop} {infile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertIsNone(image_writer.config)
+        self.assertIsNone(image_writer.palette)
+        self.assertEqual(len(image_writer.frames), 1)
+
+        frame = image_writer.frames[0]
+        self.assertEqual(frame.scale, 2)
+        self.assertEqual(frame.mask, 0)
+        self.assertEqual(frame.x, 0)
+        self.assertEqual(frame.y, 0)
+        self.assertEqual(frame.width, 512)
+        self.assertEqual(frame.height, 384)
+        self.assertEqual(frame.tindex, 0)
+        self.assertEqual(frame.alpha, -1)
+
+        udgs = frame.udgs
+        self.assertEqual(len(udgs), 24)
+        self.assertEqual(len(udgs[0]), 32)
+        self.assertEqual([64, 65, 66, 67, 68, 69, 70, 71], list(udgs[0][0].data))
+        self.assertEqual(udgs[0][0].attr, 5)
         self.assertEqual(image_writer.fname, outfile)
 
     @patch.object(trace, 'get_audio_writer', MockAudioWriter)
