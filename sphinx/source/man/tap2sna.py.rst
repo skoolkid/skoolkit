@@ -456,6 +456,8 @@ configuration parameters are:
     separated by commas (default: ``$,02X,04X``). The byte and word formats are
     standard Python format specifiers for numeric values, and default to empty
     strings if not supplied.
+  :UserAgent: The value of the User-Agent header in HTTP/HTTPS requests
+    (default: empty string).
 
 ``TraceLine`` is a standard Python format string that recognises the following
 replacement fields:

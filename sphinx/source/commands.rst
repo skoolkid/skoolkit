@@ -1829,6 +1829,8 @@ configuration parameters are:
   separated by commas (default: ``$,02X,04X``); the byte and word formats are
   standard Python format specifiers for numeric values, and default to empty
   strings if not supplied
+* ``UserAgent`` - the value of the User-Agent header in HTTP/HTTPS requests
+  (default: empty string)
 
 ``TraceLine`` is a standard Python format string that recognises the following
 replacement fields:
@@ -1875,6 +1877,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.5     | Added the ``UserAgent`` configuration parameter                   |
++---------+-------------------------------------------------------------------+
 | 9.3     | Added support for PZX files; added support for the ``m`` (memory) |
 |         | replacement field in the ``TraceLine`` configuration parameter    |
 +---------+-------------------------------------------------------------------+

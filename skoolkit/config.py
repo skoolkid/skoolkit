@@ -130,7 +130,8 @@ COMMANDS = {
     'tap2sna': {
         'DefaultSnapshotFormat': ('z80', ''),
         'TraceLine': ('${pc:04X} {i}', ''),
-        'TraceOperand': ('$,02X,04X', '')
+        'TraceOperand': ('$,02X,04X', ''),
+        'UserAgent': ('', 'user_agent'),
     },
     'trace': {
         'PNGScale': (2, ''),

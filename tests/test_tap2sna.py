@@ -432,6 +432,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             DefaultSnapshotFormat=z80
             TraceLine=${pc:04X} {i}
             TraceOperand=$,02X,04X
+            UserAgent=
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -439,6 +440,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ini = """
             [tap2sna]
             TraceLine={pc:05} {i}
+            UserAgent=tap2sna.py/9.5
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         output, error = self.run_tap2sna('--show-config', catch_exit=0)
@@ -448,6 +450,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             DefaultSnapshotFormat=z80
             TraceLine={pc:05} {i}
             TraceOperand=$,02X,04X
+            UserAgent=tap2sna.py/9.5
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -3195,6 +3198,39 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(trace_lines), 3)
         self.assertEqual(trace_lines[1], '$0606 LD A,(0x5c74)')
         self.assertEqual(trace_lines[2], '$0609 SUB 0xe0')
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'urlopen')
+    def test_config_UserAgent_read_from_file(self, mock_urlopen):
+        user_agent = 'SkoolKit/9.5'
+        ini = f"""
+            [tap2sna]
+            UserAgent={user_agent}
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        tap_data = bytes(create_tap_data_block([1]))
+        url = 'http://example.com/test.tap'
+        mock_urlopen.return_value = BytesIO(tap_data)
+        output, error = self.run_tap2sna(f'--ram load=1,23296 {url}')
+        self.assertTrue(output.startswith(f'Downloading {url}\n'))
+        self.assertEqual(error, '')
+        request = mock_urlopen.call_args[0][0]
+        self.assertEqual({'User-agent': user_agent}, request.headers)
+        self.assertEqual(snapshot[23296], 1)
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'urlopen')
+    def test_config_UserAgent_set_on_command_line(self, mock_urlopen):
+        tap_data = bytes(create_tap_data_block([2]))
+        url = 'http://example.com/test.tap'
+        user_agent = 'tap2sna.py/9.5'
+        mock_urlopen.return_value = BytesIO(tap_data)
+        output, error = self.run_tap2sna(f'-I UserAgent={user_agent} --ram load=1,23296 {url}')
+        self.assertTrue(output.startswith(f'Downloading {url}\n'))
+        self.assertEqual(error, '')
+        request = mock_urlopen.call_args[0][0]
+        self.assertEqual({'User-agent': user_agent}, request.headers)
+        self.assertEqual(snapshot[23296], 2)
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_args_from_file(self):

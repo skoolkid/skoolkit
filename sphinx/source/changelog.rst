@@ -12,6 +12,9 @@ Changelog
   enable instruction comment generation)
 * :ref:`trace.py` now responds to keypresses while running with screen contents
   displayed
+* Added the ``UserAgent`` configuration parameter for
+  :ref:`tap2sna.py <tap2sna-conf>` (to specify the User-Agent header in
+  HTTP/HTTPS requests)
 * Added support to the :ref:`CALL` macro for calling an arbitrary function
 * The :ref:`REG` macro now always renders the IXh, IXl, IYh and IYl registers
   with a lower case 'h' or 'l'

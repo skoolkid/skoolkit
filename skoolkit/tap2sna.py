@@ -936,7 +936,7 @@ def main(args):
                        help="Stop the tape at this block number.")
     group.add_argument('--tape-sum', metavar='MD5SUM',
                        help="Specify the MD5 checksum of the tape file.")
-    group.add_argument('-u', '--user-agent', dest='user_agent', metavar='AGENT', default='',
+    group.add_argument('-u', '--user-agent', dest='user_agent', metavar='AGENT', default=config['UserAgent'],
                        help="Set the User-Agent header.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
