@@ -5289,7 +5289,7 @@ class SkoolWriterTest(SkoolKitTestCase):
              00006 LD B,C        ; #REGb=#REGc
             *00007 DJNZ 7        ; Decrement #REGb and jump to #R7 if #REGb>0
              00009 DEC C         ; #REGc=#REGc-1
-             00010 JR NZ,2       ; Jump to #R2 if the zero flag is not set
+             00010 JR NZ,2       ; Jump to #R2 if #REGc>0
              00012 RET           ; Return
             ; No generated comments for DEF* statements
              00013 DEFB 1,0,0    ;

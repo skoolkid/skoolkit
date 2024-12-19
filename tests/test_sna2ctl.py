@@ -798,7 +798,7 @@ class Sna2CtlTest(SkoolKitTestCase):
               65529 #REGb=#REGc
               65530 Decrement #REGb and jump to #R65530 if #REGb>0
               65532 #REGc=#REGc-1
-              65533 Jump to #R65525 if the zero flag is not set
+              65533 Jump to #R65525 if #REGc>0
               65535 Return
         """
         self._test_generation(data, exp_ctl, options='-C')
