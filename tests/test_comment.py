@@ -961,7 +961,15 @@ AFTER_DD = {
 }
 
 CONDITIONALS = {
-    'SF': {
+    'SF_NA': {
+        'F0': 'Return if the sign flag is not set (positive)',          # RET P
+        'F20000': 'Jump to #R0 if the sign flag is not set (positive)', # JP P,0
+        'F40000': 'CALL #R0 if the sign flag is not set (positive)',    # CALL P,0
+        'F8': 'Return if the sign flag is set (negative)',              # RET M
+        'FA0000': 'Jump to #R0 if the sign flag is set (negative)',     # JP M,0
+        'FC0000': 'CALL #R0 if the sign flag is set (negative)',        # CALL M,0
+    },
+    'SF_SIGN': {
         'F0': 'Return if {}<#N(128,2,,1)($)',           # RET P
         'F20000': 'Jump to #R0 if {}<#N(128,2,,1)($)',  # JP P,0
         'F40000': 'CALL #R0 if {}<#N(128,2,,1)($)',     # CALL P,0
@@ -969,7 +977,17 @@ CONDITIONALS = {
         'FA0000': 'Jump to #R0 if {}>=#N(128,2,,1)($)', # JP M,0
         'FC0000': 'CALL #R0 if {}>=#N(128,2,,1)($)',    # CALL M,0
     },
-    'ZF': {
+    'ZF_NA': {
+        '2000': 'Jump to #R32770 if the zero flag is not set', # JR NZ,nn
+        '2800': 'Jump to #R32770 if the zero flag is set',     # JR Z,nn
+        'C0': 'Return if the zero flag is not set',            # RET NZ
+        'C20000': 'Jump to #R0 if the zero flag is not set',   # JP NZ,0
+        'C40000': 'CALL #R0 if the zero flag is not set',      # CALL NZ,0
+        'C8': 'Return if the zero flag is set',                # RET Z
+        'CA0000': 'Jump to #R0 if the zero flag is set',       # JP Z,0
+        'CC0000': 'CALL #R0 if the zero flag is set',          # CALL Z,0
+    },
+    'ZF_ZERO': {
         '2000': 'Jump to #R32770 if {}>0', # JR NZ,nn
         '2800': 'Jump to #R32770 if {}=0', # JR Z,nn
         'C0': 'Return if {}>0',            # RET NZ
@@ -979,7 +997,25 @@ CONDITIONALS = {
         'CA0000': 'Jump to #R0 if {}=0',   # JP Z,0
         'CC0000': 'CALL #R0 if {}=0',      # CALL Z,0
     },
+    'ZF_COMPARE': {
+        '2000': 'Jump to #R32770 if #REGa<>{}', # JR NZ,nn
+        '2800': 'Jump to #R32770 if #REGa={}',  # JR Z,nn
+        'C0': 'Return if #REGa<>{}',            # RET NZ
+        'C20000': 'Jump to #R0 if #REGa<>{}',   # JP NZ,0
+        'C40000': 'CALL #R0 if #REGa<>{}',      # CALL NZ,0
+        'C8': 'Return if #REGa={}',             # RET Z
+        'CA0000': 'Jump to #R0 if #REGa={}',    # JP Z,0
+        'CC0000': 'CALL #R0 if #REGa={}',       # CALL Z,0
+    },
     'PF_PARITY': {
+        'E0': 'Return if the parity flag is not set',          # RET PO
+        'E20000': 'Jump to #R0 if the parity flag is not set', # JP PO,0
+        'E40000': 'CALL #R0 if the parity flag is not set',    # CALL PO,0
+        'E8': 'Return if the parity flag is set',              # RET PE
+        'EA0000': 'Jump to #R0 if the parity flag is set',     # JP PE,0
+        'EC0000': 'CALL #R0 if the parity flag is set',        # CALL PE,0
+    },
+    'PF_PARITY_REG': {
         'E0': 'Return if the parity of {} is odd',           # RET PO
         'E20000': 'Jump to #R0 if the parity of {} is odd',  # JP PO,0
         'E40000': 'CALL #R0 if the parity of {} is odd',     # CALL PO,0
@@ -987,7 +1023,7 @@ CONDITIONALS = {
         'EA0000': 'Jump to #R0 if the parity of {} is even', # JP PE,0
         'EC0000': 'CALL #R0 if the parity of {} is even',    # CALL PE,0
     },
-    'PF_OVERFLOW': {
+    'PF_OFLOW': {
         'E0': 'Return if there was no overflow',          # RET PO
         'E20000': 'Jump to #R0 if there was no overflow', # JP PO,0
         'E40000': 'CALL #R0 if there was no overflow',    # CALL PO,0
@@ -995,7 +1031,7 @@ CONDITIONALS = {
         'EA0000': 'Jump to #R0 if there was overflow',    # JP PE,0
         'EC0000': 'CALL #R0 if there was overflow',       # CALL PE,0
     },
-    'PF_OVERFLOW_INC': {
+    'PF_OFLOW_INC': {
         'E0': 'Return if {}<>#N(128,2,,1)($)',          # RET PO
         'E20000': 'Jump to #R0 if {}<>#N(128,2,,1)($)', # JP PO,0
         'E40000': 'CALL #R0 if {}<>#N(128,2,,1)($)',    # CALL PO,0
@@ -1003,7 +1039,7 @@ CONDITIONALS = {
         'EA0000': 'Jump to #R0 if {}=#N(128,2,,1)($)',  # JP PE,0
         'EC0000': 'CALL #R0 if {}=#N(128,2,,1)($)',     # CALL PE,0
     },
-    'PF_OVERFLOW_DEC': {
+    'PF_OFLOW_DEC': {
         'E0': 'Return if {}<>#N(127,2,,1)($)',          # RET PO
         'E20000': 'Jump to #R0 if {}<>#N(127,2,,1)($)', # JP PO,0
         'E40000': 'CALL #R0 if {}<>#N(127,2,,1)($)',    # CALL PO,0
@@ -1019,13 +1055,43 @@ CONDITIONALS = {
         'EA0000': 'Jump to #R0 if interrupts are enabled',  # JP PE,0
         'EC0000': 'CALL #R0 if interrupts are enabled',     # CALL PE,0
     },
-    'PF_PARITY_NONE': {
-        'E0': 'Return if the parity flag is not set',          # RET PO
-        'E20000': 'Jump to #R0 if the parity flag is not set', # JP PO,0
-        'E40000': 'CALL #R0 if the parity flag is not set',    # CALL PO,0
-        'E8': 'Return if the parity flag is set',              # RET PE
-        'EA0000': 'Jump to #R0 if the parity flag is set',     # JP PE,0
-        'EC0000': 'CALL #R0 if the parity flag is set',        # CALL PE,0
+    'PF_BLOCK': {
+        'E0': 'Return if #REGbc=0',          # RET PO
+        'E20000': 'Jump to #R0 if #REGbc=0', # JP PO,0
+        'E40000': 'CALL #R0 if #REGbc=0',    # CALL PO,0
+        'E8': 'Return if #REGbc>0',          # RET PE
+        'EA0000': 'Jump to #R0 if #REGbc>0', # JP PE,0
+        'EC0000': 'CALL #R0 if #REGbc>0',    # CALL PE,0
+    },
+    'CF_NA': {
+        '3000': 'Jump to #R32770 if the carry flag is not set', # JR NC,nn
+        '3800': 'Jump to #R32770 if the carry flag is set',     # JR C,nn
+        'D0': 'Return if the carry flag is not set',            # RET NC
+        'D20000': 'Jump to #R0 if the carry flag is not set',   # JP NC,0
+        'D40000': 'CALL #R0 if the carry flag is not set',      # CALL NC,0
+        'D8': 'Return if the carry flag is set',                # RET C
+        'DA0000': 'Jump to #R0 if the carry flag is set',       # JP C,0
+        'DC0000': 'CALL #R0 if the carry flag is set',          # CALL C,0
+    },
+    'CF_COMPARE': {
+        '3000': 'Jump to #R32770 if #REGa>={}', # JR NC,nn
+        '3800': 'Jump to #R32770 if #REGa<{}',  # JR C,nn
+        'D0': 'Return if #REGa>={}',            # RET NC
+        'D20000': 'Jump to #R0 if #REGa>={}',   # JP NC,0
+        'D40000': 'CALL #R0 if #REGa>={}',      # CALL NC,0
+        'D8': 'Return if #REGa<{}',             # RET C
+        'DA0000': 'Jump to #R0 if #REGa<{}',    # JP C,0
+        'DC0000': 'CALL #R0 if #REGa<{}',       # CALL C,0
+    },
+    'CF_NEGATE': {
+        '3000': 'Jump to #R32770 if #REGa=0', # JR NC,nn
+        '3800': 'Jump to #R32770 if #REGa>0', # JR C,nn
+        'D0': 'Return if #REGa=0',            # RET NC
+        'D20000': 'Jump to #R0 if #REGa=0',   # JP NC,0
+        'D40000': 'CALL #R0 if #REGa=0',      # CALL NC,0
+        'D8': 'Return if #REGa>0',            # RET C
+        'DA0000': 'Jump to #R0 if #REGa>0',   # JP C,0
+        'DC0000': 'CALL #R0 if #REGa>0',      # CALL C,0
     },
 }
 
@@ -1188,6 +1254,22 @@ OR = (
     'FDB5',   # AND IYl
     'FDB600', # AND (IY+0)
 )
+
+CP = {
+    'B8': '#REGb',
+    'B9': '#REGc',
+    'BA': '#REGd',
+    'BB': '#REGe',
+    'BC': '#REGh',
+    'BD': '#REGl',
+    'BE': 'PEEK #REGhl',
+    'DDBC': '#REGixh',
+    'DDBD': '#REGixl',
+    'DDBE00': 'PEEK (#REGix+#N(0,2,,1)($))',
+    'FDBC': '#REGiyh',
+    'FDBD': '#REGiyl',
+    'FDBE00': 'PEEK (#REGiy+#N(0,2,,1)($))',
+}
 
 RLC = {
     'CB00': '#REGb',
@@ -1417,9 +1499,9 @@ IN_C = {
 
 class CommentGeneratorTest(SkoolKitTestCase):
     def _test_conditionals(self, cg, op_hex, reg, *conditionals):
+        op_v = [int(op_hex[i:i + 2], 16) for i in range(0, len(op_hex), 2)]
         for name in conditionals:
             for cond, exp_comment in CONDITIONALS[name].items():
-                op_v = [int(op_hex[i:i + 2], 16) for i in range(0, len(op_hex), 2)]
                 cg.get_comment(0x8000, op_v)
                 cond_v = [int(cond[i:i + 2], 16) for i in range(0, len(cond), 2)]
                 self.assertEqual(cg.get_comment(0x8000, cond_v), exp_comment.format(reg), f'Opcodes: {op_hex} {cond}')
@@ -1500,123 +1582,138 @@ class CommentGeneratorTest(SkoolKitTestCase):
     def test_inc_flags(self):
         cg = CommentGenerator()
         for inc, reg in INC.items():
-            self._test_conditionals(cg, inc, reg, 'SF', 'ZF', 'PF_OVERFLOW_INC')
+            self._test_conditionals(cg, inc, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW_INC', 'CF_NA')
 
     def test_dec_flags(self):
         cg = CommentGenerator()
         for dec, reg in DEC.items():
-            self._test_conditionals(cg, dec, reg, 'SF', 'ZF', 'PF_OVERFLOW_DEC')
+            self._test_conditionals(cg, dec, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW_DEC', 'CF_NA')
 
     def test_add_a_flags(self):
         cg = CommentGenerator()
         for add in ADD_A:
-            self._test_conditionals(cg, add, '#REGa', 'SF', 'ZF', 'PF_OVERFLOW')
+            self._test_conditionals(cg, add, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
 
     def test_adc_a_flags(self):
         cg = CommentGenerator()
         for adc in ADC_A:
-            self._test_conditionals(cg, adc, '#REGa', 'SF', 'ZF', 'PF_OVERFLOW')
+            self._test_conditionals(cg, adc, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
 
     def test_sub_flags(self):
         cg = CommentGenerator()
         for sub in SUB:
-            self._test_conditionals(cg, sub, '#REGa', 'SF', 'ZF', 'PF_OVERFLOW')
+            self._test_conditionals(cg, sub, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
 
     def test_sbc_a_flags(self):
         cg = CommentGenerator()
         for sbc in SBC_A:
-            self._test_conditionals(cg, sbc, '#REGa', 'SF', 'ZF', 'PF_OVERFLOW')
+            self._test_conditionals(cg, sbc, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
 
     def test_and_flags(self):
         cg = CommentGenerator()
         for and_op in AND:
-            self._test_conditionals(cg, and_op, '#REGa', 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, and_op, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
     def test_xor_flags(self):
         cg = CommentGenerator()
         for xor in XOR:
-            self._test_conditionals(cg, xor, '#REGa', 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, xor, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
     def test_or_flags(self):
         cg = CommentGenerator()
         for or_op in OR:
-            self._test_conditionals(cg, or_op, '#REGa', 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, or_op, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+
+    def test_cp_flags(self):
+        cg = CommentGenerator()
+        for cp, reg in CP.items():
+            self._test_conditionals(cg, cp, reg, 'SF_NA', 'ZF_COMPARE', 'PF_OFLOW', 'CF_COMPARE')
 
     def test_rlc_flags(self):
         cg = CommentGenerator()
         for rlc, reg in RLC.items():
-            self._test_conditionals(cg, rlc, reg, 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, rlc, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
     def test_rrc_flags(self):
         cg = CommentGenerator()
         for rrc, reg in RRC.items():
-            self._test_conditionals(cg, rrc, reg, 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, rrc, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
     def test_rl_flags(self):
         cg = CommentGenerator()
         for rl, reg in RL.items():
-            self._test_conditionals(cg, rl, reg, 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, rl, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
     def test_rr_flags(self):
         cg = CommentGenerator()
         for rr, reg in RR.items():
-            self._test_conditionals(cg, rr, reg, 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, rr, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
     def test_sla_flags(self):
         cg = CommentGenerator()
         for sla, reg in SLA.items():
-            self._test_conditionals(cg, sla, reg, 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, sla, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
     def test_sra_flags(self):
         cg = CommentGenerator()
         for sra, reg in SRA.items():
-            self._test_conditionals(cg, sra, reg, 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, sra, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
     def test_sll_flags(self):
         cg = CommentGenerator()
         for sll, reg in SLL.items():
-            self._test_conditionals(cg, sll, reg, 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, sll, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
     def test_srl_flags(self):
         cg = CommentGenerator()
         for srl, reg in SRL.items():
-            self._test_conditionals(cg, srl, reg, 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, srl, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
     def test_rrd_rld_flags(self):
         cg = CommentGenerator()
         for op_hex in ('ED67', 'ED6F'):
-            self._test_conditionals(cg, op_hex, '#REGa', 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, op_hex, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
     def test_in_c_flags(self):
         cg = CommentGenerator()
         for in_c, reg in IN_C.items():
-            self._test_conditionals(cg, in_c, reg, 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, in_c, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
     def test_daa_flags(self):
         cg = CommentGenerator()
-        self._test_conditionals(cg, '27', '#REGa', 'SF', 'ZF', 'PF_PARITY')
+        self._test_conditionals(cg, '27', '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
     def test_neg_flags(self):
         cg = CommentGenerator()
         for opcode in range(0x44, 0x84, 8):
-            self._test_conditionals(cg, f'ED{opcode:02X}', '#REGa', 'SF', 'ZF', 'PF_PARITY')
+            self._test_conditionals(cg, f'ED{opcode:02X}', '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NEGATE')
 
     def test_sbc_hl_flags(self):
         cg = CommentGenerator()
         for opcode in range(0x42, 0x82, 0x10):
-            self._test_conditionals(cg, f'ED{opcode:02X}', '#REGhl', 'SF', 'ZF', 'PF_OVERFLOW')
+            self._test_conditionals(cg, f'ED{opcode:02X}', '#REGhl', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
 
     def test_adc_hl_flags(self):
         cg = CommentGenerator()
         for opcode in range(0x4A, 0x8A, 0x10):
-            self._test_conditionals(cg, f'ED{opcode:02X}', '#REGhl', 'SF', 'ZF', 'PF_OVERFLOW')
+            self._test_conditionals(cg, f'ED{opcode:02X}', '#REGhl', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
 
     def test_ini_outi_ind_outd_flags(self):
         cg = CommentGenerator()
         for op_hex in ('EDA2', 'EDA3', 'EDAA', 'EDAB'):
-            self._test_conditionals(cg, op_hex, '#REGb', 'SF', 'ZF', 'PF_PARITY_NONE')
+            self._test_conditionals(cg, op_hex, '#REGb', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY', 'CF_NA')
+
+    def test_cpi_cpd_flags(self):
+        cg = CommentGenerator()
+        for op_hex in ('EDA1', 'EDA9'):
+            self._test_conditionals(cg, op_hex, 'PEEK #REGhl', 'SF_NA', 'ZF_COMPARE', 'PF_BLOCK', 'CF_NA')
+
+    def test_ldi_ldd_flags(self):
+        cg = CommentGenerator()
+        for op_hex in ('EDA0', 'EDA8'):
+            self._test_conditionals(cg, op_hex, '', 'SF_NA', 'ZF_NA', 'PF_BLOCK', 'CF_NA')
 
     def test_ld_a_i_r_flags(self):
         cg = CommentGenerator()
         for op_hex in ('ED57', 'ED5F'):
-            self._test_conditionals(cg, op_hex, '#REGa', 'SF', 'ZF', 'PF_IFF2')
+            self._test_conditionals(cg, op_hex, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_IFF2', 'CF_NA')
