@@ -1263,6 +1263,7 @@ CP = {
     'BC': '#REGh',
     'BD': '#REGl',
     'BE': 'PEEK #REGhl',
+    'FE01': '#N(1,2,,1)($)',
     'DDBC': '#REGixh',
     'DDBD': '#REGixl',
     'DDBE00': 'PEEK (#REGix+#N(0,2,,1)($))',

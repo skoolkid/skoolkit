@@ -229,7 +229,7 @@ class CommentGenerator:
             0xFB: (None, 'Enable interrupts', None),
             0xFC: (self.call_cc, (SF, 1), None),
             0xFD: (self.fd_arg, None, None),
-            0xFE: (self.byte_arg, CP.format(BYTE), None)
+            0xFE: (self.byte_arg, CP.format(BYTE), (BYTE.format('{1}'), CP_FLAGS))
         }
 
         self.after_DD = {
@@ -438,7 +438,10 @@ class CommentGenerator:
             comment = rv
         else:
             comment, fctx = rv
-        self.reg, self.ctx = fctx or (None, None)
+        if fctx:
+            self.reg, self.ctx = fctx[0].format(*values), fctx[1]
+        else:
+            self.reg, self.ctx = None, None
         return comment
 
     def byte_arg(self, template, address, values):
