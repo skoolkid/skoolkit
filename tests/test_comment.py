@@ -977,6 +977,14 @@ CONDITIONALS = {
         'FA0000': 'Jump to #R0 if {}>=#N(128,2,,1)($)', # JP M,0
         'FC0000': 'CALL #R0 if {}>=#N(128,2,,1)($)',    # CALL M,0
     },
+    'SF_BIT_7': {
+        'F0': 'Return if {} is reset',          # RET P
+        'F20000': 'Jump to #R0 if {} is reset', # JP P,0
+        'F40000': 'CALL #R0 if {} is reset',    # CALL P,0
+        'F8': 'Return if {} is set',            # RET M
+        'FA0000': 'Jump to #R0 if {} is set',   # JP M,0
+        'FC0000': 'CALL #R0 if {} is set',      # CALL M,0
+    },
     'ZF_NA': {
         '2000': 'Jump to #R32770 if the zero flag is not set', # JR NZ,nn
         '2800': 'Jump to #R32770 if the zero flag is set',     # JR Z,nn
@@ -1006,6 +1014,24 @@ CONDITIONALS = {
         'C8': 'Return if #REGa={}',             # RET Z
         'CA0000': 'Jump to #R0 if #REGa={}',    # JP Z,0
         'CC0000': 'CALL #R0 if #REGa={}',       # CALL Z,0
+    },
+    'ZF_BIT': {
+        '2000': 'Jump to #R32770 if {} is set',   # JR NZ,nn
+        '2800': 'Jump to #R32770 if {} is reset', # JR Z,nn
+        'C0': 'Return if {} is set',              # RET NZ
+        'C20000': 'Jump to #R0 if {} is set',     # JP NZ,0
+        'C40000': 'CALL #R0 if {} is set',        # CALL NZ,0
+        'C8': 'Return if {} is reset',            # RET Z
+        'CA0000': 'Jump to #R0 if {} is reset',   # JP Z,0
+        'CC0000': 'CALL #R0 if {} is reset',      # CALL Z,0
+    },
+    'PF_NA': {
+        'E0': 'Return if the parity/overflow flag is not set (parity odd)',          # RET PO
+        'E20000': 'Jump to #R0 if the parity/overflow flag is not set (parity odd)', # JP PO,0
+        'E40000': 'CALL #R0 if the parity/overflow flag is not set (parity odd)',    # CALL PO,0
+        'E8': 'Return if the parity/overflow flag is set (parity even)',             # RET PE
+        'EA0000': 'Jump to #R0 if the parity/overflow flag is set (parity even)',    # JP PE,0
+        'EC0000': 'CALL #R0 if the parity/overflow flag is set (parity even)',       # CALL PE,0
     },
     'PF_PARITY': {
         'E0': 'Return if the parity flag is not set',          # RET PO
@@ -1063,6 +1089,14 @@ CONDITIONALS = {
         'EA0000': 'Jump to #R0 if #REGbc>0', # JP PE,0
         'EC0000': 'CALL #R0 if #REGbc>0',    # CALL PE,0
     },
+    'PF_BIT': {
+        'E0': 'Return if {} is set',            # RET PO
+        'E20000': 'Jump to #R0 if {} is set',   # JP PO,0
+        'E40000': 'CALL #R0 if {} is set',      # CALL PO,0
+        'E8': 'Return if {} is reset',          # RET PE
+        'EA0000': 'Jump to #R0 if {} is reset', # JP PE,0
+        'EC0000': 'CALL #R0 if {} is reset',    # CALL PE,0
+    },
     'CF_NA': {
         '3000': 'Jump to #R32770 if the carry flag is not set', # JR NC,nn
         '3800': 'Jump to #R32770 if the carry flag is set',     # JR C,nn
@@ -1095,418 +1129,7 @@ CONDITIONALS = {
     },
 }
 
-INC = {
-    '04': '#REGb',
-    '0C': '#REGc',
-    '14': '#REGd',
-    '1C': '#REGe',
-    '24': '#REGh',
-    '2C': '#REGl',
-    '34': '(PEEK #REGhl)',
-    '3C': '#REGa',
-    'DD24': '#REGixh',
-    'DD2C': '#REGixl',
-    'DD3400': '(PEEK (#REGix+#N(0,2,,1)($)))',
-    'FD24': '#REGiyh',
-    'FD2C': '#REGiyl',
-    'FD3400': '(PEEK (#REGiy+#N(0,2,,1)($)))',
-}
-
-DEC = {
-    '05': '#REGb',
-    '0D': '#REGc',
-    '15': '#REGd',
-    '1D': '#REGe',
-    '25': '#REGh',
-    '2D': '#REGl',
-    '35': '(PEEK #REGhl)',
-    '3D': '#REGa',
-    'DD25': '#REGixh',
-    'DD2D': '#REGixl',
-    'DD3500': '(PEEK (#REGix+#N(0,2,,1)($)))',
-    'FD25': '#REGiyh',
-    'FD2D': '#REGiyl',
-    'FD3500': '(PEEK (#REGiy+#N(0,2,,1)($)))',
-}
-
-ADD_A = (
-    '80',     # ADD A,B
-    '81',     # ADD A,C
-    '82',     # ADD A,D
-    '83',     # ADD A,E
-    '84',     # ADD A,H
-    '85',     # ADD A,L
-    '86',     # ADD A,(HL)
-    '87',     # ADD A,A
-    'C600',   # ADD A,0
-    'DD84',   # ADD A,IXh
-    'DD85',   # ADD A,IXl
-    'DD8600', # ADD A,(IX+0)
-    'FD84',   # ADD A,IYh
-    'FD85',   # ADD A,IYl
-    'FD8600', # ADD A,(IY+0)
-)
-
-ADC_A = (
-    '88',     # ADC A,B
-    '89',     # ADC A,C
-    '8A',     # ADC A,D
-    '8B',     # ADC A,E
-    '8C',     # ADC A,H
-    '8D',     # ADC A,L
-    '8E',     # ADC A,(HL)
-    '8F',     # ADC A,A
-    'CE00',   # ADC A,0
-    'DD8C',   # ADC A,IXh
-    'DD8D',   # ADC A,IXl
-    'DD8E00', # ADC A,(IX+0)
-    'FD8C',   # ADC A,IYh
-    'FD8D',   # ADC A,IYl
-    'FD8E00', # ADC A,(IY+0)
-)
-
-SUB = (
-    '90',     # SUB B
-    '91',     # SUB C
-    '92',     # SUB D
-    '93',     # SUB E
-    '94',     # SUB H
-    '95',     # SUB L
-    '96',     # SUB (HL)
-    '97',     # SUB A
-    'D600',   # SUB 0
-    'DD94',   # SUB IXh
-    'DD95',   # SUB IXl
-    'DD9600', # SUB (IX+0)
-    'FD94',   # SUB IYh
-    'FD95',   # SUB IYl
-    'FD9600', # SUB (IY+0)
-)
-
-SBC_A = (
-    '98',     # SBC A,B
-    '99',     # SBC A,C
-    '9A',     # SBC A,D
-    '9B',     # SBC A,E
-    '9C',     # SBC A,H
-    '9D',     # SBC A,L
-    '9E',     # SBC A,(HL)
-    '9F',     # SBC A,A
-    'DE00',   # SBC A,0
-    'DD9C',   # SBC A,IXh
-    'DD9D',   # SBC A,IXl
-    'DD9E00', # SBC A,(IX+0)
-    'FD9C',   # SBC A,IYh
-    'FD9D',   # SBC A,IYl
-    'FD9E00', # SBC A,(IY+0)
-)
-
-AND = (
-    'A0',     # AND B
-    'A1',     # AND C
-    'A2',     # AND D
-    'A3',     # AND E
-    'A4',     # AND H
-    'A5',     # AND L
-    'A6',     # AND (HL)
-    'A7',     # AND A
-    'E601',   # AND 1
-    'DDA4',   # AND IXh
-    'DDA5',   # AND IXl
-    'DDA600', # AND (IX+0)
-    'FDA4',   # AND IYh
-    'FDA5',   # AND IYl
-    'FDA600', # AND (IY+0)
-)
-
-XOR = (
-    'A8',     # XOR B
-    'A9',     # XOR C
-    'AA',     # XOR D
-    'AB',     # XOR E
-    'AC',     # XOR H
-    'AD',     # XOR L
-    'AE',     # XOR (HL)
-    'AF',     # XOR A
-    'EE01',   # XOR 1
-    'DDAC',   # XOR IXh
-    'DDAD',   # XOR IXl
-    'DDAE00', # XOR (IX+0)
-    'FDAC',   # XOR IYh
-    'FDAD',   # XOR IYl
-    'FDAE00', # XOR (IY+0)
-)
-
-OR = (
-    'B0',     # AND B
-    'B1',     # AND C
-    'B2',     # AND D
-    'B3',     # AND E
-    'B4',     # AND H
-    'B5',     # AND L
-    'B6',     # AND (HL)
-    'B7',     # AND A
-    'F600',   # OR 0
-    'DDB4',   # AND IXh
-    'DDB5',   # AND IXl
-    'DDB600', # AND (IX+0)
-    'FDB4',   # AND IYh
-    'FDB5',   # AND IYl
-    'FDB600', # AND (IY+0)
-)
-
-CP = {
-    'B8': '#REGb',
-    'B9': '#REGc',
-    'BA': '#REGd',
-    'BB': '#REGe',
-    'BC': '#REGh',
-    'BD': '#REGl',
-    'BE': 'PEEK #REGhl',
-    'FE01': '#N(1,2,,1)($)',
-    'DDBC': '#REGixh',
-    'DDBD': '#REGixl',
-    'DDBE00': 'PEEK (#REGix+#N(0,2,,1)($))',
-    'FDBC': '#REGiyh',
-    'FDBD': '#REGiyl',
-    'FDBE00': 'PEEK (#REGiy+#N(0,2,,1)($))',
-}
-
-RLC = {
-    'CB00': '#REGb',
-    'CB01': '#REGc',
-    'CB02': '#REGd',
-    'CB03': '#REGe',
-    'CB04': '#REGh',
-    'CB05': '#REGl',
-    'CB06': '(PEEK #REGhl)',
-    'CB07': '#REGa',
-    'DDCB0000': '#REGb',
-    'DDCB0001': '#REGc',
-    'DDCB0002': '#REGd',
-    'DDCB0003': '#REGe',
-    'DDCB0004': '#REGh',
-    'DDCB0005': '#REGl',
-    'DDCB0006': '(PEEK (#REGix+#N(0,2,,1)($)))',
-    'DDCB0007': '#REGa',
-    'FDCB0000': '#REGb',
-    'FDCB0001': '#REGc',
-    'FDCB0002': '#REGd',
-    'FDCB0003': '#REGe',
-    'FDCB0004': '#REGh',
-    'FDCB0005': '#REGl',
-    'FDCB0006': '(PEEK (#REGiy+#N(0,2,,1)($)))',
-    'FDCB0007': '#REGa',
-}
-
-RRC = {
-    'CB08': '#REGb',
-    'CB09': '#REGc',
-    'CB0A': '#REGd',
-    'CB0B': '#REGe',
-    'CB0C': '#REGh',
-    'CB0D': '#REGl',
-    'CB0E': '(PEEK #REGhl)',
-    'CB0F': '#REGa',
-    'DDCB0008': '#REGb',
-    'DDCB0009': '#REGc',
-    'DDCB000A': '#REGd',
-    'DDCB000B': '#REGe',
-    'DDCB000C': '#REGh',
-    'DDCB000D': '#REGl',
-    'DDCB000E': '(PEEK (#REGix+#N(0,2,,1)($)))',
-    'DDCB000F': '#REGa',
-    'FDCB0008': '#REGb',
-    'FDCB0009': '#REGc',
-    'FDCB000A': '#REGd',
-    'FDCB000B': '#REGe',
-    'FDCB000C': '#REGh',
-    'FDCB000D': '#REGl',
-    'FDCB000E': '(PEEK (#REGiy+#N(0,2,,1)($)))',
-    'FDCB000F': '#REGa',
-}
-
-RL = {
-    'CB10': '#REGb',
-    'CB11': '#REGc',
-    'CB12': '#REGd',
-    'CB13': '#REGe',
-    'CB14': '#REGh',
-    'CB15': '#REGl',
-    'CB16': '(PEEK #REGhl)',
-    'CB17': '#REGa',
-    'DDCB0010': '#REGb',
-    'DDCB0011': '#REGc',
-    'DDCB0012': '#REGd',
-    'DDCB0013': '#REGe',
-    'DDCB0014': '#REGh',
-    'DDCB0015': '#REGl',
-    'DDCB0016': '(PEEK (#REGix+#N(0,2,,1)($)))',
-    'DDCB0017': '#REGa',
-    'FDCB0010': '#REGb',
-    'FDCB0011': '#REGc',
-    'FDCB0012': '#REGd',
-    'FDCB0013': '#REGe',
-    'FDCB0014': '#REGh',
-    'FDCB0015': '#REGl',
-    'FDCB0016': '(PEEK (#REGiy+#N(0,2,,1)($)))',
-    'FDCB0017': '#REGa',
-}
-
-RR = {
-    'CB18': '#REGb',
-    'CB19': '#REGc',
-    'CB1A': '#REGd',
-    'CB1B': '#REGe',
-    'CB1C': '#REGh',
-    'CB1D': '#REGl',
-    'CB1E': '(PEEK #REGhl)',
-    'CB1F': '#REGa',
-    'DDCB0018': '#REGb',
-    'DDCB0019': '#REGc',
-    'DDCB001A': '#REGd',
-    'DDCB001B': '#REGe',
-    'DDCB001C': '#REGh',
-    'DDCB001D': '#REGl',
-    'DDCB001E': '(PEEK (#REGix+#N(0,2,,1)($)))',
-    'DDCB001F': '#REGa',
-    'FDCB0018': '#REGb',
-    'FDCB0019': '#REGc',
-    'FDCB001A': '#REGd',
-    'FDCB001B': '#REGe',
-    'FDCB001C': '#REGh',
-    'FDCB001D': '#REGl',
-    'FDCB001E': '(PEEK (#REGiy+#N(0,2,,1)($)))',
-    'FDCB001F': '#REGa',
-}
-
-SLA = {
-    'CB20': '#REGb',
-    'CB21': '#REGc',
-    'CB22': '#REGd',
-    'CB23': '#REGe',
-    'CB24': '#REGh',
-    'CB25': '#REGl',
-    'CB26': '(PEEK #REGhl)',
-    'CB27': '#REGa',
-    'DDCB0020': '#REGb',
-    'DDCB0021': '#REGc',
-    'DDCB0022': '#REGd',
-    'DDCB0023': '#REGe',
-    'DDCB0024': '#REGh',
-    'DDCB0025': '#REGl',
-    'DDCB0026': '(PEEK (#REGix+#N(0,2,,1)($)))',
-    'DDCB0027': '#REGa',
-    'FDCB0020': '#REGb',
-    'FDCB0021': '#REGc',
-    'FDCB0022': '#REGd',
-    'FDCB0023': '#REGe',
-    'FDCB0024': '#REGh',
-    'FDCB0025': '#REGl',
-    'FDCB0026': '(PEEK (#REGiy+#N(0,2,,1)($)))',
-    'FDCB0027': '#REGa',
-}
-
-SRA = {
-    'CB28': '#REGb',
-    'CB29': '#REGc',
-    'CB2A': '#REGd',
-    'CB2B': '#REGe',
-    'CB2C': '#REGh',
-    'CB2D': '#REGl',
-    'CB2E': '(PEEK #REGhl)',
-    'CB2F': '#REGa',
-    'DDCB0028': '#REGb',
-    'DDCB0029': '#REGc',
-    'DDCB002A': '#REGd',
-    'DDCB002B': '#REGe',
-    'DDCB002C': '#REGh',
-    'DDCB002D': '#REGl',
-    'DDCB002E': '(PEEK (#REGix+#N(0,2,,1)($)))',
-    'DDCB002F': '#REGa',
-    'FDCB0028': '#REGb',
-    'FDCB0029': '#REGc',
-    'FDCB002A': '#REGd',
-    'FDCB002B': '#REGe',
-    'FDCB002C': '#REGh',
-    'FDCB002D': '#REGl',
-    'FDCB002E': '(PEEK (#REGiy+#N(0,2,,1)($)))',
-    'FDCB002F': '#REGa',
-}
-
-SLL = {
-    'CB30': '#REGb',
-    'CB31': '#REGc',
-    'CB32': '#REGd',
-    'CB33': '#REGe',
-    'CB34': '#REGh',
-    'CB35': '#REGl',
-    'CB36': '(PEEK #REGhl)',
-    'CB37': '#REGa',
-    'DDCB0030': '#REGb',
-    'DDCB0031': '#REGc',
-    'DDCB0032': '#REGd',
-    'DDCB0033': '#REGe',
-    'DDCB0034': '#REGh',
-    'DDCB0035': '#REGl',
-    'DDCB0036': '(PEEK (#REGix+#N(0,2,,1)($)))',
-    'DDCB0037': '#REGa',
-    'FDCB0030': '#REGb',
-    'FDCB0031': '#REGc',
-    'FDCB0032': '#REGd',
-    'FDCB0033': '#REGe',
-    'FDCB0034': '#REGh',
-    'FDCB0035': '#REGl',
-    'FDCB0036': '(PEEK (#REGiy+#N(0,2,,1)($)))',
-    'FDCB0037': '#REGa',
-}
-
-SRL = {
-    'CB38': '#REGb',
-    'CB39': '#REGc',
-    'CB3A': '#REGd',
-    'CB3B': '#REGe',
-    'CB3C': '#REGh',
-    'CB3D': '#REGl',
-    'CB3E': '(PEEK #REGhl)',
-    'CB3F': '#REGa',
-    'DDCB0038': '#REGb',
-    'DDCB0039': '#REGc',
-    'DDCB003A': '#REGd',
-    'DDCB003B': '#REGe',
-    'DDCB003C': '#REGh',
-    'DDCB003D': '#REGl',
-    'DDCB003E': '(PEEK (#REGix+#N(0,2,,1)($)))',
-    'DDCB003F': '#REGa',
-    'FDCB0038': '#REGb',
-    'FDCB0039': '#REGc',
-    'FDCB003A': '#REGd',
-    'FDCB003B': '#REGe',
-    'FDCB003C': '#REGh',
-    'FDCB003D': '#REGl',
-    'FDCB003E': '(PEEK (#REGiy+#N(0,2,,1)($)))',
-    'FDCB003F': '#REGa',
-}
-
-IN_C = {
-    'ED40': '#REGb',
-    'ED48': '#REGc',
-    'ED50': '#REGd',
-    'ED58': '#REGe',
-    'ED60': '#REGh',
-    'ED68': '#REGl',
-    'ED78': '#REGa',
-}
-
 class CommentGeneratorTest(SkoolKitTestCase):
-    def _test_conditionals(self, cg, op_hex, reg, *conditionals):
-        op_v = [int(op_hex[i:i + 2], 16) for i in range(0, len(op_hex), 2)]
-        for name in conditionals:
-            for cond, exp_comment in CONDITIONALS[name].items():
-                cg.get_comment(0x8000, op_v)
-                cond_v = [int(cond[i:i + 2], 16) for i in range(0, len(cond), 2)]
-                self.assertEqual(cg.get_comment(0x8000, cond_v), exp_comment.format(reg), f'Opcodes: {op_hex} {cond}')
-
     def test_instructions(self):
         cg = CommentGenerator()
         for hex_bytes, exp_comment in INSTRUCTIONS.items():
@@ -1580,141 +1203,224 @@ class CommentGeneratorTest(SkoolKitTestCase):
                 exp_comment = 'Flip every bit of #REGa'
             self.assertEqual(cg.get_comment(0x8000, (0xEE, n)), exp_comment)
 
-    def test_inc_flags(self):
-        cg = CommentGenerator()
-        for inc, reg in INC.items():
-            self._test_conditionals(cg, inc, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW_INC', 'CF_NA')
+class ConditionalCallJumpRetTest(SkoolKitTestCase):
+    def _inc_dec_opcodes(self, base):
+        opcodes = []
+        for i, r in enumerate(('#REGb', '#REGc', '#REGd', '#REGe', '#REGh', '#REGl', '(PEEK #REGhl)', '#REGa')):
+            opcodes.append((f'{base + 8 * i:02X}', r))
+        for prefix, r in (('DD', '#REGix'), ('FD', '#REGiy')):
+            for suffix, reg in ((f'{base + 0x20:02X}', f'{r}h'), (f'{base + 0x28:02X}', f'{r}l'), (f'{base + 0x30:02X}00', f'(PEEK ({r}+#N(0,2,,1)($)))')):
+                opcodes.append((prefix + suffix, reg))
+        return opcodes
 
-    def test_dec_flags(self):
-        cg = CommentGenerator()
-        for dec, reg in DEC.items():
-            self._test_conditionals(cg, dec, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW_DEC', 'CF_NA')
+    def _alo_opcodes(self, base):
+        opcodes = [f'{b:02X}' for b in range(base, base + 8)] # ALO A,r
+        opcodes.append(f'{base + 0x46:02X}00') # ALO A,0
+        for prefix in ('DD', 'FD'):
+            for suffix in (f'{base + 4:02X}', f'{base + 5:02X}', f'{base + 6:02X}00'):
+                opcodes.append(prefix + suffix) # ALO A,XYh/XYl/(XY+0)
+        return opcodes
 
-    def test_add_a_flags(self):
-        cg = CommentGenerator()
-        for add in ADD_A:
-            self._test_conditionals(cg, add, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
+    def _sro_opcodes(self, base):
+        opcodes = []
+        for i, r in enumerate(('#REGb', '#REGc', '#REGd', '#REGe', '#REGh', '#REGl', '(PEEK #REGhl)', '#REGa')):
+            opcodes.append((f'CB{base + i:02X}', r))
+        for prefix, xy in (('DD', '#REGix'), ('FD', '#REGiy')):
+            for i, r in enumerate(('#REGb', '#REGc', '#REGd', '#REGe', '#REGh', '#REGl', f'(PEEK ({xy}+#N(0,2,,1)($)))', '#REGa')):
+                opcodes.append((f'{prefix}CB00{base + i:02X}', r))
+        return opcodes
 
-    def test_adc_a_flags(self):
-        cg = CommentGenerator()
-        for adc in ADC_A:
-            self._test_conditionals(cg, adc, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
+    def _test_conditionals(self, cg, op_hex, reg, *conditionals):
+        op_v = [int(op_hex[i:i + 2], 16) for i in range(0, len(op_hex), 2)]
+        for name in conditionals:
+            for cond, exp_comment in CONDITIONALS[name].items():
+                cg.get_comment(0x8000, op_v)
+                cond_v = [int(cond[i:i + 2], 16) for i in range(0, len(cond), 2)]
+                self.assertEqual(cg.get_comment(0x8000, cond_v), exp_comment.format(reg), f'Opcodes: {op_hex} {cond}')
 
-    def test_sub_flags(self):
+    def test_inc(self):
         cg = CommentGenerator()
-        for sub in SUB:
-            self._test_conditionals(cg, sub, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
+        for op_hex, reg in self._inc_dec_opcodes(0x04):
+            self._test_conditionals(cg, op_hex, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW_INC', 'CF_NA')
 
-    def test_sbc_a_flags(self):
+    def test_dec(self):
         cg = CommentGenerator()
-        for sbc in SBC_A:
-            self._test_conditionals(cg, sbc, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
+        for op_hex, reg in self._inc_dec_opcodes(0x05):
+            self._test_conditionals(cg, op_hex, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW_DEC', 'CF_NA')
 
-    def test_and_flags(self):
+    def test_add_a(self):
         cg = CommentGenerator()
-        for and_op in AND:
-            self._test_conditionals(cg, and_op, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+        for op_hex in self._alo_opcodes(0x80):
+            self._test_conditionals(cg, op_hex, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
 
-    def test_xor_flags(self):
+    def test_adc_a(self):
         cg = CommentGenerator()
-        for xor in XOR:
-            self._test_conditionals(cg, xor, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+        for op_hex in self._alo_opcodes(0x88):
+            self._test_conditionals(cg, op_hex, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
 
-    def test_or_flags(self):
+    def test_sub(self):
         cg = CommentGenerator()
-        for or_op in OR:
-            self._test_conditionals(cg, or_op, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+        for op_hex in self._alo_opcodes(0x90):
+            self._test_conditionals(cg, op_hex, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
 
-    def test_cp_flags(self):
+    def test_sbc_a(self):
         cg = CommentGenerator()
-        for cp, reg in CP.items():
-            self._test_conditionals(cg, cp, reg, 'SF_NA', 'ZF_COMPARE', 'PF_OFLOW', 'CF_COMPARE')
+        for op_hex in self._alo_opcodes(0x98):
+            self._test_conditionals(cg, op_hex, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
 
-    def test_rlc_flags(self):
+    def test_and(self):
         cg = CommentGenerator()
-        for rlc, reg in RLC.items():
-            self._test_conditionals(cg, rlc, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+        for op_hex in self._alo_opcodes(0xA0):
+            self._test_conditionals(cg, op_hex, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
-    def test_rrc_flags(self):
+    def test_xor(self):
         cg = CommentGenerator()
-        for rrc, reg in RRC.items():
-            self._test_conditionals(cg, rrc, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+        for op_hex in self._alo_opcodes(0xA8):
+            self._test_conditionals(cg, op_hex, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
-    def test_rl_flags(self):
+    def test_or(self):
         cg = CommentGenerator()
-        for rl, reg in RL.items():
-            self._test_conditionals(cg, rl, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+        for op_hex in self._alo_opcodes(0xB0):
+            self._test_conditionals(cg, op_hex, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
-    def test_rr_flags(self):
+    def test_cp(self):
         cg = CommentGenerator()
-        for rr, reg in RR.items():
-            self._test_conditionals(cg, rr, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+        for op_hex, reg in (
+                ('B8', '#REGb'),
+                ('B9', '#REGc'),
+                ('BA', '#REGd'),
+                ('BB', '#REGe'),
+                ('BC', '#REGh'),
+                ('BD', '#REGl'),
+                ('BE', 'PEEK #REGhl'),
+                ('FE01', '#N(1,2,,1)($)'),
+                ('DDBC', '#REGixh'),
+                ('DDBD', '#REGixl'),
+                ('DDBE00', 'PEEK (#REGix+#N(0,2,,1)($))'),
+                ('FDBC', '#REGiyh'),
+                ('FDBD', '#REGiyl'),
+                ('FDBE00', 'PEEK (#REGiy+#N(0,2,,1)($))'),
+        ):
+            self._test_conditionals(cg, op_hex, reg, 'SF_NA', 'ZF_COMPARE', 'PF_OFLOW', 'CF_COMPARE')
 
-    def test_sla_flags(self):
+    def test_rlc(self):
         cg = CommentGenerator()
-        for sla, reg in SLA.items():
-            self._test_conditionals(cg, sla, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+        for op_hex, reg in self._sro_opcodes(0x00):
+            self._test_conditionals(cg, op_hex, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
-    def test_sra_flags(self):
+    def test_rrc(self):
         cg = CommentGenerator()
-        for sra, reg in SRA.items():
-            self._test_conditionals(cg, sra, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+        for op_hex, reg in self._sro_opcodes(0x08):
+            self._test_conditionals(cg, op_hex, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
-    def test_sll_flags(self):
+    def test_rl(self):
         cg = CommentGenerator()
-        for sll, reg in SLL.items():
-            self._test_conditionals(cg, sll, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+        for op_hex, reg in self._sro_opcodes(0x10):
+            self._test_conditionals(cg, op_hex, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
-    def test_srl_flags(self):
+    def test_rr(self):
         cg = CommentGenerator()
-        for srl, reg in SRL.items():
-            self._test_conditionals(cg, srl, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+        for op_hex, reg in self._sro_opcodes(0x18):
+            self._test_conditionals(cg, op_hex, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
-    def test_rrd_rld_flags(self):
+    def test_sla(self):
+        cg = CommentGenerator()
+        for op_hex, reg in self._sro_opcodes(0x20):
+            self._test_conditionals(cg, op_hex, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+
+    def test_sra(self):
+        cg = CommentGenerator()
+        for op_hex, reg in self._sro_opcodes(0x28):
+            self._test_conditionals(cg, op_hex, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+
+    def test_sll(self):
+        cg = CommentGenerator()
+        for op_hex, reg in self._sro_opcodes(0x30):
+            self._test_conditionals(cg, op_hex, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+
+    def test_srl(self):
+        cg = CommentGenerator()
+        for op_hex, reg in self._sro_opcodes(0x38):
+            self._test_conditionals(cg, op_hex, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+
+    def test_rrd_rld(self):
         cg = CommentGenerator()
         for op_hex in ('ED67', 'ED6F'):
             self._test_conditionals(cg, op_hex, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
-    def test_in_c_flags(self):
+    def test_in_c(self):
         cg = CommentGenerator()
-        for in_c, reg in IN_C.items():
-            self._test_conditionals(cg, in_c, reg, 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
+        for i, r in enumerate(('b', 'c', 'd', 'e', 'h', 'l', '', 'a')):
+            if r:
+                op_hex = f'ED{0x40 + i * 8:02X}'
+                self._test_conditionals(cg, op_hex, f'#REG{r}', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
-    def test_daa_flags(self):
+    def test_daa(self):
         cg = CommentGenerator()
         self._test_conditionals(cg, '27', '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
-    def test_neg_flags(self):
+    def test_neg(self):
         cg = CommentGenerator()
         for opcode in range(0x44, 0x84, 8):
             self._test_conditionals(cg, f'ED{opcode:02X}', '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NEGATE')
 
-    def test_sbc_hl_flags(self):
+    def test_sbc_hl(self):
         cg = CommentGenerator()
         for opcode in range(0x42, 0x82, 0x10):
             self._test_conditionals(cg, f'ED{opcode:02X}', '#REGhl', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
 
-    def test_adc_hl_flags(self):
+    def test_adc_hl(self):
         cg = CommentGenerator()
         for opcode in range(0x4A, 0x8A, 0x10):
             self._test_conditionals(cg, f'ED{opcode:02X}', '#REGhl', 'SF_SIGN', 'ZF_ZERO', 'PF_OFLOW', 'CF_NA')
 
-    def test_ini_outi_ind_outd_flags(self):
+    def test_ini_outi_ind_outd(self):
         cg = CommentGenerator()
         for op_hex in ('EDA2', 'EDA3', 'EDAA', 'EDAB'):
             self._test_conditionals(cg, op_hex, '#REGb', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY', 'CF_NA')
 
-    def test_cpi_cpd_flags(self):
+    def test_cpi_cpd_cpir_cpdr(self):
         cg = CommentGenerator()
-        for op_hex in ('EDA1', 'EDA9'):
+        for op_hex in ('EDA1', 'EDA9', 'EDB1', 'EDB9'):
             self._test_conditionals(cg, op_hex, 'PEEK #REGhl', 'SF_NA', 'ZF_COMPARE', 'PF_BLOCK', 'CF_NA')
 
-    def test_ldi_ldd_flags(self):
+    def test_ldi_ldd(self):
         cg = CommentGenerator()
         for op_hex in ('EDA0', 'EDA8'):
             self._test_conditionals(cg, op_hex, '', 'SF_NA', 'ZF_NA', 'PF_BLOCK', 'CF_NA')
 
-    def test_ld_a_i_r_flags(self):
+    def test_ld_a_i_r(self):
         cg = CommentGenerator()
         for op_hex in ('ED57', 'ED5F'):
             self._test_conditionals(cg, op_hex, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_IFF2', 'CF_NA')
+
+    def test_bit_b_r(self):
+        cg = CommentGenerator()
+        for b in range(8):
+            sf_group = 'SF_BIT_7' if b == 7 else 'SF_NA'
+            for i, r in enumerate(('#REGb', '#REGc', '#REGd', '#REGe', '#REGh', '#REGl', 'PEEK #REGhl', '#REGa')):
+                op_hex = f'CB{0x40 + 8 * b + i:02X}'
+                ctx = f'bit {b} of {r}'
+                self._test_conditionals(cg, op_hex, ctx, sf_group, 'ZF_BIT', 'PF_BIT', 'CF_NA')
+
+    def test_bit_b_xy(self):
+        cg = CommentGenerator()
+        for b in range(8):
+            sf_group = 'SF_BIT_7' if b == 7 else 'SF_NA'
+            for prefix, r in (('DD', '#REGix'), ('FD', '#REGiy')):
+                ctx = f'bit {b} of PEEK ({r}+#N(0,2,,1)($))'
+                for i in range(8):
+                    op_hex = f'{prefix}CB00{0x40 + 8 * b + i:02X}'
+                    self._test_conditionals(cg, op_hex, ctx, sf_group, 'ZF_BIT', 'PF_BIT', 'CF_NA')
+
+    def test_rlca_rrca_rla_rra(self):
+        cg = CommentGenerator()
+        for op_hex in ('07', '0F', '17', '1F'):
+            self._test_conditionals(cg, op_hex, '', 'SF_NA', 'ZF_NA', 'PF_NA', 'CF_NA')
+
+    def test_add_hl_xy(self):
+        cg = CommentGenerator()
+        for prefix in ('', 'DD', 'FD'):
+            for opcode in range(0x09, 0x49, 0x10):
+                op_hex = f'{prefix}{opcode:02X}'
+                self._test_conditionals(cg, op_hex, '', 'SF_NA', 'ZF_NA', 'PF_NA', 'CF_NA')

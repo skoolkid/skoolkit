@@ -21,24 +21,29 @@ REGISTERS = ('#REGb', '#REGc', '#REGd', '#REGe', '#REGh', '#REGl', '(#REGhl)', '
 BITS = tuple(tuple(b for b in range(8) if (n >> b) % 2) for n in range(256))
 
 ZF, SF, PF, CF = 0b01000000, 0b10000000, 0b00000100, 0b00000001
-NA, SIGN, ZERO, COMPARE, PARITY, PARITY_REG, OFLOW, OFLOW_INC, OFLOW_DEC, IFF2, BLOCK, NEGATE = range(12)
+(NA, SIGN, ZERO, COMPARE, PARITY, PARITY_REG, OFLOW, OFLOW_INC, OFLOW_DEC,
+ IFF2, BLOCK, NEGATE, BIT_TEST, BIT_7_TEST) = range(14)
 
 FLAGS = {
     SF: ({
         NA: 'the sign flag is not set (positive)',
         SIGN: '{}<' + BYTE.format(128),
+        BIT_7_TEST: '{} is reset',
     }, {
         NA: 'the sign flag is set (negative)',
         SIGN: '{}>=' + BYTE.format(128),
+        BIT_7_TEST: '{} is set',
     }),
     ZF: ({
         NA: 'the zero flag is not set',
         ZERO: '{}>0',
         COMPARE: '#REGa<>{}',
+        BIT_TEST: '{} is set',
     }, {
         NA: 'the zero flag is set',
         ZERO: '{}=0',
         COMPARE: '#REGa={}',
+        BIT_TEST: '{} is reset',
     }),
     PF: ({
         NA: 'the parity/overflow flag is not set (parity odd)',
@@ -49,6 +54,7 @@ FLAGS = {
         OFLOW_DEC: '{}<>' + BYTE.format(127),
         IFF2: 'interrupts are disabled',
         BLOCK: '#REGbc=0',
+        BIT_TEST: '{} is set',
     }, {
         NA: 'the parity/overflow flag is set (parity even)',
         PARITY: 'the parity flag is set',
@@ -58,6 +64,7 @@ FLAGS = {
         OFLOW_DEC: '{}=' + BYTE.format(127),
         IFF2: 'interrupts are enabled',
         BLOCK: '#REGbc>0',
+        BIT_TEST: '{} is reset',
     }),
     CF: ({
         NA: 'the carry flag is not set',
@@ -80,6 +87,8 @@ IFF2_FLAGS = {SF: SIGN, ZF: ZERO, PF: IFF2, CF: NA}
 NEGATE_FLAGS = {SF: SIGN, ZF: ZERO, PF: PARITY_REG, CF: NEGATE}
 LDBLOCK_FLAGS = {SF: NA, ZF: NA, PF: BLOCK, CF: NA}
 CPBLOCK_FLAGS = {SF: NA, ZF: COMPARE, PF: BLOCK, CF: NA}
+BIT_TEST_FLAGS = {SF: NA, ZF: BIT_TEST, PF: BIT_TEST, CF: NA}
+BIT_7_TEST_FLAGS = {SF: BIT_7_TEST, ZF: BIT_TEST, PF: BIT_TEST, CF: NA}
 
 ADD = '{0}={0}+{1}'
 ADD_A = '#REGa=#REGa+{}'
@@ -348,11 +357,11 @@ class CommentGenerator:
             0xAA: (None, 'POKE #REGhl,IN #REGbc; #REGhl=#REGhl-1; #REGb=#REGb-1', ('#REGb', DEFAULT_FLAGS)),
             0xAB: (None, '#REGb=#REGb-1; OUT #REGbc,PEEK #REGhl; #REGhl=#REGhl-1', ('#REGb', DEFAULT_FLAGS)),
             0xB0: (None, 'POKE #REGde,PEEK #REGhl; #REGhl=#REGhl+1; #REGde=#REGde+1; #REGbc=#REGbc-1; repeat until #REGbc=0', None),
-            0xB1: (None, 'Compare #REGa with PEEK #REGhl; #REGhl=#REGhl+1; #REGbc=#REGbc-1; repeat until #REGbc=0 or #REGa=PEEK #REGhl', None),
+            0xB1: (None, 'Compare #REGa with PEEK #REGhl; #REGhl=#REGhl+1; #REGbc=#REGbc-1; repeat until #REGbc=0 or #REGa=PEEK #REGhl', ('PEEK #REGhl', CPBLOCK_FLAGS)),
             0xB2: (None, 'POKE #REGhl,IN #REGbc; #REGhl=#REGhl+1; #REGb=#REGb-1; repeat until #REGb=0', None),
             0xB3: (None, '#REGb=#REGb-1; OUT #REGbc,PEEK #REGhl; #REGhl=#REGhl+1; repeat until #REGb=0', None),
             0xB8: (None, 'POKE #REGde,PEEK #REGhl; #REGhl=#REGhl-1; #REGde=#REGde-1; #REGbc=#REGbc-1; repeat until #REGbc=0', None),
-            0xB9: (None, 'Compare #REGa with PEEK #REGhl; #REGhl=#REGhl-1; #REGbc=#REGbc-1; repeat until #REGbc=0 or #REGa=PEEK #REGhl', None),
+            0xB9: (None, 'Compare #REGa with PEEK #REGhl; #REGhl=#REGhl-1; #REGbc=#REGbc-1; repeat until #REGbc=0 or #REGa=PEEK #REGhl', ('PEEK #REGhl', CPBLOCK_FLAGS)),
             0xBA: (None, 'POKE #REGhl,IN #REGbc; #REGhl=#REGhl-1; #REGb=#REGb-1; repeat until #REGb=0', None),
             0xBB: (None, '#REGb=#REGb-1; OUT #REGbc,PEEK #REGhl; #REGhl=#REGhl-1; repeat until #REGb=0', None)
         }
@@ -402,17 +411,19 @@ class CommentGenerator:
             self.after_ED[0x45 + 8 * i] = (None, (RETN, RETI)[i == 1], None)
             self.after_ED[0x46 + 8 * i] = (None, IM.format((0, 0, 1, 2)[i % 4]), None)
             for b, comment in enumerate((RLC, RRC, RL, RR, SLA, SRA, SLL, SRL)):
-                self.after_CB[0x40 + 8 * b + i] = (BIT.format(b, r), None)
+                bit_test_flags = BIT_7_TEST_FLAGS if b == 7 else BIT_TEST_FLAGS
                 self.after_CB[0x80 + 8 * b + i] = (RES.format(b, r), None)
                 self.after_CB[0xC0 + 8 * b + i] = (SET.format(b, r), None)
-                self.after_DDCB[0x40 + 8 * b + i] = (self.index, BIT.format(b, '{ixd}'), None)
+                self.after_DDCB[0x40 + 8 * b + i] = (self.index, BIT.format(b, '{ixd}'), (f'bit {b} of PEEK {{ixd}}', bit_test_flags))
                 if i == 6:
                     self.after_CB[0x00 + 8 * b + i] = (comment.format(r), ('(PEEK #REGhl)', PARITY_FLAGS))
+                    self.after_CB[0x40 + 8 * b + i] = (BIT.format(b, r), (f'bit {b} of PEEK #REGhl', bit_test_flags))
                     self.after_DDCB[0x00 + 8 * b + i] = (self.index, comment.format('{ixd}'), ('(PEEK {ixd})', PARITY_FLAGS))
                     self.after_DDCB[0x80 + 8 * b + i] = (self.index, RES.format(b, '{ixd}'), None)
                     self.after_DDCB[0xC0 + 8 * b + i] = (self.index, SET.format(b, '{ixd}'), None)
                 else:
                     self.after_CB[0x00 + 8 * b + i] = (comment.format(r), (r, PARITY_FLAGS))
+                    self.after_CB[0x40 + 8 * b + i] = (BIT.format(b, r), (f'bit {b} of {r}', bit_test_flags))
                     self.after_DDCB[0x00 + 8 * b + i] = (self.index, comment.format('{ixd}') + f' and copy the result to {r}', (r, PARITY_FLAGS))
                     self.after_DDCB[0x80 + 8 * b + i] = (self.index, RES.format(b, '{ixd}') + f' and copy the result to {r}', None)
                     self.after_DDCB[0xC0 + 8 * b + i] = (self.index, SET.format(b, '{ixd}') + f' and copy the result to {r}', None)
