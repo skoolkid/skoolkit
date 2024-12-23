@@ -129,6 +129,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(options.depth, 2)
         self.assertEqual([], options.dump)
         self.assertTrue(options.interrupts)
+        self.assertIsNone(options.map)
         self.assertEqual(options.max_operations, 0)
         self.assertEqual(options.max_tstates, 0)
         self.assertIsNone(options.org)
@@ -1322,6 +1323,45 @@ class TraceTest(SkoolKitTestCase):
         z80file, options, config = run_args
         self.assertEqual(['TraceLine=Goodbye'], options.params)
         self.assertEqual(config['TraceLine'], 'Goodbye')
+
+    def test_option_map(self):
+        data = (
+            0xAF,                   # $8000 XOR A
+            0x3C,                   # $8001 INC A
+            0x18, 0x01,             # $8002 JR $8005
+            0x00,                   # $8004 NOP
+            0x3D,                   # $8005 DEC A
+            0xCD, 0x0C, 0x80,       # $8006 CALL $800C
+            0xC3, 0x0E, 0x80,       # $8009 JP $800E
+            0xC9,                   # $800C RET
+            0x00,                   # $800D NOP
+            0x3C,                   # $800E INC A
+        )
+        mapfile = 'exec.map'
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 32768
+        stop = start + len(data)
+        output, error = self.run_trace(f'-n -o {start} -S {stop} --map {mapfile} {binfile}')
+        self.assertEqual(error, '')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {mapfile}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertTrue(os.path.isfile(mapfile))
+        exp_map = """
+            $8000
+            $8001
+            $8002
+            $8005
+            $8006
+            $8009
+            $800C
+            $800E
+        """
+        with open(mapfile) as f:
+            map_contents = f.read()
+        self.assertEqual(dedent(exp_map).lstrip(), map_contents)
 
     def test_option_max_operations(self):
         data = [

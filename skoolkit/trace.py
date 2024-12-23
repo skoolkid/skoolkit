@@ -46,7 +46,7 @@ class Tracer(PagingTracer):
         self.out_times = []
         self.keyboard = None
 
-    def run(self, start, stop, max_operations, max_tstates, interrupts, draw, trace_line, prefix, byte_fmt, word_fmt):
+    def run(self, start, stop, max_operations, max_tstates, interrupts, draw, exec_map, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
         memory = simulator.memory
         registers = simulator.registers
@@ -67,7 +67,7 @@ class Tracer(PagingTracer):
                 tf = lambda pc, i, t0: print(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
             else:
                 df = tf = None
-            stop_cond, operations = simulator.trace(start, stop, max_operations, max_time, interrupts, draw, keyboard, df, tf)
+            stop_cond, operations = simulator.trace(start, stop, max_operations, max_time, interrupts, draw, exec_map, keyboard, df, tf)
         else:
             opcodes = simulator.opcodes
             frame_duration = simulator.frame_duration
@@ -85,6 +85,9 @@ class Tracer(PagingTracer):
                 else:
                     opcodes[memory[pc]]()
                 tstates = registers[25]
+
+                if exec_map is not None:
+                    exec_map.add(pc)
 
                 if interrupts and registers[26] and tstates % frame_duration < int_active:
                     simulator.accept_interrupt(registers, memory, pc)
@@ -285,8 +288,12 @@ def run(snafile, options, config):
         draw = screen.draw
     else:
         draw = None
+    if options.map:
+        exec_map = set()
+    else:
+        exec_map = None
     tracer.run(start, options.stop, options.max_operations, options.max_tstates,
-               options.interrupts, draw, trace_line, prefix, byte_fmt, word_fmt)
+               options.interrupts, draw, exec_map, trace_line, prefix, byte_fmt, word_fmt)
     rt = time.time() - begin
     if len(simulator.memory) == 65536:
         cpu_freq = 3500000
@@ -306,6 +313,11 @@ def run(snafile, options, config):
         print(f'Sound duration: {z80t} T-states ({z80s:.3f}s)')
         lines = textwrap.wrap(simplify(delays, options.depth), 78)
         print('Delays:\n {}'.format('\n '.join(lines)))
+    if options.map:
+        with open(options.map, 'w') as f:
+            for addr in sorted(exec_map):
+                f.write(f'${addr:04X}\n')
+        print(f'Wrote {options.map}')
     for fname in options.dump:
         ext = fname.lower()[-4:]
         if ext == '.wav':
@@ -347,6 +359,8 @@ def main(args):
                        help='Simplify audio delays to this depth (default: 2).')
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
+    group.add_argument('--map', metavar='FILE',
+                       help="Log addresses of executed instructions to a file.")
     group.add_argument('-m', '--max-operations', metavar='MAX', type=int, default=0,
                        help='Maximum number of instructions to execute.')
     group.add_argument('-M', '--max-tstates', metavar='MAX', type=int, default=0,

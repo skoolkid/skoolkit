@@ -12,6 +12,8 @@ Changelog
   enable instruction comment generation)
 * :ref:`trace.py` now responds to keypresses while running with screen contents
   displayed
+* Added the ``--map`` option to :ref:`trace.py` (for writing a code execution
+  map file)
 * Added the ``UserAgent`` configuration parameter for
   :ref:`tap2sna.py <tap2sna-conf>` (to specify the User-Agent header in
   HTTP/HTTPS requests)

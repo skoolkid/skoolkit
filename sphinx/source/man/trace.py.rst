@@ -39,6 +39,9 @@ OPTIONS
   overriding any value found in ``skoolkit.ini``. This option may be used
   multiple times.
 
+--map FILE
+  Log addresses of executed instructions to a file.
+
 -m, --max-operations `MAX`
   Maximum number of instructions to execute. Overrides the `STOP` address (if
   given).

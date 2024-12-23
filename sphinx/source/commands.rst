@@ -946,7 +946,7 @@ to be a binary file.
 The ``-m`` option may be used to specify a code execution map to use when
 generating a control file. The supported file formats are:
 
-* Files created by the ``--map`` option of :ref:`rzxplay.py`
+* Files created by the ``--map`` option of :ref:`rzxplay.py` or :ref:`trace.py`
 * Profiles created by the Fuse emulator
 * Code execution logs created by the SpecEmu, Spud and Zero emulators
 * Map files created by the SpecEmu and Z80 emulators
@@ -2031,6 +2031,7 @@ To list the options supported by `trace.py`, run it with no arguments::
     -D, --decimal         Show decimal values in verbose mode.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
+    --map FILE            Log addresses of executed instructions to a file.
     -m MAX, --max-operations MAX
                           Maximum number of instructions to execute.
     -M MAX, --max-tstates MAX
@@ -2150,7 +2151,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.5     | Responds to keypresses while the screen is displayed              |
+| 9.5     | Responds to keypresses while the screen is displayed; added the   |
+|         | ``--map`` option                                                  |
 +---------+-------------------------------------------------------------------+
 | 9.4     | Added the ``--screen`` option; added support for writing a PNG    |
 |         | file after execution has completed; added the ``PNGScale``,       |

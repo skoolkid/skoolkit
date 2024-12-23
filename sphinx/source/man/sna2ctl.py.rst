@@ -36,8 +36,8 @@ OPTIONS
 
 -m, --map `FILE`
   Specify a code execution map to use. Code execution maps produced by
-  ``rzxplay.py`` and by the Fuse, SpecEmu, Spud, Zero and Z80 Spectrum
-  emulators are supported.
+  ``rzxplay.py`` and ``trace.py``, and by the Fuse, SpecEmu, Spud, Zero and Z80
+  Spectrum emulators are supported.
 
 -o, --org `ADDR`
   Specify the origin address of a binary file. The default origin address is

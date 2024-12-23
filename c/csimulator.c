@@ -5356,18 +5356,19 @@ static PyObject* CSimulator_accept_interrupt(CSimulatorObject* self, PyObject* a
 }
 
 static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", "", "", "", "", "", "", NULL};
+    static char* kwlist[] = {"", "", "", "", "", "", "", "", "", "", NULL};
     PyObject* start_obj;
     PyObject* stop_obj;
     unsigned long long max_operations;
     unsigned long long max_time;
     int interrupts;
     PyObject* draw;
+    PyObject* exec_map;
     PyObject* keyboard;
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKKiOOOO", kwlist, &start_obj, &stop_obj, &max_operations, &max_time, &interrupts, &draw, &keyboard, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKKiOOOOO", kwlist, &start_obj, &stop_obj, &max_operations, &max_time, &interrupts, &draw, &exec_map, &keyboard, &disassemble, &trace)) {
         return NULL;
     }
 
@@ -5429,6 +5430,15 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
         opcode_func->func(self, opcode_func->lookup, opcode_func->args);
         if (PyErr_Occurred()) {
             return NULL;
+        }
+
+        if (exec_map != Py_None) {
+            PyObject* addr = PyLong_FromLong(pc);
+            int rv = PySet_Add(exec_map, addr);
+            Py_XDECREF(addr);
+            if (rv == -1) {
+                return NULL;
+            }
         }
 
         if (trace == Py_None) {
