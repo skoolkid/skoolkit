@@ -132,6 +132,7 @@ XOR = '#REGa=#REGa^{}'
 
 class CommentGenerator:
     def __init__(self):
+        self.exp_addr = None
         self.ctx = None
         self.reg = None
 
@@ -436,6 +437,8 @@ class CommentGenerator:
         :param values: The instruction's byte values.
         :return: A comment for the instruction.
         """
+        if address != self.exp_addr:
+            self.ctx = None
         decoder, template, fctx = self.ops[values[0]]
         if decoder is None:
             rv = template
@@ -452,7 +455,8 @@ class CommentGenerator:
         if fctx:
             self.reg, self.ctx = fctx[0].format(*values), fctx[1]
         else:
-            self.reg, self.ctx = None, None
+            self.ctx = None
+        self.exp_addr = (address + len(values)) % 65536
         return comment
 
     def byte_arg(self, template, address, values):

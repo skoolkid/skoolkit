@@ -5323,6 +5323,79 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, comments=True)
 
+    def test_comment_generation_with_existing_comments(self):
+        snapshot = [
+            203, 64,                # 00000 BIT 0,B
+            203, 72,                # 00002 BIT 1,B
+            40, 6,                  # 00004 JR Z,12
+            5,                      # 00006 DEC B
+            13,                     # 00007 DEC C
+            32, 2,                  # 00008 JR NZ,12
+            184,                    # 00010 CP B
+            185,                    # 00011 CP C
+            216,                    # 00012 RET C
+        ]
+        ctl = """
+            c 00000
+              00002,2 Test bit 1 of #REGb
+              00007,1 Decrement #REGc
+              00011,1 Compare #REGa with #REGc
+            i 00013
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 BIT 0,B       ; Set the zero flag if bit 0 of #REGb is 0
+             00002 BIT 1,B       ; Test bit 1 of #REGb
+             00004 JR Z,12       ; Jump to #R12 if bit 1 of #REGb is reset
+             00006 DEC B         ; #REGb=#REGb-1
+             00007 DEC C         ; Decrement #REGc
+             00008 JR NZ,12      ; Jump to #R12 if #REGc>0
+             00010 CP B          ; Set the zero flag if #REGa=#REGb, or the carry flag if #REGa<#REGb
+             00011 CP C          ; Compare #REGa with #REGc
+            *00012 RET C         ; Return if #REGa<#REGc
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, comments=True)
+
+    def test_comment_generation_with_interposed_defb_defm_defs_defw(self):
+        snapshot = [
+            203, 69,                # 00000 BIT 0,L
+            0,                      # 00002 DEFB 0
+            40, 11,                 # 00003 JR Z,16
+            37,                     # 00005 DEC H
+            97,                     # 00006 DEFM "a"
+            32, 7,                  # 00007 JR NZ,16
+            187,                    # 00009 CP E
+            0,                      # 00010 DEFS 1
+            48, 3,                  # 00011 JR NC,16
+            146,                    # 00013 SUB D
+            0, 0,                   # 00014 DEFW 0
+            240,                    # 00016 RET P
+        ]
+        ctl = """
+            c 00000
+            B 00002,1
+            T 00006,1
+            S 00010,1
+            W 00014,2
+            i 00017
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 BIT 0,L       ; Set the zero flag if bit 0 of #REGl is 0
+             00002 DEFB 0        ;
+             00003 JR Z,16       ; Jump to #R16 if the zero flag is set
+             00005 DEC H         ; #REGh=#REGh-1
+             00006 DEFM "a"      ;
+             00007 JR NZ,16      ; Jump to #R16 if the zero flag is not set
+             00009 CP E          ; Set the zero flag if #REGa=#REGe, or the carry flag if #REGa<#REGe
+             00010 DEFS 1        ;
+             00011 JR NC,16      ; Jump to #R16 if the carry flag is not set
+             00013 SUB D         ; #REGa=#REGa-#REGd
+             00014 DEFW 0        ;
+            *00016 RET P         ; Return if the sign flag is not set (positive)
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, comments=True)
+
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_comment_generator(self):
         custom_cg = """

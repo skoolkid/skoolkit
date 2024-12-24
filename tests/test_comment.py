@@ -1231,12 +1231,13 @@ class ConditionalCallJumpRetTest(SkoolKitTestCase):
         return opcodes
 
     def _test_conditionals(self, cg, op_hex, reg, *conditionals):
+        addr = 0x8000
         op_v = [int(op_hex[i:i + 2], 16) for i in range(0, len(op_hex), 2)]
         for name in conditionals:
             for cond, exp_comment in CONDITIONALS[name].items():
-                cg.get_comment(0x8000, op_v)
+                cg.get_comment(addr - len(op_v), op_v)
                 cond_v = [int(cond[i:i + 2], 16) for i in range(0, len(cond), 2)]
-                self.assertEqual(cg.get_comment(0x8000, cond_v), exp_comment.format(reg), f'Opcodes: {op_hex} {cond}')
+                self.assertEqual(cg.get_comment(addr, cond_v), exp_comment.format(reg), f'Opcodes: {op_hex} {cond}')
 
     def test_inc(self):
         cg = CommentGenerator()

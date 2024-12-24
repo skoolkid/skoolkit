@@ -386,6 +386,10 @@ class SkoolWriter:
     def _set_instruction_comments(self, block, width, closing, show_text):
         for instruction in block.instructions:
             instruction.comment = [None]
+            if self.comment_gen and not instruction.operation.upper().startswith('DEF'):
+                gcomment = self.comment_gen.get_comment(instruction.address, instruction.bytes)
+            else:
+                gcomment = None
             if block.comment:
                 if block.repeat_comment:
                     instruction.comment[:] = [c[1] for c in block.comment]
@@ -393,8 +397,8 @@ class SkoolWriter:
                     instruction.comment[0] = block.comment.pop(0)[1]
                     while block.comment and block.comment[0][0]:
                         instruction.comment.append(block.comment.pop(0)[1])
-            elif self.comment_gen and not instruction.operation.upper().startswith('DEF'):
-                instruction.comment[0] = self.comment_gen.get_comment(instruction.address, instruction.bytes)
+            elif gcomment:
+                instruction.comment[0] = gcomment
             elif show_text:
                 instruction.comment[0] = self.to_ascii(instruction.bytes)
             elif self.config['Timings']:
