@@ -2958,7 +2958,9 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0:,2(foo)', 'Expected mask address range specification: #UDGARRAY1;0:', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1(0:,2)(foo)', 'Expected mask address range specification: #UDGARRAY1(0:', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0@(foo)', 'Expected attribute address range specification: #UDGARRAY1;0@', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0(@)(foo)', 'Expected attribute address range specification: #UDGARRAY1;0(@)', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0@1;(foo)', 'Expected attribute address range specification: #UDGARRAY1;0@1;', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0(@1;)(foo)', 'Expected attribute address range specification: #UDGARRAY1;0(@1;)', prefix)
 
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0', 'Missing filename: #UDGARRAY1;0', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0()', 'Missing filename: #UDGARRAY1;0()', prefix)
@@ -2974,6 +2976,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY1;32768xJ', "Invalid multiplier in address range specification: 32768xJ", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0x2:8xK', "Invalid multiplier in address range specification: 8xK", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0x2@2xn', "Invalid multiplier in address range specification: 2xn", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0x2(@2xn)', "Invalid multiplier in address range specification: 2xn", prefix)
 
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0(foo', 'No closing bracket: (foo', prefix)
@@ -2986,6 +2989,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0:0x({nae})(udg)', "Unrecognised field 'nae': {nae}", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0:0,({nada})(udg)', "Unrecognised field 'nada': {nada}", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0@({nix})(udg)', "Unrecognised field 'nix': {nix}", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0(@({nix}))(udg)', "Unrecognised field 'nix': {nix}", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0{{nyet}}(udg)', "Unrecognised field 'nyet': {nyet}", prefix)
 
         self._test_invalid_image_macro(writer, '#UDGARRAY({foo);0(udg)', "Invalid format string: {foo", prefix)
@@ -2994,6 +2998,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0:({qux)(udg)', "Invalid format string: {qux", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0:0,({xyzzy)(udg)', "Invalid format string: {xyzzy", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0@({bish)(udg)', "Invalid format string: {bish", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0(@({bish))(udg)', "Invalid format string: {bish", prefix)
 
     def test_macro_udgarray_frames_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)

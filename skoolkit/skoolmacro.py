@@ -1569,15 +1569,24 @@ def _get_udgs(text, index, pvals, start, snapshot, fields):
     if not has_masks:
         pvals[7] = 0 # Set mask=0
 
-    if end < len(text) and text[end] == '@':
-        end, attr_addresses = parse_address_range(text, end + 1, width, fields)
-        if attr_addresses is None:
-            raise MacroParsingError(f'Expected attribute address range specification: #UDGARRAY{text[start:end]}')
-        while end < len(text) and text[end] == ';':
-            end, addresses = parse_address_range(text, end + 1, width, fields)
-            if addresses is None:
+    if text[end:end + 2].startswith(('(@', '@')):
+        if text[end] == '(':
+            end, attr_specs = parse_brackets(text, end)
+            attr_addresses = []
+            for attr_spec in attr_specs[1:].split(';'):
+                addresses = parse_address_range(attr_spec, 0, width, fields)[1]
+                if addresses is None:
+                    raise MacroParsingError(f'Expected attribute address range specification: #UDGARRAY{text[start:end]}')
+                attr_addresses.extend(addresses)
+        else:
+            end, attr_addresses = parse_address_range(text, end + 1, width, fields)
+            if attr_addresses is None:
                 raise MacroParsingError(f'Expected attribute address range specification: #UDGARRAY{text[start:end]}')
-            attr_addresses.extend(addresses)
+            while end < len(text) and text[end] == ';':
+                end, addresses = parse_address_range(text, end + 1, width, fields)
+                if addresses is None:
+                    raise MacroParsingError(f'Expected attribute address range specification: #UDGARRAY{text[start:end]}')
+                attr_addresses.extend(addresses)
         if snapshot:
             for i, attr_addr in enumerate(attr_addresses):
                 y = i // width

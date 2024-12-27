@@ -2468,7 +2468,7 @@ The integer parameters, mask specification and cropping specification of the
 In HTML mode, the ``#UDGARRAY`` macro expands to an ``<img>`` element for the
 image of an array of UDGs (8x8 blocks of pixels). ::
 
-  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha](SPEC1[;SPEC2;...])[@ATTRS1[;ATTRS2;...]][{CROP}](fname)
+  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha](SPEC1[;SPEC2;...])[(@ATTRS1[;ATTRS2;...])][{CROP}](fname)
 
 * ``width`` is the width of the image (in UDGs)
 * ``attr`` is the default attribute byte of each UDG (default: 56)
@@ -2566,12 +2566,15 @@ specification and cropping specification of the ``#UDGARRAY`` macro may contain
 See also :ref:`UDGS`.
 
 .. note::
-   Omitting the parentheses around the UDG specifications is deprecated since
-   version 9.5.
+   Omitting the parentheses around the UDG specifications and around the
+   attribute address range specifications is deprecated since version 9.5.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.5     | The attribute address range specifications may be enclosed in     |
+|         | parentheses                                                       |
++---------+-------------------------------------------------------------------+
 | 8.6     | The UDG specifications may be enclosed in parentheses             |
 +---------+-------------------------------------------------------------------+
 | 8.3     | Added support for replacement fields in the integer parameters    |
