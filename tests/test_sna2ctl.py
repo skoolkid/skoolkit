@@ -831,9 +831,9 @@ class Sna2CtlTest(SkoolKitTestCase):
     def test_custom_comment_generator(self):
         custom_cg = """
             class CustomCommentGenerator:
-                def get_comment(self, address, values):
-                    hex_values = ''.join(f'{v:02X}' for v in values)
-                    return f'${address:04X}: {hex_values}'
+                def get_comment(self, instruction):
+                    hex_values = ''.join(f'{v:02X}' for v in instruction.bytes)
+                    return f'${instruction.address:04X}: {hex_values}'
         """
         self.write_component_config('CommentGenerator', '*.CustomCommentGenerator', custom_cg)
         data = [

@@ -1,4 +1,4 @@
-# Copyright 2009-2021, 2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2021, 2024, 2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -27,6 +27,12 @@ from skoolkit.snaskool import Disassembly
 # API (CodeMapReader)
 class CodeMapError(SkoolKitError):
     """Raised when an error occurs while reading a code map file."""
+
+# API (CommentGenerator)
+class Instruction:
+    def __init__(self, address, data):
+        self.address = address
+        self.bytes = data
 
 # Component API
 def read_map(fname, snapshot, start, end):
@@ -420,7 +426,7 @@ def _generate_comments(snapshot, ctls, comments):
         if ctl == 'c':
             comments[start] = []
             for a, size, mc, op_id, op in decode(snapshot, start, blocks[i + 1][0]):
-                comments[start].append((a, cg.get_comment(a, snapshot[a:a + size])))
+                comments[start].append((a, cg.get_comment(Instruction(a, snapshot[a:a + size]))))
 
 def write_ctl(ctls, snapshot, options):
     comments = {}

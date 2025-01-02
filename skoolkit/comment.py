@@ -1,4 +1,4 @@
-# Copyright 2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2024, 2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -430,33 +430,33 @@ class CommentGenerator:
                     self.after_DDCB[0xC0 + 8 * b + i] = (self.index, SET.format(b, '{ixd}') + f' and copy the result to {r}', None)
 
     # Component API
-    def get_comment(self, address, values):
-        """Generate an instruction comment.
+    def get_comment(self, instruction):
+        """Return an instruction comment. The *instruction* object has the
+        following attributes:
 
-        :param address: The address of the instruction.
-        :param values: The instruction's byte values.
-        :return: A comment for the instruction.
+        * *address* - the address of the instruction
+        * *bytes* - the byte values of the instruction
         """
-        if address != self.exp_addr:
+        if instruction.address != self.exp_addr:
             self.ctx = None
-        decoder, template, fctx = self.ops[values[0]]
+        decoder, template, fctx = self.ops[instruction.bytes[0]]
         if decoder is None:
             rv = template
         elif template is None:
-            rv = decoder(address, values)
+            rv = decoder(instruction.address, instruction.bytes)
         elif isinstance(template, str):
-            rv = decoder(template, address, values)
+            rv = decoder(template, instruction.address, instruction.bytes)
         else:
-            rv = decoder(*template, address, values)
+            rv = decoder(*template, instruction.address, instruction.bytes)
         if isinstance(rv, str):
             comment = rv
         else:
             comment, fctx = rv
         if fctx:
-            self.reg, self.ctx = fctx[0].format(*values), fctx[1]
+            self.reg, self.ctx = fctx[0].format(*instruction.bytes), fctx[1]
         else:
             self.ctx = None
-        self.exp_addr = (address + len(values)) % 65536
+        self.exp_addr = (instruction.address + len(instruction.bytes)) % 65536
         return comment
 
     def byte_arg(self, template, address, values):

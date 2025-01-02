@@ -1,4 +1,4 @@
-# Copyright 2009-2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -70,9 +70,9 @@ def calculate_references(entries, operations):
 
 class Instruction:
     def __init__(self, address, operation, data):
-        self.address = address     # API (SnapshotReferenceCalculator)
+        self.address = address     # API (CommentGenerator, SnapshotReferenceCalculator)
         self.operation = operation # API (SnapshotReferenceCalculator)
-        self.bytes = data          # API (SnapshotReferenceCalculator)
+        self.bytes = data          # API (CommentGenerator, SnapshotReferenceCalculator)
         self.label = None          # API (SnapshotReferenceCalculator)
         self.refs = ()             # API (SnapshotReferenceCalculator)
         self.rrefs = ()            # API (SnapshotReferenceCalculator)
@@ -387,7 +387,7 @@ class SkoolWriter:
         for instruction in block.instructions:
             instruction.comment = [None]
             if self.comment_gen and not instruction.operation.upper().startswith('DEF'):
-                gcomment = self.comment_gen.get_comment(instruction.address, instruction.bytes)
+                gcomment = self.comment_gen.get_comment(instruction)
             else:
                 gcomment = None
             if block.comment:

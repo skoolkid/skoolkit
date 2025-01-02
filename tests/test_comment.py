@@ -1129,19 +1129,25 @@ CONDITIONALS = {
     },
 }
 
+class Instruction:
+    def __init__(self, address, data):
+        self.address = address
+        self.bytes = data
+
 class CommentGeneratorTest(SkoolKitTestCase):
     def test_instructions(self):
         cg = CommentGenerator()
+        dummy = Instruction(0x8000, [0])
         for hex_bytes, exp_comment in INSTRUCTIONS.items():
             values = [int(hex_bytes[i:i + 2], 16) for i in range(0, len(hex_bytes), 2)]
-            cg.get_comment(0x8000, [0]) # Clear context
-            self.assertEqual(cg.get_comment(0x8000, values), exp_comment, f'Opcodes: {hex_bytes}')
+            cg.get_comment(dummy) # Clear context
+            self.assertEqual(cg.get_comment(Instruction(0x8000, values)), exp_comment, f'Opcodes: {hex_bytes}')
 
     def test_after_dd(self):
         cg = CommentGenerator()
         for hex_bytes, exp_comment in AFTER_DD.items():
             values = [int(hex_bytes[i:i + 2], 16) for i in range(0, len(hex_bytes), 2)]
-            self.assertEqual(cg.get_comment(0x8000, values), exp_comment, f'Opcodes: {hex_bytes}')
+            self.assertEqual(cg.get_comment(Instruction(0x8000, values)), exp_comment, f'Opcodes: {hex_bytes}')
 
     def test_after_fd(self):
         cg = CommentGenerator()
@@ -1149,7 +1155,7 @@ class CommentGeneratorTest(SkoolKitTestCase):
             hex_bytes = 'FD' + hb[2:]
             exp_comment = c.replace('ix', 'iy')
             values = [int(hex_bytes[i:i + 2], 16) for i in range(0, len(hex_bytes), 2)]
-            self.assertEqual(cg.get_comment(0x8000, values), exp_comment, f'Opcodes: {hex_bytes}')
+            self.assertEqual(cg.get_comment(Instruction(0x8000, values)), exp_comment, f'Opcodes: {hex_bytes}')
 
     def test_and_n(self):
         cg = CommentGenerator()
@@ -1171,7 +1177,7 @@ class CommentGeneratorTest(SkoolKitTestCase):
                 else:
                     nbits_str = ', '.join(str(b) for b in nbits[:-1]) + f' and {nbits[-1]}'
                     exp_comment = f'Reset bits {nbits_str} of #REGa'
-            self.assertEqual(cg.get_comment(0x8000, (0xE6, n)), exp_comment)
+            self.assertEqual(cg.get_comment(Instruction(0x8000, (0xE6, n))), exp_comment)
 
     def test_or_n(self):
         cg = CommentGenerator()
@@ -1186,7 +1192,7 @@ class CommentGeneratorTest(SkoolKitTestCase):
                 exp_comment = f'Set bits {bits_str} of #REGa'
             else:
                 exp_comment = '#REGa=#N(255,2,,1)($)'
-            self.assertEqual(cg.get_comment(0x8000, (0xF6, n)), exp_comment)
+            self.assertEqual(cg.get_comment(Instruction(0x8000, (0xF6, n))), exp_comment)
 
     def test_xor_n(self):
         cg = CommentGenerator()
@@ -1201,7 +1207,7 @@ class CommentGeneratorTest(SkoolKitTestCase):
                 exp_comment = f'Flip bits {bits_str} of #REGa'
             else:
                 exp_comment = 'Flip every bit of #REGa'
-            self.assertEqual(cg.get_comment(0x8000, (0xEE, n)), exp_comment)
+            self.assertEqual(cg.get_comment(Instruction(0x8000, (0xEE, n))), exp_comment)
 
 class ConditionalCallJumpRetTest(SkoolKitTestCase):
     def _inc_dec_opcodes(self, base):
@@ -1235,9 +1241,9 @@ class ConditionalCallJumpRetTest(SkoolKitTestCase):
         op_v = [int(op_hex[i:i + 2], 16) for i in range(0, len(op_hex), 2)]
         for name in conditionals:
             for cond, exp_comment in CONDITIONALS[name].items():
-                cg.get_comment(addr - len(op_v), op_v)
+                cg.get_comment(Instruction(addr - len(op_v), op_v))
                 cond_v = [int(cond[i:i + 2], 16) for i in range(0, len(cond), 2)]
-                self.assertEqual(cg.get_comment(addr, cond_v), exp_comment.format(reg), f'Opcodes: {op_hex} {cond}')
+                self.assertEqual(cg.get_comment(Instruction(addr, cond_v)), exp_comment.format(reg), f'Opcodes: {op_hex} {cond}')
 
     def test_inc(self):
         cg = CommentGenerator()
