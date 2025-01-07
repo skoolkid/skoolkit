@@ -79,6 +79,7 @@ FLAGS = {
 
 DEFAULT_FLAGS = {SF: SIGN, ZF: ZERO, PF: PARITY, CF: NA}
 CP_FLAGS = {SF: NA, ZF: COMPARE, PF: OFLOW, CF: COMPARE}
+CP0_FLAGS = {SF: NA, ZF: COMPARE, PF: OFLOW, CF: NA}
 PARITY_FLAGS = {SF: SIGN, ZF: ZERO, PF: PARITY_REG, CF: NA}
 OFLOW_FLAGS = {SF: SIGN, ZF: ZERO, PF: OFLOW, CF: NA}
 OFLOW_INC_FLAGS = {SF: SIGN, ZF: ZERO, PF: OFLOW_INC, CF: NA}
@@ -239,7 +240,7 @@ class CommentGenerator:
             0xFB: (None, 'Enable interrupts', None),
             0xFC: (self.call_cc, (SF, 1), None),
             0xFD: (self.fd_arg, None, None),
-            0xFE: (self.byte_arg, CP.format(BYTE), (BYTE.format('{1}'), CP_FLAGS))
+            0xFE: (self.cp_n, None, None)
         }
 
         self.after_DD = {
@@ -507,6 +508,12 @@ class CommentGenerator:
             bits_str = ', '.join(str(b) for b in bits[:-1]) + f' and {bits[-1]}'
             return f'Flip bits {bits_str} of #REGa'
         return 'Flip every bit of #REGa'
+
+    def cp_n(self, address, values):
+        n = BYTE.format(values[1])
+        if values[1]:
+            return CP.format(n), (n, CP_FLAGS)
+        return 'Set the zero flag if #REGa=0, and reset the carry flag', (n, CP0_FLAGS)
 
     def addr_arg(self, template, address, values):
         if values[0] in PREFIXES:

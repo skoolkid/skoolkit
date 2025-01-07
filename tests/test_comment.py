@@ -278,7 +278,7 @@ INSTRUCTIONS = {
     'FA0000': "Jump to #R0 if the sign flag is set (negative)",
     'FB': "Enable interrupts",
     'FC0000': "CALL #R0 if the sign flag is set (negative)",
-    'FE00': "Set the zero flag if #REGa=#N(0,2,,1)($), or the carry flag if #REGa<#N(0,2,,1)($)",
+    'FE00': "Set the zero flag if #REGa=0, and reset the carry flag",
     'FF': "CALL #R56",
     'CB00': RLC.format('#REGb'),
     'CB01': RLC.format('#REGc'),
@@ -1209,6 +1209,15 @@ class CommentGeneratorTest(SkoolKitTestCase):
                 exp_comment = 'Flip every bit of #REGa'
             self.assertEqual(cg.get_comment(Instruction(0x8000, (0xEE, n))), exp_comment)
 
+    def test_cp_n(self):
+        cg = CommentGenerator()
+        for n in range(256):
+            if n:
+                exp_comment = f'Set the zero flag if #REGa=#N({n},2,,1)($), or the carry flag if #REGa<#N({n},2,,1)($)'
+            else:
+                exp_comment = 'Set the zero flag if #REGa=0, and reset the carry flag'
+            self.assertEqual(cg.get_comment(Instruction(0x8000, (0xFE, n))), exp_comment)
+
 class ConditionalCallJumpRetTest(SkoolKitTestCase):
     def _inc_dec_opcodes(self, base):
         opcodes = []
@@ -1290,7 +1299,7 @@ class ConditionalCallJumpRetTest(SkoolKitTestCase):
         for op_hex in self._alo_opcodes(0xB0):
             self._test_conditionals(cg, op_hex, '#REGa', 'SF_SIGN', 'ZF_ZERO', 'PF_PARITY_REG', 'CF_NA')
 
-    def test_cp(self):
+    def test_cp_r(self):
         cg = CommentGenerator()
         for op_hex, reg in (
                 ('B8', '#REGb'),
@@ -1300,7 +1309,6 @@ class ConditionalCallJumpRetTest(SkoolKitTestCase):
                 ('BC', '#REGh'),
                 ('BD', '#REGl'),
                 ('BE', 'PEEK #REGhl'),
-                ('FE01', '#N(1,2,,1)($)'),
                 ('DDBC', '#REGixh'),
                 ('DDBD', '#REGixl'),
                 ('DDBE00', 'PEEK (#REGix+#N(0,2,,1)($))'),
@@ -1309,6 +1317,11 @@ class ConditionalCallJumpRetTest(SkoolKitTestCase):
                 ('FDBE00', 'PEEK (#REGiy+#N(0,2,,1)($))'),
         ):
             self._test_conditionals(cg, op_hex, reg, 'SF_NA', 'ZF_COMPARE', 'PF_OFLOW', 'CF_COMPARE')
+
+    def test_cp_n(self):
+        cg = CommentGenerator()
+        for n in range(256):
+            self._test_conditionals(cg, f'FE{n:02X}', f'#N({n},2,,1)($)', 'SF_NA', 'ZF_COMPARE', 'PF_OFLOW', 'CF_COMPARE' if n else 'CF_NA')
 
     def test_rlc(self):
         cg = CommentGenerator()
