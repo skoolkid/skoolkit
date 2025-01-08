@@ -1218,6 +1218,21 @@ class CommentGeneratorTest(SkoolKitTestCase):
                 exp_comment = 'Set the zero flag if #REGa=0, and reset the carry flag'
             self.assertEqual(cg.get_comment(Instruction(0x8000, (0xFE, n))), exp_comment)
 
+    def test_jr_address(self):
+        cg = CommentGenerator()
+        for opcode, cond in (
+                (0x18, ''),
+                (0x20, ' if the zero flag is not set'),
+                (0x28, ' if the zero flag is set'),
+                (0x30, ' if the carry flag is not set'),
+                (0x38, ' if the carry flag is set')
+            ):
+            for addr in (0x0000, 0x8000, 0xFFFE, 0xFFFF):
+                for offset in (0x40, 0xA0):
+                    jr_addr = (addr + 2 + offset - 256 * (offset > 0x7F)) % 65536
+                    comment = cg.get_comment(Instruction(addr, (opcode, offset)))
+                    self.assertEqual(comment, f'Jump to #R{jr_addr}{cond}', f'Opcodes: {opcode:02X}{offset:02X}')
+
 class ConditionalCallJumpRetTest(SkoolKitTestCase):
     def _inc_dec_opcodes(self, base):
         opcodes = []

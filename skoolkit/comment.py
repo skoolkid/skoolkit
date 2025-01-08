@@ -524,10 +524,8 @@ class CommentGenerator:
 
     def jr_arg(self, template, address, values):
         if values[1] < 128:
-            addr = address + 2 + values[1]
-        else:
-            addr = address + values[1] - 254
-        return template.format(addr % 65536)
+            return template.format((address + 2 + values[1]) % 65536)
+        return template.format((address + values[1] - 254) % 65536)
 
     def index(self, template, address, values):
         return template.format(ixd=self.index_offset(address, values))
@@ -589,13 +587,13 @@ class CommentGenerator:
 
     def jr_cc(self, flag, value, address, values):
         if values[1] < 128:
-            addr = address + 2 + values[1]
+            addr = (address + 2 + values[1]) % 65536
         else:
-            addr = address + values[1] - 254
+            addr = (address + values[1] - 254) % 65536
         if self.ctx:
             cond = FLAGS[flag][value][self.ctx[flag]].format(self.reg)
-            return f'Jump to #R{addr % 65536} if {cond}'
-        return f'Jump to #R{addr % 65536} if {FLAGS[flag][value][NA]}'
+            return f'Jump to #R{addr} if {cond}'
+        return f'Jump to #R{addr} if {FLAGS[flag][value][NA]}'
 
     def ret_cc(self, flag, value, address, values):
         if self.ctx:
