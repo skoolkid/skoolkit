@@ -167,7 +167,7 @@ class CommentGenerator:
             0x29: (None, ADD.format('#REGhl', '#REGhl'), None),
             0x2A: (self.addr_arg, LD_rr_mm.format(WORD, 'l', 'h'), None),
             0x2B: (None, DEC.format('#REGhl'), None),
-            0x2F: (None, '#REGa=#N($FF,2,,1)($)-#REGa', None),
+            0x2F: (None, f'#REGa={BYTE}-#REGa'.format('$FF'), None),
             0x30: (self.jr_cc, (CF, 0), None),
             0x31: (self.word_arg, LD.format('#REGsp', WORD), None),
             0x32: (self.word_arg, f'POKE {WORD},#REGa', None),
@@ -180,7 +180,7 @@ class CommentGenerator:
             0x3F: (None, 'Complement the carry flag', None),
             0x76: (None, 'Wait for the next interrupt', None),
             0x97: (None, '#REGa=0', ('#REGa', OFLOW_FLAGS)),
-            0x9F: (None, '#REGa=#N($FF,2,,1)($) if carry flag is set, 0 otherwise', ('#REGa', OFLOW_FLAGS)),
+            0x9F: (None, f'#REGa={BYTE} if carry flag is set, 0 otherwise'.format('$FF'), ('#REGa', OFLOW_FLAGS)),
             0xA7: (None, 'Clear the carry flag and set the zero flag if #REGa=0', ('#REGa', PARITY_FLAGS)),
             0xAF: (None, '#REGa=0', ('#REGa', PARITY_FLAGS)),
             0xB7: (None, 'Clear the carry flag and set the zero flag if #REGa=0', ('#REGa', PARITY_FLAGS)),
@@ -338,7 +338,7 @@ class CommentGenerator:
             0x5A: (None, ADC.format('#REGhl', '#REGde'), ('#REGhl', OFLOW_FLAGS)),
             0x5B: (self.addr_arg, LD_rr_mm.format(WORD, 'e', 'd'), None),
             0x5F: (None, LD.format('#REGa', '#REGr'), ('#REGa', IFF2_FLAGS)),
-            0x62: (None, '#REGhl=#N($FFFF,4,,1)($) if carry flag is set, 0 otherwise', ('#REGhl', OFLOW_FLAGS)),
+            0x62: (None, f'#REGhl={WORD} if carry flag is set, 0 otherwise'.format('$FFFF'), ('#REGhl', OFLOW_FLAGS)),
             0x63: (self.addr_arg, LD_mm_rr.format(WORD, 'l', 'h'), None),
             0x67: (None, 'Rotate the low nibble of #REGa and all of (#REGhl) right 4 bits', ('#REGa', PARITY_FLAGS)),
             0x6A: (None, ADC.format('#REGhl', '#REGhl'), ('#REGhl', OFLOW_FLAGS)),
@@ -535,8 +535,8 @@ class CommentGenerator:
 
     def index_offset(self, address, values):
         if values[2] < 128:
-            return f'(#REGix+#N({values[2]},2,,1)($))'
-        return f'(#REGix-#N({256 - values[2]},2,,1)($))'
+            return f'(#REGix+{BYTE})'.format(values[2])
+        return f'(#REGix-{BYTE})'.format(256 - values[2])
 
     def cb_arg(self, address, values):
         return self.after_CB[values[1]]
