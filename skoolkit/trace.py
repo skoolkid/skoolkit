@@ -1,4 +1,4 @@
-# Copyright 2022-2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022-2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -61,7 +61,7 @@ class Tracer(PagingTracer):
         if trace_line:
             r = Registers(registers)
 
-        if hasattr(simulator, 'trace'): # pragma: no cover
+        if hasattr(simulator, 'trace'):
             if trace_line:
                 df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                 tf = lambda pc, i, t0: print(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
@@ -99,7 +99,7 @@ class Tracer(PagingTracer):
                 if draw:
                     frame = tstates // frame_duration
                     if frame > prev_frame:
-                        if not draw(memory[16384:23296], frame, keyboard): # pragma: no cover
+                        if not draw(memory[16384:23296], frame, keyboard):
                             stop_cond = 0
                             break
                         prev_frame = frame
@@ -114,18 +114,21 @@ class Tracer(PagingTracer):
                     stop_cond = 3
                     break
 
-        if stop_cond == 1:
-            print(f'Stopped at {prefix}{registers[PC]:{word_fmt}}: {operations} operations')
+        stop_msg = f'Stopped at {prefix}{registers[PC]:{word_fmt}}'
+        if stop_cond == 0:
+            print(f'{stop_msg}: screen closed')
+        elif stop_cond == 1:
+            print(f'{stop_msg}: {operations} operations')
         elif stop_cond == 2:
-            print(f'Stopped at {prefix}{registers[PC]:{word_fmt}}: {registers[T] - start_time} T-states')
+            print(f'{stop_msg}: {registers[T] - start_time} T-states')
         elif stop_cond == 3:
-            print(f'Stopped at {prefix}{registers[PC]:{word_fmt}}')
+            print(stop_msg)
         self.operations = operations
 
     def read_port(self, registers, port):
         if port == 0xFFFD:
             return self.ay[self.outfffd % 16]
-        if port % 2 == 0 and self.keyboard: # pragma: no cover
+        if port % 2 == 0 and self.keyboard:
             h = (port // 256) ^ 0xFF
             v = 0x40
             i = 0

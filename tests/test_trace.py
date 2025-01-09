@@ -1,11 +1,12 @@
+from collections import defaultdict
 from functools import partial
 import hashlib
 import os
 from textwrap import dedent
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
-from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolKitError, VERSION, CSimulator, components, trace
+from skoolkittest import QUIT, MockPygame, MockPygameIO, SkoolKitTestCase
+from skoolkit import SkoolKitError, VERSION, CSimulator, components, screen, trace
 from skoolkit.config import COMMANDS
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import PC, IFF, IM, T
@@ -34,6 +35,22 @@ class MockSimulator:
     def nop(self):
         self.registers[PC] = self.pc
         self.registers[T] = self.t1
+
+class MockSimulatorWithTraceMethod(MockSimulator):
+    def trace(self, start, stop, max_operations, max_time, interrupts, draw, exec_map, keyboard, df, tf):
+        self.start = start
+        self.stop = stop
+        self.max_operations = max_operations
+        self.max_time = max_time
+        self.draw = draw
+        self.exec_map = exec_map
+        self.keyboard = keyboard
+        self.df = df
+        self.tf = tf
+        if df and tf:
+            tf(start, df(start), 0)
+        self.registers[PC] = self.pc
+        return 3, 1
 
 class MockAudioWriter:
     def __init__(self, config):
@@ -3294,3 +3311,97 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(len(out7ffd), 1)
         self.assertEqual(out7ffd[0], '32')
         self.assertEqual(s_memory[49152], 255)
+
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', new_callable=MockPygame)
+    def test_keypresses(self, mock_pygame):
+        data = (
+            0x3E, 0xFD,  # $8000 LD A,$FD    ; T=69886 (keyboard check follows)
+            0xDB, 0xFE,  # $8002 IN A,($FE)  ; Read keys A-S-D-F-G
+            0x0F,        # $8004 RRCA
+            0x30, 0x01,  # $8005 JR NC,$8008 ; Jump if 'A' was pressed
+            0x00,        # $8007 NOP         ; This should not be executed
+            0x0F,        # $8008 RRCA
+            0x30, 0x01,  # $8009 JR NC,$800C ; Jump if 'S' was pressed
+            0x00,        # $800B NOP         ; This should not be executed
+        )
+        start = 0x8000
+        stop = start + len(data)
+        ram = [0] * 49152
+        ram[start - 0x4000:stop - 0x4000] = data
+        registers = {'PC': start, 'tstates': 69886}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        mock_pygame.key.get_pressed.return_value = defaultdict(int, {'a': 1, 's': 1})
+        output, error = self.run_trace(f'-S {stop} -v --screen {z80file}')
+        self.assertEqual(error, '')
+        exp_output = f"""
+            Using pygame
+            $8000 LD A,$FD
+            $8002 IN A,($FE)
+            $8004 RRCA
+            $8005 JR NC,$8008
+            $8008 RRCA
+            $8009 JR NC,$800C
+            Stopped at ${stop:04X}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', MockPygame([Mock(type=QUIT)]))
+    def test_screen_closed(self):
+        data = (
+            0x00,  # $8000 NOP ; T=69886 (quit check follows)
+            0x00,  # $8001 NOP ; This should not be executed
+        )
+        start = 0x8000
+        stop = start + len(data)
+        ram = [0] * 49152
+        ram[start - 0x4000:stop - 0x4000] = data
+        registers = {'PC': start, 'tstates': 69886}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} -v --screen {z80file}')
+        self.assertEqual(error, '')
+        exp_output = f"""
+            Using pygame
+            $8000 NOP
+            Stopped at $8001: screen closed
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    @patch.object(trace, 'CSimulator', partial(MockSimulatorWithTraceMethod, pc=0x0001))
+    @patch.object(trace, 'Simulator', partial(MockSimulatorWithTraceMethod, pc=0x0001))
+    def test_simulator_with_trace_method(self):
+        stop = 0x0001
+        output, error = self.run_trace(f'-S {stop} 48')
+        self.assertEqual(error, '')
+        self.assertEqual("Stopped at $0001", output.rstrip())
+        self.assertEqual(simulator.start, 0)
+        self.assertEqual(simulator.stop, stop)
+        self.assertEqual(simulator.max_operations, 0)
+        self.assertEqual(simulator.max_time, 0)
+        self.assertIsNone(simulator.draw)
+        self.assertIsNone(simulator.exec_map)
+        self.assertIsNone(simulator.keyboard)
+        self.assertIsNone(simulator.df)
+        self.assertIsNone(simulator.tf)
+
+    @patch.object(trace, 'CSimulator', partial(MockSimulatorWithTraceMethod, pc=0x0001))
+    @patch.object(trace, 'Simulator', partial(MockSimulatorWithTraceMethod, pc=0x0001))
+    def test_simulator_with_trace_method_in_verbose_mode(self):
+        stop = 0x0001
+        output, error = self.run_trace(f'-S {stop} -v 48')
+        self.assertEqual(error, '')
+        exp_output = f"""
+            $0000 DI
+            Stopped at $0001
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(simulator.start, 0)
+        self.assertEqual(simulator.stop, stop)
+        self.assertEqual(simulator.max_operations, 0)
+        self.assertEqual(simulator.max_time, 0)
+        self.assertIsNone(simulator.draw)
+        self.assertIsNone(simulator.exec_map)
+        self.assertIsNone(simulator.keyboard)
+        self.assertIsNotNone(simulator.df)
+        self.assertIsNotNone(simulator.tf)

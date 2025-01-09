@@ -1,31 +1,8 @@
 from collections import defaultdict
 from unittest.mock import patch, Mock
 
-from skoolkittest import SkoolKitTestCase
+from skoolkittest import BLACK, BLUE, MAGENTA, GREEN, CYAN, YELLOW, QUIT, MockPygame, SkoolKitTestCase
 from skoolkit import screen
-
-BLACK, BLUE, RED, MAGENTA, GREEN, CYAN, YELLOW, WHITE = range(8)
-BRIGHT_BLUE, BRIGHT_RED, BRIGHT_MAGENTA, BRIGHT_GREEN, BRIGHT_CYAN, BRIGHT_YELLOW, BRIGHT_WHITE = range(9, 16)
-
-COLOURS = {
-    (0x00, 0x00, 0x00): BLACK,
-    (0x00, 0x00, 0xc5): BLUE,
-    (0xc5, 0x00, 0x00): RED,
-    (0xc5, 0x00, 0xc5): MAGENTA,
-    (0x00, 0xc6, 0x00): GREEN,
-    (0x00, 0xc6, 0xc5): CYAN,
-    (0xc5, 0xc6, 0x00): YELLOW,
-    (0xcd, 0xc6, 0xcd): WHITE,
-    (0x00, 0x00, 0xff): BRIGHT_BLUE,
-    (0xff, 0x00, 0x00): BRIGHT_RED,
-    (0xff, 0x00, 0xff): BRIGHT_MAGENTA,
-    (0x00, 0xff, 0x00): BRIGHT_GREEN,
-    (0x00, 0xff, 0xff): BRIGHT_CYAN,
-    (0xff, 0xff, 0x00): BRIGHT_YELLOW,
-    (0xff, 0xff, 0xff): BRIGHT_WHITE,
-}
-
-QUIT = 1
 
 KEYS = (
     ('1', 3, 0b00001),
@@ -93,38 +70,6 @@ SS_KEYS = (
     ('PERIOD', 7, 0b00100),      # SYMBOL SHIFT + M
     ('KP_PERIOD', 7, 0b00100),   # SYMBOL SHIFT + M
 )
-
-class MockSurface:
-    def __init__(self):
-        self.pixels = [None] * 49152
-
-    def fill(self, colour, rect):
-        x0, y0, w, h = rect
-        for x in range(x0, x0 + w):
-            for y in range(y0, y0 + h):
-                self.pixels[256 * y + x] = colour
-
-class MockPygame:
-    def __init__(self, events=()):
-        self.init_called = False
-        self.Color = lambda r, g, b: COLOURS.get((r, g, b))
-        self.display = Mock()
-        self.display.get_surface.return_value = MockSurface()
-        self.time = Mock()
-        self.event = Mock()
-        self.event.get.return_value = events
-        self.key = Mock()
-        self.Rect = lambda x, y, w, h: (x, y, w, h)
-
-    def __getattr__(self, name):
-        if name == 'QUIT':
-            return QUIT
-        if name.startswith('K_'):
-            return name[2:]
-        raise AttributeError
-
-    def init(self):
-        self.init_called = True
 
 class ScreenTest(SkoolKitTestCase):
     def _test_init(self, mock_pygame, scale, caption):
