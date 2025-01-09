@@ -1,4 +1,4 @@
-# Copyright 2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2024, 2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -282,7 +282,7 @@ def process_block(block, options, context):
     while run:
         if fetch_counter < 0:
             break
-        if csimulator: # pragma: no cover
+        if csimulator:
             pc = simulator.exec_frame(fetch_counter, exec_map, trace)
         else:
             while fetch_counter > 0:

@@ -1,10 +1,11 @@
 import os
 from textwrap import dedent
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 import zlib
 
-from skoolkittest import SkoolKitTestCase, RZX
-from skoolkit import VERSION, SkoolKitError, rzxplay
+from skoolkittest import BLUE, QUIT, SkoolKitTestCase, MockPygameIO, MockPygame, RZX
+from skoolkit import VERSION, SkoolKitError, rzxplay, screen
+from skoolkit.simutils import PC
 
 class MockSimulator:
     def __init__(self, *args, **kwargs):
@@ -15,24 +16,26 @@ class MockSimulator:
         self.registers = [0] * 29
 
     def set_tracer(self, tracer, *args, **kwargs):
-        pass
+        self.tracer = tracer
 
     def nop(self):
         pass
 
-class MockScreen:
-    def __init__(self, scale, fps, caption):
-        global screen
-        screen = self
-        self.scale = scale
-        self.fps = fps
-        self.caption = caption
-        self.pygame_msg = 'Using pygame'
+class MockSimulatorWithExecFrameMethod(MockSimulator):
+    def exec_frame(self, fetch_counter, exec_map, trace):
+        self.fetch_counter = fetch_counter
+        self.exec_map = exec_map
+        self.trace = trace
+        pc = self.registers[PC]
+        if exec_map is not None:
+            exec_map.add(pc)
+        if trace:
+            trace(fetch_counter, pc)
 
-    def draw(self, scr, frame):
-        self.scr = scr
-        self.frame = frame
-        return True
+class TestScreen(screen.Screen):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.__class__.instance = self
 
 def mock_run(*args):
     global run_args
@@ -1384,11 +1387,12 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = ''
         self._test_rzx(rzx, exp_output, '--force --quiet --no-screen')
 
-    @patch.object(rzxplay, 'pygame', True)
-    @patch.object(rzxplay, 'Screen', MockScreen)
-    def test_option_fps(self):
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', new_callable=MockPygame)
+    @patch.object(rzxplay, 'Screen', TestScreen)
+    def test_option_fps(self, mock_pygame):
         ram = [0] * 0xC000
-        ram[0] = 1
+        ram[0], ram[0x1800] = 0x80, BLUE
         pc = 0xF000
         registers = {'PC': pc}
         z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
@@ -1397,11 +1401,10 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = 'Using pygame\n'
         rzxfile = self._test_rzx(rzx, exp_output, '--quiet --fps 100')
-        self.assertEqual(screen.scale, 2)
-        self.assertEqual(screen.fps, 100)
-        self.assertEqual(screen.caption, rzxfile)
-        self.assertEqual(screen.scr[0], 1)
-        self.assertEqual(screen.frame, 0)
+        mock_pygame.display.set_mode.assert_called_with((512, 384))
+        TestScreen.instance.clock.tick.assert_called_with(100)
+        mock_pygame.display.set_caption.assert_called_with(rzxfile)
+        self.assertEqual(mock_pygame.display.get_surface().pixels[0], BLUE)
 
     def test_option_map(self):
         ram = [0] * 0xC000
@@ -1484,11 +1487,12 @@ class RzxplayTest(SkoolKitTestCase):
         self._test_rzx(rzx, exp_output, '--python --quiet --no-screen')
         self.assertIsNotNone(simulator)
 
-    @patch.object(rzxplay, 'pygame', True)
-    @patch.object(rzxplay, 'Screen', MockScreen)
-    def test_option_scale(self):
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', new_callable=MockPygame)
+    @patch.object(rzxplay, 'Screen', TestScreen)
+    def test_option_scale(self, mock_pygame):
         ram = [0] * 0xC000
-        ram[0] = 255
+        ram[0], ram[0x1800] = 0x01, BLUE
         pc = 0xF000
         registers = {'PC': pc}
         z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
@@ -1497,11 +1501,10 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = 'Using pygame\n'
         rzxfile = self._test_rzx(rzx, exp_output, '--quiet --scale 3')
-        self.assertEqual(screen.scale, 3)
-        self.assertEqual(screen.fps, 50)
-        self.assertEqual(screen.caption, rzxfile)
-        self.assertEqual(screen.scr[0], 255)
-        self.assertEqual(screen.frame, 0)
+        mock_pygame.display.set_mode.assert_called_with((768, 576))
+        TestScreen.instance.clock.tick.assert_called_with(50)
+        mock_pygame.display.set_caption.assert_called_with(rzxfile)
+        self.assertEqual(mock_pygame.display.get_surface().pixels[7], BLUE)
 
     def test_option_snapshot(self):
         ram = [0] * 0xC000
@@ -1615,3 +1618,51 @@ class RzxplayTest(SkoolKitTestCase):
         for option in ('-V', '--version'):
             output, error = self.run_rzxplay(option, catch_exit=0)
             self.assertEqual(output, f'SkoolKit {VERSION}\n')
+
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', MockPygame([Mock(type=QUIT)]))
+    def test_screen_closed(self):
+        ram = [0] * 0xC000
+        pc = 0xF000
+        code = (
+            0xAF, # XOR A
+            0xA8, # XOR B  ; This should not be executed
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, []), (1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = 'Using pygame\n'
+        exp_trace = "F:0 C:00001 I:00000 $F000 XOR A\n"
+        self._test_rzx(rzx, exp_output, '--quiet', exp_trace)
+
+    @patch.object(rzxplay, 'CSimulator', MockSimulatorWithExecFrameMethod)
+    @patch.object(rzxplay, 'Simulator', MockSimulatorWithExecFrameMethod)
+    def test_simulator_with_exec_frame_method(self):
+        ram = [0] * 0xC000
+        z80data = self.write_z80_file(None, ram, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = "F:0 C:00001 I:00000 $0000 NOP\n"
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+        self.assertEqual(simulator.fetch_counter, 1)
+        self.assertIsNone(simulator.exec_map)
+        self.assertIsNotNone(simulator.trace)
+
+    @patch.object(rzxplay, 'CSimulator', MockSimulatorWithExecFrameMethod)
+    @patch.object(rzxplay, 'Simulator', MockSimulatorWithExecFrameMethod)
+    def test_simulator_with_exec_frame_method_generating_map(self):
+        ram = [0] * 0xC000
+        z80data = self.write_z80_file(None, ram, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        self._test_rzx(rzx, exp_output, f'--quiet --no-screen --map out.map')
+        self.assertEqual(simulator.fetch_counter, 1)
+        self.assertEqual({0}, simulator.exec_map)
+        self.assertIsNone(simulator.trace)
