@@ -3314,6 +3314,7 @@ class TraceTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
     @patch.object(screen, 'pygame', new_callable=MockPygame)
+    @patch.object(trace, 'pygame', True)
     def test_keypresses(self, mock_pygame):
         data = (
             0x3E, 0xFD,  # $8000 LD A,$FD    ; T=69886 (keyboard check follows)
@@ -3348,6 +3349,7 @@ class TraceTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
     @patch.object(screen, 'pygame', MockPygame([Mock(type=QUIT)]))
+    @patch.object(trace, 'pygame', True)
     def test_screen_closed(self):
         data = (
             0x00,  # $8000 NOP ; T=69886 (quit check follows)

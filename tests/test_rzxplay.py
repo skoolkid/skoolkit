@@ -1389,6 +1389,7 @@ class RzxplayTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
     @patch.object(screen, 'pygame', new_callable=MockPygame)
+    @patch.object(rzxplay, 'pygame', True)
     @patch.object(rzxplay, 'Screen', TestScreen)
     def test_option_fps(self, mock_pygame):
         ram = [0] * 0xC000
@@ -1489,6 +1490,7 @@ class RzxplayTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
     @patch.object(screen, 'pygame', new_callable=MockPygame)
+    @patch.object(rzxplay, 'pygame', True)
     @patch.object(rzxplay, 'Screen', TestScreen)
     def test_option_scale(self, mock_pygame):
         ram = [0] * 0xC000
@@ -1621,6 +1623,7 @@ class RzxplayTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
     @patch.object(screen, 'pygame', MockPygame([Mock(type=QUIT)]))
+    @patch.object(rzxplay, 'pygame', True)
     def test_screen_closed(self):
         ram = [0] * 0xC000
         pc = 0xF000
