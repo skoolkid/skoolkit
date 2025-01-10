@@ -477,7 +477,7 @@ class CommentGenerator:
     def and_n(self, address, values):
         bits = BITS[values[1]]
         if len(bits) == 0:
-            return f'{A}={BYTE}'.format(0)
+            return f'{A}=0'
         if len(bits) == 1:
             return f'Keep only bit {bits[0]} of {A}'
         if len(bits) < 5:

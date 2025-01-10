@@ -256,7 +256,7 @@ INSTRUCTIONS = {
     'E3': "Exchange the last item on the stack with #REGhl",
     'E40000': "CALL #R0 if the parity/overflow flag is not set (parity odd)",
     'E5': "Push #REGhl onto the stack",
-    'E600': "#REGa=#N(0,2,,1)($)",
+    'E600': "#REGa=0",
     'E7': "CALL #R32",
     'E8': "Return if the parity/overflow flag is set (parity even)",
     'E9': "Jump to #REGhl",
@@ -1162,7 +1162,7 @@ class CommentGeneratorTest(SkoolKitTestCase):
         for n in range(256):
             bits = BITS[n]
             if len(bits) == 0:
-                exp_comment = '#REGa=#N(0,2,,1)($)'
+                exp_comment = '#REGa=0'
             elif len(bits) == 1:
                 exp_comment = f'Keep only bit {bits[0]} of #REGa'
             elif len(bits) < 5:
