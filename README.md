@@ -33,8 +33,9 @@ With SkoolKit you can:
   snapshot (SNA, SZX or Z80) or raw memory file
 * enable [sna2ctl.py](https://skoolkid.github.io/skoolkit/commands.html#sna2ctl-py)
   to generate a much better control file that more reliably distinguishes code
-  from data by using a code execution map produced by an emulator or
-  [rzxplay.py](https://skoolkid.github.io/skoolkit/commands.html#rzxplay-py)
+  from data by using a code execution map produced by an emulator,
+  [rzxplay.py](https://skoolkid.github.io/skoolkit/commands.html#rzxplay-py) or
+  [trace.py](https://skoolkid.github.io/skoolkit/commands.html#trace-py)
 * use [sna2skool.py](https://skoolkid.github.io/skoolkit/commands.html#sna2skool-py)
   along with this control file to produce a disassembly of a snapshot or raw
   memory file

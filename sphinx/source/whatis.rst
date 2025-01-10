@@ -26,7 +26,7 @@ With SkoolKit you can:
   snapshot (SNA, SZX or Z80) or raw memory file
 * enable :ref:`sna2ctl.py` to generate a much better control file that more
   reliably distinguishes code from data by using a code execution map produced
-  by an emulator or :ref:`rzxplay.py`
+  by an emulator, :ref:`rzxplay.py` or :ref:`trace.py`
 * use :ref:`sna2skool.py` along with this control file to produce a disassembly
   of a snapshot or raw memory file
 * add annotations to this disassembly (or the control file) as you discover the
