@@ -1569,11 +1569,11 @@ def _get_udgs(text, index, pvals, start, snapshot, fields):
     if not has_masks:
         pvals[7] = 0 # Set mask=0
 
-    if text[end:end + 2].startswith(('(@', '@')):
-        if text[end] == '(':
-            end, attr_specs = parse_brackets(text, end)
+    if text[end:end + 1].startswith(('[', '@')):
+        if text[end] == '[':
+            end, attr_specs = parse_brackets(text, end, opening='[', closing=']')
             attr_addresses = []
-            for attr_spec in attr_specs[1:].split(';'):
+            for attr_spec in attr_specs.split(';'):
                 addresses = parse_address_range(attr_spec, 0, width, fields)[1]
                 if addresses is None:
                     raise MacroParsingError(f'Expected attribute address range specification: #UDGARRAY{text[start:end]}')
@@ -1597,7 +1597,7 @@ def _get_udgs(text, index, pvals, start, snapshot, fields):
     return end, [udg_array]
 
 def parse_udgarray(text, index, snapshot=None, req_fname=True, fields=None):
-    # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha](UDGS)[@ATTRS][{x,y,width,height}](fname)
+    # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha](UDGS)[[ATTRS]][{x,y,width,height}](fname)
     names = ('width', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask', 'tindex', 'alpha')
     defaults = (56, 2, 1, 0, 0, 0, 1, 0, -1)
     end, crop_rect, fname, frame, alt, values = parse_image_macro(text, index, defaults, names, '', fields, _get_udgs, (index, snapshot, fields))
