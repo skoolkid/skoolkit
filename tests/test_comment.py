@@ -1263,11 +1263,24 @@ class ConditionalCallJumpRetTest(SkoolKitTestCase):
     def _test_conditionals(self, cg, op_hex, reg, *conditionals):
         addr = 0x8000
         op_v = [int(op_hex[i:i + 2], 16) for i in range(0, len(op_hex), 2)]
+
+        # Conditional CALL/JP/JR/RET immediately after test instruction
+        instruction = Instruction(addr - len(op_v), op_v)
         for name in conditionals:
             for cond, exp_comment in CONDITIONALS[name].items():
-                cg.get_comment(Instruction(addr - len(op_v), op_v))
+                cg.get_comment(instruction)
                 cond_v = [int(cond[i:i + 2], 16) for i in range(0, len(cond), 2)]
                 self.assertEqual(cg.get_comment(Instruction(addr, cond_v)), exp_comment.format(reg), f'Opcodes: {op_hex} {cond}')
+
+        # NOP between test instruction and conditional CALL/JP/JR/RET clears context
+        nop = Instruction(addr - 1, [0])
+        instruction.address = nop.address - len(op_v)
+        for name in ('SF_NA', 'ZF_NA', 'PF_NA', 'CF_NA'):
+            for cond, exp_comment in CONDITIONALS[name].items():
+                cg.get_comment(instruction)
+                cg.get_comment(nop)
+                cond_v = [int(cond[i:i + 2], 16) for i in range(0, len(cond), 2)]
+                self.assertEqual(cg.get_comment(Instruction(addr, cond_v)), exp_comment.format(reg), f'Opcodes: {op_hex} 00 {cond}')
 
     def test_inc(self):
         cg = CommentGenerator()
