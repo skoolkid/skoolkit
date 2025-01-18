@@ -1540,6 +1540,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def _test_call_no_args(self, cwd):
         return 'OK'
 
+    def _test_call_retval_not_string(self, cwd):
+        return 1
+
     def _unsupported_macro(self, *args):
         raise UnsupportedMacroError()
 

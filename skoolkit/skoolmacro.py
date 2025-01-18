@@ -1,4 +1,4 @@
-# Copyright 2012-2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -780,6 +780,8 @@ def parse_call(writer, text, index, *cwd):
         raise MacroParsingError(f"{ftype} call {text[index + 1:p_end]} failed: {e}")
     if retval is None:
         retval = ''
+    if not isinstance(retval, str):
+        raise MacroParsingError(f"Return value from {text[index + 1:p_end]} is not a string")
     return end, retval
 
 def parse_chr(writer, text, index, *cwd):

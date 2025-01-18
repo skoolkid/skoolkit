@@ -166,6 +166,11 @@ class CommonSkoolMacroTest:
             self.assertEqual(writer.expand(macro), '')
             self.assertEqual(self.err.getvalue().split('\n')[0], f'WARNING: Unknown method name in #CALL macro: {method_name}')
 
+    def test_macro_call_with_return_value_that_is_not_a_string(self):
+        writer = self._get_writer()
+        writer.test_call = self._test_call_retval_not_string
+        self._assert_error(writer, '#CALL(test_call())', 'Return value from test_call() is not a string', ERROR_PREFIX.format('CALL'))
+
     def test_macro_call_invalid(self):
         writer = self._get_writer()
         writer.test_call = self._test_call

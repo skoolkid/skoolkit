@@ -130,6 +130,9 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def _test_call_no_args(self):
         return 'OK'
 
+    def _test_call_retval_not_string(self):
+        return 1
+
     def test_macros_are_expanded(self):
         skool = """
             @start
