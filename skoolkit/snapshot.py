@@ -1,4 +1,4 @@
-# Copyright 2009-2013, 2015-2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013, 2015-2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -176,6 +176,10 @@ class Snapshot:
 
     def ram(self, page=None):
         return self.memory.ram(page)
+
+    def patch(self, specs):
+        for spec in specs:
+            patch(self.memory, spec)
 
     def move(self, specs):
         for spec in specs:
@@ -806,6 +810,23 @@ def _get_page(param, desc, spec, default=None):
         except ValueError:
             raise SkoolKitError(f'Invalid page number in {desc} spec: {spec}')
     return default, param
+
+def patch(snapshot, spec):
+    addr, sep, fname = spec.partition(',')
+    if not sep:
+        raise SkoolKitError(f'Filename missing in patch spec: {spec}')
+    page, addr = _get_page(addr, 'patch', spec)
+    try:
+        address = get_int_param(addr, True)
+    except ValueError:
+        raise SkoolKitError(f'Invalid address in patch spec: {spec}')
+    data = read_bin_file(fname, 0xC000)
+    if page is None:
+        snapshot[address:address + len(data)] = data
+    elif hasattr(snapshot, 'banks'):
+        dest = address % 0x4000
+        size = min(0x4000 - dest, len(data))
+        snapshot.banks[page % 8][dest:dest + size] = data[:size]
 
 def move(snapshot, param_str):
     try:

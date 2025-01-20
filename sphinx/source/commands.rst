@@ -1522,6 +1522,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
                           Copy a block of bytes of the given size from src in
                           RAM bank s to dest in RAM bank d. This option may be
                           used multiple times.
+    --patch [p:]a,file    Apply a binary patch file at address 'a' in RAM bank
+                          'p'. This option may be used multiple times.
     -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
                           POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
                           Prefix 'v' with '^' to perform an XOR operation, or
@@ -1539,6 +1541,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.5     | Added the ``--patch`` option                                      |
++---------+-------------------------------------------------------------------+
 | 9.1     | Added support for modifying SZX snapshots and 128K snapshots; the |
 |         | ``--move`` and ``--poke`` options can modify specific RAM banks   |
 +---------+-------------------------------------------------------------------+

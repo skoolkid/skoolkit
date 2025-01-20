@@ -329,6 +329,82 @@ class SnapmodTest(SkoolKitTestCase):
         self._test_bad_spec('-m 1,y,3', infile, 'Invalid integer in move spec: 1,y,3')
         self._test_bad_spec('-m 1,2,z', infile, 'Invalid integer in move spec: 1,2,z')
 
+    def test_option_patch_z80(self):
+        addr = 32768
+        data = (1, 2, 3, 4, 5)
+        pfile = self.write_bin_file(data)
+        header = [0] * 86
+        header[30] = 54 # Version 3
+        ram = [0] * 49152
+        exp_ram = ram[:]
+        exp_ram[addr - 0x4000:addr - 0x4000 + len(data)] = data
+        exp_header = header[:]
+        self._test_z80(f'--patch {addr},{pfile}', header, exp_header, ram, exp_ram, 3, False)
+
+    def test_option_patch_szx(self):
+        bank, addr = 2, 40000
+        data = (2, 4, 6, 8, 10)
+        pfile = self.write_bin_file(data)
+        exp_block_diffs = None
+        exp_ram_diffs = {bank: [0] * 0x4000}
+        exp_ram_diffs[bank][addr % 0x4000:addr % 0x4000 + len(data)] = data
+        self._test_szx(f'--patch {addr},{pfile}', exp_block_diffs, exp_ram_diffs, 48)
+
+    def test_option_patch_with_page_number(self):
+        page, addr = 3, 0x1000
+        data = (3, 6, 9, 12, 15)
+        pfile = self.write_bin_file(data)
+        header = self._get_header(3, True)
+        exp_header = header[:]
+        ram = [0] * 0x20000
+        exp_ram = ram[:]
+        p_addr = page * 0x4000 + addr
+        exp_ram[p_addr:p_addr + len(data)] = data
+        self._test_z80_128k(f'--patch {page}:{addr},{pfile}', header, exp_header, ram, exp_ram, 3)
+
+    def test_option_patch_0x_address(self):
+        addr = 0xABCD
+        data = (4, 8, 12)
+        pfile = self.write_bin_file(data)
+        header = [0] * 86
+        header[30] = 54 # Version 3
+        ram = [0] * 49152
+        exp_ram = ram[:]
+        exp_ram[addr - 0x4000:addr - 0x4000 + len(data)] = data
+        exp_header = header[:]
+        self._test_z80(f'--patch 0x{addr:04x},{pfile}', header, exp_header, ram, exp_ram, 3, False)
+
+    def test_option_patch_multiple(self):
+        patches = (
+            (24576, (1, 10, 11, 54)),
+            (32768, (2, 3, 5)),
+            (50000, (9, 17, 43, 1))
+        )
+        header = [0] * 86
+        header[30] = 54 # Version 3
+        exp_header = header[:]
+        ram = [0] * 49152
+        exp_ram = ram[:]
+        options = []
+        for addr, data in patches:
+            exp_ram[addr - 0x4000:addr - 0x4000 + len(data)] = data
+            pfile = self.write_bin_file(data)
+            options.append(f'--patch {addr},{pfile}')
+        self._test_z80(' '.join(options), header, exp_header, ram, exp_ram, 3, False)
+
+    def test_option_patch_nonexistent_patch_file(self):
+        infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
+        pfile = 'non-existent.bin'
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_snapmod(f'--patch 32768,{pfile} {infile}')
+        self.assertEqual(cm.exception.args[0], f'{pfile}: file not found')
+
+    def test_option_patch_invalid_values(self):
+        infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
+        self._test_bad_spec('--patch 1', infile, 'Filename missing in patch spec: 1')
+        self._test_bad_spec('--patch x,p.bin', infile, 'Invalid address in patch spec: x,p.bin')
+        self._test_bad_spec('--patch q:0,p.bin', infile, 'Invalid page number in patch spec: q:0,p.bin')
+
     @patch.object(snapmod, 'run', mock_run)
     def test_options_p_poke(self):
         for option in ('-p', '--poke'):

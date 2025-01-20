@@ -1,4 +1,4 @@
-# Copyright 2015-2017, 2023 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015-2017, 2023, 2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -21,6 +21,7 @@ from skoolkit.snapshot import Snapshot, print_reg_help, print_state_help
 
 def run(infile, options, outfile):
     snapshot = Snapshot.get(infile)
+    snapshot.patch(options.patches)
     snapshot.move(options.moves)
     snapshot.poke(options.pokes)
     snapshot.set_registers_and_state(options.reg, options.state)
@@ -37,6 +38,9 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-m', '--move', dest='moves', metavar='[s:]src,size,[d:]dest', action='append', default=[],
                        help='Copy a block of bytes of the given size from src in RAM bank s to dest in RAM bank d. This option may be used multiple times.')
+    group.add_argument('--patch', dest='patches', metavar='[p:]a,file', action='append', default=[],
+                       help="Apply a binary patch file at address 'a' in RAM bank 'p'. "
+                            "This option may be used multiple times.")
     group.add_argument('-p', '--poke', dest='pokes', metavar='[p:]a[-b[-c]],[^+]v', action='append', default=[],
                        help="POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}. "
                             "Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD operation. "

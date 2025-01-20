@@ -18,6 +18,8 @@ Changelog
   :ref:`tap2sna.py <tap2sna-conf>` (to specify the User-Agent header in
   HTTP/HTTPS requests)
 * Added support to the :ref:`CALL` macro for calling an arbitrary function
+* Added the ``--patch`` option to :ref:`snapmod.py` (for applying a binary
+  patch file)
 * The :ref:`REG` macro now always renders the IXh, IXl, IYh and IYl registers
   with a lower case 'h' or 'l'
 * Added the :ref:`FRAMES` macro (as an alternative to the ``#UDGARRAY*`` macro,

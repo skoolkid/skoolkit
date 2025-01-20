@@ -20,6 +20,11 @@ OPTIONS
   'dest' must each be a decimal number, or a hexadecimal number prefixed by
   '0x'.
 
+--patch `[p:]a,file`
+  Apply a binary patch file at address 'a' in RAM bank 'p'. This option may be
+  used multiple times. 'a' must be a decimal number, or a hexadecimal number
+  prefixed by '0x'.
+
 -p, --poke `[p:]a[-b[-c]],[^+]v`
   POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}. Prefix 'v' with '^' to
   perform an XOR operation, or '+' to perform an ADD operation. This option may
