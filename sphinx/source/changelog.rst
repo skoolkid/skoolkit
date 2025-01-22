@@ -1,7 +1,7 @@
 Changelog
 =========
 
-9.5b1
+9.5rc
 -----
 * Dropped support for Python 3.8
 * Added the :ref:`comment generator <commentGenerator>` component
