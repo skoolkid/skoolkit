@@ -1,8 +1,8 @@
 Changelog
 =========
 
-9.5rc
------
+9.5 (2025-01-28)
+----------------
 * Dropped support for Python 3.8
 * Added the :ref:`comment generator <commentGenerator>` component
 * Added the ``--comments`` option to :ref:`sna2ctl.py` and :ref:`sna2skool.py`

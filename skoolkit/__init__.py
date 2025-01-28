@@ -1,4 +1,4 @@
-# Copyright 2011-2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -32,7 +32,7 @@ try:
 except ImportError: # pragma: no cover
     CCMIOSimulator = None
 
-VERSION = '9.5rc'
+VERSION = '9.5'
 PACKAGE_DIR = os.path.dirname(__file__)
 
 BASE_10 = 10
