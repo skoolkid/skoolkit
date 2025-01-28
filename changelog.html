@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Changelog &#8212; SkoolKit 9.4 documentation</title>
+    <title>Changelog &#8212; SkoolKit 9.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 8"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Changelog</a></li> 
       </ul>
     </div>  
@@ -46,7 +46,41 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">¶</a></h1>
 <section id="id1">
-<h2>9.4 (2024-10-05)<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<h2>9.5 (2025-01-28)<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Dropped support for Python 3.8</p></li>
+<li><p>Added the <a class="reference internal" href="components.html#commentgenerator"><span class="std std-ref">comment generator</span></a> component</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">--comments</span></code> option to <a class="reference internal" href="commands.html#sna2ctl-py"><span class="std std-ref">sna2ctl.py</span></a> and <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a>
+(for generating instruction comments)</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">Comments</span></code> configuration parameter for
+<a class="reference internal" href="commands.html#sna2ctl-conf"><span class="std std-ref">sna2ctl.py</span></a> and <a class="reference internal" href="commands.html#sna2skool-conf"><span class="std std-ref">sna2skool.py</span></a> (to
+enable instruction comment generation)</p></li>
+<li><p><a class="reference internal" href="commands.html#trace-py"><span class="std std-ref">trace.py</span></a> now responds to keypresses while running with screen contents
+displayed</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">--map</span></code> option to <a class="reference internal" href="commands.html#trace-py"><span class="std std-ref">trace.py</span></a> (for writing a code execution
+map file)</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">UserAgent</span></code> configuration parameter for
+<a class="reference internal" href="commands.html#tap2sna-conf"><span class="std std-ref">tap2sna.py</span></a> (to specify the User-Agent header in
+HTTP/HTTPS requests)</p></li>
+<li><p>Added support to the <a class="reference internal" href="skool-macros.html#call"><span class="std std-ref">#CALL</span></a> macro for calling an arbitrary function</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">--patch</span></code> option to <a class="reference internal" href="commands.html#snapmod-py"><span class="std std-ref">snapmod.py</span></a> (for applying a binary
+patch file)</p></li>
+<li><p>The <a class="reference internal" href="skool-macros.html#reg"><span class="std std-ref">#REG</span></a> macro now always renders the IXh, IXl, IYh and IYl registers
+with a lower case ‘h’ or ‘l’</p></li>
+<li><p>Added the <a class="reference internal" href="skool-macros.html#frames"><span class="std std-ref">#FRAMES</span></a> macro (as an alternative to the <code class="docutils literal notranslate"><span class="pre">#UDGARRAY*</span></code> macro,
+which is now deprecated)</p></li>
+<li><p>Made the <a class="reference internal" href="components.html#audiowriter"><span class="std std-ref">audio writer</span></a> a pluggable component</p></li>
+<li><p>Made the <a class="reference internal" href="components.html#codemapreader"><span class="std std-ref">code map reader</span></a> a pluggable component</p></li>
+<li><p>Improved handling of TC2048, TC2068 and TS2068 Z80 snapshots</p></li>
+<li><p>Fixed how <a class="reference internal" href="commands.html#trace-py"><span class="std std-ref">trace.py</span></a> builds a PNG image in 128K mode</p></li>
+<li><p>Fixed the bug that prevents <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>, <a class="reference internal" href="commands.html#skool2bin-py"><span class="std std-ref">skool2bin.py</span></a> and
+<a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> from handling an instruction that crosses the 64K
+boundary</p></li>
+<li><p>Fixed how BIN expressions are evaluated in BASIC listings</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>9.4 (2024-10-05)<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support to <a class="reference internal" href="commands.html#skool2bin-conf"><span class="std std-ref">skool2bin.py</span></a> for reading
 configuration from <cite>skoolkit.ini</cite></p></li>
@@ -83,8 +117,8 @@ of the Z80 simulator</p></li>
 simulator</p></li>
 </ul>
 </section>
-<section id="id2">
-<h2>9.3 (2024-08-10)<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<section id="id3">
+<h2>9.3 (2024-08-10)<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support to <a class="reference internal" href="commands.html#tapinfo-py"><span class="std std-ref">tapinfo.py</span></a> and <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> for reading PZX
 files</p></li>
@@ -115,8 +149,8 @@ items in the <a class="reference internal" href="ref-files.html#resources"><span
 accepting hexadecimal values prefixed by ‘0x’</p></li>
 </ul>
 </section>
-<section id="id3">
-<h2>9.2 (2024-05-11)<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
+<section id="id4">
+<h2>9.2 (2024-05-11)<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added a Z80 instruction set simulator implemented in C (as a faster
 alternative to the pure Python Z80 simulator)</p></li>
@@ -140,8 +174,8 @@ pure Python Z80 simulator even if the C version is available)</p></li>
 <li><p>Fixed the contention pattern for the OUTI/OUTD/OTIR/OTDR instructions</p></li>
 </ul>
 </section>
-<section id="id4">
-<h2>9.1 (2024-02-03)<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
+<section id="id5">
+<h2>9.1 (2024-02-03)<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support to <a class="reference internal" href="commands.html#snapmod-py"><span class="std std-ref">snapmod.py</span></a> for modifying SZX snapshots and 128K
 snapshots</p></li>
@@ -194,8 +228,8 @@ when the value of PROG is 65535</p></li>
 <a class="reference internal" href="control-files.html#ctlloops"><span class="std std-ref">control file loop</span></a></p></li>
 </ul>
 </section>
-<section id="id5">
-<h2>9.0 (2023-11-04)<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
+<section id="id6">
+<h2>9.0 (2023-11-04)<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Dropped support for Python 3.7</p></li>
 <li><p><a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> now performs a <a class="reference internal" href="commands.html#tap2sna-sim-load"><span class="std std-ref">simulated LOAD</span></a> by
@@ -278,11 +312,12 @@ hash character (<code class="docutils literal notranslate"><span class="pre">#</
     <h3><a href="index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">9.4 (2024-10-05)</a></li>
-<li><a class="reference internal" href="#id2">9.3 (2024-08-10)</a></li>
-<li><a class="reference internal" href="#id3">9.2 (2024-05-11)</a></li>
-<li><a class="reference internal" href="#id4">9.1 (2024-02-03)</a></li>
-<li><a class="reference internal" href="#id5">9.0 (2023-11-04)</a></li>
+<li><a class="reference internal" href="#id1">9.5 (2025-01-28)</a></li>
+<li><a class="reference internal" href="#id2">9.4 (2024-10-05)</a></li>
+<li><a class="reference internal" href="#id3">9.3 (2024-08-10)</a></li>
+<li><a class="reference internal" href="#id4">9.2 (2024-05-11)</a></li>
+<li><a class="reference internal" href="#id5">9.1 (2024-02-03)</a></li>
+<li><a class="reference internal" href="#id6">9.0 (2023-11-04)</a></li>
 <li><a class="reference internal" href="#older-versions">Older versions</a></li>
 </ul>
 </li>
@@ -332,12 +367,12 @@ hash character (<code class="docutils literal notranslate"><span class="pre">#</
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 8"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Changelog</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2024, Richard Dymond.
+        &#169; Copyright 2025, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>

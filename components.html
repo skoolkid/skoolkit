@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>SkoolKit components &#8212; SkoolKit 9.4 documentation</title>
+    <title>SkoolKit components &#8212; SkoolKit 9.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -29,7 +29,7 @@
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit components</a></li> 
       </ul>
     </div>  
@@ -44,6 +44,9 @@
 <p>SkoolKit relies on several components in order to function:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#assembler"><span class="std std-ref">Assembler</span></a></p></li>
+<li><p><a class="reference internal" href="#audiowriter"><span class="std std-ref">Audio writer</span></a></p></li>
+<li><p><a class="reference internal" href="#codemapreader"><span class="std std-ref">Code map reader</span></a></p></li>
+<li><p><a class="reference internal" href="#commentgenerator"><span class="std std-ref">Comment generator</span></a></p></li>
 <li><p><a class="reference internal" href="#ctlcomposer"><span class="std std-ref">Control directive composer</span></a></p></li>
 <li><p><a class="reference internal" href="#ctlgenerator"><span class="std std-ref">Control file generator</span></a></p></li>
 <li><p><a class="reference internal" href="#disassembler"><span class="std std-ref">Disassembler</span></a></p></li>
@@ -64,6 +67,9 @@ section of a file named <cite>skoolkit.ini</cite> either in the current working 
 or in <cite>~/.skoolkit</cite>. The default contents of this section are as follows:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[skoolkit]
 Assembler=skoolkit.z80.Assembler
+AudioWriter=skoolkit.audio.AudioWriter
+CodeMapReader=skoolkit.snactl
+CommentGenerator=skoolkit.comment.CommentGenerator
 ControlDirectiveComposer=skoolkit.skoolctl.ControlDirectiveComposer
 ControlFileGenerator=skoolkit.snactl
 DefaultDisassemblyStartAddress=16384
@@ -133,6 +139,111 @@ DEFB/DEFM/DEFS/DEFW statement.</p>
 <dd class="field-even"><p>The instruction size, or 0 if the instruction cannot be assembled.</p>
 </dd>
 </dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="audio-writer">
+<span id="audiowriter"></span><h2>Audio writer<a class="headerlink" href="#audio-writer" title="Permalink to this heading">¶</a></h2>
+<p>This class is responsible for writing audio files. It must supply the following
+API methods, in common with skoolkit.audio.AudioWriter:</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.audio.</span></span><span class="sig-name descname"><span class="pre">AudioWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Initialise the audio writer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> – A dictionary constructed from the contents of the
+<a class="reference internal" href="ref-files.html#ref-audiowriter"><span class="std std-ref">[AudioWriter]</span></a> section of the ref file.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">formats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Return a sequence of filename extensions (including the ‘.’)
+corresponding to the audio formats supported by this writer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">write_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contention</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interrupts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ma_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is128k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Write an audio file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>audio_file</strong> – The file object to write the audio to.</p></li>
+<li><p><strong>delays</strong> – A sequence of integers representing the intervals (in
+T-states) between speaker flips.</p></li>
+<li><p><strong>contention</strong> – Whether to simulate additional delays due to memory
+and I/O contention.</p></li>
+<li><p><strong>interrupts</strong> – Whether to simulate additional delays due to
+interrupts.</p></li>
+<li><p><strong>offset</strong> – The offset (in T-states) of the first speaker flip from
+the start of the frame. Used when simulating delays due
+to contention and interrupts.</p></li>
+<li><p><strong>ma_filter</strong> – Whether to apply a moving average filter.</p></li>
+<li><p><strong>is128k</strong> – Whether to use 128K timings.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="code-map-reader">
+<span id="codemapreader"></span><h2>Code map reader<a class="headerlink" href="#code-map-reader" title="Permalink to this heading">¶</a></h2>
+<p>This object is reponsible for generating a list of code block start addresses
+and lengths from a code map file and corresponding snapshot. The code map
+reader object must supply the following API function, in common with
+skoolkit.snactl:</p>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">skoolkit.snactl.</span></span><span class="sig-name descname"><span class="pre">read_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Read a code map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> – The name of the code map file.</p></li>
+<li><p><strong>snapshot</strong> – The snapshot (list of 65536 byte values) corresponding to
+the code map.</p></li>
+<li><p><strong>start</strong> – The start address.</p></li>
+<li><p><strong>end</strong> – The end address.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of 2-element sequences of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">length)</span></code>
+corresponding to the code blocks in <em>snapshot</em>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>If <strong>read_map()</strong> encounters an error while reading a code map file, it should
+raise a CodeMapError:</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.snactl.</span></span><span class="sig-name descname"><span class="pre">CodeMapError</span></span></dt>
+<dd><p>Raised when an error occurs while reading a code map file.</p>
+</dd></dl>
+
+</section>
+<section id="comment-generator">
+<span id="commentgenerator"></span><h2>Comment generator<a class="headerlink" href="#comment-generator" title="Permalink to this heading">¶</a></h2>
+<p>This class is responsible for generating instruction comments. It must supply
+the following API method, in common with skoolkit.comment.CommentGenerator:</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.comment.</span></span><span class="sig-name descname"><span class="pre">CommentGenerator</span></span></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">get_comment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instruction</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Return an instruction comment. The <em>instruction</em> object has the
+following attributes:</p>
+<ul class="simple">
+<li><p><em>address</em> - the address of the instruction</p></li>
+<li><p><em>bytes</em> - the byte values of the instruction</p></li>
+</ul>
 </dd></dl>
 
 </dd></dl>
@@ -953,6 +1064,9 @@ other values declared in the <code class="docutils literal notranslate"><span cl
 <li><a class="reference internal" href="#">SkoolKit components</a><ul>
 <li><a class="reference internal" href="#skoolkit">[skoolkit]</a></li>
 <li><a class="reference internal" href="#assembler">Assembler</a></li>
+<li><a class="reference internal" href="#audio-writer">Audio writer</a></li>
+<li><a class="reference internal" href="#code-map-reader">Code map reader</a></li>
+<li><a class="reference internal" href="#comment-generator">Comment generator</a></li>
 <li><a class="reference internal" href="#control-directive-composer">Control directive composer</a></li>
 <li><a class="reference internal" href="#control-file-generator">Control file generator</a></li>
 <li><a class="reference internal" href="#disassembler">Disassembler</a></li>
@@ -1004,12 +1118,12 @@ other values declared in the <code class="docutils literal notranslate"><span cl
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit components</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2024, Richard Dymond.
+        &#169; Copyright 2025, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Commands &#8212; SkoolKit 9.4 documentation</title>
+    <title>Commands &#8212; SkoolKit 9.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>  
@@ -1046,6 +1046,7 @@ Generate a control file for a binary (raw memory) file or a SNA, SZX or Z80
 snapshot. FILE may be a regular file, or &#39;-&#39; for standard input.
 
 Options:
+  -C, --comments        Generate instruction comments.
   -e ADDR, --end ADDR   Stop at this address (default=65536).
   -h, --hex             Write upper case hexadecimal addresses.
   -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
@@ -1067,7 +1068,7 @@ to be a binary file.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">-m</span></code> option may be used to specify a code execution map to use when
 generating a control file. The supported file formats are:</p>
 <ul class="simple">
-<li><p>Files created by the <code class="docutils literal notranslate"><span class="pre">--map</span></code> option of <a class="reference internal" href="#rzxplay-py"><span class="std std-ref">rzxplay.py</span></a></p></li>
+<li><p>Files created by the <code class="docutils literal notranslate"><span class="pre">--map</span></code> option of <a class="reference internal" href="#rzxplay-py"><span class="std std-ref">rzxplay.py</span></a> or <a class="reference internal" href="#trace-py"><span class="std std-ref">trace.py</span></a></p></li>
 <li><p>Profiles created by the Fuse emulator</p></li>
 <li><p>Code execution logs created by the SpecEmu, Spud and Zero emulators</p></li>
 <li><p>Map files created by the SpecEmu and Z80 emulators</p></li>
@@ -1081,6 +1082,8 @@ file; otherwise it is assumed to be in one of the other supported formats.</p>
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Comments</span></code> - generate instruction comments (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the
+default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Dictionary</span></code> - the name of a file containing a list of allowed words, one
 per line; if specified, a string of characters will be marked as text only if
 it contains at least one of the words in this file</p></li>
@@ -1112,18 +1115,22 @@ Hex=2
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>9.2</p></td>
+<tr class="row-even"><td><p>9.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--comments</span></code> option and the <code class="docutils literal notranslate"><span class="pre">Comments</span></code>
+configuration parameter</p></td>
+</tr>
+<tr class="row-odd"><td><p>9.2</p></td>
 <td><p>Added support for reading code execution maps produced by
 <a class="reference internal" href="#rzxplay-py"><span class="std std-ref">rzxplay.py</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>7.2</p></td>
+<tr class="row-even"><td><p>7.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Dictionary</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>7.1</p></td>
+<tr class="row-odd"><td><p>7.1</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> and <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> options</p></td>
 </tr>
-<tr class="row-odd"><td><p>7.0</p></td>
+<tr class="row-even"><td><p>7.0</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1221,6 +1228,7 @@ Options:
                         which to read control files. PATH may be &#39;-&#39; for
                         standard input, or &#39;0&#39; to use no control file. This
                         option may be used multiple times.
+  -C, --comments        Generate instruction comments.
   -d SIZE, --defb SIZE  Disassemble as DEFB statements of this size.
   -e ADDR, --end ADDR   Stop disassembling at this address (default: 65536).
   -H, --hex             Write hexadecimal addresses and operands in the
@@ -1245,6 +1253,16 @@ to be a binary file.</p>
 <p>By default, any files whose names start with the input filename (minus the
 ‘.bin’, ‘.sna’, ‘.szx’ or ‘.z80’ suffix, if any) and end with ‘.ctl’ will be
 used as <a class="reference internal" href="control-files.html#controlfiles"><span class="std std-ref">control files</span></a>.</p>
+<p>There are three options and configuration parameters that control whether
+<cite>sna2skool.py</cite> generates a comment for an instruction that has no comment
+defined in a control file. They are mutually exclusive and operate in the
+following order:</p>
+<ul class="simple">
+<li><p>the <code class="docutils literal notranslate"><span class="pre">--comments</span></code> option or <code class="docutils literal notranslate"><span class="pre">Comments</span></code> configuration parameter (uses the
+<a class="reference internal" href="components.html#commentgenerator"><span class="std std-ref">comment generator</span></a> component)</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">Text</span></code> configuration parameter (shows byte values as ASCII text)</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">Timings</span></code> configuration parameter (shows instruction timings)</p></li>
+</ul>
 <section id="sna2skool-conf">
 <span id="id17"></span><h3>Configuration<a class="headerlink" href="#sna2skool-conf" title="Permalink to this heading">¶</a></h3>
 <p><cite>sna2skool.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
@@ -1255,6 +1273,8 @@ configuration parameters are:</p>
 or decimal (<code class="docutils literal notranslate"><span class="pre">10</span></code>, the default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Case</span></code> - write the disassembly in lower case (<code class="docutils literal notranslate"><span class="pre">1</span></code>) or upper case (<code class="docutils literal notranslate"><span class="pre">2</span></code>,
 the default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Comments</span></code> - generate instruction comments (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the
+default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CommentWidthMin</span></code> - minimum width of the instruction comment field in the
 skool file (default: <code class="docutils literal notranslate"><span class="pre">10</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">DefbSize</span></code> - maximum number of bytes in a DEFB statement (default: <code class="docutils literal notranslate"><span class="pre">8</span></code>)</p></li>
@@ -1374,86 +1394,90 @@ LineWidth=120
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>9.3</p></td>
+<tr class="row-even"><td><p>9.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--comments</span></code> option and the <code class="docutils literal notranslate"><span class="pre">Comments</span></code>
+configuration parameter</p></td>
+</tr>
+<tr class="row-odd"><td><p>9.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Opcodes</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.7</p></td>
+<tr class="row-even"><td><p>8.7</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--defb</span></code> option and the <code class="docutils literal notranslate"><span class="pre">Timings</span></code> configuration
 parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>8.5</p></td>
+<tr class="row-odd"><td><p>8.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Wrap</span></code> configuration parameter and the ability to
 disassemble an instruction that wraps around the 64K boundary;
 added the <code class="docutils literal notranslate"><span class="pre">RefFormat</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.4</p></td>
+<tr class="row-even"><td><p>8.4</p></td>
 <td><p>Changed the default value of the <code class="docutils literal notranslate"><span class="pre">DefmSize</span></code> configuration
 parameter from 66 to 65</p></td>
 </tr>
-<tr class="row-even"><td><p>8.3</p></td>
+<tr class="row-odd"><td><p>8.3</p></td>
 <td><p>Added support for reading control files from a directory
 (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">DIR</span></code>)</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.1</p></td>
+<tr class="row-even"><td><p>8.1</p></td>
 <td><p>Added support for ignoring default control files (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">0</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p>8.0</p></td>
+<tr class="row-odd"><td><p>8.0</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">DefwSize</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>7.1</p></td>
+<tr class="row-even"><td><p>7.1</p></td>
 <td><p>Added support for reading multiple default control files, and for
 using the <code class="docutils literal notranslate"><span class="pre">--ctl</span></code> option multiple times; added the
 <code class="docutils literal notranslate"><span class="pre">CommentWidthMin</span></code>, <code class="docutils literal notranslate"><span class="pre">InstructionWidth</span></code> and <code class="docutils literal notranslate"><span class="pre">Semicolons</span></code>
 configuration parameters</p></td>
 </tr>
-<tr class="row-even"><td><p>7.0</p></td>
+<tr class="row-odd"><td><p>7.0</p></td>
 <td><p>The short option for <code class="docutils literal notranslate"><span class="pre">--lower</span></code> is <code class="docutils literal notranslate"><span class="pre">-l</span></code>; the long option for
 <code class="docutils literal notranslate"><span class="pre">-H</span></code> is <code class="docutils literal notranslate"><span class="pre">--hex</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> option; the <code class="docutils literal notranslate"><span class="pre">--end</span></code>, <code class="docutils literal notranslate"><span class="pre">--org</span></code> and
 <code class="docutils literal notranslate"><span class="pre">--start</span></code> options accept a hexadecimal integer prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>6.1</p></td>
+<tr class="row-odd"><td><p>6.1</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.4</p></td>
+<tr class="row-even"><td><p>4.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--end</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>4.3</p></td>
+<tr class="row-odd"><td><p>4.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--line-width</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.4</p></td>
+<tr class="row-even"><td><p>3.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-V</span></code> option and the long options, and the ability to
 add a comment listing referrers at every routine entry point</p></td>
 </tr>
-<tr class="row-even"><td><p>3.3</p></td>
+<tr class="row-odd"><td><p>3.3</p></td>
 <td><p>Added the ability to read 128K SNA snapshots</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.2</p></td>
+<tr class="row-even"><td><p>3.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-p</span></code> option, and the ability to read SZX snapshots
 and 128K Z80 snapshots</p></td>
 </tr>
-<tr class="row-even"><td><p>2.1.2</p></td>
+<tr class="row-odd"><td><p>2.1.2</p></td>
 <td><p>Added the ability to write the disassembly in lower case</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.1</p></td>
+<tr class="row-even"><td><p>2.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-H</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>2.0.1</p></td>
+<tr class="row-odd"><td><p>2.0.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-o</span></code> option, and the ability to read binary files, to
 set the maximum number of characters in a DEFM statement, and to
 suppress comments that list routine entry point referrers</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.0</p></td>
+<tr class="row-even"><td><p>2.0</p></td>
 <td><p>Added the ability to set the maximum number of bytes in a DEFB
 statement</p></td>
 </tr>
-<tr class="row-even"><td><p>1.0.5</p></td>
+<tr class="row-odd"><td><p>1.0.5</p></td>
 <td><p>Added the ability to show ASCII text in comment fields</p></td>
 </tr>
-<tr class="row-odd"><td><p>1.0.4</p></td>
+<tr class="row-even"><td><p>1.0.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-s</span></code> option</p></td>
 </tr>
 </tbody>
@@ -1655,6 +1679,8 @@ Options:
                         Copy a block of bytes of the given size from src in
                         RAM bank s to dest in RAM bank d. This option may be
                         used multiple times.
+  --patch [p:]a,file    Apply a binary patch file at address &#39;a&#39; in RAM bank
+                        &#39;p&#39;. This option may be used multiple times.
   -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
                         POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
                         Prefix &#39;v&#39; with &#39;^&#39; to perform an XOR operation, or
@@ -1677,21 +1703,24 @@ Options:
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>9.1</p></td>
+<tr class="row-even"><td><p>9.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--patch</span></code> option</p></td>
+</tr>
+<tr class="row-odd"><td><p>9.1</p></td>
 <td><p>Added support for modifying SZX snapshots and 128K snapshots; the
 <code class="docutils literal notranslate"><span class="pre">--move</span></code> and <code class="docutils literal notranslate"><span class="pre">--poke</span></code> options can modify specific RAM banks</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.10</p></td>
+<tr class="row-even"><td><p>8.10</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">issue2</span></code> hardware state attribute</p></td>
 </tr>
-<tr class="row-even"><td><p>8.9</p></td>
+<tr class="row-odd"><td><p>8.9</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">tstates</span></code> hardware state attribute</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--move</span></code>, <code class="docutils literal notranslate"><span class="pre">--poke</span></code> and <code class="docutils literal notranslate"><span class="pre">--reg</span></code> options accept
 hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>5.3</p></td>
+<tr class="row-odd"><td><p>5.3</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1957,6 +1986,8 @@ operands of instructions in the trace log file for a simulated LOAD,
 separated by commas (default: <code class="docutils literal notranslate"><span class="pre">$,02X,04X</span></code>); the byte and word formats are
 standard Python format specifiers for numeric values, and default to empty
 strings if not supplied</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UserAgent</span></code> - the value of the User-Agent header in HTTP/HTTPS requests
+(default: empty string)</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> is a standard Python format string that recognises the following
 replacement fields:</p>
@@ -2003,20 +2034,23 @@ TraceOperand=
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>9.3</p></td>
+<tr class="row-even"><td><p>9.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">UserAgent</span></code> configuration parameter</p></td>
+</tr>
+<tr class="row-odd"><td><p>9.3</p></td>
 <td><p>Added support for PZX files; added support for the <code class="docutils literal notranslate"><span class="pre">m</span></code> (memory)
 replacement field in the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.2</p></td>
+<tr class="row-even"><td><p>9.2</p></td>
 <td><p>Added support for TZX block type 0x15 (direct recording); added
 the <code class="docutils literal notranslate"><span class="pre">python</span></code> simulated LOAD configuration parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>9.1</p></td>
+<tr class="row-odd"><td><p>9.1</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">move</span></code> and <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">poke</span></code> options can modify specific
 RAM banks; added the <code class="docutils literal notranslate"><span class="pre">cmio</span></code> simulated LOAD configuration
 parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.0</p></td>
+<tr class="row-even"><td><p>9.0</p></td>
 <td><p>A simulated LOAD is performed by default; an existing snapshot
 will be overwritten by default; added the <code class="docutils literal notranslate"><span class="pre">load</span></code>, <code class="docutils literal notranslate"><span class="pre">machine</span></code>,
 <code class="docutils literal notranslate"><span class="pre">polarity</span></code> and <code class="docutils literal notranslate"><span class="pre">in-flags</span></code> simulated LOAD configuration
@@ -2029,7 +2063,7 @@ parameter; added the <code class="docutils literal notranslate"><span class="pre
 tape-sampling loop accelerators; shows ‘DEC A’ delay loop
 statistics when <code class="docutils literal notranslate"><span class="pre">accelerator=list</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>8.10</p></td>
+<tr class="row-odd"><td><p>8.10</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-analysis</span></code> options;
 added the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> and <code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> configuration
@@ -2048,45 +2082,45 @@ multiple accelerators; added the <code class="docutils literal notranslate"><spa
 <code class="docutils literal notranslate"><span class="pre">suzy-soft2</span></code>, <code class="docutils literal notranslate"><span class="pre">tiny</span></code>, <code class="docutils literal notranslate"><span class="pre">us-gold</span></code> and <code class="docutils literal notranslate"><span class="pre">weird-science</span></code>
 tape-sampling loop accelerators</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.9</p></td>
+<tr class="row-even"><td><p>8.9</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--sim-load-config</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-name</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--tape-start</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-stop</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-sum</span></code> options;
 added support for TZX loops, pauses, and unused bits in data
 blocks; added support for quoted arguments in an arguments file;
 added the <code class="docutils literal notranslate"><span class="pre">tstates</span></code> hardware state attribute</p></td>
 </tr>
-<tr class="row-even"><td><p>8.8</p></td>
+<tr class="row-odd"><td><p>8.8</p></td>
 <td><p>A simulated LOAD performs any <code class="docutils literal notranslate"><span class="pre">call/move/poke/sysvars</span></code>
 operations specified by <code class="docutils literal notranslate"><span class="pre">--ram</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>8.7</p></td>
+<tr class="row-even"><td><p>8.7</p></td>
 <td><p>Added support for simulating a 48K Spectrum LOADing a tape; when
 a headerless block is ignored because no <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> options
 have been specified, a warning is printed</p></td>
 </tr>
-<tr class="row-even"><td><p>8.6</p></td>
+<tr class="row-odd"><td><p>8.6</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">call</span></code> operation</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.4</p></td>
+<tr class="row-even"><td><p>8.4</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">sysvars</span></code>
 operation</p></td>
 </tr>
-<tr class="row-even"><td><p>6.3</p></td>
+<tr class="row-odd"><td><p>6.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--user-agent</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--ram</span></code>, <code class="docutils literal notranslate"><span class="pre">--reg</span></code>, <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options
 accept hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>5.3</p></td>
+<tr class="row-odd"><td><p>5.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.5</p></td>
+<tr class="row-even"><td><p>4.5</p></td>
 <td><p>Added support for TZX block type 0x14 (pure data), for loading
 the first and last bytes of a tape block, and for modifying
 memory with XOR and ADD operations</p></td>
 </tr>
-<tr class="row-even"><td><p>3.5</p></td>
+<tr class="row-odd"><td><p>3.5</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -2184,6 +2218,7 @@ Options:
   -D, --decimal         Show decimal values in verbose mode.
   -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
                         &#39;v&#39;. This option may be used multiple times.
+  --map FILE            Log addresses of executed instructions to a file.
   -m MAX, --max-operations MAX
                         Maximum number of instructions to execute.
   -M MAX, --max-tstates MAX
@@ -2206,7 +2241,8 @@ Options:
   -s ADDR, --start ADDR
                         Start execution at this address.
   -S ADDR, --stop ADDR  Stop execution at this address.
-  --screen              Display screen contents while running.
+  --screen              Display screen contents and respond to keypresses
+                        while running.
   --state name=value    Set a hardware state attribute before execution
                         begins. Do &#39;--state help&#39; for more information. This
                         option may be used multiple times.
@@ -2230,7 +2266,10 @@ running on a real ZX Spectrum.</p>
 <p>If the <code class="docutils literal notranslate"><span class="pre">--screen</span></code> option is given and <a class="reference external" href="https://pygame.org/">pygame</a> is installed, <cite>trace.py</cite> will
 use it to render the Spectrum’s screen contents at 50 frames per second with a
 scale factor of 2 while running. The frame rate and scale factor can be changed
-by setting the <code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> and <code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> configuration parameters.</p>
+by setting the <code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> and <code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> configuration parameters.
+While the screen is displayed, <cite>trace.py</cite> will also respond to keypresses, with
+the left shift key mapped to CAPS SHIFT on the Spectrum keyboard, and the left
+Ctrl key mapped to SYMBOL SHIFT.</p>
 <section id="trace-conf">
 <span id="id25"></span><h3>Configuration<a class="headerlink" href="#trace-conf" title="Permalink to this heading">¶</a></h3>
 <p><cite>trace.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
@@ -2295,37 +2334,41 @@ TraceLine={t:&gt;10} ${pc:04X} {i}
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>9.4</p></td>
+<tr class="row-even"><td><p>9.5</p></td>
+<td><p>Responds to keypresses while the screen is displayed; added the
+<code class="docutils literal notranslate"><span class="pre">--map</span></code> option</p></td>
+</tr>
+<tr class="row-odd"><td><p>9.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--screen</span></code> option; added support for writing a PNG
 file after execution has completed; added the <code class="docutils literal notranslate"><span class="pre">PNGScale</span></code>,
 <code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> and <code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> configuration parameters; added
 support for multiple output file arguments</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.3</p></td>
+<tr class="row-even"><td><p>9.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--state</span></code> option; added support for writing a WAV
 file after execution has completed; added support for the <code class="docutils literal notranslate"><span class="pre">m</span></code>
 (memory) replacement field in the <code class="docutils literal notranslate"><span class="pre">TraceLine*</span></code> configuration
 parameters</p></td>
 </tr>
-<tr class="row-even"><td><p>9.2</p></td>
+<tr class="row-odd"><td><p>9.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--python</span></code> option; added support for +2 snapshots</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.1</p></td>
+<tr class="row-even"><td><p>9.1</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--poke</span></code> option can modify specific RAM banks; added the
 <code class="docutils literal notranslate"><span class="pre">--cmio</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>9.0</p></td>
+<tr class="row-odd"><td><p>9.0</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-interrupts</span></code> and <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> options;
 interrupt routines are executed by default; added support for
 128K snapshots; added support for writing SZX snapshots; added
 the <code class="docutils literal notranslate"><span class="pre">-m</span></code> and <code class="docutils literal notranslate"><span class="pre">-M</span></code> short options</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.9</p></td>
+<tr class="row-even"><td><p>8.9</p></td>
 <td><p>Reads and writes the T-states counter in Z80 snapshots and reads
 the T-states counter in SZX snapshots</p></td>
 </tr>
-<tr class="row-even"><td><p>8.8</p></td>
+<tr class="row-odd"><td><p>8.8</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -2440,12 +2483,12 @@ the T-states counter in SZX snapshots</p></td>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2024, Richard Dymond.
+        &#169; Copyright 2025, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>

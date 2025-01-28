@@ -6,6 +6,9 @@ SkoolKit components
 SkoolKit relies on several components in order to function:
 
 * :ref:`assembler`
+* :ref:`audioWriter`
+* :ref:`codeMapReader`
+* :ref:`commentGenerator`
 * :ref:`ctlComposer`
 * :ref:`ctlGenerator`
 * :ref:`disassembler`
@@ -30,6 +33,9 @@ or in `~/.skoolkit`. The default contents of this section are as follows::
 
   [skoolkit]
   Assembler=skoolkit.z80.Assembler
+  AudioWriter=skoolkit.audio.AudioWriter
+  CodeMapReader=skoolkit.snactl
+  CommentGenerator=skoolkit.comment.CommentGenerator
   ControlDirectiveComposer=skoolkit.skoolctl.ControlDirectiveComposer
   ControlFileGenerator=skoolkit.snactl
   DefaultDisassemblyStartAddress=16384
@@ -64,6 +70,47 @@ must supply the following API functions, in common with skoolkit.z80.Assembler:
 
 .. autoclass:: skoolkit.z80.Assembler
    :members: assemble, get_size
+   :noindex:
+
+.. _audioWriter:
+
+Audio writer
+------------
+This class is responsible for writing audio files. It must supply the following
+API methods, in common with skoolkit.audio.AudioWriter:
+
+.. autoclass:: skoolkit.audio.AudioWriter
+   :members: formats, write_audio
+   :noindex:
+
+.. _codeMapReader:
+
+Code map reader
+---------------
+This object is reponsible for generating a list of code block start addresses
+and lengths from a code map file and corresponding snapshot. The code map
+reader object must supply the following API function, in common with
+skoolkit.snactl:
+
+.. automodule:: skoolkit.snactl
+   :members: read_map
+   :noindex:
+
+If **read_map()** encounters an error while reading a code map file, it should
+raise a CodeMapError:
+
+.. autoclass:: skoolkit.snactl.CodeMapError
+   :noindex:
+
+.. _commentGenerator:
+
+Comment generator
+-----------------
+This class is responsible for generating instruction comments. It must supply
+the following API method, in common with skoolkit.comment.CommentGenerator:
+
+.. autoclass:: skoolkit.comment.CommentGenerator
+   :members: get_comment
    :noindex:
 
 .. _ctlComposer:

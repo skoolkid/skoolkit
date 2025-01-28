@@ -261,8 +261,8 @@ SkoolKit 8.x changelog
 * Added support to the ``--ctl`` option of :ref:`sna2skool.py` and
   :ref:`snapinfo.py` for reading control files from a directory
 * Added the ``x`` and ``y`` parameters to the frame specification of the
-  :ref:`#UDGARRAY* <Animation>` macro (for specifying the coordinates at which
-  to render a frame of an animated image)
+  ``#UDGARRAY*`` macro (for specifying the coordinates at which to render a
+  frame of an animated image)
 * Added support for replacement fields in the ``args`` parameter of the
   :ref:`CALL` macro, in the integer parameters of the :ref:`CHR`, :ref:`D`,
   :ref:`INCLUDE`, :ref:`N`, :ref:`POKES`, :ref:`R` and :ref:`SPACE` macros, and

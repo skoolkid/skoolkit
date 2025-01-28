@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Extending SkoolKit &#8212; SkoolKit 9.4 documentation</title>
+    <title>Extending SkoolKit &#8212; SkoolKit 9.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Extending SkoolKit</a></li> 
       </ul>
     </div>  
@@ -152,7 +152,7 @@ filename). The method (let’s call it <cite>sprite</cite>) would look something
 <p>With this method (and an appropriate implementation of the <cite>build_sprite</cite>
 method) in place, it’s possible to use a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro like this:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGTABLE
-{ #CALL:sprite(3,jumping) }
+{ #CALL(sprite(3,jumping)) }
 { Sprite 3 (jumping) }
 TABLE#
 </pre></div>
@@ -169,11 +169,32 @@ this:</p>
 </pre></div>
 </div>
 <p>With this method in place, it’s possible to use a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro like this:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; This ASM file was generated on #CALL:timestamp()
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; This ASM file was generated on #CALL(timestamp())
 </pre></div>
 </div>
 <p>Note that if the return value of a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method contains skool macros, then
 they will be expanded.</p>
+</section>
+<section id="call-functions">
+<h2>#CALL functions<a class="headerlink" href="#call-functions" title="Permalink to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="skool-macros.html#call"><span class="std std-ref">#CALL</span></a> macro can be used not only to call a method on an HtmlWriter or
+AsmWriter subclass, but also to call an arbitrary function. This approach might
+be preferable if you don’t need to make use of any of the methods or attributes
+on the HtmlWriter/AsmWriter object, and the desired output is the same
+regardless of the output mode (HTML or ASM).</p>
+<p>Suppose you have the following string-reversing function defined in
+<cite>mods/custom.py</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">rev</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Then you could call the <strong>rev</strong> function like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; This string reversed is &quot;#CALL(mods:custom.rev(#STR40000))&quot;.
+t40000 DEFM &quot;hello&quot;,0
+</pre></div>
+</div>
+<p>Note that unlike when calling a method on an HtmlWriter subclass, no <cite>cwd</cite>
+parameter is passed to the function.</p>
 </section>
 <section id="skool-macros">
 <h2>Skool macros<a class="headerlink" href="#skool-macros" title="Permalink to this heading">¶</a></h2>
@@ -356,12 +377,14 @@ found)</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">skoolkit.skoolmacro.</span></span><span class="sig-name descname"><span class="pre">parse_image_macro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<span class="sig-prename descclassname"><span class="pre">skoolkit.skoolmacro.</span></span><span class="sig-name descname"><span class="pre">parse_image_macro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Parse a string of the form:</p>
-<p><code class="docutils literal notranslate"><span class="pre">[params][{x,y,width,height}][(fname[*frame][|alt])]</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">[params][xparams][{x,y,width,height}][(fname[*frame][|alt])]</span></code></p>
 <p>The parameter string <code class="docutils literal notranslate"><span class="pre">params</span></code> may contain comma-separated integer values,
 and may optionally be enclosed in parentheses. Parentheses are <em>required</em>
-if any parameter is expressed using arithmetic operations or skool macros.</p>
+if any parameter is expressed using arithmetic operations or skool macros.
+The extra parameter string <code class="docutils literal notranslate"><span class="pre">xparams</span></code> is parsed only if the parsing
+function <em>xparse</em> is specified.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -374,6 +397,16 @@ if any parameter is expressed using arithmetic operations or skool macros.</p>
 fields named in this dictionary are replaced by their values
 wherever they appear in <code class="docutils literal notranslate"><span class="pre">params</span></code> or
 <code class="docutils literal notranslate"><span class="pre">{x,y,width,height}</span></code>.</p></li>
+<li><p><strong>xparse</strong> – A function that can parse <code class="docutils literal notranslate"><span class="pre">xparams</span></code>. It must accept at
+least three arguments: <em>text</em>, <em>index</em> and <em>pvals</em>, where
+<em>text</em> is the same as the argument passed to
+<strong>parse_image_macro</strong>, <em>index</em> indicates where to start
+parsing <em>text</em>, and <em>pvals</em> is a list of the parameter
+values from <code class="docutils literal notranslate"><span class="pre">params</span></code>. The return value must be of the form
+<code class="docutils literal notranslate"><span class="pre">(end,</span> <span class="pre">xpvals)</span></code>, where <code class="docutils literal notranslate"><span class="pre">end</span></code> is the index at which
+parsing terminated, and <code class="docutils literal notranslate"><span class="pre">xpvals</span></code> is a list of the
+parameter values from <code class="docutils literal notranslate"><span class="pre">xparams</span></code>.</p></li>
+<li><p><strong>xpargs</strong> – Additional arguments to pass to <em>xparse</em>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -385,11 +418,15 @@ wherever they appear in <code class="docutils literal notranslate"><span class="
 <li><p><code class="docutils literal notranslate"><span class="pre">fname</span></code> is the base name of the image file</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">frame</span></code> is the frame name (<cite>None</cite> if no frame is specified)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">alt</span></code> is the alt text (<cite>None</cite> if no alt text is specified)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">values</span></code> is a list of the parameter values</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">values</span></code> is a list of the parameter values, including those
+returned by <em>xparse</em> (if specified)</p></li>
 </ul>
 </p>
 </dd>
 </dl>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 9.5: </span>Added the <em>xparse</em> and <em>xpargs</em> parameters.</p>
+</div>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 8.3: </span>Added the <em>fields</em> parameter.</p>
 </div>
@@ -938,6 +975,7 @@ subclasses may override it.</p>
 <li><a class="reference internal" href="#">Extending SkoolKit</a><ul>
 <li><a class="reference internal" href="#extension-modules">Extension modules</a></li>
 <li><a class="reference internal" href="#call-methods">#CALL methods</a></li>
+<li><a class="reference internal" href="#call-functions">#CALL functions</a></li>
 <li><a class="reference internal" href="#skool-macros">Skool macros</a></li>
 <li><a class="reference internal" href="#parsing-skool-macros">Parsing skool macros</a></li>
 <li><a class="reference internal" href="#expanding-skool-macros">Expanding skool macros</a></li>
@@ -996,12 +1034,12 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Extending SkoolKit</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2024, Richard Dymond.
+        &#169; Copyright 2025, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Skool macros &#8212; SkoolKit 9.4 documentation</title>
+    <title>Skool macros &#8212; SkoolKit 9.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool macros</a></li> 
       </ul>
     </div>  
@@ -1124,32 +1124,31 @@ in the skool file is expanded.</p>
 </section>
 <section id="call">
 <span id="id16"></span><h3>#CALL<a class="headerlink" href="#call" title="Permalink to this heading">¶</a></h3>
-<p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro expands to the return value of a method on
-the <cite>HtmlWriter</cite> class or subclass that is being used to create the HTML
-disassembly (as defined by the <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> parameter in the
-<a class="reference internal" href="ref-files.html#ref-config"><span class="std std-ref">[Config]</span></a> section of the ref file).</p>
-<p>In ASM mode, the <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro expands to the return value of a method on the
-<cite>AsmWriter</cite> class or subclass that is being used to generate the ASM output (as
-defined by the <a class="reference internal" href="asm.html#writer"><span class="std std-ref">&#64;writer</span></a> ASM directive in the skool file).</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#CALL:methodName(args)
+<p>The <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro expands to the return value of either a method on the
+<cite>HtmlWriter</cite> or <cite>AsmWriter</cite> object currently in use, or an arbitrary function.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#CALL(method(args))
+#CALL([/path/to/moduledir:]module.func(args))
 </pre></div>
 </div>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">methodName</span></code> is the name of the method to call</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">args</span></code> is a comma-separated list of arguments to pass to the method, which
-may contain <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a></p></li>
-</ul>
-<p>Each argument can be expressed either as a plain value (e.g. <code class="docutils literal notranslate"><span class="pre">32768</span></code>) or as a
-keyword argument (e.g. <code class="docutils literal notranslate"><span class="pre">address=32768</span></code>).</p>
+<p>In each form of the macro, <code class="docutils literal notranslate"><span class="pre">args</span></code> is a comma-separated list of arguments to
+pass to the method or function. The list may contain
+<a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>. Each argument can be expressed
+either as a plain value (e.g. <code class="docutils literal notranslate"><span class="pre">32768</span></code>) or as a keyword argument (e.g.
+<code class="docutils literal notranslate"><span class="pre">address=32768</span></code>).</p>
 <p>For example:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; The word at address 32768 is #CALL:word(32768).
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; The word at address 32768 is #CALL(word(32768)).
 </pre></div>
 </div>
 <p>This instance of the <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro expands to the return value of the <cite>word</cite>
 method (on the <cite>HtmlWriter</cite> or <cite>AsmWriter</cite> subclass being used) when called
 with the argument <code class="docutils literal notranslate"><span class="pre">32768</span></code>.</p>
-<p>For information on writing methods that may be called by a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro, see
-the documentation on <a class="reference internal" href="extending.html#extendingskoolkit"><span class="std std-ref">extending SkoolKit</span></a>.</p>
+<p>For information on writing methods or functions that may be called by a
+<code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro, see the documentation on
+<a class="reference internal" href="extending.html#extendingskoolkit"><span class="std std-ref">extending SkoolKit</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">#CALL:method(args)</span></code> syntax is deprecated since version 9.5.</p>
+</div>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
@@ -1157,20 +1156,23 @@ the documentation on <a class="reference internal" href="extending.html#extendin
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.3</p></td>
+<tr class="row-even"><td><p>9.5</p></td>
+<td><p>Added support for calling an arbitrary function</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.3</p></td>
 <td><p>Added support for replacement fields in the <code class="docutils literal notranslate"><span class="pre">args</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.1</p></td>
+<tr class="row-even"><td><p>8.1</p></td>
 <td><p>Added support for keyword arguments</p></td>
 </tr>
-<tr class="row-even"><td><p>5.1</p></td>
+<tr class="row-odd"><td><p>5.1</p></td>
 <td><p>Added support for arithmetic expressions and skool macros in the
 <code class="docutils literal notranslate"><span class="pre">args</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.1</p></td>
+<tr class="row-even"><td><p>3.1</p></td>
 <td><p>Added support for ASM mode</p></td>
 </tr>
-<tr class="row-even"><td><p>2.1</p></td>
+<tr class="row-odd"><td><p>2.1</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1353,7 +1355,7 @@ parameter</p></td>
 <span id="id21"></span><h3>#LINK<a class="headerlink" href="#link" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#LINK</span></code> macro expands to a hyperlink (<code class="docutils literal notranslate"><span class="pre">&lt;a&gt;</span></code> element) to
 another page.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#LINK:PageId[#name](link text)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#LINK(PageId[#name])(link text)
 </pre></div>
 </div>
 <ul class="simple">
@@ -1369,7 +1371,7 @@ an entry with the specified anchor), or to the page’s link text.</p>
 the <a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section of a ref file, or the page IDs defined by <a class="reference internal" href="ref-files.html#page"><span class="std std-ref">[Page:*]</span></a>
 sections.</p>
 <p>For example:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; See the #LINK:Glossary(glossary) for a definition of &#39;chuntey&#39;.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; See the #LINK(Glossary)(glossary) for a definition of &#39;chuntey&#39;.
 </pre></div>
 </div>
 <p>In HTML mode, this instance of the <code class="docutils literal notranslate"><span class="pre">#LINK</span></code> macro expands to a hyperlink to
@@ -1377,12 +1379,17 @@ the ‘Glossary’ page, with link text ‘glossary’.</p>
 <p>In ASM mode, this instance of the <code class="docutils literal notranslate"><span class="pre">#LINK</span></code> macro expands to ‘glossary’.</p>
 <p>To create a hyperlink to an entry on a memory map page, use the address of the
 entry as the anchor. For example:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; Now we update the #LINK:GameStatusBuffer#40000(number of lives).
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; Now we update the #LINK(GameStatusBuffer#40000)(number of lives).
 </pre></div>
 </div>
 <p>In HTML mode, the anchor of this <code class="docutils literal notranslate"><span class="pre">#LINK</span></code> macro (40000) is converted to the
 format specified by the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a>
 section.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">#LINK:PageId[#name](link</span> <span class="pre">text)</span></code> syntax is deprecated since version
+9.5.</p>
+</div>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
@@ -1390,21 +1397,24 @@ section.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>5.4</p></td>
+<tr class="row-even"><td><p>9.5</p></td>
+<td><p>Added support for the <code class="docutils literal notranslate"><span class="pre">#LINK(PageId[#name])(link</span> <span class="pre">text)</span></code> syntax</p></td>
+</tr>
+<tr class="row-odd"><td><p>5.4</p></td>
 <td><p>When linking to an entry on a <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a>, the
 link text, if left blank, defaults to the title of the entry (in
 HTML mode)</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.2</p></td>
+<tr class="row-even"><td><p>5.2</p></td>
 <td><p>An entry address anchor in a link to a memory map page is
 converted to the format specified by the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code>
 parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>3.1.3</p></td>
+<tr class="row-odd"><td><p>3.1.3</p></td>
 <td><p>If left blank, the link text defaults to the page’s link text in
 HTML mode</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.1</p></td>
+<tr class="row-even"><td><p>2.1</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1670,13 +1680,17 @@ i r sp pc
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>5.4</p></td>
+<tr class="row-even"><td><p>9.5</p></td>
+<td><p>IXh, IXl, IYh and IYl are always rendered with a lower case ‘h’
+or ‘l’</p></td>
+</tr>
+<tr class="row-odd"><td><p>5.4</p></td>
 <td><p>Added support for an arbitrary text parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.3</p></td>
+<tr class="row-even"><td><p>5.3</p></td>
 <td><p>Added support for the F and F’ registers</p></td>
 </tr>
-<tr class="row-even"><td><p>5.1</p></td>
+<tr class="row-odd"><td><p>5.1</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">reg</span></code> parameter must be a valid register name</p></td>
 </tr>
 </tbody>
@@ -2137,12 +2151,12 @@ frame is used</p></li>
 <p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; #UDGARRAY4(30000-30120-8)(*original)
 ; #COPY1,1,2,2(original,centre)
-; #UDGARRAY*centre(img)
+; #FRAMES(centre)(img)
 </pre></div>
 </div>
 <p>This instance of the <code class="docutils literal notranslate"><span class="pre">#COPY</span></code> macro creates a new frame from a copy of the
 central 2x2 portion of the 4x4 frame created by the <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macro.  The
-<code class="docutils literal notranslate"><span class="pre">#UDGARRAY*</span></code> macro then creates an image of the new frame.</p>
+<code class="docutils literal notranslate"><span class="pre">#FRAMES</span></code> macro then creates an image of the new frame.</p>
 <p>The integer parameters and the cropping specification of the <code class="docutils literal notranslate"><span class="pre">#COPY</span></code> macro
 may contain <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
@@ -2167,15 +2181,13 @@ may contain <a class="reference internal" href="#replacementfields"><span class=
 <span id="id34"></span><h3>#FONT<a class="headerlink" href="#font" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#FONT</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for an image
 of text rendered in the game font.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#FONT[:(text)]addr[,chars,attr,scale,tindex,alpha][{CROP}][(fname)]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#FONTaddr[,chars,attr,scale,tindex,alpha][(text)][{CROP}][(fname)]
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> is the text to render (default: the 96 characters from code 32 to
-code 127)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">addr</span></code> is the base address of the font graphic data</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">chars</span></code> is the number of characters to render (default: the length of
-<code class="docutils literal notranslate"><span class="pre">text</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chars</span></code> is the number of characters to render (default: 96), or 0 if the
+<code class="docutils literal notranslate"><span class="pre">text</span></code> parameter is present</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">attr</span></code> is the attribute byte to use (default: 56)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">scale</span></code> is the scale of the image (default: 2)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">tindex</span></code> is the index (0-15) of the entry in the palette to use as the
@@ -2183,6 +2195,8 @@ transparent colour (default: 0; see <a class="reference internal" href="#palette
 <li><p><code class="docutils literal notranslate"><span class="pre">alpha</span></code> is the alpha value (0-255) to use for the transparent colour
 (default: the value of the <code class="docutils literal notranslate"><span class="pre">PNGAlpha</span></code> parameter in the
 <a class="reference internal" href="ref-files.html#ref-imagewriter"><span class="std std-ref">[ImageWriter]</span></a> section)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> is the text to render (default: the 96 characters from code 32 to
+code 127); if specified, <code class="docutils literal notranslate"><span class="pre">chars</span></code> must be 0</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CROP</span></code> is the cropping specification (see <a class="reference internal" href="#cropping"><span class="std std-ref">Cropping</span></a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fname</span></code> is the name of the image file (see <a class="reference internal" href="#filenames"><span class="std std-ref">Filenames</span></a>; default:
 ‘<cite>font</cite>’)</p></li>
@@ -2190,7 +2204,7 @@ transparent colour (default: 0; see <a class="reference internal" href="#palette
 <p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; Font graphic data
 ;
-; #HTML[#FONT:(0123456789)49152]
+; #HTML[#FONT49152,0(0123456789)]
 </pre></div>
 </div>
 <p>In HTML mode, this instance of the <code class="docutils literal notranslate"><span class="pre">#FONT</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code>
@@ -2200,6 +2214,11 @@ starts at 49152.</p>
 may contain <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal notranslate"><span class="pre">text</span></code> parameter.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">#FONT:(text)params[{CROP}][(fname)]</span></code> syntax is deprecated since
+version 9.5.</p>
+</div>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
@@ -2207,45 +2226,117 @@ may contain <a class="reference internal" href="#replacementfields"><span class=
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.3</p></td>
+<tr class="row-even"><td><p>9.5</p></td>
+<td><p>Added support for the <code class="docutils literal notranslate"><span class="pre">#FONTparams[(text)][{CROP}][(fname)]</span></code>
+syntax</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.3</p></td>
 <td><p>Added support for replacement fields in the integer parameters
 and the cropping specification</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.2</p></td>
+<tr class="row-even"><td><p>8.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">tindex</span></code> and <code class="docutils literal notranslate"><span class="pre">alpha</span></code> parameters</p></td>
 </tr>
-<tr class="row-even"><td><p>6.3</p></td>
+<tr class="row-odd"><td><p>6.3</p></td>
 <td><p>Added support for image path ID replacement fields in the
 <code class="docutils literal notranslate"><span class="pre">fname</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.1</p></td>
+<tr class="row-even"><td><p>5.1</p></td>
 <td><p>Added support for arithmetic expressions and skool macros in the
 numeric parameters</p></td>
 </tr>
-<tr class="row-even"><td><p>4.3</p></td>
+<tr class="row-odd"><td><p>4.3</p></td>
 <td><p>Added the ability to create frames</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.2</p></td>
+<tr class="row-even"><td><p>4.2</p></td>
 <td><p>Added the ability to specify alt text for the <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element</p></td>
 </tr>
-<tr class="row-even"><td><p>4.0</p></td>
+<tr class="row-odd"><td><p>4.0</p></td>
 <td><p>Added support for keyword arguments</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.6</p></td>
+<tr class="row-even"><td><p>3.6</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">text</span></code> parameter, and made the <code class="docutils literal notranslate"><span class="pre">chars</span></code> parameter
 optional</p></td>
 </tr>
-<tr class="row-even"><td><p>3.0</p></td>
+<tr class="row-odd"><td><p>3.0</p></td>
 <td><p>Added image-cropping capabilities</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.0.5</p></td>
+<tr class="row-even"><td><p>2.0.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">fname</span></code> parameter and support for regular 8x8 fonts</p></td>
 </tr>
 </tbody>
 </table>
 </section>
+<section id="frames">
+<span id="id35"></span><h3>#FRAMES<a class="headerlink" href="#frames" title="Permalink to this heading">¶</a></h3>
+<p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#FRAMES</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for an
+image built from one or more frames already created by other image macros.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#FRAMES(FRAME1[;FRAME2;...])(fname)
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">FRAME1</span></code>, <code class="docutils literal notranslate"><span class="pre">FRAME2</span></code> etc. are frame specifications</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fname</span></code> is the name of the image file (see <a class="reference internal" href="#filenames"><span class="std std-ref">Filenames</span></a>)</p></li>
+</ul>
+<p>Each frame specification has the form:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>name[,delay,x,y]
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is the name of the frame</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">delay</span></code> is the delay between this frame and the next in 1/100ths of a
+second; it also sets the default delay for any frames that follow (default:
+32)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> are the coordinates at which to render the frame, relative to
+the top-left corner of the first frame (default: (0,0))</p></li>
+</ul>
+<p>To create a frame, use a <a class="reference internal" href="#font"><span class="std std-ref">#FONT</span></a>, <a class="reference internal" href="#scr"><span class="std std-ref">#SCR</span></a>, <a class="reference internal" href="#udg"><span class="std std-ref">#UDG</span></a>, <a class="reference internal" href="#udgarray"><span class="std std-ref">#UDGARRAY</span></a>
+or <a class="reference internal" href="#udgs"><span class="std std-ref">#UDGS</span></a> macro with the <code class="docutils literal notranslate"><span class="pre">fname</span></code> parameter in one of the following
+forms:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name*</span></code> - writes an image file with this name, and also creates a frame
+with the same name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name1*name2</span></code> - writes an image file named <cite>name1</cite>, and also creates a
+frame named <cite>name2</cite></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">*name</span></code> - writes no image file, but creates a frame with this name</p></li>
+</ul>
+<p>For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; #UDGTABLE {
+; #FONT$3D00,0(hello)(hello*) |
+; #FONT$3D00,0(there)(there*) |
+; #FONT$3D00,0(peeps)(peeps*) |
+; #FRAMES(hello,50;there;peeps)(hello_there_peeps)
+; } TABLE#
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">#FONT</span></code> macros create the required frames (and write images of them); the
+<code class="docutils literal notranslate"><span class="pre">#FRAMES</span></code> macro combines the three frames into a single animated image, with
+a delay of 0.5s between each frame.</p>
+<p>The integer parameters of a frame specification may contain
+<a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
+<p>Note that the first frame of an animated image determines the size of the image
+as a whole. Therefore, the region defined by the width, height and coordinates
+of any subsequent frame must fall entirely inside the first frame.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">#FRAMES</span></code> macro has the same syntax and function as the older
+<code class="docutils literal notranslate"><span class="pre">#UDGARRAY*</span></code> macro, which is deprecated since version 9.5.</p>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>9.5</p></td>
+<td><p>New</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="over">
-<span id="id35"></span><h3>#OVER<a class="headerlink" href="#over" title="Permalink to this heading">¶</a></h3>
+<span id="id36"></span><h3>#OVER<a class="headerlink" href="#over" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#OVER</span></code> macro superimposes one frame (the foreground frame)
 on another (the background frame).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#OVERx,y[,xoffset,yoffset,rmode][(attr)][(byte)](bg,fg)
@@ -2297,12 +2388,12 @@ the background frame by OR operations.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; #UDGARRAY2(30000-30024-8)(*background)
 ; #UDG30032:30040(*object)
 ; #OVER0,1(background,object)
-; #UDGARRAY*background(image)
+; #FRAMES(background)(image)
 </pre></div>
 </div>
 <p>This instance of the <code class="docutils literal notranslate"><span class="pre">#OVER</span></code> macro superimposes the frame created by the
 <code class="docutils literal notranslate"><span class="pre">#UDG</span></code> macro at tile coordinates (0, 1) on the background frame created by
-the <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macro. The <code class="docutils literal notranslate"><span class="pre">#UDGARRAY*</span></code> macro then creates an image of the
+the <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macro. The <code class="docutils literal notranslate"><span class="pre">#FRAMES</span></code> macro then creates an image of the
 modified background frame.</p>
 <p>The integer parameters of the <code class="docutils literal notranslate"><span class="pre">#OVER</span></code> macro may contain
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
@@ -2322,7 +2413,7 @@ modified background frame.</p>
 </table>
 </section>
 <section id="plot">
-<span id="id36"></span><h3>#PLOT<a class="headerlink" href="#plot" title="Permalink to this heading">¶</a></h3>
+<span id="id37"></span><h3>#PLOT<a class="headerlink" href="#plot" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#PLOT</span></code> macro sets, resets or flips a pixel in a frame
 already created by one of the other image macros.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#PLOTx,y[,value](frame)
@@ -2337,12 +2428,12 @@ corner of the frame</p></li>
 <p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; #UDG30000(*tile)
 ; #PLOT1,2(tile)
-; #UDGARRAY*tile(tile)
+; #FRAMES(tile)(tile)
 </pre></div>
 </div>
 <p>This instance of the <code class="docutils literal notranslate"><span class="pre">#PLOT</span></code> macro sets the second pixel from the left in the
 third row from the top in the frame created by the <code class="docutils literal notranslate"><span class="pre">#UDG</span></code> macro. The
-<code class="docutils literal notranslate"><span class="pre">#UDGARRAY*</span></code> macro then creates an image of the modified frame.</p>
+<code class="docutils literal notranslate"><span class="pre">#FRAMES</span></code> macro then creates an image of the modified frame.</p>
 <p>The integer parameters of the <code class="docutils literal notranslate"><span class="pre">#PLOT</span></code> macro may contain
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <table class="docutils align-default">
@@ -2359,7 +2450,7 @@ third row from the top in the frame created by the <code class="docutils literal
 </table>
 </section>
 <section id="scr">
-<span id="id37"></span><h3>#SCR<a class="headerlink" href="#scr" title="Permalink to this heading">¶</a></h3>
+<span id="id38"></span><h3>#SCR<a class="headerlink" href="#scr" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#SCR</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for an image
 constructed from the display file and attribute file (or suitably arranged
 graphic data and attribute bytes elsewhere in memory) of the current memory
@@ -2437,7 +2528,7 @@ parameters</p></td>
 </table>
 </section>
 <section id="udg">
-<span id="id38"></span><h3>#UDG<a class="headerlink" href="#udg" title="Permalink to this heading">¶</a></h3>
+<span id="id39"></span><h3>#UDG<a class="headerlink" href="#udg" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#UDG</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for the image
 of a UDG (an 8x8 block of pixels).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:MASK][{CROP}][(fname)]
@@ -2543,10 +2634,10 @@ added support for keyword arguments</p></td>
 </table>
 </section>
 <section id="udgarray">
-<span id="id39"></span><h3>#UDGARRAY<a class="headerlink" href="#udgarray" title="Permalink to this heading">¶</a></h3>
+<span id="id40"></span><h3>#UDGARRAY<a class="headerlink" href="#udgarray" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for the
 image of an array of UDGs (8x8 blocks of pixels).</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha](SPEC1[;SPEC2;...])[@ATTRS1[;ATTRS2;...]][{CROP}](fname)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha](SPEC1;SPEC2;...)[[ATTRS1;ATTRS2;...]][{CROP}](fname)
 </pre></div>
 </div>
 <ul class="simple">
@@ -2571,9 +2662,7 @@ transparent colour (default: 0; see <a class="reference internal" href="#palette
 <li><p><code class="docutils literal notranslate"><span class="pre">fname</span></code> is the name of the image file (see <a class="reference internal" href="#filenames"><span class="std std-ref">Filenames</span></a>)</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">SPEC1</span></code>, <code class="docutils literal notranslate"><span class="pre">SPEC2</span></code> etc. are UDG specifications for the sets of UDGs that make
-up the array. The parentheses around them are optional, but recommended. If the
-parentheses are omitted, <code class="docutils literal notranslate"><span class="pre">SPEC1</span></code> must be prefixed by a semicolon to separate
-it from the main parameters. Each UDG specification has the form:</p>
+up the array. Each UDG specification has the form:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>addr[,attr,step,inc][:MASK]
 </pre></div>
 </div>
@@ -2644,6 +2733,12 @@ named <cite>base_sprite.png</cite>.</p>
 specification and cropping specification of the <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macro may contain
 <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
 <p>See also <a class="reference internal" href="#udgs"><span class="std std-ref">#UDGS</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Omitting the parentheses around the UDG specifications, and using the <code class="docutils literal notranslate"><span class="pre">&#64;</span></code>
+notation instead of square brackets around the attribute address range
+specifications are both deprecated since version 9.5.</p>
+</div>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
@@ -2651,62 +2746,66 @@ specification and cropping specification of the <code class="docutils literal no
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.6</p></td>
+<tr class="row-even"><td><p>9.5</p></td>
+<td><p>The attribute address range specifications may be enclosed in
+square brackets</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.6</p></td>
 <td><p>The UDG specifications may be enclosed in parentheses</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.3</p></td>
+<tr class="row-even"><td><p>8.3</p></td>
 <td><p>Added support for replacement fields in the integer parameters
 and the UDG, attribute address range and cropping specifications</p></td>
 </tr>
-<tr class="row-even"><td><p>8.2</p></td>
+<tr class="row-odd"><td><p>8.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">tindex</span></code> and <code class="docutils literal notranslate"><span class="pre">alpha</span></code> parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p>7.1</p></td>
+<tr class="row-even"><td><p>7.1</p></td>
 <td><p>Added the ability to specify attribute addresses</p></td>
 </tr>
-<tr class="row-even"><td><p>6.3</p></td>
+<tr class="row-odd"><td><p>6.3</p></td>
 <td><p>Added support for image path ID replacement fields in the
 <code class="docutils literal notranslate"><span class="pre">fname</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.1</p></td>
+<tr class="row-even"><td><p>5.1</p></td>
 <td><p>Added support for arithmetic expressions and skool macros in the
 numeric parameters</p></td>
 </tr>
-<tr class="row-even"><td><p>4.2</p></td>
+<tr class="row-odd"><td><p>4.2</p></td>
 <td><p>Added the ability to specify alt text for the <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.0</p></td>
+<tr class="row-even"><td><p>4.0</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">mask</span></code> parameter and support for AND-OR masking;
 added support for keyword arguments</p></td>
 </tr>
-<tr class="row-even"><td><p>3.6</p></td>
+<tr class="row-odd"><td><p>3.6</p></td>
 <td><p>Added support for creating an animated image from an arbitrary
 sequence of frames</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.1.1</p></td>
+<tr class="row-even"><td><p>3.1.1</p></td>
 <td><p>Added support for UDG address ranges with horizontal and vertical
 steps</p></td>
 </tr>
-<tr class="row-even"><td><p>3.0</p></td>
+<tr class="row-odd"><td><p>3.0</p></td>
 <td><p>Added image-cropping capabilities</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.4</p></td>
+<tr class="row-even"><td><p>2.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">rotate</span></code> parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>2.3.1</p></td>
+<tr class="row-odd"><td><p>2.3.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">flip</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.2.5</p></td>
+<tr class="row-even"><td><p>2.2.5</p></td>
 <td><p>Added support for masks</p></td>
 </tr>
-<tr class="row-even"><td><p>2.0.5</p></td>
+<tr class="row-odd"><td><p>2.0.5</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="udgs">
-<span id="id40"></span><h3>#UDGS<a class="headerlink" href="#udgs" title="Permalink to this heading">¶</a></h3>
+<span id="id41"></span><h3>#UDGS<a class="headerlink" href="#udgs" title="Permalink to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#UDGS</span></code> macro expands to an <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element for the image
 of a rectangular array of UDGs (8x8 blocks of pixels).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGSwidth,height[,scale,flip,rotate,mask,tindex,alpha][{CROP}](fname)(uframe)
@@ -2767,11 +2866,11 @@ contain <a class="reference internal" href="#replacementfields"><span class="std
 </table>
 </section>
 <section id="filenames">
-<span id="id41"></span><h3>Filenames<a class="headerlink" href="#filenames" title="Permalink to this heading">¶</a></h3>
+<span id="id42"></span><h3>Filenames<a class="headerlink" href="#filenames" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">fname</span></code> parameter of the <a class="reference internal" href="#font"><span class="std std-ref">#FONT</span></a>, <a class="reference internal" href="#scr"><span class="std std-ref">#SCR</span></a>, <a class="reference internal" href="#udg"><span class="std std-ref">#UDG</span></a>,
 <a class="reference internal" href="#udgarray"><span class="std std-ref">#UDGARRAY</span></a> and <a class="reference internal" href="#udgs"><span class="std std-ref">#UDGS</span></a> macros can be used to specify not only an image
 filename, but also its exact location, the <code class="docutils literal notranslate"><span class="pre">alt</span></code> attribute of the <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code>
-element, and a frame name (see <a class="reference internal" href="#animation"><span class="std std-ref">Animation</span></a>).</p>
+element, and a frame name (see <a class="reference internal" href="#frames"><span class="std std-ref">#FRAMES</span></a>).</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">fname</span></code> contains an image path ID replacement field (e.g.
 <code class="docutils literal notranslate"><span class="pre">{ScreenshotImagePath}/udgs</span></code>), the corresponding parameter value from the
 <a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section will be substituted.</p>
@@ -2796,73 +2895,6 @@ example:</p>
 </div>
 <p>This <code class="docutils literal notranslate"><span class="pre">#SCR</span></code> macro creates an image named <cite>screenshot1.png</cite> with alt text
 ‘Screenshot 1’.</p>
-</section>
-<section id="animation">
-<span id="id42"></span><h3>Animation<a class="headerlink" href="#animation" title="Permalink to this heading">¶</a></h3>
-<p>The image macros may be used to create the frames of an animated image. To
-create a frame, the <code class="docutils literal notranslate"><span class="pre">fname</span></code> parameter must have one of the following forms:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name*</span></code> - writes an image file with this name, and also creates a frame
-with the same name</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">name1*name2</span></code> - writes an image file named <cite>name1</cite>, and also creates a
-frame named <cite>name2</cite></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">*name</span></code> - writes no image file, but creates a frame with this name</p></li>
-</ul>
-<p>Then a special form of the <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macro creates the animated image from
-a set of frames:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGARRAY*(FRAME1[;FRAME2;...])(fname)
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">FRAME1</span></code>, <code class="docutils literal notranslate"><span class="pre">FRAME2</span></code> etc. are frame specifications. The parentheses around
-them are optional, but recommended. Each frame specification has the form:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>name[,delay,x,y]
-</pre></div>
-</div>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is the name of the frame</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">delay</span></code> is the delay between this frame and the next in 1/100ths of a
-second; it also sets the default delay for any frames that follow (default:
-32)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> are the coordinates at which to render the frame, relative to
-the top-left corner of the first frame (default: (0,0))</p></li>
-</ul>
-<p>For example:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; #UDGTABLE {
-; #FONT:(hello)$3D00(hello*) |
-; #FONT:(there)$3D00(there*) |
-; #FONT:(peeps)$3D00(peeps*) |
-; #UDGARRAY*(hello,50;there;peeps)(hello_there_peeps)
-; } TABLE#
-</pre></div>
-</div>
-<p>The <code class="docutils literal notranslate"><span class="pre">#FONT</span></code> macros create the required frames (and write images of them); the
-<code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macro combines the three frames into a single animated image,
-with a delay of 0.5s between each frame.</p>
-<p>The integer parameters of a frame specification may contain
-<a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
-<p>Note that the first frame of an animated image determines the size of the image
-as a whole. Therefore, the region defined by the width, height and coordinates
-of any subsequent frame must fall entirely inside the first frame.</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Version</p></th>
-<th class="head"><p>Changes</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>8.6</p></td>
-<td><p>The frame specifications may be enclosed in parentheses</p></td>
-</tr>
-<tr class="row-odd"><td><p>8.3</p></td>
-<td><p>Added the <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> parameters to the frame specification;
-added support for replacement fields in the integer parameters of
-a frame specification</p></td>
-</tr>
-<tr class="row-even"><td><p>3.6</p></td>
-<td><p>New</p></td>
-</tr>
-</tbody>
-</table>
 </section>
 <section id="cropping">
 <span id="id43"></span><h3>Cropping<a class="headerlink" href="#cropping" title="Permalink to this heading">¶</a></h3>
@@ -3251,6 +3283,7 @@ at 32768 like this:</p>
 <li><a class="reference internal" href="#image-macros">Image macros</a><ul>
 <li><a class="reference internal" href="#copy">#COPY</a></li>
 <li><a class="reference internal" href="#font">#FONT</a></li>
+<li><a class="reference internal" href="#frames">#FRAMES</a></li>
 <li><a class="reference internal" href="#over">#OVER</a></li>
 <li><a class="reference internal" href="#plot">#PLOT</a></li>
 <li><a class="reference internal" href="#scr">#SCR</a></li>
@@ -3258,7 +3291,6 @@ at 32768 like this:</p>
 <li><a class="reference internal" href="#udgarray">#UDGARRAY</a></li>
 <li><a class="reference internal" href="#udgs">#UDGS</a></li>
 <li><a class="reference internal" href="#filenames">Filenames</a></li>
-<li><a class="reference internal" href="#animation">Animation</a></li>
 <li><a class="reference internal" href="#cropping">Cropping</a></li>
 <li><a class="reference internal" href="#masks">Masks</a></li>
 <li><a class="reference internal" href="#palette">Palette</a></li>
@@ -3324,12 +3356,12 @@ at 32768 like this:</p>
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool macros</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2024, Richard Dymond.
+        &#169; Copyright 2025, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>

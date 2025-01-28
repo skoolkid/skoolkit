@@ -924,6 +924,7 @@ skool file split into blocks of code and data.
   snapshot. FILE may be a regular file, or '-' for standard input.
 
   Options:
+    -C, --comments        Generate instruction comments.
     -e ADDR, --end ADDR   Stop at this address (default=65536).
     -h, --hex             Write upper case hexadecimal addresses.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
@@ -945,7 +946,7 @@ to be a binary file.
 The ``-m`` option may be used to specify a code execution map to use when
 generating a control file. The supported file formats are:
 
-* Files created by the ``--map`` option of :ref:`rzxplay.py`
+* Files created by the ``--map`` option of :ref:`rzxplay.py` or :ref:`trace.py`
 * Profiles created by the Fuse emulator
 * Code execution logs created by the SpecEmu, Spud and Zero emulators
 * Map files created by the SpecEmu and Z80 emulators
@@ -962,6 +963,8 @@ Configuration
 current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
+* ``Comments`` - generate instruction comments (``1``), or don't (``0``, the
+  default)
 * ``Dictionary`` - the name of a file containing a list of allowed words, one
   per line; if specified, a string of characters will be marked as text only if
   it contains at least one of the words in this file
@@ -990,6 +993,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.5     | Added the ``--comments`` option and the ``Comments``              |
+|         | configuration parameter                                           |
++---------+-------------------------------------------------------------------+
 | 9.2     | Added support for reading code execution maps produced by         |
 |         | :ref:`rzxplay.py`                                                 |
 +---------+-------------------------------------------------------------------+
@@ -1089,6 +1095,7 @@ list::
                           which to read control files. PATH may be '-' for
                           standard input, or '0' to use no control file. This
                           option may be used multiple times.
+    -C, --comments        Generate instruction comments.
     -d SIZE, --defb SIZE  Disassemble as DEFB statements of this size.
     -e ADDR, --end ADDR   Stop disassembling at this address (default: 65536).
     -H, --hex             Write hexadecimal addresses and operands in the
@@ -1114,6 +1121,16 @@ By default, any files whose names start with the input filename (minus the
 '.bin', '.sna', '.szx' or '.z80' suffix, if any) and end with '.ctl' will be
 used as :ref:`control files <controlFiles>`.
 
+There are three options and configuration parameters that control whether
+`sna2skool.py` generates a comment for an instruction that has no comment
+defined in a control file. They are mutually exclusive and operate in the
+following order:
+
+* the ``--comments`` option or ``Comments`` configuration parameter (uses the
+  :ref:`comment generator <commentGenerator>` component)
+* the ``Text`` configuration parameter (shows byte values as ASCII text)
+* the ``Timings`` configuration parameter (shows instruction timings)
+
 .. _sna2skool-conf:
 
 Configuration
@@ -1126,6 +1143,8 @@ configuration parameters are:
   or decimal (``10``, the default)
 * ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``,
   the default)
+* ``Comments`` - generate instruction comments (``1``), or don't (``0``, the
+  default)
 * ``CommentWidthMin`` - minimum width of the instruction comment field in the
   skool file (default: ``10``)
 * ``DefbSize`` - maximum number of bytes in a DEFB statement (default: ``8``)
@@ -1243,6 +1262,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.5     | Added the ``--comments`` option and the ``Comments``              |
+|         | configuration parameter                                           |
++---------+-------------------------------------------------------------------+
 | 9.3     | Added the ``Opcodes`` configuration parameter                     |
 +---------+-------------------------------------------------------------------+
 | 8.7     | Added the ``--defb`` option and the ``Timings`` configuration     |
@@ -1500,6 +1522,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
                           Copy a block of bytes of the given size from src in
                           RAM bank s to dest in RAM bank d. This option may be
                           used multiple times.
+    --patch [p:]a,file    Apply a binary patch file at address 'a' in RAM bank
+                          'p'. This option may be used multiple times.
     -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
                           POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
                           Prefix 'v' with '^' to perform an XOR operation, or
@@ -1517,6 +1541,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.5     | Added the ``--patch`` option                                      |
++---------+-------------------------------------------------------------------+
 | 9.1     | Added support for modifying SZX snapshots and 128K snapshots; the |
 |         | ``--move`` and ``--poke`` options can modify specific RAM banks   |
 +---------+-------------------------------------------------------------------+
@@ -1807,6 +1833,8 @@ configuration parameters are:
   separated by commas (default: ``$,02X,04X``); the byte and word formats are
   standard Python format specifiers for numeric values, and default to empty
   strings if not supplied
+* ``UserAgent`` - the value of the User-Agent header in HTTP/HTTPS requests
+  (default: empty string)
 
 ``TraceLine`` is a standard Python format string that recognises the following
 replacement fields:
@@ -1853,6 +1881,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.5     | Added the ``UserAgent`` configuration parameter                   |
++---------+-------------------------------------------------------------------+
 | 9.3     | Added support for PZX files; added support for the ``m`` (memory) |
 |         | replacement field in the ``TraceLine`` configuration parameter    |
 +---------+-------------------------------------------------------------------+
@@ -2005,6 +2035,7 @@ To list the options supported by `trace.py`, run it with no arguments::
     -D, --decimal         Show decimal values in verbose mode.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
+    --map FILE            Log addresses of executed instructions to a file.
     -m MAX, --max-operations MAX
                           Maximum number of instructions to execute.
     -M MAX, --max-tstates MAX
@@ -2027,7 +2058,8 @@ To list the options supported by `trace.py`, run it with no arguments::
     -s ADDR, --start ADDR
                           Start execution at this address.
     -S ADDR, --stop ADDR  Stop execution at this address.
-    --screen              Display screen contents while running.
+    --screen              Display screen contents and respond to keypresses
+                          while running.
     --state name=value    Set a hardware state attribute before execution
                           begins. Do '--state help' for more information. This
                           option may be used multiple times.
@@ -2053,6 +2085,9 @@ If the ``--screen`` option is given and `pygame`_ is installed, `trace.py` will
 use it to render the Spectrum's screen contents at 50 frames per second with a
 scale factor of 2 while running. The frame rate and scale factor can be changed
 by setting the ``ScreenFps`` and ``ScreenScale`` configuration parameters.
+While the screen is displayed, `trace.py` will also respond to keypresses, with
+the left shift key mapped to CAPS SHIFT on the Spectrum keyboard, and the left
+Ctrl key mapped to SYMBOL SHIFT.
 
 .. _trace-conf:
 
@@ -2120,6 +2155,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.5     | Responds to keypresses while the screen is displayed; added the   |
+|         | ``--map`` option                                                  |
++---------+-------------------------------------------------------------------+
 | 9.4     | Added the ``--screen`` option; added support for writing a PNG    |
 |         | file after execution has completed; added the ``PNGScale``,       |
 |         | ``ScreenFps`` and ``ScreenScale`` configuration parameters; added |

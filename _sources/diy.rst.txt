@@ -125,8 +125,8 @@ text, data or code, and then edit the control file (`game.ctl`) accordingly.
 To generate a better control file, you could use a code execution map to tell
 `sna2ctl.py` where at least some of the code is in the snapshot. `sna2ctl.py`
 will read a map (otherwise known as a profile or trace) produced by
-:ref:`rzxplay.py`, Fuse, SpecEmu, Spud, Zero or Z80 when specified by the
-``-m`` option::
+:ref:`rzxplay.py`, :ref:`trace.py`, Fuse, SpecEmu, Spud, Zero or Z80 when
+specified by the ``-m`` option::
 
   $ sna2ctl.py -m game.map game.z80 > game.ctl
 
