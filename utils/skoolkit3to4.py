@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import argparse
 from collections import OrderedDict
@@ -135,7 +135,8 @@ def convert_ref(reffile_f):
 
     # [Page:*]
     empty_page_sections = []
-    for section_name, lines in sections.items():
+    for section_name in tuple(sections):
+        lines = sections[section_name]
         if section_name.startswith('Page:'):
             page_id = section_name[5:]
             new_lines = []
@@ -156,8 +157,9 @@ def convert_ref(reffile_f):
         del sections[section_name]
 
     # [OtherCode:*]
-    for section_name, lines in sections.items():
+    for section_name in tuple(sections):
         if section_name.startswith('OtherCode:'):
+            lines = sections[section_name]
             code_id = section_name[10:]
             index_page_id = '{}-Index'.format(code_id)
             new_lines = []
