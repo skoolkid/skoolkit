@@ -1,6 +1,9 @@
 Changelog
 =========
 
+9.6b1
+-----
+
 9.5 (2025-01-28)
 ----------------
 * Dropped support for Python 3.8
