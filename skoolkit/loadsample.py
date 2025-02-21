@@ -1,4 +1,4 @@
-# Copyright 2022-2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022-2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -14,30 +14,36 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from skoolkit.simutils import B, C
+
 class Accelerator:
-    def __init__(self, name, code, offset, in_time, loop_time, loop_r_inc, ear_mask, polarity):
+    def __init__(self, name, code, offset, counter, inc, loop_time, loop_r_inc, ear, ear_mask, polarity):
         self.name = name
-        self.opcode = code[offset]
-        if offset == 0:
-            self.code = code[1:]
-            self.c0 = 0
-        else:
-            self.code = code
-            self.c0 = offset + 1
-        self.c1 = len(self.code) - self.c0
-        self.in_time = in_time
+        self.code = code
+        self.c0 = offset
+        self.c1 = len(code) - offset
+        self.counter = counter
+        self.inc = inc
         self.loop_time = loop_time
         self.loop_r_inc = loop_r_inc
+        self.ear = ear
         self.ear_mask = ear_mask
         self.polarity = polarity
+        self.hits = 0
+
+class AnyByte:
+    def __eq__(self, other):
+        return True # pragma: no cover
+
+BYTE = AnyByte()
 
 ACCELERATORS = {
-    'alkatraz': Accelerator(
+    'alkatraz': (
         'alkatraz',
         [
             0x04,             # LD_SAMPLE  INC B            [4]
             0x20, 0x03,       #            JR NZ,LD_SAMPLE2 [12/7]
-            None, None, None, #
+            BYTE, BYTE, BYTE, #
             0xDB, 0xFE,       # LD_SAMPLE2 IN A,($FE)       [11]
             0x1F,             #            RRA              [4]
             0xC8,             #            RET Z            [11/5]
@@ -45,20 +51,22 @@ ACCELERATORS = {
             0xE6, 0x20,       #            AND $20          [7]
             0x28, 0xF1        #            JR Z,LD_SAMPLE   [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        6,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'alkatraz-05': Accelerator(
+    'alkatraz-05': (
         'alkatraz-05',
         [
             0x04,                         # LD_SAMPLE  INC B            [4]
             0x20, 0x05,                   #            JR NZ,LD_SAMPLE2 [12/7]
-            None, None, None, None, None, #
+            BYTE, 0xCD, BYTE, BYTE, 0xC7, #
             0xDB, 0xFE,                   # LD_SAMPLE2 IN A,($FE)       [11]
             0x1F,                         #            RRA              [4]
             0xC8,                         #            RET Z            [11/5]
@@ -66,21 +74,23 @@ ACCELERATORS = {
             0xE6, 0x20,                   #            AND $20          [7]
             0x28, 0xEF                    #            JR Z,LD_SAMPLE   [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        8,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'alkatraz-09': Accelerator(
+    'alkatraz-09': (
         'alkatraz-09',
         [
             0x04,                         # LD_SAMPLE  INC B            [4]
             0x20, 0x09,                   #            JR NZ,LD_SAMPLE2 [12/7]
-            None, None, None, None, None, #
-            None, None, None, None,       #
+            BYTE, 0xCD, BYTE, BYTE, 0x31, #
+            BYTE, BYTE, 0xA7, 0xC9,       #
             0xDB, 0xFE,                   # LD_SAMPLE2 IN A,($FE)       [11]
             0x1F,                         #            RRA              [4]
             0xC8,                         #            RET Z            [11/5]
@@ -88,21 +98,23 @@ ACCELERATORS = {
             0xE6, 0x20,                   #            AND $20          [7]
             0x28, 0xEB                    #            JR Z,LD_SAMPLE   [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        12,   # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'alkatraz-0a': Accelerator(
+    'alkatraz-0a': (
         'alkatraz-0a',
         [
             0x04,                         # LD_SAMPLE  INC B            [4]
             0x20, 0x0A,                   #            JR NZ,LD_SAMPLE2 [12/7]
-            None, None, None, None, None, #
-            None, None, None, None, None, #
+            BYTE, 0xCD, BYTE, BYTE, 0x31, #
+            BYTE, BYTE, 0xA7, BYTE, 0xC9, #
             0xDB, 0xFE,                   # LD_SAMPLE2 IN A,($FE)       [11]
             0x1F,                         #            RRA              [4]
             0xC8,                         #            RET Z            [11/5]
@@ -110,22 +122,24 @@ ACCELERATORS = {
             0xE6, 0x20,                   #            AND $20          [7]
             0x28, 0xEA,                   #            JR Z,LD_SAMPLE   [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        13,   # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'alkatraz-0b': Accelerator(
+    'alkatraz-0b': (
         'alkatraz-0b',
         [
             0x04,                         # LD_SAMPLE  INC B            [4]
             0x20, 0x0B,                   #            JR NZ,LD_SAMPLE2 [12/7]
-            None, None, None, None, None, #
-            None, None, None, None, None, #
-            None,                         #
+            BYTE, 0xC7, 0xCD, 0xB1, 0xFF, #
+            0x31, 0xFD, 0xFF, 0xA7, 0xFB, #
+            0xC9,                         #
             0xDB, 0xFE,                   # LD_SAMPLE2 IN A,($FE)       [11]
             0x1F,                         #            RRA              [4]
             0xC8,                         #            RET Z            [11/5]
@@ -133,15 +147,17 @@ ACCELERATORS = {
             0xE6, 0x20,                   #            AND $20          [7]
             0x28, 0xE9,                   #            JR Z,LD_SAMPLE   [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        14,   # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'alkatraz2': Accelerator(
+    'alkatraz2': (
         'alkatraz2',
         [
             0x04,       # LD_SAMPLE  INC B            [4]
@@ -154,15 +170,17 @@ ACCELERATORS = {
             0xE6, 0x20, #            AND $20          [7]
             0x28, 0xF3  #            JR Z,LD_SAMPLE   [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'alternative': Accelerator(
+    'alternative': (
         'alternative',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -175,15 +193,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF2  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         62,   # 62 T-states per loop iteration
         10,   # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'alternative2': Accelerator(
+    'alternative2': (
         'alternative2',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -196,15 +216,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF2  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         63,   # 63 T-states per loop iteration
         10,   # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'antirom': Accelerator(
+    'antirom': (
         'antirom',
         [
             0x04,       # LD_SAMPLE INC B           [4]
@@ -217,15 +239,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20         [7]
             0x20, 0xF3  #           JR NZ,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         1     # Zero flag is set upon edge detection by AND $20
     ),
 
-    'bleepload': Accelerator(
+    'bleepload': (
         'bleepload',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -238,15 +262,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         58,   # 58 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'boguslaw-juza': Accelerator(
+    'boguslaw-juza': (
         'boguslaw-juza',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -259,15 +285,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF2  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         61,   # 61 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'bulldog': Accelerator(
+    'bulldog': (
         'bulldog',
         [
             0x04,             # LD_SAMPLE INC B          [4]
@@ -279,15 +307,17 @@ ACCELERATORS = {
             0xE6, 0x20,       #           AND $20        [7]
             0x28, 0xF3        #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        22,   # 22 T-states from INC B until IN A,($FE)
+        5,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         60,   # 60 T-states per loop iteration
         8,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'crl': Accelerator(
+    'crl': (
         'crl',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -300,15 +330,17 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 
-    'crl2': Accelerator(
+    'crl2': (
         'crl2',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -321,15 +353,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        21,   # 21 T-states from INC B until IN A,($FE)
+        5,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'crl3': Accelerator(
+    'crl3': (
         'crl3',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -342,15 +376,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF1, #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        18,   # 18 T-states from INC B until IN A,($FE)
+        5,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         63,   # 63 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'crl4': Accelerator(
+    'crl4': (
         'crl4',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -363,15 +399,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF2  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         61,   # 61 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'cybexlab': Accelerator(
+    'cybexlab': (
         'cybexlab',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -384,15 +422,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF4  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        13,   # 13 T-states from INC B until IN A,($FE)
+        3,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         56,   # 56 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'd-and-h': Accelerator(
+    'd-and-h': (
         'd-and-h',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -404,15 +444,17 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0x28, 0xF3, #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         0,    # R register increment per loop iteration (irrelevant)
+        C,    # EAR bit register
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 
-    'delphine': Accelerator(
+    'delphine': (
         'delphine',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -425,19 +467,21 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0x28, 0xF3, #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 
-    'design-design': Accelerator(
+    'design-design': (
         'design-design',
         [
             0x04,             # LD_SAMPLE INC B          [4]
-            0xCA, None, None, #           JP Z,nn        [10]
+            0xCA, BYTE, BYTE, #           JP Z,nn        [10]
             0x3E, 0x7F,       #           LD A,$7F       [7]
             0xDB, 0xFE,       #           IN A,($FE)     [11]
             0x1F,             #           RRA            [4]
@@ -445,15 +489,17 @@ ACCELERATORS = {
             0xE6, 0x20,       #           AND $20        [7]
             0x28, 0xF2        #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        21,   # 21 T-states from INC B until IN A,($FE)
+        6,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'digital-integration': Accelerator(
+    'digital-integration': (
         'digital-integration',
         [
             0x05,       # LD_SAMPLE DEC B          [4]
@@ -463,15 +509,17 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0xCA        #           JP Z,LD_SAMPLE [10]
         ],
-        0,    # Offset of DEC B instruction from start of loop
-        9,    # 9 T-states from DEC B until IN A,($FE)
+        2,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        0,    # Counter (B) is decremented
         41,   # 41 T-states per loop iteration
         6,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 
-    'dinaload': Accelerator(
+    'dinaload': (
         'dinaload',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -484,15 +532,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'ernieware': Accelerator(
+    'ernieware': (
         'ernieware',
         [
             0x04,             # LD_SAMPLE INC B          [4]
@@ -500,20 +550,22 @@ ACCELERATORS = {
             0x3E, 0x7F,       #           LD A,$7F       [7]
             0xDB, 0xFE,       #           IN A,($FE)     [11]
             0x1F,             #           RRA            [4]
-            0xD2, None, None, #           JP NC,nn       [10]
+            0xD2, BYTE, BYTE, #           JP NC,nn       [10]
             0xA9,             #           XOR C          [4]
             0xE6, 0x20,       #           AND $20        [7]
             0x28, 0xF1,       #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         64,   # 64 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'gargoyle2': Accelerator(
+    'gargoyle2': (
         'gargoyle2',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -526,15 +578,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'gremlin': Accelerator(
+    'gremlin': (
         'gremlin',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -545,15 +599,17 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0x28, 0xF5  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         50,   # 50 T-states per loop iteration
         7,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 
-    'gremlin2': Accelerator(
+    'gremlin2': (
         'gremlin2',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -566,15 +622,17 @@ ACCELERATORS = {
             0x00,       #           NOP            [4]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 
-    'housenka': Accelerator(
+    'housenka': (
         'housenka',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -587,15 +645,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3, #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'microprose': Accelerator(
+    'microprose': (
         'microprose',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -607,15 +667,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF5  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        9,    # 9 T-states from INC B until IN A,($FE)
+        2,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         52,   # 52 T-states per loop iteration
         8,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'microsphere': Accelerator(
+    'microsphere': (
         'microsphere',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -628,15 +690,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         58,   # 58 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'micro-style': Accelerator(
+    'micro-style': (
         'micro-style',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -650,15 +714,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF1, #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        23,   # 23 T-states from INC B until IN A,($FE)
+        6,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         65,   # 65 T-states per loop iteration
         10,   # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'mirrorsoft': Accelerator(
+    'mirrorsoft': (
         'mirrorsoft',
         [
             0xA7,       # LD_SAMPLE AND A          [4]
@@ -671,15 +737,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        1,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        5,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         58,   # 58 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'palas': Accelerator(
+    'palas': (
         'palas',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -692,15 +760,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF4, #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        13,   # 13 T-states from INC B until IN A,($FE)
+        3,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         55,   # 55 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'paul-owens': Accelerator(
+    'paul-owens': (
         'paul-owens',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -713,15 +783,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'raxoft': Accelerator(
+    'raxoft': (
         'raxoft',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -734,15 +806,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF4  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        13,   # 13 T-states from INC B until IN A,($FE)
+        3,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         55,   # 55 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'realtime': Accelerator(
+    'realtime': (
         'realtime',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -756,15 +830,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        21,   # 21 T-states from INC B until IN A,($FE)
+        5,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         10,   # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'rom': Accelerator(
+    'rom': (
         'rom',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -777,15 +853,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'search-loader': Accelerator(
+    'search-loader': (
         'search-loader',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -798,19 +876,21 @@ ACCELERATORS = {
             0x00,       #           NOP            [4]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 
-    'silverbird': Accelerator(
+    'silverbird': (
         'silverbird',
         [
             0x04,             # LD_SAMPLE INC B          [4]
-            0x28, None,       #           JR Z,nn        [12/7]
+            0x28, 0x15,       #           JR Z,TIMEOUT   [12/7]
             0x3A, 0x00, 0x00, #           LD A,(0)       [13]
             0x7F,             #           LD A,A         [4]
             0xDB, 0xFE,       #           IN A,($FE)     [11]
@@ -818,15 +898,17 @@ ACCELERATORS = {
             0xE6, 0x40,       #           AND $40        [7]
             0x28, 0xF2        #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        28,   # 28 T-states from INC B until IN A,($FE)
+        7,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         62,   # 62 T-states per loop iteration
         8,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 
-    'software-projects': Accelerator(
+    'software-projects': (
         'software-projects',
         [
             0x3E, 0x7F, # LD_SAMPLE LD A,$7F        [7]
@@ -837,15 +919,17 @@ ACCELERATORS = {
             0x05,       #           DEC B           [4]
             0x20, 0xF4  #           JR NZ,LD_SAMPLE [12/7]
         ],
-        9,    # Offset of DEC B instruction from start of loop
-        23,   # 23 T-states from DEC B until IN A,($FE)
+        2,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        0,    # Counter (B) is decremented
         52,   # 52 T-states per loop iteration
         7,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 
-    'sparklers': Accelerator(
+    'sparklers': (
         'sparklers',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -859,15 +943,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        13,   # 13 T-states from INC B until IN A,($FE)
+        3,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         10,   # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'speedlock': Accelerator(
+    'speedlock': (
         'speedlock',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -879,15 +965,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF4  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         54,   # 54 T-states per loop iteration
         8,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'suzy-soft': Accelerator(
+    'suzy-soft': (
         'suzy-soft',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -900,15 +988,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'suzy-soft2': Accelerator(
+    'suzy-soft2': (
         'suzy-soft2',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -920,15 +1010,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF4  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         54,   # 54 T-states per loop iteration
         8,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
-    'tiny': Accelerator(
+    'tiny': (
         'tiny',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -938,15 +1030,17 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0x28, 0xF7  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        9,    # 9 T-states from INC B until IN A,($FE)
+        2,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         43,   # 43 T-states per loop iteration
         6,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 
-    'us-gold': Accelerator(
+    'us-gold': (
         'us-gold',
         [
             0x04,       # LD_SAMPLE INC B           [4]
@@ -959,15 +1053,17 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20         [7]
             0x20, 0xF3  #           JR NZ,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         58,   # 58 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x20, # EAR mask
         1     # Zero flag is set upon edge detection by AND $20
     ),
 
-    'weird-science': Accelerator(
+    'weird-science': (
         'weird-science',
         [
             0x04,       # LD_SAMPLE INC B          [4]
@@ -980,10 +1076,12 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        0,    # Offset of INC B instruction from start of loop
-        16,   # 16 T-states from INC B until IN A,($FE)
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
+        C,    # EAR bit register
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
     ),

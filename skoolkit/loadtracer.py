@@ -1,4 +1,4 @@
-# Copyright 2022-2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022-2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -37,6 +37,8 @@ DEC = tuple(tuple((
     ) for c in (0, 1)
 )
 
+DEC0 = DEC[0]
+
 INC = tuple(tuple((
         v % 256,
         (v & 0xA8)                 # S.5.3.N.
@@ -47,6 +49,8 @@ INC = tuple(tuple((
     ) for v in range(1, 257)
     ) for c in (0, 1)
 )
+
+INC0 = INC[0]
 
 class DataBlock:
     def __init__(self, data, start, end, fast_load=True):
@@ -171,9 +175,7 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
 class LoadTracer(PagingTracer):
     def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity,
                  in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe):
-        self.acc_usage = defaultdict(int)
-        self.inc_b_misses = 0
-        self.dec_b_misses = 0
+        self.tsl_misses = 0
         self.dec_a_jr_hits = 0
         self.dec_a_jp_hits = 0
         self.dec_a_misses = 0
@@ -181,7 +183,6 @@ class LoadTracer(PagingTracer):
         self.edges, self.blocks = get_edges(blocks, first_edge, polarity)
         self.pause = pause
         self.in_min_addr = in_min_addr
-        self.announce_data = True
         self.accelerators = accelerators
         if hasattr(simulator, 'opcodes'):
             opcodes = simulator.opcodes
@@ -193,30 +194,6 @@ class LoadTracer(PagingTracer):
                 opcodes[0x3D] = partial(self.dec_a_jr, registers, memory)
             elif accel_dec_a == 2:
                 opcodes[0x3D] = partial(self.dec_a_jp, registers, memory)
-            if accelerators:
-                inc_b_acc = []
-                dec_b_acc = []
-                for accelerator in accelerators:
-                    if accelerator.opcode == 0x04:
-                        inc_b_acc.append(accelerator)
-                    else:
-                        dec_b_acc.append(accelerator)
-                if list_accelerators:
-                    opcodes[0x04] = partial(self.list_accelerators, registers, memory, inc_b_acc, self.inc_b_auto, 0x04)
-                    opcodes[0x05] = partial(self.list_accelerators, registers, memory, dec_b_acc, self.dec_b_auto, 0x05)
-                else:
-                    if len(inc_b_acc) == 1:
-                        accelerator = inc_b_acc[0]
-                        if None in accelerator.code:
-                            opcodes[0x04] = partial(self.inc_b_none, registers, memory, accelerator)
-                        else:
-                            opcodes[0x04] = partial(self.inc_b, registers, memory, accelerator)
-                    elif inc_b_acc:
-                        opcodes[0x04] = partial(self.inc_b_auto, registers, memory, inc_b_acc)
-                    if len(dec_b_acc) == 1:
-                        opcodes[0x05] = partial(self.dec_b, registers, memory, dec_b_acc[0])
-                    elif dec_b_acc:
-                        opcodes[0x05] = partial(self.dec_b_auto, registers, memory, dec_b_acc)
         self.block_index = 0
         self.block_data_index = self.blocks[0].start
         self.max_index = len(self.edges) - 1
@@ -239,11 +216,12 @@ class LoadTracer(PagingTracer):
             list_accelerators,  # state[6]
             0,                  # state[7]: custom loader detected
             0,                  # state[8]: tape end time
+            1,                  # state[9]: data block not yet announced
         ]
         if hasattr(simulator, 'load'): # pragma: no cover
             self.edges = array.array('Q', self.edges)
             self.state = array.array('Q', self.state)
-        self.read_port = partial(self._read_port, self.state)
+        self.read_port = partial(self._read_port, self.state, list(accelerators), simulator.memory)
 
     def run(self, stop, fast_load, finish_tape, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
@@ -415,156 +393,14 @@ class LoadTracer(PagingTracer):
         registers[25] += 4
         registers[24] = (pc + 1) % 65536
 
-    def dec_b(self, registers, memory, acc):
-        # Speed up the tape-sampling loop with a loader-specific accelerator
-        b = registers[2]
-        loops = 0
-        pcn = registers[24] + 1
-        if self.state[4] and registers[26] == 0 and memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
-            if registers[3] & acc.ear_mask == ((self.state[1] - acc.polarity) % 2) * acc.ear_mask:
-                delta = self.state[0] - registers[25] - acc.in_time
-                if delta > 0:
-                    loops = min(delta // acc.loop_time + 1, (b - 1) % 256)
-                    if loops:
-                        # The carry flag is cleared on each loop iteration
-                        registers[1] &= 0xFE
-        registers[2], registers[1] = DEC[registers[1] % 2][(b - loops) % 256]
-        r = registers[15]
-        registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
-        registers[25] += acc.loop_time * loops + 4
-        registers[24] = pcn % 65536
-
-    def dec_b_auto(self, registers, memory, accelerators):
-        # Speed up the tape-sampling loop with an automatically selected
-        # loader-specific accelerator
-        b = registers[2]
-        pcn = registers[24] + 1
-        if self.state[4] and registers[26] == 0:
-            loops = 0
-            for i, acc in enumerate(accelerators):
-                if memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
-                    if registers[3] & acc.ear_mask == ((self.state[1] - acc.polarity) % 2) * acc.ear_mask:
-                        delta = self.state[0] - registers[25] - acc.in_time
-                        if delta > 0:
-                            loops = min(delta // acc.loop_time + 1, (b - 1) % 256)
-                            if loops:
-                                # The carry flag is cleared on each loop iteration
-                                registers[1] &= 0xFE
-                    if i:
-                        # Move the selected accelerator to the beginning of the
-                        # list so that it can be found quicker next time
-                        accelerators.remove(acc)
-                        accelerators.insert(0, acc)
-                    registers[2], registers[1] = DEC[registers[1] % 2][(b - loops) % 256]
-                    r = registers[15]
-                    registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
-                    registers[25] += acc.loop_time * loops + 4
-                    registers[24] = pcn % 65536
-                    return
-        registers[2], registers[1] = DEC[registers[1] % 2][b]
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = pcn % 65536
-
-    def inc_b(self, registers, memory, acc):
-        # Speed up the tape-sampling loop with a loader-specific accelerator
-        b = registers[2]
-        loops = 0
-        pcn = registers[24] + 1
-        if self.state[4] and registers[26] == 0 and memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
-            if registers[3] & acc.ear_mask == ((self.state[1] - acc.polarity) % 2) * acc.ear_mask:
-                delta = self.state[0] - registers[25] - acc.in_time
-                if delta > 0:
-                    loops = min(delta // acc.loop_time + 1, 255 - b)
-                    if loops:
-                        # The carry flag is cleared on each loop iteration
-                        registers[1] &= 0xFE
-        registers[2], registers[1] = INC[registers[1] % 2][b + loops]
-        r = registers[15]
-        registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
-        registers[25] += acc.loop_time * loops + 4
-        registers[24] = pcn % 65536
-
-    def inc_b_none(self, registers, memory, acc):
-        # Speed up the tape-sampling loop with a loader-specific accelerator
-        b = registers[2]
-        loops = 0
-        pcn = registers[24] + 1
-        if self.state[4] and registers[26] == 0 and all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
-            if registers[3] & acc.ear_mask == ((self.state[1] - acc.polarity) % 2) * acc.ear_mask:
-                delta = self.state[0] - registers[25] - acc.in_time
-                if delta > 0:
-                    loops = min(delta // acc.loop_time + 1, 255 - b)
-                    if loops:
-                        # The carry flag is cleared on each loop iteration
-                        registers[1] &= 0xFE
-        registers[2], registers[1] = INC[registers[1] % 2][b + loops]
-        r = registers[15]
-        registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
-        registers[25] += acc.loop_time * loops + 4
-        registers[24] = pcn % 65536
-
-    def inc_b_auto(self, registers, memory, accelerators):
-        # Speed up the tape-sampling loop with an automatically selected
-        # loader-specific accelerator
-        b = registers[2]
-        pcn = registers[24] + 1
-        if self.state[4] and registers[26] == 0:
-            loops = 0
-            for i, acc in enumerate(accelerators):
-                if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
-                    if registers[3] & acc.ear_mask == ((self.state[1] - acc.polarity) % 2) * acc.ear_mask:
-                        delta = self.state[0] - registers[25] - acc.in_time
-                        if delta > 0:
-                            loops = min(delta // acc.loop_time + 1, 255 - b)
-                            if loops:
-                                # The carry flag is cleared on each loop iteration
-                                registers[1] &= 0xFE
-                    if i:
-                        # Move the selected accelerator to the beginning of the
-                        # list so that it can be found quicker next time
-                        accelerators.remove(acc)
-                        accelerators.insert(0, acc)
-                    registers[2], registers[1] = INC[registers[1] % 2][b + loops]
-                    r = registers[15]
-                    registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
-                    registers[25] += acc.loop_time * loops + 4
-                    registers[24] = pcn % 65536
-                    return
-        registers[2], registers[1] = INC[registers[1] % 2][b]
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = pcn % 65536
-
-    def list_accelerators(self, registers, memory, accelerators, auto_method, opcode):
-        # Speed up the tape-sampling loop with an automatically selected
-        # loader-specific accelerator, and also count hits and misses
-        pcn = registers[24] + 1
-        if self.state[4] and registers[26] == 0:
-            for i, acc in enumerate(accelerators):
-                if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
-                    self.acc_usage[acc.name] += 1
-                    if i:
-                        # Move the selected accelerator to the beginning of the
-                        # list so that it can be found quicker by auto_method()
-                        accelerators.remove(acc)
-                        accelerators.insert(0, acc)
-                    auto_method(registers, memory, accelerators)
-                    return
-        if opcode == 0x04:
-            self.inc_b_misses += 1
-        else:
-            self.dec_b_misses += 1
-        auto_method(registers, memory, ())
-
-    def _read_port(self, state, registers, port):
+    def _read_port(self, state, accelerators, memory, registers, port):
         if port % 256 == 0xFE:
             pc = registers[24]
             if pc >= self.in_min_addr or (0x0562 <= pc <= 0x05F1 and self.out7ffd & 0x10):
                 state[7] = 1 # Signal: custom loader detected
                 index = state[1]
-                if self.announce_data and not state[2]:
-                    self.announce_data = False
+                if state[9] and not state[2]:
+                    state[9] = 0 # Signal: data block announced
                     state[4] = 1 # Signal: tape is running
                     registers[T] = self.edges[index]
                     length = len(self.blocks[self.block_index].data)
@@ -573,6 +409,41 @@ class LoadTracer(PagingTracer):
                 elif index == self.max_index:
                     # Final edge, so stop the tape
                     self.stop_tape(registers[T])
+                elif state[4] and registers[26] == 0 and index < state[3] - 1:
+                    loops = 0
+                    for i, acc in enumerate(accelerators):
+                        if memory[pc - acc.c0:pc + acc.c1] == acc.code:
+                            acc.hits += 1
+                            if registers[acc.ear] & acc.ear_mask == ((index - acc.polarity) % 2) * acc.ear_mask:
+                                delta = state[0] - registers[25] # T-states until next edge
+                                if delta > 0:
+                                    counter = registers[acc.counter]
+                                    if acc.inc:
+                                        # INC r
+                                        loops = min(delta // acc.loop_time + 1, 255 - counter)
+                                    else:
+                                        # DEC r
+                                        loops = min(delta // acc.loop_time + 1, counter - 1)
+                                    if loops:
+                                        if acc.inc:
+                                            # INC r
+                                            registers[acc.counter], registers[1] = INC0[counter + loops - 1]
+                                        else:
+                                            # DEC r
+                                            registers[acc.counter], registers[1] = DEC0[counter - loops + 1]
+                                        r = registers[15]
+                                        registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops) % 0x80)
+                                        registers[25] += acc.loop_time * loops
+                                        if registers[25] > state[0]:
+                                            index += 1
+                            if i:
+                                # Move the selected accelerator to the beginning of the
+                                # list so that it can be found quicker next time
+                                accelerators.remove(acc)
+                                accelerators.insert(0, acc)
+                            break
+                    else:
+                        self.tsl_misses += 1
                 if index % 2 == 0:
                     return 191
         elif port == 0xFFFD: # pragma: no cover
@@ -597,7 +468,7 @@ class LoadTracer(PagingTracer):
             self.block_data_index = self.blocks[self.block_index].start
             self.state[3] = self.blocks[self.block_index].end
             self.state[4] = int(not self.pause) # Pause tape unless configured not to
-            self.announce_data = True
+            self.state[9] = 1 # Signal: data block not yet announced
 
     def stop_tape(self, tstates):
         self.block_index = len(self.blocks)
@@ -695,5 +566,5 @@ class LoadTracer(PagingTracer):
             registers[E] = de & 0xFF
 
         registers[PC] = 0x05E2
-        self.announce_data = False
+        self.state[9] = 0 # Signal: data block announced
         return True

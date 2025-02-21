@@ -1,5 +1,5 @@
 /*
-  Copyright 2024 Richard Dymond (rjdymond@gmail.com)
+  Copyright 2024, 2025 Richard Dymond (rjdymond@gmail.com)
 
   This file is part of SkoolKit.
 
@@ -47,11 +47,28 @@ typedef struct CSimulatorObject CSimulatorObject;
 
 typedef void (*opcode_exec)(CSimulatorObject* self, void* lookup, int args[]);
 
+typedef unsigned (*read_port_f)(CSimulatorObject* self, unsigned port);
+
 typedef struct {
     opcode_exec func;
     void* lookup;
     int args[7];
 } OpcodeFunction;
+
+typedef struct {
+    PyObject* name;
+    unsigned* code;
+    int c0;
+    int c1;
+    int counter;
+    unsigned inc;
+    unsigned loop_time;
+    unsigned loop_r_inc;
+    int ear;
+    unsigned ear_mask;
+    unsigned polarity;
+    unsigned hits;
+} tsl_accelerator;
 
 typedef struct CSimulatorObject {
     PyObject_HEAD
@@ -72,27 +89,21 @@ typedef struct CSimulatorObject {
     PyObject* memory_obj;
     PyObject* registers_obj;
     PyObject* tracer;
+    unsigned long long* tracer_state;
+    unsigned long long* tape_edges;
+    unsigned long long max_index;
+    unsigned in_min_addr;
+    tsl_accelerator** accelerators;
+    unsigned num_accs;
+    unsigned tsl_misses;
+    read_port_f read_port;
+    PyObject* write_line;
     PyObject* in_a_n_tracer;
     PyObject* in_r_c_tracer;
     PyObject* ini_tracer;
     PyObject* out_tracer;
     OpcodeFunction* opcodes[256];
 } CSimulatorObject;
-
-typedef struct {
-    PyObject* name;
-    byte opcode;
-    unsigned* code;
-    int c0;
-    int c1;
-    unsigned in_time;
-    unsigned loop_time;
-    unsigned loop_r_inc;
-    unsigned ear_mask;
-    unsigned polarity;
-    unsigned long long* state;
-    unsigned hits;
-} tsl_accelerator;
 
 static const int A = 0;
 static const int F = 1;
@@ -1679,12 +1690,17 @@ static void in_a(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned value = 255;
     if (self->in_a_n_tracer) {
         byte* mem = self->memory;
-        PyObject* port = PyLong_FromLong(PEEK(ADDR(REG(PC) + 1)) + 256 * REG(A));
-        PyObject* rv = PyObject_CallOneArg(self->in_a_n_tracer, port);
-        Py_XDECREF(port);
-        if (rv) {
-            value = PyLong_AsLong(rv);
-            Py_DECREF(rv);
+        unsigned port = PEEK(ADDR(REG(PC) + 1)) + 256 * REG(A);
+        if (self->read_port) {
+            value = self->read_port(self, port);
+        } else {
+            PyObject* port_obj = PyLong_FromLong(port);
+            PyObject* rv = PyObject_CallOneArg(self->in_a_n_tracer, port_obj);
+            Py_XDECREF(port_obj);
+            if (rv) {
+                value = PyLong_AsLong(rv);
+                Py_DECREF(rv);
+            }
         }
     }
     LD(A, value);
@@ -1708,12 +1724,17 @@ static void in_c(CSimulatorObject* self, void* lookup, int args[]) {
 #endif
     unsigned value = 255;
     if (self->in_r_c_tracer) {
-        PyObject* port = PyLong_FromLong(REG(C) + 256 * REG(B));
-        PyObject* rv = PyObject_CallOneArg(self->in_a_n_tracer, port);
-        Py_XDECREF(port);
-        if (rv) {
-            value = PyLong_AsLong(rv);
-            Py_DECREF(rv);
+        unsigned port = REG(C) + 256 * REG(B);
+        if (self->read_port) {
+            value = self->read_port(self, port);
+        } else {
+            PyObject* port_obj = PyLong_FromLong(port);
+            PyObject* rv = PyObject_CallOneArg(self->in_r_c_tracer, port_obj);
+            Py_XDECREF(port_obj);
+            if (rv) {
+                value = PyLong_AsLong(rv);
+                Py_DECREF(rv);
+            }
         }
     }
     if (r != F) {
@@ -1772,12 +1793,17 @@ static void ini(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned c = REG(C);
     byte value = 191;
     if (self->ini_tracer) {
-        PyObject* port = PyLong_FromLong(c + 256 * b);
-        PyObject* rv = PyObject_CallOneArg(self->in_a_n_tracer, port);
-        Py_XDECREF(port);
-        if (rv) {
-            value = (byte)PyLong_AsLong(rv);
-            Py_DECREF(rv);
+        unsigned port = c + 256 * b;
+        if (self->read_port) {
+            value = self->read_port(self, port);
+        } else {
+            PyObject* port_obj = PyLong_FromLong(port);
+            PyObject* rv = PyObject_CallOneArg(self->ini_tracer, port_obj);
+            Py_XDECREF(port_obj);
+            if (rv) {
+                value = (byte)PyLong_AsLong(rv);
+                Py_DECREF(rv);
+            }
         }
     }
     if (hl > 0x3FFF) {
@@ -5740,180 +5766,7 @@ static void dec_a_list(CSimulatorObject* self, void* lookup, int args[]) {
     LD(PC, ADDR(pc + 1));
 }
 
-static void dec_b(CSimulatorObject* self, void* lookup, int args[]) {
-    tsl_accelerator** accs = (tsl_accelerator**)lookup;
-    int num_accs = args[0];
-    unsigned long long* state = accs[0]->state;
-    unsigned long long* reg = self->registers;
-    byte* mem = self->memory;
-
-    byte b = REG(B);
-    unsigned pc1 = ADDR(REG(PC) + 1);
-    if (state[4] && REG(IFF) == 0) {
-        unsigned loops = 0;
-        for (int k = 0; k < num_accs; k++) {
-            tsl_accelerator* acc = accs[k];
-            int match = 1;
-            int i = 0;
-            for (int j = acc->c0; j < acc->c1; j++) {
-                unsigned c = acc->code[i++];
-                if (c < 256 && c != PEEK(ADDR(pc1 + j))) {
-                    match = 0;
-                    break;
-                }
-            }
-            if (match) {
-                if ((REG(C) & acc->ear_mask) == ((state[1] - acc->polarity) & 1) * acc->ear_mask) {
-                    int delta = (int)(state[0] - TIME - acc->in_time);
-                    if (delta > 0) {
-                        unsigned d1 = delta / acc->loop_time + 1;
-                        unsigned d2 = (b - 1) & 0xFF;
-                        loops = d1 < d2 ? d1 : d2;
-                        if (loops) {
-                            /* The carry flag is cleared on each loop iteration */
-                            LD(F, REG(F) & 0xFE);
-                        }
-                    }
-                }
-                if (k) {
-                    /* Move the selected accelerator to the beginning of the
-                       list so that it can be found quicker next time */
-                    tsl_accelerator* first = accs[0];
-                    accs[0] = acc;
-                    accs[k] = first;
-                }
-                byte* values = DEC[REG(F) & 1][(b - loops) & 0xFF];
-                LD(B, values[0]);
-                LD(F, values[1]);
-                INC_R(acc->loop_r_inc * loops + 1);
-                INC_T(acc->loop_time * loops + 4);
-                LD(PC, pc1);
-                return;
-            }
-        }
-    }
-
-    byte* values = DEC[REG(F) & 1][b];
-    LD(B, values[0]);
-    LD(F, values[1]);
-    INC_R(1);
-    INC_T(4);
-    LD(PC, pc1);
-}
-
-static void inc_b(CSimulatorObject* self, void* lookup, int args[]) {
-    tsl_accelerator** accs = (tsl_accelerator**)lookup;
-    int num_accs = args[0];
-    unsigned long long* state = accs[0]->state;
-    unsigned long long* reg = self->registers;
-    byte* mem = self->memory;
-
-    byte b = REG(B);
-    unsigned pc1 = ADDR(REG(PC) + 1);
-    if (state[4] && REG(IFF) == 0) {
-        unsigned loops = 0;
-        for (int k = 0; k < num_accs; k++) {
-            tsl_accelerator* acc = accs[k];
-            int match = 1;
-            int i = 0;
-            for (int j = acc->c0; j < acc->c1; j++) {
-                unsigned c = acc->code[i++];
-                if (c < 256 && c != PEEK(ADDR(pc1 + j))) {
-                    match = 0;
-                    break;
-                }
-            }
-            if (match) {
-                if ((REG(C) & acc->ear_mask) == ((state[1] - acc->polarity) & 1) * acc->ear_mask) {
-                    int delta = (int)(state[0] - TIME - acc->in_time);
-                    if (delta > 0) {
-                        unsigned d1 = delta / acc->loop_time + 1;
-                        unsigned d2 = 255 - b;
-                        loops = d1 < d2 ? d1 : d2;
-                        if (loops) {
-                            /* The carry flag is cleared on each loop iteration */
-                            LD(F, REG(F) & 0xFE);
-                        }
-                    }
-                }
-                if (k) {
-                    /* Move the selected accelerator to the beginning of the
-                       list so that it can be found quicker next time */
-                    tsl_accelerator* first = accs[0];
-                    accs[0] = acc;
-                    accs[k] = first;
-                }
-                byte* values = INC[REG(F) & 1][b + loops];
-                LD(B, values[0]);
-                LD(F, values[1]);
-                INC_R(acc->loop_r_inc * loops + 1);
-                INC_T(acc->loop_time * loops + 4);
-                LD(PC, pc1);
-                return;
-            }
-        }
-    }
-
-    byte* values = INC[REG(F) & 1][b];
-    LD(B, values[0]);
-    LD(F, values[1]);
-    INC_R(1);
-    INC_T(4);
-    LD(PC, pc1);
-}
-
-static void list_accelerators(CSimulatorObject* self, void* lookup, int args[]) {
-    tsl_accelerator** accs = (tsl_accelerator**)lookup;
-    int num_accs = args[0];
-    byte opcode = args[1];
-    unsigned long long* state = accs[0]->state;
-    unsigned long long* reg = self->registers;
-    byte* mem = self->memory;
-
-    unsigned pc1 = ADDR(REG(PC) + 1);
-    if (state[4] && REG(IFF) == 0) {
-        for (int k = 0; k < num_accs; k++) {
-            tsl_accelerator* acc = accs[k];
-            int match = 1;
-            int i = 0;
-            for (int j = acc->c0; j < acc->c1; j++) {
-                unsigned c = acc->code[i++];
-                if (c < 256 && c != PEEK(ADDR(pc1 + j))) {
-                    match = 0;
-                    break;
-                }
-            }
-            if (match) {
-                acc->hits++;
-                if (k) {
-                    /* Move the selected accelerator to the beginning of the
-                       list so that it can be found quicker by inc_b/dec_b */
-                    tsl_accelerator* first = accs[0];
-                    accs[0] = acc;
-                    accs[k] = first;
-                }
-                if (opcode == 0x04) {
-                    inc_b(self, lookup, args);
-                } else {
-                    dec_b(self, lookup, args);
-                }
-                return;
-            }
-        }
-    }
-
-    /* Increment the miss count */
-    args[2]++;
-
-    byte* values = opcode == 0x04 ? INC[REG(F) & 1][REG(B)] : DEC[REG(F) & 1][REG(B)];
-    LD(B, values[0]);
-    LD(F, values[1]);
-    INC_R(1);
-    INC_T(4);
-    LD(PC, pc1);
-}
-
-static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs, unsigned long long* tracer_state) {
+static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs) {
     PyObject* iter = PyObject_GetIter(accelerators);
     if (iter == NULL) {
         return -1;
@@ -5925,29 +5778,30 @@ static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs, u
     while ((item = PyIter_Next(iter)) != NULL) {
         tsl_accelerator* accelerator = &accs[i++];
         PyObject* name = PyObject_GetAttrString(item, "name");
-        PyObject* opcode_obj = PyObject_GetAttrString(item, "opcode");
         PyObject* code_obj = PyObject_GetAttrString(item, "code");
         PyObject* c0_obj = PyObject_GetAttrString(item, "c0");
         PyObject* c1_obj = PyObject_GetAttrString(item, "c1");
-        PyObject* in_time_obj = PyObject_GetAttrString(item, "in_time");
+        PyObject* counter_obj = PyObject_GetAttrString(item, "counter");
+        PyObject* inc_obj = PyObject_GetAttrString(item, "inc");
         PyObject* loop_time_obj = PyObject_GetAttrString(item, "loop_time");
         PyObject* loop_r_inc_obj = PyObject_GetAttrString(item, "loop_r_inc");
+        PyObject* ear_obj = PyObject_GetAttrString(item, "ear");
         PyObject* ear_mask_obj = PyObject_GetAttrString(item, "ear_mask");
         PyObject* polarity_obj = PyObject_GetAttrString(item, "polarity");
-        if (name == NULL || opcode_obj == NULL || code_obj == NULL || c0_obj == NULL || c1_obj == NULL || in_time_obj == NULL ||
-            loop_time_obj == NULL || loop_r_inc_obj == NULL || ear_mask_obj == NULL || polarity_obj == NULL) {
+        if (name == NULL || code_obj == NULL || c0_obj == NULL || c1_obj == NULL || counter_obj == NULL || inc_obj == NULL ||
+            loop_time_obj == NULL || loop_r_inc_obj == NULL || ear_obj == NULL || ear_mask_obj == NULL || polarity_obj == NULL) {
             ok = 0;
         } else {
             accelerator->name = name;
-            accelerator->opcode = (byte)PyLong_AsLong(opcode_obj);
-            accelerator->c0 = 0 - PyLong_AsLong(c0_obj);
+            accelerator->c0 = PyLong_AsLong(c0_obj);
             accelerator->c1 = PyLong_AsLong(c1_obj);
-            accelerator->in_time = PyLong_AsLong(in_time_obj);
+            accelerator->counter = PyLong_AsLong(counter_obj);
+            accelerator->inc = PyLong_AsLong(inc_obj);
             accelerator->loop_time = PyLong_AsLong(loop_time_obj);
             accelerator->loop_r_inc = PyLong_AsLong(loop_r_inc_obj);
+            accelerator->ear = PyLong_AsLong(ear_obj);
             accelerator->ear_mask = PyLong_AsLong(ear_mask_obj);
             accelerator->polarity = PyLong_AsLong(polarity_obj);
-            accelerator->state = tracer_state;
             accelerator->hits = 0;
             Py_ssize_t code_len = PyList_Size(code_obj);
             accelerator->code = malloc(code_len * sizeof(unsigned));
@@ -5956,23 +5810,22 @@ static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs, u
                     PyObject* b = PyList_GetItem(code_obj, i);
                     if (b == NULL) {
                         ok = 0;
-                    } else if (b == Py_None) {
-                        accelerator->code[i] = 256;
                     } else {
-                        accelerator->code[i] = PyLong_AsLong(b);
+                        accelerator->code[i] = PyLong_Check(b) ? PyLong_AsLong(b) : 256;
                     }
                 }
             } else {
                 ok = 0;
             }
         }
-        Py_XDECREF(opcode_obj);
         Py_XDECREF(code_obj);
         Py_XDECREF(c0_obj);
         Py_XDECREF(c1_obj);
-        Py_XDECREF(in_time_obj);
+        Py_XDECREF(counter_obj);
+        Py_XDECREF(inc_obj);
         Py_XDECREF(loop_time_obj);
         Py_XDECREF(loop_r_inc_obj);
+        Py_XDECREF(ear_obj);
         Py_XDECREF(ear_mask_obj);
         Py_XDECREF(polarity_obj);
         Py_DECREF(item);
@@ -5985,6 +5838,108 @@ static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs, u
     return ok ? i : -1;
 }
 #endif
+
+static unsigned read_port(CSimulatorObject* self, unsigned port) {
+    unsigned long long* reg = self->registers;
+
+    if ((port & 0xFF) == 0xFE) {
+        unsigned pc = REG(PC);
+        if (pc >= self->in_min_addr || (pc >= 0x0562 && pc <= 0x05F1 && self->out7ffd & 0x10)) {
+            self->tracer_state[7] = 1; // Signal: custom loader detected
+            unsigned long long index = self->tracer_state[1];
+            if (self->tracer_state[9] && !self->tracer_state[2]) {
+                self->tracer_state[9] = 0; // Signal: data block announced
+                self->tracer_state[4] = 1; // Signal: tape is running
+                TIME = self->tape_edges[index];
+                PyObject* blocks_obj = PyObject_GetAttrString(self->tracer, "blocks");
+                PyObject* block_index_obj = PyObject_GetAttrString(self->tracer, "block_index");
+                PyObject* block = PyList_GetItem(blocks_obj, PyLong_AsLong(block_index_obj));
+                PyObject* data = PyObject_GetAttrString(block, "data");
+                Py_ssize_t len = PyBytes_Check(data) ? PyBytes_Size(data) : 0;
+                Py_XDECREF(data);
+                Py_XDECREF(block_index_obj);
+                Py_XDECREF(blocks_obj);
+                if (len) {
+                    PyObject* s = PyUnicode_FromFormat("Data (%u bytes)", len);
+                    if (s) {
+                        Py_XDECREF(PyObject_CallOneArg(self->write_line, s));
+                        Py_DECREF(s);
+                    }
+                }
+            } else if (index == self->max_index) {
+                Py_XDECREF(PyObject_CallMethod(self->tracer, "stop_tape", "(K)", TIME));
+            } else if (self->accelerators && self->tracer_state[4] && REG(IFF) == 0 && index < self->tracer_state[3] - 1) {
+                byte* mem = self->memory;
+                unsigned loops = 0;
+                unsigned tsl_miss = 1;
+                for (unsigned k = 0; k < self->num_accs; k++) {
+                    tsl_accelerator* acc = self->accelerators[k];
+                    int match = 1;
+                    int i = 0;
+                    for (int j = 0 - acc->c0; j < acc->c1; j++) {
+                        unsigned c = acc->code[i++];
+                        if (c < 256 && c != PEEK(ADDR(pc + j))) {
+                            match = 0;
+                            break;
+                        }
+                    }
+                    if (match) {
+                        acc->hits++;
+                        tsl_miss = 0;
+                        unsigned long long next_edge = self->tracer_state[0];
+                        if ((REG(acc->ear) & acc->ear_mask) == ((index - acc->polarity) & 1) * acc->ear_mask) {
+                            if (next_edge > TIME) {
+                                unsigned counter = REG(acc->counter);
+                                int delta = (int)(next_edge - TIME);
+                                unsigned d1 = delta / acc->loop_time + 1;
+                                unsigned d2 = acc->inc ? 255 - counter : counter - 1;
+                                loops = d1 < d2 ? d1 : d2;
+                                if (loops) {
+                                    byte* values = acc->inc ? INC[0][counter + loops - 1] : DEC[0][counter - loops + 1];
+                                    LD(acc->counter, values[0]);
+                                    LD(F, values[1]);
+                                    INC_R(acc->loop_r_inc * loops);
+                                    TIME += acc->loop_time * loops;
+                                    if (TIME > next_edge) {
+                                        index++;
+                                    }
+                                }
+                            }
+                        }
+                        if (k) {
+                            /* Move the selected accelerator to the beginning of the
+                               list so that it can be found quicker next time */
+                            tsl_accelerator* first = self->accelerators[0];
+                            self->accelerators[0] = acc;
+                            self->accelerators[k] = first;
+                        }
+                        break;
+                    }
+                }
+                self->tsl_misses += tsl_miss;
+            }
+            return (index & 1) ? 0xFF : 0xBF;
+        }
+    } else if (port == 0xFFFD) {
+        PyObject* outfffd_obj = PyObject_GetAttrString(self->tracer, "outfffd");
+        unsigned ay_reg = PyLong_AsLong(outfffd_obj) & 0x0F;
+        Py_XDECREF(outfffd_obj);
+        if (ay_reg == 14 && REG(PC) == 0x08B2) {
+            /* Avoid an infinite loop at 0x08AF in the 128K ROM:
+                 $08AF CALL $05D6  ; Check for BREAK.
+                 $08B2 IN A,(C)    ; Read AY register 14 (BC=$FFFD).
+                 $08B4 AND $40     ; Ready to send data?
+                 $08B6 JR NZ,$08AF ; Jump back if not (bit 6 set). */
+            return 0;
+        }
+        PyObject* ay = PyObject_GetAttrString(self->tracer, "ay");
+        PyObject* value = PyList_GetItem(ay, ay_reg);
+        Py_XDECREF(ay);
+        return PyLong_AsLong(value);
+    }
+
+    return 0xFF;
+}
 
 static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
     static char* kwlist[] = {"", "", "", "", "", "", "", NULL};
@@ -6002,14 +5957,20 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
 
     int ok = 1;
 
+    self->read_port = read_port;
+
     Py_buffer edges_buffer;
     PyObject* e = ok ? PyObject_GetAttrString(self->tracer, "edges") : NULL;
     if (e == NULL || PyObject_GetBuffer(e, &edges_buffer, PyBUF_SIMPLE) == -1) {
         ok = 0;
     }
     Py_XDECREF(e);
-    unsigned long long* edges = edges_buffer.buf;
-    unsigned long long max_index = edges ? (edges_buffer.len / edges_buffer.itemsize) - 1 : 0;
+    self->tape_edges = edges_buffer.buf;
+    self->max_index = self->tape_edges ? (edges_buffer.len / edges_buffer.itemsize) - 1 : 0;
+
+    PyObject* in_min_addr_obj = PyObject_GetAttrString(self->tracer, "in_min_addr");
+    self->in_min_addr = in_min_addr_obj ? PyLong_AsLong(in_min_addr_obj) : 0x8000;
+    Py_XDECREF(in_min_addr_obj);
 
     Py_buffer ts_buffer;
     PyObject* ts = ok ? PyObject_GetAttrString(self->tracer, "state") : NULL;
@@ -6017,7 +5978,16 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         ok = 0;
     }
     Py_XDECREF(ts);
-    unsigned long long* tracer_state = ts_buffer.buf;
+    self->tracer_state = ts_buffer.buf;
+
+    PyObject* skoolkit = PyImport_ImportModule("skoolkit");
+    if (skoolkit) {
+        self->write_line = PyObject_GetAttrString(skoolkit, "write_line");
+        Py_DECREF(skoolkit);
+    }
+    if (self->write_line == NULL) {
+        ok = 0;
+    }
 
     PyObject* fast_load_method = ok ? PyObject_GetAttrString(self->tracer, "fast_load") : NULL;
     if (fast_load_method == NULL) {
@@ -6031,11 +6001,11 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     OpcodeFunction dec_a_jr_accelerator = {dec_a_jr, NULL, {0}};
     OpcodeFunction dec_a_jp_accelerator = {dec_a_jp, NULL, {0}};
     OpcodeFunction dec_a_accelerator = {dec_a_list, NULL, {0}};
-    if (tracer_state[6]) {
+    if (self->tracer_state[6]) {
         self->opcodes[0x3D] = &dec_a_accelerator;
-    } else if (tracer_state[5] == 1) {
+    } else if (self->tracer_state[5] == 1) {
         self->opcodes[0x3D] = &dec_a_jr_accelerator;
-    } else if (tracer_state[5] == 2) {
+    } else if (self->tracer_state[5] == 2) {
         self->opcodes[0x3D] = &dec_a_jp_accelerator;
     }
 
@@ -6045,34 +6015,17 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     }
     Py_ssize_t num_accs = PySet_Check(accelerators) ? PySet_Size(accelerators) : 0;
     tsl_accelerator* accs = NULL;
-    tsl_accelerator** inc_b_accs = NULL;
-    tsl_accelerator** dec_b_accs = NULL;
-    OpcodeFunction inc_b_accelerator = {tracer_state[6] ? list_accelerators : inc_b, NULL, {0, 0x04}};
-    OpcodeFunction dec_b_accelerator = {tracer_state[6] ? list_accelerators : dec_b, NULL, {0, 0x05}};
     if (ok && num_accs) {
         accs = malloc(num_accs * sizeof(tsl_accelerator));
-        inc_b_accs = malloc(num_accs * sizeof(tsl_accelerator*));
-        dec_b_accs = malloc(num_accs * sizeof(tsl_accelerator*));
-        if (accs && inc_b_accs && dec_b_accs && get_tsl_accelerators(accelerators, accs, tracer_state) == num_accs) {
-            int inc_b_ctr = 0;
-            int dec_b_ctr = 0;
-            for (int i = 0; i < num_accs; i++) {
-                tsl_accelerator* acc = &accs[i];
-                if (acc->opcode == 0x04) {
-                    inc_b_accs[inc_b_ctr++] = acc;
-                } else if (acc->opcode == 0x05) {
-                    dec_b_accs[dec_b_ctr++] = acc;
+        if (accs && get_tsl_accelerators(accelerators, accs) == num_accs) {
+            self->accelerators = malloc(num_accs * sizeof(tsl_accelerator*));
+            if (self->accelerators) {
+                for (unsigned i = 0; i < num_accs; i++) {
+                    self->accelerators[i] = &accs[i];
                 }
-            }
-            inc_b_accelerator.lookup = inc_b_accs;
-            inc_b_accelerator.args[0] = inc_b_ctr;
-            dec_b_accelerator.lookup = dec_b_accs;
-            dec_b_accelerator.args[0] = dec_b_ctr;
-            if (inc_b_ctr) {
-                self->opcodes[0x04] = &inc_b_accelerator;
-            }
-            if (dec_b_ctr) {
-                self->opcodes[0x05] = &dec_b_accelerator;
+                self->num_accs = num_accs;
+            } else {
+                ok = 0;
             }
         } else {
             ok = 0;
@@ -6154,12 +6107,12 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         }
 
         unsigned long long tstates = TIME;
-        if (advance_tape(self->tracer, tracer_state, edges, max_index, tstates, print_progress, &progress) == -1) {
+        if (advance_tape(self->tracer, self->tracer_state, self->tape_edges, self->max_index, tstates, print_progress, &progress) == -1) {
             break;
         }
 
         pc = REG(PC);
-        unsigned long long end_of_tape = tracer_state[2];
+        unsigned long long end_of_tape = self->tracer_state[2];
         if (pc == stop && (end_of_tape || !finish_tape)) {
             rv = PyLong_FromLong(0);
             break;
@@ -6174,9 +6127,9 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
             did_fast_load = PyObject_IsTrue(fl);
             Py_DECREF(fl);
             if (did_fast_load) {
-                unsigned long long block_max_index = tracer_state[3];
-                tracer_state[1] = block_max_index;
-                if (block_max_index == max_index) {
+                unsigned long long block_max_index = self->tracer_state[3];
+                self->tracer_state[1] = block_max_index;
+                if (block_max_index == self->max_index) {
                     /* Final block, so stop the tape */
                     PyObject* st = PyObject_CallMethod(self->tracer, "stop_tape", "(K)", tstates);
                     if (st == NULL) {
@@ -6186,16 +6139,16 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
                 } else {
                     /* Otherwise continue to play the tape until this block's
                        'pause' period (if any) has elapsed */
-                    tracer_state[4] = 1;
-                    tracer_state[0] = edges[block_max_index];
-                    TIME = edges[block_max_index];
+                    self->tracer_state[4] = 1;
+                    self->tracer_state[0] = self->tape_edges[block_max_index];
+                    TIME = self->tape_edges[block_max_index];
                 }
             }
             pc = REG(PC);
         }
         if (!did_fast_load) {
             if (end_of_tape && stop == 0x10000) {
-                if (tracer_state[7]) {
+                if (self->tracer_state[7]) {
                     /* Custom loader was detected */
                     rv = PyLong_FromLong(1);
                     break;
@@ -6205,7 +6158,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
                     rv = PyLong_FromLong(2);
                     break;
                 }
-                if (TIME - tracer_state[8] > 3500000) {
+                if (TIME - self->tracer_state[8] > 3500000) {
                     /* Tape ended 1 second ago */
                     rv = PyLong_FromLong(3);
                     break;
@@ -6219,41 +6172,46 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     }
 
 #ifndef CONTENTION
-    if (rv && tracer_state[6] && accs) {
-        PyObject* acc_usage = PyObject_GetAttrString(self->tracer, "acc_usage");
-        ok = acc_usage != NULL;
-        if (ok) {
-            for (int i = 0; i < num_accs; i++) {
-                tsl_accelerator* acc = &accs[i];
-                if (acc && acc->hits) {
-                    PyObject* hits = PyLong_FromLong(acc->hits);
-                    ok = hits && PyDict_SetItem(acc_usage, acc->name, hits) == 0;
-                    Py_XDECREF(hits);
-                    if (!ok) {
+    if (rv && self->tracer_state[6] && accelerators && accs && num_accs) {
+        PyObject* iter = PyObject_GetIter(accelerators);
+        if (iter) {
+            PyObject* item;
+            while ((item = PyIter_Next(iter)) != NULL) {
+                PyObject* name = PyObject_GetAttrString(item, "name");
+                for (int i = 0; i < num_accs; i++) {
+                    tsl_accelerator* acc = &accs[i];
+                    if (acc->name == name) {
+                        if (acc->hits) {
+                            PyObject* hits = PyLong_FromLong(acc->hits);
+                            if (PyObject_SetAttrString(item, "hits", hits) == -1) {
+                                ok = 0;
+                            }
+                            Py_XDECREF(hits);
+                        }
                         break;
                     }
                 }
+                Py_XDECREF(name);
+                Py_DECREF(item);
             }
-            Py_DECREF(acc_usage);
+            Py_DECREF(iter);
         }
+        PyObject* tsl_misses = PyLong_FromLong(self->tsl_misses);
         PyObject* dec_a_jr_hits = PyLong_FromLong(dec_a_accelerator.args[0]);
         PyObject* dec_a_jp_hits = PyLong_FromLong(dec_a_accelerator.args[1]);
         PyObject* dec_a_misses = PyLong_FromLong(dec_a_accelerator.args[2]);
-        PyObject* inc_b_misses = PyLong_FromLong(inc_b_accelerator.args[2]);
-        PyObject* dec_b_misses = PyLong_FromLong(dec_b_accelerator.args[2]);
-        if (PyObject_SetAttrString(self->tracer, "dec_a_jr_hits", dec_a_jr_hits) == -1 ||
+        if (PyObject_SetAttrString(self->tracer, "tsl_misses", tsl_misses) == -1 ||
+            PyObject_SetAttrString(self->tracer, "dec_a_jr_hits", dec_a_jr_hits) == -1 ||
             PyObject_SetAttrString(self->tracer, "dec_a_jp_hits", dec_a_jp_hits) == -1 ||
-            PyObject_SetAttrString(self->tracer, "dec_a_misses", dec_a_misses) == -1 ||
-            PyObject_SetAttrString(self->tracer, "inc_b_misses", inc_b_misses) == -1 ||
-            PyObject_SetAttrString(self->tracer, "dec_b_misses", dec_b_misses) == -1) {
+            PyObject_SetAttrString(self->tracer, "dec_a_misses", dec_a_misses) == -1) {
             ok = 0;
         }
+        Py_XDECREF(tsl_misses);
         Py_XDECREF(dec_a_jr_hits);
         Py_XDECREF(dec_a_jp_hits);
         Py_XDECREF(dec_a_misses);
-        Py_XDECREF(inc_b_misses);
-        Py_XDECREF(dec_b_misses);
     }
+
     if (accs) {
         for (int i = 0; i < num_accs; i++) {
             tsl_accelerator* acc = &accs[i];
@@ -6264,12 +6222,15 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         }
         free(accs);
     }
-    if (inc_b_accs) free(inc_b_accs);
-    if (dec_b_accs) free(dec_b_accs);
     Py_XDECREF(accelerators);
 #endif
-    if (edges) PyBuffer_Release(&edges_buffer);
-    if (tracer_state) PyBuffer_Release(&ts_buffer);
+    self->read_port = NULL;
+    Py_XDECREF(self->write_line);
+    self->write_line = NULL;
+    if (self->tape_edges) PyBuffer_Release(&edges_buffer);
+    self->tape_edges = NULL;
+    if (self->tracer_state) PyBuffer_Release(&ts_buffer);
+    self->tracer_state = NULL;
     Py_XDECREF(fast_load_method);
     if (!ok) {
         Py_XDECREF(rv);

@@ -25,6 +25,7 @@ class MockSimulator:
         self.memory = mock_memory or [1] * 65536
         self.opcodes = [self.in_a_n] * 256
         self.registers = [0x80] * 28
+        self.registers[3] = 0xFF # C
         self.registers[26] = 0 # Interrupts disabled
         self.frame_duration = 69888
         self.int_active = 32
@@ -3403,164 +3404,24 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
-    def test_dec_b(self):
+    def test_list_accelerators_inc_b(self):
         global mock_memory
         mock_memory = [0] * 65536
-        code = (
-            0x05,             # $C000 DEC B
-            0xC8,             # $C001 RET Z
-            0xDB, 0xFE,       # $C002 IN A,($FE)
-            0xA9,             # $C004 XOR C
-            0xE6, 0x40,       # $C005 AND $40
-            0xCA, 0x01, 0x80  # $C007 JP Z,$C000
-        )
-        mock_memory[0xC000:0xC000 + len(code)] = code
-        tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
-        output, error = self.run_tap2sna(f'-c accelerator=digital-integration {tapfile} out.z80')
-        exp_out_lines = [
-            'Data (19 bytes)',
-            'Tape finished',
-            'Simulation stopped (end of tape): PC=49165',
-            'Writing out.z80'
-        ]
-        self.assertEqual(exp_out_lines, self._format_output(output))
-        self.assertEqual(error, '')
-        self.assertEqual(simulator.registers[2], 98)
-
-    @patch.object(tap2sna, 'LoadTracer', TestLoadTracer)
-    @patch.object(tap2sna, 'CSimulator', MockSimulator)
-    @patch.object(tap2sna, 'Simulator', MockSimulator)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
-    def test_dec_b_auto(self):
-        global mock_memory
-        mock_memory = [0] * 65536
-        code = (
-            0x3E, 0x7F, # $C000 LD A,$7F
-            0xDB, 0xFE, # $C002 IN A,($FE)
-            0xA9,       # $C004 XOR C
-            0xE6, 0x40, # $C005 AND $40
-            0x20, 0x04, # $C007 JR NZ,$C00C
-            0x05,       # $C009 DEC B
-            0x20, 0xF4  # $C00A JR NZ,$C000
-        )
-        mock_memory[0xC000:0xC000 + len(code)] = code
-        tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
-        output, error = self.run_tap2sna(f'{tapfile} out.z80')
-        exp_out_lines = [
-            'Data (19 bytes)',
-            'Tape finished',
-            'Simulation stopped (end of tape): PC=49167',
-            'Writing out.z80'
-        ]
-        self.assertEqual(exp_out_lines, self._format_output(output))
-        self.assertEqual(error, '')
-        self.assertEqual(simulator.registers[2], 93)
-
-    @patch.object(tap2sna, 'CSimulator', MockSimulator)
-    @patch.object(tap2sna, 'Simulator', MockSimulator)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
-    def test_inc_b(self):
-        global mock_memory
-        mock_memory = [0] * 65536
-        code = (
-            0x04,       # $C000 INC B
-            0xC8,       # $C001 RET Z
-            0xDB, 0xFE, # $C002 IN A,($FE)
-            0xA9,       # $C004 XOR C
-            0xE6, 0x40, # $C005 AND $40
-            0x28, 0xF7  # $C007 JR Z,$C000
-        )
-        mock_memory[0xC000:0xC000 + len(code)] = code
-        tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
-        output, error = self.run_tap2sna(f'-c accelerator=tiny {tapfile} out.z80')
-        exp_out_lines = [
-            'Data (19 bytes)',
-            'Tape finished',
-            'Simulation stopped (end of tape): PC=49164',
-            'Writing out.z80'
-        ]
-        self.assertEqual(exp_out_lines, self._format_output(output))
-        self.assertEqual(error, '')
-        self.assertEqual(simulator.registers[2], 156)
-
-    @patch.object(tap2sna, 'CSimulator', MockSimulator)
-    @patch.object(tap2sna, 'Simulator', MockSimulator)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
-    def test_inc_b_none(self):
-        global mock_memory
-        mock_memory = [0] * 65536
-        code = (
-            0x04,             # $C000 INC B
-            0x20, 0x03,       # $C001 JR NZ,$C007
-            0x00, 0x00, 0x00, # $C003 DEFS 3
-            0xDB, 0xFE,       # $C006 IN A,($FE)
-            0x1F,             # $C008 RRA
-            0xC8,             # $C009 RET Z
-            0xA9,             # $C00A XOR C
-            0xE6, 0x20,       # $C00B AND $20
-            0x28, 0xF1        # $C00D JR Z,$C000
-        )
-        mock_memory[0xC000:0xC000 + len(code)] = code
-        tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
-        output, error = self.run_tap2sna(f'-c accelerator=alkatraz {tapfile} out.z80')
-        exp_out_lines = [
-            'Data (19 bytes)',
-            'Tape finished',
-            'Simulation stopped (end of tape): PC=49170',
-            'Writing out.z80'
-        ]
-        self.assertEqual(exp_out_lines, self._format_output(output))
-        self.assertEqual(error, '')
-        self.assertEqual(simulator.registers[2], 149)
-
-    @patch.object(tap2sna, 'LoadTracer', TestLoadTracer)
-    @patch.object(tap2sna, 'CSimulator', MockSimulator)
-    @patch.object(tap2sna, 'Simulator', MockSimulator)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
-    def test_inc_b_auto(self):
-        global mock_memory
-        mock_memory = [0] * 65536
-        code = (
-            0x04,       # $C000 INC B
-            0xC8,       # $C001 RET Z
-            0xDB, 0xFE, # $C002 IN A,($FE)
-            0xA9,       # $C004 XOR C
-            0xE6, 0x40, # $C005 AND $40
-            0x28, 0xF7  # $C007 JR Z,$C000
-        )
-        mock_memory[0xC000:0xC000 + len(code)] = code
-        tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
-        output, error = self.run_tap2sna(f'{tapfile} out.z80')
-        exp_out_lines = [
-            'Data (19 bytes)',
-            'Tape finished',
-            'Simulation stopped (end of tape): PC=49164',
-            'Writing out.z80'
-        ]
-        self.assertEqual(exp_out_lines, self._format_output(output))
-        self.assertEqual(error, '')
-        self.assertEqual(simulator.registers[2], 156)
-
-    @patch.object(tap2sna, 'CSimulator', MockSimulator)
-    @patch.object(tap2sna, 'Simulator', MockSimulator)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
-    def test_list_accelerators(self):
-        global mock_memory
-        mock_memory = [0] * 65536
+        # In the MockSimulator used for this test, every address except for
+        # that of 'IN A,($FE)' and the 'DEC A' instructions counts as a
+        # tape-sampling loop miss
         code = (
             0x04,             # $C000 INC B
             0xC8,             # $C001 RET Z
-            0xDB, 0xFE,       # $C002 IN A,($FE)
+            0xDB, 0xFE,       # $C002 IN A,($FE)  ; 1 hit for 'tiny'
             0xA9,             # $C004 XOR C
             0xE6, 0x40,       # $C005 AND $40
             0x28, 0xF7,       # $C007 JR Z,$C000
-            0x04,             # $C009 INC B       ; INC B miss
-            0x05,             # $C00A DEC B       ; DEC B miss
-            0x3D,             # $C00B DEC A       ; DEC A miss
-            0x3D,             # $C00C DEC A       ; DEC A; JR NZ,$-1 hit
-            0x20, 0xFD,       # $C00D JR NZ,$C00C ;
-            0x3D,             # $C00F DEC A       ; DEC A; JP NZ,$-1 hit
-            0xC2, 0x0F, 0xC0, # $C010 JP NZ,$C00F ;
+            0x3D,             # $C009 DEC A       ; DEC A miss
+            0x3D,             # $C00A DEC A       ; DEC A; JR NZ,$-1 hit
+            0x20, 0xFD,       # $C00B JR NZ,$C00A ;
+            0x3D,             # $C00D DEC A       ; DEC A; JP NZ,$-1 hit
+            0xC2, 0x0D, 0xC0, # $C00E JP NZ,$C00D ;
         )
         mock_memory[0xC000:0xC000 + len(code)] = code
         tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
@@ -3568,11 +3429,48 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Data (19 bytes)',
             'Tape finished',
-            'Simulation stopped (end of tape): PC=49174',
-            'Accelerators: tiny: 1; misses: 1/1; dec-a: 1/1/1',
+            'Simulation stopped (end of tape): PC=49172',
+            'Accelerators: tiny: 1; misses: 12; dec-a: 1/1/1',
             'Writing out.z80'
         ]
         self.assertEqual(exp_out_lines, self._format_output(output))
         self.assertEqual(error, '')
         self.assertEqual(simulator.registers[0], 255)
-        self.assertEqual(simulator.registers[2], 156)
+        self.assertEqual(simulator.registers[2], 160)
+
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
+    @patch.object(tap2sna, 'Simulator', MockSimulator)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_list_accelerators_dec_b(self):
+        global mock_memory
+        mock_memory = [0] * 65536
+        # In the MockSimulator used for this test, every address except for
+        # that of 'IN A,($FE)' and the 'DEC A' instructions counts as a
+        # tape-sampling loop miss
+        code = (
+            0x05,             # $C000 DEC B
+            0xC8,             # $C001 RET Z
+            0xDB, 0xFE,       # $C002 IN A,($FE)  ; 1 hit for 'digital-integration'
+            0xA9,             # $C004 XOR C
+            0xE6, 0x40,       # $C005 AND $40
+            0xCA, 0x00, 0xC0, # $C007 JP Z,$C000
+            0x3D,             # $C00A DEC A       ; DEC A miss
+            0x3D,             # $C00B DEC A       ; DEC A; JR NZ,$-1 hit
+            0x20, 0xFD,       # $C00C JR NZ,$C008 ;
+            0x3D,             # $C00E DEC A       ; DEC A; JP NZ,$-1 hit
+            0xC2, 0x0E, 0xC0, # $C00F JP NZ,$C00E ;
+        )
+        mock_memory[0xC000:0xC000 + len(code)] = code
+        tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
+        output, error = self.run_tap2sna(f'-c accelerator=list {tapfile} out.z80')
+        exp_out_lines = [
+            'Data (19 bytes)',
+            'Tape finished',
+            'Simulation stopped (end of tape): PC=49173',
+            'Accelerators: digital-integration: 1; misses: 13; dec-a: 1/1/1',
+            'Writing out.z80'
+        ]
+        self.assertEqual(exp_out_lines, self._format_output(output))
+        self.assertEqual(error, '')
+        self.assertEqual(simulator.registers[0], 255)
+        self.assertEqual(simulator.registers[2], 95)

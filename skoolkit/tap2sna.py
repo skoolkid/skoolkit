@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2018, 2020-2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2018, 2020-2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -29,7 +29,7 @@ from skoolkit import (SkoolKitError, CSimulator, CCMIOSimulator, get_int_param,
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.kbtracer import KeyboardTracer
-from skoolkit.loadsample import ACCELERATORS
+from skoolkit.loadsample import ACCELERATORS, Accelerator
 from skoolkit.loadtracer import LoadTracer, get_edges
 from skoolkit.pagingtracer import Memory
 from skoolkit.simulator import Simulator
@@ -460,11 +460,11 @@ def sim_load(blocks, options, config):
     list_accelerators = int(options.accelerator == 'list')
     accelerators = set()
     if options.accelerator == 'auto' or list_accelerators:
-        accelerators.update(ACCELERATORS.values())
+        accelerators.update(Accelerator(*args) for args in ACCELERATORS.values())
     elif options.accelerator and options.accelerator != 'none':
         for name in options.accelerator.split(','):
             if name in ACCELERATORS:
-                accelerators.add(ACCELERATORS[name])
+                accelerators.add(Accelerator(*ACCELERATORS[name]))
             else:
                 raise SkoolKitError(f'Unrecognised accelerator: {name}')
 
@@ -582,10 +582,9 @@ def sim_load(blocks, options, config):
         except KeyboardInterrupt:
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
         if list_accelerators:
-            accelerators = '; '.join(f'{k}: {v}' for k, v in sorted(tracer.acc_usage.items())) or 'none'
-            tsl_misses = f'{tracer.inc_b_misses}/{tracer.dec_b_misses}'
+            accelerators = '; '.join(f'{a.name}: {a.hits}' for a in sorted(accelerators, key=lambda a: a.name) if a.hits) or 'none'
             dec_a_stats = f'{tracer.dec_a_jr_hits}/{tracer.dec_a_jp_hits}/{tracer.dec_a_misses}'
-            write_line(f'Accelerators: {accelerators}; misses: {tsl_misses}; dec-a: {dec_a_stats}')
+            write_line(f'Accelerators: {accelerators}; misses: {tracer.tsl_misses}; dec-a: {dec_a_stats}')
 
     if tracefile:
         tracefile.close()
