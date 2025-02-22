@@ -5693,70 +5693,37 @@ static int advance_tape(PyObject* tracer, unsigned long long* tracer_state, unsi
 }
 
 #ifndef CONTENTION
-static void dec_a_jr(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned long long* reg = self->registers;
-    byte* mem = self->memory;
-
-    byte a = REG(A);
-    unsigned pc1 = ADDR(REG(PC) + 1);
-    if (REG(IFF) == 0 && a && PEEK(pc1) == 0x20 && PEEK(ADDR(pc1 + 1)) == 0xFD) {
-        LD(A, 0);
-        LD(F, 0x42 + (REG(F) & 1));
-        INC_R(a * 2);
-        INC_T(16 * a - 5);
-        LD(PC, ADDR(pc1 + 2));
-    } else {
-        byte* values = DEC[REG(F) & 1][a];
-        LD(A, values[0]);
-        LD(F, values[1]);
-        INC_R(1);
-        INC_T(4);
-        LD(PC, pc1);
-    }
-}
-
-static void dec_a_jp(CSimulatorObject* self, void* lookup, int args[]) {
-    unsigned long long* reg = self->registers;
-    byte* mem = self->memory;
-
-    byte a = REG(A);
-    unsigned pc = REG(PC);
-    if (REG(IFF) == 0 && a && PEEK(ADDR(pc + 1)) == 0xC2 && PEEK(ADDR(pc + 2)) == pc % 256 && PEEK(ADDR(pc + 3)) == pc / 256) {
-        LD(A, 0);
-        LD(F, 0x42 + (REG(F) & 1));
-        INC_R(a * 2);
-        INC_T(14 * a);
-        LD(PC, ADDR(pc + 4));
-    } else {
-        byte* values = DEC[REG(F) & 1][a];
-        LD(A, values[0]);
-        LD(F, values[1]);
-        INC_R(1);
-        INC_T(4);
-        LD(PC, ADDR(pc + 1));
-    }
-}
-
-static void dec_a_list(CSimulatorObject* self, void* lookup, int args[]) {
+static void dec_a(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned long long* reg = self->registers;
     byte* mem = self->memory;
 
     unsigned pc = REG(PC);
     if (REG(IFF) == 0) {
-        if (PEEK(ADDR(pc + 1)) == 0x20 && PEEK(ADDR(pc + 2)) == 0xFD) {
+        if (self->tracer_state[5] & 1 && PEEK(ADDR(pc + 1)) == 0x20 && PEEK(ADDR(pc + 2)) == 0xFD) {
             args[0]++;
-            dec_a_jr(self, lookup, args);
+            unsigned a = REG(A) ? REG(A) : 256;
+            LD(A, 0);
+            LD(F, 0x42 + (REG(F) & 1));
+            INC_R(a * 2);
+            INC_T(16 * a - 5);
+            LD(PC, ADDR(pc + 3));
             return;
         }
-        if (PEEK(ADDR(pc + 1)) == 0xC2 && PEEK(ADDR(pc + 2)) == pc % 256 && PEEK(ADDR(pc + 3)) == pc / 256) {
-            args[1]++;
-            dec_a_jp(self, lookup, args);
-            return;
-        }
-    }
 
-    /* Increment the miss count */
-    args[2]++;
+        if (self->tracer_state[5] & 2 && PEEK(ADDR(pc + 1)) == 0xC2 && PEEK(ADDR(pc + 2)) == pc % 256 && PEEK(ADDR(pc + 3)) == pc / 256) {
+            args[1]++;
+            unsigned a = REG(A) ? REG(A) : 256;
+            LD(A, 0);
+            LD(F, 0x42 + (REG(F) & 1));
+            INC_R(a * 2);
+            INC_T(14 * a);
+            LD(PC, ADDR(pc + 4));
+            return;
+        }
+
+        /* Increment the miss count */
+        args[2]++;
+    }
 
     byte* values = DEC[REG(F) & 1][REG(A)];
     LD(A, values[0]);
@@ -5998,15 +5965,9 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         self->opcodes[i] = &opcodes[i];
     }
 #ifndef CONTENTION
-    OpcodeFunction dec_a_jr_accelerator = {dec_a_jr, NULL, {0}};
-    OpcodeFunction dec_a_jp_accelerator = {dec_a_jp, NULL, {0}};
-    OpcodeFunction dec_a_accelerator = {dec_a_list, NULL, {0}};
-    if (self->tracer_state[6]) {
+    OpcodeFunction dec_a_accelerator = {dec_a, NULL, {0}};
+    if (self->tracer_state[5]) {
         self->opcodes[0x3D] = &dec_a_accelerator;
-    } else if (self->tracer_state[5] == 1) {
-        self->opcodes[0x3D] = &dec_a_jr_accelerator;
-    } else if (self->tracer_state[5] == 2) {
-        self->opcodes[0x3D] = &dec_a_jp_accelerator;
     }
 
     PyObject* accelerators = ok ? PyObject_GetAttrString(self->tracer, "accelerators") : NULL;

@@ -3,6 +3,9 @@ Changelog
 
 9.6b1
 -----
+* Changed the default value of the ``accelerate-dec-a`` simulated LOAD
+  configuration parameter for :ref:`tap2sna.py <tap2sna-sim-load>` from ``1``
+  to ``3``
 
 9.5 (2025-01-28)
 ----------------

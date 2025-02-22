@@ -114,8 +114,8 @@ by the ``--sim-load-config`` (or ``-c``) option. The recognised configuration
 parameters are:
 
 * ``accelerate-dec-a`` - enable acceleration of 'DEC A: JR NZ,$-1' delay loops
-  (``1``, the default), or 'DEC A: JP NZ,$-1' delay loops (``2``), or neither
-  (``0``)
+  only (``1``), or 'DEC A: JP NZ,$-1' delay loops only (``2``), or both (``3``,
+  the default) or neither (``0``)
 * ``accelerator`` - a comma-separated list of tape-sampling loop accelerators
   to use (see the ``ACCELERATORS`` section below)
 * ``cmio`` - enable simulation of memory contention and I/O contention delays
@@ -187,16 +187,16 @@ entered. This technique is known as "edge loading".
 
 The output produced by ``accelerator=list`` looks something like this::
 
-  Accelerators: microsphere: 6695; rom: 794013; misses: 19/9; dec-a: 800708/0/224
+  Accelerators: microsphere: 5500; rom: 793036; misses: 0; dec-a: 800708/0/23
 
 This means that:
 
-* the ``microsphere`` and ``rom`` tape-sampling loops were detected, and were
-  entered 6695 times and 794013 times respectively
-* 19 instances of 'INC B' outside a recognised tape-sampling loop were
-  executed, and the corresponding figure for 'DEC B' is 9
+* the ``microsphere`` and ``rom`` tape-sampling loops were detected, 5500 times
+  and 793036 times respectively
+* no instances of an 'IN A,($FE)' instruction outside a recognised
+  tape-sampling loop were executed (0 misses)
 * 800708 'DEC A: JR NZ,$-1' delay loops were entered, no 'DEC A: JP NZ,$-1'
-  delay loops were entered, and 224 instances of 'DEC A' outside such delay
+  delay loops were entered, and 23 instances of 'DEC A' outside such delay
   loops were executed
 
 Specifying by name the types of tape-sampling loop used by a game's custom

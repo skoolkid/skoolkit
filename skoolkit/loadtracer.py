@@ -184,16 +184,10 @@ class LoadTracer(PagingTracer):
         self.pause = pause
         self.in_min_addr = in_min_addr
         self.accelerators = accelerators
-        if hasattr(simulator, 'opcodes'):
-            opcodes = simulator.opcodes
-            memory = simulator.memory
-            registers = simulator.registers
-            if list_accelerators and accel_dec_a:
-                opcodes[0x3D] = partial(self.dec_a_list, registers, memory)
-            elif accel_dec_a == 1:
-                opcodes[0x3D] = partial(self.dec_a_jr, registers, memory)
-            elif accel_dec_a == 2:
-                opcodes[0x3D] = partial(self.dec_a_jp, registers, memory)
+        if hasattr(simulator, 'opcodes') and accel_dec_a:
+            dec_a_jr = accel_dec_a & 1
+            dec_a_jp = accel_dec_a & 2
+            simulator.opcodes[0x3D] = partial(self.dec_a, dec_a_jr, dec_a_jp, simulator.registers, simulator.memory)
         self.block_index = 0
         self.block_data_index = self.blocks[0].start
         self.max_index = len(self.edges) - 1
@@ -334,60 +328,36 @@ class LoadTracer(PagingTracer):
         elif stop_cond == 4: # pragma: no cover
             write_line(f'Simulation stopped (timed out): PC={pc}')
 
-    def dec_a_jr(self, registers, memory):
-        # Speed up any
-        #   LD_DELAY: DEC A
-        #             JR NZ,LD_DELAY
-        # loop, which is common in tape loading routines
-        a = registers[0]
-        pcn = (registers[24] + 1) % 65536
-        if registers[26] == 0 and a and memory[pcn] == 0x20 and memory[(pcn + 1) % 65536] == 0xFD:
-            registers[0] = 0
-            registers[1] = 0x42 + (registers[1] % 2)
-            r = registers[15]
-            registers[15] = (r & 0x80) + ((r + a * 2) % 128)
-            registers[25] += 16 * a - 5
-            registers[24] = (pcn + 2) % 65536
-        else:
-            registers[0], registers[1] = DEC[registers[1] % 2][a]
-            registers[15] = R1[registers[15]]
-            registers[25] += 4
-            registers[24] = pcn % 65536
-
-    def dec_a_jp(self, registers, memory):
-        # Speed up any
-        #   LD_DELAY: DEC A
-        #             JP NZ,LD_DELAY
-        # loop, which is used in a few tape loading routines
-        a = registers[0]
-        pc = registers[24]
-        if registers[26] == 0 and a and memory[(pc + 1) % 65536] == 0xC2 and memory[(pc + 2) % 65536] == pc % 256 and memory[(pc + 3) % 65536] == pc // 256:
-            registers[0] = 0
-            registers[1] = 0x42 + (registers[1] % 2)
-            r = registers[15]
-            registers[15] = (r & 0x80) + ((r + a * 2) % 128)
-            registers[25] += 14 * a
-            registers[24] = (pc + 4) % 65536
-        else:
-            registers[0], registers[1] = DEC[registers[1] % 2][a]
-            registers[15] = R1[registers[15]]
-            registers[25] += 4
-            registers[24] = (pc + 1) % 65536
-
-    def dec_a_list(self, registers, memory):
-        # Speed up any 'DEC A: JR/JP NZ,$-1' loop, and also count hits and
-        # misses
+    def dec_a(self, dec_a_jr, dec_a_jp, registers, memory):
+        # Speed up any 'DEC A: JR/JP NZ,$-1' loop if configured to do so, and
+        # also count hits and misses
         pc = registers[24]
         if registers[26] == 0:
-            if memory[(pc + 1) % 65536] == 0x20 and memory[(pc + 2) % 65536] == 0xFD:
+            if dec_a_jr and memory[(pc + 1) % 65536] == 0x20 and memory[(pc + 2) % 65536] == 0xFD:
                 self.dec_a_jr_hits += 1
-                self.dec_a_jr(registers, memory)
+                a = registers[0]
+                if a == 0:
+                    a = 256
+                registers[0] = 0
+                registers[1] = 0x42 + (registers[1] % 2)
+                r = registers[15]
+                registers[15] = (r & 0x80) + ((r + a * 2) % 128)
+                registers[25] += 16 * a - 5
+                registers[24] = (pc + 3) % 65536
                 return
-            if memory[(pc + 1) % 65536] == 0xC2 and memory[(pc + 2) % 65536] == pc % 256 and memory[(pc + 3) % 65536] == pc // 256:
+            if dec_a_jp and memory[(pc + 1) % 65536] == 0xC2 and memory[(pc + 2) % 65536] == pc % 256 and memory[(pc + 3) % 65536] == pc // 256:
                 self.dec_a_jp_hits += 1
-                self.dec_a_jp(registers, memory)
+                a = registers[0]
+                if a == 0:
+                    a = 256
+                registers[0] = 0
+                registers[1] = 0x42 + (registers[1] % 2)
+                r = registers[15]
+                registers[15] = (r & 0x80) + ((r + a * 2) % 128)
+                registers[25] += 14 * a
+                registers[24] = (pc + 4) % 65536
                 return
-        self.dec_a_misses += 1
+            self.dec_a_misses += 1
         registers[0], registers[1] = DEC[registers[1] % 2][registers[0]]
         registers[15] = R1[registers[15]]
         registers[25] += 4

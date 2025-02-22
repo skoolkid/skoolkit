@@ -1681,8 +1681,8 @@ A simulated LOAD can be configured via parameters that are set by the
 parameters are:
 
 * ``accelerate-dec-a`` - enable acceleration of 'DEC A: JR NZ,$-1' delay loops
-  (``1``, the default), or 'DEC A: JP NZ,$-1' delay loops (``2``), or neither
-  (``0``)
+  only (``1``), or 'DEC A: JP NZ,$-1' delay loops only (``2``), or both (``3``,
+  the default), or neither (``0``)
 * ``accelerator`` - a comma-separated list of tape-sampling loop accelerators
   to use (see :ref:`tap2sna-accelerators`)
 * ``cmio`` - enable simulation of memory contention and I/O contention delays
@@ -1756,16 +1756,16 @@ entered. This technique is known as "edge loading".
 
 The output produced by ``accelerator=list`` looks something like this::
 
-  Accelerators: microsphere: 5427; rom: 793036; misses: 0; dec-a: 800600/0/224
+  Accelerators: microsphere: 5500; rom: 793036; misses: 0; dec-a: 800708/0/23
 
 This means that:
 
-* the ``microsphere`` and ``rom`` tape-sampling loops were detected, 5427 times
+* the ``microsphere`` and ``rom`` tape-sampling loops were detected, 5500 times
   and 793036 times respectively
 * no instances of an 'IN A,($FE)' instruction outside a recognised
   tape-sampling loop were executed (0 misses)
-* 800600 'DEC A: JR NZ,$-1' delay loops were entered, no 'DEC A: JP NZ,$-1'
-  delay loops were entered, and 224 instances of 'DEC A' outside such delay
+* 800708 'DEC A: JR NZ,$-1' delay loops were entered, no 'DEC A: JP NZ,$-1'
+  delay loops were entered, and 23 instances of 'DEC A' outside such delay
   loops were executed
 
 Specifying by name the types of tape-sampling loop used by a game's custom
@@ -1881,6 +1881,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.6     | Changed the default value of the ``accelerate-dec-a`` simulated   |
+|         | LOAD configuration parameter from ``1`` to ``3``                  |
++---------+-------------------------------------------------------------------+
 | 9.5     | Added the ``UserAgent`` configuration parameter                   |
 +---------+-------------------------------------------------------------------+
 | 9.3     | Added support for PZX files; added support for the ``m`` (memory) |

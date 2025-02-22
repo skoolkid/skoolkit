@@ -215,7 +215,7 @@ SIM_LOAD_CODE_PATCH = {
 }
 
 SIM_LOAD_CONFIG_HELP = """
-Usage: --sim-load-config accelerate-dec-a=0/1/2
+Usage: --sim-load-config accelerate-dec-a=0/1/2/3
        --sim-load-config accelerator=NAME
        --sim-load-config cmio=0/1
        --sim-load-config fast-load=0/1
@@ -232,10 +232,10 @@ Usage: --sim-load-config accelerate-dec-a=0/1/2
 
 Configure various properties of a simulated LOAD.
 
---sim-load-config accelerate-dec-a=0/1/2
+--sim-load-config accelerate-dec-a=0/1/2/3
 
-  Specify whether to accelerate 'DEC A: JR NZ,$-1' loops (1, the default), or
-  'DEC A: JP NZ,$-1' loops (2), or neither (0).
+  Specify whether to accelerate only 'DEC A: JR NZ,$-1' loops (1), or only
+  'DEC A: JP NZ,$-1' loops (2), or both (3, the default), or neither (0).
 
 --sim-load-config accelerator=auto/none/list/NAME[,NAME...]
 
@@ -404,7 +404,7 @@ def _ram_operations(snapshot, ram_ops, blocks=None):
             raise SkoolKitError(f'Invalid operation: {spec}')
 
 def _set_sim_load_config(options):
-    options.accelerate_dec_a = 1
+    options.accelerate_dec_a = 3
     options.accelerator = 'auto'
     options.cmio = False
     options.fast_load = True
@@ -458,6 +458,8 @@ def sim_load(blocks, options, config):
         sys.exit(0)
 
     list_accelerators = int(options.accelerator == 'list')
+    if list_accelerators:
+        options.accelerate_dec_a = 3
     accelerators = set()
     if options.accelerator == 'auto' or list_accelerators:
         accelerators.update(Accelerator(*args) for args in ACCELERATORS.values())

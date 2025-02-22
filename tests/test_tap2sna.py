@@ -2569,7 +2569,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_sim_load_config_help(self):
         for option in ('-c', '--sim-load-config'):
             output, error = self.run_tap2sna(f'{option} help')
-            self.assertTrue(output.startswith('Usage: --sim-load-config accelerate-dec-a=0/1/2\n'))
+            self.assertTrue(output.startswith('Usage: --sim-load-config accelerate-dec-a=0/1/2/3\n'))
             self.assertEqual(error, '')
 
     def test_sim_load_config_help_specific_parameter(self):
@@ -2586,7 +2586,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_sim_load_config_help_invalid_parameter(self):
         for option in ('-c', '--sim-load-config'):
             output, error = self.run_tap2sna(f'{option} help-foo')
-            self.assertTrue(output.startswith('Usage: --sim-load-config accelerate-dec-a=0/1/2\n'))
+            self.assertTrue(output.startswith('Usage: --sim-load-config accelerate-dec-a=0/1/2/3\n'))
             self.assertEqual(error, '')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
@@ -2688,7 +2688,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(load_tracer.polarity, 0)
         self.assertEqual(load_tracer.finish_tape, 0)
         self.assertEqual(load_tracer.in_min_addr, 0x8000)
-        self.assertEqual(load_tracer.accel_dec_a, 1)
+        self.assertEqual(load_tracer.accel_dec_a, 3)
         self.assertFalse(load_tracer.list_accelerators)
         self.assertEqual(load_tracer.border, 7)
         self.assertEqual(load_tracer.out7ffd, 0)
@@ -3430,12 +3430,12 @@ class Tap2SnaTest(SkoolKitTestCase):
             'Data (19 bytes)',
             'Tape finished',
             'Simulation stopped (end of tape): PC=49172',
-            'Accelerators: tiny: 1; misses: 12; dec-a: 1/1/1',
+            'Accelerators: tiny: 1; misses: 9; dec-a: 1/1/1',
             'Writing out.z80'
         ]
         self.assertEqual(exp_out_lines, self._format_output(output))
         self.assertEqual(error, '')
-        self.assertEqual(simulator.registers[0], 255)
+        self.assertEqual(simulator.registers[0], 0)
         self.assertEqual(simulator.registers[2], 160)
 
     @patch.object(tap2sna, 'CSimulator', MockSimulator)
@@ -3455,10 +3455,10 @@ class Tap2SnaTest(SkoolKitTestCase):
             0xE6, 0x40,       # $C005 AND $40
             0xCA, 0x00, 0xC0, # $C007 JP Z,$C000
             0x3D,             # $C00A DEC A       ; DEC A miss
-            0x3D,             # $C00B DEC A       ; DEC A; JR NZ,$-1 hit
-            0x20, 0xFD,       # $C00C JR NZ,$C008 ;
-            0x3D,             # $C00E DEC A       ; DEC A; JP NZ,$-1 hit
-            0xC2, 0x0E, 0xC0, # $C00F JP NZ,$C00E ;
+            0x3D,             # $C00B DEC A       ; DEC A; JP NZ,$-1 hit
+            0xC2, 0x0B, 0xC0, # $C00C JP NZ,$C00B ;
+            0x3D,             # $C00F DEC A       ; DEC A; JR NZ,$-1 hit
+            0x20, 0xFD,       # $C010 JR NZ,$C00F ;
         )
         mock_memory[0xC000:0xC000 + len(code)] = code
         tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
@@ -3467,10 +3467,10 @@ class Tap2SnaTest(SkoolKitTestCase):
             'Data (19 bytes)',
             'Tape finished',
             'Simulation stopped (end of tape): PC=49173',
-            'Accelerators: digital-integration: 1; misses: 13; dec-a: 1/1/1',
+            'Accelerators: digital-integration: 1; misses: 10; dec-a: 1/1/1',
             'Writing out.z80'
         ]
         self.assertEqual(exp_out_lines, self._format_output(output))
         self.assertEqual(error, '')
-        self.assertEqual(simulator.registers[0], 255)
+        self.assertEqual(simulator.registers[0], 0)
         self.assertEqual(simulator.registers[2], 95)
