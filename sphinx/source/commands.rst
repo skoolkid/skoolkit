@@ -1882,7 +1882,8 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.6     | Changed the default value of the ``accelerate-dec-a`` simulated   |
-|         | LOAD configuration parameter from ``1`` to ``3``                  |
+|         | LOAD configuration parameter from ``1`` to ``3``; added the       |
+|         | ``activision`` tape-sampling loop accelerator                     |
 +---------+-------------------------------------------------------------------+
 | 9.5     | Added the ``UserAgent`` configuration parameter                   |
 +---------+-------------------------------------------------------------------+

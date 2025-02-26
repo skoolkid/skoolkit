@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from skoolkit.simutils import B, C
+from skoolkit.simutils import B, C, H
 
 class Accelerator:
     def __init__(self, name, code, offset, counter, inc, loop_time, loop_r_inc, ear, ear_mask, polarity):
@@ -38,6 +38,25 @@ class AnyByte:
 BYTE = AnyByte()
 
 ACCELERATORS = {
+    'activision': (
+        'activision',
+        [
+            0x24,       # LD_SAMPLE INC H          [4]
+            0xC8,       #           RET Z          [11/5]
+            0xED, 0x78, #           IN A,(C)       [12]
+            0xA8,       #           XOR B          [4]
+            0xE6, 0x40, #           AND $40        [7]
+            0xCA        #           JP Z,LD_SAMPLE [10]
+        ],
+        2,    # Offset of IN A,(C) instruction from start of loop
+        H,    # Counter register
+        1,    # Counter (H) is incremented
+        42,   # 42 T-states per loop iteration
+        6,    # R register increment per loop iteration
+        B,    # EAR bit register
+        0x40, # EAR mask
+        0     # Zero flag is reset upon edge detection by AND $40
+    ),
     'alkatraz': (
         'alkatraz',
         [
