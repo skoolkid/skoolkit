@@ -2682,7 +2682,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertIsNone(kbtracer)
         self.assertIs(load_tracer.simulator.__class__, CSimulator or Simulator)
-        self.assertEqual(len(load_tracer.accelerators_in), 49)
+        self.assertEqual(len(load_tracer.accelerators_in), 50)
         self.assertTrue(load_tracer.pause)
         self.assertEqual(load_tracer.first_edge, 0)
         self.assertEqual(load_tracer.polarity, 0)

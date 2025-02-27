@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from skoolkit.simutils import B, C, D, H
+from skoolkit.simutils import B, C, D, E, H
 
 class Accelerator:
     def __init__(self, name, code, offset, counter, inc, loop_time, loop_r_inc, ear, ear_mask, polarity):
@@ -805,6 +805,29 @@ ACCELERATORS = {
         58,   # 58 T-states per loop iteration
         9,    # R register increment per loop iteration
         C,    # EAR bit register
+        0x20, # EAR mask
+        0     # Zero flag is reset upon edge detection by AND $20
+    ),
+
+    'mirrorsoft2': (
+        'mirrorsoft2',
+        [
+            0x14,       # LD_SAMPLE INC D          [4]
+            0xC8,       #           RET Z          [11/5]
+            0x3E, 0x7F, #           LD A,$7F       [7]
+            0xDB, 0xFE, #           IN A,($FE)     [11]
+            0x1F,       #           RRA            [4]
+            0x00,       #           NOP            [4]
+            0xAB,       #           XOR E          [4]
+            0xE6, 0x20, #           AND $20        [7]
+            0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
+        ],
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        D,    # Counter register
+        1,    # Counter (D) is incremented
+        58,   # 58 T-states per loop iteration
+        9,    # R register increment per loop iteration
+        E,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
     ),
