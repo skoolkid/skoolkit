@@ -52,7 +52,7 @@ ACCELERATORS = {
         H,    # Counter register
         1,    # Counter (H) is incremented
         42,   # 42 T-states per loop iteration
-        6,    # R register increment per loop iteration
+        7,    # R register increment per loop iteration
         B,    # EAR bit register
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
