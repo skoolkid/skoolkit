@@ -57,6 +57,7 @@ ACCELERATORS = {
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
     ),
+
     'alkatraz': (
         'alkatraz',
         [
@@ -334,6 +335,28 @@ ACCELERATORS = {
         C,    # EAR bit register
         0x20, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $20
+    ),
+
+    'codemasters': (
+        'codemasters',
+        [
+            0x04,       # LD_SAMPLE INC B          [4]
+            0xC8,       #           RET Z          [11/5]
+            0x3E, 0xFE, #           LD A,$FE       [7]
+            0xDB, 0xFE, #           IN A,($FE)     [11]
+            0xFD, 0x6F, #           LD IYl,A       [8]
+            0xA9,       #           XOR C          [4]
+            0xE6, 0x40, #           AND $40        [7]
+            0x28, 0xF3, #           JR Z,LD_SAMPLE [12/7]
+        ],
+        4,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
+        58,   # 58 T-states per loop iteration
+        9,    # R register increment per loop iteration
+        C,    # EAR bit register
+        0x40, # EAR mask
+        0     # Zero flag is reset upon edge detection by AND $40
     ),
 
     'crl': (
