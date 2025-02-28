@@ -269,6 +269,44 @@ ACCELERATORS = {
         1     # Zero flag is set upon edge detection by AND $20
     ),
 
+    'audiogenic-0': (
+        'audiogenic-0',
+        [
+            0x0C,       # LD_SAMPLE INC C           [4]
+            0x28, 0x16, #           JR Z,TIMEOUT    [12/7]
+            0xDB, 0xFE, #           IN A,($FE)      [11]
+            0xA0,       #           AND B           [4]
+            0xCA        #           JP Z,LD_SAMPLE  [10]
+        ],
+        3,    # Offset of IN A,($FE) instruction from start of loop
+        C,    # Counter register
+        1,    # Counter (C) is incremented
+        36,   # 36 T-states per loop iteration
+        5,    # R register increment per loop iteration
+        -1,   # EAR bit register (none)
+        0,    # EAR mask (none)
+        1     # Loop exits upon detection of a 1-pulse
+    ),
+
+    'audiogenic-1': (
+        'audiogenic-1',
+        [
+            0x0C,       # LD_SAMPLE INC C           [4]
+            0x28, 0x0D, #           JR Z,TIMEOUT    [12/7]
+            0xDB, 0xFE, #           IN A,($FE)      [11]
+            0xA0,       #           AND B           [4]
+            0xC2        #           JP NZ,LD_SAMPLE [10]
+        ],
+        3,    # Offset of IN A,($FE) instruction from start of loop
+        C,    # Counter register
+        1,    # Counter (C) is incremented
+        36,   # 36 T-states per loop iteration
+        5,    # R register increment per loop iteration
+        -1,   # EAR bit register (none)
+        0,    # EAR mask (none)
+        0     # Loop exits upon detection of a 0-pulse
+    ),
+
     'bleepload': (
         'bleepload',
         [
