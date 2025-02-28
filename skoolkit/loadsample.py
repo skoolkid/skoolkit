@@ -753,6 +753,44 @@ ACCELERATORS = {
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
+    'kwc-0': (
+        'kwc-0',
+        [
+            0x04,       # LD_SAMPLE INC B          [4]
+            0xC8,       #           RET Z          [11/5]
+            0xDB, 0xFE, #           IN A,($FE)     [11]
+            0x87,       #           ADD A,A        [4]
+            0xF2        #           JP P,LD_SAMPLE [10]
+        ],
+        2,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
+        34,   # 34 T-states per loop iteration
+        5,    # R register increment per loop iteration
+        -1,   # EAR bit register (none)
+        0,    # EAR mask (none)
+        1     # Loop exits upon detection of a 1-pulse
+    ),
+
+    'kwc-1': (
+        'kwc-1',
+        [
+            0x04,       # LD_SAMPLE INC B          [4]
+            0xC8,       #           RET Z          [11/5]
+            0xDB, 0xFE, #           IN A,($FE)     [11]
+            0x87,       #           ADD A,A        [4]
+            0xFA        #           JP M,LD_SAMPLE [10]
+        ],
+        2,    # Offset of IN A,($FE) instruction from start of loop
+        B,    # Counter register
+        1,    # Counter (B) is incremented
+        34,   # 34 T-states per loop iteration
+        5,    # R register increment per loop iteration
+        -1,   # EAR bit register (none)
+        0,    # EAR mask (none)
+        0     # Loop exits upon detection of a 0-pulse
+    ),
+
     'microprose': (
         'microprose',
         [

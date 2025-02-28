@@ -1884,8 +1884,8 @@ Configuration parameters may also be set on the command line by using the
 | 9.6     | Changed the default value of the ``accelerate-dec-a`` simulated   |
 |         | LOAD configuration parameter from ``1`` to ``3``; added the       |
 |         | ``activision``, ``codemasters``, ``diver``, ``gremlin3-0``,       |
-|         | ``gremlin3-1`` and ``mirrorsoft2`` tape-sampling loop             |
-|         | accelerators                                                      |
+|         | ``gremlin3-1``, ``kwc-0``, ``kwc-1`` and ``mirrorsoft2``          |
+|         | tape-sampling loop accelerators                                   |
 +---------+-------------------------------------------------------------------+
 | 9.5     | Added the ``UserAgent`` configuration parameter                   |
 +---------+-------------------------------------------------------------------+
