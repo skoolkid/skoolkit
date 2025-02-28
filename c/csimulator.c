@@ -5853,23 +5853,28 @@ static unsigned read_port(CSimulatorObject* self, unsigned port) {
                     if (match) {
                         acc->hits++;
                         tsl_miss = 0;
+                        int ffwd;
                         unsigned long long next_edge = self->tracer_state[0];
-                        if ((REG(acc->ear) & acc->ear_mask) == ((index - acc->polarity) & 1) * acc->ear_mask) {
-                            if (next_edge > TIME) {
-                                unsigned counter = REG(acc->counter);
-                                int delta = (int)(next_edge - TIME);
-                                unsigned d1 = delta / acc->loop_time + 1;
-                                unsigned d2 = acc->inc ? 255 - counter : counter - 1;
-                                loops = d1 < d2 ? d1 : d2;
-                                if (loops) {
-                                    byte* values = acc->inc ? INC[0][counter + loops - 1] : DEC[0][counter - loops + 1];
-                                    LD(acc->counter, values[0]);
-                                    LD(F, values[1]);
-                                    INC_R(acc->loop_r_inc * loops);
-                                    TIME += acc->loop_time * loops;
-                                    if (TIME > next_edge) {
-                                        index++;
-                                    }
+                        if (acc->ear_mask) {
+                            ffwd = (REG(acc->ear) & acc->ear_mask) == ((index - acc->polarity) & 1) * acc->ear_mask;
+                        } else {
+                            // Polarity-sensitive loop
+                            ffwd = (index - acc->polarity) & 1;
+                        }
+                        if (ffwd && next_edge > TIME) {
+                            unsigned counter = REG(acc->counter);
+                            int delta = (int)(next_edge - TIME);
+                            unsigned d1 = delta / acc->loop_time + 1;
+                            unsigned d2 = acc->inc ? 255 - counter : counter - 1;
+                            loops = d1 < d2 ? d1 : d2;
+                            if (loops) {
+                                byte* values = acc->inc ? INC[0][counter + loops - 1] : DEC[0][counter - loops + 1];
+                                LD(acc->counter, values[0]);
+                                LD(F, values[1]);
+                                INC_R(acc->loop_r_inc * loops);
+                                TIME += acc->loop_time * loops;
+                                if (TIME > next_edge) {
+                                    index++;
                                 }
                             }
                         }

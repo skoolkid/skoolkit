@@ -2682,7 +2682,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertIsNone(kbtracer)
         self.assertIs(load_tracer.simulator.__class__, CSimulator or Simulator)
-        self.assertEqual(len(load_tracer.accelerators_in), 50)
+        self.assertEqual(len(load_tracer.accelerators_in), 52)
         self.assertTrue(load_tracer.pause)
         self.assertEqual(load_tracer.first_edge, 0)
         self.assertEqual(load_tracer.polarity, 0)
@@ -3474,3 +3474,36 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(simulator.registers[0], 0)
         self.assertEqual(simulator.registers[2], 95)
+
+    @patch.object(tap2sna, 'CSimulator', MockSimulator)
+    @patch.object(tap2sna, 'Simulator', MockSimulator)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_list_accelerators_polarity_sensitive(self):
+        global mock_memory
+        mock_memory = [0] * 65536
+        # In the MockSimulator used for this test, every address except for
+        # that of the 'IN A,($FE)' instructions counts as a tape-sampling loop
+        # miss
+        code = (
+            0x2C,             # $C000 INC L
+            0xDB, 0xFE,       # $C001 IN A,($FE)
+            0xA4,             # $C003 AND H
+            0xCA, 0x00, 0xC0, # $C004 JP Z,$C000
+            0x2C,             # $C007 INC L
+            0xDB, 0xFE,       # $C008 IN A,($FE)
+            0xA4,             # $C00A AND H
+            0xC2, 0x07, 0xC0, # $C00B JP NZ,$C007
+        )
+        mock_memory[0xC000:0xC000 + len(code)] = code
+        tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
+        output, error = self.run_tap2sna(f'-c accelerator=list {tapfile} out.z80')
+        exp_out_lines = [
+            'Data (19 bytes)',
+            'Tape finished',
+            'Simulation stopped (end of tape): PC=49169',
+            'Accelerators: gremlin3-0: 1; gremlin3-1: 1; misses: 13; dec-a: 0/0/0',
+            'Writing out.z80'
+        ]
+        self.assertEqual(exp_out_lines, self._format_output(output))
+        self.assertEqual(error, '')
+        self.assertEqual(simulator.registers[7], 134) # L

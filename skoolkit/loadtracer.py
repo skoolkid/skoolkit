@@ -384,28 +384,31 @@ class LoadTracer(PagingTracer):
                     for i, acc in enumerate(accelerators):
                         if memory[pc - acc.c0:pc + acc.c1] == acc.code:
                             acc.hits += 1
-                            if registers[acc.ear] & acc.ear_mask == ((index - acc.polarity) % 2) * acc.ear_mask:
-                                delta = state[0] - registers[25] # T-states until next edge
-                                if delta > 0:
-                                    counter = registers[acc.counter]
+                            if acc.ear_mask:
+                                ffwd = registers[acc.ear] & acc.ear_mask == ((index - acc.polarity) % 2) * acc.ear_mask
+                            else:
+                                # Polarity-sensitive loop
+                                ffwd = (index - acc.polarity) % 2
+                            if ffwd and state[0] > registers[25]:
+                                counter = registers[acc.counter]
+                                if acc.inc:
+                                    # INC r
+                                    loops = min((state[0] - registers[25]) // acc.loop_time + 1, 255 - counter)
+                                else:
+                                    # DEC r
+                                    loops = min((state[0] - registers[25]) // acc.loop_time + 1, counter - 1)
+                                if loops:
                                     if acc.inc:
                                         # INC r
-                                        loops = min(delta // acc.loop_time + 1, 255 - counter)
+                                        registers[acc.counter], registers[1] = INC0[counter + loops - 1]
                                     else:
                                         # DEC r
-                                        loops = min(delta // acc.loop_time + 1, counter - 1)
-                                    if loops:
-                                        if acc.inc:
-                                            # INC r
-                                            registers[acc.counter], registers[1] = INC0[counter + loops - 1]
-                                        else:
-                                            # DEC r
-                                            registers[acc.counter], registers[1] = DEC0[counter - loops + 1]
-                                        r = registers[15]
-                                        registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops) % 0x80)
-                                        registers[25] += acc.loop_time * loops
-                                        if registers[25] > state[0]:
-                                            index += 1
+                                        registers[acc.counter], registers[1] = DEC0[counter - loops + 1]
+                                    r = registers[15]
+                                    registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops) % 0x80)
+                                    registers[25] += acc.loop_time * loops
+                                    if registers[25] > state[0]:
+                                        index += 1
                             if i:
                                 # Move the selected accelerator to the beginning of the
                                 # list so that it can be found quicker next time

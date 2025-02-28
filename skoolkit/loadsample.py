@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from skoolkit.simutils import B, C, D, E, H
+from skoolkit.simutils import B, C, D, E, H, L
 
 class Accelerator:
     def __init__(self, name, code, offset, counter, inc, loop_time, loop_r_inc, ear, ear_mask, polarity):
@@ -692,6 +692,42 @@ ACCELERATORS = {
         C,    # EAR bit register
         0x40, # EAR mask
         0     # Zero flag is reset upon edge detection by AND $40
+    ),
+
+    'gremlin3-0': (
+        'gremlin3-0',
+        [
+            0x2C,       # LD_SAMPLE INC L          [4]
+            0xDB, 0xFE, #           IN A,($FE)     [11]
+            0xA4,       #           AND H          [4]
+            0xCA        #           JP Z,LD_SAMPLE [10]
+        ],
+        1,    # Offset of IN A,($FE) instruction from start of loop
+        L,    # Counter register
+        1,    # Counter (L) is incremented
+        29,   # 29 T-states per loop iteration
+        4,    # R register increment per loop iteration
+        -1,   # EAR bit register (none)
+        0,    # EAR mask (none)
+        1     # Loop exits upon detection of a 1-pulse
+    ),
+
+    'gremlin3-1': (
+        'gremlin3-1',
+        [
+            0x2C,       # LD_SAMPLE INC L           [4]
+            0xDB, 0xFE, #           IN A,($FE)      [11]
+            0xA4,       #           AND H           [4]
+            0xC2        #           JP NZ,LD_SAMPLE [10]
+        ],
+        1,    # Offset of IN A,($FE) instruction from start of loop
+        L,    # Counter register
+        1,    # Counter (L) is incremented
+        29,   # 29 T-states per loop iteration
+        4,    # R register increment per loop iteration
+        -1,   # EAR bit register (none)
+        0,    # EAR mask (none)
+        0     # Loop exits upon detection of a 0-pulse
     ),
 
     'housenka': (
