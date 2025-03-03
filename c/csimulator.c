@@ -97,6 +97,7 @@ typedef struct CSimulatorObject {
     unsigned num_accs;
     unsigned tsl_misses;
     read_port_f read_port;
+    PyObject* write;
     PyObject* write_line;
     PyObject* in_a_n_tracer;
     PyObject* in_r_c_tracer;
@@ -5634,32 +5635,32 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
     Py_RETURN_NONE;
 }
 
-static int advance_tape(PyObject* tracer, unsigned long long* tracer_state, unsigned long long* edges, unsigned long long max_index, unsigned long long tstates, PyObject* print_progress, unsigned* progress) {
-    unsigned long long tape_running = tracer_state[4];
+static int advance_tape(CSimulatorObject* self, unsigned long long tstates, unsigned* progress) {
+    unsigned long long tape_running = self->tracer_state[4];
     if (!tape_running) {
         return 0;
     }
 
-    unsigned long long next_edge = tracer_state[0];
+    unsigned long long next_edge = self->tracer_state[0];
     if (tstates < next_edge) {
         return 0;
     }
 
-    unsigned long long index = tracer_state[1];
-    while (index < max_index) {
-        if (edges[index + 1] >= tstates) {
+    unsigned long long index = self->tracer_state[1];
+    while (index < self->max_index) {
+        if (self->tape_edges[index + 1] >= tstates) {
             break;
         }
         index += 1;
     }
-    tracer_state[1] = index;
+    self->tracer_state[1] = index;
 
-    unsigned long long block_max_index = tracer_state[3];
-    unsigned long long edge = edges[index];
-    if (index == max_index) {
+    unsigned long long block_max_index = self->tracer_state[3];
+    unsigned long long edge = self->tape_edges[index];
+    if (index == self->max_index) {
         /* Allow 1ms for the final edge on the tape to be read */
         if (tstates - edge > 3500) {
-            PyObject* rv = PyObject_CallMethod(tracer, "stop_tape", "(K)", tstates);
+            PyObject* rv = PyObject_CallMethod(self->tracer, "stop_tape", "(K)", tstates);
             if (rv == NULL) {
                 return -1;
             }
@@ -5667,23 +5668,23 @@ static int advance_tape(PyObject* tracer, unsigned long long* tracer_state, unsi
         }
     } else if (index > block_max_index) {
         /* Pause tape between blocks */
-        PyObject* rv = PyObject_CallMethod(tracer, "next_block", "(K)", tstates);
+        PyObject* rv = PyObject_CallMethod(self->tracer, "next_block", "(K)", tstates);
         if (rv == NULL) {
             return -1;
         }
         Py_DECREF(rv);
     } else {
-        tracer_state[0] = edges[index + 1];
+        self->tracer_state[0] = self->tape_edges[index + 1];
         if (index < block_max_index) {
-            unsigned p = (unsigned)(edge / (edges[max_index] / 1000));
+            unsigned p = (unsigned)(edge / (self->tape_edges[self->max_index] / 1000));
             if (p > *progress) {
-                PyObject* arg = PyLong_FromLong(p);
-                PyObject* rv = PyObject_CallOneArg(print_progress, arg);
-                Py_XDECREF(arg);
-                if (rv == NULL) {
-                    return -1;
+                char pstr[17];
+                sprintf(pstr, "[%5.1f%%]\x08\x08\x08\x08\x08\x08\x08\x08", p / 10.0);
+                PyObject* s = PyUnicode_FromString(pstr);
+                if (s) {
+                    Py_XDECREF(PyObject_CallOneArg(self->write, s));
+                    Py_DECREF(s);
                 }
-                Py_DECREF(rv);
                 *progress = p;
             }
         }
@@ -5914,16 +5915,15 @@ static unsigned read_port(CSimulatorObject* self, unsigned port) {
 }
 
 static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", "", "", "", "", NULL};
+    static char* kwlist[] = {"", "", "", "", "", "", NULL};
     PyObject* stop_obj;
     int fast_load;
     int finish_tape;
     unsigned timeout;
-    PyObject* print_progress;
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OiiIOOO", kwlist, &stop_obj, &fast_load, &finish_tape, &timeout, &print_progress, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OiiIOO", kwlist, &stop_obj, &fast_load, &finish_tape, &timeout, &disassemble, &trace)) {
         return NULL;
     }
 
@@ -5954,10 +5954,11 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
 
     PyObject* skoolkit = PyImport_ImportModule("skoolkit");
     if (skoolkit) {
+        self->write = PyObject_GetAttrString(skoolkit, "write");
         self->write_line = PyObject_GetAttrString(skoolkit, "write_line");
         Py_DECREF(skoolkit);
     }
-    if (self->write_line == NULL) {
+    if (self->write == NULL || self->write_line == NULL) {
         ok = 0;
     }
 
@@ -5979,14 +5980,14 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     if (accelerators == NULL) {
         ok = 0;
     }
-    Py_ssize_t num_accs = PySet_Check(accelerators) ? PySet_Size(accelerators) : 0;
+    int num_accs = PySet_Check(accelerators) ? (int)PySet_Size(accelerators) : 0;
     tsl_accelerator* accs = NULL;
     if (ok && num_accs) {
         accs = malloc(num_accs * sizeof(tsl_accelerator));
         if (accs && get_tsl_accelerators(accelerators, accs) == num_accs) {
             self->accelerators = malloc(num_accs * sizeof(tsl_accelerator*));
             if (self->accelerators) {
-                for (unsigned i = 0; i < num_accs; i++) {
+                for (int i = 0; i < num_accs; i++) {
                     self->accelerators[i] = &accs[i];
                 }
                 self->num_accs = num_accs;
@@ -6073,7 +6074,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         }
 
         unsigned long long tstates = TIME;
-        if (advance_tape(self->tracer, self->tracer_state, self->tape_edges, self->max_index, tstates, print_progress, &progress) == -1) {
+        if (advance_tape(self, tstates, &progress) == -1) {
             break;
         }
 
@@ -6191,6 +6192,8 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     Py_XDECREF(accelerators);
 #endif
     self->read_port = NULL;
+    Py_XDECREF(self->write);
+    self->write = NULL;
     Py_XDECREF(self->write_line);
     self->write_line = NULL;
     if (self->tape_edges) PyBuffer_Release(&edges_buffer);

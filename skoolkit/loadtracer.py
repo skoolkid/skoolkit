@@ -232,8 +232,7 @@ class LoadTracer(PagingTracer):
                 tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0, m=m))
             else:
                 df = tf = None
-            ppf = lambda p: write(f'[{p/10:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')
-            stop_cond = simulator.load(stop, fast_load, finish_tape, timeout, ppf, df, tf)
+            stop_cond = simulator.load(stop, fast_load, finish_tape, timeout, df, tf)
             pc = registers[24]
         else:
             opcodes = simulator.opcodes
