@@ -86,7 +86,7 @@ ACCELERATORS = {
         [
             0x04,                         # LD_SAMPLE  INC B            [4]
             0x20, 0x05,                   #            JR NZ,LD_SAMPLE2 [12/7]
-            BYTE, 0xCD, BYTE, BYTE, 0xC7, #
+            BYTE, BYTE, BYTE, BYTE, BYTE, #
             0xDB, 0xFE,                   # LD_SAMPLE2 IN A,($FE)       [11]
             0x1F,                         #            RRA              [4]
             0xC8,                         #            RET Z            [11/5]
@@ -109,8 +109,8 @@ ACCELERATORS = {
         [
             0x04,                         # LD_SAMPLE  INC B            [4]
             0x20, 0x09,                   #            JR NZ,LD_SAMPLE2 [12/7]
-            BYTE, 0xCD, BYTE, BYTE, 0x31, #
-            BYTE, BYTE, 0xA7, 0xC9,       #
+            BYTE, BYTE, BYTE, BYTE, BYTE, #
+            BYTE, BYTE, BYTE, BYTE,       #
             0xDB, 0xFE,                   # LD_SAMPLE2 IN A,($FE)       [11]
             0x1F,                         #            RRA              [4]
             0xC8,                         #            RET Z            [11/5]
@@ -133,8 +133,8 @@ ACCELERATORS = {
         [
             0x04,                         # LD_SAMPLE  INC B            [4]
             0x20, 0x0A,                   #            JR NZ,LD_SAMPLE2 [12/7]
-            BYTE, 0xCD, BYTE, BYTE, 0x31, #
-            BYTE, BYTE, 0xA7, BYTE, 0xC9, #
+            BYTE, BYTE, BYTE, BYTE, BYTE, #
+            BYTE, BYTE, BYTE, BYTE, BYTE, #
             0xDB, 0xFE,                   # LD_SAMPLE2 IN A,($FE)       [11]
             0x1F,                         #            RRA              [4]
             0xC8,                         #            RET Z            [11/5]
@@ -157,9 +157,9 @@ ACCELERATORS = {
         [
             0x04,                         # LD_SAMPLE  INC B            [4]
             0x20, 0x0B,                   #            JR NZ,LD_SAMPLE2 [12/7]
-            BYTE, 0xC7, 0xCD, 0xB1, 0xFF, #
-            0x31, 0xFD, 0xFF, 0xA7, 0xFB, #
-            0xC9,                         #
+            BYTE, BYTE, BYTE, BYTE, BYTE, #
+            BYTE, BYTE, BYTE, BYTE, BYTE, #
+            BYTE,                         #
             0xDB, 0xFE,                   # LD_SAMPLE2 IN A,($FE)       [11]
             0x1F,                         #            RRA              [4]
             0xC8,                         #            RET Z            [11/5]
