@@ -25,7 +25,7 @@ from urllib.parse import urlparse
 
 from skoolkit import (SkoolKitError, CSimulator, CCMIOSimulator, get_int_param,
                       get_object, get_word, integer, open_file, parse_int,
-                      read_bin_file, write_line, ROM48, VERSION)
+                      read_bin_file, warn, write_line, ROM48, VERSION)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.kbtracer import KeyboardTracer
@@ -468,7 +468,7 @@ def sim_load(blocks, options, config):
             if name in ACCELERATORS:
                 accelerators.add(Accelerator(*ACCELERATORS[name]))
             else:
-                raise SkoolKitError(f'Unrecognised accelerator: {name}')
+                warn(f'Unrecognised accelerator: {name}')
 
     interrupted = False
     fast = not options.trace

@@ -299,13 +299,12 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage:'))
 
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_accelerator_unrecognised(self):
-        blocks = [create_tap_data_block([0])]
-        tapfile = self._write_tap(blocks)
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'-c accelerator=nope {tapfile} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile}: Unrecognised accelerator: nope')
-        self.assertEqual(self.err.getvalue(), '')
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-c accelerator=nope {tapfile} out.z80')
+        self.assertEqual(error, 'WARNING: Unrecognised accelerator: nope\n')
 
     def test_unrecognised_sim_load_configuration_parameter(self):
         blocks = [create_tap_data_block([0])]
