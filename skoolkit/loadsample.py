@@ -599,29 +599,6 @@ ACCELERATORS = {
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 
-    'dinaload': (
-        'dinaload',
-        [
-            0x04,       # LD_SAMPLE INC B          [4]
-            0xC8,       #           RET Z          [11/5]
-            0x3E, 0xFF, #           LD A,$FF       [7]
-            0xDB, 0xFE, #           IN A,($FE)     [11]
-            0x1F,       #           RRA            [4]
-            0xD0,       #           RET NC         [11/5]
-            0xA9,       #           XOR C          [4]
-            0xE6, 0x20, #           AND $20        [7]
-            0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
-        ],
-        4,    # Offset of IN A,($FE) instruction from start of loop
-        B,    # Counter register
-        1,    # Counter (B) is incremented
-        59,   # 59 T-states per loop iteration
-        9,    # R register increment per loop iteration
-        C,    # EAR bit register
-        0x20, # EAR mask
-        0     # Zero flag is reset upon edge detection by AND $20
-    ),
-
     'diver': (
         'diver',
         [
@@ -709,31 +686,8 @@ ACCELERATORS = {
         0     # Zero flag is reset upon edge detection by AND $40
     ),
 
-    'gremlin2': (
-        'gremlin2',
-        [
-            0x04,       # LD_SAMPLE INC B          [4]
-            0xC8,       #           RET Z          [11/5]
-            0x3E, 0xFF, #           LD A,$FF       [7]
-            0xDB, 0xFE, #           IN A,($FE)     [11]
-            0xA9,       #           XOR C          [4]
-            0xE6, 0x40, #           AND $40        [7]
-            0xD8,       #           RET C          [11/5]
-            0x00,       #           NOP            [4]
-            0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
-        ],
-        4,    # Offset of IN A,($FE) instruction from start of loop
-        B,    # Counter register
-        1,    # Counter (B) is incremented
-        59,   # 59 T-states per loop iteration
-        9,    # R register increment per loop iteration
-        C,    # EAR bit register
-        0x40, # EAR mask
-        0     # Zero flag is reset upon edge detection by AND $40
-    ),
-
-    'gremlin3-0': (
-        'gremlin3-0',
+    'gremlin2-0': (
+        'gremlin2-0',
         [
             0x2C,       # LD_SAMPLE INC L          [4]
             0xDB, 0xFE, #           IN A,($FE)     [11]
@@ -750,8 +704,8 @@ ACCELERATORS = {
         1     # Loop exits upon detection of a 1-pulse
     ),
 
-    'gremlin3-1': (
-        'gremlin3-1',
+    'gremlin2-1': (
+        'gremlin2-1',
         [
             0x2C,       # LD_SAMPLE INC L           [4]
             0xDB, 0xFE, #           IN A,($FE)      [11]
@@ -766,29 +720,6 @@ ACCELERATORS = {
         -1,   # EAR bit register (none)
         0,    # EAR mask (none)
         0     # Loop exits upon detection of a 0-pulse
-    ),
-
-    'housenka': (
-        'housenka',
-        [
-            0x04,       # LD_SAMPLE INC B          [4]
-            0xC8,       #           RET Z          [11/5]
-            0x3E, 0xFE, #           LD A,$FE       [7]
-            0xDB, 0xFE, #           IN A,($FE)     [11]
-            0x1F,       #           RRA            [4]
-            0xD0,       #           RET NC         [11/5]
-            0xA9,       #           XOR C          [4]
-            0xE6, 0x20, #           AND $20        [7]
-            0x28, 0xF3, #           JR Z,LD_SAMPLE [12/7]
-        ],
-        4,    # Offset of IN A,($FE) instruction from start of loop
-        B,    # Counter register
-        1,    # Counter (B) is incremented
-        59,   # 59 T-states per loop iteration
-        9,    # R register increment per loop iteration
-        C,    # EAR bit register
-        0x20, # EAR mask
-        0     # Zero flag is reset upon edge detection by AND $20
     ),
 
     'kwc-0': (
@@ -1042,7 +973,7 @@ ACCELERATORS = {
         [
             0x04,       # LD_SAMPLE INC B          [4]
             0xC8,       #           RET Z          [11/5]
-            0x3E, 0x7F, #           LD A,$7F       [7]
+            0x3E, BYTE, #           LD A,n         [7]
             0xDB, 0xFE, #           IN A,($FE)     [11]
             0x1F,       #           RRA            [4]
             0xD0,       #           RET NC         [11/5]
@@ -1065,7 +996,7 @@ ACCELERATORS = {
         [
             0x04,       # LD_SAMPLE INC B          [4]
             0xC8,       #           RET Z          [11/5]
-            0x3E, 0x00, #           LD A,$00       [7]
+            0x3E, BYTE, #           LD A,n         [7]
             0xDB, 0xFE, #           IN A,($FE)     [11]
             0xA9,       #           XOR C          [4]
             0xE6, 0x40, #           AND $40        [7]
@@ -1155,52 +1086,7 @@ ACCELERATORS = {
         [
             0x04,       # LD_SAMPLE INC B          [4]
             0xC8,       #           RET Z          [11/5]
-            0x3E, 0x7F, #           LD A,$7F       [7]
-            0xDB, 0xFE, #           IN A,($FE)     [11]
-            0x1F,       #           RRA            [4]
-            0xA9,       #           XOR C          [4]
-            0xE6, 0x20, #           AND $20        [7]
-            0x28, 0xF4  #           JR Z,LD_SAMPLE [12/7]
-        ],
-        4,    # Offset of IN A,($FE) instruction from start of loop
-        B,    # Counter register
-        1,    # Counter (B) is incremented
-        54,   # 54 T-states per loop iteration
-        8,    # R register increment per loop iteration
-        C,    # EAR bit register
-        0x20, # EAR mask
-        0     # Zero flag is reset upon edge detection by AND $20
-    ),
-
-    'suzy-soft': (
-        'suzy-soft',
-        [
-            0x04,       # LD_SAMPLE INC B          [4]
-            0xC8,       #           RET Z          [11/5]
-            0x3E, 0xFB, #           LD A,$FB       [7]
-            0xDB, 0xFE, #           IN A,($FE)     [11]
-            0x1F,       #           RRA            [4]
-            0xD0,       #           RET NC         [11/5]
-            0xA9,       #           XOR C          [4]
-            0xE6, 0x20, #           AND $20        [7]
-            0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
-        ],
-        4,    # Offset of IN A,($FE) instruction from start of loop
-        B,    # Counter register
-        1,    # Counter (B) is incremented
-        59,   # 59 T-states per loop iteration
-        9,    # R register increment per loop iteration
-        C,    # EAR bit register
-        0x20, # EAR mask
-        0     # Zero flag is reset upon edge detection by AND $20
-    ),
-
-    'suzy-soft2': (
-        'suzy-soft2',
-        [
-            0x04,       # LD_SAMPLE INC B          [4]
-            0xC8,       #           RET Z          [11/5]
-            0x3E, 0xF7, #           LD A,$F7       [7]
+            0x3E, BYTE, #           LD A,n         [7]
             0xDB, 0xFE, #           IN A,($FE)     [11]
             0x1F,       #           RRA            [4]
             0xA9,       #           XOR C          [4]

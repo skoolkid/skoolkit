@@ -1768,9 +1768,7 @@ This means that:
   delay loops were entered, and 23 instances of 'DEC A' outside such delay
   loops were executed
 
-Specifying by name the types of tape-sampling loop used by a game's custom
-loader may reduce the loading time. To show the names of the available
-tape-sampling loop accelerators::
+To show the names of the available tape-sampling loop accelerators::
 
   $ tap2sna.py -c help-accelerator
 
@@ -1884,8 +1882,10 @@ Configuration parameters may also be set on the command line by using the
 | 9.6     | Changed the default value of the ``accelerate-dec-a`` simulated   |
 |         | LOAD configuration parameter from ``1`` to ``3``; added the       |
 |         | ``activision``, ``audiogenic-0``, ``audiogenic-1``,               |
-|         | ``codemasters``, ``diver``, ``gremlin3-0``, ``gremlin3-1``,       |
+|         | ``codemasters``, ``diver``, ``gremlin2-0``, ``gremlin2-1``,       |
 |         | ``kwc-0``, ``kwc-1`` and ``mirrorsoft2`` tape-sampling loop       |
+|         | accelerators; removed the ``dinaload``, ``gremlin2``,             |
+|         | ``housenka``, ``suzy-soft`` and ``suzy-soft2`` tape-sampling loop |
 |         | accelerators                                                      |
 +---------+-------------------------------------------------------------------+
 | 9.5     | Added the ``UserAgent`` configuration parameter                   |

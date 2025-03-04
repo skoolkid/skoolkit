@@ -2681,7 +2681,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertIsNone(kbtracer)
         self.assertIs(load_tracer.simulator.__class__, CSimulator or Simulator)
-        self.assertEqual(len(load_tracer.accelerators_in), 56)
+        self.assertEqual(len(load_tracer.accelerators_in), 51)
         self.assertTrue(load_tracer.pause)
         self.assertEqual(load_tracer.first_edge, 0)
         self.assertEqual(load_tracer.polarity, 0)
@@ -3500,7 +3500,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             'Data (19 bytes)',
             'Tape finished',
             'Simulation stopped (end of tape): PC=49169',
-            'Accelerators: gremlin3-0: 1; gremlin3-1: 1; misses: 13; dec-a: 0/0/0',
+            'Accelerators: gremlin2-0: 1; gremlin2-1: 1; misses: 13; dec-a: 0/0/0',
             'Writing out.z80'
         ]
         self.assertEqual(exp_out_lines, self._format_output(output))

@@ -332,21 +332,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=digital-integration --start 57383'
         )
 
-    def test_dinaload(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/s/Satan.tzx.zip',
-            'Satan - Side 1.tzx',
-            '18afd7805b83ebc4974ccd8637d8a7b3',
-            {
-                'AF,BC,DE,HL': '0044,0000,DE34,FBC4',
-                "AF',BC',DE',HL'": '7E6D,1621,369B,2758',
-                'PC,SP,IX,IY': 'FA1F,FFFF,FC12,5C3A',
-                'IR,iff,im,border': '3F40,0,1,1',
-                'ram': '91f3677d2ce87a9a6e6d64769b4bf8e6'
-            },
-            '-c accelerator=dinaload --start 64031'
-        )
-
     def test_finish_tape(self):
         # Hits the given start address (23367) before the tape has finished
         self._test_sim_load(
@@ -376,21 +361,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'ram': 'e15e37cae1b17e64eb2b8e72529d34b4'
             },
             '-c accelerator=gremlin --tape-stop 10 --start 61229'
-        )
-
-    def test_gremlin2(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/s/SuperCars.tzx.zip',
-            'Super Cars - Side 2.tzx',
-            'df563b00e1e147ef48582025943e974c',
-            {
-                'AF,BC,DE,HL': '0093,B0FE,0000,CCEE',
-                "AF',BC',DE',HL'": 'FF45,1621,369B,2758',
-                'PC,SP,IX,IY': 'A0EB,FFFA,CCEE,5C3A',
-                'IR,iff,im,border': '3FD4,0,1,6',
-                'ram': 'e8d745af94efd22fefc0f47c04075288'
-            },
-            '-c accelerator=gremlin2 -c accelerate-dec-a=2 --start 41195'
         )
 
     def test_headerless_block(self):
@@ -699,36 +669,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'IR,iff,im,border': '3F1A,1,1,0',
                 'ram': 'd32458fe7433ea7d9e6de98437b9810b'
             },
-        )
-
-    def test_suzy_soft(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/b/BigTrouble.tzx.zip',
-            'Big Trouble!.tzx',
-            'd125fa665ef0ddb661d59101744c5cd7',
-            {
-                'AF,BC,DE,HL': '0150,08FF,960D,FF01',
-                "AF',BC',DE',HL'": '3A45,0000,589F,58A0',
-                'PC,SP,IX,IY': 'FFED,0000,8144,5B00',
-                'IR,iff,im,border': '3F3F,0,1,3',
-                'ram': 'cff91cea910a3d399a91c39bfbc85298'
-            },
-            '-c accelerator=suzy-soft --start 65517'
-        )
-
-    def test_suzy_soft2(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/w/WesternGirl.tzx.zip',
-            'WesternGirl.tzx',
-            '19d2656557386e4f2267bc415019ab89',
-            {
-                'AF,BC,DE,HL': '0150,00FD,019D,FF01',
-                "AF',BC',DE',HL'": 'FF81,0000,5A0A,8106',
-                'PC,SP,IX,IY': 'FFED,0000,8328,839C',
-                'IR,iff,im,border': '3F79,0,1,4',
-                'ram': '1c73ccc1073c0b3c7162dbf077ee4935'
-            },
-            '-c accelerator=suzy-soft2 --start 65517'
         )
 
     def test_tape_start(self):

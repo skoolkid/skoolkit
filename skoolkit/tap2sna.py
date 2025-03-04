@@ -216,7 +216,7 @@ SIM_LOAD_CODE_PATCH = {
 
 SIM_LOAD_CONFIG_HELP = """
 Usage: --sim-load-config accelerate-dec-a=0/1/2/3
-       --sim-load-config accelerator=NAME
+       --sim-load-config accelerator=auto/none/list/NAME[,NAME...]
        --sim-load-config cmio=0/1
        --sim-load-config fast-load=0/1
        --sim-load-config finish-tape=0/1
@@ -239,11 +239,10 @@ Configure various properties of a simulated LOAD.
 
 --sim-load-config accelerator=auto/none/list/NAME[,NAME...]
 
-  Use one or more specific accelerators to speed up the simulation of the
-  tape-sampling loops in a loading routine, disable acceleration entirely, or
-  list the accelerators used during a simulated LOAD. (By default, appropriate
-  accelerators are automatically selected, if available.) Recognised
-  accelerator names are:
+  Use one or more specific tape-sampling loop accelerators, disable
+  acceleration entirely, or list the accelerators used during a simulated LOAD.
+  (By default, appropriate accelerators are automatically selected, if
+  available.) Recognised accelerator names are:
 
   {accelerators}
 

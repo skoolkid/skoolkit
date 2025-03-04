@@ -199,9 +199,7 @@ This means that:
   delay loops were entered, and 23 instances of 'DEC A' outside such delay
   loops were executed
 
-Specifying by name the types of tape-sampling loop used by a game's custom
-loader may reduce the loading time. To show the names of the available
-tape-sampling loop accelerators:
+To show the names of the available tape-sampling loop accelerators:
 
 |
 |  ``tap2sna.py -c help-accelerator``

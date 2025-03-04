@@ -7,9 +7,11 @@ Changelog
   configuration parameter for :ref:`tap2sna.py <tap2sna-sim-load>` from ``1``
   to ``3``
 * Added the ``activision``, ``audiogenic-0``, ``audiogenic-1``,
-  ``codemasters``, ``diver``, ``gremlin3-0``, ``gremlin3-1``, ``kwc-0``,
+  ``codemasters``, ``diver``, ``gremlin2-0``, ``gremlin2-1``, ``kwc-0``,
   ``kwc-1`` and ``mirrorsoft2`` tape-sampling loop
   :ref:`accelerators <tap2sna-accelerators>`
+* Removed the ``dinaload``, ``gremlin2``, ``housenka``, ``suzy-soft`` and
+  ``suzy-soft2`` tape-sampling loop accelerators
 
 9.5 (2025-01-28)
 ----------------
