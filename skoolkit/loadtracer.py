@@ -53,10 +53,11 @@ INC = tuple(tuple((
 INC0 = INC[0]
 
 class DataBlock:
-    def __init__(self, data, start, end, fast_load=True):
+    def __init__(self, data, start, end, keys, fast_load=True):
         self.data = data
         self.start = start
         self.end = end
+        self.keys = keys
         self.fast_load = fast_load
 
     def adjust(self, max_index):
@@ -143,14 +144,14 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
             if 0 in timings.zero or 0 in timings.one:
                 # This is sample data as opposed to byte values, so ensure it's
                 # not fast-loaded
-                data_blocks.append(DataBlock(data, len(edges) - 1, len(edges) - 1, False))
+                data_blocks.append(DataBlock(data, len(edges) - 1, len(edges) - 1, block.keys, False))
             else:
-                data_blocks.append(DataBlock(data, start, len(edges) - 1))
+                data_blocks.append(DataBlock(data, start, len(edges) - 1, block.keys))
         elif timings.data or (i == len(blocks) - 1 and timings.pulses):
             # If this block contains a Direct Recording, or is the last block
             # on the tape and contains pulses but no data, add a data block to
             # ensure that the pulses are read
-            data_blocks.append(DataBlock((), len(edges) - 1, len(edges) - 1, False))
+            data_blocks.append(DataBlock((), len(edges) - 1, len(edges) - 1, block.keys, False))
 
         # Pause
         if i + 1 < len(blocks) and timings.pause:
@@ -173,32 +174,35 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
     return edges, data_blocks
 
 class LoadTracer(PagingTracer):
-    def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity,
-                 in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe):
+    def __init__(self, simulator, blocks, config):
         self.tsl_misses = 0
         self.dec_a_jr_hits = 0
         self.dec_a_jp_hits = 0
         self.dec_a_misses = 0
         self.simulator = simulator
-        self.edges, self.blocks = get_edges(blocks, first_edge, polarity)
-        self.pause = pause
-        self.in_min_addr = in_min_addr
-        self.accelerators = accelerators
+        self.edges, self.blocks = get_edges(blocks, config['first_edge'], config['polarity'])
+        self.keys = None
+        self.pause = config['pause']
+        self.in_min_addr = config['in_min_addr']
+        self.accelerators = config['accelerators']
+        accel_dec_a = config['accelerate_dec_a']
         if hasattr(simulator, 'opcodes') and accel_dec_a:
             dec_a_jr = accel_dec_a & 1
             dec_a_jp = accel_dec_a & 2
             simulator.opcodes[0x3D] = partial(self.dec_a, dec_a_jr, dec_a_jp, simulator.registers, simulator.memory)
+        list_accelerators = config['list_accelerators']
         self.block_index = 0
         self.block_data_index = self.blocks[0].start
         self.max_index = len(self.edges) - 1
-        self.border = border
-        if len(simulator.memory) == 65536:
-            self.out7ffd = 0x10 # Signal: 48K ROM always
-        else: # pragma: no cover
-            self.out7ffd = out7ffd # 128K ROM 0/1
-        self.outfffd = outfffd
-        self.ay = ay
-        self.outfe = outfe
+        self.stop = config['stop']
+        self.flash_load = config['fast_load']
+        self.finish_tape = config['finish_tape']
+        self.timeout = config['timeout']
+        self.tracefile = config['tracefile']
+        self.trace_line = config['trace_line']
+        self.prefix = config['prefix']
+        self.byte_fmt = config['byte_fmt']
+        self.word_fmt = config['word_fmt']
         self.text = TextReader()
         self.state = [
             0,                  # state[0]: next edge (timestamp)
@@ -215,14 +219,26 @@ class LoadTracer(PagingTracer):
         if hasattr(simulator, 'load'): # pragma: no cover
             self.edges = array.array('Q', self.edges)
             self.state = array.array('Q', self.state)
-        self.read_port = partial(self._read_port, self.state, list(accelerators), simulator.memory)
+        self.read_port = partial(self._read_port, self.state, list(self.accelerators), simulator.memory)
 
-    def run(self, stop, fast_load, finish_tape, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
+    def run(self, border, out7ffd, outfffd, ay, outfe):
+        self.border = border
+        if len(self.simulator.memory) == 65536:
+            self.out7ffd = 0x10 # Signal: 48K ROM always
+        else: # pragma: no cover
+            self.out7ffd = out7ffd # 128K ROM 0/1
+        self.outfffd = outfffd
+        self.ay = ay
+        self.outfe = outfe
         simulator = self.simulator
         memory = simulator.memory
         registers = simulator.registers
+        tracefile = self.tracefile
         if tracefile:
-            trace_line = get_trace_line(trace_line)
+            trace_line = get_trace_line(self.trace_line)
+            prefix = self.prefix
+            byte_fmt = self.byte_fmt
+            word_fmt = self.word_fmt
             r = Registers(registers)
             m = memory
 
@@ -232,7 +248,7 @@ class LoadTracer(PagingTracer):
                 tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0, m=m))
             else:
                 df = tf = None
-            stop_cond = simulator.load(stop, fast_load, finish_tape, timeout, df, tf)
+            stop_cond = simulator.load(self.stop, self.flash_load, self.finish_tape, self.timeout, df, tf)
             pc = registers[24]
         else:
             opcodes = simulator.opcodes
@@ -245,6 +261,10 @@ class LoadTracer(PagingTracer):
             max_index = self.max_index
             tstates = registers[25]
             state = self.state
+            stop = self.stop
+            fast_load = self.flash_load
+            finish_tape = self.finish_tape
+            timeout = self.timeout
             while True:
                 t0 = tstates
                 if tracefile:
@@ -268,9 +288,12 @@ class LoadTracer(PagingTracer):
                         # Allow 1ms for the final edge on the tape to be read
                         if tstates - edges[index] > 3500:
                             self.stop_tape(tstates) # pragma: no cover
-                    elif index > state[3]:
+                    elif index > state[3]: # pragma: no cover
                         # Pause tape between blocks
-                        self.next_block(tstates) # pragma: no cover
+                        self.next_block(tstates)
+                        if self.keys:
+                            stop_cond = 5
+                            break
                     else:
                         state[0] = edges[index + 1]
                         if index < state[3]:
@@ -326,6 +349,8 @@ class LoadTracer(PagingTracer):
             write_line(f'Simulation stopped (tape ended 1 second ago): PC={pc}')
         elif stop_cond == 4: # pragma: no cover
             write_line(f'Simulation stopped (timed out): PC={pc}')
+        elif stop_cond == 5: # pragma: no cover
+            write_line(f'Tape paused')
 
     def dec_a(self, dec_a_jr, dec_a_jp, registers, memory):
         # Speed up any 'DEC A: JR/JP NZ,$-1' loop if configured to do so, and
@@ -437,7 +462,9 @@ class LoadTracer(PagingTracer):
         else:
             self.state[1] = self.state[3] + 1
             self.state[0] = self.edges[self.state[1]]
-            self.block_data_index = self.blocks[self.block_index].start
+            block = self.blocks[self.block_index]
+            self.block_data_index = block.start
+            self.keys = block.keys
             self.state[3] = self.blocks[self.block_index].end
             self.state[4] = int(not self.pause) # Pause tape unless configured not to
             self.state[9] = 1 # Signal: data block not yet announced

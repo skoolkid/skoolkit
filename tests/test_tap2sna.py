@@ -101,50 +101,71 @@ class MockKeyboardTracer:
         self.simulator.registers[25] = 70000 * len(self.load)
         self.run_called = True
 
-class MockLoadTracer:
-    def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity,
-                 in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe):
-        global load_tracer
+class MockKeypressTracer:
+    def __init__(self, simulator, keys, border, out7ffd, outfffd, ay, outfe):
+        global kptracer
         self.simulator = simulator
-        self.accelerators_in = accelerators
-        self.blocks = blocks
-        self.pause = pause
-        self.first_edge = first_edge
-        self.polarity = polarity
-        self.in_min_addr = in_min_addr
-        self.accel_dec_a = accel_dec_a
-        self.list_accelerators = list_accelerators
+        self.keys = keys
         self.border = border
         self.out7ffd = out7ffd
         self.outfffd = outfffd
         self.ay = ay
         self.outfe = outfe
-        self.accelerators = {'speedlock': 1, 'bleepload': 2}
-        self.inc_b_misses = 3
-        self.dec_b_misses = 4
-        self.run_called = False
-        load_tracer = self
+        kptracer = self
 
-    def run(self, stop, fast_load, finish_tape, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
-        self.stop = stop
-        self.fast_load = fast_load
-        self.finish_tape = finish_tape
+    def run(self, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         self.timeout = timeout
         self.tracefile = tracefile
         self.trace_line = trace_line
         self.prefix = prefix
         self.byte_fmt = byte_fmt
         self.word_fmt = word_fmt
+        self.keys.clear()
         self.run_called = True
 
-class TestLoadTracer(LoadTracer):
-    def __init__(self, simulator, blocks, accelerators, pause, first_edge, polarity,
-                 in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe):
-        # Ensure that accelerators are in a predictable order when testing the
-        # {dec,inc}_b_auto() methods on LoadTracer
-        acc_sorted = sorted(accelerators, key=lambda a: a.name)
-        super().__init__(simulator, blocks, acc_sorted, pause, first_edge, polarity,
-                 in_min_addr, accel_dec_a, list_accelerators, border, out7ffd, outfffd, ay, outfe)
+class TimedOutKeypressTracer(MockKeypressTracer):
+    def run(self, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
+        super().run(timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
+        self.keys.append('ENTER')
+
+class MockLoadTracer:
+    def __init__(self, simulator, blocks, config):
+        global load_tracer
+        self.simulator = simulator
+        self.blocks = blocks
+        self.keys = None
+        self.accelerators_in = config['accelerators']
+        self.pause = config['pause']
+        self.first_edge = config['first_edge']
+        self.polarity = config['polarity']
+        self.in_min_addr = config['in_min_addr']
+        self.accel_dec_a = config['accelerate_dec_a']
+        self.list_accelerators = config['list_accelerators']
+        self.accelerators = {'speedlock': 1, 'bleepload': 2}
+        self.stop = config['stop']
+        self.flash_load = config['fast_load']
+        self.finish_tape = config['finish_tape']
+        self.timeout = config['timeout']
+        self.tracefile = config['tracefile']
+        self.trace_line = config['trace_line']
+        self.prefix = config['prefix']
+        self.byte_fmt = config['byte_fmt']
+        self.word_fmt = config['word_fmt']
+        self.run_called = False
+        load_tracer = self
+
+    def run(self, border, out7ffd, outfffd, ay, outfe):
+        self.border = border
+        self.out7ffd = out7ffd
+        self.outfffd = outfffd
+        self.ay = ay
+        self.outfe = outfe
+        self.run_called = True
+
+class MockLoadTracerWithKeys(MockLoadTracer):
+    def __init__(self, simulator, blocks, config):
+        super().__init__(simulator, blocks, config)
+        self.keys = ['a']
 
 class InterruptedTracer:
     def __init__(self, *args):
@@ -396,6 +417,44 @@ class Tap2SnaTest(SkoolKitTestCase):
         options, z80, config = make_snapshot_args[1:4]
         self.assertEqual(['TraceLine=Goodbye'], options.params)
         self.assertEqual(config['TraceLine'], 'Goodbye')
+
+    @patch.object(tap2sna, 'KeypressTracer', MockKeypressTracer)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracerWithKeys)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_press(self):
+        tapfile = self._write_tap([
+            create_tap_data_block([0]),
+            create_tap_data_block([0])
+        ])
+        outfile = 'out.z80'
+        exp_output = [
+            'Pressing keys: a',
+            'Resuming LOAD',
+            f'Writing {outfile}'
+        ]
+        output, error = self.run_tap2sna(f'--press 2:ENTER {tapfile} {outfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output.strip().split('\n'))
+        self.assertTrue(kptracer.run_called)
+
+    @patch.object(tap2sna, 'KeypressTracer', TimedOutKeypressTracer)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracerWithKeys)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_press_timed_out(self):
+        tapfile = self._write_tap([
+            create_tap_data_block([0]),
+            create_tap_data_block([0])
+        ])
+        outfile = 'out.z80'
+        exp_output = [
+            'Pressing keys: a',
+            'Simulation stopped (timed out): PC=1541',
+            f'Writing {outfile}'
+        ]
+        output, error = self.run_tap2sna(f'--press 2:ENTER {tapfile} {outfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output.strip().split('\n'))
+        self.assertTrue(kptracer.run_called)
 
     @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     def test_options_p_stack(self):
@@ -2696,7 +2755,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(load_tracer.outfe, 0)
         self.assertTrue(load_tracer.run_called)
         self.assertIsNone(load_tracer.stop)
-        self.assertEqual(load_tracer.fast_load, 1)
+        self.assertEqual(load_tracer.flash_load, 1)
         self.assertEqual(load_tracer.timeout, 3150000000)
         self.assertIsNone(load_tracer.tracefile)
         self.assertIsNone(load_tracer.trace_line)
@@ -2754,7 +2813,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(load_tracer.outfe, kbtracer.outfe)
         self.assertTrue(load_tracer.run_called)
         self.assertIsNone(load_tracer.stop)
-        self.assertEqual(load_tracer.fast_load, 0)
+        self.assertEqual(load_tracer.flash_load, 0)
         self.assertTrue(load_tracer.timeout < 3500000000)
         self.assertEqual(load_tracer.tracefile.name, trace_log)
         self.assertEqual(load_tracer.trace_line, '${pc:04X} {i}\n')

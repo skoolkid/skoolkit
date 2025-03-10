@@ -5635,6 +5635,88 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
     Py_RETURN_NONE;
 }
 
+static PyObject* CSimulator_press(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
+    static char* kwlist[] = {"", "", "", "", NULL};
+    PyObject* keys;
+    unsigned timeout;
+    PyObject* disassemble;
+    PyObject* trace;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OIOO", kwlist, &keys, &timeout, &disassemble, &trace)) {
+        return NULL;
+    }
+
+    unsigned long long* reg = self->registers;
+    byte* mem = self->memory;
+    unsigned frame_duration = self->frame_duration;
+    unsigned int_active = self->int_active;
+
+    while (TIME <= timeout && PyList_Size(keys)) {
+        PyObject* i = NULL;
+        unsigned pc = REG(PC);
+        unsigned long long t0 = TIME;
+        byte opcode = PEEK(pc);
+        OpcodeFunction* opcode_func = &opcodes[opcode];
+        if (!opcode_func->func) {
+            byte opcode2 = PEEK(ADDR(pc + 1));
+            switch (opcode) {
+                case 0xCB:
+                    opcode_func = &after_CB[opcode2];
+                    break;
+                case 0xED:
+                    opcode_func = &after_ED[opcode2];
+                    break;
+                case 0xDD:
+                    if (opcode2 == 0xCB) {
+                        opcode_func = &after_DDCB[PEEK(ADDR(pc + 3))];
+                    } else {
+                        opcode_func = &after_DD[opcode2];
+                    }
+                    break;
+                case 0xFD:
+                    if (opcode2 == 0xCB) {
+                        opcode_func = &after_FDCB[PEEK(ADDR(pc + 3))];
+                    } else {
+                        opcode_func = &after_FD[opcode2];
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (disassemble != Py_None) {
+            PyObject* arg = PyLong_FromLong(pc);
+            i = PyObject_CallOneArg(disassemble, arg);
+            Py_XDECREF(arg);
+            if (i == NULL) {
+                return NULL;
+            }
+        }
+
+        opcode_func->func(self, opcode_func->lookup, opcode_func->args);
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+
+        if (trace != Py_None) {
+            PyObject* args = Py_BuildValue("(INK)", pc, i, t0);
+            PyObject* t = PyObject_CallObject(trace, args);
+            Py_XDECREF(args);
+            if (t == NULL) {
+                return NULL;
+            }
+            Py_DECREF(t);
+        }
+
+        if (REG(IFF) && (TIME % frame_duration) < int_active) {
+            accept_interrupt(self, pc);
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
 static int advance_tape(CSimulatorObject* self, unsigned long long tstates, unsigned* progress) {
     unsigned long long tape_running = self->tracer_state[4];
     if (!tape_running) {
@@ -5673,6 +5755,15 @@ static int advance_tape(CSimulatorObject* self, unsigned long long tstates, unsi
             return -1;
         }
         Py_DECREF(rv);
+        PyObject* keys = PyObject_GetAttrString(self->tracer, "keys");
+        if (keys == NULL) {
+            return -1;
+        }
+        int has_keys = keys != Py_None;
+        Py_DECREF(keys);
+        if (has_keys) {
+            return 5; // Signal: tape is paused to allow keys to be pressed
+        }
     } else {
         self->tracer_state[0] = self->tape_edges[index + 1];
         if (index < block_max_index) {
@@ -6074,7 +6165,12 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         }
 
         unsigned long long tstates = TIME;
-        if (advance_tape(self, tstates, &progress) == -1) {
+        int advanced = advance_tape(self, tstates, &progress);
+        if (advanced < 0) {
+            break;
+        }
+        if (advanced > 0) {
+            rv = PyLong_FromLong(advanced);
             break;
         }
 
@@ -6220,6 +6316,7 @@ static PyMethodDef CSimulator_methods[] = {
     {"exec_frame", (PyCFunction) CSimulator_exec_frame, METH_VARARGS | METH_KEYWORDS, "Execute an RZX frame"},
     {"exec_with_cb", (PyCFunction) CSimulator_exec_with_cb, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions with an 'RST $10' callback"},
     {"load", (PyCFunction) CSimulator_load, METH_VARARGS | METH_KEYWORDS, "Load a tape"},
+    {"press", (PyCFunction) CSimulator_press, METH_VARARGS | METH_KEYWORDS, "Simulate keypresses"},
     {"press_keys", (PyCFunction) CSimulator_press_keys, METH_VARARGS | METH_KEYWORDS, "Simulate keypresses"},
     {"run", (PyCFunction) CSimulator_run, METH_VARARGS | METH_KEYWORDS, "Execute one or more instructions"},
     {"set_tracer", (PyCFunction) CSimulator_set_tracer, METH_VARARGS | METH_KEYWORDS, "Set the tracer"},

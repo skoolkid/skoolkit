@@ -99,6 +99,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=alternative2 --start 64396'
         )
 
+    def test_alternative3(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/d/DoubleDare.tzx.zip',
+            'Double Dare.tzx',
+            'f23fdd08b6e188ee3ce9f677d42dce41',
+            {
+                'AF,BC,DE,HL': '0093,B022,0000,00B9',
+                "AF',BC',DE',HL'": '2265,1621,369B,2758',
+                'PC,SP,IX,IY': 'F000,FFFA,FD40,5C3A',
+                'IR,iff,im,border': '3F5F,0,1,0',
+                'ram': '4697ad052eebe1aafb3345764a23aafd'
+            },
+            '--press 6:SPACE --tape-stop 8 -c accelerator=alternative3 --start 61440'
+        )
+
     def test_basil_the_great_mouse_detective(self):
         # The loader for this game is polarity-sensitive
         self._test_sim_load(

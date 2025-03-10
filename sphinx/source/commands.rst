@@ -1586,6 +1586,9 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           Write the snapshot file in this directory.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
+    --press N:KEYS        Pause the tape at block number N and press KEYS before
+                          resuming. KEYS must be a space-separated list of key
+                          identifiers.
     -p STACK, --stack STACK
                           Set the stack pointer.
     --ram OPERATION       Perform a load operation or otherwise modify the
@@ -1813,6 +1816,47 @@ For example, the ``load`` parameter may be set to::
 Note that the spaces around ``CLEAR``, ``LOAD``, ``CODE``, ``RANDOMIZE`` and
 ``USR`` are required in order for them to be recognised as BASIC tokens.
 
+.. _tap2sna-user-input:
+
+User input
+^^^^^^^^^^
+Some tapes require the user to pause the tape before loading has finished,
+press one or more keys, and then start the tape again to resume loading. Such
+tapes can be handled by using the ``--press`` option. Its single argument takes
+the form::
+
+  N:KEYS
+
+where:
+
+* ``N`` is the block number at which to pause the tape
+* ``KEYS`` is a space-separated list of key identifiers
+
+For example::
+
+  $ tap2sna.py --press 5:ENTER game.tzx
+
+This will load blocks 1-4 of game.tzx, pause the tape, simulate pressing the
+ENTER key until the appropriate key row has been read, and then start the tape
+(whereupon block 5 and any other remaining blocks will be loaded).
+
+The ``KEYS`` list recognises the digits 0-9 and lower case letters a-z as valid
+key identifiers, along with the following special tokens:
+
+* ``CS`` - CAPS SHIFT
+* ``SS`` - SYMBOL SHIFT
+* ``SPACE`` - SPACE
+* ``ENTER`` - ENTER
+* ``NONE`` - no key
+
+Sometimes a single keypress may need to be read more than once before the
+game's loader responds to it. In such cases the ``*`` notation is useful::
+
+  $ tap2sna.py --press 6:s*3 game.tzx
+
+Equivalent to ``6:s s s``, this will wait until the 's' keypress has been read
+three times before resuming the tape at block number 6.
+
 .. _tap2sna-conf:
 
 Configuration
@@ -1879,14 +1923,14 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.6     | Changed the default value of the ``accelerate-dec-a`` simulated   |
-|         | LOAD configuration parameter from ``1`` to ``3``; added the       |
-|         | ``activision``, ``alternative3``, ``audiogenic-0``,               |
-|         | ``audiogenic-1``, ``codemasters``, ``diver``, ``gremlin2-0``,     |
-|         | ``gremlin2-1``, ``kwc-0``, ``kwc-1`` and ``mirrorsoft2``          |
-|         | tape-sampling loop accelerators; removed the ``dinaload``,        |
-|         | ``gremlin2``, ``housenka``, ``suzy-soft`` and ``suzy-soft2``      |
-|         | tape-sampling loop accelerators                                   |
+| 9.6     | Added the ``--press`` option; changed the default value of the    |
+|         | ``accelerate-dec-a`` simulated LOAD configuration parameter from  |
+|         | ``1`` to ``3``; added the ``activision``, ``alternative3``,       |
+|         | ``audiogenic-0``, ``audiogenic-1``, ``codemasters``, ``diver``,   |
+|         | ``gremlin2-0``, ``gremlin2-1``, ``kwc-0``, ``kwc-1`` and          |
+|         | ``mirrorsoft2`` tape-sampling loop accelerators; removed the      |
+|         | ``dinaload``, ``gremlin2``, ``housenka``, ``suzy-soft`` and       |
+|         | ``suzy-soft2`` tape-sampling loop accelerators                    |
 +---------+-------------------------------------------------------------------+
 | 9.5     | Added the ``UserAgent`` configuration parameter                   |
 +---------+-------------------------------------------------------------------+

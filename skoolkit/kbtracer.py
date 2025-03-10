@@ -1,4 +1,4 @@
-# Copyright 2023, 2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2023-2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from skoolkit import SkoolKitError
+from skoolkit import SkoolKitError, parse_int
 from skoolkit.pagingtracer import PagingTracer
 from skoolkit.traceutils import Registers, disassemble
 
@@ -67,6 +67,9 @@ KEYS = {
     'SS': (0x7FFE, 0b11111101),    # SYMBOL SHIFT
     'SPACE': (0x7FFE, 0b11111110), # SPACE
 }
+
+KEY_BITS = {k: ((p ^ 0xFFFF) & 0xFF00, b) for k, (p, b) in KEYS.items()}
+KEY_BITS['NONE'] = (0xFF00, 0b11111111) # No key pressed
 
 TOKENS = {
     '1': '1',
@@ -362,3 +365,62 @@ class KeyboardTracer(PagingTracer):
             if port in kb:
                 return kb.pop(port)
         return 255
+
+class KeypressTracer(PagingTracer):
+    def __init__(self, simulator, keys, border, out7ffd, outfffd, ay, outfe):
+        self.simulator = simulator
+        self.keys = []
+        try:
+            for spec in keys:
+                k, sep, n = spec.partition('*')
+                if sep:
+                    self.keys.extend([KEY_BITS[k]] * parse_int(n, 1))
+                else:
+                    self.keys.append(KEY_BITS[k])
+        except KeyError as ke:
+            raise SkoolKitError(f'Unrecognised key: {ke.args[0]}')
+        self.border = border
+        self.out7ffd = out7ffd
+        self.outfffd = outfffd
+        self.ay = ay
+        self.outfe = outfe
+
+    def run(self, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
+        simulator = self.simulator
+        memory = simulator.memory
+        registers = simulator.registers
+        keys = self.keys
+        if tracefile:
+            r = Registers(registers)
+
+        if hasattr(simulator, 'press'): # pragma: no cover
+            if trace_line:
+                df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
+                tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
+            else:
+                df = tf = None
+            simulator.press(keys, timeout, df, tf)
+        else:
+            opcodes = simulator.opcodes
+            frame_duration = simulator.frame_duration
+            int_active = simulator.int_active
+            tstates = registers[25]
+            while tstates <= timeout and keys:
+                pc = registers[24]
+                if tracefile:
+                    i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
+                    opcodes[memory[pc]]()
+                    tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=tstates))
+                else:
+                    opcodes[memory[pc]]()
+                tstates = registers[25]
+                if registers[26] and tstates % frame_duration < int_active:
+                    simulator.accept_interrupt(registers, memory, pc)
+                    tstates = registers[25]
+
+    def read_port(self, registers, port):
+        if port % 2 == 0 and self.keys and (port ^ 0xFF00) & self.keys[0][0]:
+            return self.keys.pop(0)[1]
+        if port == 0xFFFD:
+            return self.ay[self.outfffd % 16]
+        return 0xFF

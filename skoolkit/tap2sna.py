@@ -28,7 +28,7 @@ from skoolkit import (SkoolKitError, CSimulator, CCMIOSimulator, get_int_param,
                       read_bin_file, warn, write_line, ROM48, VERSION)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.config import get_config, show_config, update_options
-from skoolkit.kbtracer import KeyboardTracer
+from skoolkit.kbtracer import KeyboardTracer, KeypressTracer
 from skoolkit.loadsample import ACCELERATORS, Accelerator
 from skoolkit.loadtracer import LoadTracer, get_edges
 from skoolkit.pagingtracer import Memory
@@ -452,6 +452,9 @@ def _set_sim_load_config(options):
                 raise SkoolKitError(f'Invalid sim-load configuration parameter: {name}')
 
 def sim_load(blocks, options, config):
+    for block in blocks:
+        block.keys = None
+
     if options.tape_analysis:
         get_edges(blocks, options.first_edge, options.polarity, True)
         sys.exit(0)
@@ -573,12 +576,49 @@ def sim_load(blocks, options, config):
             in_min_addr = 0x10000
         else:
             in_min_addr = 0x8000
-        tracer = LoadTracer(simulator, blocks, accelerators, options.pause, options.first_edge,
-                            options.polarity, in_min_addr, options.accelerate_dec_a,
-                            list_accelerators, border, out7ffd, outfffd, ay, outfe)
+        if options.press:
+            block_num, sep, key_specs = options.press.partition(':')
+            if sep:
+                pause_block = parse_int(block_num, 0)
+                for block in blocks:
+                    if block.number == pause_block:
+                        block.keys = key_specs.split(' ')
+                        break
+        ltconfig = {
+            'accelerate_dec_a': options.accelerate_dec_a,
+            'accelerators': accelerators,
+            'byte_fmt': byte_fmt,
+            'fast_load': options.fast_load,
+            'finish_tape': options.finish_tape,
+            'first_edge': options.first_edge,
+            'in_min_addr': in_min_addr,
+            'list_accelerators': list_accelerators,
+            'pause': options.pause,
+            'polarity': options.polarity,
+            'prefix': prefix,
+            'stop': options.start,
+            'timeout': timeout,
+            'tracefile': tracefile,
+            'trace_line': trace_line,
+            'word_fmt': word_fmt,
+        }
+        tracer = LoadTracer(simulator, blocks, ltconfig)
         simulator.set_tracer(tracer, options.in_flags & 4, False)
         try:
-            tracer.run(options.start, options.fast_load, options.finish_tape, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
+            tracer.run(border, out7ffd, outfffd, ay, outfe)
+            if tracer.keys:
+                print('Pressing keys: {}'.format(' '.join(tracer.keys)))
+                t0 = simulator.registers[T]
+                kp_tracer = KeypressTracer(simulator, tracer.keys, tracer.border, tracer.out7ffd, tracer.outfffd, tracer.ay, tracer.outfe)
+                simulator.set_tracer(kp_tracer)
+                kp_tracer.run(timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
+                if kp_tracer.keys:
+                    write_line(f'Simulation stopped (timed out): PC={simulator.registers[PC]}')
+                else:
+                    write_line('Resuming LOAD')
+                    simulator.registers[T] = t0
+                    simulator.set_tracer(tracer, options.in_flags & 4, False)
+                    tracer.run(kp_tracer.border, kp_tracer.out7ffd, kp_tracer.outfffd, kp_tracer.ay, kp_tracer.outfe)
             _ram_operations(simulator.memory, options.ram_ops)
         except KeyboardInterrupt:
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
@@ -911,6 +951,9 @@ def main(args):
                        help="Write the snapshot file in this directory.")
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
+    group.add_argument('--press', metavar='N:KEYS',
+                       help="Pause the tape at block number N and press KEYS before resuming. "
+                            "KEYS must be a space-separated list of key identifiers.")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer.")
     group.add_argument('--ram', dest='ram_ops', metavar='OPERATION', action='append', default=[],
