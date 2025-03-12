@@ -34,7 +34,8 @@ OPTIONS
 
 --press `N:KEYS`
   Pause the tape at block number N and press KEYS before resuming. KEYS must be
-  a space-separated list of key identifiers (see ``USER INPUT``).
+  a space-separated list of key identifiers (see ``USER INPUT``). This option
+  may be used multiple times.
 
 -p, --stack `STACK`
   Set the stack pointer. This option is equivalent to ``--reg sp=STACK``.

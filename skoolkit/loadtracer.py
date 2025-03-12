@@ -230,6 +230,7 @@ class LoadTracer(PagingTracer):
         self.outfffd = outfffd
         self.ay = ay
         self.outfe = outfe
+        self.keys = None
         simulator = self.simulator
         memory = simulator.memory
         registers = simulator.registers

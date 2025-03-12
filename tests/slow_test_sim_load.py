@@ -1398,3 +1398,64 @@ class SimLoadTest(SkoolKitTestCase):
         exp_reg = set(('SP=65344', 'IX=32769', 'IY=23610', 'PC=1343'))
         self.assertLessEqual(exp_reg, set(options.reg))
         self.assertEqual(snapshot[32768], 255)
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_option_press_multiple(self):
+        basic_data = [
+            0, 10,              # Line 10
+            40, 0,              # Line length
+            234,                # REM
+            62, 247,            # 23760 LD A,247
+            219, 254,           # 23762 IN A,(254)  ; Read keys 1-2-3-4-5
+            31,                 # 23764 RRA         ; Is '1' being pressed?
+            56, 249,            # 23765 JR C,23760  ; Jump back if not
+            221, 33, 0, 128,    # 23767 LD IX,32768
+            17, 1, 0,           # 23771 LD DE,1
+            55,                 # 23774 SCF
+            159,                # 23775 SBC A,A
+            205, 86, 5,         # 23776 CALL 1366
+            62, 191,            # 23779 LD A,191
+            219, 254,           # 23781 IN A,(254)  ; Read keys ENTER-L-K-J-H
+            31,                 # 23783 RRA         ; Is 'ENTER' being pressed?
+            56, 249,            # 23784 JR C,23779  ; Jump back if not
+            221, 33, 0, 192,    # 23786 LD IX,49152
+            17, 1, 0,           # 23790 LD DE,1
+            55,                 # 23793 SCF
+            159,                # 23794 SBC A,A
+            195, 86, 5,         # 23795 JP 1366
+            13,                 # ENTER
+            0, 20,              # Line 20
+            10, 0,              # Line length
+            249, 192, 46,       # RANDOMIZE USR .
+            14,                 # Floating-point number marker
+            0, 0, 208, 92, 0,   # 23760
+            13                  # ENTER
+        ]
+        blocks = [
+            create_tap_header_block("simloadbas", 20, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+            create_tap_data_block([255]),
+            create_tap_data_block([1]),
+        ]
+        tapfile = self._write_tap(blocks)
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,58',
+            'Tape paused',
+            'Pressing keys: 1',
+            'Resuming LOAD',
+            'Fast loading data block: 32768,1',
+            'Tape paused',
+            'Pressing keys: ENTER',
+            'Resuming LOAD',
+            'Fast loading data block: 49152,1',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=1343'
+        ]
+        output, error = self.run_tap2sna(f'--press 3:1 --press 4:ENTER --start 1343 -c finish-tape=1 {tapfile} out.z80')
+        self.assertEqual(exp_out_lines, output.strip().split('\n'))
+        self.assertEqual(error, '')
+        exp_reg = set(('SP=65344', 'IX=49153', 'IY=23610', 'PC=1343'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+        self.assertEqual(snapshot[32768], 255)
+        self.assertEqual(snapshot[49152], 1)

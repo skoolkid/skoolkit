@@ -1588,7 +1588,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           'v'. This option may be used multiple times.
     --press N:KEYS        Pause the tape at block number N and press KEYS before
                           resuming. KEYS must be a space-separated list of key
-                          identifiers.
+                          identifiers. This option may be used multiple times.
     -p STACK, --stack STACK
                           Set the stack pointer.
     --ram OPERATION       Perform a load operation or otherwise modify the

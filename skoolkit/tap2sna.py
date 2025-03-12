@@ -452,8 +452,14 @@ def _set_sim_load_config(options):
                 raise SkoolKitError(f'Invalid sim-load configuration parameter: {name}')
 
 def sim_load(blocks, options, config):
+    press = {}
+    for spec in options.press:
+        block_num, sep, key_specs = spec.partition(':')
+        if sep:
+            pause_block = parse_int(block_num, 0)
+            press[pause_block] = key_specs.split(' ')
     for block in blocks:
-        block.keys = None
+        block.keys = press.get(block.number)
 
     if options.tape_analysis:
         get_edges(blocks, options.first_edge, options.polarity, True)
@@ -576,14 +582,6 @@ def sim_load(blocks, options, config):
             in_min_addr = 0x10000
         else:
             in_min_addr = 0x8000
-        if options.press:
-            block_num, sep, key_specs = options.press.partition(':')
-            if sep:
-                pause_block = parse_int(block_num, 0)
-                for block in blocks:
-                    if block.number == pause_block:
-                        block.keys = key_specs.split(' ')
-                        break
         ltconfig = {
             'accelerate_dec_a': options.accelerate_dec_a,
             'accelerators': accelerators,
@@ -606,7 +604,7 @@ def sim_load(blocks, options, config):
         simulator.set_tracer(tracer, options.in_flags & 4, False)
         try:
             tracer.run(border, out7ffd, outfffd, ay, outfe)
-            if tracer.keys:
+            while tracer.keys:
                 print('Pressing keys: {}'.format(' '.join(tracer.keys)))
                 t0 = simulator.registers[T]
                 kp_tracer = KeypressTracer(simulator, tracer.keys, tracer.border, tracer.out7ffd, tracer.outfffd, tracer.ay, tracer.outfe)
@@ -614,6 +612,7 @@ def sim_load(blocks, options, config):
                 kp_tracer.run(timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
                 if kp_tracer.keys:
                     write_line(f'Simulation stopped (timed out): PC={simulator.registers[PC]}')
+                    break
                 else:
                     write_line('Resuming LOAD')
                     simulator.registers[T] = t0
@@ -951,9 +950,10 @@ def main(args):
                        help="Write the snapshot file in this directory.")
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
-    group.add_argument('--press', metavar='N:KEYS',
+    group.add_argument('--press', metavar='N:KEYS', action='append', default=[],
                        help="Pause the tape at block number N and press KEYS before resuming. "
-                            "KEYS must be a space-separated list of key identifiers.")
+                            "KEYS must be a space-separated list of key identifiers. "
+                            "This option may be used multiple times.")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer.")
     group.add_argument('--ram', dest='ram_ops', metavar='OPERATION', action='append', default=[],
