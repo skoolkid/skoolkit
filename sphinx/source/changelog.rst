@@ -10,7 +10,7 @@ Changelog
   to ``3``
 * Added the ``activision``, ``alternative3``, ``audiogenic-0``,
   ``audiogenic-1``, ``codemasters``, ``diver``, ``gremlin2-0``, ``gremlin2-1``,
-  ``kwc-0``, ``kwc-1`` and ``mirrorsoft2`` tape-sampling loop
+  ``kwc-0``, ``kwc-1``, ``mirrorsoft2`` and ``operasoft`` tape-sampling loop
   :ref:`accelerators <tap2sna-accelerators>`
 * Removed the ``dinaload``, ``gremlin2``, ``housenka``, ``suzy-soft`` and
   ``suzy-soft2`` tape-sampling loop accelerators

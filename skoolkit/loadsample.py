@@ -897,6 +897,26 @@ ACCELERATORS = {
         0     # Zero flag is reset upon edge detection by AND $20
     ),
 
+    'operasoft': (
+        'operasoft',
+        [
+            0x1C,       # LD_SAMPLE INC E          [4]
+            0xC8,       #           RET Z          [11/5]
+            0xDB, 0xFE, #           IN A,($FE)     [11]
+            0xE6, 0x40, #           AND $40        [7]
+            0xBA,       #           CP D           [4]
+            0xCA        #           JP Z,LD_SAMPLE [10]
+        ],
+        2,    # Offset of IN A,($FE) instruction from start of loop
+        E,    # Counter register
+        1,    # Counter (E) is incremented
+        41,   # 41 T-states per loop iteration
+        6,    # R register increment per loop iteration
+        D,    # EAR bit register
+        0x40, # EAR mask
+        0     # Zero flag is reset upon edge detection by AND $40
+    ),
+
     'palas': (
         'palas',
         [
