@@ -278,10 +278,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertIsNone(options.start)
         self.assertEqual([], options.sim_load_config)
         self.assertEqual([], options.state)
-        self.assertIsNone(options.tape_name)
+        self.assertEqual([], options.tape_name)
         self.assertEqual(options.tape_start, 1)
         self.assertEqual(options.tape_stop, 0)
-        self.assertIsNone(options.tape_sum)
+        self.assertEqual([], options.tape_sum)
         self.assertEqual(options.user_agent, '')
         self.assertEqual([], options.params)
 
@@ -301,10 +301,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertIsNone(options.start)
         self.assertEqual([], options.sim_load_config)
         self.assertEqual([], options.state)
-        self.assertIsNone(options.tape_name)
+        self.assertEqual([], options.tape_name)
         self.assertEqual(options.tape_start, 1)
         self.assertEqual(options.tape_stop, 0)
-        self.assertIsNone(options.tape_sum)
+        self.assertEqual([], options.tape_sum)
         self.assertEqual(options.user_agent, '')
         self.assertEqual([], options.params)
         self.assertEqual(config['TraceLine'], '{pc} - {i}')
@@ -826,6 +826,38 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_tape_name_twice(self):
+        tap1_data = create_tap_data_block([1, 2, 3, 4, 5])
+        tap1_fname = 'code1.tap'
+        tap2_data = create_tap_data_block([6, 7, 8])
+        tap2_fname = 'code2.tap'
+        zipfile = 'tapes.zip'
+        with ZipFile(zipfile, 'w') as archive:
+            archive.writestr(tap1_fname, bytearray(tap1_data))
+            archive.writestr(tap2_fname, bytearray(tap2_data))
+        output, error = self.run_tap2sna(f'--tape-name {tap1_fname} --tape-name {tap2_fname} {zipfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 2)
+        self.assertEqual(tap1_data[2:], list(load_tracer.blocks[0].data))
+        self.assertEqual(tap2_data[2:], list(load_tracer.blocks[1].data))
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_tape_name_twice_with_no_snapshot_name(self):
+        tap1_data = create_tap_data_block([1, 2, 3, 4, 5])
+        tap1_fname = 'code1.tap'
+        tap2_data = create_tap_data_block([6, 7, 8])
+        tap2_fname = 'code2.tap'
+        zipfile = 'tapes.zip'
+        with ZipFile(zipfile, 'w') as archive:
+            archive.writestr(tap1_fname, bytearray(tap1_data))
+            archive.writestr(tap2_fname, bytearray(tap2_data))
+        output, error = self.run_tap2sna(f'--tape-name {tap1_fname} --tape-name {tap2_fname} {zipfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(s_fname, zipfile + '.z80')
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_tape_start_with_pzx(self):
         pzx = PZX()
         pzx.add_puls()
@@ -862,6 +894,32 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--tape-start 2 {tzxfile}')
         self.assertEqual(error, '')
         self.assertEqual(len(load_tracer.blocks), 1)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_tape_start_with_two_tapes(self):
+        t1_data = [[1, 2, 3], [4, 5, 6]]
+        t1_bytes = bytearray(create_tap_data_block(t1_data[0]) + create_tap_data_block(t1_data[1]))
+        t1_fname = 'code1.tap'
+        t2_data = [7, 8, 9]
+        t2_bytes = bytearray(create_tap_data_block(t2_data))
+        t2_fname = 'code2.tap'
+        zipfile = 'tapes.zip'
+        with ZipFile(zipfile, 'w') as archive:
+            archive.writestr(t1_fname, t1_bytes)
+            archive.writestr(t2_fname, t2_bytes)
+        args = (
+            '--tape-name', t1_fname,
+            '--tape-name', t2_fname,
+            '--tape-start', '2',
+            zipfile,
+            'out.z80'
+        )
+        output, error = self.run_tap2sna(args)
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 2)
+        self.assertEqual(t1_bytes[6 + len(t1_data[0]):], load_tracer.blocks[0].data)
+        self.assertEqual(t2_bytes[2:], load_tracer.blocks[1].data)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
@@ -902,6 +960,32 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(len(load_tracer.blocks), 1)
 
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_tape_stop_with_two_tapes(self):
+        t1_data = [1, 2, 3]
+        t1_bytes = bytearray(create_tap_data_block(t1_data))
+        t1_fname = 'code1.tap'
+        t2_data = [[4, 5, 6], [7, 8, 9]]
+        t2_bytes = bytearray(create_tap_data_block(t2_data[0]) + create_tap_data_block(t2_data[1]))
+        t2_fname = 'code2.tap'
+        zipfile = 'tapes.zip'
+        with ZipFile(zipfile, 'w') as archive:
+            archive.writestr(t1_fname, t1_bytes)
+            archive.writestr(t2_fname, t2_bytes)
+        args = (
+            '--tape-name', t1_fname,
+            '--tape-name', t2_fname,
+            '--tape-stop', '3',
+            zipfile,
+            'out.z80'
+        )
+        output, error = self.run_tap2sna(args)
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 2)
+        self.assertEqual(t1_bytes[2:], load_tracer.blocks[0].data)
+        self.assertEqual(t2_bytes[2:2 + len(t2_data[0]) + 2], load_tracer.blocks[1].data)
+
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_tape_sum(self):
         code = [1, 2, 3]
@@ -915,6 +999,37 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
 
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_tape_sum_twice(self):
+        t1_start = 24576
+        t1_data = [1, 2, 3]
+        t1_bytes = bytearray(create_tap_data_block(t1_data))
+        t1_md5 = hashlib.md5(t1_bytes).hexdigest()
+        t1_fname = 'code1.tap'
+        t2_start = 49152
+        t2_data = [4, 5, 6]
+        t2_bytes = bytearray(create_tap_data_block(t2_data))
+        t2_md5 = hashlib.md5(t2_bytes).hexdigest()
+        t2_fname = 'code2.tap'
+        zipfile = 'tapes.zip'
+        with ZipFile(zipfile, 'w') as archive:
+            archive.writestr(t1_fname, t1_bytes)
+            archive.writestr(t2_fname, t2_bytes)
+        args = (
+            '--tape-name', t1_fname,
+            '--tape-name', t2_fname,
+            '--tape-sum', t1_md5,
+            '--tape-sum', t2_md5,
+            '--ram', f'load=1,{t1_start}',
+            '--ram', f'load=2,{t2_start}',
+            zipfile,
+            'out.z80'
+        )
+        output, error = self.run_tap2sna(args)
+        self.assertEqual(error, '')
+        self.assertEqual(t1_data, snapshot[t1_start:t1_start + len(t1_data)])
+        self.assertEqual(t2_data, snapshot[t2_start:t2_start + len(t2_data)])
+
     def test_option_tape_sum_with_incorrect_value(self):
         code = [1, 2, 3]
         code_start = 49152
@@ -922,11 +1037,29 @@ class Tap2SnaTest(SkoolKitTestCase):
         md5sum = hashlib.md5(bytearray(tap_data)).hexdigest()
         zipfile = 'tape.zip'
         wrongsum = '0' * 32
+        tapname = 'data.tap'
         with ZipFile(zipfile, 'w') as archive:
-            archive.writestr('data.tap', bytearray(tap_data))
+            archive.writestr(tapname, bytearray(tap_data))
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'--tape-sum {wrongsum} {zipfile} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting tape.zip: Checksum mismatch: Expected {wrongsum}, actually {md5sum}')
+        self.assertEqual(cm.exception.args[0], f'Error while converting tape.zip: Checksum mismatch ({tapname}): Expected {wrongsum}, actually {md5sum}')
+        self.assertEqual(self.err.getvalue(), '')
+
+    def test_option_tape_sum_twice_with_one_incorrect_value(self):
+        t1_data = bytearray(create_tap_data_block([1, 2, 3]))
+        t1_md5 = hashlib.md5(t1_data).hexdigest()
+        t1_f = 'code1.tap'
+        t2_data = bytearray(create_tap_data_block([4, 5, 6]))
+        t2_md5 = hashlib.md5(t2_data).hexdigest()
+        t2_f = 'code2.tap'
+        wrongsum = '0' * 32
+        zipfile = 'tapes.zip'
+        with ZipFile(zipfile, 'w') as archive:
+            archive.writestr(t1_f, t1_data)
+            archive.writestr(t2_f, t2_data)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'--tape-name {t1_f} --tape-name {t2_f} --tape-sum {t1_md5} --tape-sum {wrongsum} {zipfile} out.z80')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {zipfile}: Checksum mismatch ({t2_f}): Expected {wrongsum}, actually {t2_md5}')
         self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)

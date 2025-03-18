@@ -1560,8 +1560,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 
 tap2sna.py
 ----------
-`tap2sna.py` converts a PZX, TAP or TZX file (which may be inside a zip
-archive) into an SZX or Z80 snapshot. For example::
+`tap2sna.py` converts one or two PZX, TAP or TZX files (which may be inside a
+zip archive) into an SZX or Z80 snapshot. For example::
 
   $ tap2sna.py game.tap game.z80
 
@@ -1571,10 +1571,10 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     tap2sna.py [options] INPUT [OUTFILE]
     tap2sna.py @FILE [args]
 
-  Convert a PZX, TAP or TZX file (which may be inside a zip archive) into an SZX
-  or Z80 snapshot. INPUT may be the full URL to a remote zip archive or tape
-  file, or the path to a local file. Arguments may be read from FILE instead of
-  (or as well as) being given on the command line.
+  Convert one or two PZX, TAP or TZX files (which may be inside a zip archive)
+  into an SZX or Z80 snapshot. INPUT may be the full URL to a remote zip archive
+  or tape file, or the path to a local file. Arguments may be read from FILE
+  instead of (or as well as) being given on the command line.
 
   Options:
     -c name=value, --sim-load-config name=value
@@ -1604,10 +1604,12 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           times.
     --tape-analysis       Show an analysis of the tape's tones, pulse sequences
                           and data blocks.
-    --tape-name NAME      Specify the name of a tape file in a zip archive.
+    --tape-name NAME      Specify the name of a tape file in a zip archive. Use
+                          this option twice when loading two tape files.
     --tape-start BLOCK    Start the tape at this block number.
     --tape-stop BLOCK     Stop the tape at this block number.
-    --tape-sum MD5SUM     Specify the MD5 checksum of the tape file.
+    --tape-sum MD5SUM     Specify the MD5 checksum of the tape file. This option
+                          may be used twice if loading two tape files.
     -u AGENT, --user-agent AGENT
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
@@ -1633,6 +1635,18 @@ Python function to modify the memory snapshot in an arbitrary way before it is
 saved. For more information on these operations, run::
 
   $ tap2sna.py --ram help
+
+If a game requires loading from both sides of a tape, and each side is in its
+own file in a zip archive, they can be loaded by specifying their names in the
+desired order::
+
+  $ tap2sna.py --tape-name side1.tzx --tape-name side2.tzx game.zip
+
+When loading from two tape files, and using the ``--tape-stop`` option to stop
+somewhere in the middle of the second tape, the block number argument must be
+incremented by the number of blocks in the first tape. For example, if the
+first tape has five blocks, ``--tape-stop 8`` will stop at the third block of
+the second tape.
 
 For complex snapshots that require many options to build, it may be more
 convenient to store the arguments to `tap2sna.py` in a file. For example, if
@@ -1923,7 +1937,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.6     | Added the ``--press`` option; changed the default value of the    |
+| 9.6     | Added the ability to load from two tape files in a zip archive;   |
+|         | added the ``--press`` option; changed the default value of the    |
 |         | ``accelerate-dec-a`` simulated LOAD configuration parameter from  |
 |         | ``1`` to ``3``; added the ``activision``, ``alternative3``,       |
 |         | ``audiogenic-0``, ``audiogenic-1``, ``codemasters``, ``diver``,   |

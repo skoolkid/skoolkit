@@ -701,11 +701,20 @@ def _get_ram(blocks, options):
     _ram_operations(snapshot, options.ram_ops, blocks)
     return snapshot[16384:]
 
+def _get_blocks(tape, start, stop):
+    blocks = []
+    for block in tape.blocks:
+        if block.number >= stop > 0:
+            break
+        if block.number >= start:
+            blocks.append(block)
+    return blocks
+
 def _get_tzx_blocks(data, sim, start, stop, is48):
-    tape = parse_tzx(data, start, stop, False, sim)
+    tape = parse_tzx(data, info=False, timings=sim)
     blocks = []
     loop = None
-    for block in tape.blocks:
+    for block in _get_blocks(tape, start, stop):
         if block.timings and block.timings.error:
             raise TapeError(block.timings.error)
         if sim:
@@ -725,29 +734,48 @@ def _get_tzx_blocks(data, sim, start, stop, is48):
         if block.block_id == 0x25 and loop is not None:
             blocks.extend(loop * repetitions)
             loop = None
-    return blocks
+    return tape, blocks
 
 def _get_pzx_blocks(data, sim, start, stop, is48):
-    tape = parse_pzx(data, start, stop)
+    tape = parse_pzx(data)
     blocks = []
-    for block in tape.blocks:
+    for block in _get_blocks(tape, start, stop):
         if sim:
             if block.block_id == 'STOP':
                 mode = block.block_data[0]
                 if mode != 1 or is48:
                     break
         blocks.append(block)
+    return tape, blocks
+
+def _get_tap_blocks(data, start, stop):
+    tape = parse_tap(data)
+    return tape, [b for b in _get_blocks(tape, start, stop) if b.data]
+
+def _get_tape_blocks(tapes, sim, start, stop, is48):
+    n = 0
+    blocks = []
+    for name, data in tapes:
+        b0, b1 = max(start - n, 1), max(stop - n, 0)
+        if name.lower().endswith('.pzx'):
+            tape, tape_blocks = _get_pzx_blocks(data, sim, b0, b1, is48)
+        elif name.lower().endswith('.tzx'):
+            tape, tape_blocks = _get_tzx_blocks(data, sim, b0, b1, is48)
+        else:
+            tape, tape_blocks = _get_tap_blocks(data, b0, b1)
+        if tape.blocks:
+            last_bn = tape.blocks[-1].number
+        else:
+            last_bn = 0
+        if n:
+            for block in tape_blocks:
+                block.number += n
+        n += last_bn
+        blocks.extend(tape_blocks)
     return blocks
 
-def _get_tape_blocks(tape_type, tape, sim, start, stop, is48):
-    if tape_type.lower() == 'pzx':
-        return _get_pzx_blocks(tape, sim, start, stop, is48)
-    if tape_type.lower() == 'tzx':
-        return _get_tzx_blocks(tape, sim, start, stop, is48)
-    tap = parse_tap(tape, start, stop)
-    return [block for block in tap.blocks if block.data]
-
-def _get_tape(urlstring, user_agent, member):
+def _get_tapes(urlstring, user_agent, members):
+    tapes = []
     url = urlparse(urlstring)
     if url.scheme:
         write_line(f'Downloading {urlstring}')
@@ -765,27 +793,26 @@ def _get_tape(urlstring, user_agent, member):
 
     if urlstring.lower().endswith('.zip'):
         z = zipfile.ZipFile(f)
-        if member is None:
+        if not members:
             for name in z.namelist():
                 if name.lower().endswith(SUPPORTED_TAPES):
-                    member = name
+                    members = [name]
                     break
             else:
                 f.close()
                 raise TapeError('No PZX, TAP or TZX file found')
-        write_line(f'Extracting {member}')
-        try:
-            tape = z.open(member)
-        except KeyError:
-            raise TapeError(f'No file named "{member}" in the archive')
-        data = tape.read()
+        for member in members:
+            write_line(f'Extracting {member}')
+            try:
+                tape = z.open(member)
+            except KeyError:
+                raise TapeError(f'No file named "{member}" in the archive')
+            tapes.append((member, tape.read()))
     else:
-        member = os.path.basename(urlstring)
-        data = f.read()
+        tapes.append((os.path.basename(urlstring), f.read()))
 
     f.close()
-    tape_type = member[-3:]
-    return member, tape_type, data
+    return tapes
 
 def _print_ram_help():
     sys.stdout.write("""
@@ -901,17 +928,17 @@ def _print_sim_load_config_help(param):
     print(help_text)
 
 def make_snapshot(url, options, outfile, config):
-    tape_name, tape_type, tape = _get_tape(url, options.user_agent, options.tape_name)
-    if options.tape_sum:
-        md5sum = hashlib.md5(tape).hexdigest()
-        if md5sum != options.tape_sum:
-            raise TapeError(f'Checksum mismatch: Expected {options.tape_sum}, actually {md5sum}')
+    tapes = _get_tapes(url, options.user_agent, options.tape_name)
+    for tape, tape_sum in zip(tapes, options.tape_sum):
+        md5sum = hashlib.md5(tape[1]).hexdigest()
+        if md5sum != tape_sum:
+            raise TapeError(f'Checksum mismatch ({tape[0]}): Expected {tape_sum}, actually {md5sum}')
     if options.sim_load:
         _set_sim_load_config(options)
         is48 = options.machine == '48'
     else:
         is48 = True
-    tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load, options.tape_start, options.tape_stop, is48)
+    tape_blocks = _get_tape_blocks(tapes, options.sim_load, options.tape_start, options.tape_stop, is48)
     if options.sim_load:
         blocks = [block for block in tape_blocks if block.timings]
         if not blocks:
@@ -921,6 +948,10 @@ def make_snapshot(url, options, outfile, config):
         blocks = [block.data for block in tape_blocks]
         ram = _get_ram(blocks, options)
     if outfile is None:
+        if len(tapes) == 1:
+            tape_name = tapes[0][0]
+        else:
+            tape_name = os.path.basename(url)
         if tape_name.lower().endswith(SUPPORTED_TAPES):
             tape_name = tape_name[:-4]
         fmt = config['DefaultSnapshotFormat']
@@ -933,7 +964,7 @@ def main(args):
     config = get_config('tap2sna')
     parser = SkoolKitArgumentParser(
         usage='\n  tap2sna.py [options] INPUT [OUTFILE]\n  tap2sna.py @FILE [args]',
-        description="Convert a PZX, TAP or TZX file (which may be inside a zip archive) into an SZX or Z80 snapshot. "
+        description="Convert one or two PZX, TAP or TZX files (which may be inside a zip archive) into an SZX or Z80 snapshot. "
                     "INPUT may be the full URL to a remote zip archive or tape file, or the path to a local file. "
                     "Arguments may be read from FILE instead of (or as well as) being given on the command line.",
         fromfile_prefix_chars='@',
@@ -971,14 +1002,16 @@ def main(args):
                             "This option may be used multiple times.")
     group.add_argument('--tape-analysis', action='store_true',
                        help="Show an analysis of the tape's tones, pulse sequences and data blocks.")
-    group.add_argument('--tape-name', metavar='NAME',
-                       help="Specify the name of a tape file in a zip archive.")
+    group.add_argument('--tape-name', metavar='NAME', action='append', default=[],
+                       help="Specify the name of a tape file in a zip archive. "
+                            "Use this option twice when loading two tape files.")
     group.add_argument('--tape-start', metavar='BLOCK', type=int, default=1,
                        help="Start the tape at this block number.")
     group.add_argument('--tape-stop', metavar='BLOCK', type=int, default=0,
                        help="Stop the tape at this block number.")
-    group.add_argument('--tape-sum', metavar='MD5SUM',
-                       help="Specify the MD5 checksum of the tape file.")
+    group.add_argument('--tape-sum', metavar='MD5SUM', action='append', default=[],
+                       help="Specify the MD5 checksum of the tape file. "
+                            "This option may be used twice if loading two tape files.")
     group.add_argument('-u', '--user-agent', dest='user_agent', metavar='AGENT', default=config['UserAgent'],
                        help="Set the User-Agent header.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),

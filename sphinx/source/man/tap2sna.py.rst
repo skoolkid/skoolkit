@@ -11,10 +11,10 @@ SYNOPSIS
 
 DESCRIPTION
 ===========
-``tap2sna.py`` converts a PZX, TAP or TZX file (which may be inside a zip
-archive) into an SZX or Z80 snapshot. INPUT may be the full URL to a remote zip
-archive or tape file, or the path to a local file. Arguments may be read from
-FILE instead of (or as well as) being given on the command line.
+``tap2sna.py`` converts one or two PZX, TAP or TZX files (which may be inside a
+zip archive) into an SZX or Z80 snapshot. INPUT may be the full URL to a remote
+zip archive or tape file, or the path to a local file. Arguments may be read
+from FILE instead of (or as well as) being given on the command line.
 
 OPTIONS
 =======
@@ -69,7 +69,8 @@ OPTIONS
 
 --tape-name NAME
   Specify the name of a tape file in a zip archive. By default, the first tape
-  file found in the zip archive is selected.
+  file found in the zip archive is selected. Use this option twice when loading
+  two tape files.
 
 --tape-start BLOCK
   Start the tape at this block number. In a tape file, the first block is
@@ -81,7 +82,8 @@ OPTIONS
 
 --tape-sum MD5SUM
   Specify the MD5 checksum of the tape file. ``tap2sna.py`` will abort if there
-  is a checksum mismatch.
+  is a checksum mismatch. This option may be used twice if loading two tape
+  files.
 
 -u, --user-agent `AGENT`
   Set the User-Agent header used in an HTTP(S) request.
@@ -572,3 +574,9 @@ EXAMPLES
 
    |
    |   ``tap2sna.py @game.t2s game.tzx game.szx``
+
+5. Extract two tape files from a zip archive and convert them into a Z80
+   snapshot:
+
+   |
+   |   ``tap2sna.py --tape-name side1.tzx --tape-name side2.tzx game.zip``

@@ -3,6 +3,7 @@ Changelog
 
 9.6b1
 -----
+* :ref:`tap2sna.py` can now load from two tapes in a zip archive
 * Added the ``--press`` option to :ref:`tap2sna.py` (for pausing the tape and
   :ref:`simulating keypresses <tap2sna-user-input>` before resuming)
 * Changed the default value of the ``accelerate-dec-a`` simulated LOAD
