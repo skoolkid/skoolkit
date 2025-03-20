@@ -320,6 +320,21 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage:'))
 
+    def test_two_zip_archive_arguments(self):
+        output, error = self.run_tap2sna('1.zip 2.zip', catch_exit=2)
+        self.assertEqual(output, '')
+        self.assertTrue(error.startswith('usage:'))
+
+    def test_two_zip_archive_arguments_with_snapshot_argument(self):
+        output, error = self.run_tap2sna('1.zip 2.zip out.z80', catch_exit=2)
+        self.assertEqual(output, '')
+        self.assertTrue(error.startswith('usage:'))
+
+    def test_too_many_arguments(self):
+        output, error = self.run_tap2sna('1.tap 2.tzx out.z80 out.szx', catch_exit=2)
+        self.assertEqual(output, '')
+        self.assertTrue(error.startswith('usage:'))
+
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_accelerator_unrecognised(self):
@@ -342,6 +357,14 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--ram load=1,16384 {tapfile}')
         self.assertEqual(len(error), 0)
         self.assertEqual(s_fname, exp_z80_fname)
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_no_snapshot_argument_with_two_tap_files(self):
+        tapfile1 = self.write_bin_file(create_tap_data_block([0]), 'gamecode.tap')
+        tapfile2 = self.write_bin_file(create_tap_data_block([1]), 'gamelevels.tap')
+        output, error = self.run_tap2sna(f'--ram load=1,16384 --ram load=2,16385 {tapfile1} {tapfile2}')
+        self.assertEqual(len(error), 0)
+        self.assertEqual(s_fname, 'game.z80')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_no_snapshot_argument_with_tzx_file(self):
@@ -387,6 +410,19 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--ram load=1,{start} {tapfile} out.z80')
         self.assertEqual(error, '')
         self.assertEqual(code, snapshot[start:start + len(code)])
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_two_tapes(self):
+        tap1_data = create_tap_data_block([1, 2, 3, 4, 5])
+        tap1 = self.write_bin_file(tap1_data, suffix='.tap')
+        tap2_data = create_tap_data_block([6, 7, 8])
+        tap2 = self.write_bin_file(tap2_data, suffix='.tap')
+        output, error = self.run_tap2sna(f'{tap1} {tap2} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 2)
+        self.assertEqual(tap1_data[2:], list(load_tracer.blocks[0].data))
+        self.assertEqual(tap2_data[2:], list(load_tracer.blocks[1].data))
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_d(self):
@@ -1085,6 +1121,13 @@ class Tap2SnaTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'non-existent.tap test.z80')
         self.assertEqual(cm.exception.args[0], f'Error while converting non-existent.tap: non-existent.tap: file not found')
+
+    def test_nonexistent_tap_file_two_of_two(self):
+        tapfile1 = self._write_tap([create_tap_data_block([1])])
+        tapfile2 = 'non-existent.tap'
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'--ram load=1,16384 {tapfile1} {tapfile2} test.z80')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile1} and {tapfile2}: non-existent.tap: file not found')
 
     def test_load_nonexistent_block(self):
         tapfile = self._write_tap([create_tap_data_block([1])])

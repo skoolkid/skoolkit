@@ -1568,13 +1568,14 @@ zip archive) into an SZX or Z80 snapshot. For example::
 To list the options supported by `tap2sna.py`, run it with no arguments::
 
   usage:
-    tap2sna.py [options] INPUT [OUTFILE]
+    tap2sna.py [options] INPUT [INPUT] [OUTFILE]
     tap2sna.py @FILE [args]
 
   Convert one or two PZX, TAP or TZX files (which may be inside a zip archive)
   into an SZX or Z80 snapshot. INPUT may be the full URL to a remote zip archive
-  or tape file, or the path to a local file. Arguments may be read from FILE
-  instead of (or as well as) being given on the command line.
+  or tape file, or the path to a local file. If two INPUTs are given, they must
+  both be (local or remote) tape files. Arguments may be read from FILE instead
+  of (or as well as) being given on the command line.
 
   Options:
     -c name=value, --sim-load-config name=value
@@ -1638,9 +1639,14 @@ saved. For more information on these operations, run::
 
 If a game requires loading from both sides of a tape, and each side is in its
 own file in a zip archive, they can be loaded by specifying their names in the
-desired order::
+desired order using the ``--tape-name`` option::
 
   $ tap2sna.py --tape-name side1.tzx --tape-name side2.tzx game.zip
+
+If each side is in its own file and not in a zip archive, they can be loaded by
+specifying them as positional arguments in the desired order::
+
+  $ tap2sna.py side1.tzx side2.tzx
 
 When loading from two tape files, and using the ``--tape-stop`` option to stop
 somewhere in the middle of the second tape, the block number argument must be
@@ -1937,8 +1943,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.6     | Added the ability to load from two tape files in a zip archive;   |
-|         | added the ``--press`` option; changed the default value of the    |
+| 9.6     | Added the ability to load from two tape files; added the          |
+|         | ``--press`` option; changed the default value of the              |
 |         | ``accelerate-dec-a`` simulated LOAD configuration parameter from  |
 |         | ``1`` to ``3``; added the ``activision``, ``alternative3``,       |
 |         | ``audiogenic-0``, ``audiogenic-1``, ``codemasters``, ``diver``,   |

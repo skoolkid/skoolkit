@@ -248,7 +248,7 @@ man_pages = [
     ('man/snapmod.py', 'snapmod.py',
      'modify an SZX or Z80 snapshot', _authors, 1),
     ('man/tap2sna.py', 'tap2sna.py',
-     'convert a tape file into a snapshot file', _authors, 1),
+     'convert one or two tape files into a snapshot file', _authors, 1),
     ('man/tapinfo.py', 'tapinfo.py',
      'show the blocks in a PZX, TAP or TZX file', _authors, 1),
     ('man/trace.py', 'trace.py',

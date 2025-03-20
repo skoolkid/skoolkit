@@ -774,44 +774,45 @@ def _get_tape_blocks(tapes, sim, start, stop, is48):
         blocks.extend(tape_blocks)
     return blocks
 
-def _get_tapes(urlstring, user_agent, members):
+def _get_tapes(urls, user_agent, members):
     tapes = []
-    url = urlparse(urlstring)
-    if url.scheme:
-        write_line(f'Downloading {urlstring}')
-        r = Request(urlstring, headers={'User-Agent': user_agent})
-        f = tempfile.NamedTemporaryFile(prefix='tap2sna-')
-        with urlopen(r, timeout=30) as u:
-            while 1:
-                data = u.read(4096)
-                if not data:
-                    break
-                f.write(data)
-        f.seek(0)
-    else:
-        f = open_file(urlstring, 'rb')
+    for urlstring in urls:
+        url = urlparse(urlstring)
+        if url.scheme:
+            write_line(f'Downloading {urlstring}')
+            r = Request(urlstring, headers={'User-Agent': user_agent})
+            f = tempfile.NamedTemporaryFile(prefix='tap2sna-')
+            with urlopen(r, timeout=30) as u:
+                while 1:
+                    data = u.read(4096)
+                    if not data:
+                        break
+                    f.write(data)
+            f.seek(0)
+        else:
+            f = open_file(urlstring, 'rb')
 
-    if urlstring.lower().endswith('.zip'):
-        z = zipfile.ZipFile(f)
-        if not members:
-            for name in z.namelist():
-                if name.lower().endswith(SUPPORTED_TAPES):
-                    members = [name]
-                    break
-            else:
-                f.close()
-                raise TapeError('No PZX, TAP or TZX file found')
-        for member in members:
-            write_line(f'Extracting {member}')
-            try:
-                tape = z.open(member)
-            except KeyError:
-                raise TapeError(f'No file named "{member}" in the archive')
-            tapes.append((member, tape.read()))
-    else:
-        tapes.append((os.path.basename(urlstring), f.read()))
+        if urlstring.lower().endswith('.zip'):
+            z = zipfile.ZipFile(f)
+            if not members:
+                for name in z.namelist():
+                    if name.lower().endswith(SUPPORTED_TAPES):
+                        members = [name]
+                        break
+                else:
+                    f.close()
+                    raise TapeError('No PZX, TAP or TZX file found')
+            for member in members:
+                write_line(f'Extracting {member}')
+                try:
+                    tape = z.open(member)
+                except KeyError:
+                    raise TapeError(f'No file named "{member}" in the archive')
+                tapes.append((member, tape.read()))
+        else:
+            tapes.append((os.path.basename(urlstring), f.read()))
 
-    f.close()
+        f.close()
     return tapes
 
 def _print_ram_help():
@@ -927,8 +928,8 @@ def _print_sim_load_config_help(param):
             help_text = '\n'.join(params[param]).rstrip()
     print(help_text)
 
-def make_snapshot(url, options, outfile, config):
-    tapes = _get_tapes(url, options.user_agent, options.tape_name)
+def make_snapshot(urls, options, outfile, config):
+    tapes = _get_tapes(urls, options.user_agent, options.tape_name)
     for tape, tape_sum in zip(tapes, options.tape_sum):
         md5sum = hashlib.md5(tape[1]).hexdigest()
         if md5sum != tape_sum:
@@ -950,8 +951,10 @@ def make_snapshot(url, options, outfile, config):
     if outfile is None:
         if len(tapes) == 1:
             tape_name = tapes[0][0]
+        elif len(urls) == 1:
+            tape_name = os.path.basename(urls[0])
         else:
-            tape_name = os.path.basename(url)
+            tape_name = os.path.commonprefix((tapes[0][0], tapes[1][0])).strip() or 'out'
         if tape_name.lower().endswith(SUPPORTED_TAPES):
             tape_name = tape_name[:-4]
         fmt = config['DefaultSnapshotFormat']
@@ -963,15 +966,17 @@ def make_snapshot(url, options, outfile, config):
 def main(args):
     config = get_config('tap2sna')
     parser = SkoolKitArgumentParser(
-        usage='\n  tap2sna.py [options] INPUT [OUTFILE]\n  tap2sna.py @FILE [args]',
+        usage='\n  tap2sna.py [options] INPUT [INPUT] [OUTFILE]\n  tap2sna.py @FILE [args]',
         description="Convert one or two PZX, TAP or TZX files (which may be inside a zip archive) into an SZX or Z80 snapshot. "
                     "INPUT may be the full URL to a remote zip archive or tape file, or the path to a local file. "
+                    "If two INPUTs are given, they must both be (local or remote) tape files. "
                     "Arguments may be read from FILE instead of (or as well as) being given on the command line.",
         fromfile_prefix_chars='@',
         add_help=False
     )
-    parser.add_argument('url', help=argparse.SUPPRESS, nargs='?')
-    parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
+    parser.add_argument('arg1', help=argparse.SUPPRESS, nargs='?')
+    parser.add_argument('arg2', help=argparse.SUPPRESS, nargs='?')
+    parser.add_argument('arg3', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--sim-load-config', metavar='name=value', action='append', default=[],
                        help="Set the value of a simulated LOAD configuration parameter. "
@@ -1032,20 +1037,31 @@ def main(args):
     if 'help' in namespace.state:
         print_state_help()
         return
-    if unknown_args or namespace.url is None:
+    if unknown_args or namespace.arg1 is None:
         parser.exit(2, parser.format_help())
+    urls = [namespace.arg1]
+    outfile = namespace.arg2
+    if namespace.arg2:
+        arg1_type = namespace.arg1.lower()[-4:]
+        arg2_type = namespace.arg2.lower()[-4:]
+        if arg1_type in SUPPORTED_TAPES and arg2_type in SUPPORTED_TAPES:
+            urls.append(namespace.arg2)
+            outfile = namespace.arg3
+        elif arg2_type not in ('.szx', '.z80'):
+            parser.exit(2, parser.format_help())
     if namespace.stack is not None:
         namespace.reg.append('sp={}'.format(namespace.stack))
     namespace.sim_load = not any(s.startswith('load=') for s in namespace.ram_ops)
     if not namespace.sim_load and namespace.start is not None:
         namespace.reg.append('pc={}'.format(namespace.start))
     update_options('tap2sna', namespace, namespace.params, config)
-    if namespace.outfile is None:
+    if outfile is None:
         for arg in args:
             if arg.startswith('@') and arg.lower().endswith('.t2s') and os.path.isfile(arg[1:]):
-                namespace.outfile = os.path.basename(arg[1:-3]) + config['DefaultSnapshotFormat']
+                outfile = os.path.basename(arg[1:-3]) + config['DefaultSnapshotFormat']
                 break
     try:
-        make_snapshot(namespace.url, namespace, namespace.outfile, config)
+        make_snapshot(urls, namespace, outfile, config)
     except Exception as e:
-        raise SkoolKitError("Error while converting {}: {}".format(os.path.basename(namespace.url), e.args[0] if e.args else e))
+        inputs = ' and '.join(os.path.basename(u) for u in urls)
+        raise SkoolKitError("Error while converting {}: {}".format(inputs, e.args[0] if e.args else e))

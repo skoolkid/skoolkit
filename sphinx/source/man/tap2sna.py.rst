@@ -6,15 +6,16 @@ tap2sna.py
 
 SYNOPSIS
 ========
-| ``tap2sna.py`` [options] INPUT [OUTFILE]
+| ``tap2sna.py`` [options] INPUT [INPUT] [OUTFILE]
 | ``tap2sna.py`` @FILE [args]
 
 DESCRIPTION
 ===========
 ``tap2sna.py`` converts one or two PZX, TAP or TZX files (which may be inside a
 zip archive) into an SZX or Z80 snapshot. INPUT may be the full URL to a remote
-zip archive or tape file, or the path to a local file. Arguments may be read
-from FILE instead of (or as well as) being given on the command line.
+zip archive or tape file, or the path to a local file. If two INPUTs are given,
+they must both be (local or remote) tape files. Arguments may be read from
+FILE instead of (or as well as) being given on the command line.
 
 OPTIONS
 =======
@@ -580,3 +581,8 @@ EXAMPLES
 
    |
    |   ``tap2sna.py --tape-name side1.tzx --tape-name side2.tzx game.zip``
+
+6. Convert two tape files into an SZX snapshot:
+
+   |
+   |   ``tap2sna.py side1.tzx side2.tzx game.szx``

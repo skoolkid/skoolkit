@@ -11,7 +11,10 @@ class SimLoadGamesTest(SkoolKitTestCase):
             if isinstance(options, str):
                 options = options.split()
             z80file = f'{d}/{tapname[:-4]}.z80'
-            tap2sna.main(('--tape-name', tapname, '--tape-sum', tapsum, *options, url, z80file))
+            if isinstance(tapname, str):
+                tap2sna.main(('--tape-name', tapname, '--tape-sum', tapsum, *options, url, z80file))
+            else:
+                tap2sna.main(('--tape-name', tapname[0], '--tape-sum', tapsum[0], '--tape-name', tapname[1], '--tape-sum', tapsum[1], *options, url, z80file))
             r = Snapshot.get(z80file)
             ram = r.ram(-1)
             md5sum = hashlib.md5(bytes(ram)).hexdigest()
@@ -714,6 +717,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'ram': '25461848f0ae0b85b136a50131d1231a'
             },
             '-c accelerator=tiny --start 48495'
+        )
+
+    def test_two_tapes(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/r/RallyCross.tzx.zip',
+            ('Rally Cross - Side 1.tzx', 'Rally Cross - Side 2.tzx'),
+            ('59eb4b57e102b0f2dfde44e6a9e23694', 'cb5cb6e607b959558741ee6b70f3d662'),
+            {
+                'AF,BC,DE,HL': '0001,0F18,0000,053F',
+                "AF',BC',DE',HL'": 'FF69,1621,369B,2758',
+                'PC,SP,IX,IY': '9DEE,5DBD,0000,5C3A',
+                'IR,iff,im,border': '3F44,1,1,7',
+                'ram': 'c8cc50e7c818fd80cadd53117ee4edcc'
+            },
+            '--start 40430'
         )
 
     def test_weird_science(self):
