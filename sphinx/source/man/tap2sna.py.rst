@@ -19,7 +19,7 @@ FILE instead of (or as well as) being given on the command line.
 
 OPTIONS
 =======
--c, --sim-load-config name=value
+-c, --sim-load-config `name=value`
   Set the value of a simulated LOAD configuration parameter. Do ``-c help`` for
   more information, or ``-c help-name`` for help on a specific parameter. Also
   see the section on ``SIMULATED LOAD`` below. This option may be used multiple
@@ -48,7 +48,7 @@ OPTIONS
   ``LOAD``, ``MOVE``, ``POKE`` and ``SYSVARS`` operations below. This option
   may be used multiple times.
 
---reg name=value
+--reg `name=value`
   Set the value of a register. Do ``--reg help`` for more information, or see
   the section on ``REGISTERS`` below. This option may be used multiple times.
 
@@ -60,7 +60,7 @@ OPTIONS
   ``--reg pc=START``. `START` must be a decimal number, or a hexadecimal number
   prefixed by '0x'.
 
---state name=value
+--state `name=value`
   Set a hardware state attribute. Do ``--state help`` for more information, or
   see the section on ``HARDWARE STATE`` below. This option may be used multiple
   times.
@@ -72,6 +72,9 @@ OPTIONS
   Specify the name of a tape file in a zip archive. By default, the first tape
   file found in the zip archive is selected. Use this option twice when loading
   two tape files.
+
+--tape-skip `A[-B]`
+  Skip block numbers A-B on the tape.
 
 --tape-start BLOCK
   Start the tape at this block number. In a tape file, the first block is

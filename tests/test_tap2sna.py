@@ -640,6 +640,29 @@ class Tap2SnaTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
+    def test_option_tape_analysis_with_tape_skip(self):
+        blocks = [
+            create_tap_header_block(start=0),
+            create_tap_data_block([1, 2]),
+            create_tap_data_block([3, 4, 5]),
+        ]
+        tapfile = self._write_tap(blocks)
+        output, error = self.run_tap2sna(f'--tape-analysis --tape-skip 2 {tapfile}', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            T-states    EAR  Description
+                     0    0  Tone (8063 x 2168 T-states)
+              17480584    1  Pulse (667 T-states)
+              17481251    0  Pulse (735 T-states)
+              17481986    1  Data (19 bytes; 855,855/1710,1710 T-states)
+              17765846    1  Pause (3500000 T-states)
+              21265846    1  Tone (3223 x 2168 T-states)
+              28253310    0  Pulse (667 T-states)
+              28253977    1  Pulse (735 T-states)
+              28254712    0  Data (5 bytes; 855,855/1710,1710 T-states)
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
     def test_option_tape_analysis_with_first_edge(self):
         blocks = [
             create_tap_header_block(start=0),
@@ -891,6 +914,69 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--tape-name {tap1_fname} --tape-name {tap2_fname} {zipfile}')
         self.assertEqual(error, '')
         self.assertEqual(s_fname, zipfile + '.z80')
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_tape_skip(self):
+        blocks = (
+            create_tap_data_block([1, 2, 3]),
+            create_tap_data_block([4, 5, 6]),
+            create_tap_data_block([7, 8, 9])
+        )
+        tapfile = self._write_tap(blocks)
+        output, error = self.run_tap2sna(f'--tape-skip 2 {tapfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 2)
+        self.assertEqual(blocks[0][2:], list(load_tracer.blocks[0].data))
+        self.assertEqual(blocks[2][2:], list(load_tracer.blocks[1].data))
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_tape_skip_with_range(self):
+        blocks = (
+            create_tap_data_block([1, 2]),
+            create_tap_data_block([3, 4]),
+            create_tap_data_block([5, 6]),
+            create_tap_data_block([7, 8])
+        )
+        tapfile = self._write_tap(blocks)
+        output, error = self.run_tap2sna(f'--tape-skip 2-3 {tapfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 2)
+        self.assertEqual(blocks[0][2:], list(load_tracer.blocks[0].data))
+        self.assertEqual(blocks[3][2:], list(load_tracer.blocks[1].data))
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_tape_skip_with_pzx(self):
+        data_blocks = [create_data_block([i]) for i in range(4)]
+        pzx = PZX()
+        for b in data_blocks:
+            pzx.add_puls()
+            pzx.add_data(b)
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        output, error = self.run_tap2sna(f'--tape-skip 4-7 {pzxfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 4)
+        self.assertIsNone(load_tracer.blocks[0].data)
+        self.assertEqual(data_blocks[0], list(load_tracer.blocks[1].data))
+        self.assertIsNone(load_tracer.blocks[2].data)
+        self.assertEqual(data_blocks[3], list(load_tracer.blocks[3].data))
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_option_tape_skip_with_tzx(self):
+        data_blocks = [[i] for i in range(4)]
+        tzxfile = self._write_tzx(create_tzx_data_block(b) for b in data_blocks)
+        output, error = self.run_tap2sna(f'--tape-skip 2-3 {tzxfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(len(load_tracer.blocks), 2)
+        self.assertEqual([0], list(load_tracer.blocks[0].data[1:-1]))
+        self.assertEqual([3], list(load_tracer.blocks[1].data[1:-1]))
+
+    def test_option_tape_skip_invalid(self):
+        self._test_bad_spec('--tape-skip ?', 'Invalid integer(s): --tape-skip ?')
+        self._test_bad_spec('--tape-skip a-b', 'Invalid integer(s): --tape-skip a-b')
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)

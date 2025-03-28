@@ -701,20 +701,22 @@ def _get_ram(blocks, options):
     _ram_operations(snapshot, options.ram_ops, blocks)
     return snapshot[16384:]
 
-def _get_blocks(tape, start, stop):
+def _get_blocks(tape, start, stop, skip):
     blocks = []
     for block in tape.blocks:
         if block.number >= stop > 0:
             break
+        if block.number in skip:
+            continue
         if block.number >= start:
             blocks.append(block)
     return blocks
 
-def _get_tzx_blocks(data, sim, start, stop, is48):
+def _get_tzx_blocks(data, sim, start, stop, skip, is48):
     tape = parse_tzx(data, info=False, timings=sim)
     blocks = []
     loop = None
-    for block in _get_blocks(tape, start, stop):
+    for block in _get_blocks(tape, start, stop, skip):
         if block.timings and block.timings.error:
             raise TapeError(block.timings.error)
         if sim:
@@ -736,10 +738,10 @@ def _get_tzx_blocks(data, sim, start, stop, is48):
             loop = None
     return tape, blocks
 
-def _get_pzx_blocks(data, sim, start, stop, is48):
+def _get_pzx_blocks(data, sim, start, stop, skip, is48):
     tape = parse_pzx(data)
     blocks = []
-    for block in _get_blocks(tape, start, stop):
+    for block in _get_blocks(tape, start, stop, skip):
         if sim:
             if block.block_id == 'STOP':
                 mode = block.block_data[0]
@@ -748,21 +750,21 @@ def _get_pzx_blocks(data, sim, start, stop, is48):
         blocks.append(block)
     return tape, blocks
 
-def _get_tap_blocks(data, start, stop):
+def _get_tap_blocks(data, start, stop, skip):
     tape = parse_tap(data)
-    return tape, [b for b in _get_blocks(tape, start, stop) if b.data]
+    return tape, [b for b in _get_blocks(tape, start, stop, skip) if b.data]
 
-def _get_tape_blocks(tapes, sim, start, stop, is48):
+def _get_tape_blocks(tapes, sim, start, stop, skip, is48):
     n = 0
     blocks = []
     for name, data in tapes:
         b0, b1 = max(start - n, 1), max(stop - n, 0)
         if name.lower().endswith('.pzx'):
-            tape, tape_blocks = _get_pzx_blocks(data, sim, b0, b1, is48)
+            tape, tape_blocks = _get_pzx_blocks(data, sim, b0, b1, skip, is48)
         elif name.lower().endswith('.tzx'):
-            tape, tape_blocks = _get_tzx_blocks(data, sim, b0, b1, is48)
+            tape, tape_blocks = _get_tzx_blocks(data, sim, b0, b1, skip, is48)
         else:
-            tape, tape_blocks = _get_tap_blocks(data, b0, b1)
+            tape, tape_blocks = _get_tap_blocks(data, b0, b1, skip)
         if tape.blocks:
             last_bn = tape.blocks[-1].number
         else:
@@ -939,7 +941,18 @@ def make_snapshot(urls, options, outfile, config):
         is48 = options.machine == '48'
     else:
         is48 = True
-    tape_blocks = _get_tape_blocks(tapes, options.sim_load, options.tape_start, options.tape_stop, is48)
+    if options.tape_skip:
+        a, sep, b = options.tape_skip.partition('-')
+        try:
+            if sep:
+                tape_skip = range(int(a), int(b) + 1)
+            else:
+                tape_skip = [int(a)]
+        except ValueError:
+            raise SkoolKitError(f'Invalid integer(s): --tape-skip {options.tape_skip}')
+    else:
+        tape_skip = ()
+    tape_blocks = _get_tape_blocks(tapes, options.sim_load, options.tape_start, options.tape_stop, tape_skip, is48)
     if options.sim_load:
         blocks = [block for block in tape_blocks if block.timings]
         if not blocks:
@@ -1010,6 +1023,8 @@ def main(args):
     group.add_argument('--tape-name', metavar='NAME', action='append', default=[],
                        help="Specify the name of a tape file in a zip archive. "
                             "Use this option twice when loading two tape files.")
+    group.add_argument('--tape-skip', metavar='A[-B]',
+                       help="Skip block numbers A-B on the tape.")
     group.add_argument('--tape-start', metavar='BLOCK', type=int, default=1,
                        help="Start the tape at this block number.")
     group.add_argument('--tape-stop', metavar='BLOCK', type=int, default=0,
