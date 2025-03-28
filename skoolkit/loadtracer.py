@@ -79,6 +79,7 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
     data_blocks = []
     tstates = first_edge
     tail = first_edge - 1
+    keys = None
     if analyse:
         analysis = ['T-states    EAR  Description']
     else:
@@ -87,6 +88,7 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
     for i, block in enumerate(blocks):
         timings = block.timings
         data = block.data
+        keys = block.keys or keys
 
         # Pulses
         if timings.pulses:
@@ -144,14 +146,17 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
             if 0 in timings.zero or 0 in timings.one:
                 # This is sample data as opposed to byte values, so ensure it's
                 # not fast-loaded
-                data_blocks.append(DataBlock(data, len(edges) - 1, len(edges) - 1, block.keys, False))
+                data_blocks.append(DataBlock(data, len(edges) - 1, len(edges) - 1, keys, False))
+                keys = None
             else:
-                data_blocks.append(DataBlock(data, start, len(edges) - 1, block.keys))
+                data_blocks.append(DataBlock(data, start, len(edges) - 1, keys))
+                keys = None
         elif timings.data or (i == len(blocks) - 1 and timings.pulses):
             # If this block contains a Direct Recording, or is the last block
             # on the tape and contains pulses but no data, add a data block to
             # ensure that the pulses are read
-            data_blocks.append(DataBlock((), len(edges) - 1, len(edges) - 1, block.keys, False))
+            data_blocks.append(DataBlock((), len(edges) - 1, len(edges) - 1, keys, False))
+            keys = None
 
         # Pause
         if i + 1 < len(blocks) and timings.pause:

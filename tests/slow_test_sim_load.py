@@ -1459,3 +1459,51 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertLessEqual(exp_reg, set(options.reg))
         self.assertEqual(snapshot[32768], 255)
         self.assertEqual(snapshot[49152], 1)
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_option_press_with_pzx_file(self):
+        basic_data = [
+            0, 10,                # Line 10
+            21, 0,                # Line length
+            234,                  # REM
+            62, 251,              # 23760 LD A,251
+            219, 254,             # 23762 IN A,(254)  ; Read keys q-w-e-r-t
+            31,                   # 23764 RRA         ; Is 'q' being pressed?
+            56, 249,              # 23765 JR C,23760  ; Jump back if not
+            221, 33, 0, 192,      # 23767 LD IX,49152
+            17, 1, 0,             # 23771 LD DE,1
+            55,                   # 23774 SCF
+            159,                  # 23775 SBC A,A
+            195, 86, 5,           # 23776 JP 1366
+            13,                   # ENTER
+            0, 20,                # Line 20
+            10, 0,                # Line length
+            249, 192, 46,         # RANDOMIZE USR .
+            14, 0, 0, 208, 92, 0, # 23760
+            13                    # ENTER
+        ]
+        header_block = create_header_block("simloadbas", 20, len(basic_data), 0)
+        pzx = PZX()
+        pzx.add_puls()                              # Block 2
+        pzx.add_data(header_block)                  # Block 3
+        pzx.add_puls()                              # Block 4
+        pzx.add_data(create_data_block(basic_data)) # Block 5
+        pzx.add_puls()                              # Block 6
+        pzx.add_data(create_data_block([128]))      # Block 7
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,39',
+            'Tape paused',
+            'Pressing keys: q',
+            'Resuming LOAD',
+            'Fast loading data block: 49152,1',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=1343'
+        ]
+        output, error = self.run_tap2sna(f'--press 6:q --start 1343 -c finish-tape=1 {pzxfile} out.z80')
+        self.assertEqual(exp_out_lines, output.strip().split('\n'))
+        self.assertEqual(error, '')
+        exp_reg = set(('SP=65344', 'IX=49153', 'IY=23610', 'PC=1343'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+        self.assertEqual(snapshot[49152], 128)
