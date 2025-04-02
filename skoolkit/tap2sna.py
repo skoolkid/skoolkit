@@ -743,7 +743,7 @@ def _get_pzx_blocks(data, sim, start, stop, skip, is48):
     blocks = []
     for block in _get_blocks(tape, start, stop, skip):
         if sim:
-            if block.block_id == 'STOP':
+            if block.block_id == 'STOP' and stop == 0:
                 mode = block.block_data[0]
                 if mode != 1 or is48:
                     break

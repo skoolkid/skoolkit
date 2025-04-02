@@ -18,6 +18,8 @@ Changelog
   :ref:`accelerators <tap2sna-accelerators>`
 * Removed the ``dinaload``, ``gremlin2``, ``housenka``, ``suzy-soft`` and
   ``suzy-soft2`` tape-sampling loop accelerators
+* Fixed how :ref:`tap2sna.py` handles ``--tape-stop`` for PZX files that
+  contain STOP blocks
 
 9.5 (2025-01-28)
 ----------------

@@ -1507,3 +1507,91 @@ class SimLoadTest(SkoolKitTestCase):
         exp_reg = set(('SP=65344', 'IX=49153', 'IY=23610', 'PC=1343'))
         self.assertLessEqual(exp_reg, set(options.reg))
         self.assertEqual(snapshot[49152], 128)
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_tape_stop_option_overrides_stop_block(self):
+        basic_data = [
+            0, 10,                # Line 10
+            14, 0,                # Line length
+            234,                  # REM
+            221, 33, 0, 192,      # 23760 LD IX,49152
+            17, 1, 0,             # 23764 LD DE,1
+            55,                   # 23767 SCF
+            159,                  # 23768 SBC A,A
+            195, 86, 5,           # 23769 JP 1366
+            13,                   # ENTER
+            0, 20,                # Line 20
+            10, 0,                # Line length
+            249, 192, 46,         # RANDOMIZE USR .
+            14, 0, 0, 208, 92, 0, # 23760
+            13                    # ENTER
+        ]
+        header_block = create_header_block("simloadbas", 20, len(basic_data), 0)
+        pzx = PZX()
+        pzx.add_puls()                              # Block 2
+        pzx.add_data(header_block)                  # Block 3
+        pzx.add_puls()                              # Block 4
+        pzx.add_data(create_data_block(basic_data)) # Block 5
+        pzx.add_stop()                              # Block 6
+        pzx.add_puls()                              # Block 7
+        pzx.add_data(create_data_block([85]))       # Block 8
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+
+        exp_data = (
+            (basic_data, 23755),
+            ([85], 49152)
+        )
+        exp_reg = {'SP=65344', f'IX=49153', 'IY=23610', 'PC=1343'}
+        exp_output = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,32',
+            'Fast loading data block: 49152,1',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=1343'
+        ]
+        args = f'--tape-stop 9 --start 1343 -c finish-tape=1 {pzxfile} out.z80'
+        self._test_sim_load(args, exp_data, exp_reg, exp_output)
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_tape_stop_option_overrides_stop_block_48k(self):
+        basic_data = [
+            0, 10,                # Line 10
+            14, 0,                # Line length
+            234,                  # REM
+            221, 33, 255, 255,    # 23760 LD IX,65535
+            17, 1, 0,             # 23764 LD DE,1
+            55,                   # 23767 SCF
+            159,                  # 23768 SBC A,A
+            195, 86, 5,           # 23769 JP 1366
+            13,                   # ENTER
+            0, 20,                # Line 20
+            10, 0,                # Line length
+            249, 192, 46,         # RANDOMIZE USR .
+            14, 0, 0, 208, 92, 0, # 23760
+            13                    # ENTER
+        ]
+        header_block = create_header_block("simloadbas", 20, len(basic_data), 0)
+        pzx = PZX()
+        pzx.add_puls()                              # Block 2
+        pzx.add_data(header_block)                  # Block 3
+        pzx.add_puls()                              # Block 4
+        pzx.add_data(create_data_block(basic_data)) # Block 5
+        pzx.add_stop(False)                         # Block 6
+        pzx.add_puls()                              # Block 7
+        pzx.add_data(create_data_block([170]))      # Block 8
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+
+        exp_data = (
+            (basic_data, 23755),
+            ([170], 65535)
+        )
+        exp_reg = {'SP=65344', f'IX=0', 'IY=23610', 'PC=1343'}
+        exp_output = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,32',
+            'Fast loading data block: 65535,1',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=1343'
+        ]
+        args = f'--tape-stop 9 --start 1343 -c finish-tape=1 {pzxfile} out.z80'
+        self._test_sim_load(args, exp_data, exp_reg, exp_output)
