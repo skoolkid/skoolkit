@@ -1,4 +1,4 @@
-# Copyright 2017-2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2017-2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -135,6 +135,7 @@ COMMANDS = {
     },
     'trace': {
         'PNGScale': (2, ''),
+        'Screen': (0, 'screen'),
         'ScreenFps': (50, ''),
         'ScreenScale': (2, ''),
         'TraceLine': ("${pc:04X} {i}", ''),

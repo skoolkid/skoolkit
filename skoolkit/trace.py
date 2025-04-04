@@ -389,7 +389,7 @@ def main(args):
                        help='Start execution at this address.')
     group.add_argument('-S', '--stop', metavar='ADDR', type=integer,
                        help='Stop execution at this address.')
-    group.add_argument('--screen', dest='screen', action='store_true',
+    group.add_argument('--screen', dest='screen', action='store_const', const=1, default=config['Screen'],
                        help="Display screen contents and respond to keypresses while running.")
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute before execution begins. Do '--state help' for more information. "

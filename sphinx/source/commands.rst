@@ -2172,10 +2172,11 @@ current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
 * ``PNGScale`` - the PNG image scale factor (default: ``2``)
-* ``ScreenFps`` - frames per second to display when ``--screen`` is used
-  (default: ``50``); if set to 0, `trace.py` runs at maximum speed
-* ``ScreenScale`` - screen scale factor when ``--screen`` is used (default:
-  ``2``)
+* ``Screen`` - display screen contents while running (``1``), or don't (``0``,
+  the default)
+* ``ScreenFps`` - screen refresh rate in frames per second (default: ``50``);
+  if set to 0, `trace.py` runs at maximum speed
+* ``ScreenScale`` - screen scale factor (default: ``2``)
 * ``TraceLine`` - the format of each instruction line when ``-v`` is used
   (default: ``${pc:04X} {i}``)
 * ``TraceLine2`` - the format of each instruction line when ``-vv`` is used
@@ -2229,6 +2230,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.6     | Added the ``Screen`` configuration parameter                      |
++---------+-------------------------------------------------------------------+
 | 9.5     | Responds to keypresses while the screen is displayed; added the   |
 |         | ``--map`` option                                                  |
 +---------+-------------------------------------------------------------------+

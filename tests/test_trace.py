@@ -1755,6 +1755,7 @@ class TraceTest(SkoolKitTestCase):
         exp_output = (
             "[trace]\n"
             "PNGScale=2\n"
+            "Screen=0\n"
             "ScreenFps=50\n"
             "ScreenScale=2\n"
             "TraceLine=${pc:04X} {i}\n"
@@ -1782,6 +1783,7 @@ class TraceTest(SkoolKitTestCase):
         exp_output = """
             [trace]
             PNGScale=2
+            Screen=0
             ScreenFps=50
             ScreenScale=2
             TraceLine=${pc:04X} {i}
@@ -2163,6 +2165,65 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(len(udgs), 24)
         self.assertEqual(len(udgs[0]), 32)
         self.assertEqual(udgs[0][0].attr, 2)
+
+    @patch.object(trace, 'pygame', True)
+    @patch.object(trace, 'Screen', MockScreen)
+    def test_config_Screen_read_from_file(self):
+        ini = """
+            [trace]
+            Screen=1
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        data = (
+            0x00, # $8000 NOP ; T=69886 (screen draw follows)
+            0x00, # $8001 NOP ; T=69890
+        )
+        start = 0x8000
+        stop = start + len(data)
+        ram = [0] * 49152
+        ram[0] = 55
+        ram[start - 0x4000:stop - 0x4000] = data
+        registers = {'PC': start, 'tstates': 69886}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} {z80file}')
+        self.assertEqual(error, '')
+        exp_output = f"""
+            Using pygame
+            Stopped at ${stop:04X}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(screen.scale, 2)
+        self.assertEqual(screen.fps, 50)
+        self.assertEqual(screen.caption, 'trace.py')
+        self.assertEqual(screen.scr[0], 55)
+        self.assertEqual(screen.frame, 1)
+
+    @patch.object(trace, 'pygame', True)
+    @patch.object(trace, 'Screen', MockScreen)
+    def test_config_Screen_set_on_command_line(self):
+        data = (
+            0x00, # $A000 NOP ; T=69886 (screen draw follows)
+            0x00, # $A001 NOP ; T=69890
+        )
+        start = 0xA000
+        stop = start + len(data)
+        ram = [0] * 49152
+        ram[0] = 72
+        ram[start - 0x4000:stop - 0x4000] = data
+        registers = {'PC': start, 'tstates': 69886}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-I Screen=1 -S {stop} {z80file}')
+        self.assertEqual(error, '')
+        exp_output = f"""
+            Using pygame
+            Stopped at ${stop:04X}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(screen.scale, 2)
+        self.assertEqual(screen.fps, 50)
+        self.assertEqual(screen.caption, 'trace.py')
+        self.assertEqual(screen.scr[0], 72)
+        self.assertEqual(screen.frame, 1)
 
     @patch.object(trace, 'pygame', True)
     @patch.object(trace, 'Screen', MockScreen)
