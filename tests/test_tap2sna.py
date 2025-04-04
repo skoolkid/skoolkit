@@ -1348,6 +1348,47 @@ class Tap2SnaTest(SkoolKitTestCase):
         self._test_bad_spec('--ram load=1,abcde', 'Invalid integer in load spec: 1,abcde')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_ram_patch(self):
+        start = 16384
+        data = [4, 5, 6]
+        patch = [21, 22]
+        patchfile = self.write_bin_file(patch)
+        exp_data = patch + data[len(patch):]
+        self._load_tape(start, data, f'--ram patch={start},{patchfile}')
+        self.assertEqual(exp_data, snapshot[start:start + len(data)])
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_ram_patch_with_page_number(self):
+        data = [0]
+        basic_data = [
+            0, 10,  # Line 10
+            2, 0,   # Line length
+            234,    # REM
+            13      # ENTER
+        ]
+        tapfile = self._write_tap((
+            create_tap_header_block('basicprog', 10, len(basic_data), 0),
+            create_tap_data_block(basic_data)
+        ))
+        patches = (
+            (0, 0x0000, [255, 7]),
+            (1, 0x4000, [254, 33]),
+            (2, 0x8000, [253, 14]),
+            (3, 0xC000, [252, 8]),
+            (4, 0x3FFF, [251]),
+            (5, 0x7FFE, [250, 44]),
+            (6, 0xBFFF, [249]),
+            (7, 0xFFFF, [248]),
+        )
+        patch_opts= ' '.join(f'--ram patch={p}:{a},{self.write_bin_file(d)}' for p, a, d in patches)
+        output, error = self.run_tap2sna(f'-c machine=128 {patch_opts} {tapfile} out.z80')
+        self.assertTrue(output.endswith(f'\nWriting out.z80\n'))
+        self.assertEqual(error, '')
+        for p, a, d in patches:
+            addr = a % 0x4000
+            self.assertEqual(d, s_banks[p][addr:addr + len(d)])
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_ram_poke_single_address(self):
         start = 16384
         data = [4, 5, 6]
@@ -2471,6 +2512,32 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual([4, 5, 4, 5], snapshot[32768:32772])
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        self.assertLessEqual(exp_reg, set(s_reg))
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_sim_load_with_ram_patch(self):
+        code_start = 32768
+        code = [255, 128, 1]
+        tapfile = self._write_tap((
+            create_tap_header_block('simloadbyt', code_start, len(code)),
+            create_tap_data_block(code)
+        ))
+        patch = [54, 33]
+        patchfile = self.write_bin_file(patch)
+        exp_data = patch + code[len(patch):]
+        output, error = self.run_tap2sna(f'--ram patch={code_start},{patchfile} --start 1343 -c finish-tape=1 {tapfile} out.z80')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,3',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=1343',
+            'Writing out.z80'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(exp_data, snapshot[code_start:code_start + len(exp_data)])
+        exp_reg = set(('SP=65360', 'IX=32771', 'IY=23610', 'PC=1343'))
         self.assertLessEqual(exp_reg, set(s_reg))
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)

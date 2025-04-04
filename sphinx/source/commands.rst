@@ -1631,10 +1631,11 @@ blocks. (To see information on the blocks in a tape file, use the
 :ref:`tapinfo.py` command.)
 
 The ``--ram`` option can also be used to move blocks of bytes from one location
-to another, POKE values into individual addresses or address ranges, modify
-memory with XOR and ADD operations, initialise the system variables, or call a
-Python function to modify the memory snapshot in an arbitrary way before it is
-saved. For more information on these operations, run::
+to another, apply a binary patch file, POKE values into individual addresses or
+address ranges, modify memory with XOR and ADD operations, initialise the
+system variables, or call a Python function to modify the memory snapshot in an
+arbitrary way before it is saved. For more information on these operations,
+run::
 
   $ tap2sna.py --ram help
 
@@ -1945,7 +1946,8 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.6     | Added the ability to load from two tape files; added the          |
-|         | ``--press`` and ``--tape-skip`` options; changed the default      |
+|         | ``--press`` and ``--tape-skip`` options; added support to the     |
+|         | ``--ram`` option for the ``patch`` operation; changed the default |
 |         | value of the ``accelerate-dec-a`` simulated LOAD configuration    |
 |         | parameter from ``1`` to ``3``; added the ``activision``,          |
 |         | ``alternative3``, ``audiogenic-0``, ``audiogenic-1``,             |

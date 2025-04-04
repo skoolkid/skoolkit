@@ -9,6 +9,8 @@ Changelog
   :ref:`simulating keypresses <tap2sna-user-input>` before resuming)
 * Added the ``--tape-skip`` option to :ref:`tap2sna.py` (for skipping one or
   more blocks on a tape)
+* Added support to the ``--ram`` option of :ref:`tap2sna.py` for the ``patch``
+  operation (for applying a binary patch file)
 * Changed the default value of the ``accelerate-dec-a`` simulated LOAD
   configuration parameter for :ref:`tap2sna.py <tap2sna-sim-load>` from ``1``
   to ``3``

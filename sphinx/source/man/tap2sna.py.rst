@@ -45,8 +45,8 @@ OPTIONS
 --ram OPERATION
   Perform a load operation or otherwise modify the memory snapshot being built.
   Do ``--ram help`` for more information, or see the sections on the ``CALL``,
-  ``LOAD``, ``MOVE``, ``POKE`` and ``SYSVARS`` operations below. This option
-  may be used multiple times.
+  ``LOAD``, ``MOVE``, ``PATCH``, ``POKE`` and ``SYSVARS`` operations below.
+  This option may be used multiple times.
 
 --reg `name=value`
   Set the value of a register. Do ``--reg help`` for more information, or see
@@ -372,8 +372,23 @@ This copies a block of ``N`` bytes from ``src`` in RAM bank ``s`` to ``dest``
 in RAM bank ``d``. For example:
 
 |
-|  ``--ram move=32512,256,32768``  # Copy 32512-32767 to 32768-33023
-|  ``--ram move=3:0,8,4:0``        # Copy the first 8 bytes of bank 3 to bank 4
+|  ``--ram move=32512,256,32768`` # Copy 32512-32767 to 32768-33023
+|  ``--ram move=3:0,8,4:0``       # Copy the first 8 bytes of bank 3 to bank 4
+
+PATCH OPERATIONS
+================
+The ``--ram`` option can be used to apply a binary patch file to the snapshot
+before saving it.
+
+|
+|  ``--ram patch=[p:]a,file``
+
+This applies the named binary patch file at address ``a`` in RAM bank ``p``.
+For example:
+
+|
+|  ``--ram patch=32768,patch.bin`` # Apply patch.bin at 32768
+|  ``--ram patch=1:256,patch.bin`` # Apply patch.bin at 256 in RAM bank 1
 
 POKE OPERATIONS
 ===============

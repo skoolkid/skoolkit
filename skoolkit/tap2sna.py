@@ -34,7 +34,8 @@ from skoolkit.loadtracer import LoadTracer, get_edges
 from skoolkit.pagingtracer import Memory
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import FRAME_DURATIONS, INT_ACTIVE, PC, T, get_state
-from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_snapshot
+from skoolkit.snapshot import (move, patch, poke, print_reg_help,
+                               print_state_help, write_snapshot)
 from skoolkit.tape import parse_pzx, parse_tap, parse_tzx
 
 SUPPORTED_TAPES = ('.pzx', '.tap', '.tzx')
@@ -395,6 +396,8 @@ def _ram_operations(snapshot, ram_ops, blocks=None):
                 _load(snapshot, counters, blocks, param_str)
         elif op_type == 'move':
             move(snapshot, param_str)
+        elif op_type == 'patch':
+            patch(snapshot, param_str)
         elif op_type == 'poke':
             poke(snapshot, param_str)
         elif op_type == 'sysvars':
@@ -822,13 +825,14 @@ def _print_ram_help():
 Usage: --ram call=[/path/to/moduledir:]module.function
        --ram load=[+]block[+],start[,length,step,offset,inc]
        --ram move=[s:]src,size,[d:]dest
+       --ram patch=[p:]a,file
        --ram poke=[p:]a[-b[-c]],[^+]v
        --ram sysvars
 
 Load data from a tape block, copy a block of bytes from one location to
-another, POKE a single address or range of addresses with a given value,
-initialise the system variables, or call a Python function to modify the memory
-snapshot in an arbitrary way.
+another, apply a binary patch file, POKE a single address or range of addresses
+with a given value, initialise the system variables, or call a Python function
+to modify the memory snapshot in an arbitrary way.
 
 --ram call=[/path/to/moduledir:]module.function
 
@@ -884,6 +888,19 @@ snapshot in an arbitrary way.
 
   --ram move=32512,256,32768  # Copy 32512-32767 to 32768-33023
   --ram move=3:0,8,4:0        # Copy the first 8 bytes of bank 3 to bank 4
+
+--ram patch=[p:]a,file
+
+  Apply a binary patch file.
+
+  p    - the RAM bank in which to apply the patch (0-7; 128K only)
+  a    - the address at which to apply the patch
+  file - the name of the binary patch file
+
+  For example:
+
+  --ram patch=32768,patch.bin # Apply patch.bin at address 32768
+  --ram patch=1:256,patch.bin # Apply patch.bin at address 256 in RAM bank 1
 
 --ram poke=[p:]a[-b[-c]],[^+]v
 
