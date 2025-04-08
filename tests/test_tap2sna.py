@@ -1386,7 +1386,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         for p, a, d in patches:
             addr = a % 0x4000
-            self.assertEqual(d, s_banks[p][addr:addr + len(d)])
+            self.assertEqual(d, list(s_banks[p][addr:addr + len(d)]))
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_ram_poke_single_address(self):
