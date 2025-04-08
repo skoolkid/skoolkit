@@ -752,7 +752,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         pzx.add_puls(pulse_counts=((5000, 2168), (1, 430), (1, 870)))
         pzx.add_data((11, 12, 13, 14, 15), (570, 570), (1050, 1050), tail=0, used_bits=5, polarity=0)
         pzx.add_puls(pulse_counts=((2000, 1234), (2, 500), (1, 1000)))
-        pzx.add_data((16, 17, 18, 19, 20), (80, 0), (0, 80), tail=0)
+        pzx.add_data((255, 0, 255, 0, 254), (80, 0), (0, 80), tail=0)
         pzx.add_puls(pulses=(0, 1000, 1000, 1000))
         pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
         output, error = self.run_tap2sna(f'--tape-analysis {pzxfile}', catch_exit=0)

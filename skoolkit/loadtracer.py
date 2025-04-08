@@ -119,20 +119,26 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
                 one = ','.join(str(d) for d in timings.one)
                 analysis.append(f'{tstates:>10}  {ear:>3}  Data ({data_len} bytes{bits}; {zero}/{one} T-states)')
             start = len(edges) - 1
-            for k, b in enumerate(data, 1):
-                if k < len(data):
-                    num_bits = 8
-                else:
-                    num_bits = timings.used_bits
-                for j in range(num_bits):
-                    if b & 0x80:
-                        durations = timings.one
-                    else:
-                        durations = timings.zero
-                    for d in durations:
-                        tstates += d
-                        edges.append(tstates)
-                    b *= 2
+            if 0 in timings.zero and 0 in timings.one and sum(timings.zero) == sum(timings.one):
+                # This is sample data as opposed to byte values, so an edge
+                # is the transition between a 0-bit and a 1-bit (or vice versa)
+                sample_t = sum(timings.zero)
+                prev_bit = data[0] & 0x80
+                for k, b in enumerate(data, 1):
+                    for j in range(8 if k < len(data) else timings.used_bits):
+                        if b & 0x80 != prev_bit:
+                            edges.append(tstates)
+                            prev_bit ^= 0x80
+                        tstates += sample_t
+                        b *= 2
+                edges.append(tstates)
+            else:
+                for k, b in enumerate(data, 1):
+                    for j in range(8 if k < len(data) else timings.used_bits):
+                        for d in timings.one if b & 0x80 else timings.zero:
+                            tstates += d
+                            edges.append(tstates)
+                        b *= 2
 
             # Tail pulse
             if timings.tail:
