@@ -555,8 +555,8 @@ class Sna2CtlTest(SkoolKitTestCase):
         ]
         exp_ctl = """
             c 65534
-              65534 #REGa=0
-              65535 Return
+              65534,1 #REGa=0
+              65535,1 Return
         """
         self._test_generation(data, exp_ctl, options='-I Comments=1')
 
@@ -791,15 +791,15 @@ class Sna2CtlTest(SkoolKitTestCase):
         ]
         exp_ctl = """
             c 65523
-              65523 #REGa=0
-              65524 #REGc=#REGa
-              65525 OUT #N(254,2,,1)($),#REGa
-              65527 Flip bit 4 of #REGa
-              65529 #REGb=#REGc
-              65530 Decrement #REGb and jump to #R65530 if #REGb>0
-              65532 #REGc=#REGc-1
-              65533 Jump to #R65525 if #REGc>0
-              65535 Return
+              65523,1 #REGa=0
+              65524,1 #REGc=#REGa
+              65525,2 OUT #N(254,2,,1)($),#REGa
+              65527,2 Flip bit 4 of #REGa
+              65529,1 #REGb=#REGc
+              65530,2 Decrement #REGb and jump to #R65530 if #REGb>0
+              65532,1 #REGc=#REGc-1
+              65533,2 Jump to #R65525 if #REGc>0
+              65535,1 Return
         """
         self._test_generation(data, exp_ctl, options='-C')
 
@@ -810,8 +810,8 @@ class Sna2CtlTest(SkoolKitTestCase):
         ]
         exp_ctl = """
             c $FFFE
-              $FFFE #REGa=0
-              $FFFF Return
+              $FFFE,1 #REGa=0
+              $FFFF,1 Return
         """
         self._test_generation(data, exp_ctl, options='-C -h')
 
@@ -822,8 +822,8 @@ class Sna2CtlTest(SkoolKitTestCase):
         ]
         exp_ctl = """
             c $fffe
-              $fffe #REGa=0
-              $ffff Return
+              $fffe,1 #REGa=0
+              $ffff,1 Return
         """
         self._test_generation(data, exp_ctl, options='-C -h -l')
 
@@ -844,18 +844,193 @@ class Sna2CtlTest(SkoolKitTestCase):
         ]
         exp_ctl = """
             c 65526
-              65526 $FFF6: 010000
-              65529 $FFF9: 110100
-              65532 $FFFC: 210200
-              65535 $FFFF: C9
+              65526,3 $FFF6: 010000
+              65529,3 $FFF9: 110100
+              65532,3 $FFFC: 210200
+              65535,1 $FFFF: C9
         """
         self._test_generation(data, exp_ctl, options='--comments')
+
+    def test_ctl_post_processor_with_default_config(self):
+        data = [
+            199, # 65519 RST 0
+            120, # 65520 LD A,B
+            207, # 65521 RST 8
+            121, # 65522 LD A,C
+            215, # 65523 RST 16
+            122, # 65524 LD A,D
+            223, # 65525 RST 24
+            123, # 65526 LD A,E
+            231, # 65527 RST 32
+            124, # 65528 LD A,H
+            239, # 65529 RST 40
+            125, # 65530 LD A,L
+            247, # 65531 RST 48
+            120, # 65532 LD A,B
+            255, # 65533 RST 56
+            121, # 65534 LD A,C
+            201, # 65535 RET
+        ]
+        exp_ctl = """
+            c 65519
+            B 65522,1
+        """
+        self._test_generation(data, exp_ctl, options='--process-ctls')
+
+    def test_ctl_post_processor_with_custom_config(self):
+        ini = """
+            [skoolkit.rst.RSTHandler]
+            RST00=DEFB
+            RST08=DEFW
+            RST10=DEFB
+            RST18=DEFW
+            RST20=DEFB
+            RST28=DEFW
+            RST30=DEFB
+            RST38=DEFW
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        data = [
+            199,   # 65515 RST 0
+            120,   # 65516 LD A,B
+            207,   # 65517 RST 8
+            62, 0, # 65518 LD A,0
+            215,   # 65520 RST 16
+            121,   # 65521 LD A,C
+            223,   # 65522 RST 24
+            62, 1, # 65523 LD A,1
+            231,   # 65525 RST 32
+            122,   # 65526 LD A,D
+            239,   # 65527 RST 40
+            62, 2, # 65528 LD A,2
+            247,   # 65530 RST 48
+            123,   # 65531 LD A,E
+            255,   # 65532 RST 56
+            62, 3, # 65533 LD A,3
+            201,   # 65535 RET
+        ]
+        exp_ctl = """
+            c 65515
+            B 65516,1
+            W 65518,2
+            B 65521,1
+            W 65523,2
+            B 65526,1
+            W 65528,2
+            B 65531,1
+            W 65533,2
+        """
+        self._test_generation(data, exp_ctl, options='-P')
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_ctl_post_processor(self):
+        custom_cpp = """
+            class CustomCtlPostProcessor:
+                def __init__(self, config):
+                    pass
+                def process_ctls(self, ctls, subctls, snapshot):
+                    subctls[min(ctls) + 1] = ['C', 1, None, None]
+        """
+        self.write_component_config('CtlPostProcessors', '*.CustomCtlPostProcessor', custom_cpp)
+        data = [120, 201]
+        exp_ctl = """
+            c 65534
+              65535,1
+        """
+        self._test_generation(data, exp_ctl, options='--process-ctls')
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_ctl_post_processor_with_config(self):
+        custom_cpp = """
+            class CustomCtlPostProcessor:
+                def __init__(self, config):
+                    self.ctl = config['CTL']
+                def process_ctls(self, ctls, subctls, snapshot):
+                    subctls[min(ctls) + 1] = [self.ctl, 1, None, None]
+        """
+        self.write_component_config('CtlPostProcessors', '*.CustomCtlPostProcessor', custom_cpp, "CTL=B")
+        data = [120, 201]
+        exp_ctl = """
+            c 65534
+            B 65535,1
+        """
+        self._test_generation(data, exp_ctl, options='-P')
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_ctl_post_processor_without_constructor(self):
+        custom_cpp = """
+            def process_ctls(ctls, subctls, snapshot):
+                for a in list(ctls):
+                    ctls[min(ctls)] = 'w'
+        """
+        self.write_component_config('CtlPostProcessors', '*', custom_cpp)
+        data = [120, 121]
+        exp_ctl = "w 65534"
+        self._test_generation(data, exp_ctl, options='--process-ctls')
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_two_custom_ctl_post_processors(self):
+        custom_cpps = """
+            class CustomCtlPostProcessor1:
+                def __init__(self, config):
+                    pass
+                def process_ctls(self, ctls, subctls, snapshot):
+                    ctls[min(ctls)] = 'u'
+
+            class CustomCtlPostProcessor2:
+                def __init__(self, config):
+                    pass
+                def process_ctls(self, ctls, subctls, snapshot):
+                    a = min(ctls)
+                    subctls[a + 1] = ['B', 1, None, 'A byte']
+                    subctls[a + 2] = ['T', 2, ['1:1'], 'Two letters']
+        """
+        self.write_component_config('CtlPostProcessors', '*.CustomCtlPostProcessor1;*.CustomCtlPostProcessor2', custom_cpps)
+        data = [120, 169, 130, 201]
+        exp_ctl = """
+            u 65532
+            B 65533,1 A byte
+            T 65534,2,1:1 Two letters
+        """
+        self._test_generation(data, exp_ctl, options='--process-ctls')
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_ctl_post_processor_with_comment_generator(self):
+        custom_cpp = """
+            def process_ctls(ctls, subctls, snapshot):
+                for a in list(ctls):
+                    if a == 65529:
+                        ctls[a] = 'b'
+                        subctls[a + 2] = ['C', 1, None, None]
+                    elif a == 65532:
+                        ctls[a] = 'w'
+                        subctls[a + 2] = ['C', 1, None, None]
+                        subctls[a + 3] = ['C', 1, None, None]
+        """
+        self.write_component_config('CtlPostProcessors', '*', custom_cpp)
+        data = [
+            120, # 65529 LD A,B
+            169, # 65530 XOR C
+            201, # 65531 RET
+            121, # 65532 LD A,C
+            122, # 65533 LD A,D
+            123, # 65534 LD A,E
+            124, # 65535 LD A,H
+        ]
+        exp_ctl = """
+            b 65529
+            C 65531,1 Return
+            w 65532
+            C 65534,1 #REGa=#REGe
+            C 65535,1 #REGa=#REGh
+        """
+        self._test_generation(data, exp_ctl, options='-PC')
 
     @patch.object(sna2ctl, 'run', mock_run)
     @patch.object(sna2ctl, 'get_config', mock_config)
     def test_option_C(self):
-        for options in ('-C', '--comments'):
-            self.run_sna2ctl('-C test-C.sna')
+        for option in ('-C', '--comments'):
+            self.run_sna2ctl(f'{option} test-C.sna')
             options, config = run_args[1:]
             self.assertTrue(options.comments)
 
@@ -1091,6 +1266,14 @@ class Sna2CtlTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             page = make_snapshot_args[4]
             self.assertEqual(page, exp_page)
+
+    @patch.object(sna2ctl, 'run', mock_run)
+    @patch.object(sna2ctl, 'get_config', mock_config)
+    def test_option_P(self):
+        for option in ('-P', '--process-ctls'):
+            self.run_sna2ctl(f'{option} test-C.sna')
+            options, config = run_args[1:]
+            self.assertTrue(options.process_ctls)
 
     @patch.object(sna2ctl, 'get_config', mock_config)
     def test_option_show_config(self):

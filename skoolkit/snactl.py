@@ -14,11 +14,12 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import bisect
 import sys
 import os
 
-from skoolkit import SkoolKitError, open_file, read_bin_file, write_line, get_address_format
-from skoolkit.components import get_comment_generator, get_component
+from skoolkit import SkoolKitError, get_object, open_file, read_bin_file, write_line, get_address_format
+from skoolkit.components import get_comment_generator, get_component, get_config, get_value
 from skoolkit.ctlparser import CtlParser
 from skoolkit.opcodes import END, decode
 from skoolkit.skoolctl import AD_ORG, AD_START
@@ -418,28 +419,79 @@ def _generate_ctls_without_code_map(snapshot, start, end, config):
 
     return ctls
 
-def _generate_comments(snapshot, ctls, comments):
+def _get_ctl_processors():
+    processors = []
+    for cname in get_value('CtlPostProcessors').split(';'):
+        obj = get_object(cname)
+        if callable(obj):
+            obj = obj(get_config(cname))
+        processors.append(obj)
+    return processors
+
+def _generate_comments(ctls, subctls, snapshot):
     cg = get_comment_generator()
+    for start, end, contents in get_entries(ctls, subctls, snapshot):
+        for addr, subctl, length, sublengths, comment in contents:
+            if subctl == 'C' and len(list(decode(snapshot, addr, addr + length))) == 1:
+                comment = cg.get_comment(Instruction(addr, snapshot[addr:addr + length]))
+                subctls.setdefault(addr, ['C', length, None, None])[3] = comment
+
+def get_entries(ctls, subctls, snapshot=None):
+    entries = []
+    subctl_addrs = sorted(subctls)
     blocks = [(a, ctls[a]) for a in sorted(ctls) if a < 65536] + [(65536, '')]
     for i in range(len(blocks) - 1):
-        start, ctl = blocks[i]
-        if ctl == 'c':
-            comments[start] = []
-            for a, size, mc, op_id, op in decode(snapshot, start, blocks[i + 1][0]):
-                comments[start].append((a, cg.get_comment(Instruction(a, snapshot[a:a + size]))))
+        addr = blocks[i][0]
+        def_subctl = blocks[i][1].upper()
+        end = blocks[i + 1][0]
+        expanded = []
+        entries.append((addr, end, expanded))
+        if def_subctl == 'I':
+            continue
+        if def_subctl not in 'BCSTW':
+            def_subctl = 'B'
+        while addr < end:
+            if addr in subctls:
+                subctl, length, sublengths, comment = subctls[addr]
+            elif snapshot:
+                subctl, length, sublengths, comment = def_subctl, 1, None, None
+                if subctl == 'C':
+                    length = list(decode(snapshot, addr, addr + 1))[0][1]
+                elif subctl == 'W':
+                    length = 2
+            else:
+                index = bisect.bisect(subctl_addrs, addr)
+                if index >= len(subctl_addrs):
+                    break
+                addr = subctl_addrs[index]
+                continue
+            expanded.append((addr, subctl, length, sublengths, comment))
+            addr += length
+    return entries
 
 def write_ctl(ctls, snapshot, options):
-    comments = {}
+    subctls = {}
+    if options.process_ctls:
+        for processor in _get_ctl_processors():
+            processor.process_ctls(ctls, subctls, snapshot)
     if options.comments:
-        _generate_comments(snapshot, ctls, comments)
+        _generate_comments(ctls, subctls, snapshot)
     addr_fmt = get_address_format(options.ctl_hex, options.ctl_hex == 1)
     start = addr_fmt.format(min(ctls))
     write_line('@ {} {}'.format(start, AD_START))
     write_line('@ {} {}'.format(start, AD_ORG))
-    for address in [a for a in sorted(ctls) if a < 65536]:
-        write_line('{} {}'.format(ctls[address], addr_fmt.format(address)))
-        for addr, comment in comments.get(address, ()):
-            write_line('  {} {}'.format(addr_fmt.format(addr), comment))
+    for start, end, contents in get_entries(ctls, subctls):
+        ctl = ctls[start]
+        write_line('{} {}'.format(ctl, addr_fmt.format(start)))
+        for addr, subctl, length, sublengths, comment in contents:
+            if subctl == ctl.upper():
+                subctl = ' '
+            line = '{} {},{}'.format(subctl, addr_fmt.format(addr), length)
+            if sublengths:
+                line += ',' + ','.join(str(s) for s in sublengths)
+            if comment:
+                line += f' {comment}'
+            write_line(line)
 
 # Component API
 def generate_ctls(snapshot, start, end, code_map, config):
