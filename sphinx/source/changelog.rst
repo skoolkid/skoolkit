@@ -22,10 +22,6 @@ Changelog
   ``suzy-soft2`` tape-sampling loop accelerators
 * Added the ``Screen`` configuration parameter for :ref:`trace.py <trace-conf>`
   (to specify whether to display screen contents)
-* Added support for
-  :ref:`control directive post-processors <ctlPostProcessors>`
-* Added the ``--process-ctls`` option to :ref:`sna2ctl.py` (for running control
-  directives through post-processors)
 * Fixed how :ref:`tap2sna.py` handles ``--tape-stop`` for PZX files that
   contain STOP blocks
 

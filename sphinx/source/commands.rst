@@ -935,7 +935,6 @@ skool file split into blocks of code and data.
                           65536 - length).
     -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
                           49152-65535.
-    -P, --process-ctls    Run control directives through post-processors.
     --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
                           Start at this address.
@@ -955,14 +954,6 @@ generating a control file. The supported file formats are:
 If the file specified by the ``-m`` option is 8192 bytes long, it is assumed to
 be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
 file; otherwise it is assumed to be in one of the other supported formats.
-
-The ``--process-ctls`` option activates any
-:ref:`control directive post-processors <ctlPostProcessors>` that are specified
-by the ``CtlPostProcessors`` configuration parameter in `skoolkit.ini`. By
-default, only one post-processor is specified: skoolkit.rst.RSTHandler. In its
-default configuration, it identifies 'RST $08' instructions and marks the bytes
-that follow them with 'B' directives, which makes :ref:`sna2skool.py`
-disassemble them as DEFB statements.
 
 .. _sna2ctl-conf:
 
@@ -1002,8 +993,6 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.6     | Added the ``--process-ctls`` option                               |
-+---------+-------------------------------------------------------------------+
 | 9.5     | Added the ``--comments`` option and the ``Comments``              |
 |         | configuration parameter                                           |
 +---------+-------------------------------------------------------------------+

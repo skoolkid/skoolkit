@@ -28,7 +28,6 @@ COMMANDS = {
         'CommentGenerator': 'skoolkit.comment.CommentGenerator',
         'ControlDirectiveComposer': 'skoolkit.skoolctl.ControlDirectiveComposer',
         'ControlFileGenerator': 'skoolkit.snactl',
-        'CtlPostProcessors': 'skoolkit.rst.RSTHandler',
         'DefaultDisassemblyStartAddress': '16384',
         'Disassembler': 'skoolkit.disassembler.Disassembler',
         'HtmlTemplateFormatter': 'skoolkit.skoolhtml.TemplateFormatter',
@@ -39,16 +38,6 @@ COMMANDS = {
         'SnapshotReader': 'skoolkit.snapshot',
         'SnapshotReferenceCalculator': 'skoolkit.snaskool',
         'SnapshotReferenceOperations': 'DJ,JR,JP,CA,RS'
-    },
-    'skoolkit.rst.RSTHandler': {
-        'RST00': '',
-        'RST08': 'DEFB',
-        'RST10': '',
-        'RST18': '',
-        'RST20': '',
-        'RST28': '',
-        'RST30': '',
-        'RST38': ''
     },
     'sna2ctl' : {
         'Comments': (0, 'comments'),

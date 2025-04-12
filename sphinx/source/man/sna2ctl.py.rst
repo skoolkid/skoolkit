@@ -47,9 +47,6 @@ OPTIONS
 -p, --page `PAGE`
   Specify the page (0-7) of a 128K snapshot to map to 49152-65535.
 
--P, --process-ctls
-  Run control directives through post-processors.
-
 --show-config
   Show configuration parameter values.
 

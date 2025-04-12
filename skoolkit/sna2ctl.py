@@ -1,4 +1,4 @@
-# Copyright 2018, 2019, 2021, 2024, 2025 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2018, 2019, 2021, 2024 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -73,8 +73,6 @@ def main(args):
                        help='Specify the origin address of a binary file (default: 65536 - length).')
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535.')
-    group.add_argument('-P', '--process-ctls', action='store_true',
-                       help="Run control directives through post-processors.")
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
     group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=integer,
