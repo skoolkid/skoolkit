@@ -1,4 +1,4 @@
-# Copyright 2018, 2019, 2021, 2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2018, 2019, 2021, 2024, 2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -25,7 +25,7 @@ from skoolkit.snapshot import make_snapshot
 
 END = 65536
 
-Config = namedtuple('Config', 'text_chars text_min_length_code text_min_length_data words')
+Config = namedtuple('Config', 'handle_rst text_chars text_min_length_code text_min_length_data words')
 
 def run(snafile, options, config):
     words = set()
@@ -40,7 +40,7 @@ def run(snafile, options, config):
                         words.add(word)
         else:
             info("Dictionary file '{}' not found".format(dict_fname))
-    ctl_config = Config(config['TextChars'], config['TextMinLengthCode'], config['TextMinLengthData'], words)
+    ctl_config = Config(options.handle_rst, config['TextChars'], config['TextMinLengthCode'], config['TextMinLengthData'], words)
     snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page)
     if options.start is None:
         options.start = 0
@@ -73,6 +73,8 @@ def main(args):
                        help='Specify the origin address of a binary file (default: 65536 - length).')
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535.')
+    group.add_argument('-r', '--handle-rst', action='store_true',
+                       help="Handle RST instruction arguments.")
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
     group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=integer,

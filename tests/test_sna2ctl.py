@@ -239,6 +239,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertIsNone(options.code_map)
         self.assertIsNone(options.org)
         self.assertIsNone(options.page)
+        self.assertFalse(options.handle_rst)
         self.assertEqual([], options.params)
 
     @patch.object(sna2ctl, 'run', mock_run)
@@ -851,11 +852,161 @@ class Sna2CtlTest(SkoolKitTestCase):
         """
         self._test_generation(data, exp_ctl, options='--comments')
 
+    def test_rst_handler_with_default_config(self):
+        data = [
+            199,  # 65519 RST 0
+            120,  # 65520 LD A,B
+            207,  # 65521 RST 8
+            121,  # 65522 DEFB 121 ; LD A,C
+            215,  # 65523 RST 16
+            122,  # 65524 LD A,D
+            223,  # 65525 RST 24
+            123,  # 65526 LD A,E
+            231,  # 65527 RST 32
+            124,  # 65528 LD A,H
+            239,  # 65529 RST 40
+            125,  # 65530 LD A,L
+            247,  # 65531 RST 48
+            120,  # 65532 LD A,B
+            255,  # 65533 RST 56
+            121,  # 65534 LD A,C
+            201,  # 65535 RET
+        ]
+        exp_ctl = """
+            c 65519
+            B 65522,1
+        """
+        self._test_generation(data, exp_ctl, options='--handle-rst')
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_rst_handler_with_custom_config(self):
+        ini = """
+            [skoolkit]
+            RSTHandlerConfig=0:B,$08:W,$10:B,24:W,$20:B,$28:W,48:B,$38:W
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        data = [
+            199,    # 65515 RST 0
+            120,    # 65516 DEFB 120 ; LD A,B
+            207,    # 65517 RST 8
+            62, 0,  # 65518 DEFW 62  ; LD A,0
+            215,    # 65520 RST 16
+            121,    # 65521 DEFB 121 ; LD A,C
+            223,    # 65522 RST 24
+            62, 1,  # 65523 DEFW 318 ; LD A,1
+            231,    # 65525 RST 32
+            122,    # 65526 DEFB 122 ; LD A,D
+            239,    # 65527 RST 40
+            62, 2,  # 65528 DEFW 574 ; LD A,2
+            247,    # 65530 RST 48
+            123,    # 65531 DEFB 123 ; LD A,E
+            255,    # 65532 RST 56
+            62, 3,  # 65533 DEFW 830 ; LD A,3
+            201,    # 65535 RET
+        ]
+        exp_ctl = """
+            c 65515
+            B 65516,1
+            W 65518,2
+            B 65521,1
+            W 65523,2
+            B 65526,1
+            W 65528,2
+            B 65531,1
+            W 65533,2
+        """
+        self._test_generation(data, exp_ctl, options='-r')
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_rst_handler(self):
+        custom_rh = """
+            class CustomRSTHandler:
+                def __init__(self, config):
+                    pass
+                def handle(self, snapshot, address):
+                    if snapshot[address] == 215:
+                        return ('W', ((2, 'n'),), 'Word argument')
+                    if snapshot[address] == 223:
+                        return ('B', ((1, 'n'),), 'Should not be used')
+        """
+        self.write_component_config('RSTHandler', '*.CustomRSTHandler', custom_rh)
+        data = [
+            207,       # 65530 RST 8
+            120,       # 65531 LD A,B
+            215,       # 65532 RST 16
+            121, 223,  # 65533 DEFW 57209 ; LD A,C: RST 24
+            201,       # 65535 RET
+        ]
+        exp_ctl = """
+            c 65530
+            W 65533,2 Word argument
+        """
+        self._test_generation(data, exp_ctl, options='--handle-rst')
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_rst_handler_with_config(self):
+        custom_rh = """
+            class CustomRSTHandler:
+                def __init__(self, config):
+                    self.ctl = config
+                def handle(self, snapshot, address):
+                    if snapshot[address] == 247:
+                        return (self.ctl, ((1, ''), (1, 'h')), 'Byte arguments')
+        """
+        self.write_component_config('RSTHandler', '*.CustomRSTHandler', custom_rh, 'RSTHandlerConfig=B')
+        data = [
+            247,   # 65532 RST 48
+            6, 1,  # 65533 DEFB 6,1 ; LD B,1
+            201,   # 65535 RET
+        ]
+        exp_ctl = """
+            c 65532
+            B 65533,2,1:h1 Byte arguments
+        """
+        self._test_generation(data, exp_ctl, options='-r')
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_rst_handler_with_code_map(self):
+        ini = """
+            [skoolkit]
+            RSTHandlerConfig=8:W,16:B
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        code_map = (65529, 65532, 65534, 65535)
+        data = [
+            207,   # 65529 RST 8
+            1, 0,  # 65530 DEFW 1
+            215,   # 65532 RST 16
+            1,     # 65533 DEFB 1
+            120,   # 65534 LD A,B
+            201    # 65535 RET
+        ]
+        exp_ctl = """
+            c 65529
+            W 65530,2
+            B 65533,1
+        """
+        self._test_generation(data, exp_ctl, code_map, '--handle-rst')
+
+    def test_rst_handler_with_comment_generator(self):
+        data = [
+            207,  # 65533 RST 8
+            1,    # 65534 DEFB 1
+            201,  # 65535 RET
+        ]
+        exp_ctl = """
+            c 65533
+              65533 CALL #R8
+            B 65534,1
+              65535 Return
+        """
+        self._test_generation(data, exp_ctl, options='-Cr')
+
     @patch.object(sna2ctl, 'run', mock_run)
     @patch.object(sna2ctl, 'get_config', mock_config)
     def test_option_C(self):
-        for options in ('-C', '--comments'):
-            self.run_sna2ctl('-C test-C.sna')
+        for option in ('-C', '--comments'):
+            self.run_sna2ctl(f'{option} test-C.sna')
             options, config = run_args[1:]
             self.assertTrue(options.comments)
 
@@ -1091,6 +1242,14 @@ class Sna2CtlTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             page = make_snapshot_args[4]
             self.assertEqual(page, exp_page)
+
+    @patch.object(sna2ctl, 'run', mock_run)
+    @patch.object(sna2ctl, 'get_config', mock_config)
+    def test_option_r(self):
+        for option in ('-r', '--handle-rst'):
+            self.run_sna2ctl(f'{option} test-r.sna')
+            options, config = run_args[1:]
+            self.assertTrue(options.handle_rst)
 
     @patch.object(sna2ctl, 'get_config', mock_config)
     def test_option_show_config(self):

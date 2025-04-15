@@ -1,4 +1,4 @@
-# Copyright 2013-2017, 2019-2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013-2017, 2019-2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -334,7 +334,7 @@ def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
                         entries[ref_addr][1].add(entry.address)
                     if entry.address == instruction.address:
                         main_refs.add(ref_addr)
-        addr, size, mc, op_id, op = next(decode(snapshot, entry.instructions[-1].address, 65536))
+        addr, size, mc, op_id, op, rst_args = next(decode(snapshot, entry.instructions[-1].address, 65536))
         if op_id != END:
             next_entry_addr = addr + size
             if next_entry_addr in entries:

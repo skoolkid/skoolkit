@@ -47,6 +47,9 @@ OPTIONS
 -p, --page `PAGE`
   Specify the page (0-7) of a 128K snapshot to map to 49152-65535.
 
+-r, --handle-rst
+  Handle RST instruction arguments.
+
 --show-config
   Show configuration parameter values.
 

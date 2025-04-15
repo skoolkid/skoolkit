@@ -596,9 +596,12 @@ class SkoolKitTestCase(TestCase):
     def write_bin_file(self, data=(), path=None, suffix=''):
         return self._write_file(bytearray(data), path, suffix, False)
 
-    def write_component_config(self, key, value, contents):
+    def write_component_config(self, key, value, contents, config=None):
         module_name = self.write_text_file(dedent(contents), suffix='.py')[:-3]
-        ini = "[skoolkit]\n{}=:{}".format(key, value.replace('*', module_name))
+        pvalue = ":" + value.replace('*', module_name)
+        ini = f'[skoolkit]\n{key}={pvalue}'
+        if config:
+            ini += f'\n{config}'
         self.write_text_file(ini, 'skoolkit.ini')
         invalidate_caches()
 

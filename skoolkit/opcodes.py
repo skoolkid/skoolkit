@@ -1,4 +1,4 @@
-# Copyright 2018, 2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2018, 2019, 2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -924,7 +924,7 @@ def _opcode(snapshot, addr, value):
         return size, max_count, op_id, operation
     return _defb(snapshot, addr, 65536 - addr)
 
-def decode(snapshot, start, end):
+def decode(snapshot, start, end, rst_handler=None):
     addr = start
     while addr < end:
         value = snapshot[addr]
@@ -936,5 +936,11 @@ def decode(snapshot, start, end):
             size, max_count, op_id, operation = _after_dd(snapshot, addr + 1, value)
         else:
             size, max_count, op_id, operation = _opcode(snapshot, addr, value)
-        yield (addr, size, max_count, op_id, operation)
+        if rst_handler:
+            rst_args = rst_handler.handle(snapshot, addr)
+            if rst_args:
+                size += sum(s[0] for s in rst_args[1])
+        else:
+            rst_args = None
+        yield (addr, size, max_count, op_id, operation, rst_args)
         addr += size

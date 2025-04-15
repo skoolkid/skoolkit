@@ -17,6 +17,7 @@ SkoolKit relies on several components in order to function:
 * :ref:`instructionUtility`
 * :ref:`operandEvaluator`
 * :ref:`operandFormatter`
+* :ref:`rstHandler`
 * :ref:`snapshotReader`
 * :ref:`snapshotRefCalc`
 
@@ -45,6 +46,8 @@ or in `~/.skoolkit`. The default contents of this section are as follows::
   InstructionUtility=skoolkit.skoolparser.InstructionUtility
   OperandEvaluator=skoolkit.z80
   OperandFormatter=skoolkit.disassembler.OperandFormatter
+  RSTHandler=skoolkit.rst.RSTHandler
+  RSTHandlerConfig=8:B
   SnapshotReader=skoolkit.snapshot
   SnapshotReferenceCalculator=skoolkit.snaskool
   SnapshotReferenceOperations=DJ,JR,JP,CA,RS
@@ -56,6 +59,7 @@ for SkoolKit's pluggable components. The other recognised parameters are:
   disassembling a snapshot when no control file is provided; this is used by
   :ref:`sna2ctl.py` and :ref:`sna2skool.py`, and also by :ref:`snapinfo.py`
   when generating a call graph
+* ``RSTHandlerConfig`` - the configuration parameter for the :ref:`rstHandler`
 * ``SnapshotReferenceOperations`` - the instructions whose address operands are
   used by the :ref:`snapshot reference calculator <snapshotRefCalc>` to
   identify entry points in routines and data blocks
@@ -145,6 +149,9 @@ skoolkit.snactl:
 .. automodule:: skoolkit.snactl
    :members: generate_ctls
    :noindex:
+
+.. versionchanged:: 9.6
+   Added the *handle_rst* attribute to the *config* object.
 
 .. _disassembler:
 
@@ -322,6 +329,62 @@ skoolkit.disassembler.OperandFormatter:
 .. autoclass:: skoolkit.disassembler.OperandFormatter
    :members: format_byte, format_word, is_char
    :noindex:
+
+.. _rstHandler:
+
+RST handler
+-----------
+This class is used by the :ref:`control file generator <ctlGenerator>` (when
+activated by the ``--handle-rst`` option of :ref:`sna2ctl.py`) to handle the
+arguments of RST instructions. It must supply the following API methods, in
+common with skoolkit.rst.RSTHandler:
+
+.. autoclass:: skoolkit.rst.RSTHandler
+   :members: handle
+   :noindex:
+
+The sub-block descriptor returned by :meth:`handle` must be 3-element tuple of
+the form::
+
+  (subctl, sublengths, comment)
+
+where:
+
+* ``subctl`` is the sub-block control directive: 'B' (DEFB) or 'W' (DEFW)
+* ``sublengths`` is a sequence of one or more sublengths for the sub-block
+* ``comment`` is the sub-block comment (which may be an empty string or
+  *None*)
+
+Each sublength in ``sublengths`` must be a 2-element tuple of the form::
+
+  (size, base)
+
+where:
+
+* ``size`` is the size in bytes
+* ``base`` is the :ref:`number base <numberBases>`: 'b' (binary), 'd'
+  (decimal), 'h' (hexadecimal), 'm' (minus) or 'n' (none/default)
+
+skoolkit.rst.RSTHandler is configured by the ``RSTHandlerConfig`` parameter in
+*skoolkit.ini*. Its value must be a comma-separated list of RST specifications
+of the form::
+
+  addr:subctl
+
+where:
+
+* ``addr`` is the address of the RST routine (0, 8, etc.)
+* ``subctl`` is 'B' (for byte arguments) or 'W' (for word arguments)
+
+The default value of ``RSTHandlerConfig`` is ``8:B``, which makes RSTHandler
+produce sub-block descriptors for the byte arguments of 'RST $08' instructions,
+and ignore all other RST instructions.
+
+When activated by the ``--handle-rst`` option of :ref:`sna2ctl.py`, the RST
+handler's :meth:`handle` method is called for every address at which an
+instruction - RST or otherwise - is identified. This means that a custom RST
+handler component could be implemented to handle the byte/word arguments of
+CALL instructions as well as or instead of RST instructions, for example.
 
 .. _snapshotReader:
 

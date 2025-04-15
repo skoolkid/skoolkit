@@ -1,4 +1,4 @@
-# Copyright 2019-2021, 2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2019-2021, 2024, 2025 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -61,6 +61,9 @@ def get_instruction_utility():
 
 def get_operand_evaluator():
     return get_component('OperandEvaluator')
+
+def get_rst_handler():
+    return get_component('RSTHandler', get_value('RSTHandlerConfig'))
 
 def get_snapshot_reader():
     return get_component('SnapshotReader')

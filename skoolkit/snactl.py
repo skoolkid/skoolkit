@@ -18,7 +18,7 @@ import sys
 import os
 
 from skoolkit import SkoolKitError, open_file, read_bin_file, write_line, get_address_format
-from skoolkit.components import get_comment_generator, get_component
+from skoolkit.components import get_comment_generator, get_component, get_rst_handler
 from skoolkit.ctlparser import CtlParser
 from skoolkit.opcodes import END, decode
 from skoolkit.skoolctl import AD_ORG, AD_START
@@ -166,10 +166,10 @@ def _get_addresses(f, fname, size, start, end):
 
     return sorted(addresses)
 
-def _find_terminal_instruction(snapshot, ctls, start, end, ctl=None):
+def _find_terminal_instruction(snapshot, ctls, start, end, rst_handler, ctl=None):
     address = start
     while address < end:
-        i_addr, size, max_count, op_id = next(decode(snapshot, address, address + 1))[:4]
+        i_addr, size, max_count, op_id = next(decode(snapshot, address, address + 1, rst_handler))[:4]
         address += size
         if ctl is None:
             for a in range(i_addr, address):
@@ -192,7 +192,7 @@ def _get_blocks(ctls):
     blocks.pop()
     return blocks
 
-def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
+def _generate_ctls_with_code_map(snapshot, start, end, config, rst_handler, code_map):
     # (1) Use the code map to create an initial set of 'c' ctls, and mark all
     #     unexecuted blocks as 'U' (unknown)
     # (2) Where a 'c' block doesn't end with a RET/JP/JR, extend it up to the
@@ -222,10 +222,10 @@ def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
         done = True
         for ctl, b_start, b_end in _get_blocks(ctls):
             if ctl == 'c':
-                last_op_id = list(decode(snapshot, b_start, b_end))[-1][3]
+                last_op_id = list(decode(snapshot, b_start, b_end, rst_handler))[-1][3]
                 if last_op_id == END:
                     continue
-                if _find_terminal_instruction(snapshot, ctls, b_end, end) < end:
+                if _find_terminal_instruction(snapshot, ctls, b_end, end, rst_handler) < end:
                     done = False
                     break
         if done:
@@ -248,7 +248,7 @@ def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
                                 e_end = entry.next.address
                             else:
                                 e_end = 65536
-                            _find_terminal_instruction(snapshot, ctls, instruction.address, e_end, entry.ctl)
+                            _find_terminal_instruction(snapshot, ctls, instruction.address, e_end, rst_handler, entry.ctl)
                             disassembly.remove_entry(entry.address)
                             done = False
                             break
@@ -262,11 +262,11 @@ def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
     # (4) Split 'c' blocks on RET/JP/JR
     for ctl, b_address, b_end in _get_blocks(ctls):
         if ctl == 'c':
-            next_address = _find_terminal_instruction(snapshot, ctls, b_address, b_end, 'c')
+            next_address = _find_terminal_instruction(snapshot, ctls, b_address, b_end, rst_handler, 'c')
             if next_address < b_end:
                 disassembly.remove_entry(b_address)
                 while next_address < b_end:
-                    next_address = _find_terminal_instruction(snapshot, ctls, next_address, b_end, 'c')
+                    next_address = _find_terminal_instruction(snapshot, ctls, next_address, b_end, rst_handler, 'c')
 
     # (5) Scan the disassembly for pairs of adjacent blocks where the start
     # address of the second block is JRed or JPed to from the first block, and
@@ -344,12 +344,12 @@ def _catch_data(ctls, ctl_addr, count, max_count, addr, op_bytes):
             return addr
     return ctl_addr
 
-def _generate_ctls_without_code_map(snapshot, start, end, config):
+def _generate_ctls_without_code_map(snapshot, start, end, config, rst_handler):
     ctls = []
     ctl_addr = start
     prev_max_count, prev_op_id, prev_op, prev_op_bytes = 0, None, None, ()
     count = 1
-    for addr, size, max_count, op_id, operation in decode(snapshot, start, end):
+    for addr, size, max_count, op_id, operation, rst_args in decode(snapshot, start, end, rst_handler):
         op_bytes = snapshot[addr:addr + size]
         if op_id == END:
             # Catch data-like sequences that precede a terminal instruction
@@ -418,28 +418,53 @@ def _generate_ctls_without_code_map(snapshot, start, end, config):
 
     return ctls
 
-def _generate_comments(snapshot, ctls, comments):
-    cg = get_comment_generator()
+def _generate_subctls(snapshot, ctls, subctls, rst_handler, cg):
+    rst_handler = get_rst_handler()
     blocks = [(a, ctls[a]) for a in sorted(ctls) if a < 65536] + [(65536, '')]
     for i in range(len(blocks) - 1):
         start, ctl = blocks[i]
         if ctl == 'c':
-            comments[start] = []
-            for a, size, mc, op_id, op in decode(snapshot, start, blocks[i + 1][0]):
-                comments[start].append((a, cg.get_comment(Instruction(a, snapshot[a:a + size]))))
+            subctls[start] = []
+            for a, size, mc, op_id, op, rst_args in decode(snapshot, start, blocks[i + 1][0], rst_handler):
+                if cg:
+                    comment = cg.get_comment(Instruction(a, snapshot[a:a + size]))
+                    subctls[start].append((a, ' ', None, comment))
+                if rst_args:
+                    rst_args_len = sum(s[0] for s in rst_args[1])
+                    subctls[start].append((a + size - rst_args_len, *rst_args))
 
 def write_ctl(ctls, snapshot, options):
-    comments = {}
+    if options.handle_rst:
+        rst_handler = get_rst_handler()
+    else:
+        rst_handler = None
     if options.comments:
-        _generate_comments(snapshot, ctls, comments)
+        cg = get_comment_generator()
+    else:
+        cg = None
+    subctls = {}
+    if rst_handler or cg:
+        _generate_subctls(snapshot, ctls, subctls, rst_handler, cg)
     addr_fmt = get_address_format(options.ctl_hex, options.ctl_hex == 1)
     start = addr_fmt.format(min(ctls))
     write_line('@ {} {}'.format(start, AD_START))
     write_line('@ {} {}'.format(start, AD_ORG))
     for address in [a for a in sorted(ctls) if a < 65536]:
         write_line('{} {}'.format(ctls[address], addr_fmt.format(address)))
-        for addr, comment in comments.get(address, ()):
-            write_line('  {} {}'.format(addr_fmt.format(addr), comment))
+        for addr, subctl, sublengths, comment in subctls.get(address, ()):
+            line = '{} {}'.format(subctl, addr_fmt.format(addr))
+            if sublengths:
+                length = sum(s[0] for s in sublengths)
+                if len(sublengths) == 1:
+                    base = sublengths[0][1]
+                    if base == 'n':
+                        base = ''
+                    line += f',{base}{length}'
+                else:
+                    line += f',{length},' + ':'.join(f'{b}{s}' for s, b in sublengths)
+            if comment:
+                line += f' {comment}'
+            write_line(line)
 
 # Component API
 def generate_ctls(snapshot, start, end, code_map, config):
@@ -453,6 +478,7 @@ def generate_ctls(snapshot, start, end, code_map, config):
     :param code_map: Code map filename (may be `None`).
     :param config: Configuration object with the following attributes:
 
+                   * `handle_rst` - whether to handle RST instruction arguments
                    * `text_chars` - string of characters eligible for being
                      marked as text
                    * `text_min_length_code` - minimum length of a string of
@@ -467,6 +493,10 @@ def generate_ctls(snapshot, start, end, code_map, config):
 
     :return: A dictionary of control directives.
     """
+    if config.handle_rst:
+        rst_handler = get_rst_handler()
+    else:
+        rst_handler = None
     if code_map:
-        return _generate_ctls_with_code_map(snapshot, start, end, config, code_map)
-    return _generate_ctls_without_code_map(snapshot, start, end, config)
+        return _generate_ctls_with_code_map(snapshot, start, end, config, rst_handler, code_map)
+    return _generate_ctls_without_code_map(snapshot, start, end, config, rst_handler)

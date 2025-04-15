@@ -35,6 +35,8 @@ COMMANDS = {
         'InstructionUtility': 'skoolkit.skoolparser.InstructionUtility',
         'OperandEvaluator': 'skoolkit.z80',
         'OperandFormatter': 'skoolkit.disassembler.OperandFormatter',
+        'RSTHandler': 'skoolkit.rst.RSTHandler',
+        'RSTHandlerConfig': '8:B',
         'SnapshotReader': 'skoolkit.snapshot',
         'SnapshotReferenceCalculator': 'skoolkit.snaskool',
         'SnapshotReferenceOperations': 'DJ,JR,JP,CA,RS'

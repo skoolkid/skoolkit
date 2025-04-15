@@ -935,6 +935,7 @@ skool file split into blocks of code and data.
                           65536 - length).
     -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
                           49152-65535.
+    -r, --handle-rst      Handle RST instruction arguments.
     --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
                           Start at this address.
@@ -993,6 +994,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.6     | Added the ``--handle-rst`` option                                 |
++---------+-------------------------------------------------------------------+
 | 9.5     | Added the ``--comments`` option and the ``Comments``              |
 |         | configuration parameter                                           |
 +---------+-------------------------------------------------------------------+
