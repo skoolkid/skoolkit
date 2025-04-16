@@ -925,9 +925,9 @@ class Sna2CtlTest(SkoolKitTestCase):
                     pass
                 def handle(self, snapshot, address):
                     if snapshot[address] == 215:
-                        return ('W', ((2, 'n'),), 'Word argument')
+                        return ('W', ((2, 'n'),))
                     if snapshot[address] == 223:
-                        return ('B', ((1, 'n'),), 'Should not be used')
+                        return ('B', ((1, 'n'),)) # Should not be used
         """
         self.write_component_config('RSTHandler', '*.CustomRSTHandler', custom_rh)
         data = [
@@ -939,7 +939,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         ]
         exp_ctl = """
             c 65530
-            W 65533,2 Word argument
+            W 65533,2
         """
         self._test_generation(data, exp_ctl, options='--handle-rst')
 
@@ -951,7 +951,7 @@ class Sna2CtlTest(SkoolKitTestCase):
                     self.ctl = config
                 def handle(self, snapshot, address):
                     if snapshot[address] == 247:
-                        return (self.ctl, ((1, ''), (1, 'h')), 'Byte arguments')
+                        return (self.ctl, ((1, 'n'), (1, 'h')))
         """
         self.write_component_config('RSTHandler', '*.CustomRSTHandler', custom_rh, 'RSTHandlerConfig=B')
         data = [
@@ -961,7 +961,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         ]
         exp_ctl = """
             c 65532
-            B 65533,2,1:h1 Byte arguments
+            B 65533,2,1:h1
         """
         self._test_generation(data, exp_ctl, options='-r')
 

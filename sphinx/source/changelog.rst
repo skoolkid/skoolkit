@@ -23,8 +23,8 @@ Changelog
 * Added the ``Screen`` configuration parameter for :ref:`trace.py <trace-conf>`
   (to specify whether to display screen contents)
 * Added the :ref:`rstHandler` component
-* Added the ``--handle-rst`` option to :ref:`sna2ctl.py` (for activating the
-  :ref:`rstHandler`)
+* Added the ``--handle-rst`` option to :ref:`sna2ctl.py` and
+  :ref:`sna2skool.py` (for activating the :ref:`rstHandler`)
 * Fixed how :ref:`tap2sna.py` handles ``--tape-stop`` for PZX files that
   contain STOP blocks
 

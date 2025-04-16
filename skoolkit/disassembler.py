@@ -1,4 +1,4 @@
-# Copyright 2010-2015, 2017-2019, 2021, 2024
+# Copyright 2010-2015, 2017-2019, 2021, 2024, 2025
 # Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from skoolkit.components import get_component
+from skoolkit.components import get_component, get_rst_handler
 from skoolkit.ctlparser import DEFAULT_BASE
 
 VARIANT = 1
@@ -115,6 +115,7 @@ class Disassembler:
                      DEFM statement
                    * `defw_size` - default maximum number of words in a DEFW
                      statement
+                   * `handle_rst` - if `True`, handle RST instruction arguments
                    * `imaker` - callable that returns an instruction object
                    * `opcodes` - comma-separated list of values specifying
                      additional opcode sequences to disassemble
@@ -127,6 +128,10 @@ class Disassembler:
         self.defb_size = config.defb_size
         self.defm_size = config.defm_size
         self.defw_size = config.defw_size
+        if config.handle_rst:
+            self.rst_handler = get_rst_handler()
+        else:
+            self.rst_handler = None
         self.imaker = config.imaker
         self.wrap = config.wrap
         self.op_formatter = get_component('OperandFormatter', config)
@@ -207,6 +212,17 @@ class Disassembler:
                 instruction = self._defb_line(address, self.snapshot[address:65536])
             instruction.variant = flags & VARIANT
             instructions.append(instruction)
+            if self.rst_handler:
+                rst_args = self.rst_handler.handle(self.snapshot, address)
+                if rst_args:
+                    subctl, sublengths = rst_args
+                    ra_addr = address + length
+                    ra_len = sum(s[0] for s in sublengths)
+                    if subctl == 'B':
+                        instructions.append(self._defb_line(ra_addr, self.snapshot[ra_addr:ra_addr + ra_len], sublengths))
+                    elif subctl == 'W':
+                        instructions.extend(self._defw_lines(ra_addr, ra_addr + ra_len, sublengths))
+                    address += ra_len
             address += length
         return instructions
 

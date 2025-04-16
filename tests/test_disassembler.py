@@ -1,11 +1,12 @@
 from collections import namedtuple
+from textwrap import dedent
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import components
 from skoolkit.disassembler import Disassembler
 
-Config = namedtuple('Config', 'asm_hex asm_lower defb_size defm_size defw_size imaker opcodes wrap')
+Config = namedtuple('Config', 'asm_hex asm_lower defb_size defm_size defw_size handle_rst imaker opcodes wrap')
 
 ASM = {
     '000000': ('NOP', 'NOP', 'NOP'),
@@ -2319,8 +2320,8 @@ class Instruction:
         self.data = data
 
 class DisassemblerTest(SkoolKitTestCase):
-    def _get_disassembler(self, snapshot=(), asm_hex=False, asm_lower=False, defw_size=1, imaker=Instruction, opcodes='', wrap=False):
-        config = Config(asm_hex, asm_lower, 8, 66, defw_size, imaker, opcodes, wrap)
+    def _get_disassembler(self, snapshot=(), asm_hex=False, asm_lower=False, defw_size=1, handle_rst=False, imaker=Instruction, opcodes='', wrap=False):
+        config = Config(asm_hex, asm_lower, 8, 66, defw_size, handle_rst, imaker, opcodes, wrap)
         return Disassembler(snapshot, config)
 
     def _get_snapshot(self, start, data):
@@ -2630,6 +2631,34 @@ class DisassemblerTest(SkoolKitTestCase):
         instructions = disassembler.disassemble(0, 1, 'n')
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0].op, 'XOR A')
+
+    def test_rst_handler(self):
+        snapshot = [
+            207,  # 00000 RST 8
+            1,    # 00001 DEFB 1
+        ]
+        disassembler = self._get_disassembler(snapshot, handle_rst=True)
+        instructions = disassembler.disassemble(0, 1, 'n')
+        self.assertEqual(len(instructions), 2)
+        self.assertEqual(instructions[0].operation, 'RST 8')
+        self.assertEqual(instructions[1].operation, 'DEFB 1')
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_rst_handler_with_custom_config(self):
+        ini = """
+            [skoolkit]
+            RSTHandlerConfig=$08:W
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        snapshot = [
+            207,   # 00000 RST 8
+            1, 1,  # 00001 DEFW 257
+        ]
+        disassembler = self._get_disassembler(snapshot, handle_rst=True)
+        instructions = disassembler.disassemble(0, 1, 'n')
+        self.assertEqual(len(instructions), 2)
+        self.assertEqual(instructions[0].operation, 'RST 8')
+        self.assertEqual(instructions[1].operation, 'DEFW 257')
 
     def test_lower_case_conversion(self):
         snapshot = [

@@ -1,4 +1,5 @@
-# Copyright 2009-2015, 2017-2022, 2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2015, 2017-2022, 2024, 2025
+# Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -92,6 +93,8 @@ def main(args):
                        help='Specify the origin address of a binary (.bin) file (default: 65536 - length).')
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535.')
+    group.add_argument('-r', '--handle-rst', action='store_true',
+                       help="Handle RST instruction arguments.")
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
     group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=integer,
@@ -107,4 +110,5 @@ def main(args):
     if unknown_args or namespace.snafile is None:
         parser.exit(2, parser.format_help())
     update_options('sna2skool', namespace, namespace.params, config)
+    config['HandleRST'] = namespace.handle_rst
     run(namespace.snafile, namespace, config)

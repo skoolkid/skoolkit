@@ -34,7 +34,7 @@ AD_BYTES_PREFIX = AD_BYTES + '='
 AD_LABEL_PREFIX = AD_LABEL + '='
 AD_REFS_PREFIX = AD_REFS + '='
 
-DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size imaker opcodes wrap')
+DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size handle_rst imaker opcodes wrap')
 
 # Component API
 def calculate_references(entries, operations):
@@ -132,6 +132,7 @@ class Disassembly:
             self.config.get('DefbSize', 8),
             self.config.get('DefmSize', 65),
             self.config.get('DefwSize', 1),
+            self.config.get('HandleRST', 0),
             Instruction,
             self.config.get('Opcodes', ''),
             self.config.get('Wrap', 0)
@@ -311,7 +312,10 @@ class SkoolWriter:
         for block in entry.bad_blocks:
             addr1 = self.address_str(block.instructions[-1].address, False)
             addr2 = self.address_str(block.end, False)
-            warn('Instruction at {} overlaps the following instruction at {}'.format(addr1, addr2))
+            if addr1 == addr2:
+                warn(f'Two instructions at {addr1}')
+            else:
+                warn(f'Instruction at {addr1} overlaps the following instruction at {addr2}')
 
         if entry.has_title:
             self.write_comment(entry.title)

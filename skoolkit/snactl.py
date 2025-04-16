@@ -431,7 +431,7 @@ def _generate_subctls(snapshot, ctls, subctls, rst_handler, cg):
                     subctls[start].append((a, ' ', None, comment))
                 if rst_args:
                     rst_args_len = sum(s[0] for s in rst_args[1])
-                    subctls[start].append((a + size - rst_args_len, *rst_args))
+                    subctls[start].append((a + size - rst_args_len, *rst_args, None))
 
 def write_ctl(ctls, snapshot, options):
     if options.handle_rst:
@@ -449,6 +449,7 @@ def write_ctl(ctls, snapshot, options):
     start = addr_fmt.format(min(ctls))
     write_line('@ {} {}'.format(start, AD_START))
     write_line('@ {} {}'.format(start, AD_ORG))
+    bases = {'n': ''}
     for address in [a for a in sorted(ctls) if a < 65536]:
         write_line('{} {}'.format(ctls[address], addr_fmt.format(address)))
         for addr, subctl, sublengths, comment in subctls.get(address, ()):
@@ -457,11 +458,9 @@ def write_ctl(ctls, snapshot, options):
                 length = sum(s[0] for s in sublengths)
                 if len(sublengths) == 1:
                     base = sublengths[0][1]
-                    if base == 'n':
-                        base = ''
-                    line += f',{base}{length}'
+                    line += f',{bases.get(base, base)}{length}'
                 else:
-                    line += f',{length},' + ':'.join(f'{b}{s}' for s, b in sublengths)
+                    line += f',{length},' + ':'.join(f'{bases.get(b, b)}{s}' for s, b in sublengths)
             if comment:
                 line += f' {comment}'
             write_line(line)

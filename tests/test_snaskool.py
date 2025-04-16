@@ -1257,11 +1257,11 @@ class SkoolWriterTest(SkoolKitTestCase):
         config.update(params or {})
         return SkoolWriter(snapshot, ctl_parser, options, config)
 
-    def _test_write_skool(self, snapshot, ctl, exp_skool, **kwargs):
+    def _test_write_skool(self, snapshot, ctl, exp_skool, exp_err='', **kwargs):
         self.clear_streams()
         writer = self._get_writer(snapshot, ctl, **kwargs)
         writer.write_skool()
-        self.assertEqual(self.err.getvalue(), '')
+        self.assertEqual(self.err.getvalue(), exp_err)
         skool = self.out.getvalue().rstrip()
         self.assertEqual(textwrap.dedent(exp_skool).strip(), skool)
 
@@ -5423,3 +5423,184 @@ class SkoolWriterTest(SkoolKitTestCase):
              00009 RET           ; $0009: C9
         """
         self._test_write_skool(snapshot, ctl, exp_skool, comments=True)
+
+    def test_rst_handler_with_default_config(self):
+        snapshot = [
+            199,  # 00000 RST 0
+            120,  # 00001 LD A,B
+            207,  # 00002 RST 8
+            121,  # 00003 DEFB 121 ; LD A,C
+            215,  # 00004 RST 16
+            122,  # 00005 LD A,D
+            223,  # 00006 RST 24
+            123,  # 00007 LD A,E
+            231,  # 00008 RST 32
+            124,  # 00009 LD A,H
+            239,  # 00010 RST 40
+            125,  # 00011 LD A,L
+            247,  # 00012 RST 48
+            120,  # 00013 LD A,B
+            255,  # 00014 RST 56
+            121,  # 00015 LD A,C
+            201,  # 00016 RET
+        ]
+        ctl = """
+            c 00000
+            i 00017
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 RST 0         ;
+             00001 LD A,B        ;
+             00002 RST 8         ;
+             00003 DEFB 121      ;
+             00004 RST 16        ;
+             00005 LD A,D        ;
+             00006 RST 24        ;
+             00007 LD A,E        ;
+            *00008 RST 32        ;
+             00009 LD A,H        ;
+             00010 RST 40        ;
+             00011 LD A,L        ;
+             00012 RST 48        ;
+             00013 LD A,B        ;
+             00014 RST 56        ;
+             00015 LD A,C        ;
+            *00016 RET           ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'HandleRST': 1})
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_rst_handler_with_custom_config(self):
+        ini = """
+            [skoolkit]
+            RSTHandlerConfig=0:B,$08:W,$10:B,24:W,$20:B,$28:W,48:B,$38:W
+        """
+        self.write_text_file(textwrap.dedent(ini).strip(), 'skoolkit.ini')
+        snapshot = [
+            199,    # 00000 RST 0
+            120,    # 00001 DEFB 120 ; LD A,B
+            207,    # 00002 RST 8
+            62, 0,  # 00003 DEFW 62  ; LD A,0
+            215,    # 00005 RST 16
+            121,    # 00006 DEFB 121 ; LD A,C
+            223,    # 00007 RST 24
+            62, 1,  # 00008 DEFW 318 ; LD A,1
+            231,    # 00010 RST 32
+            122,    # 00011 DEFB 122 ; LD A,D
+            239,    # 00012 RST 40
+            62, 2,  # 00013 DEFW 574 ; LD A,2
+            247,    # 00015 RST 48
+            123,    # 00016 DEFB 123 ; LD A,E
+            255,    # 00017 RST 56
+            62, 3,  # 00018 DEFW 830 ; LD A,3
+            201,    # 00020 RET
+        ]
+        ctl = """
+            c 00000
+            i 00021
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 RST 0         ;
+             00001 DEFB 120      ;
+             00002 RST 8         ;
+             00003 DEFW 62       ;
+             00005 RST 16        ;
+             00006 DEFB 121      ;
+             00007 RST 24        ;
+            *00008 DEFW 318      ;
+             00010 RST 32        ;
+             00011 DEFB 122      ;
+             00012 RST 40        ;
+             00013 DEFW 574      ;
+             00015 RST 48        ;
+            *00016 DEFB 123      ;
+             00017 RST 56        ;
+             00018 DEFW 830      ;
+             00020 RET           ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'HandleRST': 1})
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_rst_handler(self):
+        custom_rh = """
+            class CustomRSTHandler:
+                def __init__(self, config):
+                    pass
+                def handle(self, snapshot, address):
+                    if snapshot[address] == 215:
+                        return ('W', ((2, 'n'),))
+                    if snapshot[address] == 223:
+                        return ('B', ((1, 'n'),)) # Should not be used
+        """
+        self.write_component_config('RSTHandler', '*.CustomRSTHandler', custom_rh)
+        snapshot = [
+            207,       # 00000 RST 8
+            120,       # 00001 LD A,B
+            215,       # 00002 RST 16
+            121, 223,  # 00003 DEFW 57209 ; LD A,C: RST 24
+            201,       # 00005 RET
+        ]
+        ctl = """
+            c 00000
+            i 00006
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 RST 8         ;
+             00001 LD A,B        ;
+             00002 RST 16        ;
+             00003 DEFW 57209    ;
+             00005 RET           ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'HandleRST': 1})
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_rst_handler_with_config(self):
+        custom_rh = """
+            class CustomRSTHandler:
+                def __init__(self, config):
+                    self.ctl = config
+                def handle(self, snapshot, address):
+                    if snapshot[address] == 247:
+                        return (self.ctl, ((1, 'n'), (1, 'h')))
+        """
+        self.write_component_config('RSTHandler', '*.CustomRSTHandler', custom_rh, 'RSTHandlerConfig=B')
+        snapshot = [
+            247,   # 00000 RST 48
+            6, 1,  # 00001 DEFB 6,1 ; LD B,1
+            201,   # 00003 RET
+        ]
+        ctl = """
+            c 00000
+            i 00004
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 RST 48        ;
+             00001 DEFB 6,$01    ;
+             00003 RET           ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'HandleRST': 1})
+
+    def test_rst_handler_with_rst_aware_control_file(self):
+        snapshot = [
+            207,  # 00000 RST 8
+            1,    # 00001 DEFB 1
+            201,  # 00002 RET
+        ]
+        ctl = """
+            c 00000
+            B 00001,1
+            i 00003
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 RST 8         ;
+             00001 DEFB 1        ;
+             00001 DEFB 1        ;
+             00002 RET           ;
+        """
+        exp_err = 'WARNING: Two instructions at 1\n'
+        self._test_write_skool(snapshot, ctl, exp_skool, exp_err, params={'HandleRST': 1})

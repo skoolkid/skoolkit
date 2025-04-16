@@ -956,6 +956,10 @@ If the file specified by the ``-m`` option is 8192 bytes long, it is assumed to
 be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
 file; otherwise it is assumed to be in one of the other supported formats.
 
+The ``--handle-rst`` option activates the :ref:`rstHandler`. When this handler
+identifies the byte/word argument(s) of an RST instruction, a :ref:`bDirective`
+or :ref:`wDirective` is generated accordingly.
+
 .. _sna2ctl-conf:
 
 Configuration
@@ -1110,6 +1114,7 @@ list::
                           (default: 65536 - length).
     -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
                           49152-65535.
+    -r, --handle-rst      Handle RST instruction arguments.
     --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
                           Start disassembling at this address.
@@ -1133,6 +1138,12 @@ following order:
   :ref:`comment generator <commentGenerator>` component)
 * the ``Text`` configuration parameter (shows byte values as ASCII text)
 * the ``Timings`` configuration parameter (shows instruction timings)
+
+The ``--handle-rst`` option activates the :ref:`rstHandler`. When this handler
+identifies the byte/word argument(s) of an RST instruction, a DEFB/DEFW
+statement is produced accordingly. This is useful only if no control file is
+used, or if the control file does not already contain ``B`` or ``W`` directives
+for RST instruction arguments.
 
 .. _sna2skool-conf:
 
@@ -1265,6 +1276,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.6     | Added the ``--handle-rst`` option                                 |
++---------+-------------------------------------------------------------------+
 | 9.5     | Added the ``--comments`` option and the ``Comments``              |
 |         | configuration parameter                                           |
 +---------+-------------------------------------------------------------------+

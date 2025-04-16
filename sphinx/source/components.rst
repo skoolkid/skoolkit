@@ -193,6 +193,9 @@ If the first element of *sublengths* has a ``size`` value of 0, then the method
 should produce a list of statements with default sizes (as determined by
 `defb_size`, `defm_size` and `defw_size`), using the specified base.
 
+.. versionchanged:: 9.6
+   Added the *handle_rst* attribute to the disassembler configuration object.
+
 .. versionchanged:: 9.3
    Added the *imaker* and *opcodes* attributes to the disassembler
    configuration object. API methods must now return objects created by
@@ -335,25 +338,24 @@ skoolkit.disassembler.OperandFormatter:
 RST handler
 -----------
 This class is used by the :ref:`control file generator <ctlGenerator>` (when
-activated by the ``--handle-rst`` option of :ref:`sna2ctl.py`) to handle the
-arguments of RST instructions. It must supply the following API methods, in
-common with skoolkit.rst.RSTHandler:
+activated by the ``--handle-rst`` option of :ref:`sna2ctl.py`) and by the
+:ref:`disassembler <disassembler>` (when activated by the ``--handle-rst``
+option of :ref:`sna2skool.py`) to handle the arguments of RST instructions. It
+must supply the following API methods, in common with skoolkit.rst.RSTHandler:
 
 .. autoclass:: skoolkit.rst.RSTHandler
    :members: handle
    :noindex:
 
-The sub-block descriptor returned by :meth:`handle` must be 3-element tuple of
+The sub-block descriptor returned by :meth:`handle` must be 2-element tuple of
 the form::
 
-  (subctl, sublengths, comment)
+  (subctl, sublengths)
 
 where:
 
 * ``subctl`` is the sub-block control directive: 'B' (DEFB) or 'W' (DEFW)
 * ``sublengths`` is a sequence of one or more sublengths for the sub-block
-* ``comment`` is the sub-block comment (which may be an empty string or
-  *None*)
 
 Each sublength in ``sublengths`` must be a 2-element tuple of the form::
 
@@ -380,11 +382,12 @@ The default value of ``RSTHandlerConfig`` is ``8:B``, which makes RSTHandler
 produce sub-block descriptors for the byte arguments of 'RST $08' instructions,
 and ignore all other RST instructions.
 
-When activated by the ``--handle-rst`` option of :ref:`sna2ctl.py`, the RST
-handler's :meth:`handle` method is called for every address at which an
-instruction - RST or otherwise - is identified. This means that a custom RST
-handler component could be implemented to handle the byte/word arguments of
-CALL instructions as well as or instead of RST instructions, for example.
+When activated by the ``--handle-rst`` option of :ref:`sna2ctl.py` or
+:ref:`sna2skool.py`, the RST handler's :meth:`handle` method is called for
+every address at which an instruction - RST or otherwise - is identified. This
+means that a custom RST handler component could be implemented to handle the
+byte/word arguments of CALL instructions as well as or instead of RST
+instructions, for example.
 
 .. _snapshotReader:
 

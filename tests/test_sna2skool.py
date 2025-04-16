@@ -57,6 +57,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(options.end, 65536)
         self.assertIsNone(options.org)
         self.assertIsNone(options.page)
+        self.assertFalse(options.handle_rst)
         self.assertEqual(options.line_width, 79)
         self.assertEqual(options.params, [])
 
@@ -87,11 +88,13 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(options.end, 65536)
         self.assertIsNone(options.org)
         self.assertIsNone(options.page)
+        self.assertFalse(options.handle_rst)
         self.assertEqual(config.get('Text'), 1)
         self.assertEqual(config.get('ListRefs'), 2)
         self.assertEqual(config.get('DefbSize'), 12)
         self.assertEqual(options.line_width, 119)
         self.assertEqual(config.get('DefmSize'), 92)
+        self.assertIs(config.get('HandleRST'), False)
         self.assertEqual(config.get('Timings'), 1)
         self.assertEqual(config.get('Title-b'), 'Data at {address}')
         self.assertEqual(config.get('Title-c'), 'Code at {address}')
@@ -444,6 +447,17 @@ class Sna2SkoolTest(SkoolKitTestCase):
         for option in ('-p', '--page'):
             self.run_sna2skool('-c {} {} 3 {}'.format(ctlfile, option, z80file))
             self.assertEqual(mock_skool_writer.snapshot[49152], 201)
+            self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_r(self):
+        for option in ('-r', '--handle-rst'):
+            output, error = self.run_sna2skool(f'{option} test.sna')
+            self.assertEqual(error, '')
+            self.assertTrue(mock_skool_writer.options.handle_rst)
+            self.assertTrue(mock_skool_writer.config['HandleRST'])
             self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'get_config', mock_config)

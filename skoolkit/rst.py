@@ -27,7 +27,7 @@ class RSTHandler:
     """
     # Component API
     def __init__(self, config):
-        procs = {'B': ('B', ((1, 'n'),), None), 'W': ('W', ((2, 'n'),), None)}
+        procs = {'B': ('B', ((1, 'n'),)), 'W': ('W', ((2, 'n'),))}
         self.processors = {}
         for spec in config.split(','):
             addr, sep, proc = spec.partition(':')
