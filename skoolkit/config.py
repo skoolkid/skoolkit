@@ -44,6 +44,7 @@ COMMANDS = {
     'sna2ctl' : {
         'Comments': (0, 'comments'),
         'Dictionary': ('', ''),
+        'HandleRST': (0, 'handle_rst'),
         'Hex': (0, 'ctl_hex'),
         'TextChars': ('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ !"$%&\'()*+,-./:;<=>?[]', ''),
         'TextMinLengthCode': (12, ''),

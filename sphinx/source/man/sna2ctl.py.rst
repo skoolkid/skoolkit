@@ -71,6 +71,8 @@ configuration parameters are:
   :Dictionary: The name of a file containing a list of allowed words, one per
     line. If specified, a string of characters will be marked as text only if
     it contains at least one of the words in this file.
+  :HandleRST: Handle RST instruction arguments (``1``), or don't (``0``, the
+    default).
   :Hex: Write addresses in decimal (``0``, the default), lower case hexadecimal
     (``1``),  or upper case hexadecimal (``2``).
   :TextChars: Characters eligible for being marked as text (default: letters,

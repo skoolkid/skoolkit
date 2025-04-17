@@ -73,7 +73,7 @@ def main(args):
                        help='Specify the origin address of a binary file (default: 65536 - length).')
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535.')
-    group.add_argument('-r', '--handle-rst', action='store_true',
+    group.add_argument('-r', '--handle-rst', action='store_const', const=1, default=config['HandleRST'],
                        help="Handle RST instruction arguments.")
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")

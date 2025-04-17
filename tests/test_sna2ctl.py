@@ -561,6 +561,18 @@ class Sna2CtlTest(SkoolKitTestCase):
         """
         self._test_generation(data, exp_ctl, options='-I Comments=1')
 
+    def test_config_HandleRST(self):
+        data = [
+            207,  # 65533 RST 8
+            6,    # 65534 DEFB 6
+            201,  # 65535 RET
+        ]
+        exp_ctl = """
+            c 65533
+            B 65534,1
+        """
+        self._test_generation(data, exp_ctl, options='-I HandleRST=1')
+
     def test_config_TextChars(self):
         data = [
             104, 101, 108, 108, 111, # 65526 DEFM "hello"
@@ -1259,6 +1271,7 @@ class Sna2CtlTest(SkoolKitTestCase):
             [sna2ctl]
             Comments=0
             Dictionary=
+            HandleRST=0
             Hex=0
             TextChars=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ !"$%&'()*+,-./:;<=>?[]
             TextMinLengthCode=12
@@ -1271,6 +1284,7 @@ class Sna2CtlTest(SkoolKitTestCase):
             [sna2ctl]
             Comments=1
             Dictionary=words.txt
+            HandleRST=1
             Hex=1
             TextChars=abcdefghijklmnopqrstuvwxyz
             TextMinLengthCode=12
@@ -1283,6 +1297,7 @@ class Sna2CtlTest(SkoolKitTestCase):
             [sna2ctl]
             Comments=1
             Dictionary=words.txt
+            HandleRST=1
             Hex=1
             TextChars=abcdefghijklmnopqrstuvwxyz
             TextMinLengthCode=12

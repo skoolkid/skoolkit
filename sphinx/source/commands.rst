@@ -973,6 +973,8 @@ configuration parameters are:
 * ``Dictionary`` - the name of a file containing a list of allowed words, one
   per line; if specified, a string of characters will be marked as text only if
   it contains at least one of the words in this file
+* ``HandleRST`` - activate the :ref:`rstHandler` (``1``), or don't (``0``, the
+  default)
 * ``Hex`` - write addresses in decimal (``0``, the default), lower case
   hexadecimal (``1``),  or upper case hexadecimal (``2``)
 * ``TextChars`` - characters eligible for being marked as text (default:
@@ -998,7 +1000,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.6     | Added the ``--handle-rst`` option                                 |
+| 9.6     | Added the ``--handle-rst`` option and the ``HandleRST``           |
+|         | configuration parameter                                           |
 +---------+-------------------------------------------------------------------+
 | 9.5     | Added the ``--comments`` option and the ``Comments``              |
 |         | configuration parameter                                           |
