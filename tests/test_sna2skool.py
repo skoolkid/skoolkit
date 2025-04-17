@@ -89,12 +89,13 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertIsNone(options.org)
         self.assertIsNone(options.page)
         self.assertFalse(options.handle_rst)
+        self.assertEqual(config.get('Comments'), 0)
         self.assertEqual(config.get('Text'), 1)
         self.assertEqual(config.get('ListRefs'), 2)
         self.assertEqual(config.get('DefbSize'), 12)
         self.assertEqual(options.line_width, 119)
         self.assertEqual(config.get('DefmSize'), 92)
-        self.assertIs(config.get('HandleRST'), False)
+        self.assertEqual(config.get('HandleRST'), 0)
         self.assertEqual(config.get('Timings'), 1)
         self.assertEqual(config.get('Title-b'), 'Data at {address}')
         self.assertEqual(config.get('Title-c'), 'Code at {address}')
@@ -475,6 +476,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             DefwSize=1
             EntryPointRef=This entry point is used by the routine at {ref}.
             EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.
+            HandleRST=0
             InstructionWidth=13
             LineWidth=79
             ListRefs=1
@@ -518,6 +520,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             DefwSize=1
             EntryPointRef=This entry point is used by the routine at {ref}.
             EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.
+            HandleRST=0
             InstructionWidth=13
             LineWidth=79
             ListRefs=1
@@ -726,3 +729,20 @@ class Sna2SkoolTest(SkoolKitTestCase):
         options, config = run_args[1:]
         self.assertEqual(options.comments, 1)
         self.assertEqual(config['Comments'], 1)
+
+    @patch.object(sna2skool, 'run', mock_run)
+    @patch.object(sna2skool, 'get_config', mock_config)
+    def test_config_HandleRST_updates_option(self):
+        self.run_sna2skool('-I HandleRST=1 test-Comments.skool')
+        options, config = run_args[1:]
+        self.assertEqual(options.handle_rst, 1)
+        self.assertEqual(config['HandleRST'], 1)
+
+    @patch.object(components, 'SK_CONFIG', None)
+    @patch.object(sna2skool, 'run', mock_run)
+    def test_config_HandleRST_read_from_file_updates_option(self):
+        self.write_text_file('[sna2skool]\nHandleRST=1', 'skoolkit.ini')
+        self.run_sna2skool('test-Comments.skool')
+        options, config = run_args[1:]
+        self.assertEqual(options.handle_rst, 1)
+        self.assertEqual(config['HandleRST'], 1)

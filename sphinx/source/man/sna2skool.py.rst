@@ -93,6 +93,8 @@ configuration parameters are:
   :EntryPointRefs: Template used to format the comment for an entry point with
     two or more referrers (default: ``This entry point is used by the routines
     at {refs} and {ref}.``).
+  :HandleRST: Handle RST instruction arguments (``1``), or don't (``0``, the
+    default).
   :InstructionWidth: Minimum width of the instruction field in the skool file
     (default: ``13``).
   :LineWidth: Maximum line width of the skool file (default: ``79``).

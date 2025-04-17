@@ -26,7 +26,8 @@ Changelog
 * Added the ``--handle-rst`` option to :ref:`sna2ctl.py` and
   :ref:`sna2skool.py` (for activating the :ref:`rstHandler`)
 * Added the ``HandleRST`` configuration parameter for
-  :ref:`sna2ctl.py <sna2ctl-conf>` (to activate the :ref:`rstHandler`)
+  :ref:`sna2ctl.py <sna2ctl-conf>` and :ref:`sna2skool.py <sna2skool-conf>` (to
+  activate the :ref:`rstHandler`)
 * Fixed how :ref:`tap2sna.py` handles ``--tape-stop`` for PZX files that
   contain STOP blocks
 

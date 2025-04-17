@@ -60,6 +60,7 @@ def run(infile, options, config):
     if options.start is None:
         options.start = 0
     ctl_parser = get_ctl_parser(options.ctls, infile, options.start, options.end, start, end, options.defb, config)
+    config['HandleRST'] = options.handle_rst
     writer = SkoolWriter(snapshot, ctl_parser, options, config)
     writer.write_skool()
 
@@ -93,7 +94,7 @@ def main(args):
                        help='Specify the origin address of a binary (.bin) file (default: 65536 - length).')
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535.')
-    group.add_argument('-r', '--handle-rst', action='store_true',
+    group.add_argument('-r', '--handle-rst', action='store_const', const=1, default=config['HandleRST'],
                        help="Handle RST instruction arguments.")
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
@@ -110,5 +111,4 @@ def main(args):
     if unknown_args or namespace.snafile is None:
         parser.exit(2, parser.format_help())
     update_options('sna2skool', namespace, namespace.params, config)
-    config['HandleRST'] = namespace.handle_rst
     run(namespace.snafile, namespace, config)

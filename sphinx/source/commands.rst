@@ -1174,6 +1174,8 @@ configuration parameters are:
 * ``EntryPointRefs`` - template used to format the comment for an entry point
   with two or more referrers (default: ``This entry point is used by the
   routines at {refs} and {ref}.``)
+* ``HandleRST`` - activate the :ref:`rstHandler` (``1``), or don't (``0``, the
+  default)
 * ``InstructionWidth`` - minimum width of the instruction field in the skool
   file (default: ``13``)
 * ``LineWidth`` - maximum line width of the skool file (default: ``79``)
@@ -1279,7 +1281,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.6     | Added the ``--handle-rst`` option                                 |
+| 9.6     | Added the ``--handle-rst`` option and the ``HandleRST``           |
+|         | configuration parameter                                           |
 +---------+-------------------------------------------------------------------+
 | 9.5     | Added the ``--comments`` option and the ``Comments``              |
 |         | configuration parameter                                           |
