@@ -2918,9 +2918,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertLessEqual(exp_reg, set(s_reg))
         with open(tracefile, 'r') as f:
             trace_lines = f.read().rstrip().split('\n')
-        self.assertEqual(len(trace_lines), 11187)
-        self.assertEqual(trace_lines[11185], '17891327 $1F3D HALT')
-        self.assertEqual(trace_lines[11186], '17891344 $0038 PUSH AF')
+        self.assertEqual(len(trace_lines), 11189)
+        self.assertEqual(trace_lines[11187], '17891324 $1F3D HALT')
+        self.assertEqual(trace_lines[11188], '17891341 $0038 PUSH AF')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_sim_load_with_trace_logs_time_correctly_after_fast_load(self):
@@ -2951,7 +2951,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[2263], '   27206 $076E CALL $0556') # LoadTracer.next_block()
         self.assertEqual(trace_lines[2264], '17823986 $05E2 RET')        # advances the clock
         self.assertEqual(trace_lines[7279], '17865775 $0802 CALL $0556') # LoadTracer.stop_tape()
-        self.assertEqual(trace_lines[7280], '17865803 $05E2 RET')        # does not
+        self.assertEqual(trace_lines[7280], '17865792 $05E2 RET')        # does not
 
     def test_sim_load_config_help(self):
         for option in ('-c', '--sim-load-config'):

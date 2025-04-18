@@ -512,16 +512,13 @@ class LoadTracer(PagingTracer):
         # done at 0x055E)
         registers[0:2], registers[16:18] = registers[16:18], registers[0:2]
         registers[IFF] = 0
-        registers[H], registers[L] = 0x05, 0x3F # SA-LD-RET
         sp = (registers[SP] - 2) % 65536
         registers[SP] = sp
         if sp > 0x3FFF:
-            memory[sp] = registers[L]
+            memory[sp] = 0x3F
         sp = (sp + 1) % 65536
         if sp > 0x3FFF:
-            memory[sp] = registers[H]
-        registers[R] = R1[registers[R]]
-        registers[T] += 11
+            memory[sp] = 0x05
 
         if a == block[0]:
             skipped = ''
