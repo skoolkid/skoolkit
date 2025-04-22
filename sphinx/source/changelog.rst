@@ -22,6 +22,8 @@ Changelog
   ``suzy-soft2`` tape-sampling loop accelerators
 * Added the ``Screen`` configuration parameter for :ref:`trace.py <trace-conf>`
   (to specify whether to display screen contents)
+* Added the ``--no-audio`` option to :ref:`trace.py` (for disabling the capture
+  of audio delays)
 * Added the :ref:`rstHandler` component
 * Added the ``--handle-rst`` option to :ref:`sna2ctl.py` and
   :ref:`sna2skool.py` (for activating the :ref:`rstHandler`)

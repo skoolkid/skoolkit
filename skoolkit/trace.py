@@ -34,13 +34,15 @@ from skoolkit.snapshot import (Snapshot, make_snapshot, poke, print_reg_help,
 from skoolkit.traceutils import Registers, disassemble, get_trace_line
 
 class Tracer(PagingTracer):
-    def __init__(self, simulator, border, out7ffd, outfffd, ay, outfe):
+    def __init__(self, simulator, border, out7ffd, outfffd, ay, outfe, audio):
         self.simulator = simulator
         self.border = border
         self.out7ffd = out7ffd
         self.outfffd = outfffd
         self.ay = ay
         self.outfe = outfe
+        if audio:
+            self.write_port = self._write_port
         self.operations = 0
         self.spkr = None
         self.out_times = []
@@ -140,7 +142,7 @@ class Tracer(PagingTracer):
             return v ^ 0xFF
         return 0xFF
 
-    def write_port(self, registers, port, value):
+    def _write_port(self, registers, port, value):
         super().write_port(registers, port, value)
         if port % 2 == 0:
             if self.spkr != value & 0x10:
@@ -269,7 +271,7 @@ def run(snafile, options, config):
             start = org
     for spec in options.pokes:
         poke(simulator.memory, spec)
-    tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe)
+    tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe, not options.no_audio)
     simulator.set_tracer(tracer)
     if options.verbose:
         s = (('', '2'), ('Decimal', 'Decimal2'))[options.decimal][min(options.verbose - 1, 1)]
@@ -368,6 +370,8 @@ def main(args):
                        help='Maximum number of instructions to execute.')
     group.add_argument('-M', '--max-tstates', metavar='MAX', type=int, default=0,
                        help='Maximum number of T-states to run for.')
+    group.add_argument('--no-audio', action='store_true',
+                       help="Don't capture audio delays.")
     group.add_argument('-n', '--no-interrupts', dest='interrupts', action='store_false',
                        help="Don't execute interrupt routines.")
     group.add_argument('-o', '--org', metavar='ADDR', type=integer,

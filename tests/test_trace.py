@@ -149,6 +149,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertIsNone(options.map)
         self.assertEqual(options.max_operations, 0)
         self.assertEqual(options.max_tstates, 0)
+        self.assertFalse(options.no_audio)
         self.assertIsNone(options.org)
         self.assertEqual(options.params, [])
         self.assertEqual(options.pokes, [])
@@ -1906,6 +1907,21 @@ class TraceTest(SkoolKitTestCase):
               tstates - T-states elapsed since start of frame
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    @patch.object(trace, 'get_audio_writer', MockAudioWriter)
+    def test_option_no_audio(self):
+        global audio_writer
+        audio_writer = None
+        data = (
+            0xD3, 0xFE, # OUT ($FE),A
+            0xEE, 0x10, # XOR $10
+            0xD3, 0xFE, # OUT ($FE),A
+        )
+        infile = self.write_bin_file(data, suffix='.bin')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_trace(f'--no-audio -n -S 0 {infile} out.wav')
+        self.assertEqual(cm.exception.args[0], 'No audio detected')
+        self.assertIsNone(audio_writer)
 
     def test_option_state_bad_values(self):
         self._test_bad_spec('--state 7ffd=x', 'Cannot parse integer: 7ffd=x')
