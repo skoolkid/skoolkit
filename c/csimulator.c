@@ -5791,7 +5791,7 @@ static void dec_a(CSimulatorObject* self, void* lookup, int args[]) {
 
     unsigned pc = REG(PC);
     if (REG(IFF) == 0) {
-        if (self->tracer_state[5] & 1 && PEEK(ADDR(pc + 1)) == 0x20 && PEEK(ADDR(pc + 2)) == 0xFD) {
+        if (args[3] && PEEK(ADDR(pc + 1)) == 0x20 && PEEK(ADDR(pc + 2)) == 0xFD) {
             args[0]++;
             unsigned a = REG(A) ? REG(A) : 256;
             LD(A, 0);
@@ -5802,7 +5802,7 @@ static void dec_a(CSimulatorObject* self, void* lookup, int args[]) {
             return;
         }
 
-        if (self->tracer_state[5] & 2 && PEEK(ADDR(pc + 1)) == 0xC2 && PEEK(ADDR(pc + 2)) == pc % 256 && PEEK(ADDR(pc + 3)) == pc / 256) {
+        if (args[4] && PEEK(ADDR(pc + 1)) == 0xC2 && PEEK(ADDR(pc + 2)) == pc % 256 && PEEK(ADDR(pc + 3)) == pc / 256) {
             args[1]++;
             unsigned a = REG(A) ? REG(A) : 256;
             LD(A, 0);
@@ -5904,10 +5904,10 @@ static unsigned read_port(CSimulatorObject* self, unsigned port) {
     if ((port & 0xFF) == 0xFE) {
         unsigned pc = REG(PC);
         if (pc >= self->in_min_addr || (pc >= 0x0562 && pc <= 0x05F1 && self->out7ffd & 0x10)) {
-            self->tracer_state[7] = 1; // Signal: custom loader detected
+            self->tracer_state[5] = 1; // Signal: custom loader detected
             unsigned long long index = self->tracer_state[1];
-            if (self->tracer_state[9] && !self->tracer_state[2]) {
-                self->tracer_state[9] = 0; // Signal: data block announced
+            if (self->tracer_state[7] && !self->tracer_state[2]) {
+                self->tracer_state[7] = 0; // Signal: data block announced
                 self->tracer_state[4] = 1; // Signal: tape is running
                 TIME = self->tape_edges[index];
                 PyObject* blocks_obj = PyObject_GetAttrString(self->tracer, "blocks");
@@ -6062,8 +6062,24 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         self->opcodes[i] = &opcodes[i];
     }
 #ifndef CONTENTION
+    PyObject* list_acc_obj = ok ? PyObject_GetAttrString(self->tracer, "list_accelerators") : NULL;
+    int list_accelerators = list_acc_obj ? PyObject_IsTrue(list_acc_obj) > 0 : 0;
+    if (list_acc_obj == NULL) {
+        ok = 0;
+    }
+    Py_XDECREF(list_acc_obj);
+
+    PyObject* accel_dec_a_obj = ok ? PyObject_GetAttrString(self->tracer, "accel_dec_a") : NULL;
+    long accel_dec_a = accel_dec_a_obj ? PyLong_AsLong(accel_dec_a_obj) : 0;
+    if (accel_dec_a_obj == NULL || (accel_dec_a == -1 && PyErr_Occurred())) {
+        ok = 0;
+    }
+    Py_XDECREF(accel_dec_a_obj);
+
     OpcodeFunction dec_a_accelerator = {dec_a, NULL, {0}};
-    if (self->tracer_state[5]) {
+    if (accel_dec_a) {
+        dec_a_accelerator.args[3] = accel_dec_a & 1; // DEC A: JR NZ,$-1
+        dec_a_accelerator.args[4] = accel_dec_a & 2; // DEC A: JP NZ,$-1
         self->opcodes[0x3D] = &dec_a_accelerator;
     }
 
@@ -6211,7 +6227,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         }
         if (!did_fast_load) {
             if (end_of_tape && stop == 0x10000) {
-                if (self->tracer_state[7]) {
+                if (self->tracer_state[5]) {
                     /* Custom loader was detected */
                     rv = PyLong_FromLong(1);
                     break;
@@ -6221,7 +6237,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
                     rv = PyLong_FromLong(2);
                     break;
                 }
-                if (TIME - self->tracer_state[8] > 3500000) {
+                if (TIME - self->tracer_state[6] > 3500000) {
                     /* Tape ended 1 second ago */
                     rv = PyLong_FromLong(3);
                     break;
@@ -6235,7 +6251,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     }
 
 #ifndef CONTENTION
-    if (rv && self->tracer_state[6] && accelerators && accs && num_accs) {
+    if (rv && list_accelerators && accelerators && accs && num_accs) {
         PyObject* iter = PyObject_GetIter(accelerators);
         if (iter) {
             PyObject* item;
