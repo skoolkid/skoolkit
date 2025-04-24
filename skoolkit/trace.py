@@ -280,7 +280,6 @@ def run(snafile, options, config):
         trace_line = None
     trace_operand = config['TraceOperand' + ('', 'Decimal')[options.decimal]]
     prefix, byte_fmt, word_fmt = (trace_operand + ',' * (2 - trace_operand.count(','))).split(',')[:3]
-    begin = time.time()
     if trace_line:
         orig_trace_line, trace_line = trace_line, get_trace_line(trace_line)
         try:
@@ -297,6 +296,7 @@ def run(snafile, options, config):
         exec_map = set()
     else:
         exec_map = None
+    begin = time.time()
     tracer.run(start, options.stop, options.max_operations, options.max_tstates,
                options.interrupts, draw, exec_map, trace_line, prefix, byte_fmt, word_fmt)
     rt = time.time() - begin
