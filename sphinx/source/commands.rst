@@ -142,7 +142,7 @@ If the input file contains a program that returns to BASIC, you should use the
 ``--clear`` option to add a CLEAR command to the BASIC loader. This option
 leaves the stack pointer alone, enabling the program to return to BASIC without
 crashing. The lowest usable address with the ``--clear`` option on a bare 48K
-Spectrum is 23972 (5DA4) if a loading screen is used, or 23952 (0x5D90)
+Spectrum is 23972 (0x5DA4) if a loading screen is used, or 23952 (0x5D90)
 otherwise.
 
 To create a tape file that loads a 128K game, use the ``--7ffd``, ``--begin``
@@ -1483,9 +1483,9 @@ Configuration parameters may also be set on the command line by using the
 ``--ini`` option. Parameter values set this way will override any found in
 `skoolkit.ini`.
 
-.. _DOT format: https://graphviz.gitlab.io/_pages/doc/info/lang.html
+.. _DOT format: https://graphviz.gitlab.io/doc/info/lang.html
 .. _Graphviz: https://graphviz.gitlab.io/
-.. _attributes: https://graphviz.gitlab.io/_pages/doc/info/attrs.html
+.. _attributes: https://graphviz.gitlab.io/doc/info/attrs.html
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
@@ -2083,7 +2083,7 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 | 9.3     | Added support for PZX files; added the ``--tape-start`` and       |
 |         | ``--tape-stop`` options; shows info for TZX block types 0x18 (CSW |
 |         | recording) and 0x2B (set signal level); recognises deprecated TZX |
-|         | block types 0x16, 0x17,0x34 and 0x40                              |
+|         | block types 0x16, 0x17, 0x34 and 0x40                             |
 +---------+-------------------------------------------------------------------+
 | 9.2     | Shows info for TZX block type 0x15 (direct recording)             |
 +---------+-------------------------------------------------------------------+
