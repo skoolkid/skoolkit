@@ -15,14 +15,13 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import array
-from collections import defaultdict
 from functools import partial
 
 from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
 from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import R1
-from skoolkit.simutils import A, D, E, F, H, L, IXh, IXl, R, SP, PC, T, IFF
+from skoolkit.simutils import A, D, E, F, H, IXh, IXl, SP, PC, T, IFF
 from skoolkit.traceutils import Registers, disassemble, get_trace_line
 
 DEC = tuple(tuple((
@@ -360,7 +359,7 @@ class LoadTracer(PagingTracer):
         elif stop_cond == 4: # pragma: no cover
             write_line(f'Simulation stopped (timed out): PC={pc}')
         elif stop_cond == 5: # pragma: no cover
-            write_line(f'Tape paused')
+            write_line('Tape paused')
 
     def dec_a(self, dec_a_jr, dec_a_jp, registers, memory):
         # Speed up any 'DEC A: JR/JP NZ,$-1' loop if configured to do so, and

@@ -616,11 +616,10 @@ def sim_load(blocks, options, config):
                 if kp_tracer.keys:
                     write_line(f'Simulation stopped (timed out): PC={simulator.registers[PC]}')
                     break
-                else:
-                    write_line('Resuming LOAD')
-                    simulator.registers[T] = t0
-                    simulator.set_tracer(tracer, options.in_flags & 4, False)
-                    tracer.run(kp_tracer.border, kp_tracer.out7ffd, kp_tracer.outfffd, kp_tracer.ay, kp_tracer.outfe)
+                write_line('Resuming LOAD')
+                simulator.registers[T] = t0
+                simulator.set_tracer(tracer, options.in_flags & 4, False)
+                tracer.run(kp_tracer.border, kp_tracer.out7ffd, kp_tracer.outfffd, kp_tracer.ay, kp_tracer.outfe)
             _ram_operations(simulator.memory, options.ram_ops)
         except KeyboardInterrupt:
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
