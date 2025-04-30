@@ -36,7 +36,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0202,B140,0000,00A5',
                 "AF',BC',DE',HL'": 'FF45,0017,5AFD,EBB5',
                 'PC,SP,IX,IY': '6802,5C00,EAEF,5C3A',
-                'IR,iff,im,border': '3F58,0,1,4',
+                'IR,iff,im,border': '3F56,0,1,4',
                 'ram': '89c0d86319337b23ab6c90d5a5202118'
             },
             '-c accelerate-dec-a=2 --start 26626'
@@ -66,7 +66,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0045,00FC,0000,41CC',
                 "AF',BC',DE',HL'": 'FF45,1621,369B,2758',
                 'PC,SP,IX,IY': 'FD81,0000,41CC,5C3A',
-                'IR,iff,im,border': '3F76,0,1,0',
+                'IR,iff,im,border': '3F74,0,1,0',
                 'ram': '363c66bdbcc5d1185e09ca63a012a411'
             },
             '-c accelerator=alkatraz2 --start 64897'
@@ -81,7 +81,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,B07D,0000,0017',
                 "AF',BC',DE',HL'": '7D6D,1621,369B,2758',
                 'PC,SP,IX,IY': 'FCD3,FFFF,FBFF,0000',
-                'IR,iff,im,border': '3F30,0,1,0',
+                'IR,iff,im,border': '3F2E,0,1,0',
                 'ram': '012a543a3db1a9c0487d564dc5bcaf57'
             },
             '-c accelerator=alternative --start 64723'
@@ -96,7 +96,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,B07D,0000,008F',
                 "AF',BC',DE',HL'": '7D6D,1621,369B,2758',
                 'PC,SP,IX,IY': 'FB8C,FFFF,E800,5C3A',
-                'IR,iff,im,border': '3F5E,0,1,0',
+                'IR,iff,im,border': '3F5C,0,1,0',
                 'ram': 'bcde90e45c9bee39a00b7c5da07b5fb3'
             },
             '-c accelerator=alternative2 --start 64396'
@@ -111,7 +111,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,B022,0000,00B9',
                 "AF',BC',DE',HL'": '2265,1621,369B,2758',
                 'PC,SP,IX,IY': 'F000,FFFA,FD40,5C3A',
-                'IR,iff,im,border': '3F5F,0,1,0',
+                'IR,iff,im,border': '3F5D,0,1,0',
                 'ram': '4697ad052eebe1aafb3345764a23aafd'
             },
             '--press 6:SPACE --tape-stop 8 -c accelerator=alternative3 --start 61440'
@@ -127,7 +127,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': 'C742,00C7,0000,4051',
                 "AF',BC',DE',HL'": '3421,DA00,0027,3B6A',
                 'PC,SP,IX,IY': 'DA0E,6955,0000,C730',
-                'IR,iff,im,border': '3F55,0,1,0',
+                'IR,iff,im,border': '3F51,0,1,0',
                 'ram': '64f367b3cb90c4abca77026b60d42b47'
             },
             '-c accelerator=none --start 55822'
@@ -142,7 +142,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,B001,0000,0004',
                 "AF',BC',DE',HL'": '0145,1621,5CBC,0000',
                 'PC,SP,IX,IY': '6687,6588,FFDC,5C3A',
-                'IR,iff,im,border': '3F32,0,1,1',
+                'IR,iff,im,border': '3F2E,0,1,1',
                 'ram': 'c838a20b3728761f4574a81069df6612'
             },
             '-c pause=0 -c accelerator=rom --start 26247'
@@ -157,7 +157,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0050,FEFE,FFFF,4627',
                 "AF',BC',DE',HL'": '0044,0E0B,3F07,2758',
                 'PC,SP,IX,IY': '60CF,61A7,FF09,5C3A',
-                'IR,iff,im,border': '3F47,0,1,1',
+                'IR,iff,im,border': '3F43,0,1,1',
                 'ram': 'c8f7169b85152830d23537d486fb5704'
             },
             '-c accelerator=bleepload --start 24783'
@@ -172,7 +172,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,B05E,0000,0050',
                 "AF',BC',DE',HL'": '5E4D,0614,FF38,2758',
                 'PC,SP,IX,IY': '5DF8,61A8,0000,5C3A',
-                'IR,iff,im,border': '3F7C,1,1,1',
+                'IR,iff,im,border': '3F7A,1,1,1',
                 'ram': 'd802044c00541ea2cb62c5078a9c0ecd'
             },
             '-c accelerator=boguslaw-juza --start 24056'
@@ -185,11 +185,11 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'Cattel IQ Test.tzx',
             'a3ad457e8f4b1bf9794b021678b9ce18',
             {
-                'AF,BC,DE,HL': '3A6A,CEFF,0100,5D6F',
+                'AF,BC,DE,HL': '3A38,CEFF,0100,5D6F',
                 "AF',BC',DE',HL'": 'FF81,1221,369B,0000',
                 'PC,SP,IX,IY': 'F7F7,D310,5B80,5C3A',
-                'IR,iff,im,border': 'FD25,0,2,7',
-                'ram': '1f9022d5fa5749a28e0420a88f8da413'
+                'IR,iff,im,border': 'FD19,0,2,7',
+                'ram': 'df050539cd0d8d0222b564751fad40d0'
             }
         )
 
@@ -221,10 +221,10 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'Gold Mine - Main Game.tzx',
             '611fbfd3d6982496eadb2e2b663cc27f',
             {
-                'AF,BC,DE,HL': '0001,0009,0000,053F',
+                'AF,BC,DE,HL': '0001,0009,0000,7F58',
                 "AF',BC',DE',HL'": 'FF81,0F21,0000,0000',
                 'PC,SP,IX,IY': '053F,FF50,8000,5C3A',
-                'IR,iff,im,border': '3F6A,0,1,7',
+                'IR,iff,im,border': '3F66,0,1,7',
                 'ram': '935419fe52d5a0e629769e59a2472194'
             },
             '-c cmio=1 -c first-edge=30000 -c in-flags=1 -c finish-tape=1 --start 1343'
@@ -239,7 +239,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,B000,0000,00C8',
                 "AF',BC',DE',HL'": '0044,0B21,369B,2758',
                 'PC,SP,IX,IY': 'FE76,0000,F4C3,5C3A',
-                'IR,iff,im,border': '3F24,0,1,0',
+                'IR,iff,im,border': '3F21,0,1,0',
                 'ram': '7e2279cda73fec7094a88e53fd0687e5'
             },
             '-c accelerator=crl --start 65142'
@@ -254,7 +254,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,BEFA,0000,0020',
                 "AF',BC',DE',HL'": '0044,7F00,369B,2758',
                 'PC,SP,IX,IY': 'EFFD,FFDC,FF1C,5C3A',
-                'IR,iff,im,border': '3F3B,0,1,2',
+                'IR,iff,im,border': '3F39,0,1,2',
                 'ram': '7f25025e7d0eca5a252edc4ed3c36dd2'
             },
             '-c accelerator=crl2 --start 61437'
@@ -269,7 +269,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,B07F,0000,00CB',
                 "AF',BC',DE',HL'": '7F6D,0100,48B6,59B5',
                 'PC,SP,IX,IY': '8045,0000,B537,5C3A',
-                'IR,iff,im,border': '3F2C,0,1,0',
+                'IR,iff,im,border': '3F28,0,1,0',
                 'ram': 'cc927bd96ee464334ee87dcb449c58e4'
             },
             '-c accelerator=crl3 --tape-stop 8 --start 32837'
@@ -284,7 +284,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,B05F,0000,0097',
                 "AF',BC',DE',HL'": '5F4D,0721,369B,2758',
                 'PC,SP,IX,IY': '5B3E,5DA8,0000,5C3A',
-                'IR,iff,im,border': '3F3E,1,1,7',
+                'IR,iff,im,border': '3F38,1,1,7',
                 'ram': '1f4930e3c7bdf0b97d4fa19882dfe97b'
             },
             '-c accelerator=crl4 --start 23358'
@@ -296,10 +296,10 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '17.11.1989.tzx',
             '251a73d47759918ee9223d9042558064',
             {
-                'AF,BC,DE,HL': '0001,6646,0000,053F',
+                'AF,BC,DE,HL': '0001,6646,0000,0000',
                 "AF',BC',DE',HL'": 'FF45,0021,0000,0000',
                 'PC,SP,IX,IY': '053F,FF4E,C311,5C3A',
-                'IR,iff,im,border': '3F19,0,1,7',
+                'IR,iff,im,border': '3F11,0,1,7',
                 'ram': '622a38d517447d4686bbedc8093313f2'
             },
             '-c accelerator=cybexlab -c finish-tape=1 --start 1343'
@@ -329,7 +329,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0044,B078,0020,5B00',
                 "AF',BC',DE',HL'": '0044,1621,369B,2758',
                 'PC,SP,IX,IY': '5B00,FFFE,A000,0000',
-                'IR,iff,im,border': '3F6C,0,1,0',
+                'IR,iff,im,border': '3F6A,0,1,0',
                 'ram': '38e4a770af5e0bfb47b2993a6e06d7e8'
             },
             '-c accelerator=design-design --start 23296'
@@ -357,10 +357,10 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'Gallipoli - 48k.tzx',
             '1cdd5f519c467f434e67b910e171052d',
             {
-                'AF,BC,DE,HL': '0001,0000,0000,053F',
+                'AF,BC,DE,HL': '0001,0000,0000,AF01',
                 "AF',BC',DE',HL'": 'FFA9,0021,369B,2758',
                 'PC,SP,IX,IY': '5B47,CEEA,AF01,5C3A',
-                'IR,iff,im,border': '3F30,1,1,3',
+                'IR,iff,im,border': '3F12,1,1,3',
                 'ram': 'abebb8526aaabefde79c9ade15864cd6'
             },
             '-c finish-tape=1 --start 23367'
@@ -375,7 +375,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,B047,881C,0001',
                 "AF',BC',DE',HL'": '4745,1621,369B,2758',
                 'PC,SP,IX,IY': 'EF2D,0000,66D1,5C3A',
-                'IR,iff,im,border': '3F74,0,1,5',
+                'IR,iff,im,border': '3F70,0,1,5',
                 'ram': 'e15e37cae1b17e64eb2b8e72529d34b4'
             },
             '-c accelerator=gremlin --tape-stop 10 --start 61229'
@@ -387,10 +387,10 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'Galactic Patrol.tzx',
             '94827dbfba53fa26396d2d218990ed5b',
             {
-                'AF,BC,DE,HL': '0040,004B,0001,053F',
+                'AF,BC,DE,HL': '0040,004B,0001,5DB3',
                 "AF',BC',DE',HL'": 'FF69,1707,0007,2758',
                 'PC,SP,IX,IY': '60A3,FF40,7D8F,5C3A',
-                'IR,iff,im,border': '3F17,1,1,0',
+                'IR,iff,im,border': '3F14,1,1,0',
                 'ram': '4f2ab54dfa4d1d16f3124a629e2a5685'
             }
         )
@@ -406,7 +406,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,B07E,0000,002E',
                 "AF',BC',DE',HL'": '7E6D,1621,369B,2758',
                 'PC,SP,IX,IY': '5EAB,5E87,FFE7,5C3A',
-                'IR,iff,im,border': '3F12,1,1,0',
+                'IR,iff,im,border': '3F0E,1,1,0',
                 'ram': 'db755f6f3f27dfbcd6741ba8b96c64f5'
             },
             '-c in-flags=1 --start 24235'
@@ -421,10 +421,10 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'SOKOBAN.TAP',
             'e1ca546008696c2f53699683874b0717',
             {
-                'AF,BC,DE,HL': '0001,0000,0000,053F',
+                'AF,BC,DE,HL': '0001,0000,0000,5F58',
                 "AF',BC',DE',HL'": 'FF81,7FFD,0009,0038',
                 'PC,SP,IX,IY': '5B14,5F52,C654,5C3A',
-                'IR,iff,im,border': '3F6A,1,1,0',
+                'IR,iff,im,border': '3F64,1,1,0',
                 'ram': '2b6b7f6e2c9dd6411967f2531a173077'
             },
             '-c in-flags=4 -c machine=128 -c finish-tape=1 --start 23316'
@@ -439,7 +439,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '4154,9C41,5D2C,2D2B',
                 "AF',BC',DE',HL'": 'FF81,A384,369B,2758',
                 'PC,SP,IX,IY': '9C41,9C29,03D2,5C3A',
-                'IR,iff,im,border': '3F53,1,1,0',
+                'IR,iff,im,border': '3F51,1,1,0',
                 'ram': '85b1e6270f471bcdf913c7c1e7cfdc1b'
             },
             '--start 40001'
@@ -451,10 +451,10 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'Tridex.tzx',
             '5141d234263b0255e8d4008eb1c2eec8',
             {
-                'AF,BC,DE,HL': '0001,0004,0000,053F',
+                'AF,BC,DE,HL': '0001,0004,0000,88B8',
                 "AF',BC',DE',HL'": 'FF81,0221,0000,0000',
                 'PC,SP,IX,IY': '053F,88B1,FFFE,5C3A',
-                'IR,iff,im,border': '3F67,0,1,7',
+                'IR,iff,im,border': '3F63,0,1,7',
                 'ram': 'a7824496a22358ff430fe29e9fe691da'
             },
             ('--start', '1343', '-c', 'finish-tape=1', '-c', 'load=CLEAR 35000: LOAD ""')
@@ -469,7 +469,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0050,0001,0000,AE01',
                 "AF',BC',DE',HL'": '0042,1421,0000,0000',
                 'PC,SP,IX,IY': 'F6A6,FF50,E080,5C3A',
-                'IR,iff,im,border': '3F12,0,1,1',
+                'IR,iff,im,border': '3F0E,0,1,1',
                 'ram': '5b0007ebb7110d5463420b7f95e53cc1'
             },
             '-c accelerator=microprose --start 63142'
@@ -484,7 +484,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '7F00,E17E,8B46,8BB1',
                 "AF',BC',DE',HL'": '7E6D,0017,0007,5D00',
                 'PC,SP,IX,IY': '5EE0,5D1B,80D1,5C3A',
-                'IR,iff,im,border': '3F2D,0,1,6',
+                'IR,iff,im,border': '3F2B,0,1,6',
                 'ram': '2ba19a83a175e834023cf5fcfd79a824'
             },
             '-c accelerator=microsphere --start 24288'
@@ -499,7 +499,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0044,BCD8,8900,0000',
                 "AF',BC',DE',HL'": 'FF45,1621,369B,2758',
                 'PC,SP,IX,IY': 'FE66,FFFE,6300,9600',
-                'IR,iff,im,border': '3F67,0,1,0',
+                'IR,iff,im,border': '3F65,0,1,0',
                 'ram': '8ab87d9b2ea6375d5da696802e5ff6b2'
             },
             '-c accelerator=micro-style --start 65126'
@@ -515,7 +515,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': 'FC51,FEFB,5DDF,002B',
                 "AF',BC',DE',HL'": 'FF81,1621,369B,2758',
                 'PC,SP,IX,IY': '9010,6191,0000,5C3A',
-                'IR,iff,im,border': '3F54,1,1,3',
+                'IR,iff,im,border': '3F4E,1,1,3',
                 'ram': '98df76e22d91c7d5a8bf7a3c845bc411'
             },
             '--start 36880'
@@ -545,7 +545,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '5354,FD53,A1C9,2D2B',
                 "AF',BC',DE',HL'": '0044,1721,369B,2758',
                 'PC,SP,IX,IY': 'FD53,F72D,03D4,5C3A',
-                'IR,iff,im,border': '3F7D,1,1,5',
+                'IR,iff,im,border': '3F7B,1,1,5',
                 'ram': '3aa858ab90ea0fbfeabce045d62b3d0e'
             },
             '-c accelerator=raxoft --start 64851'
@@ -560,7 +560,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,B05F,0000,0025',
                 "AF',BC',DE',HL'": '0809,1221,0000,0000',
                 'PC,SP,IX,IY': 'FFC0,0000,FF00,5C3A',
-                'IR,iff,im,border': '3F34,0,1,0',
+                'IR,iff,im,border': '3F2E,0,1,0',
                 'ram': '3e26307a6e09789f106846b30e1d0b43'
             },
             '-c accelerator=realtime --start 65472'
@@ -592,7 +592,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0050,005E,0000,E301',
                 "AF',BC',DE',HL'": '5E4D,1621,0000,0000',
                 'PC,SP,IX,IY': '5D42,FFFD,FFF1,5C3A',
-                'IR,iff,im,border': '3F0C,0,1,6',
+                'IR,iff,im,border': '3F0B,0,1,6',
                 'ram': 'c9ce9966ae506bc68bfd656a29399649'
             },
             '-c finish-tape=1 --start 23874'
@@ -607,7 +607,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0202,B040,0000,0006',
                 "AF',BC',DE',HL'": 'FF45,0000,5AF5,B5B0',
                 'PC,SP,IX,IY': 'BAE7,5BFC,8CDD,5C3A',
-                'IR,iff,im,border': '3F69,0,1,0',
+                'IR,iff,im,border': '3F67,0,1,0',
                 'ram': '122ad7a2e57ed1eab06af2eabc602914'
             },
             '-c accelerator=search-loader --start 47847'
@@ -622,7 +622,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0054,B07E,0000,002E',
                 "AF',BC',DE',HL'": '0044,1621,369B,2758',
                 'PC,SP,IX,IY': 'D9E9,D9B7,0000,D9D4',
-                'IR,iff,im,border': '3F00,0,1,0',
+                'IR,iff,im,border': '3F7E,0,1,0',
                 'ram': '30572b5fdfa08dea33ad1cd91bd46ef6'
             },
             '-c accelerator=silverbird --start 55785'
@@ -637,7 +637,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,C421,0000,00F4',
                 "AF',BC',DE',HL'": '2164,C9AC,369B,0000',
                 'PC,SP,IX,IY': 'FE99,6393,E54C,3E00',
-                'IR,iff,im,border': '3F69,0,1,1',
+                'IR,iff,im,border': '3F64,0,1,1',
                 'ram': 'c78140ffaeb662bd6d221ca845caaed1'
             },
             '-c accelerator=sparklers --start 65177'
@@ -669,7 +669,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': 'D054,5FD0,5E9B,2D2B',
                 "AF',BC',DE',HL'": 'FF81,0000,369B,2758',
                 'PC,SP,IX,IY': '5FD0,5F9E,0000,5C3A',
-                'IR,iff,im,border': '3F6A,1,1,0',
+                'IR,iff,im,border': '3F58,1,1,0',
                 'ram': '7e3efedcc012dec47c9afdcf86c0ebfc'
             },
             '--start 24528'
@@ -684,7 +684,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0054,8400,5D1F,2D2B',
                 "AF',BC',DE',HL'": 'FF81,1421,369B,2758',
                 'PC,SP,IX,IY': '8400,7519,0000,5C3A',
-                'IR,iff,im,border': '3F1A,1,1,0',
+                'IR,iff,im,border': '3F14,1,1,0',
                 'ram': 'd32458fe7433ea7d9e6de98437b9810b'
             },
         )
@@ -698,7 +698,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': 'B86A,B001,E2FF,6647',
                 "AF',BC',DE',HL'": '0145,1621,369B,2758',
                 'PC,SP,IX,IY': 'FFAB,4006,5AFF,95E0',
-                'IR,iff,im,border': '3F18,0,1,0',
+                'IR,iff,im,border': '3F16,0,1,0',
                 'ram': '9823f0a223e153cbb37edfbd8cc1a6a5'
             },
             '--tape-start 6 -c accelerator=rom --start 65451'
@@ -713,7 +713,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0054,0000,0001,0000',
                 "AF',BC',DE',HL'": '0445,8A97,369B,5A9E',
                 'PC,SP,IX,IY': 'BD6F,C000,BE74,0001',
-                'IR,iff,im,border': '3F5B,0,1,4',
+                'IR,iff,im,border': '3F59,0,1,4',
                 'ram': '25461848f0ae0b85b136a50131d1231a'
             },
             '-c accelerator=tiny --start 48495'
@@ -725,10 +725,10 @@ class SimLoadGamesTest(SkoolKitTestCase):
             ('Rally Cross - Side 1.tzx', 'Rally Cross - Side 2.tzx'),
             ('59eb4b57e102b0f2dfde44e6a9e23694', 'cb5cb6e607b959558741ee6b70f3d662'),
             {
-                'AF,BC,DE,HL': '0001,0F18,0000,053F',
+                'AF,BC,DE,HL': '0001,0F18,0000,BEFB',
                 "AF',BC',DE',HL'": 'FF69,1621,369B,2758',
                 'PC,SP,IX,IY': '9DEE,5DBD,0000,5C3A',
-                'IR,iff,im,border': '3F44,1,1,7',
+                'IR,iff,im,border': '3F3F,1,1,7',
                 'ram': 'c8cc50e7c818fd80cadd53117ee4edcc'
             },
             '--start 40430'
@@ -743,7 +743,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0093,B0FA,0000,0021',
                 "AF',BC',DE',HL'": '0044,0001,57FF,FED3',
                 'PC,SP,IX,IY': 'F00A,FFFF,9173,F280',
-                'IR,iff,im,border': '3F1E,0,1,2',
+                'IR,iff,im,border': '3F1C,0,1,2',
                 'ram': 'b6708242713704a2e93eacc07f77aa68'
             },
             '-c accelerator=weird-science --tape-stop 5 --start 61450'
