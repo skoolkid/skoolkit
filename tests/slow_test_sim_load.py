@@ -1192,7 +1192,8 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
-        output, error = self.run_tap2sna(('-c', f'trace={tracefile}', '-c', 'load=LOAD ""', tapfile, 'out.z80'))
+        trace_line = 'TraceLine={t:>8} ${pc:04X} {i:<15} {r[a]:02X} {m[23756]:02X}'
+        output, error = self.run_tap2sna(('-c', f'trace={tracefile}', '-c', 'load=LOAD ""', '-I', trace_line, tapfile, 'out.z80'))
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1208,12 +1209,12 @@ class SimLoadTest(SkoolKitTestCase):
         with open(tracefile, 'r') as f:
             trace_lines = f.read().rstrip().split('\n')
         self.assertEqual(len(trace_lines), 134589)
-        self.assertEqual(trace_lines[0], '$1200 LD ($5CB4),HL')
-        self.assertEqual(trace_lines[1], '$1203 LD DE,$3EAF')
-        self.assertEqual(trace_lines[2], '$1206 LD BC,$00A8')
-        self.assertEqual(trace_lines[3], '$1209 EX DE,HL')
-        self.assertEqual(trace_lines[126488], '$0605 POP AF')
-        self.assertEqual(trace_lines[134588], '$34BB RET')
+        self.assertEqual(trace_lines[0], ' 5701854 $1200 LD ($5CB4),HL   00 00')
+        self.assertEqual(trace_lines[1], ' 5701870 $1203 LD DE,$3EAF     00 00')
+        self.assertEqual(trace_lines[2], ' 5701880 $1206 LD BC,$00A8     00 00')
+        self.assertEqual(trace_lines[3], ' 5701890 $1209 EX DE,HL        00 00')
+        self.assertEqual(trace_lines[126488], ' 6995851 $0605 POP AF          1B EF')
+        self.assertEqual(trace_lines[134588], '17876259 $34BB RET             00 0A')
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_trace_with_load_command_and_interrupts_and_timestamps(self):
@@ -1507,6 +1508,67 @@ class SimLoadTest(SkoolKitTestCase):
         exp_reg = set(('SP=65344', 'IX=49153', 'IY=23610', 'PC=1343'))
         self.assertLessEqual(exp_reg, set(options.reg))
         self.assertEqual(snapshot[49152], 128)
+
+    @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
+    def test_trace_with_option_press(self):
+        basic_data = [
+            0, 10,                # Line 10
+            21, 0,                # Line length
+            234,                  # REM
+            62, 247,              # 23760 LD A,247
+            219, 254,             # 23762 IN A,(254)  ; Read keys 1-2-3-4-5
+            31,                   # 23764 RRA         ; Is '1' being pressed?
+            56, 249,              # 23765 JR C,23760  ; Jump back if not
+            221, 33, 0, 128,      # 23767 LD IX,32768
+            17, 1, 0,             # 23771 LD DE,1
+            55,                   # 23774 SCF
+            159,                  # 23775 SBC A,A
+            195, 86, 5,           # 23776 JP 1366
+            13,                   # ENTER
+            0, 20,                # Line 20
+            10, 0,                # Line length
+            249, 192, 46,         # RANDOMIZE USR .
+            14, 0, 0, 208, 92, 0, # 23760
+            13                    # ENTER
+        ]
+        blocks = [
+            create_tap_header_block("simloadbas", 20, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+            create_tap_data_block([255]),
+        ]
+        tapfile = self._write_tap(blocks)
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,39',
+            'Tape paused',
+            'Pressing keys: 1',
+            'Resuming LOAD',
+            'Fast loading data block: 32768,1',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=1343'
+        ]
+        tracefile = 'sim-load.trace'
+        args = (
+            '--press', '3:1',
+            '--start', '1343',
+            '-c', 'finish-tape=1',
+            '-c', f'trace={tracefile}',
+            '-I', 'TraceLine={t:>8} ${pc:04X} {i:<15} {r[a]:02X} {m[23756]:02X}',
+            tapfile,
+            'out.z80'
+        )
+        output, error = self.run_tap2sna(args)
+        self.assertEqual(exp_out_lines, output.strip().split('\n'))
+        self.assertEqual(error, '')
+        exp_reg = set(('SP=65344', 'IX=32769', 'IY=23610', 'PC=1343'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+        self.assertEqual(snapshot[32768], 255)
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 419075)
+        self.assertEqual(trace_lines[0], '       0 $0605 POP AF          1B EF')
+        self.assertEqual(trace_lines[8046], '29109585 $5CD0 LD A,$F7        F7 0A')
+        self.assertEqual(trace_lines[419074], '32605101 $05E2 RET             00 0A')
 
     @patch.object(tap2sna, '_write_snapshot', mock_write_snapshot)
     def test_tape_stop_option_overrides_stop_block(self):

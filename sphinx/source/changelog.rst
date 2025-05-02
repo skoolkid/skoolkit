@@ -32,6 +32,9 @@ Changelog
   activate the :ref:`rstHandler`)
 * Fixed how :ref:`tap2sna.py` handles ``--tape-stop`` for PZX files that
   contain STOP blocks
+* Fixed the bug that prevents the ``m`` replacement field from being used in
+  the ``TraceLine`` configuration parameter when :ref:`tap2sna.py` runs a
+  custom LOAD command
 
 9.5 (2025-01-28)
 ----------------

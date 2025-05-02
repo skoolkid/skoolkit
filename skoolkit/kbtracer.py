@@ -327,7 +327,7 @@ class KeyboardTracer(PagingTracer):
         if hasattr(simulator, 'press_keys'): # pragma: no cover
             if trace_line:
                 df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
-                tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
+                tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
             else:
                 df = tf = None
             simulator.press_keys(keys, stop, timeout, df, tf)
@@ -342,7 +342,7 @@ class KeyboardTracer(PagingTracer):
                 if tracefile:
                     i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                     opcodes[memory[pc]]()
-                    tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
+                    tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
                 else:
                     opcodes[memory[pc]]()
                 tstates = registers[25]
@@ -396,7 +396,7 @@ class KeypressTracer(PagingTracer):
         if hasattr(simulator, 'press'): # pragma: no cover
             if trace_line:
                 df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
-                tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0))
+                tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
             else:
                 df = tf = None
             simulator.press(keys, timeout, df, tf)
@@ -410,7 +410,7 @@ class KeypressTracer(PagingTracer):
                 if tracefile:
                     i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                     opcodes[memory[pc]]()
-                    tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=tstates))
+                    tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=tstates, m=memory))
                 else:
                     opcodes[memory[pc]]()
                 tstates = registers[25]
