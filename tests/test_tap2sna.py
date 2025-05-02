@@ -3154,12 +3154,12 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
-    def test_sim_load_enables_fast_djnz_ldir(self):
+    def test_sim_load_disables_fast_djnz_ldir(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(tapfile)
         self.assertEqual(error, '')
-        self.assertTrue(simulator.config.get('fast_djnz'))
-        self.assertTrue(simulator.config.get('fast_ldir'))
+        self.assertFalse(simulator.config.get('fast_djnz'))
+        self.assertFalse(simulator.config.get('fast_ldir'))
 
     @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)

@@ -482,8 +482,7 @@ def sim_load(blocks, options, config):
                 warn(f'Unrecognised accelerator: {name}')
 
     interrupted = False
-    fast = not options.trace
-    sim_cfg = {'fast_djnz': fast, 'fast_ldir': fast}
+    sim_cfg = {'fast_djnz': False, 'fast_ldir': False}
     if options.machine == '128':
         if not options.load:
             options.load = 'ENTER'
