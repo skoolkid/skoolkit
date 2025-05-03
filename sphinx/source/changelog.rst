@@ -1,7 +1,7 @@
 Changelog
 =========
 
-9.6b1
+9.6rc
 -----
 * :ref:`tap2sna.py` can now load from two tape files (e.g. when side 1 and side
   2 of a tape are in separate files)
