@@ -50,10 +50,6 @@ OPTIONS
   Maximum number of (simulated) T-states to run for. Overrides the `STOP`
   address (if given).
 
---no-audio
-  Don't capture audio delays. This can reduce memory usage and increase
-  performance when tracing code that exercises the speaker over a long period.
-
 -n, --no-interrupts
   Don't execute interrupt routines.
 

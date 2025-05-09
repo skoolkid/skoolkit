@@ -271,7 +271,8 @@ def run(snafile, options, config):
             start = org
     for spec in options.pokes:
         poke(simulator.memory, spec)
-    tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe, not options.no_audio)
+    audio = options.audio or any(f.lower().endswith('.wav') for f in options.dump)
+    tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe, audio)
     simulator.set_tracer(tracer)
     if options.verbose:
         s = (('', '2'), ('Decimal', 'Decimal2'))[options.decimal][min(options.verbose - 1, 1)]
@@ -370,8 +371,6 @@ def main(args):
                        help='Maximum number of instructions to execute.')
     group.add_argument('-M', '--max-tstates', metavar='MAX', type=int, default=0,
                        help='Maximum number of T-states to run for.')
-    group.add_argument('--no-audio', action='store_true',
-                       help="Don't capture audio delays.")
     group.add_argument('-n', '--no-interrupts', dest='interrupts', action='store_false',
                        help="Don't execute interrupt routines.")
     group.add_argument('-o', '--org', metavar='ADDR', type=integer,

@@ -10,6 +10,7 @@ from skoolkit import SkoolKitError, VERSION, CSimulator, components, screen, tra
 from skoolkit.config import COMMANDS
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import PC, IFF, IM, T
+from skoolkit.trace import Tracer
 
 ROM128_0_MD5 = 'b4d2692115a9f2924df92a3cbfb358fb'
 ROM128_1_MD5 = '6e09e5d3c4aef166601669feaaadc01c'
@@ -89,6 +90,13 @@ class MockScreen:
         self.keyboard = keyboard
         return True
 
+class TestTracer(Tracer):
+    def __init__(self, simulator, border, out7ffd, outfffd, ay, outfe, audio):
+        global tracer
+        super().__init__(simulator, border, out7ffd, outfffd, ay, outfe, audio)
+        self.audio = audio
+        tracer = self
+
 def mock_run(*args):
     global run_args
     run_args = args
@@ -149,7 +157,6 @@ class TraceTest(SkoolKitTestCase):
         self.assertIsNone(options.map)
         self.assertEqual(options.max_operations, 0)
         self.assertEqual(options.max_tstates, 0)
-        self.assertFalse(options.no_audio)
         self.assertIsNone(options.org)
         self.assertEqual(options.params, [])
         self.assertEqual(options.pokes, [])
@@ -1908,21 +1915,6 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
-    @patch.object(trace, 'get_audio_writer', MockAudioWriter)
-    def test_option_no_audio(self):
-        global audio_writer
-        audio_writer = None
-        data = (
-            0xD3, 0xFE, # OUT ($FE),A
-            0xEE, 0x10, # XOR $10
-            0xD3, 0xFE, # OUT ($FE),A
-        )
-        infile = self.write_bin_file(data, suffix='.bin')
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_trace(f'--no-audio -n -S 0 {infile} out.wav')
-        self.assertEqual(cm.exception.args[0], 'No audio detected')
-        self.assertIsNone(audio_writer)
-
     def test_option_state_bad_values(self):
         self._test_bad_spec('--state 7ffd=x', 'Cannot parse integer: 7ffd=x')
         self._test_bad_spec('--state ay[0]=q', 'Cannot parse integer: ay[0]=q')
@@ -3084,6 +3076,18 @@ class TraceTest(SkoolKitTestCase):
             self.run_trace(f'-n -o {start} -S {stop} {infile} out.wav')
         self.assertEqual(cm.exception.args[0], 'No audio detected')
         self.assertIsNone(audio_writer)
+
+    @patch.object(trace, 'Tracer', TestTracer)
+    def test_no_audio(self):
+        data = (
+            0xD3, 0xFE, # OUT ($FE),A
+            0xEE, 0x10, # XOR $10
+            0xD3, 0xFE, # OUT ($FE),A
+        )
+        infile = self.write_bin_file(data, suffix='.bin')
+        output, error = self.run_trace(f'-n -S 0 {infile}')
+        self.assertFalse(tracer.audio)
+        self.assertEqual([], tracer.out_times)
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_audio_writer(self):

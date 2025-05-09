@@ -1,8 +1,8 @@
 Changelog
 =========
 
-9.6rc
------
+9.6rc2
+------
 * :ref:`tap2sna.py` can now load from two tape files (e.g. when side 1 and side
   2 of a tape are in separate files)
 * Added the ``--press`` option to :ref:`tap2sna.py` (for pausing the tape and
@@ -22,8 +22,6 @@ Changelog
   ``suzy-soft2`` tape-sampling loop accelerators
 * Added the ``Screen`` configuration parameter for :ref:`trace.py <trace-conf>`
   (to specify whether to display screen contents)
-* Added the ``--no-audio`` option to :ref:`trace.py` (for disabling the capture
-  of audio delays)
 * Added the :ref:`rstHandler` component
 * Added the ``--handle-rst`` option to :ref:`sna2ctl.py` and
   :ref:`sna2skool.py` (for activating the :ref:`rstHandler`)

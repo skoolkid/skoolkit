@@ -2138,7 +2138,6 @@ To list the options supported by `trace.py`, run it with no arguments::
                           Maximum number of instructions to execute.
     -M MAX, --max-tstates MAX
                           Maximum number of T-states to run for.
-    --no-audio            Don't capture audio delays.
     -n, --no-interrupts   Don't execute interrupt routines.
     -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
                           file (default: 65536 - length).
@@ -2174,15 +2173,11 @@ specified by ``--stop`` (if any) is reached. Use the ``--verbose`` option to
 show each instruction executed. Repeat the ``--verbose`` option (``-vv``) to
 show register values too.
 
-By default, `trace.py` tracks changes in the state of the ZX Spectrum speaker.
-When the ``--audio`` option is given, it will print a list of the delays (in
-T-states) between those changes. This list can be supplied to the :ref:`AUDIO`
-macro to produce a WAV file for the sound effect that would be produced by the
-same code running on a real ZX Spectrum.
-
-When the ``--no-audio`` option is given, capturing audio delays is disabled.
-This can reduce memory usage and increase performance when tracing code that
-exercises the speaker over a long period.
+When the ``--audio`` option is given, `trace.py` tracks changes in the state
+of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)
+between those changes. This list can be supplied to the :ref:`AUDIO` macro to
+produce a WAV file for the sound effect that would be produced by the same code
+running on a real ZX Spectrum.
 
 If the ``--screen`` option is given and `pygame`_ is installed, `trace.py` will
 use it to render the Spectrum's screen contents at 50 frames per second with a
@@ -2259,8 +2254,7 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.6     | Added the ``Screen`` configuration parameter; added the           |
-|         | ``--no-audio`` option                                             |
+| 9.6     | Added the ``Screen`` configuration parameter                      |
 +---------+-------------------------------------------------------------------+
 | 9.5     | Responds to keypresses while the screen is displayed; added the   |
 |         | ``--map`` option                                                  |
