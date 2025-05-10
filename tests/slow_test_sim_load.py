@@ -1192,7 +1192,7 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
-        trace_line = 'TraceLine={t:>8} ${pc:04X} {i:<15} {r[a]:02X} {m[23756]:02X}'
+        trace_line = 'TraceLine={t:>8} ${pc:04X} {i:<15} {r[a]:02X} {m[$5ccc]:02X}'
         output, error = self.run_tap2sna(('-c', f'trace={tracefile}', '-c', 'load=LOAD ""', '-I', trace_line, tapfile, 'out.z80'))
         out_lines = output.strip().split('\n')
         exp_out_lines = [
@@ -1553,7 +1553,7 @@ class SimLoadTest(SkoolKitTestCase):
             '--start', '1343',
             '-c', 'finish-tape=1',
             '-c', f'trace={tracefile}',
-            '-I', 'TraceLine={t:>8} ${pc:04X} {i:<15} {r[a]:02X} {m[23756]:02X}',
+            '-I', 'TraceLine={t:>8} ${pc:04X} {i:<15} {r[a]:02X} {m[0x5CCC]:02X}',
             tapfile,
             'out.z80'
         )

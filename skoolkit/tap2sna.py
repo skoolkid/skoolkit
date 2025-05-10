@@ -37,6 +37,7 @@ from skoolkit.simutils import FRAME_DURATIONS, INT_ACTIVE, PC, T, get_state
 from skoolkit.snapshot import (move, patch, poke, print_reg_help,
                                print_state_help, write_snapshot)
 from skoolkit.tape import parse_pzx, parse_tap, parse_tzx
+from skoolkit.traceutils import get_trace_line
 
 SUPPORTED_TAPES = ('.pzx', '.tap', '.tzx')
 
@@ -503,7 +504,7 @@ def sim_load(blocks, options, config):
 
     if options.trace:
         tracefile = open_file(options.trace, 'w')
-        trace_line = config['TraceLine'] + '\n'
+        trace_line = get_trace_line(config['TraceLine'] + '\n')
         op_fmt = config['TraceOperand']
         prefix, byte_fmt, word_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
     else:

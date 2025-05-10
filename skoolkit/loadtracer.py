@@ -22,7 +22,7 @@ from skoolkit.basic import TextReader
 from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import R1
 from skoolkit.simutils import A, D, E, F, H, IXh, IXl, SP, PC, T, IFF
-from skoolkit.traceutils import Registers, disassemble, get_trace_line
+from skoolkit.traceutils import Registers, disassemble
 
 DEC = tuple(tuple((
         v % 256,
@@ -244,7 +244,7 @@ class LoadTracer(PagingTracer):
         registers = simulator.registers
         tracefile = self.tracefile
         if tracefile:
-            trace_line = get_trace_line(self.trace_line)
+            trace_line = self.trace_line
             prefix = self.prefix
             byte_fmt = self.byte_fmt
             word_fmt = self.word_fmt
