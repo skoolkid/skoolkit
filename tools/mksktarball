@@ -56,7 +56,7 @@ rm -rf ${ABSDIR}
 
 rsync -aR \
   {bin2{sna,tap},rzx{info,play},skool2{asm,bin,ctl,html},sna2{ctl,img,skool},snap{info,mod},tap{2sna,info},trace}.py \
-  skoolkit/{__init__,audio,basic,bin2{sna,tap},cmiosimulator,comment,components,config,ctlparser,defaults,disassembler,graphics,image,kbtracer,loadsample,loadtracer,opcodes,pagingtracer,pngwriter,refparser,rzx{info,play},screen,sim{tables,utils},simulator,skool{{,2}{asm,ctl,html},2bin,macro,parser,utils},sna2img,sna{,2}{ctl,skool},snap{info,mod,shot},tap{2sna,e,info},textutils,trace,traceutils,z80}.py \
+  skoolkit/{__init__,audio,basic,bin2{sna,tap},cmiosimulator,comment,components,config,ctlparser,defaults,disassembler,graphics,image,kbtracer,loadsample,loadtracer,opcodes,pagingtracer,pngwriter,refparser,rst,rzx{info,play},screen,sim{tables,utils},simulator,skool{{,2}{asm,ctl,html},2bin,macro,parser,utils},sna2img,sna{,2}{ctl,skool},snap{info,mod,shot},tap{2sna,e,info},textutils,trace,traceutils,z80}.py \
   examples/hungry_horace.{ctl,ref,t2s} \
   skoolkit/resources/{{{128,plus2}-{0,1},48}.rom,skoolkit{,-dark,-green,-plum,-wide}.css} \
   tests/{{macro,skoolkit}test,test_{audio,basic,bin2{sna,tap},cmiosimulator,comment,ctlparser,disassembler,graphics,image,kbtracer,pagingtracer,refparser,rzx{info,play},screen,simulator,skool{{,2}{asm,ctl,html},2bin,macro,parser,utils},skoolkit,sna2{ctl,img},sna{2,}skool,snap{info,mod,shot},tap{2sna,e,info},textutils,trace,traceutils,z80}}.py \
