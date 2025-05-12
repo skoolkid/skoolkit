@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Changelog &#8212; SkoolKit 9.5 documentation</title>
+    <title>Changelog &#8212; SkoolKit 9.6 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 8"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Changelog</a></li> 
       </ul>
     </div>  
@@ -46,7 +46,42 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">¶</a></h1>
 <section id="id1">
-<h2>9.5 (2025-01-28)<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<h2>9.6 (2025-05-12)<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> can now load from two tape files (e.g. when side 1 and side
+2 of a tape are in separate files)</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">--press</span></code> option to <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> (for pausing the tape and
+<a class="reference internal" href="commands.html#tap2sna-user-input"><span class="std std-ref">simulating keypresses</span></a> before resuming)</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">--tape-skip</span></code> option to <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> (for skipping one or
+more blocks on a tape)</p></li>
+<li><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option of <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> for the <code class="docutils literal notranslate"><span class="pre">patch</span></code>
+operation (for applying a binary patch file)</p></li>
+<li><p>Changed the default value of the <code class="docutils literal notranslate"><span class="pre">accelerate-dec-a</span></code> simulated LOAD
+configuration parameter for <a class="reference internal" href="commands.html#tap2sna-sim-load"><span class="std std-ref">tap2sna.py</span></a> from <code class="docutils literal notranslate"><span class="pre">1</span></code>
+to <code class="docutils literal notranslate"><span class="pre">3</span></code></p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">activision</span></code>, <code class="docutils literal notranslate"><span class="pre">alternative3</span></code>, <code class="docutils literal notranslate"><span class="pre">audiogenic-0</span></code>,
+<code class="docutils literal notranslate"><span class="pre">audiogenic-1</span></code>, <code class="docutils literal notranslate"><span class="pre">codemasters</span></code>, <code class="docutils literal notranslate"><span class="pre">diver</span></code>, <code class="docutils literal notranslate"><span class="pre">gremlin2-0</span></code>, <code class="docutils literal notranslate"><span class="pre">gremlin2-1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">kwc-0</span></code>, <code class="docutils literal notranslate"><span class="pre">kwc-1</span></code>, <code class="docutils literal notranslate"><span class="pre">mirrorsoft2</span></code> and <code class="docutils literal notranslate"><span class="pre">operasoft</span></code> tape-sampling loop
+<a class="reference internal" href="commands.html#tap2sna-accelerators"><span class="std std-ref">accelerators</span></a></p></li>
+<li><p>Removed the <code class="docutils literal notranslate"><span class="pre">dinaload</span></code>, <code class="docutils literal notranslate"><span class="pre">gremlin2</span></code>, <code class="docutils literal notranslate"><span class="pre">housenka</span></code>, <code class="docutils literal notranslate"><span class="pre">suzy-soft</span></code> and
+<code class="docutils literal notranslate"><span class="pre">suzy-soft2</span></code> tape-sampling loop accelerators</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">Screen</span></code> configuration parameter for <a class="reference internal" href="commands.html#trace-conf"><span class="std std-ref">trace.py</span></a>
+(to specify whether to display screen contents)</p></li>
+<li><p>Added the <a class="reference internal" href="components.html#rsthandler"><span class="std std-ref">RST handler</span></a> component</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">--handle-rst</span></code> option to <a class="reference internal" href="commands.html#sna2ctl-py"><span class="std std-ref">sna2ctl.py</span></a> and
+<a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> (for activating the <a class="reference internal" href="components.html#rsthandler"><span class="std std-ref">RST handler</span></a>)</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">HandleRST</span></code> configuration parameter for
+<a class="reference internal" href="commands.html#sna2ctl-conf"><span class="std std-ref">sna2ctl.py</span></a> and <a class="reference internal" href="commands.html#sna2skool-conf"><span class="std std-ref">sna2skool.py</span></a> (to
+activate the <a class="reference internal" href="components.html#rsthandler"><span class="std std-ref">RST handler</span></a>)</p></li>
+<li><p>Fixed how <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> handles <code class="docutils literal notranslate"><span class="pre">--tape-stop</span></code> for PZX files that
+contain STOP blocks</p></li>
+<li><p>Fixed the bug that prevents the <code class="docutils literal notranslate"><span class="pre">m</span></code> replacement field from being used in
+the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> configuration parameter when <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> runs a
+custom LOAD command</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>9.5 (2025-01-28)<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Dropped support for Python 3.8</p></li>
 <li><p>Added the <a class="reference internal" href="components.html#commentgenerator"><span class="std std-ref">comment generator</span></a> component</p></li>
@@ -79,8 +114,8 @@ boundary</p></li>
 <li><p>Fixed how BIN expressions are evaluated in BASIC listings</p></li>
 </ul>
 </section>
-<section id="id2">
-<h2>9.4 (2024-10-05)<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<section id="id3">
+<h2>9.4 (2024-10-05)<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support to <a class="reference internal" href="commands.html#skool2bin-conf"><span class="std std-ref">skool2bin.py</span></a> for reading
 configuration from <cite>skoolkit.ini</cite></p></li>
@@ -117,8 +152,8 @@ of the Z80 simulator</p></li>
 simulator</p></li>
 </ul>
 </section>
-<section id="id3">
-<h2>9.3 (2024-08-10)<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
+<section id="id4">
+<h2>9.3 (2024-08-10)<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support to <a class="reference internal" href="commands.html#tapinfo-py"><span class="std std-ref">tapinfo.py</span></a> and <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> for reading PZX
 files</p></li>
@@ -149,8 +184,8 @@ items in the <a class="reference internal" href="ref-files.html#resources"><span
 accepting hexadecimal values prefixed by ‘0x’</p></li>
 </ul>
 </section>
-<section id="id4">
-<h2>9.2 (2024-05-11)<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
+<section id="id5">
+<h2>9.2 (2024-05-11)<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added a Z80 instruction set simulator implemented in C (as a faster
 alternative to the pure Python Z80 simulator)</p></li>
@@ -174,8 +209,8 @@ pure Python Z80 simulator even if the C version is available)</p></li>
 <li><p>Fixed the contention pattern for the OUTI/OUTD/OTIR/OTDR instructions</p></li>
 </ul>
 </section>
-<section id="id5">
-<h2>9.1 (2024-02-03)<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
+<section id="id6">
+<h2>9.1 (2024-02-03)<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support to <a class="reference internal" href="commands.html#snapmod-py"><span class="std std-ref">snapmod.py</span></a> for modifying SZX snapshots and 128K
 snapshots</p></li>
@@ -228,8 +263,8 @@ when the value of PROG is 65535</p></li>
 <a class="reference internal" href="control-files.html#ctlloops"><span class="std std-ref">control file loop</span></a></p></li>
 </ul>
 </section>
-<section id="id6">
-<h2>9.0 (2023-11-04)<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h2>
+<section id="id7">
+<h2>9.0 (2023-11-04)<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Dropped support for Python 3.7</p></li>
 <li><p><a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> now performs a <a class="reference internal" href="commands.html#tap2sna-sim-load"><span class="std std-ref">simulated LOAD</span></a> by
@@ -312,12 +347,13 @@ hash character (<code class="docutils literal notranslate"><span class="pre">#</
     <h3><a href="index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">9.5 (2025-01-28)</a></li>
-<li><a class="reference internal" href="#id2">9.4 (2024-10-05)</a></li>
-<li><a class="reference internal" href="#id3">9.3 (2024-08-10)</a></li>
-<li><a class="reference internal" href="#id4">9.2 (2024-05-11)</a></li>
-<li><a class="reference internal" href="#id5">9.1 (2024-02-03)</a></li>
-<li><a class="reference internal" href="#id6">9.0 (2023-11-04)</a></li>
+<li><a class="reference internal" href="#id1">9.6 (2025-05-12)</a></li>
+<li><a class="reference internal" href="#id2">9.5 (2025-01-28)</a></li>
+<li><a class="reference internal" href="#id3">9.4 (2024-10-05)</a></li>
+<li><a class="reference internal" href="#id4">9.3 (2024-08-10)</a></li>
+<li><a class="reference internal" href="#id5">9.2 (2024-05-11)</a></li>
+<li><a class="reference internal" href="#id6">9.1 (2024-02-03)</a></li>
+<li><a class="reference internal" href="#id7">9.0 (2023-11-04)</a></li>
 <li><a class="reference internal" href="#older-versions">Older versions</a></li>
 </ul>
 </li>
@@ -367,7 +403,7 @@ hash character (<code class="docutils literal notranslate"><span class="pre">#</
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 8"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Changelog</a></li> 
       </ul>
     </div>

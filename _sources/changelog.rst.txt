@@ -1,6 +1,39 @@
 Changelog
 =========
 
+9.6 (2025-05-12)
+----------------
+* :ref:`tap2sna.py` can now load from two tape files (e.g. when side 1 and side
+  2 of a tape are in separate files)
+* Added the ``--press`` option to :ref:`tap2sna.py` (for pausing the tape and
+  :ref:`simulating keypresses <tap2sna-user-input>` before resuming)
+* Added the ``--tape-skip`` option to :ref:`tap2sna.py` (for skipping one or
+  more blocks on a tape)
+* Added support to the ``--ram`` option of :ref:`tap2sna.py` for the ``patch``
+  operation (for applying a binary patch file)
+* Changed the default value of the ``accelerate-dec-a`` simulated LOAD
+  configuration parameter for :ref:`tap2sna.py <tap2sna-sim-load>` from ``1``
+  to ``3``
+* Added the ``activision``, ``alternative3``, ``audiogenic-0``,
+  ``audiogenic-1``, ``codemasters``, ``diver``, ``gremlin2-0``, ``gremlin2-1``,
+  ``kwc-0``, ``kwc-1``, ``mirrorsoft2`` and ``operasoft`` tape-sampling loop
+  :ref:`accelerators <tap2sna-accelerators>`
+* Removed the ``dinaload``, ``gremlin2``, ``housenka``, ``suzy-soft`` and
+  ``suzy-soft2`` tape-sampling loop accelerators
+* Added the ``Screen`` configuration parameter for :ref:`trace.py <trace-conf>`
+  (to specify whether to display screen contents)
+* Added the :ref:`rstHandler` component
+* Added the ``--handle-rst`` option to :ref:`sna2ctl.py` and
+  :ref:`sna2skool.py` (for activating the :ref:`rstHandler`)
+* Added the ``HandleRST`` configuration parameter for
+  :ref:`sna2ctl.py <sna2ctl-conf>` and :ref:`sna2skool.py <sna2skool-conf>` (to
+  activate the :ref:`rstHandler`)
+* Fixed how :ref:`tap2sna.py` handles ``--tape-stop`` for PZX files that
+  contain STOP blocks
+* Fixed the bug that prevents the ``m`` replacement field from being used in
+  the ``TraceLine`` configuration parameter when :ref:`tap2sna.py` runs a
+  custom LOAD command
+
 9.5 (2025-01-28)
 ----------------
 * Dropped support for Python 3.8

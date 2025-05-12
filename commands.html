@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Commands &#8212; SkoolKit 9.5 documentation</title>
+    <title>Commands &#8212; SkoolKit 9.6 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>  
@@ -190,7 +190,7 @@ used to store essential code or data.</p>
 <code class="docutils literal notranslate"><span class="pre">--clear</span></code> option to add a CLEAR command to the BASIC loader. This option
 leaves the stack pointer alone, enabling the program to return to BASIC without
 crashing. The lowest usable address with the <code class="docutils literal notranslate"><span class="pre">--clear</span></code> option on a bare 48K
-Spectrum is 23972 (5DA4) if a loading screen is used, or 23952 (0x5D90)
+Spectrum is 23972 (0x5DA4) if a loading screen is used, or 23952 (0x5D90)
 otherwise.</p>
 <p>To create a tape file that loads a 128K game, use the <code class="docutils literal notranslate"><span class="pre">--7ffd</span></code>, <code class="docutils literal notranslate"><span class="pre">--begin</span></code>
 and <code class="docutils literal notranslate"><span class="pre">--clear</span></code> options along with a 128K snapshot or a 128K binary file as
@@ -1057,6 +1057,7 @@ Options:
                         65536 - length).
   -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
                         49152-65535.
+  -r, --handle-rst      Handle RST instruction arguments.
   --show-config         Show configuration parameter values.
   -s ADDR, --start ADDR
                         Start at this address.
@@ -1076,6 +1077,9 @@ generating a control file. The supported file formats are:</p>
 <p>If the file specified by the <code class="docutils literal notranslate"><span class="pre">-m</span></code> option is 8192 bytes long, it is assumed to
 be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
 file; otherwise it is assumed to be in one of the other supported formats.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--handle-rst</span></code> option activates the <a class="reference internal" href="components.html#rsthandler"><span class="std std-ref">RST handler</span></a>. When this handler
+identifies the byte/word argument(s) of an RST instruction, a <a class="reference internal" href="control-files.html#bdirective"><span class="std std-ref">B directive</span></a>
+or <a class="reference internal" href="control-files.html#wdirective"><span class="std std-ref">W directive</span></a> is generated accordingly.</p>
 <section id="sna2ctl-conf">
 <span id="id14"></span><h3>Configuration<a class="headerlink" href="#sna2ctl-conf" title="Permalink to this heading">¶</a></h3>
 <p><cite>sna2ctl.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
@@ -1087,6 +1091,8 @@ default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Dictionary</span></code> - the name of a file containing a list of allowed words, one
 per line; if specified, a string of characters will be marked as text only if
 it contains at least one of the words in this file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HandleRST</span></code> - activate the <a class="reference internal" href="components.html#rsthandler"><span class="std std-ref">RST handler</span></a> (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the
+default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Hex</span></code> - write addresses in decimal (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default), lower case
 hexadecimal (<code class="docutils literal notranslate"><span class="pre">1</span></code>),  or upper case hexadecimal (<code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TextChars</span></code> - characters eligible for being marked as text (default:
@@ -1115,22 +1121,26 @@ Hex=2
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>9.5</p></td>
+<tr class="row-even"><td><p>9.6</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--handle-rst</span></code> option and the <code class="docutils literal notranslate"><span class="pre">HandleRST</span></code>
+configuration parameter</p></td>
+</tr>
+<tr class="row-odd"><td><p>9.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--comments</span></code> option and the <code class="docutils literal notranslate"><span class="pre">Comments</span></code>
 configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.2</p></td>
+<tr class="row-even"><td><p>9.2</p></td>
 <td><p>Added support for reading code execution maps produced by
 <a class="reference internal" href="#rzxplay-py"><span class="std std-ref">rzxplay.py</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>7.2</p></td>
+<tr class="row-odd"><td><p>7.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Dictionary</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>7.1</p></td>
+<tr class="row-even"><td><p>7.1</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> and <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> options</p></td>
 </tr>
-<tr class="row-even"><td><p>7.0</p></td>
+<tr class="row-odd"><td><p>7.0</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1240,6 +1250,7 @@ Options:
                         (default: 65536 - length).
   -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
                         49152-65535.
+  -r, --handle-rst      Handle RST instruction arguments.
   --show-config         Show configuration parameter values.
   -s ADDR, --start ADDR
                         Start disassembling at this address.
@@ -1263,6 +1274,11 @@ following order:</p>
 <li><p>the <code class="docutils literal notranslate"><span class="pre">Text</span></code> configuration parameter (shows byte values as ASCII text)</p></li>
 <li><p>the <code class="docutils literal notranslate"><span class="pre">Timings</span></code> configuration parameter (shows instruction timings)</p></li>
 </ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">--handle-rst</span></code> option activates the <a class="reference internal" href="components.html#rsthandler"><span class="std std-ref">RST handler</span></a>. When this handler
+identifies the byte/word argument(s) of an RST instruction, a DEFB/DEFW
+statement is produced accordingly. This is useful only if no control file is
+used, or if the control file does not already contain <code class="docutils literal notranslate"><span class="pre">B</span></code> or <code class="docutils literal notranslate"><span class="pre">W</span></code> directives
+for RST instruction arguments.</p>
 <section id="sna2skool-conf">
 <span id="id17"></span><h3>Configuration<a class="headerlink" href="#sna2skool-conf" title="Permalink to this heading">¶</a></h3>
 <p><cite>sna2skool.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
@@ -1287,6 +1303,8 @@ with exactly one referrer (default: <code class="docutils literal notranslate"><
 <li><p><code class="docutils literal notranslate"><span class="pre">EntryPointRefs</span></code> - template used to format the comment for an entry point
 with two or more referrers (default: <code class="docutils literal notranslate"><span class="pre">This</span> <span class="pre">entry</span> <span class="pre">point</span> <span class="pre">is</span> <span class="pre">used</span> <span class="pre">by</span> <span class="pre">the</span>
 <span class="pre">routines</span> <span class="pre">at</span> <span class="pre">{refs}</span> <span class="pre">and</span> <span class="pre">{ref}.</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HandleRST</span></code> - activate the <a class="reference internal" href="components.html#rsthandler"><span class="std std-ref">RST handler</span></a> (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the
+default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">InstructionWidth</span></code> - minimum width of the instruction field in the skool
 file (default: <code class="docutils literal notranslate"><span class="pre">13</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">LineWidth</span></code> - maximum line width of the skool file (default: <code class="docutils literal notranslate"><span class="pre">79</span></code>)</p></li>
@@ -1394,90 +1412,94 @@ LineWidth=120
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>9.5</p></td>
+<tr class="row-even"><td><p>9.6</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--handle-rst</span></code> option and the <code class="docutils literal notranslate"><span class="pre">HandleRST</span></code>
+configuration parameter</p></td>
+</tr>
+<tr class="row-odd"><td><p>9.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--comments</span></code> option and the <code class="docutils literal notranslate"><span class="pre">Comments</span></code>
 configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.3</p></td>
+<tr class="row-even"><td><p>9.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Opcodes</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>8.7</p></td>
+<tr class="row-odd"><td><p>8.7</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--defb</span></code> option and the <code class="docutils literal notranslate"><span class="pre">Timings</span></code> configuration
 parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.5</p></td>
+<tr class="row-even"><td><p>8.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Wrap</span></code> configuration parameter and the ability to
 disassemble an instruction that wraps around the 64K boundary;
 added the <code class="docutils literal notranslate"><span class="pre">RefFormat</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>8.4</p></td>
+<tr class="row-odd"><td><p>8.4</p></td>
 <td><p>Changed the default value of the <code class="docutils literal notranslate"><span class="pre">DefmSize</span></code> configuration
 parameter from 66 to 65</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.3</p></td>
+<tr class="row-even"><td><p>8.3</p></td>
 <td><p>Added support for reading control files from a directory
 (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">DIR</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p>8.1</p></td>
+<tr class="row-odd"><td><p>8.1</p></td>
 <td><p>Added support for ignoring default control files (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">0</span></code>)</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.0</p></td>
+<tr class="row-even"><td><p>8.0</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">DefwSize</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>7.1</p></td>
+<tr class="row-odd"><td><p>7.1</p></td>
 <td><p>Added support for reading multiple default control files, and for
 using the <code class="docutils literal notranslate"><span class="pre">--ctl</span></code> option multiple times; added the
 <code class="docutils literal notranslate"><span class="pre">CommentWidthMin</span></code>, <code class="docutils literal notranslate"><span class="pre">InstructionWidth</span></code> and <code class="docutils literal notranslate"><span class="pre">Semicolons</span></code>
 configuration parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p>7.0</p></td>
+<tr class="row-even"><td><p>7.0</p></td>
 <td><p>The short option for <code class="docutils literal notranslate"><span class="pre">--lower</span></code> is <code class="docutils literal notranslate"><span class="pre">-l</span></code>; the long option for
 <code class="docutils literal notranslate"><span class="pre">-H</span></code> is <code class="docutils literal notranslate"><span class="pre">--hex</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>6.2</p></td>
+<tr class="row-odd"><td><p>6.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> option; the <code class="docutils literal notranslate"><span class="pre">--end</span></code>, <code class="docutils literal notranslate"><span class="pre">--org</span></code> and
 <code class="docutils literal notranslate"><span class="pre">--start</span></code> options accept a hexadecimal integer prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.1</p></td>
+<tr class="row-even"><td><p>6.1</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>4.4</p></td>
+<tr class="row-odd"><td><p>4.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--end</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.3</p></td>
+<tr class="row-even"><td><p>4.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--line-width</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>3.4</p></td>
+<tr class="row-odd"><td><p>3.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-V</span></code> option and the long options, and the ability to
 add a comment listing referrers at every routine entry point</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.3</p></td>
+<tr class="row-even"><td><p>3.3</p></td>
 <td><p>Added the ability to read 128K SNA snapshots</p></td>
 </tr>
-<tr class="row-even"><td><p>3.2</p></td>
+<tr class="row-odd"><td><p>3.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-p</span></code> option, and the ability to read SZX snapshots
 and 128K Z80 snapshots</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.1.2</p></td>
+<tr class="row-even"><td><p>2.1.2</p></td>
 <td><p>Added the ability to write the disassembly in lower case</p></td>
 </tr>
-<tr class="row-even"><td><p>2.1</p></td>
+<tr class="row-odd"><td><p>2.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-H</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.0.1</p></td>
+<tr class="row-even"><td><p>2.0.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-o</span></code> option, and the ability to read binary files, to
 set the maximum number of characters in a DEFM statement, and to
 suppress comments that list routine entry point referrers</p></td>
 </tr>
-<tr class="row-even"><td><p>2.0</p></td>
+<tr class="row-odd"><td><p>2.0</p></td>
 <td><p>Added the ability to set the maximum number of bytes in a DEFB
 statement</p></td>
 </tr>
-<tr class="row-odd"><td><p>1.0.5</p></td>
+<tr class="row-even"><td><p>1.0.5</p></td>
 <td><p>Added the ability to show ASCII text in comment fields</p></td>
 </tr>
-<tr class="row-even"><td><p>1.0.4</p></td>
+<tr class="row-odd"><td><p>1.0.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-s</span></code> option</p></td>
 </tr>
 </tbody>
@@ -1539,7 +1561,7 @@ all RAM banks in a 128K snapshot; use the <code class="docutils literal notransl
 search to the address range 16384-65535 (0x4000-0xFFFF).</p>
 <section id="call-graphs">
 <span id="snapinfo-call-graph"></span><h3>Call graphs<a class="headerlink" href="#call-graphs" title="Permalink to this heading">¶</a></h3>
-<p><cite>snapinfo.py</cite> can generate a call graph in <a class="reference external" href="https://graphviz.gitlab.io/_pages/doc/info/lang.html">DOT format</a> from a snapshot and a
+<p><cite>snapinfo.py</cite> can generate a call graph in <a class="reference external" href="https://graphviz.gitlab.io/doc/info/lang.html">DOT format</a> from a snapshot and a
 corresponding control file. For example, if <cite>game.ctl</cite> is present alongside
 <cite>game.z80</cite>, then:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ snapinfo.py -g game.z80 &gt; game.dot
@@ -1577,11 +1599,11 @@ the <code class="docutils literal notranslate"><span class="pre">EdgeAttributes<
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">EdgeAttributes</span></code> - the default <a class="reference external" href="https://graphviz.gitlab.io/_pages/doc/info/attrs.html">attributes</a> for edges in a call graph
+<li><p><code class="docutils literal notranslate"><span class="pre">EdgeAttributes</span></code> - the default <a class="reference external" href="https://graphviz.gitlab.io/doc/info/attrs.html">attributes</a> for edges in a call graph
 (default: none)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">GraphAttributes</span></code> - the default <a class="reference external" href="https://graphviz.gitlab.io/_pages/doc/info/attrs.html">attributes</a> for a call graph (default:
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphAttributes</span></code> - the default <a class="reference external" href="https://graphviz.gitlab.io/doc/info/attrs.html">attributes</a> for a call graph (default:
 none)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">NodeAttributes</span></code> - the default <a class="reference external" href="https://graphviz.gitlab.io/_pages/doc/info/attrs.html">attributes</a> for nodes in a call graph
+<li><p><code class="docutils literal notranslate"><span class="pre">NodeAttributes</span></code> - the default <a class="reference external" href="https://graphviz.gitlab.io/doc/info/attrs.html">attributes</a> for nodes in a call graph
 (default: <code class="docutils literal notranslate"><span class="pre">shape=record</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">NodeId</span></code> - the format of the node IDs in a call graph (default:
 <code class="docutils literal notranslate"><span class="pre">{address}</span></code>)</p></li>
@@ -1728,20 +1750,21 @@ hexadecimal integers prefixed by ‘0x’</p></td>
 </section>
 <section id="tap2sna-py">
 <span id="id21"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Permalink to this heading">¶</a></h2>
-<p><cite>tap2sna.py</cite> converts a PZX, TAP or TZX file (which may be inside a zip
-archive) into an SZX or Z80 snapshot. For example:</p>
+<p><cite>tap2sna.py</cite> converts one or two PZX, TAP or TZX files (which may be inside a
+zip archive) into an SZX or Z80 snapshot. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py game.tap game.z80
 </pre></div>
 </div>
 <p>To list the options supported by <cite>tap2sna.py</cite>, run it with no arguments:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage:
-  tap2sna.py [options] INPUT [OUTFILE]
+  tap2sna.py [options] INPUT [INPUT] [OUTFILE]
   tap2sna.py @FILE [args]
 
-Convert a PZX, TAP or TZX file (which may be inside a zip archive) into an SZX
-or Z80 snapshot. INPUT may be the full URL to a remote zip archive or tape
-file, or the path to a local file. Arguments may be read from FILE instead of
-(or as well as) being given on the command line.
+Convert one or two PZX, TAP or TZX files (which may be inside a zip archive)
+into an SZX or Z80 snapshot. INPUT may be the full URL to a remote zip archive
+or tape file, or the path to a local file. If two INPUTs are given, they must
+both be (local or remote) tape files. Arguments may be read from FILE instead
+of (or as well as) being given on the command line.
 
 Options:
   -c name=value, --sim-load-config name=value
@@ -1753,6 +1776,9 @@ Options:
                         Write the snapshot file in this directory.
   -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
                         &#39;v&#39;. This option may be used multiple times.
+  --press N:KEYS        Pause the tape at block number N and press KEYS before
+                        resuming. KEYS must be a space-separated list of key
+                        identifiers. This option may be used multiple times.
   -p STACK, --stack STACK
                         Set the stack pointer.
   --ram OPERATION       Perform a load operation or otherwise modify the
@@ -1768,10 +1794,13 @@ Options:
                         times.
   --tape-analysis       Show an analysis of the tape&#39;s tones, pulse sequences
                         and data blocks.
-  --tape-name NAME      Specify the name of a tape file in a zip archive.
+  --tape-name NAME      Specify the name of a tape file in a zip archive. Use
+                        this option twice when loading two tape files.
+  --tape-skip A[-B]     Skip block numbers A-B on the tape.
   --tape-start BLOCK    Start the tape at this block number.
   --tape-stop BLOCK     Stop the tape at this block number.
-  --tape-sum MD5SUM     Specify the MD5 checksum of the tape file.
+  --tape-sum MD5SUM     Specify the MD5 checksum of the tape file. This option
+                        may be used twice if loading two tape files.
   -u AGENT, --user-agent AGENT
                         Set the User-Agent header.
   -V, --version         Show SkoolKit version number and exit.
@@ -1790,13 +1819,30 @@ addresses. For example:</p>
 blocks. (To see information on the blocks in a tape file, use the
 <a class="reference internal" href="#tapinfo-py"><span class="std std-ref">tapinfo.py</span></a> command.)</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option can also be used to move blocks of bytes from one location
-to another, POKE values into individual addresses or address ranges, modify
-memory with XOR and ADD operations, initialise the system variables, or call a
-Python function to modify the memory snapshot in an arbitrary way before it is
-saved. For more information on these operations, run:</p>
+to another, apply a binary patch file, POKE values into individual addresses or
+address ranges, modify memory with XOR and ADD operations, initialise the
+system variables, or call a Python function to modify the memory snapshot in an
+arbitrary way before it is saved. For more information on these operations,
+run:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py --ram help
 </pre></div>
 </div>
+<p>If a game requires loading from both sides of a tape, and each side is in its
+own file in a zip archive, they can be loaded by specifying their names in the
+desired order using the <code class="docutils literal notranslate"><span class="pre">--tape-name</span></code> option:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py --tape-name side1.tzx --tape-name side2.tzx game.zip
+</pre></div>
+</div>
+<p>If each side is in its own file and not in a zip archive, they can be loaded by
+specifying them as positional arguments in the desired order:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py side1.tzx side2.tzx
+</pre></div>
+</div>
+<p>When loading from two tape files, and using the <code class="docutils literal notranslate"><span class="pre">--tape-stop</span></code> option to stop
+somewhere in the middle of the second tape, the block number argument must be
+incremented by the number of blocks in the first tape. For example, if the
+first tape has five blocks, <code class="docutils literal notranslate"><span class="pre">--tape-stop</span> <span class="pre">8</span></code> will stop at the third block of
+the second tape.</p>
 <p>For complex snapshots that require many options to build, it may be more
 convenient to store the arguments to <cite>tap2sna.py</cite> in a file. For example, if
 the file <cite>game.t2s</cite> has the following contents:</p>
@@ -1843,8 +1889,8 @@ program counter) in the simulator are used to populate the snapshot.</p>
 parameters are:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">accelerate-dec-a</span></code> - enable acceleration of ‘DEC A: JR NZ,$-1’ delay loops
-(<code class="docutils literal notranslate"><span class="pre">1</span></code>, the default), or ‘DEC A: JP NZ,$-1’ delay loops (<code class="docutils literal notranslate"><span class="pre">2</span></code>), or neither
-(<code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+only (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or ‘DEC A: JP NZ,$-1’ delay loops only (<code class="docutils literal notranslate"><span class="pre">2</span></code>), or both (<code class="docutils literal notranslate"><span class="pre">3</span></code>,
+the default), or neither (<code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">accelerator</span></code> - a comma-separated list of tape-sampling loop accelerators
 to use (see <a class="reference internal" href="#tap2sna-accelerators"><span class="std std-ref">Accelerators</span></a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cmio</span></code> - enable simulation of memory contention and I/O contention delays
@@ -1914,22 +1960,20 @@ specifying this value</p></li>
 (and the state of the loop itself) to the next edge whenever the loop is
 entered. This technique is known as “edge loading”.</p>
 <p>The output produced by <code class="docutils literal notranslate"><span class="pre">accelerator=list</span></code> looks something like this:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Accelerators: microsphere: 6695; rom: 794013; misses: 19/9; dec-a: 800708/0/224
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Accelerators: microsphere: 5500; rom: 793036; misses: 0; dec-a: 800708/0/23
 </pre></div>
 </div>
 <p>This means that:</p>
 <ul class="simple">
-<li><p>the <code class="docutils literal notranslate"><span class="pre">microsphere</span></code> and <code class="docutils literal notranslate"><span class="pre">rom</span></code> tape-sampling loops were detected, and were
-entered 6695 times and 794013 times respectively</p></li>
-<li><p>19 instances of ‘INC B’ outside a recognised tape-sampling loop were
-executed, and the corresponding figure for ‘DEC B’ is 9</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">microsphere</span></code> and <code class="docutils literal notranslate"><span class="pre">rom</span></code> tape-sampling loops were detected, 5500 times
+and 793036 times respectively</p></li>
+<li><p>no instances of an ‘IN A,($FE)’ instruction outside a recognised
+tape-sampling loop were executed (0 misses)</p></li>
 <li><p>800708 ‘DEC A: JR NZ,$-1’ delay loops were entered, no ‘DEC A: JP NZ,$-1’
-delay loops were entered, and 224 instances of ‘DEC A’ outside such delay
+delay loops were entered, and 23 instances of ‘DEC A’ outside such delay
 loops were executed</p></li>
 </ul>
-<p>Specifying by name the types of tape-sampling loop used by a game’s custom
-loader may reduce the loading time. To show the names of the available
-tape-sampling loop accelerators:</p>
+<p>To show the names of the available tape-sampling loop accelerators:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py -c help-accelerator
 </pre></div>
 </div>
@@ -1969,6 +2013,44 @@ Spectrum). The simulated LOAD begins at this address.</p>
 </div>
 <p>Note that the spaces around <code class="docutils literal notranslate"><span class="pre">CLEAR</span></code>, <code class="docutils literal notranslate"><span class="pre">LOAD</span></code>, <code class="docutils literal notranslate"><span class="pre">CODE</span></code>, <code class="docutils literal notranslate"><span class="pre">RANDOMIZE</span></code> and
 <code class="docutils literal notranslate"><span class="pre">USR</span></code> are required in order for them to be recognised as BASIC tokens.</p>
+</section>
+<section id="user-input">
+<span id="tap2sna-user-input"></span><h3>User input<a class="headerlink" href="#user-input" title="Permalink to this heading">¶</a></h3>
+<p>Some tapes require the user to pause the tape before loading has finished,
+press one or more keys, and then start the tape again to resume loading. Such
+tapes can be handled by using the <code class="docutils literal notranslate"><span class="pre">--press</span></code> option. Its single argument takes
+the form:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>N:KEYS
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">N</span></code> is the block number at which to pause the tape</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">KEYS</span></code> is a space-separated list of key identifiers</p></li>
+</ul>
+<p>For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py --press 5:ENTER game.tzx
+</pre></div>
+</div>
+<p>This will load blocks 1-4 of game.tzx, pause the tape, simulate pressing the
+ENTER key until the appropriate key row has been read, and then start the tape
+(whereupon block 5 and any other remaining blocks will be loaded).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">KEYS</span></code> list recognises the digits 0-9 and lower case letters a-z as valid
+key identifiers, along with the following special tokens:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CS</span></code> - CAPS SHIFT</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SS</span></code> - SYMBOL SHIFT</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SPACE</span></code> - SPACE</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ENTER</span></code> - ENTER</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NONE</span></code> - no key</p></li>
+</ul>
+<p>Sometimes a single keypress may need to be read more than once before the
+game’s loader responds to it. In such cases the <code class="docutils literal notranslate"><span class="pre">*</span></code> notation is useful:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py --press 6:s*3 game.tzx
+</pre></div>
+</div>
+<p>Equivalent to <code class="docutils literal notranslate"><span class="pre">6:s</span> <span class="pre">s</span> <span class="pre">s</span></code>, this will wait until the ‘s’ keypress has been read
+three times before resuming the tape at block number 6.</p>
 </section>
 <section id="tap2sna-conf">
 <span id="id22"></span><h3>Configuration<a class="headerlink" href="#tap2sna-conf" title="Permalink to this heading">¶</a></h3>
@@ -2034,23 +2116,36 @@ TraceOperand=
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>9.5</p></td>
+<tr class="row-even"><td><p>9.6</p></td>
+<td><p>Added the ability to load from two tape files; added the
+<code class="docutils literal notranslate"><span class="pre">--press</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-skip</span></code> options; added support to the
+<code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">patch</span></code> operation; changed the default
+value of the <code class="docutils literal notranslate"><span class="pre">accelerate-dec-a</span></code> simulated LOAD configuration
+parameter from <code class="docutils literal notranslate"><span class="pre">1</span></code> to <code class="docutils literal notranslate"><span class="pre">3</span></code>; added the <code class="docutils literal notranslate"><span class="pre">activision</span></code>,
+<code class="docutils literal notranslate"><span class="pre">alternative3</span></code>, <code class="docutils literal notranslate"><span class="pre">audiogenic-0</span></code>, <code class="docutils literal notranslate"><span class="pre">audiogenic-1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">codemasters</span></code>, <code class="docutils literal notranslate"><span class="pre">diver</span></code>, <code class="docutils literal notranslate"><span class="pre">gremlin2-0</span></code>, <code class="docutils literal notranslate"><span class="pre">gremlin2-1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">kwc-0</span></code>, <code class="docutils literal notranslate"><span class="pre">kwc-1</span></code>, <code class="docutils literal notranslate"><span class="pre">mirrorsoft2</span></code> and <code class="docutils literal notranslate"><span class="pre">operasoft</span></code>
+tape-sampling loop accelerators; removed the <code class="docutils literal notranslate"><span class="pre">dinaload</span></code>,
+<code class="docutils literal notranslate"><span class="pre">gremlin2</span></code>, <code class="docutils literal notranslate"><span class="pre">housenka</span></code>, <code class="docutils literal notranslate"><span class="pre">suzy-soft</span></code> and <code class="docutils literal notranslate"><span class="pre">suzy-soft2</span></code>
+tape-sampling loop accelerators</p></td>
+</tr>
+<tr class="row-odd"><td><p>9.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">UserAgent</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.3</p></td>
+<tr class="row-even"><td><p>9.3</p></td>
 <td><p>Added support for PZX files; added support for the <code class="docutils literal notranslate"><span class="pre">m</span></code> (memory)
 replacement field in the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>9.2</p></td>
+<tr class="row-odd"><td><p>9.2</p></td>
 <td><p>Added support for TZX block type 0x15 (direct recording); added
 the <code class="docutils literal notranslate"><span class="pre">python</span></code> simulated LOAD configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.1</p></td>
+<tr class="row-even"><td><p>9.1</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">move</span></code> and <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">poke</span></code> options can modify specific
 RAM banks; added the <code class="docutils literal notranslate"><span class="pre">cmio</span></code> simulated LOAD configuration
 parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>9.0</p></td>
+<tr class="row-odd"><td><p>9.0</p></td>
 <td><p>A simulated LOAD is performed by default; an existing snapshot
 will be overwritten by default; added the <code class="docutils literal notranslate"><span class="pre">load</span></code>, <code class="docutils literal notranslate"><span class="pre">machine</span></code>,
 <code class="docutils literal notranslate"><span class="pre">polarity</span></code> and <code class="docutils literal notranslate"><span class="pre">in-flags</span></code> simulated LOAD configuration
@@ -2063,7 +2158,7 @@ parameter; added the <code class="docutils literal notranslate"><span class="pre
 tape-sampling loop accelerators; shows ‘DEC A’ delay loop
 statistics when <code class="docutils literal notranslate"><span class="pre">accelerator=list</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>8.10</p></td>
+<tr class="row-even"><td><p>8.10</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-analysis</span></code> options;
 added the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> and <code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> configuration
@@ -2082,45 +2177,45 @@ multiple accelerators; added the <code class="docutils literal notranslate"><spa
 <code class="docutils literal notranslate"><span class="pre">suzy-soft2</span></code>, <code class="docutils literal notranslate"><span class="pre">tiny</span></code>, <code class="docutils literal notranslate"><span class="pre">us-gold</span></code> and <code class="docutils literal notranslate"><span class="pre">weird-science</span></code>
 tape-sampling loop accelerators</p></td>
 </tr>
-<tr class="row-even"><td><p>8.9</p></td>
+<tr class="row-odd"><td><p>8.9</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--sim-load-config</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-name</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--tape-start</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-stop</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-sum</span></code> options;
 added support for TZX loops, pauses, and unused bits in data
 blocks; added support for quoted arguments in an arguments file;
 added the <code class="docutils literal notranslate"><span class="pre">tstates</span></code> hardware state attribute</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.8</p></td>
+<tr class="row-even"><td><p>8.8</p></td>
 <td><p>A simulated LOAD performs any <code class="docutils literal notranslate"><span class="pre">call/move/poke/sysvars</span></code>
 operations specified by <code class="docutils literal notranslate"><span class="pre">--ram</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>8.7</p></td>
+<tr class="row-odd"><td><p>8.7</p></td>
 <td><p>Added support for simulating a 48K Spectrum LOADing a tape; when
 a headerless block is ignored because no <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> options
 have been specified, a warning is printed</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.6</p></td>
+<tr class="row-even"><td><p>8.6</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">call</span></code> operation</p></td>
 </tr>
-<tr class="row-even"><td><p>8.4</p></td>
+<tr class="row-odd"><td><p>8.4</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">sysvars</span></code>
 operation</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.3</p></td>
+<tr class="row-even"><td><p>6.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--user-agent</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>6.2</p></td>
+<tr class="row-odd"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--ram</span></code>, <code class="docutils literal notranslate"><span class="pre">--reg</span></code>, <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options
 accept hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.3</p></td>
+<tr class="row-even"><td><p>5.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options</p></td>
 </tr>
-<tr class="row-even"><td><p>4.5</p></td>
+<tr class="row-odd"><td><p>4.5</p></td>
 <td><p>Added support for TZX block type 0x14 (pure data), for loading
 the first and last bytes of a tape block, and for modifying
 memory with XOR and ADD operations</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.5</p></td>
+<tr class="row-even"><td><p>3.5</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -2160,7 +2255,7 @@ Options:
 <td><p>Added support for PZX files; added the <code class="docutils literal notranslate"><span class="pre">--tape-start</span></code> and
 <code class="docutils literal notranslate"><span class="pre">--tape-stop</span></code> options; shows info for TZX block types 0x18 (CSW
 recording) and 0x2B (set signal level); recognises deprecated TZX
-block types 0x16, 0x17,0x34 and 0x40</p></td>
+block types 0x16, 0x17, 0x34 and 0x40</p></td>
 </tr>
 <tr class="row-odd"><td><p>9.2</p></td>
 <td><p>Shows info for TZX block type 0x15 (direct recording)</p></td>
@@ -2277,10 +2372,11 @@ current working directory or in <cite>~/.skoolkit</cite>, if present. The recogn
 configuration parameters are:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">PNGScale</span></code> - the PNG image scale factor (default: <code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> - frames per second to display when <code class="docutils literal notranslate"><span class="pre">--screen</span></code> is used
-(default: <code class="docutils literal notranslate"><span class="pre">50</span></code>); if set to 0, <cite>trace.py</cite> runs at maximum speed</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> - screen scale factor when <code class="docutils literal notranslate"><span class="pre">--screen</span></code> is used (default:
-<code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Screen</span></code> - display screen contents while running (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>,
+the default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> - screen refresh rate in frames per second (default: <code class="docutils literal notranslate"><span class="pre">50</span></code>);
+if set to 0, <cite>trace.py</cite> runs at maximum speed</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> - screen scale factor (default: <code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> - the format of each instruction line when <code class="docutils literal notranslate"><span class="pre">-v</span></code> is used
 (default: <code class="docutils literal notranslate"><span class="pre">${pc:04X}</span> <span class="pre">{i}</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TraceLine2</span></code> - the format of each instruction line when <code class="docutils literal notranslate"><span class="pre">-vv</span></code> is used
@@ -2334,41 +2430,44 @@ TraceLine={t:&gt;10} ${pc:04X} {i}
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>9.5</p></td>
+<tr class="row-even"><td><p>9.6</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">Screen</span></code> configuration parameter</p></td>
+</tr>
+<tr class="row-odd"><td><p>9.5</p></td>
 <td><p>Responds to keypresses while the screen is displayed; added the
 <code class="docutils literal notranslate"><span class="pre">--map</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.4</p></td>
+<tr class="row-even"><td><p>9.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--screen</span></code> option; added support for writing a PNG
 file after execution has completed; added the <code class="docutils literal notranslate"><span class="pre">PNGScale</span></code>,
 <code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> and <code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> configuration parameters; added
 support for multiple output file arguments</p></td>
 </tr>
-<tr class="row-even"><td><p>9.3</p></td>
+<tr class="row-odd"><td><p>9.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--state</span></code> option; added support for writing a WAV
 file after execution has completed; added support for the <code class="docutils literal notranslate"><span class="pre">m</span></code>
 (memory) replacement field in the <code class="docutils literal notranslate"><span class="pre">TraceLine*</span></code> configuration
 parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.2</p></td>
+<tr class="row-even"><td><p>9.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--python</span></code> option; added support for +2 snapshots</p></td>
 </tr>
-<tr class="row-even"><td><p>9.1</p></td>
+<tr class="row-odd"><td><p>9.1</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--poke</span></code> option can modify specific RAM banks; added the
 <code class="docutils literal notranslate"><span class="pre">--cmio</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.0</p></td>
+<tr class="row-even"><td><p>9.0</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-interrupts</span></code> and <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> options;
 interrupt routines are executed by default; added support for
 128K snapshots; added support for writing SZX snapshots; added
 the <code class="docutils literal notranslate"><span class="pre">-m</span></code> and <code class="docutils literal notranslate"><span class="pre">-M</span></code> short options</p></td>
 </tr>
-<tr class="row-even"><td><p>8.9</p></td>
+<tr class="row-odd"><td><p>8.9</p></td>
 <td><p>Reads and writes the T-states counter in Z80 snapshots and reads
 the T-states counter in SZX snapshots</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.8</p></td>
+<tr class="row-even"><td><p>8.8</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -2427,6 +2526,7 @@ the T-states counter in SZX snapshots</p></td>
 <li><a class="reference internal" href="#simulated-load">Simulated LOAD</a></li>
 <li><a class="reference internal" href="#accelerators">Accelerators</a></li>
 <li><a class="reference internal" href="#load-command">LOAD command</a></li>
+<li><a class="reference internal" href="#user-input">User input</a></li>
 <li><a class="reference internal" href="#tap2sna-conf">Configuration</a></li>
 </ul>
 </li>
@@ -2483,7 +2583,7 @@ the T-states counter in SZX snapshots</p></td>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>

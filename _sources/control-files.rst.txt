@@ -728,6 +728,8 @@ disassembled by default, and must be one of the following:
 * ``u`` - unused block of memory (DEFB statements)
 * ``w`` - block containing words (DEFW statements)
 
+.. _bDirective:
+
 B directive
 ^^^^^^^^^^^
 The ``B`` sub-block directive disassembles an address range as one or more DEFB
@@ -856,6 +858,8 @@ statements::
 * ``sublengths`` controls the DEFM statement lengths; see
   :ref:`subBlockLengths` for more details
 * ``comment`` is the comment applied to the sub-block
+
+.. _WDirective:
 
 W directive
 ^^^^^^^^^^^

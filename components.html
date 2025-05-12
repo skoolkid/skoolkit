@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>SkoolKit components &#8212; SkoolKit 9.5 documentation</title>
+    <title>SkoolKit components &#8212; SkoolKit 9.6 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -29,7 +29,7 @@
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit components</a></li> 
       </ul>
     </div>  
@@ -55,6 +55,7 @@
 <li><p><a class="reference internal" href="#instructionutility"><span class="std std-ref">Instruction utility</span></a></p></li>
 <li><p><a class="reference internal" href="#operandevaluator"><span class="std std-ref">Operand evaluator</span></a></p></li>
 <li><p><a class="reference internal" href="#operandformatter"><span class="std std-ref">Operand formatter</span></a></p></li>
+<li><p><a class="reference internal" href="#rsthandler"><span class="std std-ref">RST handler</span></a></p></li>
 <li><p><a class="reference internal" href="#snapshotreader"><span class="std std-ref">Snapshot reader</span></a></p></li>
 <li><p><a class="reference internal" href="#snapshotrefcalc"><span class="std std-ref">Snapshot reference calculator</span></a></p></li>
 </ul>
@@ -79,6 +80,8 @@ ImageWriter=skoolkit.image.ImageWriter
 InstructionUtility=skoolkit.skoolparser.InstructionUtility
 OperandEvaluator=skoolkit.z80
 OperandFormatter=skoolkit.disassembler.OperandFormatter
+RSTHandler=skoolkit.rst.RSTHandler
+RSTHandlerConfig=8:B
 SnapshotReader=skoolkit.snapshot
 SnapshotReferenceCalculator=skoolkit.snaskool
 SnapshotReferenceOperations=DJ,JR,JP,CA,RS
@@ -91,6 +94,7 @@ for SkoolKit’s pluggable components. The other recognised parameters are:</p>
 disassembling a snapshot when no control file is provided; this is used by
 <a class="reference internal" href="commands.html#sna2ctl-py"><span class="std std-ref">sna2ctl.py</span></a> and <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a>, and also by <a class="reference internal" href="commands.html#snapinfo-py"><span class="std std-ref">snapinfo.py</span></a>
 when generating a call graph</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RSTHandlerConfig</span></code> - the configuration parameter for the <a class="reference internal" href="#rsthandler"><span class="std std-ref">RST handler</span></a></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SnapshotReferenceOperations</span></code> - the instructions whose address operands are
 used by the <a class="reference internal" href="#snapshotrefcalc"><span class="std std-ref">snapshot reference calculator</span></a> to
 identify entry points in routines and data blocks</p></li>
@@ -324,6 +328,7 @@ this address.</p></li>
 <li><p><strong>code_map</strong> – Code map filename (may be <cite>None</cite>).</p></li>
 <li><p><strong>config</strong> – <p>Configuration object with the following attributes:</p>
 <ul>
+<li><p><cite>handle_rst</cite> - whether to handle RST instruction arguments</p></li>
 <li><p><cite>text_chars</cite> - string of characters eligible for being
 marked as text</p></li>
 <li><p><cite>text_min_length_code</cite> - minimum length of a string of
@@ -345,6 +350,9 @@ contains at least one of the words in this collection</p></li>
 </dl>
 </dd></dl>
 
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 9.6: </span>Added the <em>handle_rst</em> attribute to the <em>config</em> object.</p>
+</div>
 </section>
 <section id="disassembler">
 <span id="id3"></span><h2>Disassembler<a class="headerlink" href="#disassembler" title="Permalink to this heading">¶</a></h2>
@@ -369,6 +377,7 @@ statement</p></li>
 DEFM statement</p></li>
 <li><p><cite>defw_size</cite> - default maximum number of words in a DEFW
 statement</p></li>
+<li><p><cite>handle_rst</cite> - if <cite>True</cite>, handle RST instruction arguments</p></li>
 <li><p><cite>imaker</cite> - callable that returns an instruction object</p></li>
 <li><p><cite>opcodes</cite> - comma-separated list of values specifying
 additional opcode sequences to disassemble</p></li>
@@ -500,6 +509,9 @@ tuples of the form <code class="docutils literal notranslate"><span class="pre">
 <p>If the first element of <em>sublengths</em> has a <code class="docutils literal notranslate"><span class="pre">size</span></code> value of 0, then the method
 should produce a list of statements with default sizes (as determined by
 <cite>defb_size</cite>, <cite>defm_size</cite> and <cite>defw_size</cite>), using the specified base.</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 9.6: </span>Added the <em>handle_rst</em> attribute to the disassembler configuration object.</p>
+</div>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 9.3: </span>Added the <em>imaker</em> and <em>opcodes</em> attributes to the disassembler
 configuration object. API methods must now return objects created by
@@ -897,6 +909,82 @@ skoolkit.disassembler.OperandFormatter:</p>
 </dd></dl>
 
 </section>
+<section id="rst-handler">
+<span id="rsthandler"></span><h2>RST handler<a class="headerlink" href="#rst-handler" title="Permalink to this heading">¶</a></h2>
+<p>This class is used by the <a class="reference internal" href="#ctlgenerator"><span class="std std-ref">control file generator</span></a> (when
+activated by the <code class="docutils literal notranslate"><span class="pre">--handle-rst</span></code> option of <a class="reference internal" href="commands.html#sna2ctl-py"><span class="std std-ref">sna2ctl.py</span></a>) and by the
+<a class="reference internal" href="#disassembler"><span class="std std-ref">disassembler</span></a> (when activated by the <code class="docutils literal notranslate"><span class="pre">--handle-rst</span></code>
+option of <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a>) to handle the arguments of RST instructions. It
+must supply the following API methods, in common with skoolkit.rst.RSTHandler:</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.rst.</span></span><span class="sig-name descname"><span class="pre">RSTHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Initialise the RST instruction handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> – The value of the <code class="docutils literal notranslate"><span class="pre">RSTHandlerConfig</span></code> configuration
+parameter in <em>skoolkit.ini</em>.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>If there is an RST instruction at <em>address</em> in <em>snapshot</em> and it has
+arguments, return a sub-block descriptor for those arguments. Otherwise
+return <em>None</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snapshot</strong> – The memory snapshot.</p></li>
+<li><p><strong>address</strong> – The address of an instruction.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p>The sub-block descriptor returned by <code class="xref py py-meth docutils literal notranslate"><span class="pre">handle()</span></code> must be 2-element tuple of
+the form:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(subctl, sublengths)
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">subctl</span></code> is the sub-block control directive: ‘B’ (DEFB) or ‘W’ (DEFW)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sublengths</span></code> is a sequence of one or more sublengths for the sub-block</p></li>
+</ul>
+<p>Each sublength in <code class="docutils literal notranslate"><span class="pre">sublengths</span></code> must be a 2-element tuple of the form:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(size, base)
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">size</span></code> is the size in bytes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">base</span></code> is the <a class="reference internal" href="control-files.html#numberbases"><span class="std std-ref">number base</span></a>: ‘b’ (binary), ‘d’
+(decimal), ‘h’ (hexadecimal), ‘m’ (minus) or ‘n’ (none/default)</p></li>
+</ul>
+<p>skoolkit.rst.RSTHandler is configured by the <code class="docutils literal notranslate"><span class="pre">RSTHandlerConfig</span></code> parameter in
+<em>skoolkit.ini</em>. Its value must be a comma-separated list of RST specifications
+of the form:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>addr:subctl
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">addr</span></code> is the address of the RST routine (0, 8, etc.)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subctl</span></code> is ‘B’ (for byte arguments) or ‘W’ (for word arguments)</p></li>
+</ul>
+<p>The default value of <code class="docutils literal notranslate"><span class="pre">RSTHandlerConfig</span></code> is <code class="docutils literal notranslate"><span class="pre">8:B</span></code>, which makes RSTHandler
+produce sub-block descriptors for the byte arguments of ‘RST $08’ instructions,
+and ignore all other RST instructions.</p>
+<p>When activated by the <code class="docutils literal notranslate"><span class="pre">--handle-rst</span></code> option of <a class="reference internal" href="commands.html#sna2ctl-py"><span class="std std-ref">sna2ctl.py</span></a> or
+<a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a>, the RST handler’s <code class="xref py py-meth docutils literal notranslate"><span class="pre">handle()</span></code> method is called for
+every address at which an instruction - RST or otherwise - is identified. This
+means that a custom RST handler component could be implemented to handle the
+byte/word arguments of CALL instructions as well as or instead of RST
+instructions, for example.</p>
+</section>
 <section id="snapshot-reader">
 <span id="snapshotreader"></span><h2>Snapshot reader<a class="headerlink" href="#snapshot-reader" title="Permalink to this heading">¶</a></h2>
 <p>This object is responsible for producing a list of byte values from a snapshot
@@ -1075,6 +1163,7 @@ other values declared in the <code class="docutils literal notranslate"><span cl
 <li><a class="reference internal" href="#instruction-utility">Instruction utility</a></li>
 <li><a class="reference internal" href="#operand-evaluator">Operand evaluator</a></li>
 <li><a class="reference internal" href="#operand-formatter">Operand formatter</a></li>
+<li><a class="reference internal" href="#rst-handler">RST handler</a></li>
 <li><a class="reference internal" href="#snapshot-reader">Snapshot reader</a></li>
 <li><a class="reference internal" href="#snapshot-reference-calculator">Snapshot reference calculator</a></li>
 <li><a class="reference internal" href="#component-api">Component API</a></li>
@@ -1118,7 +1207,7 @@ other values declared in the <code class="docutils literal notranslate"><span cl
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit components</a></li> 
       </ul>
     </div>
