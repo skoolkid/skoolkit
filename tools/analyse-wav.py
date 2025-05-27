@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
+from struct import unpack
 import sys
 import argparse
+
+INT = 1
+FLOAT = 3
+FORMATS = {INT: 'PCM (int)', FLOAT: 'PCM (float)'}
+SAMPLE_FORMATS = {INT: {1: '<h', 2: '<hh'}, FLOAT: {1: '<f', 2: '<ff'}}
 
 class WaveError(Exception):
     pass
@@ -13,7 +19,7 @@ class WaveFile:
         chunk_id = _to_chars(data[i:i + 4])
         if chunk_id != 'RIFF':
             raise WaveError('"RIFF" chunk not found')
-        length = _to_int(data[i + 4:i + 8])
+        length = unpack('<I', data[i + 4:i + 8])[0]
         self.chunks[chunk_id] = (i, length)
         i += 8
 
@@ -24,7 +30,7 @@ class WaveFile:
 
         while i < len(data):
             chunk_id = _to_chars(data[i:i + 4])
-            length = _to_int(data[i + 4:i + 8])
+            length = unpack('<I', data[i + 4:i + 8])[0]
             self.chunks[chunk_id] = (i, data[i + 8:i + 8 + length])
             i += 8 + length
 
@@ -34,29 +40,21 @@ class WaveFile:
 
         self.samples = self.chunks['data'][1]
         fmt = self.chunks['fmt '][1]
-        self.audio_format = _to_int(fmt[0:2])
-        self.num_channels = _to_int(fmt[2:4])
-        self.sample_rate = _to_int(fmt[4:8])
-        self.byte_rate = _to_int(fmt[8:12])
-        self.bytes_per_sample = _to_int(fmt[12:14])
-        self.bits_per_sample = _to_int(fmt[14:16])
+        self.audio_format = unpack('<H', fmt[0:2])[0]
+        self.num_channels = unpack('<H', fmt[2:4])[0]
+        self.sample_rate = unpack('<I', fmt[4:8])[0]
+        self.byte_rate = unpack('<I', fmt[8:12])[0]
+        self.bytes_per_sample = unpack('<H', fmt[12:14])[0]
+        self.bits_per_sample = unpack('<H', fmt[14:16])[0]
         self.num_samples = len(self.samples) // self.bytes_per_sample
-        self.duration = self.num_samples / (self.num_channels * self.sample_rate)
+        self.duration = self.num_samples / self.sample_rate
 
 def _to_chars(data):
     return ''.join(chr(b) for b in data)
 
-def _to_int(data, signed=False):
-    if len(data) == 4:
-        return 16777216 * data[3] + 65536 * data[2] + 256 * data[1] + data[0]
-    value = 256 * data[1] + data[0]
-    if value < 32768 or not signed:
-        return value
-    return value - 65536
-
 def dump_wav(data):
     wav = WaveFile(data)
-    print(f'audio format: {wav.audio_format}')
+    print(f'audio format: {wav.audio_format} ({FORMATS[wav.audio_format]})')
     print(f'channels: {wav.num_channels}')
     print(f'sample rate: {wav.sample_rate}')
     print(f'byte rate: {wav.byte_rate}')
@@ -66,8 +64,9 @@ def dump_wav(data):
     n = 0
     sample_size = wav.bytes_per_sample
     samples = wav.samples
+    fmt = SAMPLE_FORMATS[wav.audio_format][wav.num_channels]
     for i in range(0, len(samples), sample_size):
-        sample = _to_int(samples[i:i + sample_size], True)
+        sample = ', '.join(str(j) for j in unpack(fmt, samples[i:i + sample_size]))
         print(f'{n:>7} {sample}')
         n += 1
 
@@ -94,11 +93,12 @@ def show_diffs(fname1, data1, fname2, data2):
         else:
             sample_size = wav1.bytes_per_sample
             index = 1
+            fmt = SAMPLE_FORMATS[wav.audio_format][wav.num_channels]
             for i in range(0, len(wav1.samples), sample_size):
-                sample1 = _to_int(wav1.samples[i:i + sample_size], True)
-                sample2 = _to_int(wav2.samples[i:i + sample_size], True)
+                sample1 = ', '.join(str(j) for j in unpack(fmt, wav1.samples[i:i + sample_size]))
+                sample2 = ', '.join(str(j) for j in unpack(fmt, wav2.samples[i:i + sample_size]))
                 if sample1 != sample2:
-                    diffs.append('sample {}/{}: {}, {}'.format(index, wav1.num_samples, sample1, sample2))
+                    diffs.append(f'sample {index}/{wav1.num_samples}: {sample1}; {sample2}')
                 index += 1
 
     if diffs:
@@ -128,7 +128,7 @@ if unknown_args or not ((namespace.dump and len(namespace.wavfiles) == 1) or (na
 files = []
 for fname in namespace.wavfiles[:2]:
     with open(fname, 'rb') as f:
-        files.append(list(f.read()))
+        files.append(f.read())
 
 try:
     if namespace.diff:
