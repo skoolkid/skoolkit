@@ -93,7 +93,7 @@ def show_diffs(fname1, data1, fname2, data2):
         else:
             sample_size = wav1.bytes_per_sample
             index = 1
-            fmt = SAMPLE_FORMATS[wav.audio_format][wav.num_channels]
+            fmt = SAMPLE_FORMATS[wav1.audio_format][wav1.num_channels]
             for i in range(0, len(wav1.samples), sample_size):
                 sample1 = ', '.join(str(j) for j in unpack(fmt, wav1.samples[i:i + sample_size]))
                 sample2 = ', '.join(str(j) for j in unpack(fmt, wav2.samples[i:i + sample_size]))
