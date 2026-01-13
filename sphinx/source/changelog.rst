@@ -3,6 +3,7 @@ Changelog
 
 10.0b1
 ------
+* Dropped support for Python 3.9
 
 9.6 (2025-05-12)
 ----------------

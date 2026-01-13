@@ -8,7 +8,7 @@ URL:            https://skoolkit.ca
 Source0:        https://skoolkit.ca/downloads/%{name}/%{name}-%{version}.tar.xz
 
 BuildRequires:  python3-devel python3-setuptools gcc
-Requires:       python3 >= 3.9
+Requires:       python3 >= 3.10
 
 %description
 SkoolKit is a collection of utilities that can be used to disassemble a
