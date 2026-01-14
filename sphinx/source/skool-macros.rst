@@ -1092,9 +1092,6 @@ For information on writing methods or functions that may be called by a
 ``#CALL`` macro, see the documentation on
 :ref:`extending SkoolKit <extendingSkoolKit>`.
 
-.. note::
-   The ``#CALL:method(args)`` syntax is deprecated since version 9.5.
-
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+

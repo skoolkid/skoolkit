@@ -25,14 +25,13 @@ class CommonSkoolMacroTest:
         return self.write_text_file(dedent(skool).strip(), suffix='.skool')
 
     def _check_call(self, writer, params, *args, **kwargs):
-        for macro in (f'#CALL(test_call({params}))', f'#CALL:test_call({params})'):
-            cwd = ('<cwd>',) if isinstance(writer, HtmlWriter) else ()
-            self.assertEqual(writer.expand(macro, *cwd), writer.test_call(*cwd, *args, **kwargs))
+        macro = f'#CALL(test_call({params}))'
+        cwd = ('<cwd>',) if isinstance(writer, HtmlWriter) else ()
+        self.assertEqual(writer.expand(macro, *cwd), writer.test_call(*cwd, *args, **kwargs))
 
     def _check_invalid_call(self, writer, spec, exp_error, func=None):
         prefix = ERROR_PREFIX.format('CALL')
-        for macro in (f'#CALL({spec})', f'#CALL:{spec}'):
-            self._assert_error(writer, macro, exp_error, prefix, func)
+        self._assert_error(writer, f'#CALL({spec})', exp_error, prefix, func)
 
     def _test_no_parameters(self, writer, macro, req, image_macro=False):
         prefix = ERROR_PREFIX.format(macro)
@@ -132,7 +131,6 @@ class CommonSkoolMacroTest:
     def test_macro_call_with_no_return_value(self):
         writer = self._get_writer()
         writer.test_call_no_retval = self._test_call_no_retval
-        self.assertEqual(writer.expand('#CALL:test_call_no_retval(1,2)'), '')
         self.assertEqual(writer.expand('#CALL(test_call_no_retval(1,2))'), '')
 
     def test_macro_call_with_keyword_arguments(self):
@@ -162,9 +160,8 @@ class CommonSkoolMacroTest:
     def test_macro_call_with_nonexistent_method(self):
         writer = self._get_writer(warn=True)
         method_name = 'nonexistent_method'
-        for macro in (f'#CALL({method_name}(0))', f'#CALL:{method_name}(0)'):
-            self.assertEqual(writer.expand(macro), '')
-            self.assertEqual(self.err.getvalue().split('\n')[0], f'WARNING: Unknown method name in #CALL macro: {method_name}')
+        self.assertEqual(writer.expand(f'#CALL({method_name}(0))'), '')
+        self.assertEqual(self.err.getvalue().split('\n')[0], f'WARNING: Unknown method name in #CALL macro: {method_name}')
 
     def test_macro_call_with_return_value_that_is_not_a_string(self):
         writer = self._get_writer()
@@ -188,11 +185,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#CALL', 'No parameters', prefix)
         self._assert_error(writer, '#CALL()', 'No argument list specified: #CALL()', prefix)
         self._assert_error(writer, '#CALLtest_call(5,s)', 'Malformed macro: #CALLt...', prefix)
-        self._assert_error(writer, '#CALL:(0)', 'No method name', prefix)
         self._assert_error(writer, '#CALL((0))', 'No function name', prefix)
-        self._assert_error(writer, '#CALL:test_call', 'No argument list specified: #CALL:test_call', prefix)
         self._assert_error(writer, '#CALL(test_call)', 'No argument list specified: #CALL(test_call)', prefix)
-        self._assert_error(writer, '#CALL:test_call(1,2', 'No closing bracket: (1,2', prefix)
         self._assert_error(writer, '#CALL(test_call(1,2)', 'No closing bracket: (test_call(1,2)', prefix)
         self._assert_error(writer, f'#CALL({moddir}:bar.notafunc())', f'{moddir}:bar.notafunc is not callable', prefix)
         self._assert_error(writer, f'#CALL({moddir}:bar.x(1,2))', f"Function call {moddir}:bar.x(1,2) failed: x() takes 1 positional argument but 2 were given", prefix)

@@ -1,4 +1,4 @@
-# Copyright 2012-2025 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -74,8 +74,6 @@ RE_FRAME_ID = re.compile(r'[^\s,;(]+')
 RE_MACRO = re.compile('#[A-Z]+')
 
 RE_MACRO_METHOD = re.compile('expand_([a-z]+)$')
-
-RE_METHOD_NAME = re.compile('[a-zA-Z_][a-zA-Z0-9_]*')
 
 RE_LINK_PARAMS = re.compile(r'[^(\s]+')
 
@@ -707,36 +705,28 @@ def parse_bank(writer, text, index, *cwd):
 
 def parse_call(writer, text, index, *cwd):
     # #CALL(method(args))
-    # #CALL:method(args)
     # #CALL([/path/to/moduledir:]module.func(args))
     macro = '#CALL'
     method_name = m_args = None
     if index >= len(text):
         raise MacroParsingError("No parameters")
-    if text[index] == '(':
-        end, spec = parse_brackets(text, index)
-        p_end = end - 1
-        args_idx = spec.find('(')
-        if args_idx >= 0:
-            fspec = spec[:args_idx]
-            if not fspec:
-                raise MacroParsingError("No function name")
-            if '.' in fspec:
-                f = get_object(fspec)
-                if not callable(f):
-                    raise MacroParsingError(f"{fspec} is not callable")
-            else:
-                method_name = fspec
-            m_args = parse_brackets(spec, args_idx)[1]
-    elif text[index] == ':':
-        match = RE_METHOD_NAME.match(text, index + 1)
-        if not match:
-            raise MacroParsingError("No method name")
-        method_name = match.group()
-        end, m_args = parse_brackets(text, index + 1 + len(method_name))
-        p_end = end
-    else:
+    if text[index] != '(':
         raise MacroParsingError(f"Malformed macro: {macro}{text[index]}...")
+
+    end, spec = parse_brackets(text, index)
+    p_end = end - 1
+    args_idx = spec.find('(')
+    if args_idx >= 0:
+        fspec = spec[:args_idx]
+        if not fspec:
+            raise MacroParsingError("No function name")
+        if '.' in fspec:
+            f = get_object(fspec)
+            if not callable(f):
+                raise MacroParsingError(f"{fspec} is not callable")
+        else:
+            method_name = fspec
+        m_args = parse_brackets(spec, args_idx)[1]
 
     if m_args is None:
         raise MacroParsingError(f"No argument list specified: {macro}{text[index:end]}")
