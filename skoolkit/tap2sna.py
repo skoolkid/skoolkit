@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2018, 2020-2025 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2018, 2020-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -250,10 +250,10 @@ Configure various properties of a simulated LOAD.
 
 --sim-load-config cmio=0/1
 
-  By default, memory contention and I/O contention delays are not simulated.
-  This improves performance and does not affect most loaders. Set cmio=1 to
-  enable simulation of memory and I/O contention delays. Note that when cmio=1,
-  all acceleration is disabled.
+  By default, memory and I/O contention delays and the MEMPTR register are not
+  simulated. This improves performance and does not affect most loaders. Set
+  cmio=1 to enable simulation of memory and I/O contention delays and MEMPTR.
+  Note that when cmio=1, all acceleration is disabled.
 
 --sim-load-config fast-load=0/1
 

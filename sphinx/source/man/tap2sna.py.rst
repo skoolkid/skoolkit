@@ -129,10 +129,10 @@ parameters are:
   the default) or neither (``0``)
 * ``accelerator`` - a comma-separated list of tape-sampling loop accelerators
   to use (see the ``ACCELERATORS`` section below)
-* ``cmio`` - enable simulation of memory contention and I/O contention delays
-  (``1``), or disable it (``0``); this is disabled by default to improve
-  performance, but some loaders may require it; when this is enabled, all
-  acceleration is disabled
+* ``cmio`` - enable simulation of memory and I/O contention delays and the
+  MEMPTR register (``1``), or disable it (``0``); this is disabled by default
+  to improve performance, but some loaders may require it; when this is
+  enabled, all acceleration is disabled
 * ``fast-load`` - enable fast loading whenever the ROM loader is called (``1``,
   the default), or disable it (``0``); fast loading (also known as "flash
   loading") significantly reduces the load time for many tapes, but can also

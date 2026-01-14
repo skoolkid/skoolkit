@@ -6,7 +6,7 @@ SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
 
 from skoolkit.simutils import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP,
-                               I, R, PC)
+                               I, R, PC, MEMPTR)
 
 Hd = 30
 Xd = 32
@@ -351,6 +351,7 @@ class BitTracer(BaseTracer):
         reg, opcodes = self.opcodes[self.index]
         memory[:len(opcodes)] = opcodes
         registers[F] = (self.count // 256) * 255
+        opval = self.count % 256
         if reg in (Xd, Yd):
             rr = 0x6000
             if self.count & 0x02:
@@ -363,14 +364,15 @@ class BitTracer(BaseTracer):
             else:
                 registers[IYl] = rr % 256
                 registers[IYh] = rr // 256
-            memory[rr] = self.count % 256
+            memory[rr] = opval
         elif reg == Hd:
             hl = 0x6000
             registers[L] = hl % 256
             registers[H] = hl // 256
-            memory[hl] = self.count % 256
+            memory[hl] = opval
+            registers[MEMPTR] = opval * 256
         else:
-            registers[reg] = self.count % 256
+            registers[reg] = opval
 
 class RRDRLDTracer(BaseTracer):
     def __init__(self, *opcodes):

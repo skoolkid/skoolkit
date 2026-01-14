@@ -23,7 +23,7 @@ OPTIONS
   ZX Spectrum speaker made by the code that was executed.
 
 -c, --cmio
-  Simulate memory contention and I/O contention delays.
+  Simulate memory and I/O contention delays and the MEMPTR register.
 
 --depth `N`
   Simplify audio delays to this depth (default: 2). When this option is given,

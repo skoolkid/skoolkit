@@ -1,4 +1,4 @@
-# Copyright 2022-2025 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -358,7 +358,7 @@ def main(args):
     group.add_argument('--audio', action='store_true',
                        help="Show audio delays.")
     group.add_argument('-c', '--cmio', action='store_true',
-                       help="Simulate memory and I/O contention.")
+                       help="Simulate memory and I/O contention and the MEMPTR register.")
     group.add_argument('-D', '--decimal', action='store_true',
                        help="Show decimal values in verbose mode.")
     group.add_argument('--depth', type=int, default=2,

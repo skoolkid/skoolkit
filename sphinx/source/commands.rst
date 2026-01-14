@@ -1732,10 +1732,10 @@ parameters are:
   the default), or neither (``0``)
 * ``accelerator`` - a comma-separated list of tape-sampling loop accelerators
   to use (see :ref:`tap2sna-accelerators`)
-* ``cmio`` - enable simulation of memory contention and I/O contention delays
-  (``1``), or disable it (``0``); this is disabled by default to improve
-  performance, but some loaders may require it; when this is enabled, all
-  acceleration is disabled
+* ``cmio`` - enable simulation of memory and I/O contention delays and the
+  MEMPTR register (``1``), or disable it (``0``); this is disabled by default
+  to improve performance, but some loaders may require it; when this is
+  enabled, all acceleration is disabled
 * ``fast-load`` - enable fast loading whenever the ROM loader is called (``1``,
   the default), or disable it (``0``); fast loading (also known as "flash
   loading") significantly reduces the load time for many tapes, but can also
@@ -2128,7 +2128,8 @@ To list the options supported by `trace.py`, run it with no arguments::
 
   Options:
     --audio               Show audio delays.
-    -c, --cmio            Simulate memory and I/O contention.
+    -c, --cmio            Simulate memory and I/O contention and the MEMPTR
+                          register.
     --depth DEPTH         Simplify audio delays to this depth (default: 2).
     -D, --decimal         Show decimal values in verbose mode.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to

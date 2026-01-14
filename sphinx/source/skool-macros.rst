@@ -919,8 +919,8 @@ Or, when executing code in a simulator (bit 2 of ``flags`` set)::
 * ``stop`` is the address at which to stop executing code
 * ``execint`` specifies whether to execute interrupt routines (1), or ignore
   interrupts (0, the default)
-* ``cmio`` specifies whether memory and I/O contention are simulated (1), or
-  not simulated (0, the default)
+* ``cmio`` specifies whether memory and I/O contention (and MEMPTR) are
+  simulated (1), or not simulated (0, the default)
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
@@ -1622,8 +1622,8 @@ memory snapshot constructed from the contents of the skool file. ::
 * ``tstates`` sets the value of the simulator's clock (default: 0)
 * ``iff`` sets whether interrupts are disabled (0, the default) or enabled (1)
 * ``im`` sets the interrupt mode (default: 1)
-* ``cmio`` specifies whether memory and I/O contention are simulated (1), or
-  not simulated (0, the default)
+* ``cmio`` specifies whether memory and I/O contention and the MEMPTR register
+  are simulated (1), or not simulated (0, the default)
 
 The parameters of the ``#SIM`` macro may contain
 :ref:`replacement fields <replacementFields>` and may also be given as keyword
@@ -1687,8 +1687,8 @@ now HL=14371'.
 Note that, by default, the simulator does not simulate memory contention or
 I/O contention. This means that ``sim[tstates]`` may not be accurate if the
 code being simulated runs in or accesses contended memory, or performs I/O
-operations. To simulate memory and I/O contention, set the ``cmio`` parameter
-to 1.
+operations. To simulate memory and I/O contention (and MEMPTR), set the
+``cmio`` parameter to 1.
 
 If the ``stop`` parameter is not given, no code is executed, but the
 simulator's registers and hardware state may be updated by providing other
@@ -1872,8 +1872,8 @@ or more instructions. ::
   ``$tstates`` for the actual timing value when bit 2 of ``flags`` is set
 * ``execint`` specifies whether to execute interrupt routines (1), or ignore
   interrupts (0, the default) when simulating code execution
-* ``cmio`` specifies whether memory and I/O contention are simulated (1), or
-  not simulated (0, the default)
+* ``cmio`` specifies whether memory and I/O contention and the MEMPTR register
+  are simulated (1), or not simulated (0, the default)
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:

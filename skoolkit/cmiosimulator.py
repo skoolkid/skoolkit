@@ -1,4 +1,4 @@
-# Copyright 2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -87,6 +87,11 @@ class CMIOSimulator(Simulator):
             return ((0x4000, 1), (0x4000, 3))
         return ((0, 1), (0x4000, 3))
 
+    def accept_interrupt(self, registers, memory, prev_pc):
+        accepted = super().accept_interrupt(registers, memory, prev_pc)
+        registers[29] = registers[24] # MEMPTR
+        return accepted
+
     def af_hl(self, registers, memory, af):
         # ADD A,(HL) / AND (HL) / CP (HL) / OR (HL) / SUB (HL) / XOR (HL)
         pc = registers[24]
@@ -143,6 +148,7 @@ class CMIOSimulator(Simulator):
             delay = 0
         registers[:2] = af[registers[0]][memory[xy]]
         registers[15] = R2[registers[15]] # R
+        registers[29] = xy # MEMPTR
         registers[25] += 19 + delay # T-states
         registers[24] = (pc + 3) % 65536 # PC
 
@@ -200,6 +206,7 @@ class CMIOSimulator(Simulator):
             delay = 0
         registers[:2] = afc[registers[1] % 2][registers[0]][memory[xy]]
         registers[15] = R2[registers[15]] # R
+        registers[29] = xy # MEMPTR
         registers[25] += 19 + delay # T-states
         registers[24] = (pc + 3) % 65536 # PC
 
@@ -246,6 +253,7 @@ class CMIOSimulator(Simulator):
         if dest >= 0:
             registers[dest] = value
         registers[15] = R2[registers[15]] # R
+        registers[29] = xy # MEMPTR
         registers[25] += 23 + delay # T-states
         registers[24] = (pc + 4) % 65536 # PC
 
@@ -307,6 +315,7 @@ class CMIOSimulator(Simulator):
         if dest >= 0:
             registers[dest] = value
         registers[15] = R2[registers[15]] # R
+        registers[29] = xy # MEMPTR
         registers[25] += 23 + delay # T-states
         registers[24] = (pc + size) % 65536 # PC
 
@@ -337,6 +346,7 @@ class CMIOSimulator(Simulator):
         registers[7] = result % 256
         registers[6] = r_h
         registers[15] = R2[registers[15]] # R
+        registers[29] = (hl + 1) % 65536 # MEMPTR
         registers[25] += 15 + delay # T-states
         registers[24] = (pc + 2) % 65536 # PC
 
@@ -368,6 +378,7 @@ class CMIOSimulator(Simulator):
         registers[al] = result % 256
         registers[ah] = result_hi
         registers[15] = r_inc[registers[15]] # R
+        registers[29] = (augend_v + 1) % 65536 # MEMPTR
         registers[25] += timing + delay # T-states
         registers[24] = (pc + size) % 65536 # PC
 
@@ -379,7 +390,7 @@ class CMIOSimulator(Simulator):
             delay = self.contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1)))
         else:
             delay = 0
-        registers[1] = bit[registers[1] % 2][b][memory[hl]]
+        registers[1] = (bit[registers[1] % 2][b][memory[hl]] & 0xD7) | ((registers[29] // 256) & 0x28)
         registers[15] = R2[registers[15]] # R
         registers[25] += 12 + delay # T-states
         registers[24] = (pc + 2) % 65536 # PC
@@ -408,6 +419,7 @@ class CMIOSimulator(Simulator):
             delay = 0
         registers[1] = (bit[registers[1] % 2][b][memory[xy]] & 0xD7) + ((xy // 256) & 0x28)
         registers[15] = R2[registers[15]] # R
+        registers[29] = xy # MEMPTR
         registers[25] += 20 + delay # T-states
         registers[24] = (pc + 4) % 65536 # PC
 
@@ -426,11 +438,12 @@ class CMIOSimulator(Simulator):
                 delay = self.contend(registers[25], ((pc, 4), (pc1, 3), (pc2, 3), (pc2, 1), ((sp - 1) % 65536, 3), ((sp - 2) % 65536, 3)))
         else:
             delay = 0
+        registers[29] = memory[pc1] + 256 * memory[pc2] # MEMPTR
         if c_and and registers[1] & c_and == c_val:
             registers[25] += 10 + delay # T-states
             registers[24] = (pc + 3) % 65536 # PC
         else:
-            registers[24] = memory[pc1] + 256 * memory[pc2] # PC
+            registers[24] = registers[29] # PC
             ret_addr = (pc + 3) % 65536
             sp = (registers[12] - 2) % 65536
             registers[12] = sp
@@ -479,10 +492,12 @@ class CMIOSimulator(Simulator):
         f = (cp & 0x80) + hf * 0x10 + 0x02 + (registers[1] % 2) # S..H..NC
         if repeat and cp and bc:
             registers[1] = f + ((pc // 256) & 0x28) + 0x04 # .Z5.3P..
+            registers[29] = (pc + 1) % 65536 # MEMPTR
             registers[25] += 21 + delay # T-states
         else:
             n = cp - hf
             registers[1] = f + (cp == 0) * 0x40 + (n & 0x02) * 16 + (n & 0x08) + (bc > 0) * 0x04 # .Z5.3P..
+            registers[29] = (registers[29] + inc) % 65536 # MEMPTR
             registers[25] += 16 + delay # T-states
             registers[24] = (pc + 2) % 65536 # PC
         registers[15] = R2[registers[15]] # R
@@ -513,8 +528,9 @@ class CMIOSimulator(Simulator):
         b = (registers[2] - 1) % 256
         registers[2] = b
         if b:
+            registers[29] = (pc + JR_OFFSETS[memory[pc1]]) % 65536 # MEMPTR
             registers[25] += 13 + delay # T-states
-            registers[24] = (pc + JR_OFFSETS[memory[pc1]]) % 65536 # PC
+            registers[24] = registers[29] # PC
         else:
             registers[25] += 8 + delay # T-states
             registers[24] = (pc + 2) % 65536 # PC
@@ -569,6 +585,7 @@ class CMIOSimulator(Simulator):
         registers[rl] = v1
         registers[rh] = v2
         registers[15] = r_inc[registers[15]] # R
+        registers[29] = v1 + 256 * v2 # MEMPTR
         registers[25] += timing + delay # T-states
         registers[24] = (pc + size) % 65536 # PC
 
@@ -618,16 +635,18 @@ class CMIOSimulator(Simulator):
         # IN A,(n)
         pc = registers[24]
         pc1 = (pc + 1) % 65536
+        port = memory[pc1] + 256 * registers[0]
         if self.t0 < registers[25] % self.frame_duration < self.t1:
-            io_c = self.io_contention(memory[pc1] + 256 * registers[0])
+            io_c = self.io_contention(port)
             delay = self.contend(registers[25], ((pc, 4), (pc1, 3), *io_c))
         else:
             delay = 0
         if self.in_a_n_tracer:
-            registers[0] = self.in_a_n_tracer(memory[pc1] + 256 * registers[0])
+            registers[0] = self.in_a_n_tracer(port)
         else:
             registers[0] = 255
         registers[15] = R1[registers[15]] # R
+        registers[29] = (port + 1) % 65536 # MEMPTR
         registers[25] += 11 + delay # T-states
         registers[24] = (pc + 2) % 65536 # PC
 
@@ -648,6 +667,7 @@ class CMIOSimulator(Simulator):
             registers[reg] = value
         registers[1] = sz53p[value] + (registers[1] % 2)
         registers[15] = R2[registers[15]] # R
+        registers[29] = (bc + 1) % 65536 # MEMPTR
         registers[25] += 12 + delay # T-states
         registers[24] = (pc + 2) % 65536 # PC
 
@@ -717,9 +737,11 @@ class CMIOSimulator(Simulator):
                 h = 0
                 p = parity[(j % 8) ^ b ^ (b % 8)]
             registers[1] = (b & 0x80) + ((pc // 256) & 0x28) + h + p + n + c
+            registers[29] = (pc + 1) % 65536 # MEMPTR
             registers[25] += 21 + delay # T-states
         else:
             registers[1] = (b & 0xA8) + (b == 0) * 0x40 + c * 0x11 + parity[(j % 8) ^ b] + n
+            registers[29] = (bc + inc) % 65536 # MEMPTR
             registers[24] = (pc + 2) % 65536 # PC
             registers[25] += 16 + delay # T-states
         registers[15] = R2[registers[15]] # R
@@ -733,8 +755,9 @@ class CMIOSimulator(Simulator):
             delay = self.contend(registers[25], ((pc, 4), (pc1, 3), (pc2, 3)))
         else:
             delay = 0
+        registers[29] = memory[pc1] + 256 * memory[pc2] # MEMPTR
         if registers[1] & c_and == c_val:
-            registers[24] = memory[pc1] + 256 * memory[pc2] # PC
+            registers[24] = registers[29] # PC
         else:
             registers[24] = (pc + 3) % 65536 # PC
         registers[15] = R1[registers[15]] # R
@@ -772,6 +795,7 @@ class CMIOSimulator(Simulator):
         if registers[1] & c_and == c_val:
             registers[25] += 12 + delay # T-states
             registers[24] = (pc + JR_OFFSETS[memory[pc1]]) % 65536 # PC
+            registers[29] = registers[24] # MEMPTR
         else:
             registers[25] += 7 + delay # T-states
             registers[24] = (pc + 2) % 65536 # PC
@@ -854,6 +878,8 @@ class CMIOSimulator(Simulator):
             delay = 0
         registers[r] = memory[registers[rl] + 256 * registers[rh]]
         registers[15] = R1[registers[15]] # R
+        if r == 0 and rh <= 4:
+            registers[29] = (registers[rl] + 256 * registers[rh] + 1) % 65536 # MEMPTR
         registers[25] += 7 + delay # T-states
         registers[24] = (pc + 1) % 65536 # PC
 
@@ -868,6 +894,8 @@ class CMIOSimulator(Simulator):
         if addr > 0x3FFF:
             memory[addr] = registers[r]
         registers[15] = R1[registers[15]] # R
+        if r == 0 and rh <= 4:
+            registers[29] = ((registers[rl] + 1) % 256) + 256 * registers[0] # MEMPTR
         registers[25] += 7 + delay # T-states
         registers[24] = (pc + 1) % 65536 # PC
 
@@ -882,6 +910,7 @@ class CMIOSimulator(Simulator):
             delay = 0
         registers[r] = memory[xy]
         registers[15] = R2[registers[15]] # R
+        registers[29] = xy # MEMPTR
         registers[25] += 19 + delay # T-states
         registers[24] = (pc + 3) % 65536 # PC
 
@@ -898,6 +927,7 @@ class CMIOSimulator(Simulator):
         if xy > 0x3FFF:
             memory[xy] = memory[pc3]
         registers[15] = R2[registers[15]] # R
+        registers[29] = xy # MEMPTR
         registers[25] += 19 + delay # T-states
         registers[24] = (pc + 4) % 65536 # PC
 
@@ -913,6 +943,7 @@ class CMIOSimulator(Simulator):
         if xy > 0x3FFF:
             memory[xy] = registers[r]
         registers[15] = R2[registers[15]] # R
+        registers[29] = xy # MEMPTR
         registers[25] += 19 + delay # T-states
         registers[24] = (pc + 3) % 65536 # PC
 
@@ -950,6 +981,7 @@ class CMIOSimulator(Simulator):
             delay = 0
         registers[0] = memory[nn]
         registers[15] = R1[registers[15]] # R
+        registers[29] = (nn + 1) % 65536 # MEMPTR
         registers[25] += 13 + delay # T-states
         registers[24] = (pc + 3) % 65536 # PC
 
@@ -966,6 +998,7 @@ class CMIOSimulator(Simulator):
         if nn > 0x3FFF:
             memory[nn] = registers[0]
         registers[15] = R1[registers[15]] # R
+        registers[29] = ((nn + 1) % 256) + 256 * registers[0] # MEMPTR
         registers[25] += 13 + delay # T-states
         registers[24] = (pc + 3) % 65536 # PC
 
@@ -993,6 +1026,7 @@ class CMIOSimulator(Simulator):
             registers[rl] = memory[nn]
             registers[rh] = memory[nn1]
         registers[15] = r_inc[registers[15]] # R
+        registers[29] = nn1 # MEMPTR
         registers[25] += timing + delay # T-states
         registers[24] = end % 65536 # PC
 
@@ -1026,6 +1060,7 @@ class CMIOSimulator(Simulator):
             if nn1 > 0x3FFF:
                 memory[nn1] = registers[rh]
         registers[15] = r_inc[registers[15]] # R
+        registers[29] = nn1 # MEMPTR
         registers[25] += timing + delay # T-states
         registers[24] = end % 65536 # PC
 
@@ -1058,6 +1093,7 @@ class CMIOSimulator(Simulator):
         registers[2] = bc // 256
         if repeat and bc:
             registers[1] = (registers[1] & 0xC1) + ((pc // 256) & 0x28) + 0x04
+            registers[29] = (pc + 1) % 65536 # MEMPTR
             registers[25] += 21 + delay # T-states
         else:
             n = registers[0] + at_hl
@@ -1123,6 +1159,7 @@ class CMIOSimulator(Simulator):
             a = registers[0]
             self.out_tracer(memory[pc1] + 256 * a, a)
         registers[15] = R1[registers[15]] # R
+        registers[29] = ((memory[pc1] + 1) % 256) + 256 * registers[0] # MEMPTR
         registers[25] += 11 + delay # T-states
         registers[24] = (pc + 2) % 65536 # PC
 
@@ -1141,6 +1178,7 @@ class CMIOSimulator(Simulator):
             else:
                 self.out_tracer(bc, 0)
         registers[15] = R2[registers[15]] # R
+        registers[29] = (bc + 1) % 65536 # MEMPTR
         registers[25] += 12 + delay # T-states
         registers[24] = (pc + 2) % 65536 # PC
 
@@ -1185,9 +1223,11 @@ class CMIOSimulator(Simulator):
                 h = 0
                 p = parity[(j % 8) ^ b ^ (b % 8)]
             registers[1] = (b & 0x80) + ((pc // 256) & 0x28) + h + p + n + c
+            registers[29] = (pc + 1) % 65536 # MEMPTR
             registers[25] += 21 + delay # T-states
         else:
             registers[1] = (b & 0xA8) + (b == 0) * 0x40 + c * 0x11 + parity[(j % 8) ^ b] + n
+            registers[29] = (bc - 256 + inc) % 65536 # MEMPTR
             registers[24] = (pc + 2) % 65536 # PC
             registers[25] += 16 + delay # T-states
         registers[15] = R2[registers[15]] # R
@@ -1279,6 +1319,7 @@ class CMIOSimulator(Simulator):
         if dest >= 0:
             registers[dest] = value
         registers[15] = R2[registers[15]] # R
+        registers[29] = xy # MEMPTR
         registers[25] += 23 + delay # T-states
         registers[24] = (pc + 4) % 65536 # PC
 
@@ -1307,10 +1348,12 @@ class CMIOSimulator(Simulator):
                 registers[25] += 11 + delay # T-states
                 registers[12] = (sp + 2) % 65536
                 registers[24] = memory[sp] + 256 * memory[sp1] # PC
+                registers[29] = registers[24] # MEMPTR
         else:
             registers[25] += 10 + delay # T-states
             registers[12] = (sp + 2) % 65536
             registers[24] = memory[sp] + 256 * memory[sp1] # PC
+            registers[29] = registers[24] # MEMPTR
         registers[15] = R1[registers[15]] # R
 
     def reti(self, registers, memory):
@@ -1325,7 +1368,8 @@ class CMIOSimulator(Simulator):
         registers[15] = R2[registers[15]] # R
         registers[25] += 14 + delay # T-states
         registers[12] = (sp + 2) % 65536
-        registers[24] = memory[sp] + 256 * memory[sp1] # PC
+        registers[29] = memory[sp] + 256 * memory[sp1] # MEMPTR
+        registers[24] = registers[29] # PC
 
     def rld(self, registers, memory, sz53p):
         # RLD
@@ -1342,6 +1386,7 @@ class CMIOSimulator(Simulator):
         a_out = registers[0] = (a & 240) + at_hl // 16
         registers[1] = sz53p[a_out] + (registers[1] % 2)
         registers[15] = R2[registers[15]] # R
+        registers[29] = (hl + 1) % 65536 # MEMPTR
         registers[25] += 18 + delay # T-states
         registers[24] = (pc + 2) % 65536 # PC
 
@@ -1360,6 +1405,7 @@ class CMIOSimulator(Simulator):
         a_out = registers[0] = (a & 240) + (at_hl % 16)
         registers[1] = sz53p[a_out] + (registers[1] % 2)
         registers[15] = R2[registers[15]] # R
+        registers[29] = (hl + 1) % 65536 # MEMPTR
         registers[25] += 18 + delay # T-states
         registers[24] = (pc + 2) % 65536 # PC
 
@@ -1380,6 +1426,7 @@ class CMIOSimulator(Simulator):
         if sp1 > 0x3FFF:
             memory[sp1] = ret_addr // 256
         registers[15] = R1[registers[15]] # R
+        registers[29] = addr # MEMPTR
         registers[25] += 11 + delay # T-states
         registers[24] = addr # PC
 
@@ -1410,6 +1457,7 @@ class CMIOSimulator(Simulator):
         registers[7] = result % 256
         registers[6] = r_h
         registers[15] = R2[registers[15]] # R
+        registers[29] = (hl + 1) % 65536 # MEMPTR
         registers[25] += 15 + delay # T-states
         registers[24] = (pc + 2) % 65536 # PC
 
@@ -1455,5 +1503,6 @@ class CMIOSimulator(Simulator):
         if dest >= 0:
             registers[dest] = value
         registers[15] = R2[registers[15]] # R
+        registers[29] = xy # MEMPTR
         registers[25] += 23 + delay # T-states
         registers[24] = (pc + 4) % 65536 # PC

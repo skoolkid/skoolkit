@@ -4,6 +4,7 @@ Changelog
 10.0b1
 ------
 * Dropped support for Python 3.9
+* Added support for the MEMPTR register to CMIOSimulator and CCMIOSimulator
 
 9.6 (2025-05-12)
 ----------------

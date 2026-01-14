@@ -1,4 +1,4 @@
-# Copyright 2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -52,6 +52,7 @@ T = 25
 IFF = 26
 IM = 27
 HALT = 28
+MEMPTR = 29
 
 REGISTERS = {
     'A': A,
@@ -78,6 +79,7 @@ REGISTERS = {
     '^H': xH,
     '^L': xL,
     'PC': PC,
+    'MEMPTR': MEMPTR,
     'T': T
 }
 
@@ -163,7 +165,7 @@ def get_state(simulator, tstates=True):
     return ram, registers, state, machine
 
 def get_registers(config, state, as_array=True):
-    registers = [0] * 29
+    registers = [0] * 30
     if as_array: # pragma: no cover
         registers = array.array('Q', registers)
     registers[IYh] = 92

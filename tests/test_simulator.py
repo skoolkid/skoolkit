@@ -2,7 +2,7 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import (REGISTERS as SIMULATOR_REGISTERS, A, F, B, C, D,
                                E, H, L, IXh, IXl, IYh, IYl, SP, I, R, xA, xF,
-                               xB, xC, xD, xE, xH, xL, PC, T, IFF, IM)
+                               xB, xC, xD, xE, xH, xL, PC, T, IFF, IM, MEMPTR)
 
 REGISTER_NAMES = {v: r for r, v in SIMULATOR_REGISTERS.items()}
 
@@ -409,6 +409,7 @@ class SimulatorTest(SkoolKitTestCase):
                         registers[H] = hl // 256
                         registers[L] = hl % 256
                         memory[hl] = opval
+                        registers[MEMPTR] = opval * 256
                     else:
                         timing = 8
                         registers[r] = opval

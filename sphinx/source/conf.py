@@ -39,7 +39,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'SkoolKit'
-copyright = '2025, Richard Dymond'
+copyright = '2026, Richard Dymond'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
