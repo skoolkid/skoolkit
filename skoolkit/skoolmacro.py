@@ -75,8 +75,6 @@ RE_MACRO = re.compile('#[A-Z]+')
 
 RE_MACRO_METHOD = re.compile('expand_([a-z]+)$')
 
-RE_LINK_PARAMS = re.compile(r'[^(\s]+')
-
 RE_PARAM_NAME = re.compile(r'\s*{}\s*='.format(PARAM_NAME))
 
 RE_REGISTER = re.compile("(af?|f|bc?|c|de?|e|hl?|l)'?|i[xy][lh]?|i|pc|r|sp")
@@ -1195,26 +1193,15 @@ def parse_let(writer, text, index, *cwd):
 
 def parse_link(text, index):
     # #LINK(PageId[#name])(link text)
-    # #LINK:PageId[#name](link text)
     macro = '#LINK'
     if index >= len(text):
         raise MacroParsingError("No parameters")
-    if text[index] == '(':
-        end, page = parse_brackets(text, index)
-        page_id, sep, anchor = page.partition('#')
-        if sep:
-            anchor = sep + anchor
-    elif text[index] == ':':
-        end = index + 1
-        page_id = None
-        match = RE_LINK_PARAMS.match(text, end)
-        if match:
-            page_id, sep, anchor = match.group().partition('#')
-            if sep:
-                anchor = sep + anchor
-            end = match.end()
-    else:
+    if text[index] != '(':
         raise MacroParsingError("Malformed macro: {}{}...".format(macro, text[index]))
+    end, page = parse_brackets(text, index)
+    page_id, sep, anchor = page.partition('#')
+    if sep:
+        anchor = sep + anchor
     end, link_text = parse_brackets(text, end)
     if not page_id:
         raise MacroParsingError("No page ID: {}{}".format(macro, text[index:end]))

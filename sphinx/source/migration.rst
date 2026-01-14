@@ -18,6 +18,16 @@ This is not supported in SkoolKit 10. Instead, use the following syntax::
 
   #CALL(method(args))
 
+#LINK
+-----
+In SkoolKit 9, the :ref:`LINK` macro could be written thus::
+
+  #LINK:PageId[#name](link text)
+
+This is not supported in SkoolKit 10. Instead, use the following syntax::
+
+  #LINK(PageId[#name])(link text)
+
 skoolkit9to10.py
 ----------------
 The `skoolkit9to10.py`_ script may be used to convert a skool file, control

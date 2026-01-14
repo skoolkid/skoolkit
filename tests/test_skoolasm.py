@@ -370,26 +370,26 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer = self._get_writer()
 
         link_text = 'Testing'
-        output = writer.expand('#LINK:Page_ID#anchor%1({0})'.format(link_text))
+        output = writer.expand(f'#LINK(Page_ID#anchor%1)({link_text})')
         self.assertEqual(output, link_text)
 
         link_text = 'test nested SMPL macros'
-        output = writer.expand(nest_macros('#LINK:Page({})', link_text))
+        output = writer.expand(nest_macros(f'#LINK(Page)({link_text})'))
         self.assertEqual(output, link_text)
 
         anchor = 'testNestedSmplMacros'
         link_text = 'Testing2'
-        output = writer.expand(nest_macros('#LINK#(:Page#{{}})({})'.format(link_text), anchor))
+        output = writer.expand(nest_macros(f'#LINK#((Page#{{}}))({link_text})', anchor))
         self.assertEqual(output, link_text)
 
         page_id = 'TestNestedSmplMacros'
         link_text = 'Testing3'
-        output = writer.expand(nest_macros('#LINK#(:{{}})({})'.format(link_text), page_id))
+        output = writer.expand(nest_macros(f'#LINK#(({{}}))({link_text})', page_id))
         self.assertEqual(output, link_text)
 
     def test_macro_link_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_link_invalid(self)
-        self._assert_error(writer, '#LINK:PageID()', 'Blank link text: #LINK:PageID()', prefix)
+        self._assert_error(writer, '#LINK(PageID)()', 'Blank link text: #LINK(PageID)()', prefix)
 
     def test_macro_map_asm(self):
         for asm_mode in (0, 1, 2, 3):

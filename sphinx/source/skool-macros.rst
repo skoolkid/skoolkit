@@ -1305,15 +1305,9 @@ In HTML mode, the anchor of this ``#LINK`` macro (40000) is converted to the
 format specified by the ``AddressAnchor`` parameter in the :ref:`ref-Game`
 section.
 
-.. note::
-   The ``#LINK:PageId[#name](link text)`` syntax is deprecated since version
-   9.5.
-
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 9.5     | Added support for the ``#LINK(PageId[#name])(link text)`` syntax |
-+---------+------------------------------------------------------------------+
 | 5.4     | When linking to an entry on a :ref:`box page <boxpages>`, the    |
 |         | link text, if left blank, defaults to the title of the entry (in |
 |         | HTML mode)                                                       |

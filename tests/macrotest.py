@@ -1630,11 +1630,8 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('LINK')
 
         self._assert_error(writer, '#LINK', 'No parameters', prefix)
-        self._assert_error(writer, '#LINK:', 'No page ID: #LINK:', prefix)
-        self._assert_error(writer, '#LINK:(text)', 'No page ID: #LINK:(text)', prefix)
-        self._assert_error(writer, '#LINK:(text', 'No closing bracket: (text', prefix)
+        self._assert_error(writer, '#LINK()(text)', 'No page ID: #LINK()(text)', prefix)
         self._assert_error(writer, '#LINKpageID', 'Malformed macro: #LINKp...', prefix)
-        self._assert_error(writer, '#LINK:Bugs', 'No link text: #LINK:Bugs', prefix)
         self._assert_error(writer, '#LINK(pageID', 'No closing bracket: (pageID', prefix)
         self._assert_error(writer, '#LINK(pageID)', 'No link text: #LINK(pageID)', prefix)
         self._assert_error(writer, '#LINK(pageID)(text', 'No closing bracket: (text', prefix)
