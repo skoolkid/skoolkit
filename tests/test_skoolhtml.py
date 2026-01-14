@@ -2437,12 +2437,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         frame2 = Frame([[udg2]], 1, delay=delay1, x_offset=2, y_offset=3) # Same delay as frame1
         frame3 = Frame([[udg3]], 2, delay=17)                             # Offsets revert to (0, 0)
         exp_frames = [frame1, frame2, frame3]
-        for fmt in ('#FRAMES({})({})', '#UDGARRAY*{}({})'):
-            macro4 = fmt.format(fspecs, fname)
-            output = writer.expand(macro4, ASMDIR)
-            self._assert_img_equals(output, fname, exp_src)
-            self.assertEqual(writer.file_info.fname, exp_image_path)
-            self._check_animated_image(writer.image_writer, exp_frames)
+        output = writer.expand(f'#FRAMES({fspecs})({fname})', ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+        self._check_animated_image(writer.image_writer, exp_frames)
 
     def test_macro_frames_is_evaluated_immediately(self):
         snapshot = [128] * 8
@@ -2450,9 +2448,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         frame = 'frame'
         exp_image_path = f'{UDGDIR}/{fname}.png'
         exp_udgs = [[Udg(56, [128] * 8)]]
-        for fmt in ('#FRAMES({})({})', '#UDGARRAY*{}({})'):
-            macros = f'#UDGARRAY1(0)(*{frame})#POKES(0,255)' + fmt.format(frame, fname)
-            self._test_image_macro(snapshot[:], macros, exp_image_path, exp_udgs)
+        macros = f'#UDGARRAY1(0)(*{frame})#POKES(0,255)#FRAMES({frame})({fname})'
+        self._test_image_macro(snapshot[:], macros, exp_image_path, exp_udgs)
 
     def test_macro_frames_with_replacement_fields(self):
         udg1, udg2 = Udg(23, [101] * 8), Udg(47, [35] * 8)
@@ -2468,11 +2465,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         frame1 = Frame([[udg1]], 2, delay=50)
         frame2 = Frame([[udg2]], 1, delay=50, x_offset=1, y_offset=2)
         exp_frames = [frame1, frame2]
-        for fmt in ('#FRAMES({})({})', '#UDGARRAY*{}({})'):
-            output = writer.expand(fmt.format(fspec, 'img'), ASMDIR)
-            self._assert_img_equals(output, 'img', exp_src)
-            self.assertEqual(writer.file_info.fname, exp_image_path)
-            self._check_animated_image(writer.image_writer, exp_frames)
+        output = writer.expand(f'#FRAMES({fspec})(img)', ASMDIR)
+        self._assert_img_equals(output, 'img', exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+        self._check_animated_image(writer.image_writer, exp_frames)
 
     def test_macro_frames_alt_text(self):
         snapshot = [0] * 8
@@ -2480,13 +2476,12 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         alt = 'Animated'
         fspec = 'frame1;frame2'
         exp_image_path = f'{UDGDIR}/{fname}.png'
-        for fmt in ('#FRAMES({})({}|{})', '#UDGARRAY*{}({}|{})'):
-            macros = (
-                '#UDGARRAY1;0(*frame1)',
-                '#UDGARRAY1;0(*frame2)',
-                fmt.format(fspec, fname, alt)
-            )
-            self._test_image_macro(snapshot, macros, exp_image_path, alt=alt)
+        macros = (
+            '#UDGARRAY1;0(*frame1)',
+            '#UDGARRAY1;0(*frame2)',
+            f'#FRAMES({fspec})({fname}|{alt})'
+        )
+        self._test_image_macro(snapshot, macros, exp_image_path, alt=alt)
 
     def test_macro_frames_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_frames_invalid(self)
@@ -4822,29 +4817,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg]]
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=2, mask=2)
-
-    def test_macro_udgarray_with_frame_specs_between_parentheses(self):
-        udg1, udg2 = Udg(23, [101] * 8), Udg(47, [35] * 8)
-        snapshot = udg1.data + udg2.data
-        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
-        writer.expand('#UDGARRAY1;0,23(*f1)', ASMDIR)
-        writer.expand('#UDGARRAY1;8,47(*f2)', ASMDIR)
-
-        exp_image_path = '{}/img.png'.format(UDGDIR)
-        exp_src = '../{}'.format(exp_image_path)
-        output = writer.expand('#UDGARRAY*(f1,50;f2,,1,2)(img)', ASMDIR)
-        self._assert_img_equals(output, 'img', exp_src)
-        self.assertEqual(writer.file_info.fname, exp_image_path)
-
-        frame1 = Frame([[udg1]], 2, delay=50)
-        frame2 = Frame([[udg2]], 2, delay=50, x_offset=1, y_offset=2)
-        exp_frames = [frame1, frame2]
-        self._check_animated_image(writer.image_writer, exp_frames)
-
-    def test_macro_udgarray_frames_invalid(self):
-        writer, prefix = CommonSkoolMacroTest.test_macro_udgarray_frames_invalid(self)
-        self._assert_error(writer, '#UDGARRAY*foo(bar)', 'No such frame: "foo"', prefix)
-        self._assert_error(writer, '#UDG0,,1(f*) #UDG0,,2(g*) #UDGARRAY*f;g(a)', "Frame 'g' (16x16) is larger than the first frame (8x8)", prefix)
 
     def test_macro_udgarray_alt_text(self):
         snapshot = [0] * 8

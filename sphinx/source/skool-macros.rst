@@ -2179,10 +2179,6 @@ Note that the first frame of an animated image determines the size of the image
 as a whole. Therefore, the region defined by the width, height and coordinates
 of any subsequent frame must fall entirely inside the first frame.
 
-.. note::
-   The ``#FRAMES`` macro has the same syntax and function as the older
-   ``#UDGARRAY*`` macro, which is deprecated since version 9.5.
-
 +---------+---------+
 | Version | Changes |
 +=========+=========+
@@ -2586,9 +2582,6 @@ See also :ref:`UDGS`.
 +---------+-------------------------------------------------------------------+
 | 4.0     | Added the ``mask`` parameter and support for AND-OR masking;      |
 |         | added support for keyword arguments                               |
-+---------+-------------------------------------------------------------------+
-| 3.6     | Added support for creating an animated image from an arbitrary    |
-|         | sequence of frames                                                |
 +---------+-------------------------------------------------------------------+
 | 3.1.1   | Added support for UDG address ranges with horizontal and vertical |
 |         | steps                                                             |

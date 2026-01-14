@@ -1588,25 +1588,6 @@ def parse_udgarray(text, index, snapshot=None, req_fname=True, fields=None):
     scale, flip, rotate, mask, tindex, alpha, udg_array = values[2], *values[5:]
     return end, crop_rect, fname, frame, alt, (udg_array, scale, flip, rotate, mask, tindex, alpha)
 
-def parse_udgarray_with_frames(text, index, fields, frame_map=None):
-    # #UDGARRAY*frame1[,delay,x,y];frame2[,delay,x,y];...(fname)
-    if text[index:].startswith('*('):
-        end, params = parse_brackets(text, index + 1)
-        frame_specs = _parse_frame_specs(params, -1, fields)[1]
-    else:
-        end, frame_specs = _parse_frame_specs(text, index, fields)
-    end, fname = parse_brackets(text, end)
-
-    if not fname:
-        raise MacroParsingError(f'Missing filename: #UDGARRAY{text[index:end]}')
-    if not frame_specs:
-        raise MacroParsingError(f"No frames specified: #UDGARRAY{text[index:end]}")
-
-    alt = None
-    if '|' in fname:
-        fname, alt = fname.split('|', 1)
-    return end, fname, alt, _get_frames(frame_map, frame_specs)
-
 def parse_udgs(writer, text, index, *cwd):
     # #UDGSwidth,height[,scale,flip,rotate,mask,tindex,alpha][{CROP}](fname)(uframe)
     names = ('width', 'height', 'scale', 'flip', 'rotate', 'mask', 'tindex', 'alpha')

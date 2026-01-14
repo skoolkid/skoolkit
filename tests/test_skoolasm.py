@@ -318,6 +318,12 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, nest_macros('#FONT32768{{x={}}}(bar)', 3))
         self._test_unsupported_macro(writer, nest_macros('#FONT32768({})', 'baz'))
 
+    def test_macro_frames(self):
+        writer = self._get_writer()
+        writer.fields['d'] = 5
+        self._test_unsupported_macro(writer, '#FRAMES(foo,(2*10);bar,(1+19);baz,(25-5);qux,(40/2))(logo|Logo)')
+        self._test_unsupported_macro(writer, '#FRAMES(foo,delay=2;bar,({d}))(baz)')
+
     def test_macro_html(self):
         writer = self._get_writer()
         delimiters = {
@@ -895,14 +901,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_udgarray_macro(writer, '#UDGARRAY1', '0', nest_macros('({})', 'fname'))
         self._test_unsupported_macro(writer, '#UDGARRAY#(2#FOR0,8,8||n|;n||)(thing)')
         self._test_unsupported_macro(writer, '#UDGARRAY#(2(#FOR0,8,8||n|n|;||))(thing)')
-
-    def test_macro_udgarray_frames(self):
-        writer = self._get_writer()
-        writer.fields['d'] = 5
-        self._test_unsupported_macro(writer, '#UDGARRAY*foo,(2*10);bar,(1+19);baz,(25-5);qux,(40/2)(logo|Logo)')
-        self._test_unsupported_macro(writer, '#UDGARRAY*(foo,(2*10);bar,(1+19);baz,(25-5);qux,(40/2))(logo|Logo)')
-        self._test_unsupported_macro(writer, '#UDGARRAY*foo,delay=2;bar,({d})(baz)')
-        self._test_unsupported_macro(writer, '#UDGARRAY*(foo,delay=2;bar,({d}))(baz)')
 
     def test_macro_udgs(self):
         writer = self._get_writer()

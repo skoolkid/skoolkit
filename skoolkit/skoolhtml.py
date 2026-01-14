@@ -1,4 +1,4 @@
-# Copyright 2008-2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -1165,14 +1165,7 @@ class HtmlWriter:
         frame = Frame(udgs, scale, mask, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
         return end, self.handle_image(frame, fname, cwd, alt, UDG_IMAGE_PATH)
 
-    def _expand_udgarray_with_frames(self, text, index, cwd):
-        end, fname, alt, frames = skoolmacro.parse_udgarray_with_frames(text, index, self.fields, self.frames)
-        return end, self.handle_image(frames, fname, cwd, alt, UDG_IMAGE_PATH)
-
     def expand_udgarray(self, text, index, cwd):
-        if index < len(text) and text[index] == '*':
-            return self._expand_udgarray_with_frames(text, index, cwd)
-
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgarray(text, index, self.snapshot, fields=self.fields)
         udg_array, scale, flip, rotate, mask, tindex, alpha = params
         udgs = lambda: adjust_udgs(udg_array, flip, rotate)

@@ -28,6 +28,11 @@ This is not supported in SkoolKit 10. Instead, use the following syntax::
 
   #LINK(PageId[#name])(link text)
 
+#UDGARRAY*
+----------
+The ``#UDGARRAY*`` macro is not supported in SkoolKit 10. Use the :ref:`FRAMES`
+macro instead.
+
 skoolkit9to10.py
 ----------------
 The `skoolkit9to10.py`_ script may be used to convert a skool file, control

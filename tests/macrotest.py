@@ -2996,22 +2996,6 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0@({bish)(udg)', "Invalid format string: {bish", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0[({bish)](udg)', "Invalid format string: {bish", prefix)
 
-    def test_macro_udgarray_frames_invalid(self):
-        writer = self._get_writer(snapshot=[0] * 8)
-        prefix = ERROR_PREFIX.format('UDGARRAY')
-
-        self._test_invalid_image_macro(writer, '#UDGARRAY*()(img)', 'No frames specified: #UDGARRAY*()(img)', prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY*foo', 'Missing filename: #UDGARRAY*foo', prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY*(foo)', 'Missing filename: #UDGARRAY*(foo)', prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY*foo()', 'Missing filename: #UDGARRAY*foo()', prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY*foo(bar', 'No closing bracket: (bar', prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY*(foo(bar)', 'No closing bracket: (foo(bar)', prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY*foo,(d,x)(bar', "Cannot parse integer 'd' in parameter string: 'd,x'", prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY*foo,({no})(bar', "Unrecognised field 'no': {no}", prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY*foo,({bar)(bar', "Invalid format string: {bar", prefix)
-
-        return writer, prefix
-
     def test_macro_udgs_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('UDGS')
