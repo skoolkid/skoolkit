@@ -356,7 +356,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs = [[exp_udg]]
         data = [0] * (16 * step)
         data[0:16 * step:step] = udg.data + udg.mask
-        macro = 'UDGARRAY1,{},{},{},{},{},{},{},{},{};{}:{}(ignored)'.format(attr, scale, step, inc, flip, rotate, mask, tindex, alpha, addr, mask_addr)
+        macro = f'UDGARRAY1,{attr},{scale},{step},{inc},{flip},{rotate},{mask},{tindex},{alpha}({addr}:{mask_addr})(ignored)'
         self._test_sna2img(mock_open, '--expand {}'.format(macro), data, exp_udgs, scale, mask, tindex, alpha, address=addr, ftype='sna')
 
     @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
@@ -368,7 +368,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         x, y = 3, 2
         width, height = 12, 13
         data = udg.data * len(exp_udgs)
-        macro = '#UDGARRAY2;{}x2{{{},{},{},{}}}'.format(addr, x, y, width, height)
+        macro = f'#UDGARRAY2({addr}x2){{{x},{y},{width},{height}}}'
         self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, 2, 0, x=x, y=y, width=width, height=height, address=addr, ftype='sna')
 
     def test_option_e_udgarray_invalid_parameters(self):

@@ -1486,30 +1486,29 @@ def parse_udg(text, index=0, fields=None):
     defaults = (56, 4, 1, 0, 0, 0, 1, 0, -1)
     return parse_image_macro(text, index, defaults, names, '', fields, _get_udg_mask, [fields])
 
-def _parse_udg_specs(text, index, prefix, width, attr, step, inc, mask, snapshot, fields):
-    end = index
+def _parse_udg_specs(udg_specs, prefix, width, attr, step, inc, mask, snapshot, fields):
     udg_array = [[]]
     has_masks = False
+    names = ('attr', 'step', 'inc')
+    defaults = (attr, step, inc)
 
-    while end < 0 or (end < len(text) and text[end] == ';'):
-        names = ('attr', 'step', 'inc')
-        defaults = (attr, step, inc)
-        end, udg_addresses = parse_address_range(text, end + 1, width, fields)
+    for udg_spec in udg_specs.split(';'):
+        end, udg_addresses = parse_address_range(udg_spec, 0, width, fields)
         if udg_addresses is None:
-            raise MacroParsingError('Expected UDG address range specification: #UDGARRAY{}{}'.format(prefix, text[max(index, 0):end]))
-        if end < len(text) and text[end] == ',':
-            end, udg_attr, udg_step, udg_inc = parse_ints(text, end + 1, defaults=defaults, names=names, fields=fields)
+            raise MacroParsingError(f'Expected UDG address range specification: #UDGARRAY{prefix}{udg_specs[:end]}')
+        if end < len(udg_spec) and udg_spec[end] == ',':
+            end, udg_attr, udg_step, udg_inc = parse_ints(udg_spec, end + 1, defaults=defaults, names=names, fields=fields)
         else:
             udg_attr, udg_step, udg_inc = defaults
         mask_addresses = []
-        if end < len(text) and text[end] == ':':
-            end, mask_addresses = parse_address_range(text, end + 1, width, fields)
+        if end < len(udg_spec) and udg_spec[end] == ':':
+            end, mask_addresses = parse_address_range(udg_spec, end + 1, width, fields)
             if mask_addresses is None:
-                raise MacroParsingError('Expected mask address range specification: #UDGARRAY{}{}'.format(prefix, text[max(index, 0):end]))
+                raise MacroParsingError(f'Expected mask address range specification: #UDGARRAY{prefix}{udg_specs[:end]}')
             if not mask:
                 mask_addresses = []
-            if end < len(text) and text[end] == ',':
-                end, mask_step = parse_ints(text, end + 1, defaults=(udg_step,), names=('step',), fields=fields)
+            if end < len(udg_spec) and udg_spec[end] == ',':
+                end, mask_step = parse_ints(udg_spec, end + 1, defaults=(udg_step,), names=('step',), fields=fields)
             else:
                 mask_step = udg_step
         if snapshot:
@@ -1525,16 +1524,15 @@ def _parse_udg_specs(text, index, prefix, width, attr, step, inc, mask, snapshot
                 else:
                     udg_array[-1].append(udg)
 
-    return end, udg_array, has_masks
+    return udg_array, has_masks
 
 def _get_udgs(text, index, pvals, start, snapshot, fields):
     width, attr, step, inc, mask = pvals[0], pvals[1], pvals[3], pvals[4], pvals[7]
-    if index < len(text) and text[index] == '(':
-        prefix = text[start:index + 1]
-        end, udg_specs = parse_brackets(text, index)
-        udg_array, has_masks = _parse_udg_specs(udg_specs, -1, prefix, width, attr, step, inc, mask, snapshot, fields)[1:]
-    else:
-        end, udg_array, has_masks = _parse_udg_specs(text, index, text[start:index], width, attr, step, inc, mask, snapshot, fields)
+    if not (index < len(text) and text[index] == '('):
+        raise MacroParsingError(f'Missing UDG specifications: #UDGARRAY{text[start:index]}')
+    prefix = text[start:index + 1]
+    end, udg_specs = parse_brackets(text, index)
+    udg_array, has_masks = _parse_udg_specs(udg_specs, prefix, width, attr, step, inc, mask, snapshot, fields)
 
     if len(udg_array) > 1 and len(udg_array[-1]) < width:
         udg_array[-1].extend((FILL_UDG,) * (width - len(udg_array[-1])))

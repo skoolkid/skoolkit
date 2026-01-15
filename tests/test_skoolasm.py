@@ -113,7 +113,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, macro, error_msg)
 
     def _test_udgarray_macro(self, writer, prefix, udg_specs, suffix):
-        self._test_unsupported_macro(writer, f'{prefix};{udg_specs}{suffix}')
         self._test_unsupported_macro(writer, f'{prefix}({udg_specs}){suffix}')
 
     def _test_call(self, arg1, arg2, arg3=None):
@@ -898,7 +897,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_udgarray_macro(writer, '#UDGARRAY1', nest_macros('32768,({}):32776,({})', 5, 2), '(thing)')
         self._test_udgarray_macro(writer, '#UDGARRAY1', '0', nest_macros('{{x={}}}(thing)', 3))
         self._test_udgarray_macro(writer, '#UDGARRAY1', '0', nest_macros('({})', 'fname'))
-        self._test_unsupported_macro(writer, '#UDGARRAY#(2#FOR0,8,8||n|;n||)(thing)')
         self._test_unsupported_macro(writer, '#UDGARRAY#(2(#FOR0,8,8||n|n|;||))(thing)')
 
     def test_macro_udgs(self):

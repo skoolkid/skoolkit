@@ -38,6 +38,18 @@ This is not supported in SkoolKit 10. Instead, use the following syntax::
 
   #LINK(PageId[#name])(link text)
 
+#UDGARRAY
+---------
+In SkoolKit 9, the UDG specifications of a :ref:`UDGARRAY` macro could be
+separated from the main parameters by a semicolon::
+
+  #UDGARRAYparams;SPEC1;SPEC2...
+
+This is not supported in SkoolKit 10. Instead, the UDG specifications must be
+enclosed in parentheses::
+
+  #UDGARRAYparams(SPEC1;SPEC2...)...
+
 #UDGARRAY*
 ----------
 The ``#UDGARRAY*`` macro is not supported in SkoolKit 10. Use the :ref:`FRAMES`

@@ -1499,7 +1499,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def _test_udgarray_macro(self, snapshot, prefix, udg_specs, suffix, path, udgs=None, scale=2, mask=0, tindex=0,
                              alpha=-1, x=0, y=0, width=None, height=None, ref=None, alt=None, base=0):
-        self._test_image_macro(snapshot, f'{prefix};{udg_specs}{suffix}', path, udgs, scale, mask, tindex, alpha, x, y, width, height, ref, alt, base)
         self._test_image_macro(snapshot, f'{prefix}({udg_specs}){suffix}', path, udgs, scale, mask, tindex, alpha, x, y, width, height, ref, alt, base)
 
     def _test_image_macro_with_replacement_field_in_filename(self, macro, defdir=UDGDIR, snapshot=(0,) * 8):
@@ -1964,7 +1963,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_copy(self):
         snapshot = [0] * 8 + [1] * 8 + [2] * 8 + [3] * 8
         macros = (
-            '#UDGARRAY2,,3,mask=1;0,1:0;8,2;16,3;24,4(*f)',
+            '#UDGARRAY2,,3,mask=1(0,1:0;8,2;16,3;24,4)(*f)',
             '#COPY(f,g)',
             '#FRAMES(g)(img)'
         )
@@ -1978,7 +1977,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_copy_with_x_and_y(self):
         snapshot = [0] * 8 + [1] * 8 + [2] * 8
         macros = (
-            '#UDGARRAY3,,4,mask=2;0x3,1:0;8x3,2;16x3,3(*f)',
+            '#UDGARRAY3,,4,mask=2(0x3,1:0;8x3,2;16x3,3)(*f)',
             '#COPY1,2(f,g)',
             '#FRAMES(g)(img)'
         )
@@ -1989,7 +1988,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_copy_with_x_and_y_and_width_and_height(self):
         snapshot = [0] * 8 + [1] * 8 + [2] * 8 + [3] * 8
         macros = (
-            '#UDGARRAY4,,5;0x4,1;8x4,2;16x4,3;24x4,4(*f)',
+            '#UDGARRAY4,,5(0x4,1;8x4,2;16x4,3;24x4,4)(*f)',
             '#COPY1,0,2,2(f,g)',
             '#FRAMES(g)(img)'
         )
@@ -2004,7 +2003,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg = Udg(56, [1] * 8)
         snapshot = udg.data
         macros = (
-            '#UDGARRAY3,scale=4;0x9(*f)',
+            '#UDGARRAY3,scale=4(0x9)(*f)',
             '#COPY0,0,2,1,3(f,g)',
             '#FRAMES(g)(img)'
         )
@@ -2016,7 +2015,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg = Udg(56, [1] * 8, [251] * 8)
         snapshot = udg.data + udg.mask
         macros = (
-            '#UDGARRAY2,mask=2;0x4:8x4(*f)',
+            '#UDGARRAY2,mask=2(0x4:8x4)(*f)',
             '#COPY0,0,2,1,,0(f,g)',
             '#FRAMES(g)(img)'
         )
@@ -2052,7 +2051,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg = Udg(56, [1] * 8)
         snapshot = udg.data
         macros = (
-            '#UDGARRAY2;0x4{1,2,27,25}(*f)',
+            '#UDGARRAY2(0x4){1,2,27,25}(*f)',
             '#COPY(f,g)',
             '#FRAMES(g)(img)'
         )
@@ -2067,7 +2066,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg = Udg(19, [2] * 8)
         snapshot = udg.data
         macros = (
-            '#UDGARRAY2,19;0x4(*original)',
+            '#UDGARRAY2,19(0x4)(*original)',
             '#COPY{2,4,28,22}(original,g)',
             '#FRAMES(g)(img)'
         )
@@ -2082,7 +2081,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg = Udg(56, [1] * 8)
         snapshot = udg.data
         macros = (
-            '#UDGARRAY2;0x4(*f)',
+            '#UDGARRAY2(0x4)(*f)',
             '#COPY0,0,1,1//f/g//',
             '#FRAMES(g)(img)'
         )
@@ -2094,7 +2093,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg = Udg(56, [3] * 8)
         snapshot = udg.data
         macros = (
-            '#UDGARRAY5,,1;0x25(*old)',
+            '#UDGARRAY5,,1(0x25)(*old)',
             '#COPY(y=1,x=2,height=2,alpha=128,scale=2,tindex=1,width=3){width=35,x=3,height=29,y=2}(old,g)',
             '#FRAMES(g)(img)'
         )
@@ -2121,7 +2120,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             '#LET(cy=1)',
             '#LET(cwidth=27)',
             '#LET(cheight=45)',
-            '#UDGARRAY5,,1;0x25(*f)',
+            '#UDGARRAY5,,1(0x25)(*f)',
             '#COPY({x},{y},{width},{height},{scale},{mask},{tindex},{alpha}){{cx},{cy},{cwidth},{cheight}}(f,g)',
             '#FRAMES(g)(img)'
         )
@@ -2137,7 +2136,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg = Udg(56, [3] * 8)
         snapshot = udg.data
         macros = (
-            '#UDGARRAY5,,1;0x25(*f)',
+            '#UDGARRAY5,,1(0x25)(*f)',
             '#COPY(#IF(0)(0,4),#IF(1)(4,0)){#IF(1)(1,2)}(f,g)',
             '#FRAMES(g)(img)'
         )
@@ -2400,9 +2399,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg3 = Udg(56, [19] * 8)
         snapshot = udg1.data +  udg2.data + udg3.data
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
-        macro1 = '#UDGARRAY1;0,{}(*foo)'.format(udg1.attr)
-        macro2 = '#UDGARRAY1,,1;8,{}(bar*)'.format(udg2.attr)
-        macro3 = '#UDGARRAY1;16,{}(baz*qux)'.format(udg3.attr)
+        macro1 = f'#UDGARRAY1(0,{udg1.attr})(*foo)'
+        macro2 = f'#UDGARRAY1,,1(8,{udg2.attr})(bar*)'
+        macro3 = f'#UDGARRAY1(16,{udg3.attr})(baz*qux)'
 
         output = writer.expand(macro1, ASMDIR)
         self.assertEqual(output, '')
@@ -2448,8 +2447,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg1, udg2 = Udg(23, [101] * 8), Udg(47, [35] * 8)
         snapshot = udg1.data + udg2.data
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
-        writer.expand('#UDGARRAY1;0,23(*foo)', ASMDIR)
-        writer.expand('#UDGARRAY1,,1;8,47(*bar)', ASMDIR)
+        writer.expand('#UDGARRAY1(0,23)(*foo)', ASMDIR)
+        writer.expand('#UDGARRAY1,,1(8,47)(*bar)', ASMDIR)
         writer.expand('#LET(d=50) #LET(x=1) #LET(y=2)')
 
         exp_image_path = '{}/img.png'.format(UDGDIR)
@@ -2470,8 +2469,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fspec = 'frame1;frame2'
         exp_image_path = f'{UDGDIR}/{fname}.png'
         macros = (
-            '#UDGARRAY1;0(*frame1)',
-            '#UDGARRAY1;0(*frame2)',
+            '#UDGARRAY1(0)(*frame1)',
+            '#UDGARRAY1(0)(*frame2)',
             f'#FRAMES({fspec})({fname}|{alt})'
         )
         self._test_image_macro(snapshot, macros, exp_image_path, alt=alt)
@@ -2832,7 +2831,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg.data + fg_udg_data
         macros = (
-            '#UDGARRAY3;0x9(*bg)',
+            '#UDGARRAY3(0x9)(*bg)',
             '#UDG8(*fg)',
             '#OVER2,2(bg,fg)',
             '#FRAMES(bg)(img)'
@@ -2851,7 +2850,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg = Udg(5, [0, 0, 24, 60, 60, 24, 0, 0], [255, 195, 219, 189, 189, 219, 195, 255])
         snapshot = bg_udg.data + fg_udg.data + fg_udg.mask
         macros = (
-            '#UDGARRAY3;0x9(*bg)',
+            '#UDGARRAY3(0x9)(*bg)',
             '#UDG8:16(*fg)',
             '#OVER2,0(bg,fg)',
             '#OVER0,2(bg,fg)',
@@ -2871,7 +2870,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg = Udg(23, [0, 0, 24, 60, 60, 24, 0, 0], [255, 195, 195, 129, 129, 195, 195, 255])
         snapshot = bg_udg.data + fg_udg.data + fg_udg.mask
         macros = (
-            '#UDGARRAY3;0x9(*bg)',
+            '#UDGARRAY3(0x9)(*bg)',
             '#UDG8,mask=2:16(*fg)',
             '#OVER0,0(bg,fg)',
             '#OVER2,2(bg,fg)',
@@ -2891,7 +2890,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg.data + fg_udg_data
         macros = (
-            '#UDGARRAY3;0x9(*bg)',
+            '#UDGARRAY3(0x9)(*bg)',
             '#UDG8,2(*fg)',
             '#OVER0,0,,,1($b&248|$f&7)(bg,fg)',
             '#FRAMES(bg)(img)'
@@ -2910,7 +2909,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg.data + fg_udg_data
         macros = (
-            '#UDGARRAY3;0x9(*bg)',
+            '#UDGARRAY3(0x9)(*bg)',
             '#UDG8,26(*fg)',
             '#OVER1,0,,,1($b&199|$f&56)(bg,fg)',
             '#FRAMES(bg)(img)'
@@ -2929,7 +2928,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg.data + fg_udg_data
         macros = (
-            '#UDGARRAY3,120;0x9(*bg)',
+            '#UDGARRAY3,120(0x9)(*bg)',
             '#UDG8,26(*fg)',
             '#OVER2,0,,,1($b&192|$f&63)(bg,fg)',
             '#FRAMES(bg)(img)'
@@ -2948,7 +2947,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg.data + fg_udg_data
         macros = (
-            '#UDGARRAY3;0x9(*bg)',
+            '#UDGARRAY3(0x9)(*bg)',
             '#UDG8,90(*fg)',
             '#OVER1,2,,,1(23)(bg,fg)',
             '#FRAMES(bg)(img)'
@@ -2967,8 +2966,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg.data + fg_udg_data
         macros = (
-            '#UDGARRAY3;0x9(*bg)',
-            '#UDGARRAY2;8,1;8,2;8,3;8,4(*fg)',
+            '#UDGARRAY3(0x9)(*bg)',
+            '#UDGARRAY2(8,1;8,2;8,3;8,4)(*fg)',
             '#OVER1,1,,,1($b+$f)(bg,fg)',
             '#FRAMES(bg)(img)'
         )
@@ -2989,8 +2988,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg.data + fg_udg_data
         macros = (
-            '#UDGARRAY3,0;0x7;0x2,5(*bg)',
-            '#UDGARRAY2;8,1;8,2;8,3;8,4(*fg)',
+            '#UDGARRAY3,0(0x7;0x2,5)(*bg)',
+            '#UDGARRAY2(8,1;8,2;8,3;8,4)(*fg)',
             '#OVER1,1,,,1(#IF($b==0)($f,$b))(bg,fg)',
             '#FRAMES(bg)(img)'
         )
@@ -3010,7 +3009,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg.data + fg_udg_data
         macros = (
-            '#UDGARRAY3;0x9(*bg)',
+            '#UDGARRAY3(0x9)(*bg)',
             '#UDG8,90(*fg)',
             '#OVER1,2,,,2(7)(bg,fg)',
             '#FRAMES(bg)(img)'
@@ -3029,8 +3028,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg = Udg(23, [0, 0, 24, 60, 60, 24, 0, 0], [255, 195, 195, 129, 129, 195, 195, 255])
         snapshot = bg_udg.data + fg_udg.data + fg_udg.mask
         macros = (
-            '#UDGARRAY3;0x9(*bg)',
-            '#UDGARRAY2;8x4:16x4(*fg)',
+            '#UDGARRAY3(0x9)(*bg)',
+            '#UDGARRAY2(8x4:16x4)(*fg)',
             '#OVER1,1,,,2($b&$m|$f)(bg,fg)',
             '#FRAMES(bg)(img)'
         )
@@ -3051,8 +3050,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg.data + fg_udg_data
         macros = (
-            '#UDGARRAY3,3;0x9(*bg)',
-            '#UDGARRAY2;8,1;8,2;8,3;8,4(*fg)',
+            '#UDGARRAY3,3(0x9)(*bg)',
+            '#UDGARRAY2(8,1;8,2;8,3;8,4)(*fg)',
             '#OVER1,1,,,2(#IF($b>$f)($b,$f))(bg,fg)',
             '#FRAMES(bg)(img)'
         )
@@ -3072,8 +3071,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg = Udg(5, [0, 0, 24, 60, 60, 24, 0, 0])
         snapshot = bg_udg.data + fg_udg.data
         macros = (
-            '#UDGARRAY3,3;0x9(*bg)',
-            '#UDGARRAY2,5;8x4(*fg)',
+            '#UDGARRAY3,3(0x9)(*bg)',
+            '#UDGARRAY2,5(8x4)(*fg)',
             '#OVER1,1,,,3($f)($f)(bg,fg)',
             '#FRAMES(bg)(img)'
         )
@@ -3090,8 +3089,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg.data + fg_udg_data
         macros = (
-            '#UDGARRAY3;0x6(*bg)',
-            '#UDGARRAY3;8x6(*fg)',
+            '#UDGARRAY3(0x6)(*bg)',
+            '#UDGARRAY3(8x6)(*fg)',
             '#OVER(-1,0)(bg,fg)',
             '#FRAMES(bg)(img)'
         )
@@ -3108,8 +3107,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg.data + fg_udg_data
         macros = (
-            '#UDGARRAY3;0x6(*bg)',
-            '#UDGARRAY3;8x6(*fg)',
+            '#UDGARRAY3(0x6)(*bg)',
+            '#UDGARRAY3(8x6)(*fg)',
             '#OVER(0,-1)(bg,fg)',
             '#FRAMES(bg)(img)'
         )
@@ -3127,8 +3126,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg.data + fg_udg_data
         macros = (
-            '#UDGARRAY3;0x6(*bg)',
-            '#UDGARRAY3;8x6(*fg)',
+            '#UDGARRAY3(0x6)(*bg)',
+            '#UDGARRAY3(8x6)(*fg)',
             '#OVER(-2,-1)(bg,fg)',
             '#FRAMES(bg)(img)'
         )
@@ -3153,8 +3152,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         snapshot = bg_udg_data + fg_udg_data
         macros = (
-            '#UDGARRAY3;0x9(*bg)',
-            '#UDGARRAY2;8x4(*fg)',
+            '#UDGARRAY3(0x9)(*bg)',
+            '#UDGARRAY2(8x4)(*fg)',
             '#OVER0,0,2,4(bg,fg)',
             '#FRAMES(bg)(img)'
         )
@@ -3213,8 +3212,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         snapshot = bg_udg_data + fg_udg_data + fg_udg_mask
         macros = (
-            '#UDGARRAY3;0x9(*bg)',
-            '#UDGARRAY2;8x4:16x4(*fg)',
+            '#UDGARRAY3(0x9)(*bg)',
+            '#UDGARRAY2(8x4:16x4)(*fg)',
             '#OVER1,0,3,3(bg,fg)',
             '#FRAMES(bg)(img)'
         )
@@ -3273,8 +3272,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         snapshot = bg_udg_data + fg_udg_data + fg_udg_mask
         macros = (
-            '#UDGARRAY3;0x9(*bg)',
-            '#UDGARRAY2,mask=2;8x4:16x4(*fg)',
+            '#UDGARRAY3(0x9)(*bg)',
+            '#UDGARRAY2,mask=2(8x4:16x4)(*fg)',
             '#OVER0,1,5,3(bg,fg)',
             '#FRAMES(bg)(img)'
         )
@@ -3323,8 +3322,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         snapshot = bg_udg_data + fg_udg_data
         macros = (
-            '#UDGARRAY4;0x16(*bg)',
-            '#UDGARRAY2;8,14;8,15;8,16;8,17(*fg)',
+            '#UDGARRAY4(0x16)(*bg)',
+            '#UDGARRAY2(8,14;8,15;8,16;8,17)(*fg)',
             '#OVER0,0,2,4,1($b&192|$f&63)(bg,fg)',
             '#FRAMES(bg)(img)'
         )
@@ -3378,7 +3377,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg_data + fg_udg_data
         macros = (
-            '#UDGARRAY1;0(*bg)',
+            '#UDGARRAY1(0)(*bg)',
             '#UDG8(*fg)',
             '#OVER0,0//bg/fg//',
             '#FRAMES(bg)(img)'
@@ -3393,7 +3392,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
         snapshot = bg_udg.data + fg_udg_data
         macros = (
-            '#UDGARRAY3;0x9(*bg)',
+            '#UDGARRAY3(0x9)(*bg)',
             '#UDG8,2(*fg)',
             '#OVERy=1,x=2,rmode=1,xoffset=0,yoffset=0($b&248|$f&7)(bg,fg)',
             '#FRAMES(bg)(img)'
@@ -3453,8 +3452,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_over_invalid_attr(self):
         writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
-        writer.expand('#UDGARRAY1;0(*bg)')
-        writer.expand('#UDGARRAY1;0(*fg)')
+        writer.expand('#UDGARRAY1(0)(*bg)')
+        writer.expand('#UDGARRAY1(0)(*fg)')
         macro_t = '#OVER0,0,,,1({})(bg,fg) #FRAMES(bg)(img)'
         prefix = 'Error while parsing #OVER macro'
 
@@ -3467,8 +3466,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_over_invalid_byte(self):
         writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
-        writer.expand('#UDGARRAY1;0(*bg)')
-        writer.expand('#UDGARRAY1;0(*fg)')
+        writer.expand('#UDGARRAY1(0)(*bg)')
+        writer.expand('#UDGARRAY1(0)(*fg)')
         macro_t = '#OVER0,0,,,2({})(bg,fg) #FRAMES(bg)(img)'
         prefix = 'Error while parsing #OVER macro'
 
@@ -3482,7 +3481,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_plot(self):
         snapshot = [1] * 8
         macros = (
-            '#UDGARRAY2;0x4(*f)',
+            '#UDGARRAY2(0x4)(*f)',
             '#PLOT0,0(f)',                # Set bit at (0,0)
             '#PLOT(value=0,x=15,y=0)(f)', # Reset bit at (15,0)
             '#PLOT0,15,1(f)',             # Set bit at (0,15)
@@ -4546,7 +4545,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg = Udg(56, [128, 64, 32, 16, 8, 4, 2, 1])
         snapshot = udg.data
         udg.flip(1)
-        macro = '#UDGARRAY1,,,,,1;0({})'.format(fname)
+        macro = f'#UDGARRAY1,,,,,1(0)({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg]]
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, 2, 0, 0, -1, 0, 0, 16, 16)
@@ -4555,7 +4554,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fname = 'test_udg_array5'
         udg = Udg(56, [128, 64, 32, 16, 8, 4, 2, 1])
         snapshot = udg.data
-        macro = '#UDGARRAY1,,,,,,2;0({})'.format(fname)
+        macro = f'#UDGARRAY1,,,,,,2(0)({fname})'
         udg.rotate(2)
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg]]
@@ -4638,12 +4637,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg2 = Udg(5, [178] * 8)
         snapshot = [udg1.attr] + udg1.data + [udg2.attr] + udg2.data
         scale = 2
-        macro1 = '#UDGARRAY#(2#FOR0,9,9||n|;(n+1),#PEEKn||)({})'.format(fname)
-        macro2 = '#UDGARRAY#(2(#FOR0,9,9||n|(n+1),#PEEKn|;||))({})'.format(fname)
+        macro = f'#UDGARRAY#(2(#FOR0,9,9||n|(n+1),#PEEKn|;||))({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg1, udg2]]
-        self._test_image_macro(snapshot, macro1, exp_image_path, exp_udgs, scale)
-        self._test_image_macro(snapshot, macro2, exp_image_path, exp_udgs, scale)
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale)
 
     def test_macro_udgarray_with_attribute_addresses(self):
         snapshot = [0] * 38
@@ -4654,7 +4651,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(a, [0] * 8) for a in attrs]]
         for attrs in (f'@{attr_specs}', f'[{attr_specs}]'):
-            macro = f'#UDGARRAY4;0-24-8{attrs}({fname})'
+            macro = f'#UDGARRAY4(0-24-8){attrs}({fname})'
             self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
 
     def test_macro_udgarray_with_attribute_address_using_multiplier(self):
@@ -4665,7 +4662,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_udgs = [[Udg(4, [0] * 8)]] * 3
         attr_specs = '32x3'
         for attrs in (f'@{attr_specs}', f'[{attr_specs}]'):
-            macro = f'#UDGARRAY1;0;8;16{attrs}({fname})'
+            macro = f'#UDGARRAY1(0;8;16){attrs}({fname})'
             self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
 
     def test_macro_udgarray_with_attribute_addresses_using_step(self):
@@ -4678,7 +4675,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(a, [0] * 8) for a in attrs]]
         for attrs in (f'@{attr_specs}', f'[{attr_specs}]'):
-            macro = f'#UDGARRAY3;0;8;16{attrs}({fname})'
+            macro = f'#UDGARRAY3(0;8;16){attrs}({fname})'
             self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
 
     def test_macro_udgarray_with_attribute_addresses_using_horizontal_and_vertical_steps(self):
@@ -4691,7 +4688,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(a, [0] * 8) for a in attrs[:2]], [Udg(a, [0] * 8) for a in attrs[2:]]]
         for attrs in (f'@{attr_specs}', f'[{attr_specs}]'):
-            macro = f'#UDGARRAY2;0-24-8{attrs}({fname})'
+            macro = f'#UDGARRAY2(0-24-8){attrs}({fname})'
             self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
 
     def test_macro_udgarray_with_attribute_address_range_too_long(self):
@@ -4703,7 +4700,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(a, [0] * 8) for a in attrs]]
         for attrs in (f'@{attr_specs}', f'[{attr_specs}]'):
-            macro = f'#UDGARRAY3;0;8;16{attrs}({fname})'
+            macro = f'#UDGARRAY3(0;8;16){attrs}({fname})'
             self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
 
     def test_macro_udgarray_with_attribute_address_range_too_short(self):
@@ -4715,7 +4712,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(a, [0] * 8) for a in attrs] + [Udg(56, [0] * 8)]]
         for attrs in (f'@{attr_specs}', f'[{attr_specs}]'):
-            macro = f'#UDGARRAY3;0;8;16{attrs}({fname})'
+            macro = f'#UDGARRAY3(0;8;16){attrs}({fname})'
             self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
 
     def test_macro_udgarray_with_replacement_fields(self):
@@ -4743,7 +4740,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fname = 'short'
         udg = Udg(56, [0] * 8)
         fill_udg = Udg(66, [129, 66, 36, 24, 24, 36, 66, 128])
-        macro = '#UDGARRAY2;0;8;16({})'.format(fname)
+        macro = f'#UDGARRAY2(0;8;16)({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg, udg], [udg, fill_udg]]
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
@@ -4752,7 +4749,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = [0] * 24
         fname = 'short2'
         udg = Udg(56, [0] * 8)
-        macro = '#UDGARRAY3;0;8({})'.format(fname)
+        macro = f'#UDGARRAY3(0;8)({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg, udg]]
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
@@ -4762,7 +4759,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ref = '[Paths]\nUDGImagePath={}'.format(udg_path)
         snapshot = [0] * 8
         fname = 'udgarray0'
-        macro = '#UDGARRAY1;0({})'.format(fname)
+        macro = f'#UDGARRAY1(0)({fname})'
         exp_image_path = '{}/{}.png'.format(udg_path, fname)
         self._test_image_macro(snapshot, macro, exp_image_path, ref=ref)
 
@@ -4770,7 +4767,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg = Udg(184, [0] * 8)
         snapshot = udg.data
         fname = 'udgarray_flash'
-        macro = '#UDGARRAY1,184;0({})'.format(fname)
+        macro = f'#UDGARRAY1,184(0)({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg]]
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
@@ -4779,7 +4776,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg = Udg(56, [15] * 8)
         snapshot = udg.data
         fname = 'udgarray2'
-        macro = '#UDGARRAY1,mask=1;0({})'.format(fname)
+        macro = f'#UDGARRAY1,mask=1(0)({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg]]
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=2, mask=0)
@@ -4788,7 +4785,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg = Udg(56, [15] * 8)
         snapshot = udg.data + [31] * 8
         fname = 'udgarray3'
-        macro = '#UDGARRAY1,mask=0;0:8({})'.format(fname)
+        macro = f'#UDGARRAY1,mask=0(0:8)({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg]]
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=2, mask=0)
@@ -4797,7 +4794,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg = Udg(56, [15] * 8, [31] * 8)
         snapshot = udg.data + udg.mask
         fname = 'udgarray4'
-        macro = '#UDGARRAY1;0:8({})'.format(fname)
+        macro = f'#UDGARRAY1(0:8)({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg]]
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=2, mask=1)
@@ -4806,7 +4803,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg = Udg(56, [15] * 8, [31] * 8)
         snapshot = udg.data + udg.mask
         fname = 'udgarray5'
-        macro = '#UDGARRAY1,mask=2;0:8({})'.format(fname)
+        macro = f'#UDGARRAY1,mask=2(0:8)({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg]]
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=2, mask=2)
@@ -4815,7 +4812,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = [0] * 8
         fname = 'foo'
         alt = 'bar'
-        macro = '#UDGARRAY1;0({}|{})'.format(fname, alt)
+        macro = f'#UDGARRAY1(0)({fname}|{alt})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         self._test_image_macro(snapshot, macro, exp_image_path, alt=alt)
 
@@ -4823,7 +4820,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = [0] * 8
         fname = 'baz'
         alt = 'xyzzy'
-        macro = '#UDGARRAY1;0({}*qux|{})'.format(fname, alt)
+        macro = f'#UDGARRAY1(0)({fname}*qux|{alt})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         self._test_image_macro(snapshot, macro, exp_image_path, alt=alt)
 
@@ -4831,12 +4828,12 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = [0] * 8
         fname = 'flip'
         alt = 'flop*flup'
-        macro = '#UDGARRAY1;0({}|{})'.format(fname, alt)
+        macro = f'#UDGARRAY1(0)({fname}|{alt})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         self._test_image_macro(snapshot, macro, exp_image_path, alt=alt)
 
     def test_macro_udgarray_with_replacement_field_in_filename(self):
-        self._test_image_macro_with_replacement_field_in_filename('#UDGARRAY1;0')
+        self._test_image_macro_with_replacement_field_in_filename('#UDGARRAY1(0)')
 
     def test_macro_udgs(self):
         snapshot = list(range(32))
