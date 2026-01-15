@@ -50,6 +50,17 @@ enclosed in parentheses::
 
   #UDGARRAYparams(SPEC1;SPEC2...)...
 
+In SkoolKit 9, the attribute address range specifications of a :ref:`UDGARRAY`
+macro could be separated from the preceding UDG specifications by an ``@``
+symbol::
+
+  #UDGARRAYparams(SPEC1;SPEC2...)@ATTRS1;ATTRS2...
+
+This is not supported in SkoolKit 10. Instead, the attribute address range
+specifications must be enclosed in square brackets::
+
+  #UDGARRAYparams(SPEC1;SPEC2...)[ATTRS1;ATTRS2...]...
+
 #UDGARRAY*
 ----------
 The ``#UDGARRAY*`` macro is not supported in SkoolKit 10. Use the :ref:`FRAMES`

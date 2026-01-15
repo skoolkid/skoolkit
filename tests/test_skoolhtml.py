@@ -4647,12 +4647,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fname = 'attr_addrs'
         attrs = [1, 2, 3, 4]
         snapshot[32:32 + len(attrs)] = attrs
-        attr_specs = '32;33;34-35'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(a, [0] * 8) for a in attrs]]
-        for attrs in (f'@{attr_specs}', f'[{attr_specs}]'):
-            macro = f'#UDGARRAY4(0-24-8){attrs}({fname})'
-            self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
+        macro = f'#UDGARRAY4(0-24-8)[32;33;34-35]({fname})'
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
 
     def test_macro_udgarray_with_attribute_address_using_multiplier(self):
         snapshot = [0] * 38
@@ -4660,10 +4658,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot[32] = 4
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(4, [0] * 8)]] * 3
-        attr_specs = '32x3'
-        for attrs in (f'@{attr_specs}', f'[{attr_specs}]'):
-            macro = f'#UDGARRAY1(0;8;16){attrs}({fname})'
-            self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
+        macro = f'#UDGARRAY1(0;8;16)[32x3]({fname})'
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
 
     def test_macro_udgarray_with_attribute_addresses_using_step(self):
         snapshot = [0] * 38
@@ -4671,12 +4667,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         attrs = [12, 13, 14]
         step = 2
         snapshot[32:32 + step * len(attrs):step] = attrs
-        attr_specs = f'32-36-{step}'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(a, [0] * 8) for a in attrs]]
-        for attrs in (f'@{attr_specs}', f'[{attr_specs}]'):
-            macro = f'#UDGARRAY3(0;8;16){attrs}({fname})'
-            self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
+        macro = f'#UDGARRAY3(0;8;16)[32-36-{step}]({fname})'
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
 
     def test_macro_udgarray_with_attribute_addresses_using_horizontal_and_vertical_steps(self):
         snapshot = [0] * 38
@@ -4684,36 +4678,30 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         attrs = [15, 16, 17, 18]
         snapshot[32:34] = attrs[:2]
         snapshot[36:38] = attrs[2:]
-        attr_specs = '32-37-1-4'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(a, [0] * 8) for a in attrs[:2]], [Udg(a, [0] * 8) for a in attrs[2:]]]
-        for attrs in (f'@{attr_specs}', f'[{attr_specs}]'):
-            macro = f'#UDGARRAY2(0-24-8){attrs}({fname})'
-            self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
+        macro = f'#UDGARRAY2(0-24-8)[32-37-1-4]({fname})'
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
 
     def test_macro_udgarray_with_attribute_address_range_too_long(self):
         snapshot = [0] * 38
         fname = 'attr_addrs_long'
         attrs = [19, 20, 21]
         snapshot[32:32 + len(attrs)] = attrs
-        attr_specs = '32-36'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(a, [0] * 8) for a in attrs]]
-        for attrs in (f'@{attr_specs}', f'[{attr_specs}]'):
-            macro = f'#UDGARRAY3(0;8;16){attrs}({fname})'
-            self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
+        macro = f'#UDGARRAY3(0;8;16)[32-36]({fname})'
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
 
     def test_macro_udgarray_with_attribute_address_range_too_short(self):
         snapshot = [0] * 38
         fname = 'attr_addrs_short'
         attrs = [22, 23]
         snapshot[32:32 + len(attrs)] = attrs
-        attr_specs = '32-33'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(a, [0] * 8) for a in attrs] + [Udg(56, [0] * 8)]]
-        for attrs in (f'@{attr_specs}', f'[{attr_specs}]'):
-            macro = f'#UDGARRAY3(0;8;16){attrs}({fname})'
-            self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
+        macro = f'#UDGARRAY3(0;8;16)[32-33]({fname})'
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
 
     def test_macro_udgarray_with_replacement_fields(self):
         udg = Udg(48, [137] * 8, [241] * 8)
@@ -4728,12 +4716,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             '#UDGARRAY({w})'
         )
         udg_specs = '({a}),(,{s}):({m}),({s});({a})-({a}+16)-16x({s}):({m})x2'
-        attr_specs = '({aa})x3'
-        for attrs in (f'@{attr_specs}', f'[{attr_specs}]'):
-            suffix = attrs + '{height={h}}(img)'
-            exp_image_path = '{}/img.png'.format(UDGDIR)
-            exp_udgs = [[udg] * 3]
-            self._test_udgarray_macro(snapshot, prefix, udg_specs, suffix, exp_image_path, exp_udgs, scale=2, mask=1, height=15)
+        suffix = '[({aa})x3]{height={h}}(img)'
+        exp_image_path = f'{UDGDIR}/img.png'
+        exp_udgs = [[udg] * 3]
+        self._test_udgarray_macro(snapshot, prefix, udg_specs, suffix, exp_image_path, exp_udgs, scale=2, mask=1, height=15)
 
     def test_macro_udgarray_with_short_udg_specs(self):
         snapshot = [0] * 24

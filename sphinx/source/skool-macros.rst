@@ -2544,16 +2544,9 @@ specification and cropping specification of the ``#UDGARRAY`` macro may contain
 
 See also :ref:`UDGS`.
 
-.. note::
-   Using the ``@`` notation instead of square brackets around the attribute
-   address range specifications is deprecated since version 9.5.
-
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.5     | The attribute address range specifications may be enclosed in     |
-|         | square brackets                                                   |
-+---------+-------------------------------------------------------------------+
 | 8.3     | Added support for replacement fields in the integer parameters    |
 |         | and the UDG, attribute address range and cropping specifications  |
 +---------+-------------------------------------------------------------------+
