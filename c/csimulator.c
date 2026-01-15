@@ -5593,11 +5593,11 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
     static char* kwlist[] = {"", "", "", "", "", NULL};
     PyObject* keys;
     unsigned stop;
-    unsigned timeout;
+    unsigned long long timeout;
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OIIOO", kwlist, &keys, &stop, &timeout, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OIKOO", kwlist, &keys, &stop, &timeout, &disassemble, &trace)) {
         return NULL;
     }
 
@@ -5698,11 +5698,11 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
 static PyObject* CSimulator_press(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
     static char* kwlist[] = {"", "", "", "", NULL};
     PyObject* keys;
-    unsigned timeout;
+    unsigned long long timeout;
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OIOO", kwlist, &keys, &timeout, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OKOO", kwlist, &keys, &timeout, &disassemble, &trace)) {
         return NULL;
     }
 
@@ -6070,11 +6070,11 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     PyObject* stop_obj;
     int fast_load;
     int finish_tape;
-    unsigned timeout;
+    unsigned long long timeout;
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OiiIOO", kwlist, &stop_obj, &fast_load, &finish_tape, &timeout, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OiiKOO", kwlist, &stop_obj, &fast_load, &finish_tape, &timeout, &disassemble, &trace)) {
         return NULL;
     }
 

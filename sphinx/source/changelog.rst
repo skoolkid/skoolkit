@@ -5,6 +5,8 @@ Changelog
 ------
 * Dropped support for Python 3.9
 * Added support for the MEMPTR register to CMIOSimulator and CCMIOSimulator
+* Fixed the bug in CSimulator that restricts the ``timeout`` simulated load
+  configuration parameter to a maximum value of 1227 seconds
 
 9.6 (2025-05-12)
 ----------------
