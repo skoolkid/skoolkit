@@ -18,6 +18,16 @@ This is not supported in SkoolKit 10. Instead, use the following syntax::
 
   #CALL(method(args))
 
+#FONT
+-----
+In SkoolKit 9, the :ref:`FONT` macro could be written thus::
+
+  #FONT:(text)params[{CROP}][(fname)]
+
+This is not supported in SkoolKit 10. Instead, use the following syntax::
+
+  #FONTparams[(text)][{CROP}][(fname)]
+
 #LINK
 -----
 In SkoolKit 9, the :ref:`LINK` macro could be written thus::

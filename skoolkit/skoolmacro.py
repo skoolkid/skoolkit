@@ -915,20 +915,13 @@ def _get_text(text, index, pvals):
 
 def parse_font(text, index=0, fields=None):
     # #FONTaddr[,chars,attr,scale,tindex,alpha][(text)][{x,y,width,height}][(fname)]
-    # #FONT[:(text)]addr[,chars,attr,scale,tindex,alpha][{x,y,width,height}][(fname)]
-    if index < len(text) and text[index] == ':':
-        end, message = parse_strings(text, index + 1, 1)
-        if not message:
-            raise MacroParsingError("Empty message: {}".format(text[index + 1:end]))
-    else:
-        end, message = index, ''.join([chr(n) for n in range(32, 128)])
     names = ('addr', 'chars', 'attr', 'scale', 'tindex', 'alpha')
-    defaults = (len(message), 56, 2, 0, -1)
-    end, crop_rect, fname, frame, alt, params = parse_image_macro(text, end, defaults, names, 'font', fields, _get_text)
+    defaults = (0, 56, 2, 0, -1)
+    end, crop_rect, fname, frame, alt, params = parse_image_macro(text, index, defaults, names, 'font', fields, _get_text)
     chars = params.pop(1)
-    if chars:
-        params[-1] = message[:chars]
-    if not params[-1]:
+    if chars > 0:
+        params[-1] = ''.join(chr(n) for n in range(32, 32 + min(chars, 96)))
+    elif not params[-1]:
         raise MacroParsingError(f'Empty message: {text[index:end]}')
     return end, crop_rect, fname, frame, alt, params
 

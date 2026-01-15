@@ -609,9 +609,7 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('FONT')
 
         self._test_no_parameters(writer, 'FONT', 1, True)
-        self._test_invalid_image_macro(writer, '#FONT:', 'No text parameter', prefix)
         self._test_invalid_image_macro(writer, '#FONT0,0', 'No text parameter', prefix)
-        self._test_invalid_image_macro(writer, '#FONT:()0', 'Empty message: ()', prefix)
         self._test_invalid_image_macro(writer, '#FONT0,0()', 'Empty message: 0,0()', prefix)
         self._test_invalid_image_macro(writer, '#FONT,10', "Missing required argument 'addr': ',10'", prefix)
         self._test_invalid_image_macro(writer, '#FONT(,10)', "Missing required argument 'addr': ',10'", prefix)
@@ -619,14 +617,13 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#FONT(scale=4)', "Missing required argument 'addr': 'scale=4'", prefix)
         self._test_invalid_image_macro(writer, '#FONT,scale=4', "Missing required argument 'addr': ',scale=4'", prefix)
         self._test_invalid_image_macro(writer, '#FONT(,scale=4)', "Missing required argument 'addr': ',scale=4'", prefix)
-        self._test_invalid_image_macro(writer, '#FONT0{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
+        self._test_invalid_image_macro(writer, '#FONT0,1{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
         self._test_invalid_image_macro(writer, '#FONT(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
-        self._test_invalid_image_macro(writer, '#FONT0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
+        self._test_invalid_image_macro(writer, '#FONT0,1{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
         self._test_invalid_image_macro(writer, '#FONT0(foo', 'No closing bracket: (foo', prefix)
-        self._test_invalid_image_macro(writer, '#FONT:[hi)0', 'No closing bracket: [hi)0', prefix)
         self._test_invalid_image_macro(writer, '#FONT0,0[hi)', 'No closing bracket: [hi)', prefix)
         self._test_invalid_image_macro(writer, '#FONT({no})', "Unrecognised field 'no': {no}", prefix)
-        self._test_invalid_image_macro(writer, '#FONT0{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
+        self._test_invalid_image_macro(writer, '#FONT0,1{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
         self._test_invalid_image_macro(writer, '#FONT({foo)', "Invalid format string: {foo", prefix)
 
     def test_macro_for(self):

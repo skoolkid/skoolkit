@@ -2272,9 +2272,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         for c in message:
             c_addr = 8 * (ord(c) - 32)
             exp_udgs[0].append(Udg(56, snapshot[c_addr:c_addr + 8]))
-        for fmt in ('#FONT0,0({})({})', '#FONT:({})0({})'):
-            macro = fmt.format(message, fname)
-            self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
+        macro = f'#FONT0({message})({fname})'
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
 
     def test_macro_font_text_with_alternative_delimiters(self):
         snapshot = [1, 2, 3, 4, 5, 6, 7, 8]              # ' '
@@ -2291,9 +2290,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_udgs = [[Udg(attr, snapshot[c_addr:c_addr + 8])]]
         for delim1, delim2 in (('{', '}'), ('[', ']'), ('*', '*'), ('@', '@')):
             text = f'{delim1}{message}{delim2}'
-            for fmt in ('#FONT0,0,{},{}{}({})', '#FONT:{2}0,1,{0},{1}({3})'):
-                macro = fmt.format(attr, scale, text, fname)
-                self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale)
+            macro = f'#FONT0,,{attr},{scale}{text}({fname})'
+            self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale)
 
     def test_macro_font_with_custom_font_image_path(self):
         snapshot = [0] * 16
@@ -2302,9 +2300,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         message = '!!!'
         exp_image_path = '{}/{}.png'.format(font_path, fname)
         ref = '[Paths]\nFontImagePath={}'.format(font_path)
-        for fmt in ('#FONT0,0({})({})', '#FONT:({})0({})'):
-            macro = fmt.format(message, fname)
-            self._test_image_macro(snapshot, macro, exp_image_path, ref=ref)
+        macro = f'#FONT0({message})({fname})'.format(message, fname)
+        self._test_image_macro(snapshot, macro, exp_image_path, ref=ref)
 
     def test_macro_font_with_custom_image_path_containing_skool_macro(self):
         snapshot = [0] * 16
@@ -2312,9 +2309,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         message = '!!!'
         exp_image_path = 'graphics/font/{}.png'.format(fname)
         ref = '[Paths]\nImagePath=#MAP({case})(graphics,2:GRAPHICS)'
-        for fmt in ('#FONT0,0({})({})', '#FONT:({})0({})'):
-            macro = fmt.format(message, fname)
-            self._test_image_macro(snapshot, macro, exp_image_path, ref=ref)
+        macro = f'#FONT0({message})({fname})'
+        self._test_image_macro(snapshot, macro, exp_image_path, ref=ref)
 
     def test_macro_font_frames(self):
         char1 = [102] * 8
@@ -2365,27 +2361,24 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         message = ' '
         exp_image_path = f'{UDGDIR}/{fname}.png'
         exp_udgs = [[Udg(56, [1, 2, 3, 4, 5, 6, 7, 8])]]
-        for fmt in ('#FONT0,0({})(*frame)#POKES(0,255)#FRAMES(frame)({})', '#FONT:({})0(*frame)#POKES(0,255)#FRAMES(frame)({})'):
-            macros = fmt.format(message, fname)
-            self._test_image_macro(snapshot[:], macros, exp_image_path, exp_udgs)
+        macros = f'#FONT0({message})(*frame)#POKES(0,255)#FRAMES(frame)({fname})'
+        self._test_image_macro(snapshot[:], macros, exp_image_path, exp_udgs)
 
     def test_macro_font_alt_text_without_fname(self):
         snapshot = [0] * 8
         fname = 'font'
         alt = 'Space'
         exp_image_path = f'{FONTDIR}/{fname}.png'
-        for fmt in ('#FONT0,0( )(|{})', '#FONT:( )0(|{})'):
-            macro = fmt.format(alt)
-            self._test_image_macro(snapshot, macro, exp_image_path, alt=alt)
+        macro = f'#FONT0( )(|{alt})'
+        self._test_image_macro(snapshot, macro, exp_image_path, alt=alt)
 
     def test_macro_font_alt_text_with_fname(self):
         snapshot = [0] * 8
         fname = 'space'
         alt = 'Another space'
         exp_image_path = f'{FONTDIR}/{fname}.png'
-        for fmt in ('#FONT0,0( )({}|{})', '#FONT:( )0({}|{})'):
-            macro = fmt.format(fname, alt)
-            self._test_image_macro(snapshot, macro, exp_image_path, alt=alt)
+        macro = f'#FONT0( )({fname}|{alt})'
+        self._test_image_macro(snapshot, macro, exp_image_path, alt=alt)
 
     def test_macro_font_with_replacement_field_in_filename(self):
         self._test_image_macro_with_replacement_field_in_filename('#FONT0,1', FONTDIR)
@@ -6577,22 +6570,21 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
         exp_src = '../{}'.format(exp_image_path)
         message = '<&>'
-        for fmt in ('#FONT{},0({})({})', '#FONT:({1}){0}({2})'):
-            skool = """
-                ; Font
-                ;
-                ; {}
-                b30048 DEFS 8,1 ; &
-                 30224 DEFS 8,2 ; <
-                 30240 DEFS 8,3 ; >
-            """.format(fmt.format(font_addr, message, fname))
-            writer = self._get_writer(skool=skool, mock_file_info=True)
-            writer.write_asm_entries()
-            udg_array = [[]]
-            for c in message:
-                c_addr = font_addr + 8 * (ord(c) - 32)
-                udg_array[0].append(Udg(56, writer.snapshot[c_addr:c_addr + 8]))
-            self._check_image(writer, udg_array, path=exp_image_path)
+        skool = f"""
+            ; Font
+            ;
+            ; #FONT{font_addr}({message})({fname})
+            b30048 DEFS 8,1 ; &
+             30224 DEFS 8,2 ; <
+             30240 DEFS 8,3 ; >
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        writer.write_asm_entries()
+        udg_array = [[]]
+        for c in message:
+            c_addr = font_addr + 8 * (ord(c) - 32)
+            udg_array[0].append(Udg(56, writer.snapshot[c_addr:c_addr + 8]))
+        self._check_image(writer, udg_array, path=exp_image_path)
 
     def test_macro_html_parameter_is_not_html_escaped(self):
         text = '<&>'

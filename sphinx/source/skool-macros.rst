@@ -2060,8 +2060,8 @@ of text rendered in the game font. ::
   #FONTaddr[,chars,attr,scale,tindex,alpha][(text)][{CROP}][(fname)]
 
 * ``addr`` is the base address of the font graphic data
-* ``chars`` is the number of characters to render (default: 96), or 0 if the
-  ``text`` parameter is present
+* ``chars`` is either 0 (the default) if the ``text`` parameter is present, or
+  the number of characters to render from code 32 to code 127
 * ``attr`` is the attribute byte to use (default: 56)
 * ``scale`` is the scale of the image (default: 2)
 * ``tindex`` is the index (0-15) of the entry in the palette to use as the
@@ -2069,8 +2069,7 @@ of text rendered in the game font. ::
 * ``alpha`` is the alpha value (0-255) to use for the transparent colour
   (default: the value of the ``PNGAlpha`` parameter in the
   :ref:`ref-ImageWriter` section)
-* ``text`` is the text to render (default: the 96 characters from code 32 to
-  code 127); if specified, ``chars`` must be 0
+* ``text`` is the text to render; if specified, ``chars`` must be 0
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (see :ref:`Filenames`; default:
   '`font`')
@@ -2079,7 +2078,7 @@ For example::
 
   ; Font graphic data
   ;
-  ; #HTML[#FONT49152,0(0123456789)]
+  ; #HTML[#FONT49152(0123456789)]
 
 In HTML mode, this instance of the ``#FONT`` macro expands to an ``<img>``
 element for the image of the digits 0-9 in the 8x8 font whose graphic data
@@ -2091,16 +2090,9 @@ may contain :ref:`replacement fields <replacementFields>`.
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``text`` parameter.
 
-.. note::
-   The ``#FONT:(text)params[{CROP}][(fname)]`` syntax is deprecated since
-   version 9.5.
-
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 9.5     | Added support for the ``#FONTparams[(text)][{CROP}][(fname)]``   |
-|         | syntax                                                           |
-+---------+------------------------------------------------------------------+
 | 8.3     | Added support for replacement fields in the integer parameters   |
 |         | and the cropping specification                                   |
 +---------+------------------------------------------------------------------+
@@ -2162,9 +2154,9 @@ forms:
 For example::
 
   ; #UDGTABLE {
-  ; #FONT$3D00,0(hello)(hello*) |
-  ; #FONT$3D00,0(there)(there*) |
-  ; #FONT$3D00,0(peeps)(peeps*) |
+  ; #FONT$3D00(hello)(hello*) |
+  ; #FONT$3D00(there)(there*) |
+  ; #FONT$3D00(peeps)(peeps*) |
   ; #FRAMES(hello,50;there;peeps)(hello_there_peeps)
   ; } TABLE#
 
