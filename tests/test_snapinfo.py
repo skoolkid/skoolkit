@@ -677,7 +677,8 @@ class SnapinfoTest(SkoolKitTestCase):
         registers.extend((0, 0)) # IFF1, IFF2
         registers.append(1) # Interrupt mode
         registers.extend((0, 0, 0, 0)) # dwCyclesStart
-        registers.extend((0, 0, 0, 0))
+        registers.extend((0, 0))
+        registers.extend((255, 27)) # wMemPtr
         exp_output = """
             Version: 1.4
             Machine: 16K ZX Spectrum
@@ -688,6 +689,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Interrupts: disabled
               Interrupt mode: 1
               T-states: 0
+              MEMPTR: 7167 1BFF
               PC  14134 3736    SP  13620 3534
               IX  12592 3130    IY  13106 3332
               I      56   38    R      57   39
@@ -714,7 +716,8 @@ class SnapinfoTest(SkoolKitTestCase):
         registers.extend((0, 0)) # IFF1, IFF2
         registers.append(1) # Interrupt mode
         registers.extend((1, 0, 0, 0)) # dwCyclesStart
-        registers.extend((0, 0, 0, 0))
+        registers.extend((0, 0))
+        registers.extend((17, 253)) # wMemPtr
         exp_output = """
             Version: 1.4
             Machine: 16K ZX Spectrum
@@ -727,6 +730,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Interrupts: disabled
               Interrupt mode: 1
               T-states: 1
+              MEMPTR: 64785 FD11
               PC  14134 3736    SP  13620 3534
               IX  12592 3130    IY  13106 3332
               I      56   38    R      57   39
@@ -753,7 +757,8 @@ class SnapinfoTest(SkoolKitTestCase):
         registers.extend((1, 1)) # IFF1, IFF2
         registers.append(2) # Interrupt mode
         registers.extend((255, 16, 1, 0)) # dwCyclesStart
-        registers.extend((0, 0, 0, 0))
+        registers.extend((0, 0))
+        registers.extend((11, 12)) # wMemPtr
         exp_output = """
             Version: 1.4
             Machine: 48K ZX Spectrum
@@ -766,6 +771,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Interrupts: enabled
               Interrupt mode: 2
               T-states: 69887
+              MEMPTR: 3083 0C0B
               PC   5910 1716    SP   5396 1514
               IX   4368 1110    IY   4882 1312
               I      24   18    R      25   19
@@ -798,7 +804,8 @@ class SnapinfoTest(SkoolKitTestCase):
         registers.extend((1, 1)) # IFF1, IFF2
         registers.append(2) # Interrupt mode
         registers.extend((1, 128, 0, 0)) # dwCyclesStart
-        registers.extend((0, 0, 0, 0))
+        registers.extend((0, 0))
+        registers.extend((1, 1)) # wMemPtr
         exp_output = """
             Version: 1.4
             Machine: 48K ZX Spectrum
@@ -809,6 +816,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Interrupts: enabled
               Interrupt mode: 2
               T-states: 32769
+              MEMPTR: 257 0101
               PC   5910 1716    SP   5396 1514
               IX   4368 1110    IY   4882 1312
               I      24   18    R      25   19
@@ -841,7 +849,8 @@ class SnapinfoTest(SkoolKitTestCase):
         registers.extend((0, 0)) # IFF1, IFF2
         registers.append(1) # Interrupt mode
         registers.extend((1, 0, 1, 0)) # dwCyclesStart
-        registers.extend((0, 0, 0, 0))
+        registers.extend((0, 0))
+        registers.extend((123, 49)) # wMemPtr
         exp_output = """
             Version: 1.4
             Machine: ZX Spectrum 128
@@ -858,6 +867,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Interrupts: disabled
               Interrupt mode: 1
               T-states: 65537
+              MEMPTR: 12667 317B
               PC  10022 2726    SP   9508 2524
               IX   8480 2120    IY   8994 2322
               I      40   28    R      41   29
@@ -905,7 +915,8 @@ class SnapinfoTest(SkoolKitTestCase):
         registers.extend((0, 0)) # IFF1, IFF2
         registers.append(1) # Interrupt mode
         registers.extend((1, 2, 0, 0)) # dwCyclesStart
-        registers.extend((0, 0, 0, 0))
+        registers.extend((0, 0))
+        registers.extend((255, 255)) # wMemPtr
         exp_output = """
             Version: 1.4
             Machine: ZX Spectrum 128
@@ -920,6 +931,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Interrupts: disabled
               Interrupt mode: 1
               T-states: 513
+              MEMPTR: 65535 FFFF
               PC  10022 2726    SP   9508 2524
               IX   8480 2120    IY   8994 2322
               I      40   28    R      41   29

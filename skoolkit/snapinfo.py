@@ -1,4 +1,4 @@
-# Copyright 2013-2017, 2019-2025 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013-2017, 2019-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -29,7 +29,7 @@ class Registers:
         for r in (
                 'a', 'f', 'bc', 'de', 'hl', 'a2', 'f2', 'bc2', 'de2', 'hl2',
                 'ix', 'iy', 'sp', 'i', 'r', 'pc', 'border', 'iff1', 'iff2',
-                'im', 'tstates', 'out7ffd', 'outfffd', 'ay', 'outfe'
+                'im', 'tstates', 'memptr', 'out7ffd', 'outfffd', 'ay', 'outfe'
         ):
             setattr(self, r, getattr(snapshot, r))
         self.reg_map = {
@@ -259,7 +259,8 @@ def _print_z80r(block, reg):
     lines = [
         'Interrupts: {}abled'.format('en' if reg.iff1 else 'dis'),
         f'Interrupt mode: {reg.im}',
-        f'T-states: {reg.tstates}'
+        f'T-states: {reg.tstates}',
+        f'MEMPTR: {reg.memptr} {reg.memptr:04X}'
     ]
     return lines + reg.get_lines()
 

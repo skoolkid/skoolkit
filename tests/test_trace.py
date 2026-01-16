@@ -602,6 +602,37 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_memptr_from_szx(self):
+        registers = [0] * 37
+        registers[6:8] = (0, 64)    # HL=0x4000
+        registers[22:24] = (1, 64)  # PC=0x4001
+        registers[35:37] = (0, 255) # MEMPTR=0xFF00 (bits 13 and 11 set)
+        ram = [0] * 49152
+        ram[0:3] = (
+            0x01,        # $4000 DEFB 1 (bits 5 and 3 reset)
+            0xCB, 0x46,  # $4001 BIT 0,(HL)
+        )
+        szxfile = self.write_szx(ram, registers=registers)
+        exp_output = """
+            $4001 BIT 0,(HL)       A=00  F=00111000  BC=0000  DE=0000  HL=4000  IX=0000 IY=0000
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=0000 IR=0002
+            Stopped at $4003
+        """
+        self._test_trace(f'-cvv -S 16387 {szxfile}', exp_output)
+
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_memptr_to_szx(self):
+        data = (0x18, 0x00) # $8000 JR $8002
+        binfile = self.write_bin_file(data, suffix='.bin')
+        outfile = 'out.szx'
+        exp_output = f"""
+            $8000 JR $8002
+            Stopped at $8002
+            Wrote {outfile}
+        """
+        self._test_trace(f'-cnv -o 32768 -S 32770 {binfile} {outfile}', exp_output)
+        self.assertIn('MEMPTR=32770', s_reg)
+
     def test_interrupt_mode_0(self):
         data = [
             0x76,       # $8000 HALT
@@ -1707,6 +1738,24 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $8001
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_reg_with_memptr(self):
+        data = (
+            0xCB, 0x46,  # $8000 BIT 0,(HL)
+            0x01,        # $8002 DEFB 1
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        registers = {
+            'hl': 0x8002,     # (HL)=0x01: bits 5 and 3 reset
+            'memptr': 0x2800  # Bits 13 and 11 set
+        }
+        reg_options = ' '.join(f'-r {r}={v}' for r, v in registers.items())
+        exp_output = """
+            $8000 BIT 0,(HL)       A=00  F=00111000  BC=0000  DE=0000  HL=8002  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F02
+            Stopped at $8002
+        """
+        self._test_trace(f'-cnvv -o 32768 -S 32770 {reg_options} {binfile}', exp_output)
 
     def test_option_reg_help(self):
         output, error = self.run_trace('--reg help')
@@ -3169,7 +3218,8 @@ class TraceTest(SkoolKitTestCase):
             '^BC=4232',
             '^DE=21432',
             '^HL=25431',
-            f'PC={stop}'
+            f'PC={stop}',
+            'MEMPTR=0'
         ]
         exp_state = {'border=1', 'fe=1', 'iff=0', 'im=2', 'tstates=166'}
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -3232,7 +3282,8 @@ class TraceTest(SkoolKitTestCase):
             '^BC=32765',
             '^DE=21432',
             '^HL=25431',
-            f'PC={stop}'
+            f'PC={stop}',
+            'MEMPTR=0'
         ]
         exp_state = {f'ay[{n}]=0' for n in range(16)}
         exp_state.update(('7ffd=1', 'fffd=0', 'border=1', 'fe=1', 'iff=0', 'im=2', 'tstates=178'))
@@ -3296,7 +3347,8 @@ class TraceTest(SkoolKitTestCase):
             '^BC=32765',
             '^DE=21432',
             '^HL=25431',
-            f'PC={stop}'
+            f'PC={stop}',
+            'MEMPTR=0'
         ]
         exp_state = {f'ay[{n}]=0' for n in range(16)}
         exp_state.update(('7ffd=1', 'fffd=0', 'border=1', 'fe=1', 'iff=0', 'im=2', 'tstates=35631'))

@@ -24,7 +24,7 @@ class MockSimulator:
         global simulator
         self.memory = mock_memory or [1] * 65536
         self.opcodes = [self.in_a_n] * 256
-        self.registers = [0x80] * 28
+        self.registers = [0x80] * 30
         self.registers[3] = 0xFF # C
         self.registers[26] = 0 # Interrupts disabled
         self.frame_duration = 69888
@@ -1836,7 +1836,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             {'^a': 1, '^b': 2, '^c': 3, '^d': 4, '^e': 5, '^f': 6, '^h': 7, '^l': 8},
             {'a': 9, 'b': 10, 'c': 11, 'd': 12, 'e': 13, 'f': 14, 'h': 15, 'l': 16, 'r': 129},
             {'^bc': 258, '^de': 515, '^hl': 65534, 'bc': 259, 'de': 516, 'hl': 65533},
-            {'i': 13, 'ix': 1027, 'iy': 1284, 'pc': 1541, 'r': 23, 'sp': 32769}
+            {'i': 13, 'ix': 1027, 'iy': 1284, 'pc': 1541, 'r': 23, 'sp': 32769, 'memptr': 1112}
         )
         for reg_dict in reg_dicts:
             exp_reg = [f'{r}={v}' for r, v in reg_dict.items()]

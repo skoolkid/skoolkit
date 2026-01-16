@@ -580,12 +580,12 @@ class WriteSnapshotTest(SkoolKitTestCase):
             k: 0 for k in (
                 'a', 'f', 'c', 'b', 'e', 'd', 'l', 'h',
                 '^a', '^f', '^c', '^b', '^e', '^d', '^l', '^h',
-                'ix', 'iy', 'sp', 'pc', 'i', 'r'
+                'ix', 'iy', 'sp', 'pc', 'i', 'r', 'memptr'
             )
         }
         for reg, value in registers.items():
             size = len(reg) - 1 if reg.startswith('^') else len(reg)
-            if size == 1 or reg in ('ix', 'iy', 'sp', 'pc'):
+            if size == 1 or reg in ('ix', 'iy', 'sp', 'pc', 'memptr'):
                 r[reg] = value
             elif reg.startswith('^'):
                 r['^' + reg[1]], r['^' + reg[2]] = value // 256, value % 256
@@ -692,7 +692,7 @@ class WriteSZXTest(WriteSnapshotTest):
         self.assertEqual(get_dword(z80r, 29), exp_state['tstates'] % 16777216)
         self.assertEqual(z80r[33], 0) # chHoldIntReqCycles
         self.assertEqual(z80r[34], 0) # chFlags
-        self.assertEqual(z80r[35:37], (0, 0)) # wMemPtr
+        self.assertEqual(z80r[35] + 256 * z80r[36], exp_registers['memptr'])
 
     def _check_spcr(self, blocks, exp_state):
         self.assertIn('SPCR', blocks)
@@ -789,7 +789,8 @@ class WriteSZXTest(WriteSnapshotTest):
             '^e': 19,
             '^f': 20,
             '^h': 21,
-            '^l': 22
+            '^l': 22,
+            'memptr': 22222
         }
         state = {
             'border': 1,
@@ -819,7 +820,8 @@ class WriteSZXTest(WriteSnapshotTest):
             '^bc': 1617,
             '^de': 1819,
             '^f': 20,
-            '^hl': 2122
+            '^hl': 2122,
+            'memptr': 12345
         }
         state = {
             '7ffd': 17,
@@ -866,7 +868,8 @@ class WriteSZXTest(WriteSnapshotTest):
             '^bc': 1617,
             '^de': 1819,
             '^f': 20,
-            '^hl': 2122
+            '^hl': 2122,
+            'memptr': 54321
         }
         state = {
             '7ffd': 17,

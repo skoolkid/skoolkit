@@ -1,4 +1,4 @@
-# Copyright 2009-2013, 2015-2025 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013, 2015-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -82,7 +82,8 @@ SZX_REGISTERS = {
     'sp': 20,
     'pc': 22,
     'i': 24,
-    'r': 25
+    'r': 25,
+    'memptr': 35
 }
 
 class Memory:
@@ -154,6 +155,7 @@ class Snapshot:
         self.iff2 = 0
         self.im = 0
         self.tstates = 0
+        self.memptr = 0
         self.out7ffd = 0
         self.outfffd = 0
         self.ay = (0,) * 16
@@ -316,6 +318,7 @@ class SZX(Snapshot):
                         self.iff2 = block[27]
                         self.im = block[28]
                         self.tstates = get_dword(block, 29)
+                        self.memptr = get_word(block, 35)
                     elif block_id == b'SPCR':
                         self.border = block[0] % 8
                         self.out7ffd = block[1]
@@ -350,7 +353,7 @@ class SZX(Snapshot):
                 if reg.startswith('^'):
                     size = len(reg) - 1
                 else:
-                    size = len(reg)
+                    size = min(len(reg), 2)
                 offset = SZX_REGISTERS.get(reg)
                 if offset is None:
                     raise SkoolKitError(f'Invalid register: {spec}')
@@ -589,7 +592,7 @@ class Z80(Snapshot):
                             self.header[12] |= 1
                         else:
                             self.header[12] &= 254
-                else:
+                elif reg != 'memptr':
                     raise SkoolKitError('Invalid register: {}'.format(spec))
 
     def _set_state(self, specs):
@@ -757,7 +760,7 @@ def print_reg_help(short_option=None):
     options = ['--reg name=value']
     if short_option:
         options.insert(0, '-{} name=value'.format(short_option))
-    reg_names = ', '.join(sorted(Z80_REGISTERS))
+    reg_names = ', '.join(sorted(SZX_REGISTERS))
     print("""
 Usage: {}
 

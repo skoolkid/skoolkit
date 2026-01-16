@@ -62,6 +62,8 @@ Run `bin2sna.py` with no arguments to see the list of available options::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.0    | Added support for setting the MEMPTR register in SZX snapshots    |
++---------+-------------------------------------------------------------------+
 | 9.1     | Added the ``--bank`` and ``--page`` options and support for       |
 |         | writing 128K snapshots; the ``--poke`` option can modify specific |
 |         | RAM banks                                                         |
@@ -1490,6 +1492,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.0    | Shows MEMPTR register value in SZX snapshots                      |
++---------+-------------------------------------------------------------------+
 | 9.4     | Shows AY register values in 128K SZX and Z80 snapshots and the    |
 |         | last value written to port $FE in SZX snapshots                   |
 +---------+-------------------------------------------------------------------+
@@ -1563,6 +1567,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.0    | Added support for setting the MEMPTR register in SZX snapshots    |
++---------+-------------------------------------------------------------------+
 | 9.5     | Added the ``--patch`` option                                      |
 +---------+-------------------------------------------------------------------+
 | 9.1     | Added support for modifying SZX snapshots and 128K snapshots; the |
@@ -1967,6 +1973,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.0    | Added support for setting the MEMPTR register in SZX snapshots    |
++---------+-------------------------------------------------------------------+
 | 9.6     | Added the ability to load from two tape files; added the          |
 |         | ``--press`` and ``--tape-skip`` options; added support to the     |
 |         | ``--ram`` option for the ``patch`` operation; changed the default |
@@ -2255,6 +2263,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.0    | Added support to the ``--reg`` option for setting the MEMPTR      |
+|         | register; reads and writes the MEMPTR register in SZX snapshots   |
++---------+-------------------------------------------------------------------+
 | 9.6     | Added the ``Screen`` configuration parameter                      |
 +---------+-------------------------------------------------------------------+
 | 9.5     | Responds to keypresses while the screen is displayed; added the   |

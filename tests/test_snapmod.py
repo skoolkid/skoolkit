@@ -643,7 +643,7 @@ class SnapmodTest(SkoolKitTestCase):
         self._test_reg('-r', registers, 3, is128=True)
 
     def test_option_r_szx_16k(self):
-        reg = {'a': 1, 'b': 2, 'de': 257}
+        reg = {'a': 1, 'b': 2, 'de': 257, 'memptr': 513}
         exp_reg_block = bytes((
             0, 1,       # AF
             0, 2,       # BC
@@ -659,7 +659,7 @@ class SnapmodTest(SkoolKitTestCase):
             0, 0, 0, 0, # dwCyclesStart
             0,          # chHoldIntReqCycles
             0,          # chFlags
-            0, 0,       # wMemPtr
+            1, 2,       # wMemPtr
         ))
         exp_block_diffs = {b'Z80R': exp_reg_block}
         exp_ram_diffs = None
@@ -689,7 +689,7 @@ class SnapmodTest(SkoolKitTestCase):
             Recognised register names are:
 
               ^a, ^b, ^bc, ^c, ^d, ^de, ^e, ^f, ^h, ^hl, ^l, a, b, bc, c, d, de, e,
-              f, h, hl, i, ix, iy, l, pc, r, sp
+              f, h, hl, i, ix, iy, l, memptr, pc, r, sp
         """
         self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
 

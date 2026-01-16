@@ -384,7 +384,7 @@ class Bin2SnaTest(SkoolKitTestCase):
             {'^a': 1, '^b': 2, '^c': 3, '^d': 4, '^e': 5, '^f': 6, '^h': 7, '^l': 8},
             {'a': 9, 'b': 10, 'c': 11, 'd': 12, 'e': 13, 'f': 14, 'h': 15, 'l': 16, 'r': 129},
             {'^bc': 258, '^de': 515, '^hl': 65534, 'bc': 259, 'de': 516, 'hl': 65533},
-            {'i': 13, 'ix': 1027, 'iy': 1284, 'pc': 1541, 'r': 23, 'sp': 32769}
+            {'i': 13, 'ix': 1027, 'iy': 1284, 'pc': 1541, 'r': 23, 'sp': 32769, 'memptr': 257}
         )
         for reg_dict in reg_dicts:
             exp_registers = ['sp=65535', 'pc=65535']
@@ -435,7 +435,7 @@ class Bin2SnaTest(SkoolKitTestCase):
             Recognised register names are:
 
               ^a, ^b, ^bc, ^c, ^d, ^de, ^e, ^f, ^h, ^hl, ^l, a, b, bc, c, d, de, e,
-              f, h, hl, i, ix, iy, l, pc, r, sp
+              f, h, hl, i, ix, iy, l, memptr, pc, r, sp
         """
         self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
 

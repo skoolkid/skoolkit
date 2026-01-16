@@ -108,7 +108,8 @@ def from_snapshot(cls, snapshot, registers=None, state=None, config=None, rom_fi
         '^BC': snapshot.bc2,
         '^DE': snapshot.de2,
         '^HL': snapshot.hl2,
-        'PC': snapshot.pc
+        'PC': snapshot.pc,
+        'MEMPTR': snapshot.memptr
     }
     if registers:
         s_registers.update(registers)
@@ -144,7 +145,8 @@ def get_state(simulator, tstates=True):
         f'^BC={simulator.registers[xC] + 256 * simulator.registers[xB]}',
         f'^DE={simulator.registers[xE] + 256 * simulator.registers[xD]}',
         f'^HL={simulator.registers[xL] + 256 * simulator.registers[xH]}',
-        f'PC={simulator.registers[PC]}'
+        f'PC={simulator.registers[PC]}',
+        f'MEMPTR={simulator.registers[MEMPTR]}'
     ]
     state = [
         f'border={simulator.tracer.border}',
