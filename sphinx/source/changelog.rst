@@ -5,6 +5,8 @@ Changelog
 ------
 * Dropped support for Python 3.9
 * Added support for the MEMPTR register to CMIOSimulator and CCMIOSimulator
+* Added the ``memptr`` parameter to the :ref:`SIM` macro (to set the MEMPTR
+  register)
 * :ref:`snapinfo.py` now shows the MEMPTR register value in SZX snapshots
 * Added support to :ref:`trace.py` for setting the MEMPTR register before
   execution begins, and for reading and writing the MEMPTR register in SZX

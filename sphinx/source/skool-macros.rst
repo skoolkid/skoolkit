@@ -1584,7 +1584,7 @@ For example:
 The ``#SIM`` macro simulates the execution of machine code in the internal
 memory snapshot constructed from the contents of the skool file. ::
 
-  #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im,cmio]
+  #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im,cmio,memptr]
 
 * ``stop`` is the address at which to stop execution; if not given, no code is
   executed
@@ -1615,6 +1615,7 @@ memory snapshot constructed from the contents of the skool file. ::
 * ``im`` sets the interrupt mode (default: 1)
 * ``cmio`` specifies whether memory and I/O contention and the MEMPTR register
   are simulated (1), or not simulated (0, the default)
+* ``memptr`` sets the value of the MEMPTR register (default: 0)
 
 The parameters of the ``#SIM`` macro may contain
 :ref:`replacement fields <replacementFields>` and may also be given as keyword
@@ -1641,6 +1642,7 @@ names:
 * ``sim[SP]``
 * ``sim[PC]`` - the program counter (equal to ``stop``); this is used as the
   default value of ``start`` for the next invocation of the ``#SIM`` macro
+* ``sim[MEMPTR]``
 
 In addition, the simulator's hardware state is copied to the ``sim``
 dictionary, where it is accessible via replacement fields with the following
@@ -1697,6 +1699,9 @@ memory snapshot, and therefore can modify it. To avoid that, use the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.0    | Added the ``memptr`` parameter, and the ``MEMPTR`` field to the   |
+|         | ``sim`` dictionary                                                |
++---------+-------------------------------------------------------------------+
 | 9.1     | Added the ``cmio``, ``execint``, ``iff``, ``im`` and ``tstates``  |
 |         | parameters; added support for executing code in a 128K memory     |
 |         | snapshot; added the ``7ffd``, ``ay``, ``fffd``, ``halted``,       |

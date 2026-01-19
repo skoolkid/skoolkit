@@ -29,7 +29,8 @@ from skoolkit.graphics import Udg
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import (FRAME_DURATIONS, INT_ACTIVE, A, F, B, C, D, E,
                                H, L, IXh, IXl, IYh, IYl, SP, I, R, xA, xF, xB,
-                               xC, xD, xE, xH, xL, PC, T, IFF, IM, HALT)
+                               xC, xD, xE, xH, xL, PC, T, IFF, IM, HALT,
+                               MEMPTR)
 
 _map_cache = {}
 
@@ -624,6 +625,7 @@ def _write_sim_state(writer, simulator, tracer=None):
         'R': registers[R],
         'SP': registers[SP],
         'PC': registers[PC],
+        'MEMPTR': registers[MEMPTR],
         'tstates': registers[T],
         'iff': registers[IFF],
         'im': registers[IM],
@@ -1356,16 +1358,16 @@ def parse_scr(text, index=0, fields=None):
     return parse_image_macro(text, index, defaults, names, 'scr', fields)
 
 def parse_sim(writer, text, index, *cwd):
-    # #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im,cmio]
+    # #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im,cmio,memptr]
     names = ('stop', 'start', 'clear', 'a', 'f', 'bc', 'de', 'hl', 'xa', 'xf',
              'xbc', 'xde', 'xhl', 'ix', 'iy', 'i', 'r', 'sp', 'execint',
-             'tstates', 'iff', 'im', 'cmio')
+             'tstates', 'iff', 'im', 'cmio', 'memptr')
     defaults = (-1,) * len(names)
     reg = {}
     (end, stop, start, clear, reg['A'], reg['F'], reg['BC'], reg['DE'], reg['HL'],
      reg['^A'], reg['^F'], reg['^BC'], reg['^DE'], reg['^HL'], reg['IX'], reg['IY'],
-     reg['I'], reg['R'], reg['SP'], execint, reg['tstates'], reg['iff'],
-     reg['im'], cmio) = parse_ints(text, index, len(names), defaults, names, writer.fields)
+     reg['I'], reg['R'], reg['SP'], execint, reg['tstates'], reg['iff'], reg['im'],
+     cmio, reg['MEMPTR']) = parse_ints(text, index, len(names), defaults, names, writer.fields)
     if cmio > 0:
         simulator_cls = CCMIOSimulator or CMIOSimulator
     else:
