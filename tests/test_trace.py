@@ -2440,6 +2440,31 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_config_TraceLine_with_memptr(self):
+        code = (
+            0x3A, 0x00, 0x80,       # $8000 LD A,($8000)
+            0x32, 0x01, 0x80,       # $8003 LD ($8001),A
+            0xD3, 0xFE,             # $8006 OUT ($FE),A
+            0xDD, 0x21, 0xFE, 0xFF, # $8008 LD IX,$FFFE
+            0xDD, 0xCB, 0x01, 0x86, # $800C RES 0,(IX+$01)
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        trace_line = '${pc:04X} {i:<15} MEMPTR={r[memptr]:04X}'
+        args = ('-nc', '-I', f'TraceLine={trace_line}', '-o', str(start), '-S', str(stop), '-v', binfile)
+        output, error = self.run_trace(args)
+        self.assertEqual(error, '')
+        exp_output = """
+            $8000 LD A,($8000)    MEMPTR=8001
+            $8003 LD ($8001),A    MEMPTR=3A02
+            $8006 OUT ($FE),A     MEMPTR=3AFF
+            $8008 LD IX,$FFFE     MEMPTR=3AFF
+            $800C RES 0,(IX+$01)  MEMPTR=FFFF
+            Stopped at $8010
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     def test_config_TraceLine_with_memory_contents(self):
         code = (
             0x21, 0xCD, 0xAB, # $8000 LD HL,$ABCD

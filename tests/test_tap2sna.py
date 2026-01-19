@@ -3455,6 +3455,27 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[30], "$250D ADD HL,BC     BCDEHL=001C000025B3 BCDEHL'=000000000000 IX=0000 IY=5C3A")
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_config_TraceLine_with_memptr(self):
+        tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
+        tracefile = 'sim-load.trace'
+        trace_line = "${pc:04X} {i:<13} MEMPTR={r[memptr]:04X}"
+        args = ('-I', f'TraceLine={trace_line}', '-c', f'trace={tracefile}',
+                '-c', 'cmio=1', '--start', '0x0018', tapfile, 'out.z80')
+        tap2sna.main(args)
+        self.assertEqual(self.err.getvalue(), '')
+        exp_trace = """
+            $0605 POP AF        MEMPTR=0000
+            $0606 LD A,($5C74)  MEMPTR=5C75
+            $0609 SUB $E0       MEMPTR=5C75
+            $060B LD ($5C74),A  MEMPTR=0175
+            $060E CALL $1C8C    MEMPTR=1C8C
+            $1C8C CALL $24FB    MEMPTR=24FB
+            $24FB RST $18       MEMPTR=0018
+        """
+        with open(tracefile, 'r') as f:
+            self.assertEqual(dedent(exp_trace).strip(), f.read().rstrip())
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_config_TraceLine_with_memory_contents(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
         tracefile = 'sim-load.trace'

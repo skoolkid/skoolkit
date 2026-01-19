@@ -9,10 +9,14 @@ Changelog
   register)
 * :ref:`snapinfo.py` now shows the MEMPTR register value in SZX snapshots
 * Added support to :ref:`trace.py` for setting the MEMPTR register before
-  execution begins, and for reading and writing the MEMPTR register in SZX
-  snapshots
-* Added support to :ref:`bin2sna.py`, :ref:`snapmod.py` and :ref:`tap2sna.py`
-  for setting the MEMPTR register in SZX snapshots
+  execution begins, for reading and writing MEMPTR in SZX snapshots, and for
+  tracing its value via the ``r[memptr]`` replacement field in the
+  ``TraceLine*`` configuration parameters
+* Added support to :ref:`tap2sna.py` for setting the MEMPTR register in SZX
+  snapshots, and for tracing its value via the ``r[memptr]`` replacement field
+  in the ``TraceLine`` configuration parameter
+* Added support to :ref:`bin2sna.py` and :ref:`snapmod.py` for setting the
+  MEMPTR register in SZX snapshots
 * Fixed the bug in CSimulator that restricts the ``timeout`` simulated load
   configuration parameter to a maximum value of 1227 seconds
 

@@ -1,4 +1,4 @@
-# Copyright 2022-2024 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022-2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -17,7 +17,8 @@
 import re
 
 from skoolkit.simutils import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                               SP, SP2, I, R, xA, xF, xB, xC, xD, xE, xH, xL)
+                               SP, SP2, I, R, xA, xF, xB, xC, xD, xE, xH, xL,
+                               MEMPTR)
 
 REGISTERS = {
     'a': (A, SP2),
@@ -50,7 +51,8 @@ REGISTERS = {
     '^e': (xE, SP2),
     '^hl': (xL, xH),
     '^h': (xH, SP2),
-    '^l': (xL, SP2)
+    '^l': (xL, SP2),
+    'memptr': (MEMPTR, SP2)
 }
 
 class Registers:

@@ -1945,7 +1945,7 @@ The register name ``X`` in ``r[X]`` must be one of the following::
   a b c d e f h l bc de hl
   ^a ^b ^c ^d ^e ^f ^h ^l ^bc ^de ^hl
   ix ixh ixl iy iyh iyl
-  i r sp
+  i r sp memptr
 
 The names that begin with ``^`` denote the shadow registers.
 
@@ -1973,7 +1973,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.0    | Added support for setting the MEMPTR register in SZX snapshots    |
+| 10.0    | Added support for setting the MEMPTR register in SZX snapshots;   |
+|         | added support for the ``r[memptr]`` replacement field in the      |
+|         | ``TraceLine`` configuration parameter                             |
 +---------+-------------------------------------------------------------------+
 | 9.6     | Added the ability to load from two tape files; added the          |
 |         | ``--press`` and ``--tape-skip`` options; added support to the     |
@@ -2242,7 +2244,7 @@ The register name ``X`` in ``r[X]`` must be one of the following::
   a b c d e f h l bc de hl
   ^a ^b ^c ^d ^e ^f ^h ^l ^bc ^de ^hl
   ix ixh ixl iy iyh iyl
-  i r sp
+  i r sp memptr
 
 The names that begin with ``^`` denote the shadow registers.
 
@@ -2264,7 +2266,9 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 10.0    | Added support to the ``--reg`` option for setting the MEMPTR      |
-|         | register; reads and writes the MEMPTR register in SZX snapshots   |
+|         | register; reads and writes the MEMPTR register in SZX snapshots;  |
+|         | added support for the ``r[memptr]`` replacement field in the      |
+|         | ``TraceLine*`` configuration parameters                           |
 +---------+-------------------------------------------------------------------+
 | 9.6     | Added the ``Screen`` configuration parameter                      |
 +---------+-------------------------------------------------------------------+
