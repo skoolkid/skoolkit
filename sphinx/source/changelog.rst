@@ -17,6 +17,8 @@ Changelog
   in the ``TraceLine`` configuration parameter
 * Added support to :ref:`bin2sna.py` and :ref:`snapmod.py` for setting the
   MEMPTR register in SZX snapshots
+* Added support to :ref:`rzxplay.py` for ignoring any snapshots after the first
+  one (which is useful for playing some RZX files created by the Fuse emulator)
 * Fixed the bug in CSimulator that restricts the ``timeout`` simulated load
   configuration parameter to a maximum value of 1227 seconds
 

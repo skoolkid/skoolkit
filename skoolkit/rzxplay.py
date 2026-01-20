@@ -1,4 +1,4 @@
-# Copyright 2024, 2025 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2024-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -230,15 +230,16 @@ def trace_exec(tracefile, context, fetch_counter, pc):
     readings_left = context.simulator.tracer.end - context.simulator.tracer.index
     tracefile.write(f'F:{context.frame_count:0{context.fnwidth}} C:{fetch_counter:05} I:{readings_left:05} ${pc:04X} {i}\n')
 
-def process_block(block, options, context):
+def process_block(block, options, flags, context):
     if block is None:
         raise SkoolKitError('Unsupported snapshot type')
     if isinstance(block, Snapshot):
-        error_msg = check_supported(block, options)
-        if error_msg:
-            raise SkoolKitError(error_msg)
-        context.snapshot = block
-        context.simulator = None
+        if context.snapshot is None or flags & 4 == 0:
+            error_msg = check_supported(block, options)
+            if error_msg:
+                raise SkoolKitError(error_msg)
+            context.snapshot = block
+            context.simulator = None
         return
     if context.simulator:
         simulator = context.simulator
@@ -263,7 +264,6 @@ def process_block(block, options, context):
     context.fnwidth = len(str(total_frames)) - 1
     show_progress = not options.quiet
     stop = options.stop or total_frames
-    flags = parse_int(options.flags, 0)
     flags_ldair = flags & 1
     flags_ei = flags & 2
     exec_map = context.exec_map
@@ -355,8 +355,9 @@ def run(infile, options):
             context.total_frames += len(block.obj.frames)
     if options.stop and options.stop > 0:
         context.total_frames = min(options.stop, context.total_frames)
+    flags = parse_int(options.flags, 0)
     while rzx_blocks:
-        process_block(rzx_blocks.pop(0).obj, options, context)
+        process_block(rzx_blocks.pop(0).obj, options, flags, context)
         if context.stop:
             break
     if options.map:
@@ -397,6 +398,11 @@ outcome:
       'EI' to indicate that the interrupt should in fact be blocked, and
       therefore require this flag to be set to play back correctly.
 
+  4 - Ignore any snapshots after the first one. By default, rzxplay.py will use
+      a snapshot embedded in an RZX file to update its internal state (i.e.
+      memory and registers) before continuing to process the next input
+      recording block. However, some RZX files created by the Fuse emulator do
+      not play correctly under that scheme, and require this flag to be set.
 """.strip())
 
 def main(args):

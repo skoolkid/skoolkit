@@ -96,6 +96,12 @@ chosen according to the desired outcome:
   interrupt should in fact be blocked, and therefore require this flag to be
   set to play back correctly.
 
+* 4 - Ignore any snapshots after the first one. By default, ``rzxplay.py`` will
+  use a snapshot embedded in an RZX file to update its internal state (i.e.
+  memory and registers) before continuing to process the next input recording
+  block. However, some RZX files created by the Fuse emulator do not play
+  correctly under that scheme, and require this flag to be set.
+
 OUTPUT FILE
 ===========
 If ``OUTFILE`` is given, and ends with either '.z80' or '.szx', then a snapshot

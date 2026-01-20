@@ -292,6 +292,12 @@ chosen according to the desired outcome:
   interrupt should in fact be blocked, and therefore require this flag to be
   set to play back correctly.
 
+* 4 - Ignore any snapshots after the first one. By default, rzxplay.py will use
+  a snapshot embedded in an RZX file to update its internal state (i.e. memory
+  and registers) before continuing to process the next input recording block.
+  However, some RZX files created by the Fuse emulator do not play correctly
+  under that scheme, and require this flag to be set.
+
 If ``OUTFILE`` is given, and ends with either '.z80' or '.szx', then a snapshot
 in the corresponding format is written when playback ends. Similarly, if
 ``OUTFILE`` ends with '.rzx', then an RZX file is written when playback ends.
@@ -299,11 +305,13 @@ However, this makes sense only if ``--stop`` is used to end playback somewhere
 in the middle of the input RZX file, otherwise the output RZX file will be
 empty (i.e. contain no frames).
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 9.2     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 10.0    | Added support for ignoring any snapshots after the first one      |
++---------+-------------------------------------------------------------------+
+| 9.2     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _skool2asm.py:
 

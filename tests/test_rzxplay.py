@@ -342,6 +342,30 @@ class RzxplayTest(SkoolKitTestCase):
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
+    def test_multiple_snapshots_when_flags_bit_2_set(self):
+        pc = 0x8000
+        code = (
+            [0xAF], # XOR A
+            [0xA8], # XOR B
+        )
+        frames = (
+            [(1, 0, [])],
+            [(1, 0, [])]
+        )
+        rzx = RZX()
+        for c, f in zip(code, frames):
+            ram = [0] * 0xC000
+            ram[pc - 0x4000:pc - 0x4000 + len(c)] = c
+            registers = {'PC': pc, 'iff1': 1}
+            z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+            rzx.add_snapshot(z80data, 'z80', f)
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00001 I:00000 $8000 XOR A
+            F:1 C:00001 I:00000 $0038 PUSH AF
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen --flags 4', exp_trace)
+
     def test_sequence_of_input_recording_blocks(self):
         pc = 0x7000
         code = (
