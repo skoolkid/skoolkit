@@ -1,4 +1,5 @@
 from skoolkittest import SkoolKitTestCase
+from skoolkit import CSimulator
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import (REGISTERS as SIMULATOR_REGISTERS, A, F, B, C, D,
                                E, H, L, IXh, IXl, IYh, IYl, SP, I, R, xA, xF,
@@ -32,7 +33,7 @@ class PortTracer:
         self.out_ports.append((port, value))
 
 class SimulatorTest(SkoolKitTestCase):
-    simulator_cls = Simulator
+    simulator_cls = CSimulator or Simulator
 
     def _test_instruction(self, simulator, inst, data, timing, reg_out=None, sna_out=None,
                           start=None, end=None, state_out=None):
@@ -1923,6 +1924,9 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, operation, data, timing, reg_out, start=start, end=end)
 
     def test_djnz_fast(self):
+        if self.simulator_cls is CSimulator:
+            # CSimulator does not implement djnz_fast
+            return
         simulator = self.simulator_cls([0] * 65536, config={'fast_djnz': True})
         registers = simulator.registers
         start = 35732
@@ -2219,6 +2223,9 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_block_ld('LDIR', 176, 1, True)
 
     def test_lddr_fast(self):
+        if self.simulator_cls is CSimulator:
+            # CSimulator does not implement lddr_fast
+            return
         simulator = self.simulator_cls([0] * 65536, config={'fast_ldir': True})
         registers = simulator.registers
         memory = simulator.memory
@@ -2262,6 +2269,9 @@ class SimulatorTest(SkoolKitTestCase):
             self._test_instruction(simulator, 'LDDR', data, timing, reg_out, sna_out, start, end)
 
     def test_ldir_fast(self):
+        if self.simulator_cls is CSimulator:
+            # CSimulator does not implement ldir_fast
+            return
         simulator = self.simulator_cls([0] * 65536, config={'fast_ldir': True})
         registers = simulator.registers
         memory = simulator.memory
@@ -2785,6 +2795,7 @@ class SimulatorTest(SkoolKitTestCase):
         memory[start:end] = code
         simulator = self.simulator_cls(memory)
         simulator.run(start, end)
+        memory = simulator.memory
         self.assertEqual(memory[0xFFFF], 0x01)
         self.assertEqual(memory[0x0000], 0x00)
         self.assertEqual(memory[0x3FFF], 0x00)
@@ -2819,10 +2830,10 @@ class SimulatorTest(SkoolKitTestCase):
         i = 0xFE
         iv_addr = 255 + 256 * i
         memory[iv_addr:iv_addr + 2] = (int_start % 256, int_start // 256)
-        simulator = self.simulator_cls(memory, {'I': i}, {'iff': 1, 'im': 2, 'tstates': -4})
+        simulator = self.simulator_cls(memory, {'I': i}, {'iff': 1, 'im': 2, 'tstates': 69884})
         simulator.run(start, end, True)
-        self.assertEqual(memory[0x4000], 0xFF)
-        self.assertEqual(simulator.registers[T], 49)
+        self.assertEqual(simulator.memory[0x4000], 0xFF)
+        self.assertEqual(simulator.registers[T], 69937)
 
     def test_pc_register_value(self):
         memory = [0] * 65536
@@ -2857,7 +2868,7 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[PC], 56)
         self.assertEqual(simulator.registers[R], 1)
         self.assertEqual(simulator.registers[SP], sp - 2)
-        self.assertEqual([pc % 256, pc // 256], simulator.memory[sp - 2:sp])
+        self.assertEqual((pc % 256, pc // 256), tuple(simulator.memory[sp - 2:sp]))
         self.assertEqual(simulator.registers[IFF], 0)
 
     def test_accept_interrupt_mode_1(self):
@@ -2870,7 +2881,7 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[PC], 56)
         self.assertEqual(simulator.registers[R], 1)
         self.assertEqual(simulator.registers[SP], sp - 2)
-        self.assertEqual([pc % 256, pc // 256], simulator.memory[sp - 2:sp])
+        self.assertEqual((pc % 256, pc // 256), tuple(simulator.memory[sp - 2:sp]))
         self.assertEqual(simulator.registers[IFF], 0)
 
     def test_accept_interrupt_mode_2(self):
@@ -2888,7 +2899,7 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[PC], iaddr)
         self.assertEqual(simulator.registers[R], 1)
         self.assertEqual(simulator.registers[SP], sp - 2)
-        self.assertEqual([pc % 256, pc // 256], simulator.memory[sp - 2:sp])
+        self.assertEqual((pc % 256, pc // 256), tuple(simulator.memory[sp - 2:sp]))
         self.assertEqual(simulator.registers[IFF], 0)
 
     def test_accept_interrupt_after_ei(self):
@@ -2903,7 +2914,7 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[PC], pc)
         self.assertEqual(simulator.registers[R], 0)
         self.assertEqual(simulator.registers[SP], sp)
-        self.assertEqual([0, 0], simulator.memory[sp - 2:sp])
+        self.assertEqual((0, 0), tuple(simulator.memory[sp - 2:sp]))
         self.assertEqual(simulator.registers[IFF], 1)
 
     def test_accept_interrupt_after_dd_prefix(self):
@@ -2918,7 +2929,7 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[PC], pc)
         self.assertEqual(simulator.registers[R], 0)
         self.assertEqual(simulator.registers[SP], sp)
-        self.assertEqual([0, 0], simulator.memory[sp - 2:sp])
+        self.assertEqual((0, 0), tuple(simulator.memory[sp - 2:sp]))
         self.assertEqual(simulator.registers[IFF], 1)
 
     def test_accept_interrupt_after_fd_prefix(self):
@@ -2933,5 +2944,5 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[PC], pc)
         self.assertEqual(simulator.registers[R], 0)
         self.assertEqual(simulator.registers[SP], sp)
-        self.assertEqual([0, 0], simulator.memory[sp - 2:sp])
+        self.assertEqual((0, 0), tuple(simulator.memory[sp - 2:sp]))
         self.assertEqual(simulator.registers[IFF], 1)
