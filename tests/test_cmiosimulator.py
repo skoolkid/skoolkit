@@ -1,5 +1,6 @@
 from skoolkittest import SkoolKitTestCase
 from test_simulator import SimulatorTest
+from skoolkit import CCMIOSimulator
 from skoolkit.pagingtracer import Memory
 from skoolkit.cmiosimulator import CMIOSimulator
 
@@ -1792,30 +1793,47 @@ TIMINGS = {
     "FF000000": ("RST $38", 17, 11),
 }
 
+class PagingTracer:
+    def __init__(self, simulator):
+        self.memory = simulator.memory
+
+    def write_port(self, registers, port, value):
+        if port & 0x8002 == 0:
+            self.memory.out7ffd(value)
+
 class CMIOSimulatorTimingTest(SkoolKitTestCase):
-    def _check_time(self, cs, op, data, t0, exp_time, addr=0x6000):
-        cs.registers[:] = [0] * len(cs.registers)
-        cs.registers[0] = 1   # A (to exercise long CPIR/CPDR)
-        cs.registers[25] = t0 # T
+    simulator_cls = CCMIOSimulator or CMIOSimulator
+
+    def _check_time(self, cs, op, data, t0, exp_time, bank, addr=0x6000):
+        if bank is not None:
+            cs.registers[0] = bank                        # A=bank
+            cs.registers[2], cs.registers[3] = 0x7F, 0xFD # BC=0x7FFD
+            cs.memory[0], cs.memory[1] = 0xED, 0x79       # $0000 OUT (C),A
+            cs.run(0)
+        for i in range(1, len(cs.registers)):
+            cs.registers[i] = 0
+        cs.registers[0] = 1       # A (to exercise long CPIR/CPDR)
+        cs.registers[12] = 0x8002 # [SP-2, SP+1] in uncontended RAM
+        cs.registers[25] = t0     # T
         for i, b in enumerate(data):
             cs.memory[addr + i] = b
         cs.run(addr)
-        self.assertEqual(cs.registers[25] - t0, exp_time, f'Timing failed for "{op}" at T={t0}')
+        self.assertEqual(cs.registers[25] - t0, exp_time, f'Timing failed for "{op}" at T={t0} (bank: {bank})')
 
-    def _test_contention(self, machine, timings):
+    def _test_contention(self, machine, timings, bank=None):
         if machine == '48K':
-            cs = CMIOSimulator([0] * 65536)
+            cs = self.simulator_cls([0] * 65536)
             t0 = 14335
         else:
-            cs = CMIOSimulator(Memory())
+            cs = self.simulator_cls(Memory())
             t0 = 14361
         for hb, (op, ctime, nctime) in timings.items():
             data = tuple(int(hb[i:i + 2], 16) for i in range(0, 8, 2))
-            self._check_time(cs, op, data, t0, ctime)
-            self._check_time(cs, op, data, 0, nctime)
+            self._check_time(cs, op, data, t0, ctime, bank)
+            self._check_time(cs, op, data, 0, nctime, bank)
 
     def _test_halt_after_first_fetch(self, addr, exp_times):
-        cs = CMIOSimulator([0] * 65536)
+        cs = self.simulator_cls([0] * 65536)
         cs.memory[addr] = 0x76
         cs.registers[25] = 14331 # T
         cs.run(addr) # First fetch
@@ -1831,15 +1849,15 @@ class CMIOSimulatorTimingTest(SkoolKitTestCase):
         self._test_contention('128K', TIMINGS)
 
     def test_contention_128k_banks(self):
-        cs = CMIOSimulator(Memory())
+        cs = self.simulator_cls(Memory())
+        cs.set_tracer(PagingTracer(cs))
         op, ctime, nctime = TIMINGS['00000000']
         for bank in range(8):
-            cs.memory.out7ffd(bank)
             exp_time = ctime if bank % 2 else nctime
-            self._check_time(cs, op, [0], 14361, exp_time, 0xC000)
+            self._check_time(cs, op, [0], 14361, exp_time, bank, 0xC000)
 
     def test_djnz_jump_not_made(self):
-        cs = CMIOSimulator([0] * 65536)
+        cs = self.simulator_cls([0] * 65536)
         addr = 24576
         t0 = 14335
         cs.memory[addr:addr + 2] = (0x10, 0xFE)
@@ -1855,7 +1873,7 @@ class CMIOSimulatorTimingTest(SkoolKitTestCase):
         self._test_halt_after_first_fetch(0x7FFF, (4, 4, 4, 4, 4, 4, 4, 4))
 
     def test_io_contention_48k(self):
-        cs = CMIOSimulator([0] * 65536)
+        cs = self.simulator_cls([0] * 65536)
         addr = 24576
         t0 = 14335
         for port, exp_time in (
@@ -1871,7 +1889,9 @@ class CMIOSimulatorTimingTest(SkoolKitTestCase):
             self.assertEqual(cs.registers[25] - t0, exp_time)
 
     def test_io_contention_128k(self):
-        cs = CMIOSimulator(Memory())
+        cs = self.simulator_cls(Memory(), {'BC': 0x7FFD})
+        cs.set_tracer(PagingTracer(cs))
+        cs.memory[0], cs.memory[1] = 0xED, 0x79 # $0000 OUT (C),A
         addr = 24576
         t0 = 14361
         for port, exp_time, page in (
@@ -1896,15 +1916,16 @@ class CMIOSimulatorTimingTest(SkoolKitTestCase):
                 (0xC0FE, 26, 7),
                 (0xC0FF, 32, 7)
         ):
+            cs.registers[0] = page # A=page
+            cs.run(0)              # OUT (C),A (BC=$7FFD)
             cs.memory[addr], cs.memory[addr + 1] = 0xD3, port % 256 # OUT (n),A
-            cs.memory.out7ffd(page)
             cs.registers[0] = port // 256 # A
             cs.registers[25] = t0         # T
             cs.run(addr)
             self.assertEqual(cs.registers[25] - t0, exp_time, f'Timing failed with port=0x{port:04X}, page={page}')
 
 class CMIOSimulatorTest(SimulatorTest):
-    simulator_cls = CMIOSimulator
+    simulator_cls = CCMIOSimulator or CMIOSimulator
 
     def test_djnz_fast(self):
         # Fast DJNZ is disabled for CMIOSimulator
