@@ -15,6 +15,8 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+from io import BytesIO
+from struct import pack, unpack
 import textwrap
 import time
 
@@ -45,7 +47,7 @@ class Tracer(PagingTracer):
             self.write_port = self._write_port
         self.operations = 0
         self.spkr = None
-        self.out_times = []
+        self.audio_log = bytearray()
         self.keyboard = None
 
     def run(self, start, stop, max_operations, max_tstates, interrupts, draw, exec_map, trace_line, prefix, byte_fmt, word_fmt):
@@ -128,8 +130,8 @@ class Tracer(PagingTracer):
         self.operations = operations
 
     def read_port(self, registers, port):
-        if port == 0xFFFD:
-            return self.ay[self.outfffd % 16]
+        if port & 0xC002 == 0xC000 and self.outfffd < 16:
+            return self.ay[self.outfffd]
         if port % 2 == 0 and self.keyboard:
             h = (port // 256) ^ 0xFF
             v = 0x40
@@ -143,14 +145,43 @@ class Tracer(PagingTracer):
         return 0xFF
 
     def _write_port(self, registers, port, value):
-        super().write_port(registers, port, value)
         if port % 2 == 0:
+            self.border = value % 8
+            self.outfe = value
             if self.spkr != value & 0x10:
                 self.spkr = value & 0x10
-                self.out_times.append(registers[T])
+                self.audio_log.extend(pack('>QBB', registers[T], 0xFF, 0))
+        if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
+            memory = self.simulator.memory
+            if isinstance(memory, Memory):
+                memory.out7ffd(value)
+                self.out7ffd = value
+        if port & 0xC002 == 0xC000:
+            self.outfffd = value
+        elif port & 0xC002 == 0x8000 and self.outfffd < 16:
+            self.ay[self.outfffd] = value
+            self.audio_log.extend(pack('>QBB', registers[T], self.outfffd, value))
 
     def get_delays(self):
-        return [t1 - t0 for t0, t1 in zip(self.out_times, self.out_times[1:])]
+        out_times = []
+        t0 = None
+        f = BytesIO(self.audio_log)
+        record = f.read(10)
+        while len(record) == 10:
+            t, reg, value = unpack('>QBB', record)
+            if reg == 0xFF:
+                t0 = t
+                break
+            record = f.read(10)
+        if t0 is not None:
+            record = f.read(10)
+            while len(record) == 10:
+                t1, reg, value = unpack('>QBB', record)
+                if reg == 0xFF:
+                    out_times.append(t1 - t0)
+                    t0 = t1
+                record = f.read(10)
+        return out_times
 
 def rle(s, length):
     s2 = []

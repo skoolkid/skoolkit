@@ -2,6 +2,7 @@ from collections import defaultdict
 from functools import partial
 import hashlib
 import os
+from struct import pack, unpack
 from textwrap import dedent
 from unittest.mock import patch, Mock
 
@@ -28,10 +29,9 @@ class MockSimulator:
         self.int_active = 32
         self.pc = kwargs.get('pc', 0)
         self.t1 = kwargs.get('t1', 0)
-        self.out_times = kwargs.get('out_times', ())
 
     def set_tracer(self, tracer, *args, **kwargs):
-        tracer.out_times = self.out_times
+        pass
 
     def nop(self):
         self.registers[PC] = self.pc
@@ -1152,18 +1152,88 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
-    @patch.object(trace, 'CSimulator', partial(MockSimulator, pc=0x8001, out_times=(0, 500000, 1000000)))
-    @patch.object(trace, 'Simulator', partial(MockSimulator, pc=0x8001, out_times=(0, 500000, 1000000)))
-    def test_option_audio_128k(self):
-        output, error = self.run_trace(f'-s 0x8000 -S 0x8001 --audio 128')
-        self.assertEqual(error, '')
+    @patch.object(trace, 'Tracer', TestTracer)
+    def test_option_audio_with_ay(self):
+        data = (
+            0x0E, 0xFD,             # $8000 LD C,$FD
+            0x11, 0x0F, 0x00,       # $8002 LD DE,$000F
+            0x06, 0xFF,             # $8005 LD B,$FF
+            0xED, 0x59,             # $8007 OUT (C),E
+            0x06, 0xBF,             # $8009 LD B,$BF
+            0xED, 0x51,             # $800B OUT (C),D
+            0xD3, 0xFE,             # $800D OUT ($FE),A
+            0xEE, 0x10,             # $800F XOR $10
+            0x14,                   # $8011 INC D
+            0x1D,                   # $8012 DEC E
+            0xF2, 0x05, 0x80,       # $8013 JP P,$8005
+        )
+        start = 32768
+        stop = start + len(data)
+        ram = [0] * 49152
+        ram[start - 0x4000:stop - 0x4000] = data
+        z80file = self.write_z80(ram, machine_id=4, registers={'PC': start})[1]
         exp_output = """
-            Stopped at $8001
-            Sound duration: 1000000 T-states (0.282s)
+            Stopped at $8016
+            Sound duration: 1110 T-states (0.000s)
             Delays:
-             [500000]*2
+             [74]*15
         """
-        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self._test_trace(f'-n -o {start} -S {stop} --audio {z80file}', exp_output)
+        exp_audio_log = [
+            (43, 15, 0),
+            (55, 255, 0),
+            (117, 14, 1),
+            (129, 255, 0),
+            (191, 13, 2),
+            (203, 255, 0),
+            (265, 12, 3),
+            (277, 255, 0),
+            (339, 11, 4),
+            (351, 255, 0),
+            (413, 10, 5),
+            (425, 255, 0),
+            (487, 9, 6),
+            (499, 255, 0),
+            (561, 8, 7),
+            (573, 255, 0),
+            (635, 7, 8),
+            (647, 255, 0),
+            (709, 6, 9),
+            (721, 255, 0),
+            (783, 5, 10),
+            (795, 255, 0),
+            (857, 4, 11),
+            (869, 255, 0),
+            (931, 3, 12),
+            (943, 255, 0),
+            (1005, 2, 13),
+            (1017, 255, 0),
+            (1079, 1, 14),
+            (1091, 255, 0),
+            (1153, 0, 15),
+            (1165, 255, 0),
+        ]
+        audio_log = [unpack('>QBB', tracer.audio_log[i:i + 10]) for i in range(0, len(tracer.audio_log), 10)]
+        self.assertEqual(exp_audio_log, audio_log)
+
+    @patch.object(trace, 'CSimulator', TestSimulator)
+    @patch.object(trace, 'Simulator', TestSimulator)
+    def test_128k_bank_switching_works_with_option_audio(self):
+        ram = [0] * 49152
+        ram[8192:8194] = (0xED, 0x79) # $6000 OUT (C),A
+        bank = 3
+        pages = {bank: [1] * 16384}
+        registers = {'A': bank, 'B': 0x7F, 'C': 0xFD, 'PC': 0x6000}
+        z80file = self.write_z80(ram, machine_id=4, out_7ffd=18, pages=pages, registers=registers)[1]
+        exp_output = """
+            $6000 OUT (C),A
+            Stopped at $6002
+            Sound duration: 0 T-states (0.000s)
+            Delays:
+        """
+        self._test_trace(f'-v -S 24578 --audio {z80file}', exp_output)
+        self.assertEqual(simulator.memory[0xC000], 1) # Bank 3 paged in
+        self.assertEqual(simulator.memory[0x0001], 1) # ROM 0 paged in
 
     def test_option_cmio(self):
         data = (
@@ -3161,7 +3231,7 @@ class TraceTest(SkoolKitTestCase):
         infile = self.write_bin_file(data, suffix='.bin')
         output, error = self.run_trace(f'-n -S 0 {infile}')
         self.assertFalse(tracer.audio)
-        self.assertEqual([], tracer.out_times)
+        self.assertEqual([], tracer.get_delays())
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_audio_writer(self):
