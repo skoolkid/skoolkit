@@ -2,7 +2,6 @@ from collections import defaultdict
 from functools import partial
 import hashlib
 import os
-from struct import pack, unpack
 from textwrap import dedent
 from unittest.mock import patch, Mock
 
@@ -63,6 +62,16 @@ class MockAudioWriter:
         self.fname = audio_file.name
         self.delays = delays
         self.ma_filter = ma_filter
+
+class MockAYAudioWriter:
+    def __init__(self):
+        global ay_audio_writer
+        ay_audio_writer = self
+
+    def write_audio(self, audio_file, audio_log, options):
+        self.fname = audio_file.name
+        self.audio_log = audio_log
+        self.options = options
 
 class MockImageWriter:
     def __init__(self, config=None, palette=None):
@@ -1178,7 +1187,7 @@ class TraceTest(SkoolKitTestCase):
             Delays:
              [74]*15
         """
-        self._test_trace(f'-n -o {start} -S {stop} --audio {z80file}', exp_output)
+        self._test_trace(f'-n -S {stop} --audio {z80file}', exp_output)
         exp_audio_log = [
             (43, 15, 0),
             (55, 255, 0),
@@ -1213,8 +1222,7 @@ class TraceTest(SkoolKitTestCase):
             (1153, 0, 15),
             (1165, 255, 0),
         ]
-        audio_log = [unpack('>QBB', tracer.audio_log[i:i + 10]) for i in range(0, len(tracer.audio_log), 10)]
-        self.assertEqual(exp_audio_log, audio_log)
+        self.assertEqual(exp_audio_log, tracer.audio_log)
 
     @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
@@ -3208,6 +3216,55 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(exp_delays, audio_writer.delays)
         self.assertTrue(audio_writer.ma_filter)
 
+    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    def test_write_wav_128k_ay(self):
+        data = (
+            0x0E, 0xFD,             # $8000 LD C,$FD
+            0x11, 0x0F, 0x00,       # $8002 LD DE,$000F
+            0x06, 0xFF,             # $8005 LD B,$FF
+            0xED, 0x59,             # $8007 OUT (C),E
+            0x06, 0xBF,             # $8009 LD B,$BF
+            0xED, 0x51,             # $800B OUT (C),D
+            0x14,                   # $800D INC D
+            0x1D,                   # $800E DEC E
+            0xF2, 0x05, 0x80,       # $800F JP P,$8005
+        )
+        ram = [0] * 49152
+        start = 32768
+        stop = start + len(data)
+        ram[start - 0x4000:stop - 0x4000] = data
+        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        outfile = 'out.wav'
+        output, error = self.run_trace(f'-S {stop} --ay {infile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        exp_audio_log = [
+            (43, 15, 0),
+            (99, 14, 1),
+            (155, 13, 2),
+            (211, 12, 3),
+            (267, 11, 4),
+            (323, 10, 5),
+            (379, 9, 6),
+            (435, 8, 7),
+            (491, 7, 8),
+            (547, 6, 9),
+            (603, 5, 10),
+            (659, 4, 11),
+            (715, 3, 12),
+            (771, 2, 13),
+            (827, 1, 14),
+            (883, 0, 15),
+        ]
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(ay_audio_writer.fname, outfile)
+        self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
+        self.assertEqual(ay_audio_writer.options.volume, 75)
+        self.assertEqual(ay_audio_writer.options.ay_res, 70908)
+        self.assertFalse(ay_audio_writer.options.beeper)
+
     @patch.object(trace, 'get_audio_writer', MockAudioWriter)
     def test_write_wav_no_audio(self):
         global audio_writer
@@ -3220,6 +3277,25 @@ class TraceTest(SkoolKitTestCase):
             self.run_trace(f'-n -o {start} -S {stop} {infile} out.wav')
         self.assertEqual(cm.exception.args[0], 'No audio detected')
         self.assertIsNone(audio_writer)
+
+    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    def test_write_wav_no_ay_activity(self):
+        global ay_audio_writer
+        ay_audio_writer = None
+        data = (
+            0x01, 0xFD, 0xFF,       # $8000 LD BC,$FFFD
+            0xAF,                   # $8003 XOR A
+            0xED, 0x79,             # $8004 OUT (C),A
+        )
+        ram = [0] * 49152
+        start = 32768
+        stop = start + len(data)
+        ram[start - 0x4000:stop - 0x4000] = data
+        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_trace(f'-S {stop} --ay {infile} out.wav')
+        self.assertEqual(cm.exception.args[0], 'No AY activity detected')
+        self.assertIsNone(ay_audio_writer)
 
     @patch.object(trace, 'Tracer', TestTracer)
     def test_no_audio(self):

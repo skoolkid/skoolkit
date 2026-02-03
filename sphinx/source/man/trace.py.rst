@@ -22,6 +22,9 @@ OPTIONS
   Show a list of the delays (in T-states) between changes in the state of the
   ZX Spectrum speaker made by the code that was executed.
 
+--ay
+  Capture AY audio (when writing a WAV file).
+
 -c, --cmio
   Simulate memory and I/O contention delays and the MEMPTR register.
 

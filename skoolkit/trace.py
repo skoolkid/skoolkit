@@ -1,4 +1,4 @@
-# Copyright 2022-2026 Richard Dymond (rjdymond@gmail.com)
+# © 2022-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -15,14 +15,13 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-from io import BytesIO
-from struct import pack, unpack
 import textwrap
 import time
 
 from skoolkit import (ROM48, VERSION, SkoolKitError, CSimulator,
                       CCMIOSimulator, get_int_param, integer, read_bin_file)
 from skoolkit.audio import CLOCK_SPEED
+from skoolkit.ay import AYAudioWriter, Options
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.components import get_audio_writer, get_image_writer
 from skoolkit.config import get_config, show_config, update_options
@@ -47,7 +46,7 @@ class Tracer(PagingTracer):
             self.write_port = self._write_port
         self.operations = 0
         self.spkr = None
-        self.audio_log = bytearray()
+        self.audio_log = []
         self.keyboard = None
 
     def run(self, start, stop, max_operations, max_tstates, interrupts, draw, exec_map, trace_line, prefix, byte_fmt, word_fmt):
@@ -150,7 +149,7 @@ class Tracer(PagingTracer):
             self.outfe = value
             if self.spkr != value & 0x10:
                 self.spkr = value & 0x10
-                self.audio_log.extend(pack('>QBB', registers[T], 0xFF, 0))
+                self.audio_log.append((registers[T], 0xFF, 0))
         if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
             memory = self.simulator.memory
             if isinstance(memory, Memory):
@@ -160,28 +159,11 @@ class Tracer(PagingTracer):
             self.outfffd = value
         elif port & 0xC002 == 0x8000 and self.outfffd < 16:
             self.ay[self.outfffd] = value
-            self.audio_log.extend(pack('>QBB', registers[T], self.outfffd, value))
+            self.audio_log.append((registers[T], self.outfffd, value))
 
     def get_delays(self):
-        out_times = []
-        t0 = None
-        f = BytesIO(self.audio_log)
-        record = f.read(10)
-        while len(record) == 10:
-            t, reg, value = unpack('>QBB', record)
-            if reg == 0xFF:
-                t0 = t
-                break
-            record = f.read(10)
-        if t0 is not None:
-            record = f.read(10)
-            while len(record) == 10:
-                t1, reg, value = unpack('>QBB', record)
-                if reg == 0xFF:
-                    out_times.append(t1 - t0)
-                    t0 = t1
-                record = f.read(10)
-        return out_times
+        out_times = [t for t, r, v in self.audio_log if r == 0xFF]
+        return [t1 - t0 for t0, t1 in zip(out_times, out_times[1:])]
 
 def rle(s, length):
     s2 = []
@@ -302,7 +284,7 @@ def run(snafile, options, config):
             start = org
     for spec in options.pokes:
         poke(simulator.memory, spec)
-    audio = options.audio or any(f.lower().endswith('.wav') for f in options.dump)
+    audio = options.audio or options.ay or any(f.lower().endswith('.wav') for f in options.dump)
     tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe, audio)
     simulator.set_tracer(tracer)
     if options.verbose:
@@ -358,13 +340,22 @@ def run(snafile, options, config):
     for fname in options.dump:
         ext = fname.lower()[-4:]
         if ext == '.wav':
-            delays = tracer.get_delays()
-            if delays:
-                audio_writer = get_audio_writer({CLOCK_SPEED: cpu_freq})
-                with open(fname, 'wb') as f:
-                    audio_writer.write_audio(f, delays, ma_filter=True)
+            if options.ay:
+                if any(r < 16 for t, r, v in tracer.audio_log):
+                    audio_writer = AYAudioWriter()
+                    options = Options()
+                    with open(fname, 'wb') as f:
+                        audio_writer.write_audio(f, tracer.audio_log, options)
+                else:
+                    raise SkoolKitError('No AY activity detected')
             else:
-                raise SkoolKitError('No audio detected')
+                delays = tracer.get_delays()
+                if delays:
+                    audio_writer = get_audio_writer({CLOCK_SPEED: cpu_freq})
+                    with open(fname, 'wb') as f:
+                        audio_writer.write_audio(f, delays, ma_filter=True)
+                else:
+                    raise SkoolKitError('No audio detected')
         elif ext == '.png':
             frame = Frame(scr_udgs(simulator.memory, 0, 0, 32, 24), config['PNGScale'])
             with open(fname, 'wb') as f:
@@ -388,6 +379,8 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('--audio', action='store_true',
                        help="Show audio delays.")
+    group.add_argument('--ay', action='store_true',
+                       help="Capture AY audio (when writing a WAV file).")
     group.add_argument('-c', '--cmio', action='store_true',
                        help="Simulate memory and I/O contention and the MEMPTR register.")
     group.add_argument('-D', '--decimal', action='store_true',

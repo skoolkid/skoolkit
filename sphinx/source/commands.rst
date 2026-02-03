@@ -2146,6 +2146,7 @@ To list the options supported by `trace.py`, run it with no arguments::
 
   Options:
     --audio               Show audio delays.
+    --ay                  Capture AY audio (when writing a WAV file).
     -c, --cmio            Simulate memory and I/O contention and the MEMPTR
                           register.
     --depth DEPTH         Simplify audio delays to this depth (default: 2).
@@ -2273,7 +2274,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.0    | Added support to the ``--reg`` option for setting the MEMPTR      |
+| 10.0    | Added the ``--ay`` option and support for capturing AY audio;     |
+|         | added support to the ``--reg`` option for setting the MEMPTR      |
 |         | register; reads and writes the MEMPTR register in SZX snapshots;  |
 |         | added support for the ``r[memptr]`` replacement field in the      |
 |         | ``TraceLine*`` configuration parameters                           |
