@@ -159,6 +159,8 @@ class TraceTest(SkoolKitTestCase):
         self.assertIsNone(options.start)
         self.assertIsNone(options.stop)
         self.assertFalse(options.audio)
+        self.assertFalse(options.ay)
+        self.assertFalse(options.beeper)
         self.assertFalse(options.cmio)
         self.assertEqual(options.depth, 2)
         self.assertEqual([], options.dump)
@@ -3264,6 +3266,73 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(ay_audio_writer.options.volume, 75)
         self.assertEqual(ay_audio_writer.options.ay_res, 70908)
         self.assertFalse(ay_audio_writer.options.beeper)
+
+    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    def test_write_wav_128k_ay_with_beeper(self):
+        data = (
+            0x0E, 0xFD,             # $8000 LD C,$FD
+            0x11, 0x0F, 0x00,       # $8002 LD DE,$000F
+            0x06, 0xFF,             # $8005 LD B,$FF
+            0xED, 0x59,             # $8007 OUT (C),E
+            0x06, 0xBF,             # $8009 LD B,$BF
+            0xED, 0x51,             # $800B OUT (C),D
+            0xD3, 0xFE,             # $800D OUT ($FE),A
+            0xEE, 0x10,             # $800F XOR $10
+            0x14,                   # $8011 INC D
+            0x1D,                   # $8012 DEC E
+            0xF2, 0x05, 0x80,       # $8013 JP P,$8005
+        )
+        ram = [0] * 49152
+        start = 32768
+        stop = start + len(data)
+        ram[start - 0x4000:stop - 0x4000] = data
+        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        outfile = 'out.wav'
+        output, error = self.run_trace(f'-S {stop} --ay --beeper {infile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        exp_audio_log = [
+            (43, 15, 0),
+            (55, 255, 0),
+            (117, 14, 1),
+            (129, 255, 0),
+            (191, 13, 2),
+            (203, 255, 0),
+            (265, 12, 3),
+            (277, 255, 0),
+            (339, 11, 4),
+            (351, 255, 0),
+            (413, 10, 5),
+            (425, 255, 0),
+            (487, 9, 6),
+            (499, 255, 0),
+            (561, 8, 7),
+            (573, 255, 0),
+            (635, 7, 8),
+            (647, 255, 0),
+            (709, 6, 9),
+            (721, 255, 0),
+            (783, 5, 10),
+            (795, 255, 0),
+            (857, 4, 11),
+            (869, 255, 0),
+            (931, 3, 12),
+            (943, 255, 0),
+            (1005, 2, 13),
+            (1017, 255, 0),
+            (1079, 1, 14),
+            (1091, 255, 0),
+            (1153, 0, 15),
+            (1165, 255, 0),
+        ]
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(ay_audio_writer.fname, outfile)
+        self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
+        self.assertEqual(ay_audio_writer.options.volume, 75)
+        self.assertEqual(ay_audio_writer.options.ay_res, 70908)
+        self.assertTrue(ay_audio_writer.options.beeper)
 
     @patch.object(trace, 'get_audio_writer', MockAudioWriter)
     def test_write_wav_no_audio(self):

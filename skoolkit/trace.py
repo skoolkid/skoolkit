@@ -284,7 +284,7 @@ def run(snafile, options, config):
             start = org
     for spec in options.pokes:
         poke(simulator.memory, spec)
-    audio = options.audio or options.ay or any(f.lower().endswith('.wav') for f in options.dump)
+    audio = options.audio or any(f.lower().endswith('.wav') for f in options.dump)
     tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe, audio)
     simulator.set_tracer(tracer)
     if options.verbose:
@@ -343,7 +343,7 @@ def run(snafile, options, config):
             if options.ay:
                 if any(r < 16 for t, r, v in tracer.audio_log):
                     audio_writer = AYAudioWriter()
-                    options = Options()
+                    options = Options(beeper=options.beeper)
                     with open(fname, 'wb') as f:
                         audio_writer.write_audio(f, tracer.audio_log, options)
                 else:
@@ -381,6 +381,8 @@ def main(args):
                        help="Show audio delays.")
     group.add_argument('--ay', action='store_true',
                        help="Capture AY audio (when writing a WAV file).")
+    group.add_argument('--beeper', action='store_true',
+                       help="Capture beeper audio (when used with --ay).")
     group.add_argument('-c', '--cmio', action='store_true',
                        help="Simulate memory and I/O contention and the MEMPTR register.")
     group.add_argument('-D', '--decimal', action='store_true',

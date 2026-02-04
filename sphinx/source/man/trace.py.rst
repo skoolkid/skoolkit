@@ -25,6 +25,9 @@ OPTIONS
 --ay
   Capture AY audio (when writing a WAV file).
 
+--beeper
+  Capture beeper audio (when used with ``--ay``).
+
 -c, --cmio
   Simulate memory and I/O contention delays and the MEMPTR register.
 

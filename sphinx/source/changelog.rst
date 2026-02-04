@@ -6,6 +6,8 @@ Changelog
 * Dropped support for Python 3.9
 * Added the ``--ay`` option to :ref:`trace.py` (for capturing AY audio when
   writing a WAV file)
+* Added the ``--beeper`` option to :ref:`trace.py` (for capturing beeper audio
+  as well when ``--ay`` is specified)
 * Added support for the MEMPTR register to CMIOSimulator and CCMIOSimulator
 * Added the ``memptr`` parameter to the :ref:`SIM` macro (to set the MEMPTR
   register)
