@@ -1,4 +1,4 @@
-# Copyright 2012-2026 Richard Dymond (rjdymond@gmail.com)
+# © 2012-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -112,18 +112,18 @@ class PagingTracer:
         self.ay = ay
 
     def read_port(self, registers, port):
-        if port == 0xFFFD:
-            return self.ay[self.outfffd % 16]
+        if port & 0xC002 == 0xC000 and self.outfffd < 16:
+            return self.ay[self.outfffd]
         return 255
 
     def write_port(self, registers, port, value):
         if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
             self.memory.out7ffd(value)
             self.out7ffd = value
-        elif port == 0xFFFD:
+        if port & 0xC002 == 0xC000:
             self.outfffd = value
-        elif port == 0xBFFD:
-            self.ay[self.outfffd % 16] = value
+        elif port & 0xC002 == 0x8000 and self.outfffd < 16:
+            self.ay[self.outfffd] = value
 
 class AudioTracer:
     def __init__(self):
@@ -135,18 +135,31 @@ class AudioTracer:
             self.spkr = value & 0x10
             self.out_times.append(registers[T])
 
+    def get_delays(self):
+        return [t - self.out_times[i] for i, t in enumerate(self.out_times[1:])]
+
 class AudioTracer128(PagingTracer):
     def __init__(self, memory, out7ffd, outfffd, ay):
         super().__init__(memory, out7ffd, outfffd, ay)
         self.spkr = None
-        self.out_times = []
+        self.audio_log = []
 
     def write_port(self, registers, port, value):
         if port % 2 == 0 and self.spkr != value & 0x10:
             self.spkr = value & 0x10
-            self.out_times.append(registers[T])
-        else:
-            super().write_port(registers, port, value)
+            self.audio_log.append((registers[T], 0xFF, 0))
+        if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
+            self.memory.out7ffd(value)
+            self.out7ffd = value
+        if port & 0xC002 == 0xC000:
+            self.outfffd = value
+        elif port & 0xC002 == 0x8000 and self.outfffd < 16:
+            self.ay[self.outfffd] = value
+            self.audio_log.append((registers[T], self.outfffd, value))
+
+    def get_delays(self):
+        out_times = [t for t, r, v in self.audio_log if r == 0xFF]
+        return [t - out_times[i] for i, t in enumerate(out_times[1:])]
 
 # API
 def parse_ints(text, index=0, num=0, defaults=(), names=(), fields=None):
@@ -656,7 +669,7 @@ def _eval_delays(spec):
 
 def parse_audio(writer, text, index, need_audio=None):
     # #AUDIO[flags,offset](fname)[(delays)]
-    # #AUDIO[flags,offset](fname)(start,stop[,execint,cmio])
+    # #AUDIO[flags,offset](fname)(start,stop[,execint,cmio,ay])
     try:
         end, flags, offset = parse_ints(text, index, 2, defaults=(0, None), fields=writer.fields)
     except InvalidParameterError:
@@ -664,11 +677,11 @@ def parse_audio(writer, text, index, need_audio=None):
     end, fname = parse_brackets(text, end)
     if not fname:
         raise MacroParsingError('Missing filename: #AUDIO{}'.format(text[index:end]))
-    delays, eval_delays = None, False
+    delays, eval_delays, audio_log = None, False, None
     if need_audio:
         fname, eval_delays = need_audio(fname)
     if flags & 4:
-        end, start, stop, execint, cmio = parse_ints(text, end, 4, defaults=(0, 0), fields=writer.fields)
+        end, start, stop, execint, cmio, ay = parse_ints(text, end, 5, defaults=(0, 0, 0), fields=writer.fields)
         if eval_delays:
             if cmio:
                 simulator_cls = CCMIOSimulator or CMIOSimulator
@@ -688,14 +701,17 @@ def parse_audio(writer, text, index, need_audio=None):
             if memory != simulator.memory: # pragma: no cover
                 memory[:] = simulator.memory[:]
             _write_sim_state(writer, simulator, tracer)
-            delays = [t - tracer.out_times[i] for i, t in enumerate(tracer.out_times[1:])]
+            if ay:
+                audio_log = tracer.audio_log
+            else:
+                delays = tracer.get_delays()
     else:
         if len(text) > end and text[end] == '(':
             end, spec = parse_brackets(text, end)
             if eval_delays:
                 expanded = writer.expand(spec)
                 delays = _eval_delays(_format_params(expanded, expanded, **writer.fields))
-    return end, flags, offset or 0, fname, delays
+    return end, flags, offset or 0, fname, delays, audio_log
 
 def parse_bank(writer, text, index, *cwd):
     # BANKpage

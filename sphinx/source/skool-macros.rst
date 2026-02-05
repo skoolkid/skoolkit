@@ -904,7 +904,7 @@ In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
 
 Or, when executing code in a simulator (bit 2 of ``flags`` set)::
 
-  #AUDIO[flags,offset](fname)(start,stop[,execint,cmio])
+  #AUDIO[flags,offset](fname)(start,stop[,execint,cmio,ay])
 
 * ``flags`` controls various options (see below)
 * ``offset`` is the initial offset in T-states from the start of a frame
@@ -921,6 +921,8 @@ Or, when executing code in a simulator (bit 2 of ``flags`` set)::
   interrupts (0, the default)
 * ``cmio`` specifies whether memory and I/O contention (and MEMPTR) are
   simulated (1), or not simulated (0, the default)
+* ``ay`` specifies whether to capture AY audio (1), or ignore it (0, the
+  default)
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
@@ -1027,6 +1029,8 @@ Audio file creation can be configured via the :ref:`ref-AudioWriter` section.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.0    | Added the ``ay`` parameter and support for capturing AY audio     |
++---------+-------------------------------------------------------------------+
 | 9.1     | Added the ``cmio`` and ``execint`` parameters; added support for  |
 |         | executing code in a 128K memory snapshot                          |
 +---------+-------------------------------------------------------------------+

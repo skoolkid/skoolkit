@@ -58,7 +58,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_audio_macro(writer, '#AUDIO4(f)()', "No parameters (expected 2): '()'", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO4(f)(1)', "Not enough parameters (expected 2): '1'", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO4(f)(1,{x})', "Unrecognised field 'x': 1,{x}", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO4(f)(1,2,3,4,5)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO4(f)(1,2,3,4,5,6)', "Too many parameters (expected 5): '1,2,3,4,5,6'", prefix)
 
         return writer, prefix
 
@@ -2442,17 +2442,16 @@ class CommonSkoolMacroTest:
             c40000 LD HL,65535
              40003 LD (HL),255
              40005 LD BC,$FF00
-             40008 LD A,C
-             40009 CP $FD
-             40011 JR Z,40017
-             40013 IN A,(C)
-             40015 AND (HL)
-             40016 LD (HL),A
-             40017 INC C
-             40018 JR NZ,40008
+             40008 BIT 1,C
+             40010 JR Z,40016
+             40012 IN A,(C)
+             40014 AND (HL)
+             40015 LD (HL),A
+             40016 INC C
+             40017 JR NZ,40008
         """
         writer = self._get_writer(skool=skool)
-        writer.expand('#SIM(start=40000,stop=40020)')
+        writer.expand('#SIM(start=40000,stop=40019)')
         self.assertEqual(writer.snapshot[65535], 255)
 
     def test_macro_sim_128k_with_pushs_and_pops(self):

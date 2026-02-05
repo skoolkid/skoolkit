@@ -10,6 +10,7 @@ from skoolkittest import SkoolKitTestCase, Stream
 from macrotest import CommonSkoolMacroTest, nest_macros
 from skoolkit import BASE_10, BASE_16, VERSION, SkoolKitError, SkoolParsingError, components, defaults, skoolhtml
 from skoolkit.audio import AudioWriter
+from skoolkit.ay import AYAudioWriter
 from skoolkit.graphics import Udg, Frame, flip_udgs, rotate_udgs
 from skoolkit.image import ImageWriter
 from skoolkit.skoolmacro import UnsupportedMacroError
@@ -282,6 +283,14 @@ class TestAudioWriter(AudioWriter):
         self.ma_filter = bool(ma_filter)
         self.is128k = is128k
 
+class TestAYAudioWriter(AYAudioWriter):
+    audio_log = None
+    write_options = None
+
+    def write_audio(self, audio_file, audio_log, options):
+        self.audio_log = audio_log
+        self.write_options = options
+
 class HtmlWriterTestCase(SkoolKitTestCase):
     def setUp(self):
         super().setUp()
@@ -294,7 +303,8 @@ class HtmlWriterTestCase(SkoolKitTestCase):
                     create_labels=False, asm_labels=False, variables=(),
                     mock_file_info=False, rebuild_audio=False,
                     mock_write_file=True, mock_image_writer=True,
-                    mock_audio_writer=True, warn=False):
+                    mock_audio_writer=True, warn=False,
+                    mock_ay_audio_writer=True):
         self.skoolfile = None
         ref_parser = RefParser()
         if ref is not None:
@@ -315,6 +325,8 @@ class HtmlWriterTestCase(SkoolKitTestCase):
             patch.object(skoolhtml, 'get_image_writer', TestImageWriter).start()
         if mock_audio_writer:
             patch.object(skoolhtml, 'get_audio_writer', TestAudioWriter).start()
+        if mock_ay_audio_writer:
+            patch.object(skoolhtml, 'AYAudioWriter', TestAYAudioWriter).start()
         self.addCleanup(patch.stopall)
         writer = HtmlWriter(skool_parser, ref_parser, file_info)
         if mock_write_file:
@@ -1457,7 +1469,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         if udgs:
             self._check_image(writer, udgs, scale, mask, tindex, alpha, x, y, width, height, path)
 
-    def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=False, interrupts=False, offset=0, ma_filter=False, is128k=False, config=None):
+    def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=False,
+                          interrupts=False, offset=0, ma_filter=False, is128k=False, config=None,
+                          audio_log=None):
         exp_html = f"""
             <audio controls="" src="{src}">
             <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
@@ -1482,6 +1496,15 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             self.assertEqual(offset, audio_writer.offset)
             self.assertEqual(ma_filter, audio_writer.ma_filter)
             self.assertEqual(is128k, audio_writer.is128k)
+        ay_audio_writer = writer.ay_audio_writer
+        if audio_log is None:
+            self.assertIsNone(ay_audio_writer.audio_log)
+            self.assertIsNone(ay_audio_writer.write_options)
+        else:
+            self.assertEqual(audio_log, ay_audio_writer.audio_log)
+            self.assertEqual(ay_audio_writer.write_options.volume, 75)
+            self.assertEqual(ay_audio_writer.write_options.ay_res, 70908)
+            self.assertFalse(ay_audio_writer.write_options.beeper)
         is128k = len(writer.snapshot) == 0x20000
         aw_config = {
             'ClockSpeed': 3546900 if is128k else 3500000,
@@ -1495,6 +1518,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         if config:
             aw_config.update(config)
         for k, v in audio_writer.options[is128k].items():
+            self.assertEqual(v, int(aw_config[k]))
+        for k, v in ay_audio_writer.options.items():
             self.assertEqual(v, int(aw_config[k]))
 
     def _test_udgarray_macro(self, snapshot, prefix, udg_specs, suffix, path, udgs=None, scale=2, mask=0, tindex=0,
@@ -1716,6 +1741,46 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_path = f'audio/{fname}'
         exp_delays = [203, 215, 215, 218, 215]
         self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, offset=offset, is128k=True)
+
+    def test_macro_audio_with_ay(self):
+        skool = """
+            @bank=4
+            ; AY activity
+            c$C000 LD C,$FD
+             $C002 LD DE,$000F
+            *$C005 LD B,$FF
+             $C007 OUT (C),E
+             $C009 LD B,$BF
+             $C00B OUT (C),D
+             $C00D INC D
+             $C00E DEC E
+             $C00F JP P,$C005
+             $C012 RET
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        fname = 'aysound.wav'
+        macro = f'#AUDIO4({fname})($C000,$C012,,,1)'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_audio_log = [
+            (43, 15, 0),
+            (99, 14, 1),
+            (155, 13, 2),
+            (211, 12, 3),
+            (267, 11, 4),
+            (323, 10, 5),
+            (379, 9, 6),
+            (435, 8, 7),
+            (491, 7, 8),
+            (547, 6, 9),
+            (603, 5, 10),
+            (659, 4, 11),
+            (715, 3, 12),
+            (771, 2, 13),
+            (827, 1, 14),
+            (883, 0, 15),
+        ]
+        self._test_audio_macro(writer, macro, exp_src, exp_path, is128k=True, audio_log=exp_audio_log)
 
     def test_macro_audio_with_contention(self):
         writer = self._get_writer(skool='', mock_file_info=True)

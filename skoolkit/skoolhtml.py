@@ -1,4 +1,4 @@
-# Copyright 2008-2024, 2026 Richard Dymond (rjdymond@gmail.com)
+# © 2008-2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -27,6 +27,7 @@ import re
 from io import StringIO
 
 from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, evaluate, format_template, parse_int, warn
+from skoolkit.ay import AYAudioWriter, Options
 from skoolkit.components import get_audio_writer, get_component, get_image_writer
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
@@ -105,7 +106,9 @@ class HtmlWriter:
         self.page_headers = self.get_dictionary('PageHeaders')
         links = self.get_dictionary('Links')
 
-        self.audio_writer = get_audio_writer(self.get_dictionary('AudioWriter'))
+        aw_config = self.get_dictionary('AudioWriter')
+        self.audio_writer = get_audio_writer(aw_config)
+        self.ay_audio_writer = AYAudioWriter(aw_config)
         self.audio_formats = ['.' + f for f in self.game_vars['AudioFormats'].split(',')]
 
         self.page_ids = []
@@ -1031,12 +1034,6 @@ class HtmlWriter:
             prev_path = path
         return path
 
-    def _write_audio(self, audio_path, delays, flags, offset):
-        contention, interrupts, ma_filter, is128k = flags & 1, flags & 2, flags & 8, len(self.snapshot) == 0x20000
-        with self.file_info.open_file(audio_path, mode='wb') as f:
-            self.audio_writer.write_audio(f, delays, contention, interrupts, offset, ma_filter, is128k)
-        self.file_info.add_audio(audio_path)
-
     def _need_audio(self, fname):
         if fname.startswith('/'):
             fname = fname.lstrip('/')
@@ -1053,9 +1050,16 @@ class HtmlWriter:
         return fname, False
 
     def expand_audio(self, text, index, cwd):
-        end, flags, offset, fname, delays = skoolmacro.parse_audio(self, text, index, self._need_audio)
-        if delays:
-            self._write_audio(fname, delays, flags, offset)
+        end, flags, offset, fname, delays, audio_log = skoolmacro.parse_audio(self, text, index, self._need_audio)
+        if delays or audio_log:
+            with self.file_info.open_file(fname, mode='wb') as f:
+                if delays:
+                    contention, interrupts, ma_filter, is128k = flags & 1, flags & 2, flags & 8, len(self.snapshot) == 0x20000
+                    self.audio_writer.write_audio(f, delays, contention, interrupts, offset, ma_filter, is128k)
+                else:
+                    options = Options()
+                    self.ay_audio_writer.write_audio(f, audio_log, options)
+            self.file_info.add_audio(fname)
         return end, self.format_template('audio', {'src': self.relpath(cwd, fname)})
 
     def expand_copy(self, text, index, cwd):
