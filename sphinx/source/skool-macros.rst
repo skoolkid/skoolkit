@@ -900,53 +900,50 @@ General macros
 ------
 In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
 
-  #AUDIO[flags,offset](fname)[(delays)]
+  #AUDIOsim[,start,stop,execint,cmio,offset,maf,ay](fname)[(delays)]
 
-Or, when executing code in a simulator (bit 2 of ``flags`` set)::
-
-  #AUDIO[flags,offset](fname)(start,stop[,execint,cmio,ay])
-
-* ``flags`` controls various options (see below)
-* ``offset`` is the initial offset in T-states from the start of a frame
-  (default: 0); this value affects when contention and interrupt delays (if
-  enabled) first take effect
-* ``fname`` is the name of the audio file
-* ``delays`` is a comma-separated list of delays (in T-states) between speaker
-  state changes; this parameter may contain skool macros (which are expanded
-  first) and :ref:`replacement fields <replacementFields>` (which are replaced
-  after any skool macros have been expanded)
-* ``start`` is the address at which to start executing code
-* ``stop`` is the address at which to stop executing code
-* ``execint`` specifies whether to execute interrupt routines (1), or ignore
-  interrupts (0, the default)
+* ``sim`` specifies whether to generate audio by executing instructions in a
+  simulator (1), or to specify ``delays`` manually (0)
+* ``start`` is the address at which to start executing code (when ``sim`` is 1)
+* ``stop`` is the address at which to stop executing code (when ``sim`` is 1)
+* ``execint`` specifies whether to ignore interrupts (0, the default), execute
+  interrupt routines (1), or (when ``sim`` is 1) enable interrupts before
+  execution begins and execute interrupt routines (2)
 * ``cmio`` specifies whether memory and I/O contention (and MEMPTR) are
   simulated (1), or not simulated (0, the default)
+* ``offset`` is the initial offset in T-states from the start of a frame
+* ``maf`` specifies whether to pass delays through a moving average filter (1),
+  or leave them alone (0, the default); this filter can produce higher-quality
+  audio, especially for multi-channel tunes
 * ``ay`` specifies whether to capture AY audio (1), or ignore it (0, the
   default)
+* ``fname`` is the name of the audio file
+* ``delays`` is a comma-separated list of delays (in T-states) between speaker
+  state changes (when ``sim`` is 0)
 
-``flags`` is the sum of the following values, chosen according to the desired
-outcome:
+The integer parameters (i.e. all except ``fname`` and ``delays``) of the
+``#AUDIO`` macro may contain :ref:`replacement fields <replacementFields>`.
 
-* 1 (bit 0) - modify delays to approximate the effect of running in contended
-  memory; this increases any delays that occur during the contended period of a
-  frame by a given factor (as specified by the ``ContentionBegin``,
-  ``ContentionEnd`` and ``ContentionFactor`` parameters in the
-  :ref:`ref-AudioWriter` section)
-* 2 (bit 1) - modify delays as if interrupts were enabled; this increases any
-  delays that occur over a frame boundary by a given number of T-states (as
-  specified by the ``InterruptDelay`` parameter in the :ref:`ref-AudioWriter`
-  section)
-* 4 (bit 2) - execute instructions from ``start`` to ``stop`` in a simulator to
-  obtain the delays between speaker state changes
-* 8 (bit 3) - pass delays through a moving average filter; while this can
-  produce higher quality audio (especially for multi-channel tunes), it is
-  slower than the default sampling algorithm
+When ``sim`` is 0 and ``execint`` is 1, the delays are modified as if
+interrupts were enabled. This increases any delays that occur over a frame
+boundary by a given number of T-states (as specified by the ``InterruptDelay``
+parameter in the :ref:`ref-AudioWriter` section).
 
-If ``execint`` is set to 1, make sure that bit 1 of ``flags`` is 0, otherwise
-interrupt delays may be applied twice: once during execution of the code, and
-again in post-processing. Similarly, if ``cmio`` is set to 1, make sure that
-bit 0 of ``flags`` is 0, otherwise memory and I/O contention delays may be
-applied twice.
+When ``sim`` is 0 and ``cmio`` is 1, the delays are modified to approximate the
+effect of running in contended memory. This increases any delays that occur
+during the contended period of a frame by a given factor (as specified by the
+``ContentionBegin``, ``ContentionEnd`` and ``ContentionFactor`` parameters in
+the :ref:`ref-AudioWriter` section).
+
+When ``sim`` is 0 and ``execint`` or ``cmio`` is 1, ``offset`` affects when
+contention and interrupt delays first take effect. In this case the default
+value is 0 (i.e. the start of a frame). When ``sim`` is 1, ``offset`` defaults
+to the current value of the simulator's clock (as it was left by any previous
+invocation of the ``#AUDIO`` or :ref:`SIM` macro).
+
+When ``sim`` is 1 and ``execint`` is 1 or 2, take care that the required
+interrupt routine is present in the memory snapshot. If that is the interrupt
+routine in the 48K ROM, the :ref:`rom` directive can be used to load it.
 
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly. Otherwise the filename is taken to be relative to
@@ -969,19 +966,20 @@ This would be flattened into a list of integers, as follows:
 
 The sum of this list of integers being 1131000, this would result in an audio
 file of duration 1131000 / 3500000 = 0.323s (assuming that no memory contention
-is simulated and interrupts are disabled, i.e. bits 0 and 1 of ``flags`` are
-reset).
+is simulated and interrupts are disabled).
 
 The characters allowed in the ``delays`` parameter are ' ' (space), newline,
-the digits 0-9, and any of ``,*+-%()[]``.
+the digits 0-9, and any of ``,*+-%()[]``. This parameter may also contain skool
+macros (which are expanded first) and
+:ref:`replacement fields <replacementFields>` (which are replaced after any
+skool macros have been expanded).
 
 An alternative to supplying the delay values manually is to execute the code
 that produces the sound effect in a simulator, and let the simulator compute
-the delays. This can be done by setting bit 2 of ``flags`` and specifying the
-code to execute via the ``start`` and ``stop`` address parameters. For
-example::
+the delays. This can be done by setting ``sim`` to 1 and specifying the code to
+execute via the ``start`` and ``stop`` address parameters. For example::
 
-  ; #AUDIO4(beep.wav)(32768,32782)
+  ; #AUDIO1,32768,32782(beep.wav)
   c32768 LD L,0
   *32771 OUT (254),A
    32773 XOR 16
@@ -999,17 +997,17 @@ Note that code executed by the ``#AUDIO`` macro operates directly on the
 internal memory snapshot, and therefore can modify it. To avoid that, use the
 :ref:`PUSHS` and :ref:`POPS` macros to operate on a copy of the snapshot.
 
-If ``delays`` or ``start`` and ``stop`` parameters are specified, but ``fname``
-does not end with '.wav', no audio file is written. This enables the parameters
-to be kept in place as a reminder of how an original WAV file was created by
-the ``#AUDIO`` macro before it was converted to another format.
+If ``sim`` is 1 or ``delays`` is specified, but ``fname`` does not end with
+'.wav', no audio file is written. This enables the parameters to be kept in
+place as a reminder of how an original WAV file was created by the ``#AUDIO``
+macro before it was converted to another format.
 
-If neither ``delays`` nor ``start`` and ``stop`` parameters are specified, or
-``fname`` does not end with '.wav', the named audio file must already exist in
-the specified location, otherwise the ``<audio>`` element controls will not
-work. To make sure that a pre-built audio file is copied into the desired
-location when :ref:`skool2html.py` is run, it can be declared in the
-:ref:`resources` section.
+If ``sim`` is 0 and ``delays`` is not specified, or ``fname`` does not end with
+'.wav', the named audio file must already exist in the specified location,
+otherwise the ``<audio>`` element controls will not work. To make sure that a
+pre-built audio file is copied into the desired location when
+:ref:`skool2html.py` is run, it can be declared in the :ref:`resources`
+section.
 
 By default, if ``fname`` ends with '.wav', but a '.flac', '.mp3' or '.ogg' file
 with the same basename already exists, that file is used and no WAV file is
@@ -1018,9 +1016,6 @@ written. This enables an original WAV file to be replaced by an alternative
 ``#AUDIO`` macro. The alternative audio file types that the ``#AUDIO`` macro
 looks for before writing a WAV file are specified by the ``AudioFormats``
 parameter in the :ref:`ref-game` section.
-
-The integer parameters (i.e. all except ``fname`` and ``delays``) of the
-``#AUDIO`` macro may contain :ref:`replacement fields <replacementFields>`.
 
 The :ref:`t_audio` template is used to format the ``<audio>`` element.
 

@@ -46,19 +46,17 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('AUDIO')
 
-        self._test_invalid_audio_macro(writer, '#AUDIO', "Missing filename: #AUDIO", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO', "No parameters (expected 1)", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO1', "Missing filename: #AUDIO1", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO(', "No closing bracket: (", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO1(', "No closing bracket: (", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(1,2,3)(f)', "Too many parameters (expected 2): '1,2,3'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(1,2,3,4,5,6,7,8,9)(f)', "Too many parameters (expected 8): '1,2,3,4,5,6,7,8,9'", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO({x})(f)', "Unrecognised field 'x': {x}", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO({x)(f)', "Invalid format string: {x", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f)(', "No closing bracket: (", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO4(f)', "No parameters (expected 2)", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO4(f)(', "No closing bracket: (", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO4(f)()', "No parameters (expected 2): '()'", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO4(f)(1)', "Not enough parameters (expected 2): '1'", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO4(f)(1,{x})', "Unrecognised field 'x': 1,{x}", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO4(f)(1,2,3,4,5,6)', "Too many parameters (expected 5): '1,2,3,4,5,6'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO1(f)', "Missing start parameter: 1(f)", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO1,2(f)', "Missing stop parameter: 1,2(f)", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO0(f)(', "No closing bracket: (", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(1,{x})(f)', "Unrecognised field 'x': 1,{x}", prefix)
 
         return writer, prefix
 

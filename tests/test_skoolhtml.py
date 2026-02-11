@@ -1573,14 +1573,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_audio(self):
         writer = self._get_writer(skool='')
         fname = 'sound.wav'
-        macro = f'#AUDIO({fname})'
+        macro = f'#AUDIO0({fname})'
         exp_src = f'../audio/{fname}'
         self._test_audio_macro(writer, macro, exp_src)
 
     def test_macro_audio_with_absolute_path(self):
         writer = self._get_writer(skool='')
         fname = '/audio/sound.wav'
-        macro = f'#AUDIO({fname})'
+        macro = f'#AUDIO0({fname})'
         exp_src = '..' + fname
         self._test_audio_macro(writer, macro, exp_src)
 
@@ -1589,7 +1589,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ref = f'[Paths]\nAudioPath={audio_path}'
         writer = self._get_writer(skool='', ref=ref)
         fname = 'sound.wav'
-        macro = f'#AUDIO({fname})'
+        macro = f'#AUDIO0({fname})'
         exp_src = f'../{audio_path}/{fname}'
         self._test_audio_macro(writer, macro, exp_src)
 
@@ -1597,7 +1597,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool='', mock_file_info=True)
         fname = 'sound.wav'
         delays = '[500, 100+1, 200-2,\n50+17*(300%256), (300,400)*2]*3'
-        macro = f'#AUDIO({fname})({delays})'
+        macro = f'#AUDIO0({fname})({delays})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [500, 101, 198, 798, 300, 400, 300, 400] * 3
@@ -1617,7 +1617,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         """
         writer = self._get_writer(skool=skool, mock_file_info=True)
         fname = 'sound.wav'
-        macro = f'#AUDIO4({fname})(32768,32781)'
+        macro = f'#AUDIO1,32768,32781({fname})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [2636] * 63
@@ -1639,7 +1639,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         """
         writer = self._get_writer(skool=skool, mock_file_info=True)
         fname = 'sound.wav'
-        macro = f'#AUDIO4({fname})(32768,32787)'
+        macro = f'#AUDIO1,32768,32787({fname})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [296] * 15
@@ -1664,7 +1664,29 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer.expand('#SIM(start=40000,stop=40003)')
         offset = 69700
         fname = 'sound.wav'
-        macro = f'#AUDIO4,{offset}({fname})(40003,40014,1)'
+        macro = f'#AUDIO1,40003,40014,1,,{offset}({fname})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [166, 1121, 166]
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, offset=offset)
+
+    def test_macro_audio_with_code_simulation_enabling_and_executing_interrupts(self):
+        skool = """
+            ; Beep with interrupts enabled
+            @rom
+            c40000 LD L,4      ; [7]
+            *40002 OUT (254),A ; [11]
+             40004 XOR 16      ; [7]
+             40006 LD B,10     ; [7]
+             40008 DJNZ 40008  ; [13/8]
+             40010 DEC L       ; [4]
+             40011 JR NZ,40002 ; [12/7]
+             40013 RET
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        offset = 69700
+        fname = 'sound.wav'
+        macro = f'#AUDIO1,40000,40013,2,,{offset}({fname})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [166, 1121, 166]
@@ -1685,7 +1707,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool=skool, mock_file_info=True)
         offset = 14335
         fname = 'sound.wav'
-        macro = f'#AUDIO4,{offset}({fname})(24576,24589,,1)'
+        macro = f'#AUDIO1,24576,24589,,1,{offset}({fname})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [203, 214, 217, 215, 220]
@@ -1714,7 +1736,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         """
         writer = self._get_writer(skool=skool, mock_file_info=True)
         fname = 'sound.wav'
-        macro = f'#AUDIO4({fname})(40000,49165)'
+        macro = f'#AUDIO1,40000,49165({fname})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [1336] * 31
@@ -1736,7 +1758,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool=skool, mock_file_info=True)
         offset = 14361
         fname = 'sound.wav'
-        macro = f'#AUDIO4,{offset}({fname})(60000,60013,,1)'
+        macro = f'#AUDIO1,60000,60013,,1,{offset}({fname})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [203, 215, 215, 218, 215]
@@ -1759,7 +1781,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         """
         writer = self._get_writer(skool=skool, mock_file_info=True)
         fname = 'aysound.wav'
-        macro = f'#AUDIO4({fname})($C000,$C012,,,1)'
+        macro = f'#AUDIO1,$C000,$C012,,,,,1({fname})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_audio_log = [
@@ -1786,7 +1808,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool='', mock_file_info=True)
         fname = 'sound.wav'
         delays = '[500]*8'
-        macro = f'#AUDIO1({fname})({delays})'
+        macro = f'#AUDIO0,,,,1({fname})({delays})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [500] * 8
@@ -1796,7 +1818,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool='', mock_file_info=True)
         fname = 'sound.wav'
         delays = '[500]*6'
-        macro = f'#AUDIO2({fname})({delays})'
+        macro = f'#AUDIO0,,,1({fname})({delays})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [500] * 6
@@ -1806,7 +1828,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool='', mock_file_info=True)
         fname = 'sound.wav'
         delays = '[500]*4'
-        macro = f'#AUDIO3({fname})({delays})'
+        macro = f'#AUDIO0,,,1,1({fname})({delays})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [500] * 4
@@ -1817,7 +1839,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         offset = 10000
         fname = 'sound.wav'
         delays = '[500]*4'
-        macro = f'#AUDIO1,{offset}({fname})({delays})'
+        macro = f'#AUDIO0,,,,1,{offset}({fname})({delays})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [500] * 4
@@ -1827,7 +1849,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool='', mock_file_info=True)
         fname = 'sound.wav'
         delays = '[500]*4'
-        macro = f'#AUDIO8({fname})({delays})'
+        macro = f'#AUDIO0,,,,,,1({fname})({delays})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [500] * 4
@@ -1836,17 +1858,17 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_audio_with_replacement_fields(self):
         writer = self._get_writer(skool='', mock_file_info=True)
         fname = 'sound.wav'
-        macros = f'#LET(flags=3)#LET(delay=500)#AUDIO({{flags}})({fname})([{{delay}}]*3)'
+        macros = f'#LET(execint=1)#LET(delay=500)#AUDIO(0,,,{{execint}})({fname})([{{delay}}]*3)'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [500] * 3
-        self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays, True, True)
+        self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays, interrupts=True)
 
     def test_macro_audio_with_skool_macros_in_delays_parameter(self):
         writer = self._get_writer(skool='', mock_file_info=True)
         fname = 'sound.wav'
         delays = '#FOR(100,500,100)||d|#EVAL(d+1)|,||'
-        macro = f'#AUDIO({fname})({delays})'
+        macro = f'#AUDIO0({fname})({delays})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [101, 201, 301, 401, 501]
@@ -1856,7 +1878,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool='', mock_file_info=True)
         fname = 'sound.wav'
         delays = '#LET(d=500){d},#FOR(100,{d},100)||n|n|,||'
-        macros = f'#AUDIO({fname})({delays})'
+        macros = f'#AUDIO0({fname})({delays})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [500, 100, 200, 300, 400, 500]
@@ -1875,7 +1897,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ref = '\n'.join(['[AudioWriter]'] + [f'{k}={v}' for k, v in config.items()])
         writer = self._get_writer(skool='', ref=ref, mock_file_info=True)
         fname = 'sound.wav'
-        macro = f'#AUDIO({fname})([500]*2)'
+        macro = f'#AUDIO0({fname})([500]*2)'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [500] * 2
@@ -1887,7 +1909,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         contents = b'abc'
         fpath = join(self.odir, GAMEDIR, 'audio', fname)
         self.write_bin_file(contents, fpath)
-        writer.expand(f'#AUDIO({fname})([100]*2)', ASMDIR)
+        writer.expand(f'#AUDIO0({fname})([100]*2)', ASMDIR)
         self.assertTrue(isfile(fpath), f'{fpath} does not exist')
         with open(fpath, 'rb') as f:
             actual_contents = f.read()
@@ -1898,7 +1920,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fname = 'existing.wav'
         fpath = join(self.odir, GAMEDIR, 'audio', fname)
         self.write_bin_file(b'ABCD', fpath)
-        writer.expand(f'#AUDIO({fname})(1)', ASMDIR)
+        writer.expand(f'#AUDIO0({fname})(1)', ASMDIR)
         self.assertTrue(isfile(fpath), f'{fpath} does not exist')
         with open(fpath, 'rb') as f:
             contents = f.read()
@@ -1908,11 +1930,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(mock_audio_writer=False, rebuild_audio=True)
         fname = 'sound.wav'
         fpath = join(self.odir, GAMEDIR, 'audio', fname)
-        writer.expand(f'#AUDIO({fname})(100)', ASMDIR)
+        writer.expand(f'#AUDIO0({fname})(100)', ASMDIR)
         self.assertTrue(isfile(fpath), f'{fpath} does not exist')
         with open(fpath, 'rb') as f:
             md5sum = hashlib.md5(f.read()).hexdigest()
-        writer.expand(f'#AUDIO({fname})(200)', ASMDIR)
+        writer.expand(f'#AUDIO0({fname})(200)', ASMDIR)
         with open(fpath, 'rb') as f:
             self.assertEqual(md5sum, hashlib.md5(f.read()).hexdigest())
 
@@ -1920,7 +1942,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(mock_audio_writer=False)
         fname = 'sound.ogg'
         fpath = join(self.odir, GAMEDIR, 'audio', fname)
-        writer.expand(f'#AUDIO({fname})([100]*2)', ASMDIR)
+        writer.expand(f'#AUDIO0({fname})([100]*2)', ASMDIR)
         self.assertFalse(isfile(fpath), f'{fpath} was written')
 
     def test_macro_audio_does_not_overwrite_existing_non_wav_file(self):
@@ -1929,7 +1951,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         contents = b'abc'
         fpath = join(self.odir, GAMEDIR, 'audio', fname)
         self.write_bin_file(contents, fpath)
-        writer.expand(f'#AUDIO({fname})([100]*2)', ASMDIR)
+        writer.expand(f'#AUDIO0({fname})([100]*2)', ASMDIR)
         self.assertTrue(isfile(fpath), f'{fpath} does not exist')
         with open(fpath, 'rb') as f:
             actual_contents = f.read()
@@ -1940,7 +1962,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         flacname = 'sound.flac'
         fpath = join(self.odir, GAMEDIR, 'audio', flacname)
         self.write_bin_file(path=fpath)
-        macros = '#AUDIO(sound.wav)([100]*2)'
+        macros = '#AUDIO0(sound.wav)([100]*2)'
         exp_src = f'../audio/{flacname}'
         exp_path = None
         exp_delays = None
@@ -1951,7 +1973,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         mp3name = 'sound.mp3'
         fpath = join(self.odir, GAMEDIR, 'audio', mp3name)
         self.write_bin_file(path=fpath)
-        macros = '#AUDIO(sound.wav)([100]*2)'
+        macros = '#AUDIO0(sound.wav)([100]*2)'
         exp_src = f'../audio/{mp3name}'
         exp_path = None
         exp_delays = None
@@ -1962,7 +1984,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         oggname = 'sound.ogg'
         fpath = join(self.odir, GAMEDIR, 'audio', oggname)
         self.write_bin_file(path=fpath)
-        macros = '#AUDIO(sound.wav)([100]*2)'
+        macros = '#AUDIO0(sound.wav)([100]*2)'
         exp_src = f'../audio/{oggname}'
         exp_path = None
         exp_delays = None
@@ -1974,7 +1996,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         aacname = 'sound.aac'
         fpath = join(self.odir, GAMEDIR, 'audio', aacname)
         self.write_bin_file(path=fpath)
-        macros = '#AUDIO(sound.wav)([100]*2)'
+        macros = '#AUDIO0(sound.wav)([100]*2)'
         exp_src = f'../audio/{aacname}'
         exp_path = None
         exp_delays = None
@@ -1986,7 +2008,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fpath = join(self.odir, GAMEDIR, 'audio', 'sound.mp3')
         self.write_bin_file(path=fpath)
         fname = 'sound.wav'
-        macros = f'#AUDIO({fname})([100]*2)'
+        macros = f'#AUDIO0({fname})([100]*2)'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [100, 100]
@@ -1994,13 +2016,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_audio_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_audio_invalid(self)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)({d})', "Unrecognised field 'd': {d}", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)({d)', "Invalid format string: {d", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)(10&6/2)', "Invalid character(s) [&/] in delays specification: '10&6/2'", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)([1]**2)', "Cannot evaluate delays: '[1]**2'", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)([1)', "Cannot evaluate delays: '[1'", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)(1])', "Cannot evaluate delays: '1]'", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)([,])', "Cannot evaluate delays: '[,]'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)({d})', "Unrecognised field 'd': {d}", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)({d)', "Invalid format string: {d", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)(10&6/2)', "Invalid character(s) [&/] in delays specification: '10&6/2'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)([1]**2)', "Cannot evaluate delays: '[1]**2'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)([1)', "Cannot evaluate delays: '[1'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)(1])', "Cannot evaluate delays: '1]'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)([,])', "Cannot evaluate delays: '[,]'", prefix)
 
     def test_macro_chr(self):
         writer = self._get_writer(skool='', variables=[('foo', 66)])
@@ -11483,7 +11505,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         wavfile = 'sound.wav'
         ref = f"""
             [Page:{page_id}]
-            PageContent=#AUDIO({wavfile})(1,2)
+            PageContent=#AUDIO0({wavfile})(1,2)
         """
         writer = self._get_writer(ref=ref, mock_audio_writer=False, mock_file_info=True)
         writer.write_page(page_id)

@@ -8,6 +8,20 @@ commands no longer work with your source files, or produce broken output, look
 through the following sections for tips on how to migrate your disassembly to
 SkoolKit 10.
 
+#AUDIO
+------
+In SkoolKit 9, the :ref:`AUDIO` macro could written in one of two ways,
+depending on whether code execution in a simulator is enabled (bit 2 of
+``flags`` set)::
+
+  #AUDIO[flags,offset](fname)[(delays)]
+  #AUDIO[flags,offset](fname)(start,stop[,execint,cmio])
+
+This is not supported in SkoolKit 10. Instead, use the following unified
+syntax::
+
+  #AUDIOsim[,start,stop,execint,cmio,offset,maf,...](fname)[(delays)]
+
 #CALL
 -----
 In SkoolKit 9, the :ref:`CALL` macro could be written thus::

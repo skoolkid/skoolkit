@@ -17,13 +17,71 @@ RE_LINK_PARAMS = re.compile(r'[^(\s]+')
 
 RE_FRAME_ID = re.compile(r'[^\s,;(]+')
 
+PARAMS = '{0}?(,({0})?){{,{1}}}'
+
+AE_CHARS = frozenset(' !=+-*/<>&|^%$ABCDEFabcdef0123456789()')
+
+class InvalidParameterError(Exception):
+    pass
+
+def get_int_param(num_str):
+    try:
+        return int(num_str)
+    except ValueError:
+        pass
+    if num_str.startswith('$'):
+        return int(num_str[1:], 16)
+    raise ValueError
+
+def evaluate(param, safe=False):
+    try:
+        return get_int_param(param)
+    except ValueError:
+        pass
+    if safe or set(param) <= AE_CHARS:
+        try:
+            return int(eval(param.replace('$', '0x').replace('/', '//').replace('&&', ' and ').replace('||', ' or ')))
+        except:
+            pass
+    raise ValueError
+
+def get_params(param_string, num, defaults, safe=True):
+    params = []
+    index = 0
+    if param_string:
+        for value in param_string.split(','):
+            if value:
+                try:
+                    param = evaluate(value, safe)
+                except ValueError:
+                    raise InvalidParameterError(f"Cannot parse integer '{value}' in parameter string: '{param_string}'")
+                params.append(param)
+            else:
+                params.append(None)
+            index += 1
+            if index == num:
+                break
+    params += [None] * (num - len(params))
+    for i in range(num):
+        if params[i] is None:
+            params[i] = defaults[i]
+    return params
+
+def parse_ints_ex(text, index, num, defaults):
+    if index < len(text) and text[index] == '(':
+        end, params = parse_brackets(text, index)
+        return [end] + get_params(params, num, defaults, False)
+    pattern = PARAMS.format(INTEGER, num - 1)
+    params = re.match(pattern, text[index:]).group()
+    return [index + len(params)] + get_params(params, num, defaults)
+
 def parse_ints(text, index, max_params):
     if index < len(text) and text[index] == '(':
         end, params = parse_brackets(text, index)
         if end is None:
             return None, None
         return end, f'({params})'
-    pattern = '{0}?(,({0})?){{,{1}}}'.format(f'([a-z]+=)?{INTEGER}', max_params - 1)
+    pattern = PARAMS.format(f'([a-z]+=)?{INTEGER}', max_params - 1)
     params = re.match(pattern, text[index:]).group()
     return index + len(params), params
 
@@ -55,6 +113,57 @@ def parse_string(text, index):
         param_string = text[start:end]
         end += len(delim2)
     return end, param_string
+
+def _convert_audio(line):
+    index = line.find('#AUDIO')
+    while index >= 0:
+        index2 = index + 6
+        try:
+            end, flags, offset = parse_ints_ex(line, index2, 2, (0, None))
+        except InvalidParameterError:
+            end, flags, offset = index2, 0, None
+        end, fname = parse_brackets(line, end)
+        if fname:
+            sim = (flags & 4) // 4
+            execint = flags & 2
+            cmio = flags & 1 or ''
+            if offset is None:
+                offset = ''
+            maf = flags & 8
+            delays = ''
+            if sim:
+                end, sparams = parse_brackets(line, end)
+                sparams += ',' * (3 - sparams.count(','))
+                start, stop, execint2, cmio2 = sparams.split(',')
+                params = f',{start},{stop}'
+                try:
+                    execint2 = evaluate(execint2)
+                except ValueError:
+                    execint2 = 0
+                if execint == 0:
+                    execint = execint2 or ''
+                try:
+                    cmio = evaluate(cmio2) or cmio
+                except ValueError:
+                    pass
+            else:
+                execint = (execint // 2) or ''
+                params = ''
+                start = stop = ''
+                if len(line) > end and line[end] == '(':
+                    end, delays = parse_brackets(line, end)
+                    delays = f'({delays})'
+            if maf:
+                params = f',{start},{stop},{execint},{cmio},{offset},1'
+            elif offset:
+                params = f',{start},{stop},{execint},{cmio},{offset}'
+            elif cmio:
+                params = f',{start},{stop},{execint},1'
+            elif execint:
+                params = f',{start},{stop},{execint}'
+            line = line.replace(line[index:end], f'#AUDIO{sim}{params}({fname}){delays}')
+        index = line.find('#AUDIO', index2)
+    return line
 
 def _convert_call(line):
     index = line.find('#CALL:')
@@ -216,6 +325,7 @@ def convert(f):
     count = 0
     for line in f:
         o_line = line
+        line = _convert_audio(line)
         line = _convert_call(line)
         line = _convert_font(line)
         line = _convert_link(line)

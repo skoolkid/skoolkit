@@ -598,7 +598,7 @@ def expand_macros(writer, text, *cwd):
 
     return text
 
-def _read_sim_state(writer, execint, reg=None, clear=0):
+def _read_sim_state(writer, reg=None, clear=0):
     registers = {'iff': 0, 'im': 1, 'halted': 0, 'tstates': 0, 'fffd': 0, 'ay': [0] * 16}
     if clear < 1:
         registers.update(writer.fields.get('sim', {}))
@@ -668,26 +668,27 @@ def _eval_delays(spec):
     raise InvalidParameterError(f"Invalid character(s) [{invalid_chars}] in delays specification: '{spec}'")
 
 def parse_audio(writer, text, index, need_audio=None):
-    # #AUDIO[flags,offset](fname)[(delays)]
-    # #AUDIO[flags,offset](fname)(start,stop[,execint,cmio,ay])
-    try:
-        end, flags, offset = parse_ints(text, index, 2, defaults=(0, None), fields=writer.fields)
-    except InvalidParameterError:
-        end, flags, offset = index, 0, None
+    # #AUDIOsim[start,stop,execint,cmio,offset,maf,ay](fname)[(delays)]
+    end, sim, start, stop, execint, cmio, offset, maf, ay = parse_ints(text, index, 8, defaults=(None, None, 0, 0, None, 0, 0), fields=writer.fields)
     end, fname = parse_brackets(text, end)
     if not fname:
         raise MacroParsingError('Missing filename: #AUDIO{}'.format(text[index:end]))
     delays, eval_delays, audio_log = None, False, None
     if need_audio:
         fname, eval_delays = need_audio(fname)
-    if flags & 4:
-        end, start, stop, execint, cmio, ay = parse_ints(text, end, 5, defaults=(0, 0, 0), fields=writer.fields)
+    if sim:
+        if start is None:
+            raise MacroParsingError(f'Missing start parameter: {text[index:end]}')
+        if stop is None:
+            raise MacroParsingError(f'Missing stop parameter: {text[index:end]}')
         if eval_delays:
             if cmio:
                 simulator_cls = CCMIOSimulator or CMIOSimulator
             else:
                 simulator_cls  = CSimulator or Simulator
-            registers, state, config = _read_sim_state(writer, execint)
+            registers, state, config = _read_sim_state(writer)
+            if execint > 1:
+                state['iff'] = 1
             if offset is not None:
                 state['tstates'] = offset
             simulator = simulator_cls(writer.snapshot, registers, state, config)
@@ -704,14 +705,14 @@ def parse_audio(writer, text, index, need_audio=None):
             if ay:
                 audio_log = tracer.audio_log
             else:
+                execint = cmio = 0
                 delays = tracer.get_delays()
-    else:
-        if len(text) > end and text[end] == '(':
-            end, spec = parse_brackets(text, end)
-            if eval_delays:
-                expanded = writer.expand(spec)
-                delays = _eval_delays(_format_params(expanded, expanded, **writer.fields))
-    return end, flags, offset or 0, fname, delays, audio_log
+    elif len(text) > end and text[end] == '(':
+        end, spec = parse_brackets(text, end)
+        if eval_delays:
+            expanded = writer.expand(spec)
+            delays = _eval_delays(_format_params(expanded, expanded, **writer.fields))
+    return end, execint, cmio, offset or 0, maf, fname, delays, audio_log
 
 def parse_bank(writer, text, index, *cwd):
     # BANKpage
@@ -1388,7 +1389,7 @@ def parse_sim(writer, text, index, *cwd):
         simulator_cls = CCMIOSimulator or CMIOSimulator
     else:
         simulator_cls = CSimulator or Simulator
-    registers, state, config = _read_sim_state(writer, execint, reg, clear)
+    registers, state, config = _read_sim_state(writer, reg, clear)
     memory = writer.snapshot
     if len(memory) == 0x20000:
         tracer = PagingTracer(memory, memory.o7ffd, state['fffd'], state['ay'])
@@ -1460,7 +1461,7 @@ def parse_tstates(writer, text, index, *cwd):
             simulator_cls = CCMIOSimulator or CMIOSimulator
         else:
             simulator_cls = CSimulator or Simulator
-        registers, state, config = _read_sim_state(writer, execint)
+        registers, state, config = _read_sim_state(writer)
         memory = writer.snapshot.copy()
         if len(memory) == 0x20000:
             tracer = PagingTracer(memory, memory.o7ffd, state['fffd'], state['ay'])

@@ -1306,6 +1306,8 @@ Some reasons why you might want to do this are:
   otherwise) with the :ref:`SIM` macro
 * to create a WAV file of the ROM's 'BEEPER' subroutine in action with the
   :ref:`AUDIO` macro
+* to make the ROM interrupt routine available when using the :ref:`AUDIO`,
+  :ref:`SIM` or :ref:`TSTATES` macro with interrupt routine execution enabled
 * to gain access to the Spectrum character set at 0x3D00 for the purpose of
   creating images of text
 

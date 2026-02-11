@@ -145,7 +145,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_audio(self):
         writer = self._get_writer()
-        self._test_unsupported_macro(writer, '#AUDIO(sound.wav)')
+        self._test_unsupported_macro(writer, '#AUDIO0(sound.wav)')
 
     def test_macro_chr(self):
         writer = self._get_writer('', variables=[('foo', 66)])
