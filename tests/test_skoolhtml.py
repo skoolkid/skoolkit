@@ -1884,6 +1884,27 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_delays = [500, 100, 200, 300, 400, 500]
         self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays)
 
+    def test_macro_audio_with_keyword_arguments(self):
+        skool = """
+            ; Contended beep
+            c24576 LD L,6
+            *24578 OUT (254),A
+             24580 XOR 16
+             24582 LD B,8
+            *24584 DJNZ 24584
+             24586 DEC L
+             24587 JR NZ,24578
+             24589 RET
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        offset = 14335
+        fname = 'sound.wav'
+        macro = f'#AUDIO(execint=0,cmio=1,ay=0,offset={offset},maf=0,sim=1,start=24576,stop=24589)({fname})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [203, 214, 217, 215, 220]
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, offset=offset)
+
     def test_macro_audio_with_custom_config(self):
         config = {
             'ClockSpeed': 7000000,

@@ -57,6 +57,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_audio_macro(writer, '#AUDIO1,2(f)', "Missing stop parameter: 1,2(f)", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO0(f)(', "No closing bracket: (", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO(1,{x})(f)', "Unrecognised field 'x': 1,{x}", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(1,2,3,foo=4)(f)', "Unknown keyword argument: 'foo=4'", prefix)
 
         return writer, prefix
 

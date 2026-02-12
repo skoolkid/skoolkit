@@ -922,7 +922,8 @@ In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
   state changes (when ``sim`` is 0)
 
 The integer parameters (i.e. all except ``fname`` and ``delays``) of the
-``#AUDIO`` macro may contain :ref:`replacement fields <replacementFields>`.
+``#AUDIO`` macro may contain :ref:`replacement fields <replacementFields>` and
+may also be given as keyword arguments.
 
 When ``sim`` is 0 and ``execint`` is 1, the delays are modified as if
 interrupts were enabled. This increases any delays that occur over a frame
@@ -1024,7 +1025,8 @@ Audio file creation can be configured via the :ref:`ref-AudioWriter` section.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.0    | Added the ``ay`` parameter and support for capturing AY audio     |
+| 10.0    | Added the ``ay`` parameter and support for capturing AY audio;    |
+|         | added support for keyword arguments                               |
 +---------+-------------------------------------------------------------------+
 | 9.1     | Added the ``cmio`` and ``execint`` parameters; added support for  |
 |         | executing code in a 128K memory snapshot                          |

@@ -669,7 +669,9 @@ def _eval_delays(spec):
 
 def parse_audio(writer, text, index, need_audio=None):
     # #AUDIOsim[start,stop,execint,cmio,offset,maf,ay](fname)[(delays)]
-    end, sim, start, stop, execint, cmio, offset, maf, ay = parse_ints(text, index, 8, defaults=(None, None, 0, 0, None, 0, 0), fields=writer.fields)
+    names = ('sim', 'start', 'stop', 'execint', 'cmio', 'offset', 'maf', 'ay')
+    defaults = (None, None, 0, 0, None, 0, 0)
+    end, sim, start, stop, execint, cmio, offset, maf, ay = parse_ints(text, index, len(names), defaults, names, writer.fields)
     end, fname = parse_brackets(text, end)
     if not fname:
         raise MacroParsingError('Missing filename: #AUDIO{}'.format(text[index:end]))
