@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2022-2024 Richard Dymond (rjdymond@gmail.com)
+# © 2013, 2014, 2022-2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -35,8 +35,8 @@ class AudioWriter:
     def __init__(self, config=None):
         self.options = ({
             CLOCK_SPEED: 3500000,
-            CONTENTION_BEGIN: 14334,
-            CONTENTION_END: 57248,
+            CONTENTION_BEGIN: 14335,
+            CONTENTION_END: 57245,
             CONTENTION_FACTOR: 51,
             FRAME_DURATION: 69888,
             INTERRUPT_DELAY: 942,
@@ -44,7 +44,7 @@ class AudioWriter:
         }, {
             CLOCK_SPEED: 3546900,
             CONTENTION_BEGIN: 14361,
-            CONTENTION_END: 58041,
+            CONTENTION_END: 58035,
             CONTENTION_FACTOR: 51,
             FRAME_DURATION: 70908,
             INTERRUPT_DELAY: 1584,

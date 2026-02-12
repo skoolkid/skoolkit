@@ -26,6 +26,8 @@ Changelog
 * Added support to the :ref:`AUDIO` macro for keyword arguments
 * Added support to :ref:`rzxplay.py` for ignoring any snapshots after the first
   one (which is useful for playing some RZX files created by the Fuse emulator)
+* Updated the default values of ``ContentionBegin`` and ``ContentionEnd`` in
+  the :ref:`ref-AudioWriter` section
 * Fixed the bug in CSimulator that restricts the ``timeout`` simulated load
   configuration parameter to a maximum value of 1227 seconds
 

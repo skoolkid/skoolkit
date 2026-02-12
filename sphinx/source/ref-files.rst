@@ -41,9 +41,9 @@ Recognised parameters and their default values are:
 * ``ClockSpeed`` - Z80 clock speed in cycles per second: 3500000 (48K) or
   3546900 (128K)
 * ``ContentionBegin`` - when memory contention begins, in T-states from the
-  start of a frame: 14334 (48K) or 14361 (128K)
+  start of a frame: 14335 (48K) or 14361 (128K)
 * ``ContentionEnd`` - when memory contention ends, in T-states from the start
-  of a frame: 57248 (48K) or 58041 (128K)
+  of a frame: 57245 (48K) or 58035 (128K)
 * ``ContentionFactor`` - percentage slowdown when memory contention is in
   effect: 51
 * ``FrameDuration`` - length of a frame in T-states: 69888 (48K) or 70908
@@ -52,13 +52,16 @@ Recognised parameters and their default values are:
   (48K) or 1584 (128K)
 * ``SampleRate`` - sample rate in Hz: 44100
 
-+---------+-----------------------------------------+
-| Version | Changes                                 |
-+=========+=========================================+
-| 9.1     | Added default values for the 128K model |
-+---------+-----------------------------------------+
-| 8.7     | New                                     |
-+---------+-----------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 10.0    | Updated default values of ``ContentionBegin`` (48K) and           |
+|         | ``ContentionEnd`` (48K and 128K)                                  |
++---------+-------------------------------------------------------------------+
+| 9.1     | Added default values for the 128K model                           |
++---------+-------------------------------------------------------------------+
+| 8.7     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _ref-Colours:
 

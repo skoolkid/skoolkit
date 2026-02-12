@@ -1508,8 +1508,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         is128k = len(writer.snapshot) == 0x20000
         aw_config = {
             'ClockSpeed': 3546900 if is128k else 3500000,
-            'ContentionBegin': 14361 if is128k else 14334,
-            'ContentionEnd': 58041 if is128k else 57248,
+            'ContentionBegin': 14361 if is128k else 14335,
+            'ContentionEnd': 58035 if is128k else 57245,
             'ContentionFactor': 51,
             'FrameDuration': 70908 if is128k else 69888,
             'InterruptDelay': 1584 if is128k else 942,

@@ -1,4 +1,4 @@
-# Copyright 2014-2022, 2024 Richard Dymond (rjdymond@gmail.com)
+# © 2014-2022, 2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -21,8 +21,8 @@ SECTIONS = OrderedDict()
 
 SECTIONS['AudioWriter'] = """
 ; ClockSpeed=3500000
-; ContentionBegin=14334
-; ContentionEnd=57248
+; ContentionBegin=14335
+; ContentionEnd=57245
 ; ContentionFactor=51
 ; FrameDuration=69888
 ; InterruptDelay=942
