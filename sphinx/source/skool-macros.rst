@@ -898,7 +898,8 @@ General macros
 
 #AUDIO
 ------
-In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
+In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. It
+is not supported in ASM mode. ::
 
   #AUDIOsim[,start,stop,execint,cmio,offset,maf,ay,bpr](fname)[(delays)]
 
@@ -1988,10 +1989,10 @@ The ``#VERSION`` macro expands to the version of SkoolKit. ::
 
 Image macros
 ^^^^^^^^^^^^
-The :ref:`COPY`, :ref:`FONT`, :ref:`OVER`, :ref:`PLOT`, :ref:`SCR`, :ref:`UDG`,
-:ref:`UDGARRAY` and :ref:`UDGS` macros (described in the following sections)
-may be used to create images based on graphic data in the memory snapshot. They
-are not supported in ASM mode.
+The :ref:`COPY`, :ref:`FRAMES`, :ref:`FONT`, :ref:`OVER`, :ref:`PLOT`,
+:ref:`SCR`, :ref:`UDG`, :ref:`UDGARRAY` and :ref:`UDGS` macros (described in
+the following sections) may be used to create images based on graphic data in
+the memory snapshot. They are not supported in ASM mode.
 
 Some of these macros have several numeric parameters, most of which are
 optional. This can give rise to a long sequence of commas in a macro parameter

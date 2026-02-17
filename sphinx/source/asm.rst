@@ -1373,7 +1373,8 @@ Recognised property names and their default values are:
   (default: ``10``)
 * ``crlf`` - ``1`` to use CR+LF to terminate lines, or ``0`` to use the system
   default (default: ``0``)
-* ``handle-unsupported-macros`` - how to handle an unsupported macro: ``1`` to
+* ``handle-unsupported-macros`` - how to handle an unsupported macro (i.e.
+  :ref:`AUDIO` or any of the :ref:`image macros <imageMacros>`): ``1`` to
   expand it to an empty string, or ``0`` to exit with an error (default: ``0``)
 * ``indent`` - the number of spaces by which to indent instructions (default:
   ``2``)
