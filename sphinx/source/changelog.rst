@@ -10,6 +10,8 @@ Changelog
   audio is captured)
 * Added the ``--beeper`` option to :ref:`trace.py` (for capturing beeper audio
   as well when ``--ay`` is specified)
+* Added the ``bpr`` parameter to the :ref:`AUDIO` macro (to set whether beeper
+  audio is captured along with AY audio)
 * Added support for the MEMPTR register to CMIOSimulator and CCMIOSimulator
 * Added the ``memptr`` parameter to the :ref:`SIM` macro (to set the MEMPTR
   register)

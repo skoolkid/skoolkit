@@ -668,10 +668,10 @@ def _eval_delays(spec):
     raise InvalidParameterError(f"Invalid character(s) [{invalid_chars}] in delays specification: '{spec}'")
 
 def parse_audio(writer, text, index, need_audio=None):
-    # #AUDIOsim[start,stop,execint,cmio,offset,maf,ay](fname)[(delays)]
-    names = ('sim', 'start', 'stop', 'execint', 'cmio', 'offset', 'maf', 'ay')
-    defaults = (None, None, 0, 0, None, 0, 0)
-    end, sim, start, stop, execint, cmio, offset, maf, ay = parse_ints(text, index, len(names), defaults, names, writer.fields)
+    # #AUDIOsim[start,stop,execint,cmio,offset,maf,ay,bpr](fname)[(delays)]
+    names = ('sim', 'start', 'stop', 'execint', 'cmio', 'offset', 'maf', 'ay', 'bpr')
+    defaults = (None, None, 0, 0, None, 0, 0, 0)
+    end, sim, start, stop, execint, cmio, offset, maf, ay, bpr = parse_ints(text, index, len(names), defaults, names, writer.fields)
     end, fname = parse_brackets(text, end)
     if not fname:
         raise MacroParsingError('Missing filename: #AUDIO{}'.format(text[index:end]))
@@ -714,7 +714,7 @@ def parse_audio(writer, text, index, need_audio=None):
         if eval_delays:
             expanded = writer.expand(spec)
             delays = _eval_delays(_format_params(expanded, expanded, **writer.fields))
-    return end, execint, cmio, offset or 0, maf, fname, delays, audio_log
+    return end, execint, cmio, offset or 0, maf, bpr, fname, delays, audio_log
 
 def parse_bank(writer, text, index, *cwd):
     # BANKpage
