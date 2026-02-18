@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Richard Dymond (rjdymond@gmail.com)
+# © 2023-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -55,12 +55,12 @@ class PagingTracer:
         if port % 2 == 0:
             self.border = value % 8
             self.outfe = value
-        elif port & 0x8002 == 0 and self.out7ffd & 32 == 0:
+        if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
             memory = self.simulator.memory
             if isinstance(memory, Memory):
                 memory.out7ffd(value)
                 self.out7ffd = value
-        elif port == 0xFFFD:
+        if port & 0xC002 == 0xC000:
             self.outfffd = value
-        elif port == 0xBFFD:
-            self.ay[self.outfffd % 16] = value
+        elif port & 0xC002 == 0x8000 and self.outfffd < 16:
+            self.ay[self.outfffd] = value
