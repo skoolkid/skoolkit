@@ -432,7 +432,6 @@ class BinWriterTestCase(SkoolKitTestCase):
         else:
             skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
             binfile = skoolfile[:-6] + '.bin'
-            self.tempfiles.append(binfile)
         asm_mode = fix_mode = 0
         for mode in modes:
             if mode.endswith('sub'):

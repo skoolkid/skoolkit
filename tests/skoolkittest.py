@@ -529,32 +529,18 @@ class SkoolKitTestCase(TestCase):
         self.stderr = sys.stderr
         sys.stdout = self.out = Stream(self.stdout_binary)
         sys.stderr = self.err = Stream()
-        self.tempfiles = []
         self.tempdirs = []
         self.cwd = os.getcwd()
         os.chdir(self.make_directory())
 
     def tearDown(self):
         os.chdir(self.cwd)
-        self.remove_files()
-        sys.stdin = self.stdin
-        sys.stdout = self.stdout
-        sys.stderr = self.stderr
-
-    def remove_files(self):
-        for f in self.tempfiles:
-            if os.path.isfile(f):
-                os.remove(f)
-                if f.endswith('.py'):
-                    pyc_pattern = os.path.join(dirname(f), '__pycache__', '{0}*.pyc'.format(f[:-3]))
-                    for pyc in [f + 'c'] + glob.glob(pyc_pattern):
-                        if os.path.isfile(pyc):
-                            os.remove(pyc)
-        self.tempfiles = []
         for d in self.tempdirs:
             if os.path.isdir(d):
                 rmtree(d, True)
-        self.tempdirs = []
+        sys.stdin = self.stdin
+        sys.stdout = self.stdout
+        sys.stderr = self.stderr
 
     def clear_streams(self):
         self.out.clear()
@@ -585,7 +571,6 @@ class SkoolKitTestCase(TestCase):
         else:
             self.make_directory(dirname(path))
             f = open(path, mode)
-        self.tempfiles.append(path)
         f.write(contents)
         f.close()
         return path

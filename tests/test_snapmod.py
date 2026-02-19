@@ -31,7 +31,6 @@ class SnapmodTest(SkoolKitTestCase):
 
     def _test_bad_spec(self, option, infile, exp_error):
         outfile = '{}-out.z80'.format(infile[:-4])
-        self.tempfiles.append(outfile)
         with self.assertRaises(SkoolKitError) as cm:
             self.run_snapmod('{} {} {}'.format(option, infile, outfile))
         self.assertEqual(cm.exception.args[0], exp_error)
@@ -43,7 +42,6 @@ class SnapmodTest(SkoolKitTestCase):
             exp_ram = ram
         infile = self.write_z80_file(header, ram, version, compress)
         outfile = '{}-out.z80'.format(infile[:-4])
-        self.tempfiles.append(outfile)
         output, error = self.run_snapmod('{} {} {}'.format(options, infile, outfile))
         self.assertEqual(output, '')
         self.assertEqual(error, '')

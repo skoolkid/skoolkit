@@ -6789,7 +6789,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         if custom_subs:
             subs.update(custom_subs)
         self._assert_files_equal('index.html', subs, True)
-        self.remove_files()
 
     def test_write_index_empty(self):
         # Empty index
