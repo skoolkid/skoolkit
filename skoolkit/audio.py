@@ -15,6 +15,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from math import ceil, floor
+from struct import pack
 
 CLOCK_SPEED = 'ClockSpeed'
 CONTENTION_BEGIN = 'ContentionBegin'
@@ -187,25 +188,22 @@ class AudioWriter:
             t += sample_delay
         return samples
 
-    def _to_int32(self, num):
-        return (num & 255, (num >> 8) & 255, (num >> 16) & 255, num >> 24)
-
     def _write_wav(self, audio_file, samples, options):
         sample_rate = options[SAMPLE_RATE]
         data_length = 2 * len(samples)
         header = bytearray()
         header.extend(b'RIFF')
-        header.extend(self._to_int32(36 + data_length))
+        header.extend(pack('<I', 36 + data_length))
         header.extend(b'WAVEfmt ')
-        header.extend(self._to_int32(16))              # length of fmt chunk
+        header.extend(pack('<I', 16))                  # length of fmt chunk
         header.extend((1, 0))                          # format (1=PCM)
         header.extend((1, 0))                          # channels
-        header.extend(self._to_int32(sample_rate))     # sample rate
-        header.extend(self._to_int32(sample_rate * 2)) # byte rate
+        header.extend(pack('<I', sample_rate))         # sample rate
+        header.extend(pack('<I', sample_rate * 2))     # byte rate
         header.extend((2, 0))                          # bytes per sample
         header.extend((16, 0))                         # bits per sample
         header.extend(b'data')
-        header.extend(self._to_int32(data_length))     # length of data chunk
+        header.extend(pack('<I', data_length))         # length of data chunk
         audio_file.write(header)
         for sample in samples:
             audio_file.write(bytes((sample & 255, sample // 256)))
