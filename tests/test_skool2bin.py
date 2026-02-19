@@ -1,12 +1,8 @@
 from textwrap import dedent
 from unittest.mock import patch
 
-from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolKitError, VERSION, components, skool2bin
-from skoolkit.config import COMMANDS
-
-def mock_config(name):
-    return {k: v[0] for k, v in COMMANDS[name].items()}
+from skoolkittest import SkoolKitTestCase, mock_find_file
+from skoolkit import SkoolKitError, VERSION, components, config, skool2bin
 
 class MockBinWriter:
     def __init__(self, skoolfile, asm_mode, fix_mode, banks, start, end, data, verbose, warn, pad_left, pad_right):
@@ -29,6 +25,11 @@ class MockBinWriter:
         self.binfile = binfile
 
 class Skool2BinTest(SkoolKitTestCase):
+    def setUp(self):
+        super().setUp()
+        patch.object(config, 'find_file', mock_find_file).start()
+        self.addCleanup(patch.stopall)
+
     def _check_values(self, skoolfile, binfile, asm_mode=0, fix_mode=0, banks=0, data=0,
                       verbose=0, warn=1, start=-1, end=65537, pad_left=65536, pad_right=0):
         self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
@@ -91,7 +92,6 @@ class Skool2BinTest(SkoolKitTestCase):
         self.assertEqual(len(error), 0)
         self.assertEqual(mock_bin_writer.binfile, binfile)
 
-    @patch.object(skool2bin, 'get_config', mock_config)
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_config_Banks_set_on_command_line(self):
         skoolfile = 'test-Banks.skool'
@@ -115,7 +115,6 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(len(error), 0)
             self._check_values(skoolfile, exp_binfile, banks=value)
 
-    @patch.object(skool2bin, 'get_config', mock_config)
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_config_Data_set_on_command_line(self):
         skoolfile = 'test-Data.skool'
@@ -139,7 +138,6 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(len(error), 0)
             self._check_values(skoolfile, exp_binfile, data=value)
 
-    @patch.object(skool2bin, 'get_config', mock_config)
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_config_PadLeft_set_on_command_line(self):
         skoolfile = 'in.skool'
@@ -159,7 +157,6 @@ class Skool2BinTest(SkoolKitTestCase):
         self.run_skool2bin(f'{skoolfile} {binfile}')
         self._check_values(skoolfile, binfile, pad_left=16384)
 
-    @patch.object(skool2bin, 'get_config', mock_config)
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_config_PadRight_set_on_command_line(self):
         skoolfile = 'in.skool'
@@ -179,7 +176,6 @@ class Skool2BinTest(SkoolKitTestCase):
         self.run_skool2bin(f'{skoolfile} {binfile}')
         self._check_values(skoolfile, binfile, pad_right=65536)
 
-    @patch.object(skool2bin, 'get_config', mock_config)
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_config_Verbose_set_on_command_line(self):
         skoolfile = 'test-Verbose.skool'
@@ -203,7 +199,6 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(len(error), 0)
             self._check_values(skoolfile, exp_binfile, verbose=value)
 
-    @patch.object(skool2bin, 'get_config', mock_config)
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_config_Warnings_set_on_command_line(self):
         skoolfile = 'test-Warnings.skool'
@@ -272,7 +267,6 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(len(error), 0)
             self._check_values(skoolfile, exp_binfile, end=int(value[2:], 16))
 
-    @patch.object(skool2bin, 'get_config', mock_config)
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_I(self):
         skoolfile = 'in.skool'
@@ -334,7 +328,6 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(len(error), 0)
             self._check_values(skoolfile, exp_binfile, fix_mode=3)
 
-    @patch.object(skool2bin, 'get_config', mock_config)
     def test_option_show_config(self):
         output, error = self.run_skool2bin('--show-config', catch_exit=0)
         self.assertEqual(error, '')
@@ -462,6 +455,11 @@ class BinWriterTestCase(SkoolKitTestCase):
 
 class BinWriterTest(BinWriterTestCase):
     stdout_binary = True
+
+    def setUp(self):
+        super().setUp()
+        patch.object(config, 'find_file', mock_find_file).start()
+        self.addCleanup(patch.stopall)
 
     def test_nonexistent_skool_file(self):
         skoolfile = '{}/nonexistent.skool'.format(self.make_directory())

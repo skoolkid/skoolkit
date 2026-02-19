@@ -3,9 +3,8 @@ import re
 from textwrap import dedent
 from unittest.mock import patch, Mock
 
-from skoolkittest import SkoolKitTestCase
-from skoolkit import components, sna2ctl, snapshot, SkoolKitError, VERSION
-from skoolkit.config import COMMANDS
+from skoolkittest import SkoolKitTestCase, mock_find_file
+from skoolkit import components, config, sna2ctl, snapshot, SkoolKitError, VERSION
 
 # Binary data designed to test the static code analysis algorithm that is used
 # when a code map is provided:
@@ -152,14 +151,16 @@ def mock_run(*args):
     global run_args
     run_args = args
 
-def mock_config(name):
-    return {k: v[0] for k, v in COMMANDS[name].items()}
-
 class MockControlFileGenerator:
     def generate_ctls(self, snapshot, start, end, code_map, config):
         return {0: 'i'}
 
 class Sna2CtlTest(SkoolKitTestCase):
+    def setUp(self):
+        super().setUp()
+        patch.object(config, 'find_file', mock_find_file).start()
+        self.addCleanup(patch.stopall)
+
     def _create_rzxplay_map(self, addresses):
         profile = []
         for a in addresses:
@@ -227,7 +228,6 @@ class Sna2CtlTest(SkoolKitTestCase):
         return log
 
     @patch.object(sna2ctl, 'run', mock_run)
-    @patch.object(sna2ctl, 'get_config', mock_config)
     def test_default_option_values(self):
         sna2ctl.main(('test.sna',))
         snafile, options = run_args[:2]
@@ -1015,7 +1015,6 @@ class Sna2CtlTest(SkoolKitTestCase):
         self._test_generation(data, exp_ctl, options='-Cr')
 
     @patch.object(sna2ctl, 'run', mock_run)
-    @patch.object(sna2ctl, 'get_config', mock_config)
     def test_option_C(self):
         for option in ('-C', '--comments'):
             self.run_sna2ctl(f'{option} test-C.sna')
@@ -1050,7 +1049,6 @@ class Sna2CtlTest(SkoolKitTestCase):
             self._test_generation('test-h.bin', exp_ctl, options='{} -o 64206'.format(option))
 
     @patch.object(sna2ctl, 'run', mock_run)
-    @patch.object(sna2ctl, 'get_config', mock_config)
     def test_option_I(self):
         self.run_sna2ctl('-I Hex=1 test-I.sna')
         options, config = run_args[1:]
@@ -1059,7 +1057,6 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertEqual(config['Hex'], 1)
 
     @patch.object(sna2ctl, 'run', mock_run)
-    @patch.object(sna2ctl, 'get_config', mock_config)
     def test_option_I_overrides_other_options(self):
         self.run_sna2ctl('-h -I Hex=1 test.sna')
         options, config = run_args[1:]
@@ -1083,7 +1080,6 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertEqual(config['TextChars'], 'xyz')
 
     @patch.object(sna2ctl, 'run', mock_run)
-    @patch.object(sna2ctl, 'get_config', mock_config)
     def test_option_I_multiple(self):
         self.run_sna2ctl('-I Hex=1 --ini TextChars=abc test-I-multiple.bin')
         options, config = run_args[1:]
@@ -1093,7 +1089,6 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertEqual(config['TextChars'], 'abc')
 
     @patch.object(sna2ctl, 'run', mock_run)
-    @patch.object(sna2ctl, 'get_config', mock_config)
     def test_option_I_invalid_value(self):
         self.run_sna2ctl('-I Hex=x test-I-invalid.sna')
         options = run_args[1]
@@ -1256,14 +1251,12 @@ class Sna2CtlTest(SkoolKitTestCase):
             self.assertEqual(page, exp_page)
 
     @patch.object(sna2ctl, 'run', mock_run)
-    @patch.object(sna2ctl, 'get_config', mock_config)
     def test_option_r(self):
         for option in ('-r', '--handle-rst'):
             self.run_sna2ctl(f'{option} test-r.sna')
             options, config = run_args[1:]
             self.assertTrue(options.handle_rst)
 
-    @patch.object(sna2ctl, 'get_config', mock_config)
     def test_option_show_config(self):
         output, error = self.run_sna2ctl('--show-config', catch_exit=0)
         self.assertEqual(error, '')

@@ -3,18 +3,14 @@ import re
 from textwrap import dedent
 from unittest.mock import patch, Mock
 
-from skoolkittest import SkoolKitTestCase
+from skoolkittest import SkoolKitTestCase, mock_find_file
 import skoolkit
-from skoolkit import skool2asm, SkoolKitError, BASE_10, BASE_16, VERSION
-from skoolkit.config import COMMANDS
+from skoolkit import config, skool2asm, SkoolKitError, BASE_10, BASE_16, VERSION
 from skoolkit.skoolparser import CASE_LOWER, CASE_UPPER
 
 def mock_run(*args):
     global run_args
     run_args = args
-
-def mock_config(name):
-    return {k: v[0] for k, v in COMMANDS[name].items()}
 
 class MockSkoolParser:
     def __init__(self, skoolfile, case, base, asm_mode, warnings, fix_mode, html,
@@ -52,7 +48,9 @@ class MockAsmWriter:
 class Skool2AsmTest(SkoolKitTestCase):
     def setUp(self):
         global mock_skool_parser, mock_asm_writer
-        SkoolKitTestCase.setUp(self)
+        super().setUp()
+        patch.object(config, 'find_file', mock_find_file).start()
+        self.addCleanup(patch.stopall)
         mock_skool_parser = None
         mock_asm_writer = None
 
@@ -60,7 +58,6 @@ class Skool2AsmTest(SkoolKitTestCase):
         return self.write_text_file(dedent(text).strip(), path, suffix)
 
     @patch.object(skool2asm, 'run', mock_run)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_default_option_values(self):
         skoolfile = 'test.skool'
         skool2asm.main((skoolfile,))
@@ -86,7 +83,6 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_default_option_values_are_passed(self):
         skoolfile = 'test.skool'
         skool2asm.main((skoolfile,))
@@ -226,7 +222,6 @@ class Skool2AsmTest(SkoolKitTestCase):
             self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: skool2asm.py'))
 
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_parse_stdin(self):
         skool = """
             @start
@@ -301,7 +296,6 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_q(self):
         for option in ('-q', '--quiet'):
             output, error = self.run_skool2asm('{} test-q.skool'.format(option))
@@ -311,7 +305,6 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_w(self):
         for option in ('-w', '--no-warnings'):
             output, error = self.run_skool2asm('-q {} test-w.skool'.format(option))
@@ -323,7 +316,6 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_l(self):
         for option in ('-l', '--lower'):
             output, error = self.run_skool2asm('-q {} test-l.skool'.format(option))
@@ -334,7 +326,6 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_u(self):
         for option in ('-u', '--upper'):
             output, error = self.run_skool2asm('-q {} test-u.skool'.format(option))
@@ -345,7 +336,6 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_D(self):
         for option in ('-D', '--decimal'):
             output, error = self.run_skool2asm('-q {} test-D.skool'.format(option))
@@ -356,7 +346,6 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_H(self):
         for option in ('-H', '--hex'):
             output, error = self.run_skool2asm('-q {} test-H.skool'.format(option))
@@ -452,7 +441,6 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_c(self):
         for option in ('-c', '--create-labels'):
             output, error = self.run_skool2asm('-q {} test-c.skool'.format(option))
@@ -461,7 +449,6 @@ class Skool2AsmTest(SkoolKitTestCase):
             mock_skool_parser.create_labels = None
             mock_asm_writer.wrote = False
 
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_writer_in_nonexistent_module(self):
         skool = """
             @start
@@ -473,7 +460,6 @@ class Skool2AsmTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, "Failed to import object skoolkit.nonexistentmodule.AsmWriter: No module named '?skoolkit.nonexistentmodule'?"):
             self.run_skool2asm(skoolfile)
 
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_nonexistent_writer(self):
         skool = """
             @start
@@ -485,7 +471,6 @@ class Skool2AsmTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, "No object named 'NonexistentAsmWriter' in module 'test_skool2asm'"):
             self.run_skool2asm(skoolfile)
 
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_writer(self):
         skool = """
             @start
@@ -499,7 +484,6 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertTrue(mock_asm_writer.wrote)
 
     @patch.object(skool2asm, 'get_object', Mock(return_value=MockAsmWriter))
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_W(self):
         skool = """
             @start
@@ -515,7 +499,6 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_P(self):
         for option, prop, value in (('-P', 'crlf', '1'), ('--set', 'bullet', '+')):
             output, error = self.run_skool2asm('-q {} {}={} test-P.skool'.format(option, prop, value))
@@ -525,7 +508,6 @@ class Skool2AsmTest(SkoolKitTestCase):
             mock_asm_writer.wrote = False
 
     @patch.object(skool2asm, 'run', mock_run)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_I(self):
         for option, spec, attr, exp_value in (('-I', 'Base=16', 'base', 16), ('--ini', 'Case=1', 'case', 1)):
             self.run_skool2asm('{} {} test-I.skool'.format(option, spec))
@@ -534,7 +516,6 @@ class Skool2AsmTest(SkoolKitTestCase):
             self.assertEqual(getattr(options, attr), exp_value)
 
     @patch.object(skool2asm, 'run', mock_run)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_I_multiple(self):
         self.run_skool2asm('-I Quiet=1 --ini Warnings=0 test-I-multiple.skool')
         options = run_args[1]
@@ -543,7 +524,6 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(options.warn, 0)
 
     @patch.object(skool2asm, 'run', mock_run)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_I_overrides_other_options(self):
         self.run_skool2asm('-H -I Base=10 -l --ini Case=2 test.skool')
         options = run_args[1]
@@ -566,7 +546,6 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(options.case, 2)
 
     @patch.object(skool2asm, 'run', mock_run)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_I_sets_property_values(self):
         self.run_skool2asm('-I Set-line-width=120 --ini Set-bullet=+ test.skool')
         options = run_args[1]
@@ -574,13 +553,11 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(options.properties, ['line-width=120', 'bullet=+'])
 
     @patch.object(skool2asm, 'run', mock_run)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_I_invalid_value(self):
         self.run_skool2asm('-I Quiet=x test-I-invalid.skool')
         options = run_args[1]
         self.assertEqual(options.quiet, 0)
 
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_show_config(self):
         output, error = self.run_skool2asm('--show-config', catch_exit=0)
         self.assertEqual(error, '')
@@ -623,21 +600,18 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     @patch.object(skool2asm, 'run', mock_run)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_var_integer(self):
         self.run_skool2asm('--var foo=1 test-var.skool')
         options = run_args[1]
         self.assertEqual([('foo', 1)], options.variables)
 
     @patch.object(skool2asm, 'run', mock_run)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_var_string(self):
         self.run_skool2asm('--var foo$=hi test-var.skool')
         options = run_args[1]
         self.assertEqual([('foo$', 'hi')], options.variables)
 
     @patch.object(skool2asm, 'run', mock_run)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_var_multiple(self):
         self.run_skool2asm('--var bar=2+2 --var baz$=yes test-var-multiple.skool')
         options = run_args[1]
@@ -764,7 +738,6 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertTrue(mock_asm_writer.wrote)
 
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    @patch.object(skool2asm, 'get_config', mock_config)
     def test_warnings_property(self):
         skool = """
             @start

@@ -5,9 +5,8 @@ import os
 from textwrap import dedent
 from unittest.mock import patch, Mock
 
-from skoolkittest import QUIT, MockPygame, MockPygameIO, SkoolKitTestCase
-from skoolkit import SkoolKitError, VERSION, CSimulator, components, screen, trace
-from skoolkit.config import COMMANDS
+from skoolkittest import QUIT, MockPygame, MockPygameIO, SkoolKitTestCase, mock_find_file
+from skoolkit import SkoolKitError, VERSION, CSimulator, components, config, screen, trace
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import PC, IFF, IM, T
 from skoolkit.trace import Tracer
@@ -110,9 +109,6 @@ def mock_run(*args):
     global run_args
     run_args = args
 
-def mock_config(name):
-    return {k: v[0] for k, v in COMMANDS[name].items()}
-
 def mock_write_snapshot(fname, ram, registers, state, machine):
     global s_fname, s_memory, s_banks, s_reg, s_state, s_machine
     s_fname = fname
@@ -141,6 +137,11 @@ class TestSimulator(CSimulator or Simulator):
         super().__init__(memory, registers, state, config)
 
 class TraceTest(SkoolKitTestCase):
+    def setUp(self):
+        super().setUp()
+        patch.object(config, 'find_file', mock_find_file).start()
+        self.addCleanup(patch.stopall)
+
     def _test_trace(self, args, exp_output):
         output, error = self.run_trace(args)
         self.assertEqual(error, '')
@@ -1440,7 +1441,6 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
-    @patch.object(trace, 'get_config', mock_config)
     @patch.object(trace, 'run', mock_run)
     def test_option_I(self):
         self.run_trace('-I TraceLine=Hello in.z80')
@@ -1885,7 +1885,6 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.scr[0], 255)
         self.assertEqual(screen.frame, 1)
 
-    @patch.object(trace, 'get_config', mock_config)
     def test_option_show_config(self):
         output, error = self.run_trace('--show-config', catch_exit=0)
         self.assertEqual(error, '')

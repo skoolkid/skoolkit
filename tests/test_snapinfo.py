@@ -2,17 +2,13 @@ import os.path
 from textwrap import dedent
 from unittest.mock import patch
 
-from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolKitError, components, snapinfo, VERSION
-from skoolkit.config import COMMANDS
+from skoolkittest import SkoolKitTestCase, mock_find_file
+from skoolkit import SkoolKitError, components, config, snapinfo, VERSION
 from skoolkit.snapshot import SnapshotError
 
 def mock_run(*args):
     global run_args
     run_args = args
-
-def mock_config(name):
-    return {k: v[0] for k, v in COMMANDS[name].items()}
 
 class MockBasicLister:
     def list_basic(self, snapshot):
@@ -29,6 +25,11 @@ class MockVariableLister:
         return 'VARIABLES DONE!'
 
 class SnapinfoTest(SkoolKitTestCase):
+    def setUp(self):
+        super().setUp()
+        patch.object(config, 'find_file', mock_find_file).start()
+        self.addCleanup(patch.stopall)
+
     def _test_sna(self, ram, exp_output, options='', ctl=None, ctlfiles=(), header=None, suffix='.sna'):
         if header is None:
             header = [0] * 27
@@ -1627,7 +1628,6 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bin(ram, exp_output, '-g', ctl)
 
     @patch.object(snapinfo, 'run', mock_run)
-    @patch.object(snapinfo, 'get_config', mock_config)
     def test_option_I(self):
         self.run_snapinfo('-I NodeLabel="{address}" test-I.sna')
         options, config = run_args[1:]
@@ -1647,7 +1647,6 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(config['NodeLabel'], '"{address}"')
 
     @patch.object(snapinfo, 'run', mock_run)
-    @patch.object(snapinfo, 'get_config', mock_config)
     def test_option_I_multiple(self):
         self.run_snapinfo('-I NodeLabel="{address}" -I NodeAttributes=shape=square test-I-multiple.sna')
         options, config = run_args[1:]
@@ -1919,7 +1918,6 @@ class SnapinfoTest(SkoolKitTestCase):
         for option in ('-P', '--page'):
             self._test_sna(ram + header2 + banks, exp_output, '{} 7 -p 65535'.format(option))
 
-    @patch.object(snapinfo, 'get_config', mock_config)
     def test_option_show_config(self):
         output, error = self.run_snapinfo('--show-config', catch_exit=0)
         self.assertEqual(error, '')

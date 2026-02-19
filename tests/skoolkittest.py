@@ -15,7 +15,7 @@ SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
 from skoolkit import (bin2sna, bin2tap, rzxinfo, rzxplay, sna2img, skool2asm,
                       skool2bin, skool2ctl, skool2html, sna2ctl, sna2skool,
-                      snapinfo, snapmod, tap2sna, tapinfo, trace)
+                      snapinfo, snapmod, tap2sna, tapinfo, trace, find_file)
 
 Z80_REGISTERS = {
     'a': 0, 'f': 1, 'bc': 2, 'c': 2, 'b': 3, 'hl': 4, 'l': 4, 'h': 5,
@@ -47,6 +47,12 @@ COLOURS = {
 }
 
 QUIT = 1
+
+def mock_find_file(fname, search_dirs=('',)):
+    if fname == 'skoolkit.ini':
+        # Ignore ~/.skoolkit/skoolkit.ini, if it exists
+        return find_file(fname)
+    return find_file(fname, search_dirs)
 
 class MockPygameIO:
     def getvalue(self):

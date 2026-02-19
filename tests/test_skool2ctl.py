@@ -1,14 +1,10 @@
 from textwrap import dedent
 from unittest.mock import patch
 
-from skoolkittest import SkoolKitTestCase
-from skoolkit import skool2ctl, VERSION
-from skoolkit.config import COMMANDS
+from skoolkittest import SkoolKitTestCase, mock_find_file
+from skoolkit import config, skool2ctl, VERSION, find_file
 
 ELEMENTS = 'abtdrmscn'
-
-def mock_config(name):
-    return {k: v[0] for k, v in COMMANDS[name].items()}
 
 class MockCtlWriter:
     def __init__(self, skoolfile, elements, write_hex, preserve_base, min_address, max_address, keep_lines):
@@ -27,6 +23,11 @@ class MockCtlWriter:
         self.write_called = True
 
 class Skool2CtlTest(SkoolKitTestCase):
+    def setUp(self):
+        super().setUp()
+        patch.object(config, 'find_file', mock_find_file).start()
+        self.addCleanup(patch.stopall)
+
     def _check_ctl_writer(self, skoolfile, elements=ELEMENTS, write_hex=0, preserve_base=0,
                           min_address=0, max_address=65536, keep_lines=0):
         self.assertEqual(mock_ctl_writer.skoolfile, skoolfile)
@@ -50,7 +51,6 @@ class Skool2CtlTest(SkoolKitTestCase):
             self.assertTrue(error.startswith('usage: skool2ctl.py'))
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
-    @patch.object(skool2ctl, 'get_config', mock_config)
     def test_default_option_values(self):
         skoolfile = 'test.skool'
         skool2ctl.main((skoolfile,))
@@ -158,13 +158,11 @@ class Skool2CtlTest(SkoolKitTestCase):
         self._check_ctl_writer(skoolfile, min_address=start, max_address=end)
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
-    @patch.object(skool2ctl, 'get_config', mock_config)
     def test_option_I(self):
         self.run_skool2ctl('-I Hex=1 test.skool')
         self._check_ctl_writer('test.skool', write_hex=1)
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
-    @patch.object(skool2ctl, 'get_config', mock_config)
     def test_option_I_overrides_other_options(self):
         self.run_skool2ctl('-h -I Hex=1 test.skool')
         self._check_ctl_writer('test.skool', write_hex=1)
@@ -181,18 +179,15 @@ class Skool2CtlTest(SkoolKitTestCase):
         self._check_ctl_writer('test.skool', write_hex=1, keep_lines=0)
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
-    @patch.object(skool2ctl, 'get_config', mock_config)
     def test_option_I_multiple(self):
         self.run_skool2ctl('-I Hex=1 --ini PreserveBase=1 test.skool')
         self._check_ctl_writer('test.skool', write_hex=1, preserve_base=1)
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
-    @patch.object(skool2ctl, 'get_config', mock_config)
     def test_option_I_invalid_value(self):
         self.run_skool2ctl('-I Hex=x test.skool')
         self._check_ctl_writer('test.skool')
 
-    @patch.object(skool2ctl, 'get_config', mock_config)
     def test_option_show_config(self):
         output, error = self.run_skool2ctl('--show-config', catch_exit=0)
         self.assertEqual(error, '')

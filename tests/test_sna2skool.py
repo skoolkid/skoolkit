@@ -2,9 +2,8 @@ import os.path
 from textwrap import dedent
 from unittest.mock import patch, Mock
 
-from skoolkittest import SkoolKitTestCase
-from skoolkit import components, sna2skool, snapshot, SkoolKitError, VERSION
-from skoolkit.config import COMMANDS
+from skoolkittest import SkoolKitTestCase, mock_find_file
+from skoolkit import components, config, sna2skool, snapshot, SkoolKitError, VERSION
 
 def mock_make_snapshot(fname, org, start, end, page):
     return [0] * 65536, 16384 if start is None else start, end
@@ -37,12 +36,13 @@ def mock_run(*args):
     global run_args
     run_args = args
 
-def mock_config(name):
-    return {k: v[0] for k, v in COMMANDS[name].items()}
-
 class Sna2SkoolTest(SkoolKitTestCase):
+    def setUp(self):
+        super().setUp()
+        patch.object(config, 'find_file', mock_find_file).start()
+        self.addCleanup(patch.stopall)
+
     @patch.object(sna2skool, 'run', mock_run)
-    @patch.object(sna2skool, 'get_config', mock_config)
     def test_default_option_values(self):
         sna = '{}/test.sna'.format(self.make_directory())
         sna2skool.main((sna,))
@@ -366,7 +366,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'run', mock_run)
-    @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_I(self):
         for option, spec, attr, exp_value in (('-I', 'Base=16', 'base', 16), ('--ini', 'Case=1', 'case', 1)):
             self.run_sna2skool('{} {} test-I.skool'.format(option, spec))
@@ -376,7 +375,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
             self.assertEqual(config.get(spec.split('=')[0]), exp_value)
 
     @patch.object(sna2skool, 'run', mock_run)
-    @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_I_multiple(self):
         self.run_sna2skool('-I DefbSize=12 --ini LineWidth=99 test-I-multiple.skool')
         options, config = run_args[1:]
@@ -386,7 +384,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(config.get('LineWidth'), 99)
 
     @patch.object(sna2skool, 'run', mock_run)
-    @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_I_overrides_other_options(self):
         self.run_sna2skool('-H -I Base=10 -l --ini Case=2 test.skool')
         options = run_args[1]
@@ -409,7 +406,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(options.case, 1)
 
     @patch.object(sna2skool, 'run', mock_run)
-    @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_I_invalid_value(self):
         self.run_sna2skool('-I Text=x test-I-invalid.skool')
         config = run_args[2]
@@ -461,7 +457,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
             self.assertTrue(mock_skool_writer.config['HandleRST'])
             self.assertTrue(mock_skool_writer.wrote_skool)
 
-    @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_show_config(self):
         output, error = self.run_sna2skool('--show-config', catch_exit=0)
         self.assertEqual(error, '')
@@ -714,7 +709,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'run', mock_run)
-    @patch.object(sna2skool, 'get_config', mock_config)
     def test_config_Comments_updates_option(self):
         self.run_sna2skool('-I Comments=1 test-Comments.skool')
         options, config = run_args[1:]
@@ -731,7 +725,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(config['Comments'], 1)
 
     @patch.object(sna2skool, 'run', mock_run)
-    @patch.object(sna2skool, 'get_config', mock_config)
     def test_config_HandleRST_updates_option(self):
         self.run_sna2skool('-I HandleRST=1 test-Comments.skool')
         options, config = run_args[1:]

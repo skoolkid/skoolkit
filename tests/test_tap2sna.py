@@ -10,10 +10,9 @@ from skoolkittest import (SkoolKitTestCase, PZX, create_header_block,
                           create_data_block, create_tap_header_block,
                           create_tap_data_block, create_tzx_header_block,
                           create_tzx_data_block, create_tzx_turbo_data_block,
-                          create_tzx_pure_data_block)
-from skoolkit import tap2sna, VERSION, SkoolKitError, CSimulator, CCMIOSimulator
+                          create_tzx_pure_data_block, mock_find_file)
+from skoolkit import config, tap2sna, VERSION, SkoolKitError, CSimulator, CCMIOSimulator
 from skoolkit.cmiosimulator import CMIOSimulator
-from skoolkit.config import COMMANDS
 from skoolkit.loadtracer import LoadTracer
 from skoolkit.simulator import Simulator
 
@@ -52,9 +51,6 @@ class MockSimulator:
 def mock_make_snapshot(*args):
     global make_snapshot_args
     make_snapshot_args = args
-
-def mock_config(name):
-    return {k: v[0] for k, v in COMMANDS[name].items()}
 
 def mock_write_snapshot(fname, ram, registers, state):
     global s_fname, snapshot, s_banks, s_reg, s_state
@@ -182,6 +178,8 @@ class Tap2SnaTest(SkoolKitTestCase):
     def setUp(self):
         global kbtracer, load_tracer, simulator
         super().setUp()
+        patch.object(config, 'find_file', mock_find_file).start()
+        self.addCleanup(patch.stopall)
         kbtracer = load_tracer = simulator = None
 
     def _write_tap(self, blocks, zip_archive=False, tap_name=None):
@@ -435,7 +433,6 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(s_fname, os.path.join(odir, z80_fname))
 
     @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
-    @patch.object(tap2sna, 'get_config', mock_config)
     def test_option_I(self):
         self.run_tap2sna('-I TraceLine=Hello in.tap out.z80')
         options, z80, config = make_snapshot_args[1:4]
@@ -518,7 +515,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertIn(f'sp={stack}', s_reg)
 
-    @patch.object(tap2sna, 'get_config', mock_config)
     def test_option_show_config(self):
         output, error = self.run_tap2sna('--show-config', catch_exit=0)
         self.assertEqual(error, '')
