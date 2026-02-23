@@ -29,7 +29,7 @@ from skoolkit.graphics import Frame, scr_udgs
 from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.screen import pygame, Screen
 from skoolkit.simulator import Simulator
-from skoolkit.simutils import PC, T, from_snapshot, get_state
+from skoolkit.simutils import CLOCK_SPEEDS, PC, T, from_snapshot, get_state
 from skoolkit.snapshot import (Snapshot, make_snapshot, poke, print_reg_help,
                                print_state_help, write_snapshot)
 from skoolkit.traceutils import Registers, disassemble, get_trace_line
@@ -315,9 +315,9 @@ def run(snafile, options, config):
                options.interrupts, draw, exec_map, trace_line, prefix, byte_fmt, word_fmt)
     rt = time.time() - begin
     if len(simulator.memory) == 65536:
-        cpu_freq = 3500000
+        cpu_freq = CLOCK_SPEEDS[0]
     else:
-        cpu_freq = 3546900
+        cpu_freq = CLOCK_SPEEDS[1]
     if options.stats:
         z80t = simulator.registers[T] - t0
         z80s = z80t / cpu_freq

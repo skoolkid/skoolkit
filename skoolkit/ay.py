@@ -18,14 +18,14 @@ from math import ceil
 from struct import pack
 
 from skoolkit.audio import SAMPLE_RATE
-from skoolkit.simutils import FRAME_DURATIONS
+from skoolkit.simutils import CLOCK_SPEEDS, FRAME_DURATIONS
 
 AY_CLOCK_RATE = 1773400
 AY_DAC_TABLE = tuple(v / 0xFFFF for v in (
     0x0000, 0x0385, 0x053D, 0x0770, 0x0AD7, 0x0FD5, 0x15B0, 0x230C,
     0x2B4C, 0x43C1, 0x5A4B, 0x732F, 0x9204, 0xAFF1, 0xD921, 0xFFFF
 ))
-CLOCK_SPEED = 3546900
+CLOCK_SPEED = CLOCK_SPEEDS[1]
 FRAME_DURATION = FRAME_DURATIONS[1]
 
 class Channel:

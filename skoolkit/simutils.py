@@ -1,4 +1,4 @@
-# Copyright 2024, 2026 Richard Dymond (rjdymond@gmail.com)
+# © 2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -18,6 +18,8 @@ import array
 
 from skoolkit import ROM48, read_bin_file
 from skoolkit.pagingtracer import Memory
+
+CLOCK_SPEEDS = (3500000, 3546900)
 
 FRAME_DURATIONS = (69888, 70908)
 

@@ -17,6 +17,8 @@
 from math import ceil, floor
 from struct import pack
 
+from skoolkit.simutils import CLOCK_SPEEDS
+
 CLOCK_SPEED = 'ClockSpeed'
 CONTENTION_BEGIN = 'ContentionBegin'
 CONTENTION_END = 'ContentionEnd'
@@ -35,7 +37,7 @@ class AudioWriter:
     # Component API
     def __init__(self, config=None):
         self.options = ({
-            CLOCK_SPEED: 3500000,
+            CLOCK_SPEED: CLOCK_SPEEDS[0],
             CONTENTION_BEGIN: 14335,
             CONTENTION_END: 57245,
             CONTENTION_FACTOR: 51,
@@ -43,7 +45,7 @@ class AudioWriter:
             INTERRUPT_DELAY: (895,),
             SAMPLE_RATE: 44100
         }, {
-            CLOCK_SPEED: 3546900,
+            CLOCK_SPEED: CLOCK_SPEEDS[1],
             CONTENTION_BEGIN: 14361,
             CONTENTION_END: 58035,
             CONTENTION_FACTOR: 51,
