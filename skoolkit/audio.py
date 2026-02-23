@@ -40,7 +40,7 @@ class AudioWriter:
             CONTENTION_END: 57245,
             CONTENTION_FACTOR: 51,
             FRAME_DURATION: 69888,
-            INTERRUPT_DELAY: 942,
+            INTERRUPT_DELAY: (895,),
             SAMPLE_RATE: 44100
         }, {
             CLOCK_SPEED: 3546900,
@@ -48,13 +48,16 @@ class AudioWriter:
             CONTENTION_END: 58035,
             CONTENTION_FACTOR: 51,
             FRAME_DURATION: 70908,
-            INTERRUPT_DELAY: 1584,
+            INTERRUPT_DELAY: (1385, 1565),
             SAMPLE_RATE: 44100
         })
         if config:
             for k, v in config.items():
                 try:
-                    self.options[0][k] = self.options[1][k] = int(v)
+                    if k == INTERRUPT_DELAY:
+                        self.options[0][k] = self.options[1][k] = tuple(int(n) for n in v.split(','))
+                    else:
+                        self.options[0][k] = self.options[1][k] = int(v)
                 except ValueError:
                     pass
 
@@ -96,17 +99,19 @@ class AudioWriter:
     def _add_contention(self, delays, contention, interrupts, cycle, options):
         c_begin, c_end = options[CONTENTION_BEGIN], options[CONTENTION_END]
         c_factor = 1 + options[CONTENTION_FACTOR] / 100
-        i_delay = options[INTERRUPT_DELAY]
+        i_delays = options[INTERRUPT_DELAY]
+        i_delays_idx = 0
         f_duration = options[FRAME_DURATION]
 
         for i in range(len(delays)):
             d_offset = 0
             while 1:
                 if interrupts and cycle == 0:
-                    cycle = i_delay
+                    cycle = i_delays[i_delays_idx]
                     if i:
-                        delays[i] += i_delay
-                        d_offset += i_delay
+                        delays[i] += i_delays[i_delays_idx]
+                        d_offset += i_delays[i_delays_idx]
+                    i_delays_idx = (i_delays_idx + 1) % len(i_delays)
                 d_remaining = delays[i] - d_offset
                 if contention and cycle < c_end:
                     if cycle < c_begin:

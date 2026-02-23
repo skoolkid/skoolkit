@@ -90,14 +90,14 @@ class AudioWriterTest(SkoolKitTestCase):
         audio_writer = TestAudioWriter()
         delays_in = [10000] * 8
         audio_writer.write_audio(None, delays_in, False, True)
-        exp_delays_out = _flatten([[10000] * 6, 10942, 10000])
+        exp_delays_out = _flatten([[10000] * 6, 10895, 10000])
         self.assertEqual(exp_delays_out, audio_writer.delays)
 
     def test_interrupts_128k(self):
         audio_writer = TestAudioWriter()
-        delays_in = [10000] * 8
+        delays_in = [10000] * 15
         audio_writer.write_audio(None, delays_in, False, True, is128k=True)
-        exp_delays_out = _flatten([[10000] * 6, 11584, 10000])
+        exp_delays_out = _flatten([[10000] * 6, 11565, [10000] * 6, 11385, 10000])
         self.assertEqual(exp_delays_out, audio_writer.delays)
 
     def test_invalid_option_values(self):
@@ -116,7 +116,7 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(audio_writer.options[0]['ContentionEnd'], 57245)
         self.assertEqual(audio_writer.options[0]['ContentionFactor'], 51)
         self.assertEqual(audio_writer.options[0]['FrameDuration'], 69888)
-        self.assertEqual(audio_writer.options[0]['InterruptDelay'], 942)
+        self.assertEqual(audio_writer.options[0]['InterruptDelay'], (895,))
         self.assertEqual(audio_writer.options[0]['SampleRate'], 44100)
 
         self.assertEqual(audio_writer.options[1]['ClockSpeed'], 3546900)
@@ -124,54 +124,46 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(audio_writer.options[1]['ContentionEnd'], 58035)
         self.assertEqual(audio_writer.options[1]['ContentionFactor'], 51)
         self.assertEqual(audio_writer.options[1]['FrameDuration'], 70908)
-        self.assertEqual(audio_writer.options[1]['InterruptDelay'], 1584)
+        self.assertEqual(audio_writer.options[1]['InterruptDelay'], (1385, 1565))
         self.assertEqual(audio_writer.options[1]['SampleRate'], 44100)
 
     def test_custom_clock_speed(self):
-        clock_speed = 7000000
-        audio_writer = AudioWriter({'ClockSpeed': clock_speed})
+        audio_writer = AudioWriter({'ClockSpeed': '7000000'})
         audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
         samples = self._check_header(audio_bytes)
         self.assertEqual(samples, b'\xff\x7f\x00\x80\x00\x80')
 
     def test_custom_contention_period(self):
-        contention_begin, contention_end = 10000, 20000
-        audio_writer = TestAudioWriter({
-            'ContentionBegin': contention_begin,
-            'ContentionEnd': contention_end
-        })
+        audio_writer = TestAudioWriter({'ContentionBegin': '10000', 'ContentionEnd': '20000'})
         delays_in = _flatten([8500, [1000] * 10, 500])
         audio_writer.write_audio(None, delays_in, True)
         exp_delays_out = _flatten([8500, 1000, 1255, [1510] * 6, 1063, 1000, 500])
         self.assertEqual(exp_delays_out, audio_writer.delays)
 
     def test_custom_contention_factor(self):
-        contention_factor = 62
-        audio_writer = TestAudioWriter({'ContentionFactor': contention_factor})
+        audio_writer = TestAudioWriter({'ContentionFactor': '62'})
         delays_in = _flatten([13000, [1000] * 29, 500])
         audio_writer.write_audio(None, delays_in, True)
         exp_delays_out = _flatten([13000, 1000, 1412, [1620] * 25, 1511, 1000, 500])
         self.assertEqual(exp_delays_out, audio_writer.delays)
 
     def test_custom_frame_duration(self):
-        frame_duration = 30000
-        audio_writer = TestAudioWriter({'FrameDuration': frame_duration})
+        audio_writer = TestAudioWriter({'FrameDuration': '30000'})
         delays_in = [10000] * 4
         audio_writer.write_audio(None, delays_in, False, True)
-        exp_delays_out = [10000, 10000, 10942, 10000]
+        exp_delays_out = [10000, 10000, 10895, 10000]
         self.assertEqual(exp_delays_out, audio_writer.delays)
 
     def test_custom_interrupt_delay(self):
-        interrupt_delay = 1050
-        audio_writer = TestAudioWriter({'InterruptDelay': interrupt_delay})
-        delays_in = [10000] * 8
+        audio_writer = TestAudioWriter({'InterruptDelay': '1050,2000'})
+        delays_in = [10000] * 15
         audio_writer.write_audio(None, delays_in, False, True)
-        exp_delays_out = _flatten([[10000] * 6, 11050, 10000])
+        exp_delays_out = _flatten([[10000] * 6, 12000, [10000] * 6, 11050, 10000])
         self.assertEqual(exp_delays_out, audio_writer.delays)
 
     def test_custom_sample_rate(self):
         sample_rate = 22050
-        audio_writer = AudioWriter({'SampleRate': sample_rate})
+        audio_writer = AudioWriter({'SampleRate': str(sample_rate)})
         audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
         samples = self._check_header(audio_bytes, sample_rate)
         self.assertEqual(samples, b'\xff\x7f\x00\x80\x00\x80')
@@ -181,5 +173,5 @@ class AudioWriterTest(SkoolKitTestCase):
         delays_in = [10000] * 3
         offset = 50000
         audio_writer.write_audio(None, delays_in, False, True, offset)
-        exp_delays_out = [10000, 10942, 10000]
+        exp_delays_out = [10000, 10895, 10000]
         self.assertEqual(exp_delays_out, audio_writer.delays)

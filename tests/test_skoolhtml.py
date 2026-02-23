@@ -1512,15 +1512,19 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             'ContentionEnd': 58035 if is128k else 57245,
             'ContentionFactor': 51,
             'FrameDuration': 70908 if is128k else 69888,
-            'InterruptDelay': 1584 if is128k else 942,
+            'InterruptDelay': (1385, 1565) if is128k else (895,),
             'SampleRate': 44100
         }
         if config:
-            aw_config.update(config)
+            for k, v in config.items():
+                if k == 'InterruptDelay':
+                    aw_config[k] = tuple(int(n) for n in v.split(','))
+                else:
+                    aw_config[k] = int(v)
         for k, v in audio_writer.options[is128k].items():
-            self.assertEqual(v, int(aw_config[k]))
+            self.assertEqual(v, aw_config[k])
         for k, v in ay_audio_writer.options.items():
-            self.assertEqual(v, int(aw_config[k]))
+            self.assertEqual(v, aw_config[k])
 
     def _test_udgarray_macro(self, snapshot, prefix, udg_specs, suffix, path, udgs=None, scale=2, mask=0, tindex=0,
                              alpha=-1, x=0, y=0, width=None, height=None, ref=None, alt=None, base=0):
@@ -1965,13 +1969,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_audio_with_custom_config(self):
         config = {
-            'ClockSpeed': 7000000,
-            'ContentionBegin': 12000,
-            'ContentionEnd': 35000,
-            'ContentionFactor': 58,
-            'FrameDuration': 70000,
-            'InterruptDelay': 1024,
-            'SampleRate': 22050
+            'ClockSpeed': '7000000',
+            'ContentionBegin': '12000',
+            'ContentionEnd': '35000',
+            'ContentionFactor': '58',
+            'FrameDuration': '70000',
+            'InterruptDelay': '1024,2048',
+            'SampleRate': '22050'
         }
         ref = '\n'.join(['[AudioWriter]'] + [f'{k}={v}' for k, v in config.items()])
         writer = self._get_writer(skool='', ref=ref, mock_file_info=True)

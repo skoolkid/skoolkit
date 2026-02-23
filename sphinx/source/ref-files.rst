@@ -48,15 +48,16 @@ Recognised parameters and their default values are:
   effect: 51
 * ``FrameDuration`` - length of a frame in T-states: 69888 (48K) or 70908
   (128K)
-* ``InterruptDelay`` - delay in T-states caused by an interrupt routine: 942
-  (48K) or 1584 (128K)
+* ``InterruptDelay`` - comma-separated list of delays in T-states caused by an
+  interrupt routine: 895 (48K) or 1385,1565 (128K)
 * ``SampleRate`` - sample rate in Hz: 44100
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.0    | Updated default values of ``ContentionBegin`` (48K) and           |
-|         | ``ContentionEnd`` (48K and 128K)                                  |
+| 10.0    | Updated default values of ``ContentionBegin`` (48K),              |
+|         | ``ContentionEnd`` (48K and 128K), and ``InterruptDelay`` (48K and |
+|         | 128K); added support for multiple ``InterruptDelay`` values       |
 +---------+-------------------------------------------------------------------+
 | 9.1     | Added default values for the 128K model                           |
 +---------+-------------------------------------------------------------------+
