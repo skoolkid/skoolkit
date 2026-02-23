@@ -17,7 +17,7 @@
 from math import ceil, floor
 from struct import pack
 
-from skoolkit.simutils import CLOCK_SPEEDS
+from skoolkit.simutils import CLOCK_SPEEDS, FRAME_DURATIONS
 
 CLOCK_SPEED = 'ClockSpeed'
 CONTENTION_BEGIN = 'ContentionBegin'
@@ -41,7 +41,7 @@ class AudioWriter:
             CONTENTION_BEGIN: 14335,
             CONTENTION_END: 57245,
             CONTENTION_FACTOR: 51,
-            FRAME_DURATION: 69888,
+            FRAME_DURATION: FRAME_DURATIONS[0],
             INTERRUPT_DELAY: (895,),
             SAMPLE_RATE: 44100
         }, {
@@ -49,7 +49,7 @@ class AudioWriter:
             CONTENTION_BEGIN: 14361,
             CONTENTION_END: 58035,
             CONTENTION_FACTOR: 51,
-            FRAME_DURATION: 70908,
+            FRAME_DURATION: FRAME_DURATIONS[1],
             INTERRUPT_DELAY: (1385, 1565),
             SAMPLE_RATE: 44100
         })
