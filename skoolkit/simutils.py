@@ -20,9 +20,8 @@ from skoolkit import ROM48, read_bin_file
 from skoolkit.pagingtracer import Memory
 
 CLOCK_SPEEDS = (3500000, 3546900)
-
+CONTENTION_INTERVALS = ((14335, 57245), (14361, 58035))
 FRAME_DURATIONS = (69888, 70908)
-
 INT_ACTIVE = (32, 36)
 
 A = 0

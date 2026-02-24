@@ -1,4 +1,4 @@
-# Copyright 2024, 2026 Richard Dymond (rjdymond@gmail.com)
+# © 2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -15,6 +15,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from skoolkit.simulator import Simulator, JR_OFFSETS, OFFSETS, R1, R2
+from skoolkit.simutils import CONTENTION_INTERVALS
 
 DELAYS_48K = [0] * 69888
 for row in range(64, 256):
@@ -36,13 +37,13 @@ class CMIOSimulator(Simulator):
         config['fast_ldir'] = False
         super().__init__(memory, registers, state, config)
         if len(memory) == 0x20000:
-            self.t0 = 14361 - 23
-            self.t1 = 14361 + 228 * 191 + 126
+            self.t0 = CONTENTION_INTERVALS[1][0] - 23
+            self.t1 = CONTENTION_INTERVALS[1][1]
             self.contend = self.contend_128k
             self.io_contention = self.io_contention_128k
         else:
-            self.t0 = 14335 - 23
-            self.t1 = 14335 + 224 * 191 + 126
+            self.t0 = CONTENTION_INTERVALS[0][0] - 23
+            self.t1 = CONTENTION_INTERVALS[0][1]
             self.contend = self.contend_48k
             self.io_contention = self.io_contention_48k
 
