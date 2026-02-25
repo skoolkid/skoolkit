@@ -378,7 +378,7 @@ def main(args):
     parser.add_argument('dump', help=argparse.SUPPRESS, nargs='*')
     group = parser.add_argument_group('Options')
     group.add_argument('--audio', action='store_true',
-                       help="Show audio delays.")
+                       help="Show beeper delays.")
     group.add_argument('--ay', action='store_true',
                        help="Capture AY audio (when writing a WAV file).")
     group.add_argument('--beeper', action='store_true',

@@ -2145,7 +2145,7 @@ To list the options supported by `trace.py`, run it with no arguments::
   has completed.
 
   Options:
-    --audio               Show audio delays.
+    --audio               Show beeper delays.
     --ay                  Capture AY audio (when writing a WAV file).
     --beeper              Capture beeper audio (when used with --ay).
     -c, --cmio            Simulate memory and I/O contention and the MEMPTR
