@@ -17,7 +17,7 @@
 from math import ceil
 from struct import pack
 
-from skoolkit.audio import CLOCK_SPEED, SAMPLE_RATE
+from skoolkit.audio import CLOCK_SPEED, FRAME_DURATION, SAMPLE_RATE
 from skoolkit.simutils import CLOCK_SPEEDS, FRAME_DURATIONS
 
 AY_CLOCK_RATE = 1773400
@@ -25,7 +25,6 @@ AY_DAC_TABLE = tuple(v / 0xFFFF for v in (
     0x0000, 0x0385, 0x053D, 0x0770, 0x0AD7, 0x0FD5, 0x15B0, 0x230C,
     0x2B4C, 0x43C1, 0x5A4B, 0x732F, 0x9204, 0xAFF1, 0xD921, 0xFFFF
 ))
-FRAME_DURATION = FRAME_DURATIONS[1]
 
 class Channel:
     def __init__(self, pan):
@@ -160,9 +159,9 @@ class AY:
     def hold_bottom(self):
         pass
 
-    def render(self, ay_log, ay_res, volume):
+    def render(self, ay_log, frame_duration, ay_res, volume):
         samples = []
-        frame_rate = 50 * FRAME_DURATION / ay_res
+        frame_rate = 50 * frame_duration / ay_res
         fstep = frame_rate / self.sample_rate
         fcounter = 1
         frames = self.frames(ay_log, ay_res)
@@ -190,7 +189,7 @@ class AY:
         return samples
 
 class Options:
-    def __init__(self, volume=75, ay_res=FRAME_DURATION, beeper=False):
+    def __init__(self, volume=75, ay_res=None, beeper=False):
         self.volume = volume
         self.ay_res = ay_res
         self.beeper = beeper
@@ -199,6 +198,7 @@ class AYAudioWriter:
     def __init__(self, config=None):
         self.options = {
             CLOCK_SPEED: CLOCK_SPEEDS[1],
+            FRAME_DURATION: FRAME_DURATIONS[1],
             SAMPLE_RATE: 44100
         }
         if config:
@@ -219,7 +219,9 @@ class AYAudioWriter:
             else:
                 ay_log.insert(0, (beeper_log[0], 0, 0))
         ay = AY(self.options[SAMPLE_RATE])
-        ay_samples = ay.render(ay_log, options.ay_res, ay_volume)
+        frame_duration = self.options[FRAME_DURATION]
+        ay_res = options.ay_res or frame_duration
+        ay_samples = ay.render(ay_log, frame_duration, ay_res, ay_volume)
         if options.beeper and beeper_log:
             delays = [t1 - t0 for t0, t1 in zip(beeper_log, beeper_log[1:])]
             beeper_samples = self._render_beeper(delays, volume)

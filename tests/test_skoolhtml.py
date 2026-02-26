@@ -1503,7 +1503,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         else:
             self.assertEqual(audio_log, ay_audio_writer.audio_log)
             self.assertEqual(ay_audio_writer.write_options.volume, 75)
-            self.assertEqual(ay_audio_writer.write_options.ay_res, 70908)
+            self.assertIsNone(ay_audio_writer.write_options.ay_res)
             self.assertIs(ay_audio_writer.write_options.beeper, beeper)
         is128k = len(writer.snapshot) == 0x20000
         aw_config = {
@@ -1517,6 +1517,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         }
         ay_aw_config = aw_config.copy()
         ay_aw_config['ClockSpeed'] = 3546900
+        ay_aw_config['FrameDuration'] = 70908
         if config:
             for k, v in config.items():
                 if k == 'InterruptDelay':

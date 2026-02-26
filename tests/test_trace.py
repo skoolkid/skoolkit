@@ -3263,7 +3263,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(ay_audio_writer.fname, outfile)
         self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
         self.assertEqual(ay_audio_writer.options.volume, 75)
-        self.assertEqual(ay_audio_writer.options.ay_res, 70908)
+        self.assertIsNone(ay_audio_writer.options.ay_res)
         self.assertFalse(ay_audio_writer.options.beeper)
 
     @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
@@ -3330,7 +3330,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(ay_audio_writer.fname, outfile)
         self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
         self.assertEqual(ay_audio_writer.options.volume, 75)
-        self.assertEqual(ay_audio_writer.options.ay_res, 70908)
+        self.assertIsNone(ay_audio_writer.options.ay_res)
         self.assertTrue(ay_audio_writer.options.beeper)
 
     @patch.object(trace, 'get_audio_writer', MockAudioWriter)
