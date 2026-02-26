@@ -2661,6 +2661,16 @@ class CMIOSimulatorMEMPTRTest(SkoolKitTestCase):
         simulator.run(0, isr, True)
         self.assertEqual(simulator.registers[MEMPTR], isr)
 
+    def test_interrupt_not_accepted(self):
+        memory = [0] * 65536
+        memory[0] = 0xFB # EI
+        memptr_in = 12345
+        registers = {'MEMPTR': memptr_in}
+        state = {'tstates': 69886}
+        simulator = self.simulator_cls(memory, registers, state)
+        simulator.run(0, 1, True)
+        self.assertEqual(simulator.registers[MEMPTR], memptr_in)
+
 class CMIOSimulatorTimingTest(SkoolKitTestCase):
     simulator_cls = CCMIOSimulator or CMIOSimulator
 

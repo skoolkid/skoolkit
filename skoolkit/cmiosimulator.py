@@ -90,7 +90,8 @@ class CMIOSimulator(Simulator):
 
     def accept_interrupt(self, registers, memory, prev_pc):
         accepted = super().accept_interrupt(registers, memory, prev_pc)
-        registers[29] = registers[24] # MEMPTR
+        if accepted:
+            registers[29] = registers[24] # MEMPTR
         return accepted
 
     def af_hl(self, registers, memory, af):
