@@ -17,7 +17,7 @@
 from math import ceil
 from struct import pack
 
-from skoolkit.audio import SAMPLE_RATE
+from skoolkit.audio import CLOCK_SPEED, SAMPLE_RATE
 from skoolkit.simutils import CLOCK_SPEEDS, FRAME_DURATIONS
 
 AY_CLOCK_RATE = 1773400
@@ -25,7 +25,6 @@ AY_DAC_TABLE = tuple(v / 0xFFFF for v in (
     0x0000, 0x0385, 0x053D, 0x0770, 0x0AD7, 0x0FD5, 0x15B0, 0x230C,
     0x2B4C, 0x43C1, 0x5A4B, 0x732F, 0x9204, 0xAFF1, 0xD921, 0xFFFF
 ))
-CLOCK_SPEED = CLOCK_SPEEDS[1]
 FRAME_DURATION = FRAME_DURATIONS[1]
 
 class Channel:
@@ -198,7 +197,10 @@ class Options:
 
 class AYAudioWriter:
     def __init__(self, config=None):
-        self.options = {SAMPLE_RATE: 44100}
+        self.options = {
+            CLOCK_SPEED: CLOCK_SPEEDS[1],
+            SAMPLE_RATE: 44100
+        }
         if config:
             for k, v in config.items():
                 try:
@@ -212,9 +214,9 @@ class AYAudioWriter:
         ay_log, beeper_log = self._parse_log(audio_log)
         if options.beeper and beeper_log:
             # Synchronise log start times
-            if ay_log[0][0] < beeper_log[0]:
+            if ay_log and ay_log[0][0] < beeper_log[0]:
                 beeper_log.insert(0, ay_log[0][0])
-            elif beeper_log[0] < ay_log[0][0]:
+            else:
                 ay_log.insert(0, (beeper_log[0], 0, 0))
         ay = AY(self.options[SAMPLE_RATE])
         ay_samples = ay.render(ay_log, options.ay_res, ay_volume)
@@ -238,7 +240,7 @@ class AYAudioWriter:
 
     def _render_beeper(self, delays, volume):
         # Apply a moving average filter
-        sample_delay = CLOCK_SPEED / self.options[SAMPLE_RATE]
+        sample_delay = self.options[CLOCK_SPEED] / self.options[SAMPLE_RATE]
         s0, s1 = 0, sample_delay
         t, t1 = 0, ceil(s1)
         bit = bits = 0

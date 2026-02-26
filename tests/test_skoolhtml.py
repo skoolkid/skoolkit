@@ -1515,16 +1515,18 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             'InterruptDelay': (1385, 1565) if is128k else (895,),
             'SampleRate': 44100
         }
+        ay_aw_config = aw_config.copy()
+        ay_aw_config['ClockSpeed'] = 3546900
         if config:
             for k, v in config.items():
                 if k == 'InterruptDelay':
-                    aw_config[k] = tuple(int(n) for n in v.split(','))
+                    aw_config[k] = ay_aw_config[k] = tuple(int(n) for n in v.split(','))
                 else:
-                    aw_config[k] = int(v)
+                    aw_config[k] = ay_aw_config[k] = int(v)
         for k, v in audio_writer.options[is128k].items():
             self.assertEqual(v, aw_config[k])
         for k, v in ay_audio_writer.options.items():
-            self.assertEqual(v, aw_config[k])
+            self.assertEqual(v, ay_aw_config[k])
 
     def _test_udgarray_macro(self, snapshot, prefix, udg_specs, suffix, path, udgs=None, scale=2, mask=0, tindex=0,
                              alpha=-1, x=0, y=0, width=None, height=None, ref=None, alt=None, base=0):

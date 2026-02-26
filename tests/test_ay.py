@@ -2,7 +2,7 @@ from io import BytesIO
 from struct import pack
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit.ay import SAMPLE_RATE, AYAudioWriter, Options
+from skoolkit.ay import CLOCK_SPEED, SAMPLE_RATE, AYAudioWriter, Options
 
 class AudioWriterTest(SkoolKitTestCase):
     def _get_audio_data(self, audio_writer, records, options):
@@ -102,6 +102,16 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(len(samples), 3480)
         self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
         self.assertEqual(samples[3472:], b'\x00\x00\x00\x80\x00\x00\x00\x80')
+
+    def test_clock_speed(self):
+        config = {CLOCK_SPEED: '3000000'}
+        records = [(t, 255, 0) for t in range(0, 10000, 1000)]
+        options = Options(beeper=True)
+        audio_bytes = self._get_audio_data(AYAudioWriter(config), records, options)
+        samples = self._check_header(audio_bytes, options)
+        self.assertEqual(len(samples), 528)
+        self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
+        self.assertEqual(samples[520:], b'\x00\x80\x00\x80\x00\x80\x00\x80')
 
     def test_sample_rate(self):
         config = {SAMPLE_RATE: 11025}
