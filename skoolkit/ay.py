@@ -15,9 +15,8 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from math import ceil
-from struct import pack
 
-from skoolkit.audio import CLOCK_SPEED, FRAME_DURATION, SAMPLE_RATE
+from skoolkit.audio import CLOCK_SPEED, FRAME_DURATION, SAMPLE_RATE, write_wav
 from skoolkit.simutils import CLOCK_SPEEDS, FRAME_DURATIONS
 
 AY_CLOCK_RATE = 1773400
@@ -184,7 +183,8 @@ class AY:
                 if self.x >= 1:
                     self.x -= 1
                     self.update_mixer()
-            samples.append((self.left * volume, self.right * volume))
+            samples.append(self.left * volume)
+            samples.append(self.right * volume)
 
         return samples
 
@@ -228,7 +228,7 @@ class AYAudioWriter:
             samples = self._combine(ay_samples, beeper_samples)
         else:
             samples = ay_samples
-        self._write_wav(audio_file, samples)
+        write_wav(audio_file, samples, self.options[SAMPLE_RATE], 2)
 
     def _parse_log(self, audio_log):
         ay_log = []
@@ -268,32 +268,14 @@ class AYAudioWriter:
 
     def _combine(self, ay_samples, beeper_samples):
         samples = []
-        ay_len = len(ay_samples)
+        ay_len = len(ay_samples) // 2
         beeper_len = len(beeper_samples)
         max_len = max(ay_len, beeper_len)
-        ay_samples.extend([(0, 0)] * (max_len - ay_len))
+        ay_samples.extend([0] * ((max_len - ay_len) * 2))
         beeper_samples.extend([0] * (max_len - beeper_len))
         for i in range(max_len):
-            left = (ay_samples[i][0] + beeper_samples[i]) / 2
-            right = (ay_samples[i][1] + beeper_samples[i]) / 2
-            samples.append((left, right))
+            left = (ay_samples[2 * i] + beeper_samples[i]) / 2
+            right = (ay_samples[2 * i + 1] + beeper_samples[i]) / 2
+            samples.append(left)
+            samples.append(right)
         return samples
-
-    def _write_wav(self, audio_file, samples):
-        sample_rate = self.options[SAMPLE_RATE]
-        channels = 2
-        bits_per_sample = 16
-        bytes_per_sample = (bits_per_sample // 8) * channels
-        byte_rate = bytes_per_sample * sample_rate
-        data_length = bytes_per_sample * len(samples)
-        header = bytearray()
-        header.extend(b'RIFF')
-        header.extend(pack('<I', 36 + data_length))
-        header.extend(b'WAVEfmt ')
-        header.extend(pack('<IH', 16, 1)) # length of fmt chunk, format (PCM)
-        header.extend(pack('<HIIHH', channels, sample_rate, byte_rate, bytes_per_sample, bits_per_sample))
-        header.extend(b'data')
-        header.extend(pack('<I', data_length))
-        audio_file.write(header)
-        for left, right in samples:
-            audio_file.write(pack('<hh', round(left * 0xFFFF) - 0x8000, round(right * 0xFFFF) - 0x8000))

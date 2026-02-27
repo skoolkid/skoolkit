@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from math import ceil, floor
+from math import ceil
 from struct import pack
 
 from skoolkit.simutils import CLOCK_SPEEDS, CONTENTION_INTERVALS, FRAME_DURATIONS
@@ -26,6 +26,23 @@ CONTENTION_FACTOR = 'ContentionFactor'
 FRAME_DURATION = 'FrameDuration'
 INTERRUPT_DELAY = 'InterruptDelay'
 SAMPLE_RATE = 'SampleRate'
+
+def write_wav(audio_file, samples, sample_rate, channels=1):
+    bits_per_sample = 16
+    bytes_per_sample = (bits_per_sample // 8) * channels
+    byte_rate = bytes_per_sample * sample_rate
+    data_length = bytes_per_sample * len(samples) // channels
+    header = bytearray()
+    header.extend(b'RIFF')
+    header.extend(pack('<I', 36 + data_length))
+    header.extend(b'WAVEfmt ')
+    header.extend(pack('<IH', 16, 1)) # length of fmt chunk, format (PCM)
+    header.extend(pack('<HIIHH', channels, sample_rate, byte_rate, bytes_per_sample, bits_per_sample))
+    header.extend(b'data')
+    header.extend(pack('<I', data_length))
+    audio_file.write(header)
+    for sample in samples:
+        audio_file.write(pack('<h', round(sample * 0xFFFF) - 0x8000))
 
 class AudioWriter:
     """
@@ -88,7 +105,7 @@ class AudioWriter:
             samples = self._moving_average_filter(delays, options)
         else:
             samples = self._delays_to_samples(delays, options)
-        self._write_wav(audio_file, samples, options)
+        write_wav(audio_file, samples, options[SAMPLE_RATE])
 
     # Component API
     def formats(self):
@@ -164,7 +181,7 @@ class AudioWriter:
                 if bit:
                     bits += i
                 d -= i
-                samples.append((floor(0xFFFF * bits / (t1 - s0)) - 0x8000) & 0xFFFF)
+                samples.append(bits / (t1 - s0))
                 s0 = t = t1
                 s1 += sample_delay
                 t1 = ceil(s1)
@@ -189,28 +206,8 @@ class AudioWriter:
             if i >= len(delays):
                 break
             if direction > 0:
-                samples.append(32767)
+                samples.append(1)
             else:
-                samples.append(32768)
+                samples.append(0)
             t += sample_delay
         return samples
-
-    def _write_wav(self, audio_file, samples, options):
-        sample_rate = options[SAMPLE_RATE]
-        data_length = 2 * len(samples)
-        header = bytearray()
-        header.extend(b'RIFF')
-        header.extend(pack('<I', 36 + data_length))
-        header.extend(b'WAVEfmt ')
-        header.extend(pack('<I', 16))                  # length of fmt chunk
-        header.extend((1, 0))                          # format (1=PCM)
-        header.extend((1, 0))                          # channels
-        header.extend(pack('<I', sample_rate))         # sample rate
-        header.extend(pack('<I', sample_rate * 2))     # byte rate
-        header.extend((2, 0))                          # bytes per sample
-        header.extend((16, 0))                         # bits per sample
-        header.extend(b'data')
-        header.extend(pack('<I', data_length))         # length of data chunk
-        audio_file.write(header)
-        for sample in samples:
-            audio_file.write(bytes((sample & 255, sample // 256)))
