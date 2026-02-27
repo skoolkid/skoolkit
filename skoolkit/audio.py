@@ -27,6 +27,31 @@ FRAME_DURATION = 'FrameDuration'
 INTERRUPT_DELAY = 'InterruptDelay'
 SAMPLE_RATE = 'SampleRate'
 
+def moving_average_filter(delays, options, volume=1):
+    sample_delay = options[CLOCK_SPEED] / options[SAMPLE_RATE]
+    s0, s1 = 0, sample_delay
+    t, t1 = 0, ceil(s1)
+    bit = bits = 0
+    samples = []
+    for d in delays:
+        while True:
+            if t + d < t1:
+                if bit:
+                    bits += d
+                t += d
+                break
+            i = t1 - t
+            if bit:
+                bits += i
+            d -= i
+            samples.append(volume * bits / (t1 - s0))
+            s0 = t = t1
+            s1 += sample_delay
+            t1 = ceil(s1)
+            bits = 0
+        bit = 1 - bit
+    return samples
+
 def write_wav(audio_file, samples, sample_rate, channels=1):
     bits_per_sample = 16
     bytes_per_sample = (bits_per_sample // 8) * channels
@@ -102,7 +127,7 @@ class AudioWriter:
         if contention or interrupts:
             self._add_contention(delays, contention, interrupts, offset, options)
         if ma_filter:
-            samples = self._moving_average_filter(delays, options)
+            samples = moving_average_filter(delays, options)
         else:
             samples = self._delays_to_samples(delays, options)
         write_wav(audio_file, samples, options[SAMPLE_RATE])
@@ -163,31 +188,6 @@ class AudioWriter:
                     # Delay crosses frame boundary
                     d_offset += f_duration - cycle
                     cycle = 0
-
-    def _moving_average_filter(self, delays, options):
-        sample_delay = options[CLOCK_SPEED] / options[SAMPLE_RATE]
-        s0, s1 = 0, sample_delay
-        t, t1 = 0, ceil(s1)
-        bit = bits = 0
-        samples = []
-        for d in delays:
-            while True:
-                if t + d < t1:
-                    if bit:
-                        bits += d
-                    t += d
-                    break
-                i = t1 - t
-                if bit:
-                    bits += i
-                d -= i
-                samples.append(bits / (t1 - s0))
-                s0 = t = t1
-                s1 += sample_delay
-                t1 = ceil(s1)
-                bits = 0
-            bit = 1 - bit
-        return samples
 
     def _delays_to_samples(self, delays, options):
         sample_delay = options[CLOCK_SPEED] / options[SAMPLE_RATE]

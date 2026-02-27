@@ -16,7 +16,8 @@
 
 from math import ceil
 
-from skoolkit.audio import CLOCK_SPEED, FRAME_DURATION, SAMPLE_RATE, write_wav
+from skoolkit.audio import (CLOCK_SPEED, FRAME_DURATION, SAMPLE_RATE,
+                            moving_average_filter, write_wav)
 from skoolkit.simutils import CLOCK_SPEEDS, FRAME_DURATIONS
 
 AY_CLOCK_RATE = 1773400
@@ -224,7 +225,7 @@ class AYAudioWriter:
         ay_samples = ay.render(ay_log, frame_duration, ay_res, ay_volume)
         if options.beeper and beeper_log:
             delays = [t1 - t0 for t0, t1 in zip(beeper_log, beeper_log[1:])]
-            beeper_samples = self._render_beeper(delays, volume)
+            beeper_samples = moving_average_filter(delays, self.options, volume)
             samples = self._combine(ay_samples, beeper_samples)
         else:
             samples = ay_samples
@@ -239,32 +240,6 @@ class AYAudioWriter:
             else:
                 beeper_log.append(record[0])
         return ay_log, beeper_log
-
-    def _render_beeper(self, delays, volume):
-        # Apply a moving average filter
-        sample_delay = self.options[CLOCK_SPEED] / self.options[SAMPLE_RATE]
-        s0, s1 = 0, sample_delay
-        t, t1 = 0, ceil(s1)
-        bit = bits = 0
-        samples = []
-        for d in delays:
-            while True:
-                if t + d < t1:
-                    if bit:
-                        bits += d
-                    t += d
-                    break
-                i = t1 - t
-                if bit:
-                    bits += i
-                d -= i
-                samples.append(volume * bits / (t1 - s0))
-                s0 = t = t1
-                s1 += sample_delay
-                t1 = ceil(s1)
-                bits = 0
-            bit = 1 - bit
-        return samples
 
     def _combine(self, ay_samples, beeper_samples):
         samples = []
