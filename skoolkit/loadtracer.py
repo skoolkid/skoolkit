@@ -1,4 +1,4 @@
-# Copyright 2022-2025 Richard Dymond (rjdymond@gmail.com)
+# © 2022-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -118,26 +118,19 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
                 one = ','.join(str(d) for d in timings.one)
                 analysis.append(f'{tstates:>10}  {ear:>3}  Data ({data_len} bytes{bits}; {zero}/{one} T-states)')
             start = len(edges) - 1
-            if 0 in timings.zero and 0 in timings.one and sum(timings.zero) == sum(timings.one):
-                # This is sample data as opposed to byte values, so an edge
-                # is the transition between a 0-bit and a 1-bit (or vice versa)
-                sample_t = sum(timings.zero)
-                prev_bit = data[0] & 0x80
-                for k, b in enumerate(data, 1):
-                    for j in range(8 if k < len(data) else timings.used_bits):
-                        if b & 0x80 != prev_bit:
-                            edges.append(tstates)
-                            prev_bit ^= 0x80
-                        tstates += sample_t
-                        b *= 2
-                edges.append(tstates)
-            else:
-                for k, b in enumerate(data, 1):
-                    for j in range(8 if k < len(data) else timings.used_bits):
-                        for d in timings.one if b & 0x80 else timings.zero:
+            p = q = 0
+            for k, b in enumerate(data, 1):
+                for j in range(8 if k < len(data) else timings.used_bits):
+                    for d in timings.one if b & 0x80 else timings.zero:
+                        if d:
                             tstates += d
-                            edges.append(tstates)
-                        b *= 2
+                            if p == q:
+                                edges.append(tstates)
+                                q = 1 - q
+                            else:
+                                edges[-1] += d
+                        p = 1 - p
+                    b *= 2
 
             # Tail pulse
             if timings.tail:

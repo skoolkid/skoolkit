@@ -34,6 +34,8 @@ Changelog
   :ref:`ref-AudioWriter` section
 * Fixed the bug in CSimulator that restricts the ``timeout`` simulated load
   configuration parameter to a maximum value of 1227 seconds
+* Fixed how :ref:`tap2sna.py` handles zero-length pulses in the encodings of 0s
+  and 1s in a PZX DATA block
 
 9.6 (2025-05-12)
 ----------------
