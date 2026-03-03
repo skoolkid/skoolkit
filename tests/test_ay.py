@@ -50,7 +50,7 @@ class AudioWriterTest(SkoolKitTestCase):
         samples = self._check_header(audio_bytes, options)
         self.assertEqual(len(samples), 3528)
         self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
-        self.assertEqual(samples[3520:], b'\xff\x3f\xff\x3f\xff\x3f\xff\x3f')
+        self.assertEqual(samples[3520:], b'\xff\x7f\xff\x7f\xff\x7f\xff\x7f')
 
     def test_beeper_starts_before_ay(self):
         options = Options(beeper=True)
@@ -84,7 +84,7 @@ class AudioWriterTest(SkoolKitTestCase):
         samples = self._check_header(audio_bytes, options)
         self.assertEqual(len(samples), 3528)
         self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
-        self.assertEqual(samples[3520:], b'\x00\xc0\x00\x80\x00\xc0\x00\x80')
+        self.assertEqual(samples[3520:], b'\x55\xd5\x00\x80\x55\xd5\x00\x80')
 
     def test_ay_res(self):
         options = Options(ay_res=2000)
@@ -101,7 +101,7 @@ class AudioWriterTest(SkoolKitTestCase):
         samples = self._check_header(audio_bytes, options)
         self.assertEqual(len(samples), 3480)
         self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
-        self.assertEqual(samples[3472:], b'\x00\x00\x00\x80\x00\x00\x00\x80')
+        self.assertEqual(samples[3472:], b'\xaa\x2a\x00\x80\xaa\x2a\x00\x80')
 
     def test_clock_speed(self):
         config = {CLOCK_SPEED: '3000000'}
@@ -127,7 +127,7 @@ class AudioWriterTest(SkoolKitTestCase):
         samples = self._check_header(audio_bytes, options, config)
         self.assertEqual(len(samples), 3528)
         self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
-        self.assertEqual(samples[3520:], b'\x00\x00\x00\x80\x00\x00\x00\x80')
+        self.assertEqual(samples[3520:], b'\xaa\x2a\x00\x80\xaa\x2a\x00\x80')
 
     def test_sample_rate(self):
         config = {SAMPLE_RATE: 11025}

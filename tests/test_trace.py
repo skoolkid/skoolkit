@@ -3381,7 +3381,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         self.assertEqual(ay_audio_writer.fname, outfile)
         self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
-        self.assertEqual(ay_audio_writer.options.volume, 75)
+        self.assertEqual(ay_audio_writer.options.volume, 100)
         self.assertIsNone(ay_audio_writer.options.ay_res)
         self.assertFalse(ay_audio_writer.options.beeper)
 
@@ -3448,7 +3448,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         self.assertEqual(ay_audio_writer.fname, outfile)
         self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
-        self.assertEqual(ay_audio_writer.options.volume, 75)
+        self.assertEqual(ay_audio_writer.options.volume, 100)
         self.assertIsNone(ay_audio_writer.options.ay_res)
         self.assertTrue(ay_audio_writer.options.beeper)
 

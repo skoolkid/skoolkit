@@ -1499,7 +1499,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             self.assertIsNone(ay_audio_writer.write_options)
         else:
             self.assertEqual(audio_log, ay_audio_writer.audio_log)
-            self.assertEqual(ay_audio_writer.write_options.volume, 75)
+            self.assertEqual(ay_audio_writer.write_options.volume, 100)
             self.assertIsNone(ay_audio_writer.write_options.ay_res)
             self.assertIs(ay_audio_writer.write_options.beeper, beeper)
         is128k = len(writer.snapshot) == 0x20000

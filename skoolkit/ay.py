@@ -190,7 +190,7 @@ class AY:
         return samples
 
 class Options:
-    def __init__(self, volume=75, ay_res=None, beeper=False):
+    def __init__(self, volume=100, ay_res=None, beeper=False):
         self.volume = volume
         self.ay_res = ay_res
         self.beeper = beeper
