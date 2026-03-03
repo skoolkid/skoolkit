@@ -25,6 +25,8 @@ Changelog
   in the ``TraceLine`` configuration parameter
 * Added support to :ref:`bin2sna.py` and :ref:`snapmod.py` for setting the
   MEMPTR register in SZX snapshots
+* Added the ``TraceHeader`` and ``TraceHeader2`` configuration parameters for
+  :ref:`trace.py <trace-conf>` (to specify headers to print before a trace)
 * Added support to the :ref:`AUDIO` macro for keyword arguments
 * Added support to :ref:`rzxplay.py` for ignoring any snapshots after the first
   one (which is useful for playing some RZX files created by the Fuse emulator)

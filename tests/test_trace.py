@@ -1894,6 +1894,8 @@ class TraceTest(SkoolKitTestCase):
             "Screen=0\n"
             "ScreenFps=50\n"
             "ScreenScale=2\n"
+            "TraceHeader=\n"
+            "TraceHeader2=\n"
             "TraceLine=${pc:04X} {i}\n"
             "TraceLine2=${pc:04X} {i:<15}  "
             "A={r[a]:02X}  F={r[f]:08b}  BC={r[bc]:04X}  DE={r[de]:04X}  HL={r[hl]:04X}  IX={r[ix]:04X} IY={r[iy]:04X}\\n                       "
@@ -1922,6 +1924,8 @@ class TraceTest(SkoolKitTestCase):
             Screen=0
             ScreenFps=50
             ScreenScale=2
+            TraceHeader=
+            TraceHeader2=
             TraceLine=${pc:04X} {i}
             TraceLine2=${pc:04x} {i:<15} A={r[a]:02X}
             TraceLineDecimal={pc:05} {i}
@@ -2478,6 +2482,121 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 16)
         self.assertEqual(screen.frame, 1)
+
+    def test_config_TraceHeader_read_from_file(self):
+        ini = """
+            [trace]
+            TraceHeader=ADDR  DISASSEMBLY
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        code = (
+            0x06, 0x02, # $8000 LD B,$02
+            0x0E, 0x03, # $8002 LD C,$03
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        output, error = self.run_trace(f'-n -o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            ADDR  DISASSEMBLY
+            $8000 LD B,$02
+            $8002 LD C,$03
+            Stopped at $8004
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceHeader_set_on_command_line(self):
+        code = (
+            0x06, 0x02, # $8000 LD B,$02
+            0x0E, 0x03, # $8002 LD C,$03
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        header = 'Addr  Disassembly'
+        output, error = self.run_trace(('-n', '-I', f'TraceHeader={header}', '-o', str(start), '-S', str(stop), '-v', binfile))
+        self.assertEqual(error, '')
+        exp_output = """
+            Addr  Disassembly
+            $8000 LD B,$02
+            $8002 LD C,$03
+            Stopped at $8004
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceHeader_with_newline(self):
+        code = (
+            0x06, 0x02, # $8000 LD B,$02
+            0x0E, 0x03, # $8002 LD C,$03
+        )
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        header = r'Addr  Disassembly\n====  ==========='
+        output, error = self.run_trace(('-n', '-I', f'TraceHeader={header}', '-o', str(start), '-S', str(stop), '-v', binfile))
+        self.assertEqual(error, '')
+        exp_output = """
+            Addr  Disassembly
+            ====  ===========
+            $8000 LD B,$02
+            $8002 LD C,$03
+            Stopped at $8004
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceHeader2_read_from_file(self):
+        ini = """
+            [trace]
+            TraceHeader2=ADDR  DISASSEMBLY      REGISTERS
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        code = (0x3E, 0x01) # $8000 LD A,$01
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        output, error = self.run_trace(f'-n -o {start} -S {stop} -vv {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            ADDR  DISASSEMBLY      REGISTERS
+            $8000 LD A,$01         A=01  F=00000000  BC=0000  DE=0000  HL=0000  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F01
+            Stopped at $8002
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceHeader2_set_on_command_line(self):
+        code = (0x3E, 0x01) # $8000 LD A,$01
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        header = 'Addr  Disassembly      Registers'
+        output, error = self.run_trace(('-n', '-I', f'TraceHeader2={header}', '-o', str(start), '-S', str(stop), '-vv', binfile))
+        self.assertEqual(error, '')
+        exp_output = """
+            Addr  Disassembly      Registers
+            $8000 LD A,$01         A=01  F=00000000  BC=0000  DE=0000  HL=0000  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F01
+            Stopped at $8002
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_config_TraceHeader2_with_newline(self):
+        code = (0x3E, 0x01) # $8000 LD A,$01
+        binfile = self.write_bin_file(code, suffix='.bin')
+        start = 0x8000
+        stop = start + len(code)
+        header = r'Addr  Disassembly      Registers\n====  ===========      ========='
+        output, error = self.run_trace(('-n', '-I', f'TraceHeader2={header}', '-o', str(start), '-S', str(stop), '-vv', binfile))
+        self.assertEqual(error, '')
+        exp_output = """
+            Addr  Disassembly      Registers
+            ====  ===========      =========
+            $8000 LD A,$01         A=01  F=00000000  BC=0000  DE=0000  HL=0000  IX=0000 IY=5C3A
+                                   A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00 IR=3F01
+            Stopped at $8002
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     def test_config_TraceLine_read_from_file(self):
         ini = """

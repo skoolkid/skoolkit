@@ -49,7 +49,8 @@ class Tracer(PagingTracer):
         self.audio_log = []
         self.keyboard = None
 
-    def run(self, start, stop, max_operations, max_tstates, interrupts, draw, exec_map, trace_line, prefix, byte_fmt, word_fmt):
+    def run(self, start, stop, max_operations, max_tstates, interrupts, draw,
+            exec_map, trace_header, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
         memory = simulator.memory
         registers = simulator.registers
@@ -64,6 +65,8 @@ class Tracer(PagingTracer):
         if trace_line:
             r = Registers(registers)
 
+        if trace_header:
+            print(trace_header)
         if hasattr(simulator, 'trace'):
             if trace_line:
                 df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
@@ -288,9 +291,12 @@ def run(snafile, options, config):
     tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe, audio)
     simulator.set_tracer(tracer)
     if options.verbose:
-        s = (('', '2'), ('Decimal', 'Decimal2'))[options.decimal][min(options.verbose - 1, 1)]
-        trace_line = config['TraceLine' + s].replace(r'\n', '\n')
+        b = ('', 'Decimal')[options.decimal]
+        s = ('', '2')[min(options.verbose - 1, 1)]
+        trace_header = config['TraceHeader' + s].replace(r'\n', '\n')
+        trace_line = config['TraceLine' + b + s].replace(r'\n', '\n')
     else:
+        trace_header = None
         trace_line = None
     trace_operand = config['TraceOperand' + ('', 'Decimal')[options.decimal]]
     prefix, byte_fmt, word_fmt = (trace_operand + ',' * (2 - trace_operand.count(','))).split(',')[:3]
@@ -312,7 +318,8 @@ def run(snafile, options, config):
         exec_map = None
     begin = time.time()
     tracer.run(start, options.stop, options.max_operations, options.max_tstates,
-               options.interrupts, draw, exec_map, trace_line, prefix, byte_fmt, word_fmt)
+               options.interrupts, draw, exec_map, trace_header, trace_line,
+               prefix, byte_fmt, word_fmt)
     rt = time.time() - begin
     if len(simulator.memory) == 65536:
         cpu_freq = CLOCK_SPEEDS[0]

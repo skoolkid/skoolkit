@@ -170,6 +170,8 @@ configuration parameters are:
   :ScreenFps: Screen refresh rate in frames per second (default:``50``). If set
     to 0, ``trace.py`` runs at maximum speed.
   :ScreenScale: Screen scale factor (default: ``2``).
+  :TraceHeader: The header to print when ``-v`` is used (default: None).
+  :TraceHeader2: The header to print when ``-vv`` is used (default: None).
   :TraceLine: The format of each instruction line when ``-v`` is used
     (default: ``${pc:04X} {i}``).
   :TraceLine2: The format of each instruction line when ``-vv`` is used. Use

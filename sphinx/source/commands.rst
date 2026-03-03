@@ -2222,6 +2222,8 @@ configuration parameters are:
 * ``ScreenFps`` - screen refresh rate in frames per second (default: ``50``);
   if set to 0, `trace.py` runs at maximum speed
 * ``ScreenScale`` - screen scale factor (default: ``2``)
+* ``TraceHeader`` - the header to print when ``-v`` is used (default: None)
+* ``TraceHeader2`` - the header to print when ``-vv`` is used (default: None)
 * ``TraceLine`` - the format of each instruction line when ``-v`` is used
   (default: ``${pc:04X} {i}``)
 * ``TraceLine2`` - the format of each instruction line when ``-vv`` is used
@@ -2258,8 +2260,8 @@ The register name ``X`` in ``r[X]`` must be one of the following::
 
 The names that begin with ``^`` denote the shadow registers.
 
-Wherever ``\n`` appears in a ``TraceLine*`` parameter value, it is replaced by
-a newline character.
+Wherever ``\n`` appears in a ``TraceHeader*`` or ``TraceLine*`` parameter
+value, it is replaced by a newline character.
 
 Configuration parameters must appear in a ``[trace]`` section. For example,
 to make `trace.py` write a timestamp for each instruction when ``-v`` is used,
@@ -2279,7 +2281,8 @@ Configuration parameters may also be set on the command line by using the
 |         | capturing AY audio; added support to the ``--reg`` option for     |
 |         | setting the MEMPTR register; reads and writes the MEMPTR register |
 |         | in SZX snapshots; added support for the ``r[memptr]`` replacement |
-|         | field in the ``TraceLine*`` configuration parameters              |
+|         | field in the ``TraceLine*`` configuration parameters; added the   |
+|         | ``TraceHeader`` and ``TraceHeader2`` configuration parameters     |
 +---------+-------------------------------------------------------------------+
 | 9.6     | Added the ``Screen`` configuration parameter                      |
 +---------+-------------------------------------------------------------------+
