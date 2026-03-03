@@ -20,7 +20,11 @@ depending on whether code execution in a simulator is enabled (bit 2 of
 This is not supported in SkoolKit 10. Instead, use the following unified
 syntax::
 
-  #AUDIOsim[,start,stop,execint,cmio,offset,maf,...](fname)[(delays)]
+  #AUDIOsim[,start,stop,execint,cmio,offset,...](fname)[(delays)]
+
+Also in SkoolKit 9, ``#AUDIO`` would pass beeper delays through a moving
+average filter only when bit 3 of ``flags`` was set. In SkoolKit 10, beeper
+delays are always passed through a moving average filter.
 
 #CALL
 -----

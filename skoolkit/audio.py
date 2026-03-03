@@ -106,7 +106,7 @@ class AudioWriter:
                     pass
 
     # Component API
-    def write_audio(self, audio_file, delays, contention=False, interrupts=False, offset=0, ma_filter=False, is128k=False):
+    def write_audio(self, audio_file, delays, contention=False, interrupts=False, offset=0, is128k=False):
         """
         Write an audio file.
 
@@ -120,16 +120,12 @@ class AudioWriter:
         :param offset: The offset (in T-states) of the first speaker flip from
                        the start of the frame. Used when simulating delays due
                        to contention and interrupts.
-        :param ma_filter: Whether to apply a moving average filter.
         :param is128k: Whether to use 128K timings.
         """
         options = self.options[is128k]
         if contention or interrupts:
             self._add_contention(delays, contention, interrupts, offset, options)
-        if ma_filter:
-            samples = moving_average_filter(delays, options)
-        else:
-            samples = self._delays_to_samples(delays, options)
+        samples = moving_average_filter(delays, options)
         write_wav(audio_file, samples, options[SAMPLE_RATE])
 
     # Component API
@@ -188,26 +184,3 @@ class AudioWriter:
                     # Delay crosses frame boundary
                     d_offset += f_duration - cycle
                     cycle = 0
-
-    def _delays_to_samples(self, delays, options):
-        sample_delay = options[CLOCK_SPEED] / options[SAMPLE_RATE]
-        samples = []
-        direction = 1
-        i = 0
-        d = delays[0]
-        t = 0
-        while 1:
-            while t >= d:
-                i += 1
-                if i >= len(delays):
-                    break
-                d += delays[i]
-                direction *= -1
-            if i >= len(delays):
-                break
-            if direction > 0:
-                samples.append(1)
-            else:
-                samples.append(0)
-            t += sample_delay
-        return samples

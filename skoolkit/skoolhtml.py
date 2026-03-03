@@ -1050,12 +1050,12 @@ class HtmlWriter:
         return fname, False
 
     def expand_audio(self, text, index, cwd):
-        end, interrupts, contention, offset, ma_filter, beeper, fname, delays, audio_log = skoolmacro.parse_audio(self, text, index, self._need_audio)
+        end, interrupts, contention, offset, beeper, fname, delays, audio_log = skoolmacro.parse_audio(self, text, index, self._need_audio)
         if delays or audio_log:
             with self.file_info.open_file(fname, mode='wb') as f:
                 if delays:
                     is128k = len(self.snapshot) == 0x20000
-                    self.audio_writer.write_audio(f, delays, contention, interrupts, offset, ma_filter, is128k)
+                    self.audio_writer.write_audio(f, delays, contention, interrupts, offset, is128k)
                 else:
                     options = Options(beeper=beeper)
                     self.ay_audio_writer.write_audio(f, audio_log, options)

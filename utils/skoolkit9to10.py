@@ -129,7 +129,6 @@ def _convert_audio(line):
             cmio = flags & 1 or ''
             if offset is None:
                 offset = ''
-            maf = flags & 8
             delays = ''
             if sim:
                 end, sparams = parse_brackets(line, end)
@@ -153,9 +152,7 @@ def _convert_audio(line):
                 if len(line) > end and line[end] == '(':
                     end, delays = parse_brackets(line, end)
                     delays = f'({delays})'
-            if maf:
-                params = f',{start},{stop},{execint},{cmio},{offset},1'
-            elif offset:
+            if offset:
                 params = f',{start},{stop},{execint},{cmio},{offset}'
             elif cmio:
                 params = f',{start},{stop},{execint},1'

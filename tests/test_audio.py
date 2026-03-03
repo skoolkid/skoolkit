@@ -18,14 +18,14 @@ def _flatten(elements):
 def mock_write_wav(audio_file, samples, sample_rate):
     return
 
-class TestAudioWriter(AudioWriter):
-    def _delays_to_samples(self, delays, options):
-        self.delays = delays
+def mock_moving_average_filter(delays, *args):
+    global uf_delays
+    uf_delays = delays
 
 class AudioWriterTest(SkoolKitTestCase):
-    def _get_audio_data(self, audio_writer, delays, ma_filter=False, is128k=False):
+    def _get_audio_data(self, audio_writer, delays, is128k=False):
         audio_stream = BytesIO()
-        audio_writer.write_audio(audio_stream, delays, ma_filter=ma_filter, is128k=is128k)
+        audio_writer.write_audio(audio_stream, delays, is128k=is128k)
         audio_bytes = bytearray(audio_stream.getvalue())
         audio_stream.close()
         return audio_bytes
@@ -52,57 +52,49 @@ class AudioWriterTest(SkoolKitTestCase):
         audio_writer = AudioWriter()
         audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
         samples = self._check_header(audio_bytes)
-        self.assertEqual(samples, b'\xff\x7f\xff\x7f\x00\x80\xff\x7f\x00\x80\x00\x80')
+        self.assertEqual(samples, b'\x00\x80\x30\x3f\x33\x03\x54\xba\xff\x7f')
 
     def test_samples_128k(self):
         audio_writer = AudioWriter()
         audio_bytes = self._get_audio_data(audio_writer, [100] * 4, is128k=True)
         samples = self._check_header(audio_bytes)
-        self.assertEqual(samples, b'\xff\x7f\xff\x7f\x00\x80\xff\x7f\x00\x80')
+        self.assertEqual(samples, b'\x00\x80\x32\x43\x42\xfb\x66\xc6')
 
-    def test_ma_filter_48k(self):
-        audio_writer = AudioWriter()
-        audio_bytes = self._get_audio_data(audio_writer, [50, 150, 50, 150], True)
-        samples = self._check_header(audio_bytes)
-        self.assertEqual(samples, b'\x00\xe0\xff\x7f\x33\x03\x5a\x5c\xff\x7f')
-
-    def test_ma_filter_128k(self):
-        audio_writer = AudioWriter()
-        audio_bytes = self._get_audio_data(audio_writer, [50, 150, 50, 150], True, True)
-        samples = self._check_header(audio_bytes)
-        self.assertEqual(samples, b'\xf9\xe1\xff\x7f\x42\xfb\x66\x66')
-
+    @patch.object(audio, 'moving_average_filter', mock_moving_average_filter)
     @patch.object(audio, 'write_wav', mock_write_wav)
     def test_contention_48k(self):
-        audio_writer = TestAudioWriter()
+        audio_writer = AudioWriter()
         delays_in = _flatten([13000, [1000] * 31, 500])
         audio_writer.write_audio(None, delays_in, True)
-        exp_delays_out = _flatten([13000, 1000, 1339, [1510] * 27, 1384, 1000, 500])
-        self.assertEqual(exp_delays_out, audio_writer.delays)
+        exp_delays = _flatten([13000, 1000, 1339, [1510] * 27, 1384, 1000, 500])
+        self.assertEqual(exp_delays, uf_delays)
 
+    @patch.object(audio, 'moving_average_filter', mock_moving_average_filter)
     @patch.object(audio, 'write_wav', mock_write_wav)
     def test_contention_128k(self):
-        audio_writer = TestAudioWriter()
+        audio_writer = AudioWriter()
         delays_in = _flatten([13000, [1000] * 32, 500])
         audio_writer.write_audio(None, delays_in, True, is128k=True)
-        exp_delays_out = _flatten([13000, 1000, 1325, [1510] * 28, 1146, 1000, 500])
-        self.assertEqual(exp_delays_out, audio_writer.delays)
+        exp_delays = _flatten([13000, 1000, 1325, [1510] * 28, 1146, 1000, 500])
+        self.assertEqual(exp_delays, uf_delays)
 
+    @patch.object(audio, 'moving_average_filter', mock_moving_average_filter)
     @patch.object(audio, 'write_wav', mock_write_wav)
     def test_interrupts_48k(self):
-        audio_writer = TestAudioWriter()
+        audio_writer = AudioWriter()
         delays_in = [10000] * 8
         audio_writer.write_audio(None, delays_in, False, True)
-        exp_delays_out = _flatten([[10000] * 6, 10895, 10000])
-        self.assertEqual(exp_delays_out, audio_writer.delays)
+        exp_delays = _flatten([[10000] * 6, 10895, 10000])
+        self.assertEqual(exp_delays, uf_delays)
 
+    @patch.object(audio, 'moving_average_filter', mock_moving_average_filter)
     @patch.object(audio, 'write_wav', mock_write_wav)
     def test_interrupts_128k(self):
-        audio_writer = TestAudioWriter()
+        audio_writer = AudioWriter()
         delays_in = [10000] * 15
         audio_writer.write_audio(None, delays_in, False, True, is128k=True)
-        exp_delays_out = _flatten([[10000] * 6, 11565, [10000] * 6, 11385, 10000])
-        self.assertEqual(exp_delays_out, audio_writer.delays)
+        exp_delays = _flatten([[10000] * 6, 11565, [10000] * 6, 11385, 10000])
+        self.assertEqual(exp_delays, uf_delays)
 
     def test_invalid_option_values(self):
         audio_writer = AudioWriter({
@@ -133,54 +125,59 @@ class AudioWriterTest(SkoolKitTestCase):
 
     def test_custom_clock_speed(self):
         audio_writer = AudioWriter({'ClockSpeed': '7000000'})
-        audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
+        audio_bytes = self._get_audio_data(audio_writer, [200] * 4)
         samples = self._check_header(audio_bytes)
-        self.assertEqual(samples, b'\xff\x7f\x00\x80\x00\x80')
+        self.assertEqual(samples, b'\x00\x80\xfc\x3d\x06\x04\xb5\xb8\xff\x7f')
 
+    @patch.object(audio, 'moving_average_filter', mock_moving_average_filter)
     @patch.object(audio, 'write_wav', mock_write_wav)
     def test_custom_contention_period(self):
-        audio_writer = TestAudioWriter({'ContentionBegin': '10000', 'ContentionEnd': '20000'})
+        audio_writer = AudioWriter({'ContentionBegin': '10000', 'ContentionEnd': '20000'})
         delays_in = _flatten([8500, [1000] * 10, 500])
         audio_writer.write_audio(None, delays_in, True)
-        exp_delays_out = _flatten([8500, 1000, 1255, [1510] * 6, 1063, 1000, 500])
-        self.assertEqual(exp_delays_out, audio_writer.delays)
+        exp_delays = _flatten([8500, 1000, 1255, [1510] * 6, 1063, 1000, 500])
+        self.assertEqual(exp_delays, uf_delays)
 
+    @patch.object(audio, 'moving_average_filter', mock_moving_average_filter)
     @patch.object(audio, 'write_wav', mock_write_wav)
     def test_custom_contention_factor(self):
-        audio_writer = TestAudioWriter({'ContentionFactor': '62'})
+        audio_writer = AudioWriter({'ContentionFactor': '62'})
         delays_in = _flatten([13000, [1000] * 29, 500])
         audio_writer.write_audio(None, delays_in, True)
-        exp_delays_out = _flatten([13000, 1000, 1412, [1620] * 25, 1511, 1000, 500])
-        self.assertEqual(exp_delays_out, audio_writer.delays)
+        exp_delays = _flatten([13000, 1000, 1412, [1620] * 25, 1511, 1000, 500])
+        self.assertEqual(exp_delays, uf_delays)
 
+    @patch.object(audio, 'moving_average_filter', mock_moving_average_filter)
     @patch.object(audio, 'write_wav', mock_write_wav)
     def test_custom_frame_duration(self):
-        audio_writer = TestAudioWriter({'FrameDuration': '30000'})
+        audio_writer = AudioWriter({'FrameDuration': '30000'})
         delays_in = [10000] * 4
         audio_writer.write_audio(None, delays_in, False, True)
-        exp_delays_out = [10000, 10000, 10895, 10000]
-        self.assertEqual(exp_delays_out, audio_writer.delays)
+        exp_delays = [10000, 10000, 10895, 10000]
+        self.assertEqual(exp_delays, uf_delays)
 
+    @patch.object(audio, 'moving_average_filter', mock_moving_average_filter)
     @patch.object(audio, 'write_wav', mock_write_wav)
     def test_custom_interrupt_delay(self):
-        audio_writer = TestAudioWriter({'InterruptDelay': '1050,2000'})
+        audio_writer = AudioWriter({'InterruptDelay': '1050,2000'})
         delays_in = [10000] * 15
         audio_writer.write_audio(None, delays_in, False, True)
-        exp_delays_out = _flatten([[10000] * 6, 12000, [10000] * 6, 11050, 10000])
-        self.assertEqual(exp_delays_out, audio_writer.delays)
+        exp_delays = _flatten([[10000] * 6, 12000, [10000] * 6, 11050, 10000])
+        self.assertEqual(exp_delays, uf_delays)
 
     def test_custom_sample_rate(self):
         sample_rate = 22050
         audio_writer = AudioWriter({'SampleRate': str(sample_rate)})
-        audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
+        audio_bytes = self._get_audio_data(audio_writer, [200] * 4)
         samples = self._check_header(audio_bytes, sample_rate)
-        self.assertEqual(samples, b'\xff\x7f\x00\x80\x00\x80')
+        self.assertEqual(samples, b'\x00\x80\xfc\x3d\x06\x04\xb5\xb8\xff\x7f')
 
+    @patch.object(audio, 'moving_average_filter', mock_moving_average_filter)
     @patch.object(audio, 'write_wav', mock_write_wav)
     def test_offset(self):
-        audio_writer = TestAudioWriter()
+        audio_writer = AudioWriter()
         delays_in = [10000] * 3
         offset = 50000
         audio_writer.write_audio(None, delays_in, False, True, offset)
-        exp_delays_out = [10000, 10895, 10000]
-        self.assertEqual(exp_delays_out, audio_writer.delays)
+        exp_delays = [10000, 10895, 10000]
+        self.assertEqual(exp_delays, uf_delays)

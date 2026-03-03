@@ -901,7 +901,7 @@ General macros
 In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. It
 is not supported in ASM mode. ::
 
-  #AUDIOsim[,start,stop,execint,cmio,offset,maf,ay,bpr](fname)[(delays)]
+  #AUDIOsim[,start,stop,execint,cmio,offset,ay,bpr](fname)[(delays)]
 
 * ``sim`` specifies whether to generate audio by executing instructions in a
   simulator (1), or to specify ``delays`` manually (0)
@@ -913,9 +913,6 @@ is not supported in ASM mode. ::
 * ``cmio`` specifies whether memory and I/O contention (and MEMPTR) are
   simulated (1), or not simulated (0, the default)
 * ``offset`` is the initial offset in T-states from the start of a frame
-* ``maf`` specifies whether to pass delays through a moving average filter (1),
-  or leave them alone (0, the default); this filter can produce higher-quality
-  audio, especially for multi-channel tunes
 * ``ay`` specifies whether to capture AY audio (1), or ignore it (0, the
   default)
 * ``bpr`` specifies whether to capture beeper audio as well (1), or ignore it
