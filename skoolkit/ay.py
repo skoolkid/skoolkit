@@ -82,7 +82,7 @@ class AY:
             (slide_up, slide_down),
             (slide_up, hold_bottom)
         )
-        self.channels = (Channel(0.0), Channel(0.5), Channel(1.0))
+        self.channels = (Channel(0.5), Channel(0.5), Channel(0.5))
         self.update_state([0] * 16)
 
     def update_mixer(self):
@@ -229,7 +229,7 @@ class AYAudioWriter:
             samples = self._combine(ay_samples, beeper_samples)
         else:
             samples = ay_samples
-        write_wav(audio_file, samples, self.options[SAMPLE_RATE], 2)
+        write_wav(audio_file, samples[::2], self.options[SAMPLE_RATE])
 
     def _parse_log(self, audio_log):
         ay_log = []

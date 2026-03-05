@@ -15,7 +15,7 @@ class AudioWriterTest(SkoolKitTestCase):
     def _check_header(self, audio_bytes, options, config=None):
         length = len(audio_bytes)
         sample_rate = config.get(SAMPLE_RATE, 44100) if config else 44100
-        channels = 2
+        channels = 1
         bits_per_sample = 16
         bytes_per_sample = (bits_per_sample // 8) * channels
         byte_rate = bytes_per_sample * sample_rate
@@ -48,9 +48,9 @@ class AudioWriterTest(SkoolKitTestCase):
         )
         audio_bytes = self._get_audio_data(AYAudioWriter(), records, options)
         samples = self._check_header(audio_bytes, options)
-        self.assertEqual(len(samples), 3524)
+        self.assertEqual(len(samples), 1762)
         self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
-        self.assertEqual(samples[3516:], b'\xff\x7f\xff\x7f\xff\x7f\xff\x7f')
+        self.assertEqual(samples[1754:], b'\xff\x7f\xff\x7f\xff\x7f\xff\x7f')
 
     def test_beeper_starts_before_ay(self):
         options = Options(beeper=True)
@@ -65,9 +65,9 @@ class AudioWriterTest(SkoolKitTestCase):
         records = [(t, *log[t]) for t in sorted(log)]
         audio_bytes = self._get_audio_data(AYAudioWriter(), records, options)
         samples = self._check_header(audio_bytes, options)
-        self.assertEqual(len(samples), 7052)
+        self.assertEqual(len(samples), 3526)
         self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
-        self.assertEqual(samples[7044:], b'\x55\xd5\x00\x80\x55\xd5\x00\x80')
+        self.assertEqual(samples[3518:], b'\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa')
 
     def test_beeper_starts_after_ay(self):
         options = Options(beeper=True)
@@ -82,9 +82,9 @@ class AudioWriterTest(SkoolKitTestCase):
         records = [(t, *log[t]) for t in sorted(log)]
         audio_bytes = self._get_audio_data(AYAudioWriter(), records, options)
         samples = self._check_header(audio_bytes, options)
-        self.assertEqual(len(samples), 3524)
+        self.assertEqual(len(samples), 1762)
         self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
-        self.assertEqual(samples[3516:], b'\x55\xd5\x00\x80\x55\xd5\x00\x80')
+        self.assertEqual(samples[1754:], b'\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa')
 
     def test_ay_res(self):
         options = Options(ay_res=2000)
@@ -99,9 +99,9 @@ class AudioWriterTest(SkoolKitTestCase):
         records = [(t, *log[t]) for t in sorted(log)]
         audio_bytes = self._get_audio_data(AYAudioWriter(), records, options)
         samples = self._check_header(audio_bytes, options)
-        self.assertEqual(len(samples), 3480)
+        self.assertEqual(len(samples), 1740)
         self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
-        self.assertEqual(samples[3472:], b'\xaa\x2a\x00\x80\xaa\x2a\x00\x80')
+        self.assertEqual(samples[1732:], b'\x55\xd5\x55\xd5\x55\xd5\x55\xd5')
 
     def test_clock_speed(self):
         config = {CLOCK_SPEED: '3000000'}
@@ -109,9 +109,9 @@ class AudioWriterTest(SkoolKitTestCase):
         options = Options(beeper=True)
         audio_bytes = self._get_audio_data(AYAudioWriter(config), records, options)
         samples = self._check_header(audio_bytes, options)
-        self.assertEqual(len(samples), 528)
+        self.assertEqual(len(samples), 264)
         self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
-        self.assertEqual(samples[520:], b'\x00\x80\x00\x80\x00\x80\x00\x80')
+        self.assertEqual(samples[256:], b'\x00\x80\x00\x80\x00\x80\x00\x80')
 
     def test_frame_duration(self):
         fd = 35454
@@ -125,9 +125,9 @@ class AudioWriterTest(SkoolKitTestCase):
         )
         audio_bytes = self._get_audio_data(AYAudioWriter(config), records, options)
         samples = self._check_header(audio_bytes, options, config)
-        self.assertEqual(len(samples), 3528)
+        self.assertEqual(len(samples), 1764)
         self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
-        self.assertEqual(samples[3520:], b'\xaa\x2a\x00\x80\xaa\x2a\x00\x80')
+        self.assertEqual(samples[1756:], b'\x55\xd5\x55\xd5\x55\xd5\x55\xd5')
 
     def test_sample_rate(self):
         config = {SAMPLE_RATE: 11025}
@@ -140,9 +140,9 @@ class AudioWriterTest(SkoolKitTestCase):
         )
         audio_bytes = self._get_audio_data(AYAudioWriter(config), records, options)
         samples = self._check_header(audio_bytes, options, config)
-        self.assertEqual(len(samples), 880)
+        self.assertEqual(len(samples), 440)
         self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
-        self.assertEqual(samples[872:], b'\x00\x80\x00\x80\x00\x80\x00\x80')
+        self.assertEqual(samples[432:], b'\x00\x80\x00\x80\x00\x80\x00\x80')
 
     def test_invalid_sample_rate(self):
         ay_audio_writer = AYAudioWriter({SAMPLE_RATE: 'NaN'})
