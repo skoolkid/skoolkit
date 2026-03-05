@@ -1,5 +1,4 @@
-# Copyright 2010-2015, 2017-2019, 2021, 2024, 2025
-# Richard Dymond (rjdymond@gmail.com)
+# © 2010-2015, 2017-2019, 2021, 2024-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -83,7 +82,7 @@ class OperandFormatter:
 
     def _num_str(self, value, num_bytes, base):
         if base == 'c':
-            if self.is_char(value & 127):
+            if value < 256 and self.is_char(value & 127):
                 if value & 128:
                     suffix = '+' + self._num_str(128, 1, DEFAULT_BASE)
                 else:

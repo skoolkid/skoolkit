@@ -2453,6 +2453,24 @@ class DisassemblerTest(SkoolKitTestCase):
             self.assertEqual(instructions[0].operation, op)
             self.assertEqual(instructions[0].variant, int(op.startswith('BIT')))
 
+    def test_16_bit_operands_as_characters(self):
+        snapshot = [
+            1, 33, 0,               # 00000 LD BC,33  ; "!"
+            17, 191, 0,             # 00003 LD DE,191 ; "?"+128
+            33, 33, 1,              # 00006 LD HL,289 ; Out of range
+        ]
+        exp_instructions = (
+            (0, 'LD BC,"!"'),
+            (3, 'LD DE,"?"+128'),
+            (6, 'LD HL,289'),
+        )
+        disassembler = self._get_disassembler(snapshot)
+        instructions = disassembler.disassemble(0, 9, 'c')
+        self.assertEqual(len(instructions), len(exp_instructions))
+        for instruction, (address, operation) in zip(instructions, exp_instructions):
+            self.assertEqual(instruction.address, address)
+            self.assertEqual(instruction.operation, operation)
+
     def test_boundary_asm(self):
         for start, data, op in BOUNDARY_ASM:
             instructions = self._get_instructions(start, data)

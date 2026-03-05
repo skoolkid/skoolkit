@@ -1156,7 +1156,7 @@ class DisassemblyTest(SkoolKitTestCase):
             14, 94,         # 00019 LD C,94
             22, 96,         # 00021 LD D,96
             30, 128,        # 00023 LD E,128
-            1, 0, 1,        # 00025 LD BC,256
+            1, 33, 1,       # 00025 LD BC,289
         ]
         ctl = """
             c 00000
@@ -1177,7 +1177,7 @@ class DisassemblyTest(SkoolKitTestCase):
             (19, 'LD C,94'),
             (21, 'LD D,96'),
             (23, 'LD E,128'),
-            (25, 'LD BC,256'),
+            (25, 'LD BC,289'),
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions)
 
