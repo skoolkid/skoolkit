@@ -221,7 +221,7 @@ class AYAudioWriter:
                 ay_log.insert(0, (beeper_log[0], 0, 0))
         ay = AY(self.options[SAMPLE_RATE])
         frame_duration = self.options[FRAME_DURATION]
-        ay_res = options.ay_res or frame_duration
+        ay_res = options.ay_res or 622 # 70908/622=114 (5700Hz)
         ay_samples = ay.render(ay_log, frame_duration, ay_res, ay_volume)
         if options.beeper and beeper_log:
             delays = [t1 - t0 for t0, t1 in zip(beeper_log, beeper_log[1:])]
