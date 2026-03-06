@@ -193,6 +193,7 @@ class CommentGenerator:
             0x39: (None, ADD.format(HL, SP), None),
             0x3A: (self.word_arg, f'{A}=PEEK {WORD}', None),
             0x3B: (None, DEC.format(SP), None),
+            0x3E: (self.ld, LD.format(A, BYTE), None),
             0x3F: (None, 'Complement the carry flag', None),
             0x76: (None, 'Wait for the next interrupt', None),
             0x97: (None, f'{A}=0', (A, OFLOW_FLAGS)),
@@ -225,7 +226,7 @@ class CommentGenerator:
             0xD8: (self.ret_cc, (CF, 1), None),
             0xD9: (None, f"Exchange {BC}, {DE} and {HL} with {BC}', {DE}' and {HL}'", None),
             0xDA: (self.jp_cc, (CF, 1), None),
-            0xDB: (self.byte_arg, IN.format(A, f'(#N(256,,,1)($)*{A}+{BYTE})'), None),
+            0xDB: (self.in_a_n, IN.format(A, f'(#N(256,,,1)($)*{A}+{BYTE})'), None),
             0xDC: (self.call_cc, (CF, 1), None),
             0xDD: (self.dd_arg, None, None),
             0xDE: (self.byte_arg, SBC.format(A, BYTE), (A, OFLOW_FLAGS)),
@@ -396,7 +397,8 @@ class CommentGenerator:
             else:
                 self.ops[0x04 + 8 * i] = (None, INC.format(r), (r, OFLOW_INC_FLAGS))
                 self.ops[0x05 + 8 * i] = (None, DEC.format(r), (r, OFLOW_DEC_FLAGS))
-                self.ops[0x06 + 8 * i] = (self.byte_arg, LD.format(r, BYTE), None)
+                if i < 7:
+                    self.ops[0x06 + 8 * i] = (self.byte_arg, LD.format(r, BYTE), None)
                 alo_r = r
             for j, r2 in enumerate((B, C, D, E, H, L, '', A)):
                 if i == j:
@@ -493,6 +495,10 @@ class CommentGenerator:
             # LD BC,nn
             operand = values[1] + 256 * values[2]
             return template.format(operand), {'BC': operand}
+        if values[0] == 0x3E:
+            # LD A,n
+            operand = values[1]
+            return template.format(operand), {'A': operand}
 
     def in_r_c(self, template, address, values):
         bc = self.registers.get('BC', 0)
@@ -501,6 +507,14 @@ class CommentGenerator:
             if keys:
                 return f'Read keys {keys}'
         return template
+
+    def in_a_n(self, template, address, values):
+        port = values[1]
+        if port == 0xFE:
+            keys = KEYS.get(self.registers.get('A', 0))
+            if keys:
+                return f'Read keys {keys}'
+        return template.format(port)
 
     def and_n(self, address, values):
         bits = BITS[values[1]]

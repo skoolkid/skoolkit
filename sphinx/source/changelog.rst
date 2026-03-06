@@ -31,7 +31,8 @@ Changelog
 * Added support to :ref:`rzxplay.py` for ignoring any snapshots after the first
   one (which is useful for playing some RZX files created by the Fuse emulator)
 * Updated the comments generated for 'IN r,(C)' immediately after 'LD BC,$XXFE'
-  when a single half-row of the keyboard is read
+  and 'IN A,($FE)' immediately after 'LD A,n' when a single half-row of the
+  keyboard is read
 * Updated the default values of ``ContentionBegin``, ``ContentionEnd`` and
   ``InterruptDelay`` in the :ref:`ref-AudioWriter` section
 * Added support for multiple values to the ``InterruptDelay`` parameter in the

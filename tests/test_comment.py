@@ -1263,6 +1263,23 @@ class CommentGeneratorTest(SkoolKitTestCase):
                 comment = cg.get_comment(Instruction(0x8004, (0xED, opcode)))
                 self.assertEqual(comment, def_comments[opcode])
 
+    def test_in_a_n_keyboard(self):
+        cg = CommentGenerator()
+        nop = Instruction(0x8002, [0])
+        def_comment = '#REGa=IN (#N(256,,,1)($)*#REGa+#N(254,2,,1)($))'
+        in_a_n = (Instruction(0x8002, (219, 254)), Instruction(0x8003, (219, 254)))
+        for a, keys in KEYS.items():
+            ld_a = Instruction(0x8000, (62, a))
+            cg.get_comment(ld_a)
+            comment = cg.get_comment(in_a_n[0])
+            self.assertEqual(comment, f'Read keys {keys}')
+
+            # NOP between LD A,n and IN A,(254) clears register context
+            cg.get_comment(ld_a)
+            cg.get_comment(nop)
+            comment = cg.get_comment(in_a_n[1])
+            self.assertEqual(comment, def_comment)
+
 class ConditionalCallJumpRetTest(SkoolKitTestCase):
     def _inc_dec_opcodes(self, base):
         opcodes = []
