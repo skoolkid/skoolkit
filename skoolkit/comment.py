@@ -1,4 +1,4 @@
-# Copyright 2024, 2025 Richard Dymond (rjdymond@gmail.com)
+# © 2024-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -135,15 +135,27 @@ SRL = 'Shift {} right (copying bit 0 into the carry flag, and resetting bit 7)'
 SUB = f'{A}={A}-{{}}'
 XOR = f'{A}={A}^{{}}'
 
+KEYS = {
+    0b11111110: 'SHIFT-Z-X-C-V',
+    0b11111101: 'A-S-D-F-G',
+    0b11111011: 'Q-W-E-R-T',
+    0b11110111: '1-2-3-4-5',
+    0b11101111: '0-9-8-7-6',
+    0b11011111: 'P-O-I-U-Y',
+    0b10111111: 'ENTER-L-K-J-H',
+    0b01111111: 'SPACE-SYMSHIFT-M-N-B'
+}
+
 class CommentGenerator:
     def __init__(self):
         self.exp_addr = None
         self.ctx = None
         self.reg = None
+        self.registers = {}
 
         self.ops = {
             0x00: (None, NOP, None),
-            0x01: (self.word_arg, LD.format(BC, WORD), None),
+            0x01: (self.ld, LD.format(BC, WORD), None),
             0x02: (None, f'POKE {BC},{A}', None),
             0x03: (None, INC.format(BC), None),
             0x07: (None, RLC.format(A), None),
@@ -348,7 +360,7 @@ class CommentGenerator:
             0x6A: (None, ADC.format(HL, HL), (HL, OFLOW_FLAGS)),
             0x6B: (self.addr_arg, LD_rr_mm.format(WORD, L, H), None),
             0x6F: (None, f'Rotate the low nibble of {A} and all of ({HL}) left 4 bits', (A, PARITY_FLAGS)),
-            0x70: (None, f'Read from port {BC} and set flags accordingly', None),
+            0x70: (self.in_r_c, f'Read from port {BC} and set flags accordingly', None),
             0x71: (None, OUT.format(BC, 0), None),
             0x72: (None, SBC.format(HL, SP), (HL, OFLOW_FLAGS)),
             0x73: (self.addr_arg, LD_mm_rr.format(WORD, SPl, SPh), None),
@@ -411,7 +423,7 @@ class CommentGenerator:
             self.ops[0xC7 + 8 * i] = (None, RST.format(8 * i), None)
             if i != 6:
                 self.after_DD[0x70 + i] = (self.index, f'POKE {{ixd}},{r}', None)
-                self.after_ED[0x40 + 8 * i] = (None, IN.format(r, BC), (r, PARITY_FLAGS))
+                self.after_ED[0x40 + 8 * i] = (self.in_r_c, IN.format(r, BC), (r, PARITY_FLAGS))
                 self.after_ED[0x41 + 8 * i] = (None, OUT.format(BC, r), None)
             self.after_ED[0x44 + 8 * i] = (None, NEG, (A, NEGATE_FLAGS))
             self.after_ED[0x45 + 8 * i] = (None, (RETN, RETI)[i == 1], None)
@@ -457,10 +469,12 @@ class CommentGenerator:
             comment = rv
         else:
             comment, fctx = rv
-        if fctx:
+        self.ctx = None
+        self.registers.clear()
+        if isinstance(fctx, tuple):
             self.reg, self.ctx = fctx[0].format(*instruction.bytes), fctx[1]
-        else:
-            self.ctx = None
+        elif isinstance(fctx, dict):
+            self.registers = fctx
         self.exp_addr = (instruction.address + len(instruction.bytes)) % 65536
         return comment
 
@@ -473,6 +487,20 @@ class CommentGenerator:
         if values[0] in PREFIXES:
             return template.format(values[2] + 256 * values[3])
         return template.format(values[1] + 256 * values[2])
+
+    def ld(self, template, address, values):
+        if values[0] == 0x01:
+            # LD BC,nn
+            operand = values[1] + 256 * values[2]
+            return template.format(operand), {'BC': operand}
+
+    def in_r_c(self, template, address, values):
+        bc = self.registers.get('BC', 0)
+        if bc & 0xFF == 0xFE:
+            keys = KEYS.get(bc // 256)
+            if keys:
+                return f'Read keys {keys}'
+        return template
 
     def and_n(self, address, values):
         bits = BITS[values[1]]

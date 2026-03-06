@@ -1129,6 +1129,17 @@ CONDITIONALS = {
     },
 }
 
+KEYS = {
+    0b11111110: 'SHIFT-Z-X-C-V',
+    0b11111101: 'A-S-D-F-G',
+    0b11111011: 'Q-W-E-R-T',
+    0b11110111: '1-2-3-4-5',
+    0b11101111: '0-9-8-7-6',
+    0b11011111: 'P-O-I-U-Y',
+    0b10111111: 'ENTER-L-K-J-H',
+    0b01111111: 'SPACE-SYMSHIFT-M-N-B'
+}
+
 class Instruction:
     def __init__(self, address, data):
         self.address = address
@@ -1232,6 +1243,25 @@ class CommentGeneratorTest(SkoolKitTestCase):
                     jr_addr = (addr + 2 + offset - 256 * (offset > 0x7F)) % 65536
                     comment = cg.get_comment(Instruction(addr, (opcode, offset)))
                     self.assertEqual(comment, f'Jump to #R{jr_addr}{cond}', f'Opcodes: {opcode:02X}{offset:02X}')
+
+    def test_in_r_c_keyboard(self):
+        cg = CommentGenerator()
+        nop = Instruction(0x8003, [0])
+        def_comments = {b * 8 + 0x40: '#REG{}=IN #REGbc'.format('bcdehlXa'[b]) for b in range(8)}
+        def_comments[0x70] = 'Read from port #REGbc and set flags accordingly' # IN F,(C)
+        for b, keys in KEYS.items():
+            ld_bc = Instruction(0x8000, (1, 254, b))
+            exp_comment = f'Read keys {keys}'
+            for opcode in range(0x40, 0x80, 8):
+                cg.get_comment(ld_bc)
+                comment = cg.get_comment(Instruction(0x8003, (0xED, opcode)))
+                self.assertEqual(comment, exp_comment)
+
+                # NOP between LD BC,nn and IN r,(C) clears register context
+                cg.get_comment(ld_bc)
+                cg.get_comment(nop)
+                comment = cg.get_comment(Instruction(0x8004, (0xED, opcode)))
+                self.assertEqual(comment, def_comments[opcode])
 
 class ConditionalCallJumpRetTest(SkoolKitTestCase):
     def _inc_dec_opcodes(self, base):
