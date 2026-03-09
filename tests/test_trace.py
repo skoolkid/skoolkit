@@ -36,7 +36,8 @@ class MockSimulator:
         self.registers[T] = self.t1
 
 class MockSimulatorWithTraceMethod(MockSimulator):
-    def trace(self, start, stop, max_operations, max_time, interrupts, draw, exec_map, keyboard, df, tf):
+    def trace(self, tracer, start, stop, max_operations, max_time, interrupts, draw, exec_map, keyboard, df, tf):
+        self.tracer = tracer
         self.start = start
         self.stop = stop
         self.max_operations = max_operations
@@ -92,9 +93,10 @@ class MockScreen:
         self.caption = caption
         self.pygame_msg = 'Using pygame'
 
-    def draw(self, scr, frame, keyboard):
+    def draw(self, scr, frame, border, keyboard):
         self.scr = scr
         self.frame = frame
+        self.border = border
         self.keyboard = keyboard
         return True
 
@@ -1862,15 +1864,16 @@ class TraceTest(SkoolKitTestCase):
     @patch.object(trace, 'Screen', MockScreen)
     def test_option_screen(self):
         data = (
-            0x00, # $8000 NOP ; T=69886 (screen draw follows)
-            0x00, # $8001 NOP ; T=69890
+            0x3E, 0x07, # $8000 LD A,$07    ; T=69875
+            0xD3, 0xFE, # $8002 OUT ($FE),A ; T=69882 (screen draw follows)
+            0x00,       # $8004 NOP         ; T=69893
         )
         start = 0x8000
         stop = start + len(data)
         ram = [0] * 49152
         ram[0] = 255
         ram[start - 0x4000:stop - 0x4000] = data
-        registers = {'PC': start, 'tstates': 69886}
+        registers = {'PC': start, 'tstates': 69875}
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-S {stop} --screen {z80file}')
         self.assertEqual(error, '')
@@ -1884,6 +1887,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 255)
         self.assertEqual(screen.frame, 1)
+        self.assertEqual(screen.border, 7)
 
     def test_option_show_config(self):
         output, error = self.run_trace('--show-config', catch_exit=0)
@@ -2315,15 +2319,16 @@ class TraceTest(SkoolKitTestCase):
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         data = (
-            0x00, # $8000 NOP ; T=69886 (screen draw follows)
-            0x00, # $8001 NOP ; T=69890
+            0x3E, 0x06, # $8000 LD A,$06    ; T=69875
+            0xD3, 0xFE, # $8002 OUT ($FE),A ; T=69882 (screen draw follows)
+            0x00,       # $8004 NOP         ; T=69893
         )
         start = 0x8000
         stop = start + len(data)
         ram = [0] * 49152
         ram[0] = 55
         ram[start - 0x4000:stop - 0x4000] = data
-        registers = {'PC': start, 'tstates': 69886}
+        registers = {'PC': start, 'tstates': 69875}
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-S {stop} {z80file}')
         self.assertEqual(error, '')
@@ -2337,20 +2342,22 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 55)
         self.assertEqual(screen.frame, 1)
+        self.assertEqual(screen.border, 6)
 
     @patch.object(trace, 'pygame', True)
     @patch.object(trace, 'Screen', MockScreen)
     def test_config_Screen_set_on_command_line(self):
         data = (
-            0x00, # $A000 NOP ; T=69886 (screen draw follows)
-            0x00, # $A001 NOP ; T=69890
+            0x3E, 0x05, # $8000 LD A,$05    ; T=69875
+            0xD3, 0xFE, # $8002 OUT ($FE),A ; T=69882 (screen draw follows)
+            0x00,       # $8004 NOP         ; T=69893
         )
         start = 0xA000
         stop = start + len(data)
         ram = [0] * 49152
         ram[0] = 72
         ram[start - 0x4000:stop - 0x4000] = data
-        registers = {'PC': start, 'tstates': 69886}
+        registers = {'PC': start, 'tstates': 69875}
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-I Screen=1 -S {stop} {z80file}')
         self.assertEqual(error, '')
@@ -2364,6 +2371,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 72)
         self.assertEqual(screen.frame, 1)
+        self.assertEqual(screen.border, 5)
 
     @patch.object(trace, 'pygame', True)
     @patch.object(trace, 'Screen', MockScreen)
@@ -2374,15 +2382,16 @@ class TraceTest(SkoolKitTestCase):
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         data = (
-            0x00, # $8000 NOP ; T=69886 (screen draw follows)
-            0x00, # $8001 NOP ; T=69890
+            0x3E, 0x04, # $8000 LD A,$04    ; T=69875
+            0xD3, 0xFE, # $8002 OUT ($FE),A ; T=69882 (screen draw follows)
+            0x00,       # $8004 NOP         ; T=69893
         )
         start = 0x8000
         stop = start + len(data)
         ram = [0] * 49152
         ram[0] = 128
         ram[start - 0x4000:stop - 0x4000] = data
-        registers = {'PC': start, 'tstates': 69886}
+        registers = {'PC': start, 'tstates': 69875}
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-S {stop} --screen {z80file}')
         self.assertEqual(error, '')
@@ -2396,20 +2405,22 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 128)
         self.assertEqual(screen.frame, 1)
+        self.assertEqual(screen.border, 4)
 
     @patch.object(trace, 'pygame', True)
     @patch.object(trace, 'Screen', MockScreen)
     def test_config_ScreenFps_set_on_command_line(self):
         data = (
-            0x00, # $8000 NOP ; T=69886 (screen draw follows)
-            0x00, # $8001 NOP ; T=69890
+            0x3E, 0x03, # $8000 LD A,$03    ; T=69875
+            0xD3, 0xFE, # $8002 OUT ($FE),A ; T=69882 (screen draw follows)
+            0x00,       # $8004 NOP         ; T=69893
         )
         start = 0x8000
         stop = start + len(data)
         ram = [0] * 49152
         ram[0] = 1
         ram[start - 0x4000:stop - 0x4000] = data
-        registers = {'PC': start, 'tstates': 69886}
+        registers = {'PC': start, 'tstates': 69875}
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-I ScreenFps=150 -S {stop} --screen {z80file}')
         self.assertEqual(error, '')
@@ -2423,6 +2434,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 1)
         self.assertEqual(screen.frame, 1)
+        self.assertEqual(screen.border, 3)
 
     @patch.object(trace, 'pygame', True)
     @patch.object(trace, 'Screen', MockScreen)
@@ -2433,15 +2445,16 @@ class TraceTest(SkoolKitTestCase):
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         data = (
-            0x00, # $8000 NOP ; T=69886 (screen draw follows)
-            0x00, # $8001 NOP ; T=69890
+            0x3E, 0x02, # $8000 LD A,$02    ; T=69875
+            0xD3, 0xFE, # $8002 OUT ($FE),A ; T=69882 (screen draw follows)
+            0x00,       # $8004 NOP         ; T=69893
         )
         start = 0x8000
         stop = start + len(data)
         ram = [0] * 49152
         ram[0] = 240
         ram[start - 0x4000:stop - 0x4000] = data
-        registers = {'PC': start, 'tstates': 69886}
+        registers = {'PC': start, 'tstates': 69875}
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-S {stop} --screen {z80file}')
         self.assertEqual(error, '')
@@ -2455,20 +2468,22 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 240)
         self.assertEqual(screen.frame, 1)
+        self.assertEqual(screen.border, 2)
 
     @patch.object(trace, 'pygame', True)
     @patch.object(trace, 'Screen', MockScreen)
     def test_config_ScreenScale_set_on_command_line(self):
         data = (
-            0x00, # $8000 NOP ; T=69886 (screen draw follows)
-            0x00, # $8001 NOP ; T=69890
+            0x3E, 0x01, # $8000 LD A,$01    ; T=69875
+            0xD3, 0xFE, # $8002 OUT ($FE),A ; T=69882 (screen draw follows)
+            0x00,       # $8004 NOP         ; T=69893
         )
         start = 0x8000
         stop = start + len(data)
         ram = [0] * 49152
         ram[0] = 16
         ram[start - 0x4000:stop - 0x4000] = data
-        registers = {'PC': start, 'tstates': 69886}
+        registers = {'PC': start, 'tstates': 69875}
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-I ScreenScale=3 -S {stop} --screen {z80file}')
         self.assertEqual(error, '')
@@ -2482,6 +2497,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 16)
         self.assertEqual(screen.frame, 1)
+        self.assertEqual(screen.border, 1)
 
     def test_config_TraceHeader_read_from_file(self):
         ini = """

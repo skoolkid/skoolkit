@@ -1,4 +1,4 @@
-# Copyright 2024, 2025 Richard Dymond (rjdymond@gmail.com)
+# © 2024-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -29,15 +29,22 @@ class Screen:
     def __init__(self, scale, fps, caption):
         self._init_colours_and_keys()
         pygame.init()
-        pygame.display.set_mode((256 * scale, 192 * scale))
+        pygame.display.set_mode((320 * scale, 240 * scale))
         pygame.display.set_caption(caption)
         self.pygame_msg = pygame_io.getvalue()
         self.fps = fps
-        self.pixel_rects = [[pygame.Rect(px * scale, py * scale, scale, scale) for py in range(192)] for px in range(256)]
-        self.cell_rects = [[pygame.Rect(px * scale, py * scale, 8 * scale, 8 * scale) for py in range(0, 192, 8)] for px in range(0, 256, 8)]
+        self.pixel_rects = [[pygame.Rect((32 + px) * scale, (24 + py) * scale, scale, scale) for py in range(192)] for px in range(256)]
+        self.cell_rects = [[pygame.Rect((32 + px) * scale, (24 + py) * scale, 8 * scale, 8 * scale) for py in range(0, 192, 8)] for px in range(0, 256, 8)]
+        self.border_rects = (
+            pygame.Rect(0, 0, 320 * scale, 24 * scale),
+            pygame.Rect(0, 216 * scale, 320 * scale, 24 * scale),
+            pygame.Rect(0, 24 * scale, 32 * scale, 192 * scale),
+            pygame.Rect(288 * scale, 24 * scale, 32 * scale, 192 * scale)
+        )
         self.surface = pygame.display.get_surface()
         self.clock = pygame.time.Clock()
         self.prev_scr = [None] * 6912
+        self.prev_border = None
 
     def _init_colours_and_keys(self):
         self.colours = (
@@ -126,7 +133,7 @@ class Screen:
             (pygame.K_KP_PERIOD, 7, 0b00100),   # SYMBOL SHIFT + M
         ) if pygame else None
 
-    def draw(self, scr, frame, keyboard=None):
+    def draw(self, scr, frame, border, keyboard=None):
         screen = self.surface
         pixel_rects = self.pixel_rects
         cell_rects = self.cell_rects
@@ -134,6 +141,12 @@ class Screen:
         flash_change = (frame % 16) == 0
         flash_switch = (frame // 16) % 2
         colours = self.colours
+
+        if border != self.prev_border:
+            bcolour = colours[border]
+            for brect in self.border_rects:
+                screen.fill(bcolour, brect)
+            self.prev_border = border
 
         for (x, y, df_addr, af_addr) in CELLS:
             update = False

@@ -61,16 +61,19 @@ class MockPygameIO:
 class MockSurface:
     def __init__(self):
         self.scale = None
-        self.pixels = [None] * 49152
+        self.pixels = [None] * (320 * 240)
 
     def fill(self, colour, rect):
         x0, y0, w, h = rect
         for x in range(x0 // self.scale, (x0 + w) // self.scale):
             for y in range(y0 // self.scale, (y0 + h) // self.scale):
-                self.pixels[256 * y + x] = colour
+                self.pixels[320 * y + x] = colour
 
     def set_mode(self, resolution):
         self.scale = resolution[0] // 256
+
+    def get_pixel(self, x, y):
+        return self.pixels[320 * (24 + y) + 32 + x]
 
 class MockPygame:
     def __init__(self, events=()):

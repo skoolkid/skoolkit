@@ -75,7 +75,7 @@ class ScreenTest(SkoolKitTestCase):
     def _test_init(self, mock_pygame, scale, caption):
         s = screen.Screen(scale, 50, caption)
         self.assertTrue(mock_pygame.init_called)
-        mock_pygame.display.set_mode.assert_called_with((256 * scale, 192 * scale))
+        mock_pygame.display.set_mode.assert_called_with((320 * scale, 240 * scale))
         mock_pygame.display.set_caption.assert_called_with(caption)
         mock_pygame.display.get_surface.assert_called_with()
         mock_pygame.time.Clock.assert_called_with()
@@ -92,7 +92,7 @@ class ScreenTest(SkoolKitTestCase):
             if extra:
                 exp_keyboard[extra[0]] |= extra[1]
             mock_pygame.key.get_pressed.return_value = defaultdict(int, {k: 1})
-            self.assertTrue(s.draw(scr, 0, keyboard))
+            self.assertTrue(s.draw(scr, 0, 7, keyboard))
             self.assertEqual(exp_keyboard, keyboard)
 
     @patch.object(screen, 'pygame', new_callable=MockPygame)
@@ -106,7 +106,7 @@ class ScreenTest(SkoolKitTestCase):
     @patch.object(screen, 'pygame', new_callable=MockPygame)
     def test_draw(self, mock_pygame):
         s = screen.Screen(1, 50, 'screen')
-        self.assertTrue(s.draw([0] * 6912, 0))
+        self.assertTrue(s.draw([0] * 6912, 0, BLACK))
         mock_surface = mock_pygame.display.get_surface()
         self.assertTrue(all(p == BLACK for p in mock_surface.pixels))
         s.clock.tick.assert_called_with(50)
@@ -116,45 +116,45 @@ class ScreenTest(SkoolKitTestCase):
     def test_pixel_change(self, mock_pygame):
         s = screen.Screen(1, 50, 'screen')
         scr = [0] * 0x1800 + [BLUE] * 0x300
-        self.assertTrue(s.draw(scr, 0))
+        self.assertTrue(s.draw(scr, 0, BLACK))
         mock_surface = mock_pygame.display.get_surface()
         self.assertTrue(all(p == BLACK for p in mock_surface.pixels))
         scr = scr.copy()
         scr[0] |= 0b10000000
-        self.assertTrue(s.draw(scr, 1))
-        self.assertEqual(mock_surface.pixels[0], BLUE)
+        self.assertTrue(s.draw(scr, 1, 0))
+        self.assertEqual(mock_surface.get_pixel(0, 0), BLUE)
 
     @patch.object(screen, 'pygame', new_callable=MockPygame)
     def test_attr_change(self, mock_pygame):
         s = screen.Screen(1, 50, 'screen')
         scr = [0] * 0x1800 + [8 * GREEN] * 0x300
-        self.assertTrue(s.draw(scr, 0))
+        self.assertTrue(s.draw(scr, 0, GREEN))
         mock_surface = mock_pygame.display.get_surface()
         self.assertTrue(all(p == GREEN for p in mock_surface.pixels))
         scr = scr.copy()
         scr[0x1800] = 8 * YELLOW
-        self.assertTrue(s.draw(scr, 1))
+        self.assertTrue(s.draw(scr, 1, 0))
         for x in range(8):
             for y in range(8):
-                self.assertEqual(mock_surface.pixels[256 * y + x], YELLOW)
+                self.assertEqual(mock_surface.get_pixel(x, y), YELLOW)
 
     @patch.object(screen, 'pygame', new_callable=MockPygame)
     def test_flash(self, mock_pygame):
         s = screen.Screen(1, 50, 'screen')
         paper, ink = MAGENTA, CYAN
         scr = [0] * 0x1800 + [0x80 + 8 * paper + ink] * 0x300
-        self.assertTrue(s.draw(scr, 0x0F))
+        self.assertTrue(s.draw(scr, 0x0F, paper))
         mock_surface = mock_pygame.display.get_surface()
         self.assertTrue(all(p == paper for p in mock_surface.pixels))
-        self.assertTrue(s.draw(scr.copy(), 0x10))
+        self.assertTrue(s.draw(scr.copy(), 0x10, ink))
         self.assertTrue(all(p == ink for p in mock_surface.pixels))
-        self.assertTrue(s.draw(scr.copy(), 0x20))
+        self.assertTrue(s.draw(scr.copy(), 0x20, paper))
         self.assertTrue(all(p == paper for p in mock_surface.pixels))
 
     @patch.object(screen, 'pygame', MockPygame([Mock(type=QUIT)]))
     def test_quit(self):
         s = screen.Screen(1, 50, 'screen')
-        self.assertFalse(s.draw([0] * 6912, 0))
+        self.assertFalse(s.draw([0] * 6912, 0, 0))
 
     def test_keys(self):
         self._test_keys(KEYS, ())

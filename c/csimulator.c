@@ -1,5 +1,5 @@
 /*
-  Copyright 2024-2026 Richard Dymond (rjdymond@gmail.com)
+  © 2024-2026 Richard Dymond (rjdymond@gmail.com)
 
   This file is part of SkoolKit.
 
@@ -5443,7 +5443,8 @@ static PyObject* CSimulator_accept_interrupt(CSimulatorObject* self, PyObject* a
 }
 
 static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", "", "", "", "", "", "", "", NULL};
+    static char* kwlist[] = {"", "", "", "", "", "", "", "", "", "", "", NULL};
+    PyObject* tracer;
     PyObject* start_obj;
     PyObject* stop_obj;
     unsigned long long max_operations;
@@ -5455,7 +5456,8 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKKiOOOOO", kwlist, &start_obj, &stop_obj, &max_operations, &max_time, &interrupts, &draw, &exec_map, &keyboard, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOKKiOOOOO", kwlist, &tracer, &start_obj, &stop_obj, &max_operations,
+                                     &max_time, &interrupts, &draw, &exec_map, &keyboard, &disassemble, &trace)) {
         return NULL;
     }
 
@@ -5559,9 +5561,11 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
                         return NULL;
                     }
                 }
-                PyObject* args = Py_BuildValue("(OIO)", scr, frame, keyboard);
+                PyObject* border = PyObject_GetAttrString(tracer, "border");
+                PyObject* args = Py_BuildValue("(OIOO)", scr, frame, border, keyboard);
                 PyObject* rv = PyObject_CallObject(draw, args);
                 Py_XDECREF(args);
+                Py_XDECREF(border);
                 Py_XDECREF(scr);
                 if (rv == NULL) {
                     return NULL;

@@ -1,4 +1,4 @@
-# Copyright 2024-2026 Richard Dymond (rjdymond@gmail.com)
+# © 2024-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -299,7 +299,7 @@ def process_block(block, options, flags, context):
                 else:
                     fetch_counter -= 2 - ((registers[15] ^ r0) % 2)
         if draw:
-            run = draw(memory[16384:23296], context.frame_count)
+            run = draw(memory[16384:23296], context.frame_count, tracer.border)
         registers[25] = 0
         fetch_counter = tracer.next_frame()
         if registers[26]:

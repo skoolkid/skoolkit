@@ -30,6 +30,8 @@ Changelog
 * Added support to the :ref:`AUDIO` macro for keyword arguments
 * Added support to :ref:`rzxplay.py` for ignoring any snapshots after the first
   one (which is useful for playing some RZX files created by the Fuse emulator)
+* Added a border area to the screen displayed by :ref:`rzxplay.py` and
+  :ref:`trace.py`
 * Updated the comments generated for 'IN r,(C)' immediately after 'LD BC,$XXFE'
   and 'IN A,($FE)' immediately after 'LD A,n' when a single half-row of the
   keyboard is read

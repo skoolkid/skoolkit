@@ -308,7 +308,8 @@ empty (i.e. contain no frames).
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.0    | Added support for ignoring any snapshots after the first one      |
+| 10.0    | Added support for ignoring any snapshots after the first one;     |
+|         | added a border area to the screen                                 |
 +---------+-------------------------------------------------------------------+
 | 9.2     | New                                                               |
 +---------+-------------------------------------------------------------------+
@@ -2282,7 +2283,8 @@ Configuration parameters may also be set on the command line by using the
 |         | setting the MEMPTR register; reads and writes the MEMPTR register |
 |         | in SZX snapshots; added support for the ``r[memptr]`` replacement |
 |         | field in the ``TraceLine*`` configuration parameters; added the   |
-|         | ``TraceHeader`` and ``TraceHeader2`` configuration parameters     |
+|         | ``TraceHeader`` and ``TraceHeader2`` configuration parameters;    |
+|         | added a border area to the screen                                 |
 +---------+-------------------------------------------------------------------+
 | 9.6     | Added the ``Screen`` configuration parameter                      |
 +---------+-------------------------------------------------------------------+
