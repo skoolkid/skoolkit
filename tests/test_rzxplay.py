@@ -21,17 +21,6 @@ class MockSimulator:
     def nop(self):
         pass
 
-class MockSimulatorWithExecFrameMethod(MockSimulator):
-    def exec_frame(self, fetch_counter, exec_map, trace):
-        self.fetch_counter = fetch_counter
-        self.exec_map = exec_map
-        self.trace = trace
-        pc = self.registers[PC]
-        if exec_map is not None:
-            exec_map.add(pc)
-        if trace:
-            trace(fetch_counter, pc)
-
 class TestScreen(screen.Screen):
     def __init__(self, *args):
         super().__init__(*args)
@@ -1693,32 +1682,3 @@ class RzxplayTest(SkoolKitTestCase):
         """
         self._test_rzx(rzx, exp_output, '--quiet', exp_trace)
         self.assertEqual(TestScreen.instance.border, 5)
-
-    @patch.object(rzxplay, 'CSimulator', MockSimulatorWithExecFrameMethod)
-    @patch.object(rzxplay, 'Simulator', MockSimulatorWithExecFrameMethod)
-    def test_simulator_with_exec_frame_method(self):
-        ram = [0] * 0xC000
-        z80data = self.write_z80_file(None, ram, ret_data=True)
-        rzx = RZX()
-        frames = [(1, 0, [])]
-        rzx.add_snapshot(z80data, 'z80', frames)
-        exp_output = ''
-        exp_trace = "F:0 C:00001 I:00000 $0000 NOP\n"
-        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
-        self.assertEqual(simulator.fetch_counter, 1)
-        self.assertIsNone(simulator.exec_map)
-        self.assertIsNotNone(simulator.trace)
-
-    @patch.object(rzxplay, 'CSimulator', MockSimulatorWithExecFrameMethod)
-    @patch.object(rzxplay, 'Simulator', MockSimulatorWithExecFrameMethod)
-    def test_simulator_with_exec_frame_method_generating_map(self):
-        ram = [0] * 0xC000
-        z80data = self.write_z80_file(None, ram, ret_data=True)
-        rzx = RZX()
-        frames = [(1, 0, [])]
-        rzx.add_snapshot(z80data, 'z80', frames)
-        exp_output = ''
-        self._test_rzx(rzx, exp_output, f'--quiet --no-screen --map out.map')
-        self.assertEqual(simulator.fetch_counter, 1)
-        self.assertEqual({0}, simulator.exec_map)
-        self.assertIsNone(simulator.trace)

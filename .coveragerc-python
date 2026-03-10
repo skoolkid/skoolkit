@@ -1,0 +1,3 @@
+[report]
+exclude_also =
+    [#] pragma: Python no cover

@@ -282,9 +282,9 @@ def process_block(block, options, flags, context):
     while run:
         if fetch_counter < 0:
             break
-        if csimulator:
+        if csimulator: # pragma: Python no cover
             pc = simulator.exec_frame(fetch_counter, exec_map, trace)
-        else:
+        else: # pragma: C no cover
             while fetch_counter > 0:
                 pc = registers[24]
                 r0 = registers[15]

@@ -2,7 +2,7 @@ from io import StringIO
 from textwrap import dedent
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolKitError
+from skoolkit import CSimulator, SkoolKitError
 from skoolkit.kbtracer import KeyboardTracer, KeypressTracer
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import A, B, PC, T
@@ -51,6 +51,8 @@ KEYS = {
 }
 
 class KeyboardTracerTest(SkoolKitTestCase):
+    simulator_cls = CSimulator or Simulator
+
     def _test_kbtracer(self, keys, exp_readings):
         memory = [0] * 65536
         loop = (
@@ -87,7 +89,7 @@ class KeyboardTracerTest(SkoolKitTestCase):
        )
         memory[56:56 + len(int_r)] = int_r
         config = {'frame_duration': 1000}
-        simulator = Simulator(memory, config=config)
+        simulator = self.simulator_cls(memory, config=config)
         delay = 0
         kbtracer = KeyboardTracer(simulator, list(keys) + ['1+2'], delay)
         simulator.set_tracer(kbtracer)
@@ -102,7 +104,7 @@ class KeyboardTracerTest(SkoolKitTestCase):
             exp_data.append(0)
         exp_data.extend((0xF7, 0b11111100)) # 1+2 triggers jump to 0xC000
         kbtracer.run(0xC000, 3500000, None, None, None, None, None)
-        self.assertEqual(exp_data, memory[0x8000:0x8000 + len(exp_data)])
+        self.assertEqual(exp_data, list(simulator.memory[0x8000:0x8000 + len(exp_data)]))
 
     def test_unmodified_keys(self):
         keys = (
@@ -215,7 +217,7 @@ class KeyboardTracerTest(SkoolKitTestCase):
         )
         memory[:len(code)] = code
         stop = len(code)
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         kbtracer = KeyboardTracer(simulator, ['ENTER'], 0)
         simulator.set_tracer(kbtracer)
         tracefile = StringIO()
@@ -257,7 +259,7 @@ class KeyboardTracerTest(SkoolKitTestCase):
         )
         memory[:len(code)] = code
         stop = len(code)
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         kbtracer = KeyboardTracer(simulator, ['ENTER'], 0)
         simulator.set_tracer(kbtracer)
         tracefile = StringIO()
@@ -281,7 +283,7 @@ class KeyboardTracerTest(SkoolKitTestCase):
     def test_timeout(self):
         memory = [0] * 65536
         stop = 4
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         kbtracer = KeyboardTracer(simulator, ['ENTER'], 0)
         simulator.set_tracer(kbtracer)
         timeout = 10
@@ -290,9 +292,10 @@ class KeyboardTracerTest(SkoolKitTestCase):
         self.assertNotEqual(simulator.registers[PC], stop)
 
 class KeypressTracerTest(SkoolKitTestCase):
+    simulator_cls = CSimulator or Simulator
+
     def test_single_keypress(self):
         memory = [0] * 65536
-        simulator = Simulator(memory)
         code = (
             0x3E, 0x00,        # $0000 [ 0] LD A,$00
             0xDB, 0xFE,        # $0002 [ 7] IN A,($FE)
@@ -300,6 +303,7 @@ class KeypressTracerTest(SkoolKitTestCase):
             0x38, 0xF9,        # $0005 [..] JR C,$0000
         )
         memory[:len(code)] = code
+        simulator = self.simulator_cls(memory)
         for key, (port_hi, bits) in KEYS.items():
             memory[1] = port_hi
             kptracer = KeypressTracer(simulator, [key], 0, 0, 0, None, 0)
@@ -325,7 +329,7 @@ class KeypressTracerTest(SkoolKitTestCase):
             0x38, 0xF9,        # $000C [..] JR C,$0007 ; Jump back if not
         )
         memory[:len(code)] = code
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         kptracer = KeypressTracer(simulator, ['q', 'p'], 0, 0, 0, None, 0)
         simulator.set_tracer(kptracer)
         kptracer.run(50, None, None, None, None, None)
@@ -346,7 +350,7 @@ class KeypressTracerTest(SkoolKitTestCase):
             0x38, 0xF9,        # $000C [..] JR C,$0007 ; Jump back if not
         )
         memory[:len(code)] = code
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         kptracer = KeypressTracer(simulator, ['q*2'], 0, 0, 0, None, 0)
         simulator.set_tracer(kptracer)
         kptracer.run(50, None, None, None, None, None)
@@ -364,7 +368,7 @@ class KeypressTracerTest(SkoolKitTestCase):
             0x38, 0xF9,  # $003D [.....] JR C,$0038 ; Jump back if not
         )
         memory[0x0038:0x0038 + len(int_r)] = int_r
-        simulator = Simulator(memory, state={'tstates': 69884, 'iff': 1})
+        simulator = self.simulator_cls(memory, state={'tstates': 69884, 'iff': 1})
         kptracer = KeypressTracer(simulator, ['a'], 0, 0, 0, None, 0)
         simulator.set_tracer(kptracer)
         kptracer.run(70000, None, None, None, None, None)
@@ -382,7 +386,7 @@ class KeypressTracerTest(SkoolKitTestCase):
             0x00,               # $000A [44] NOP
         )
         memory[:len(code)] = code
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         outfffd = 13
         ay = [0] * 16
         ay[outfffd] = 0x80
@@ -405,7 +409,7 @@ class KeypressTracerTest(SkoolKitTestCase):
             0x00,               # $000A [44] NOP
         )
         memory[:len(code)] = code
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         kptracer = KeypressTracer(simulator, ['SS'], 0, 0, 0, None, 0)
         simulator.set_tracer(kptracer)
         kptracer.run(50, None, None, None, None, None)
@@ -443,7 +447,7 @@ class KeypressTracerTest(SkoolKitTestCase):
         )
         memory[:len(code)] = code
         stop = len(code)
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         kptracer = KeypressTracer(simulator, ['2'], 0, 0, 0, None, 0)
         simulator.set_tracer(kptracer)
         tracefile = StringIO()
@@ -474,7 +478,7 @@ class KeypressTracerTest(SkoolKitTestCase):
 
     def test_timeout(self):
         memory = [0] * 65536
-        simulator = Simulator(memory)
+        simulator = self.simulator_cls(memory)
         kptracer = KeypressTracer(simulator, ['1'], None, None, None, None, None)
         simulator.set_tracer(kptracer)
         timeout = 10

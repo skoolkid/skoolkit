@@ -1,0 +1,9 @@
+[run]
+omit =
+    skoolkit/cmiosimulator.py
+    skoolkit/simtables.py
+    skoolkit/simulator.py
+
+[report]
+exclude_also =
+    [#] pragma: C no cover

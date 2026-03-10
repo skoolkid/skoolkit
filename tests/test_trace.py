@@ -35,23 +35,6 @@ class MockSimulator:
         self.registers[PC] = self.pc
         self.registers[T] = self.t1
 
-class MockSimulatorWithTraceMethod(MockSimulator):
-    def trace(self, tracer, start, stop, max_operations, max_time, interrupts, draw, exec_map, keyboard, df, tf):
-        self.tracer = tracer
-        self.start = start
-        self.stop = stop
-        self.max_operations = max_operations
-        self.max_time = max_time
-        self.draw = draw
-        self.exec_map = exec_map
-        self.keyboard = keyboard
-        self.df = df
-        self.tf = tf
-        if df and tf:
-            tf(start, df(start), 0)
-        self.registers[PC] = self.pc
-        return 3, 1
-
 class MockAudioWriter:
     def __init__(self, config):
         global audio_writer
@@ -3876,41 +3859,3 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $8001: screen closed
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
-
-    @patch.object(trace, 'CSimulator', partial(MockSimulatorWithTraceMethod, pc=0x0001))
-    @patch.object(trace, 'Simulator', partial(MockSimulatorWithTraceMethod, pc=0x0001))
-    def test_simulator_with_trace_method(self):
-        stop = 0x0001
-        output, error = self.run_trace(f'-S {stop} 48')
-        self.assertEqual(error, '')
-        self.assertEqual("Stopped at $0001", output.rstrip())
-        self.assertEqual(simulator.start, 0)
-        self.assertEqual(simulator.stop, stop)
-        self.assertEqual(simulator.max_operations, 0)
-        self.assertEqual(simulator.max_time, 0)
-        self.assertIsNone(simulator.draw)
-        self.assertIsNone(simulator.exec_map)
-        self.assertIsNone(simulator.keyboard)
-        self.assertIsNone(simulator.df)
-        self.assertIsNone(simulator.tf)
-
-    @patch.object(trace, 'CSimulator', partial(MockSimulatorWithTraceMethod, pc=0x0001))
-    @patch.object(trace, 'Simulator', partial(MockSimulatorWithTraceMethod, pc=0x0001))
-    def test_simulator_with_trace_method_in_verbose_mode(self):
-        stop = 0x0001
-        output, error = self.run_trace(f'-S {stop} -v 48')
-        self.assertEqual(error, '')
-        exp_output = f"""
-            $0000 DI
-            Stopped at $0001
-        """
-        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
-        self.assertEqual(simulator.start, 0)
-        self.assertEqual(simulator.stop, stop)
-        self.assertEqual(simulator.max_operations, 0)
-        self.assertEqual(simulator.max_time, 0)
-        self.assertIsNone(simulator.draw)
-        self.assertIsNone(simulator.exec_map)
-        self.assertIsNone(simulator.keyboard)
-        self.assertIsNotNone(simulator.df)
-        self.assertIsNotNone(simulator.tf)

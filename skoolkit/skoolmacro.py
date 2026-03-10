@@ -701,7 +701,7 @@ def parse_audio(writer, text, index, need_audio=None):
                 tracer = AudioTracer()
             simulator.set_tracer(tracer)
             simulator.run(start, stop, execint)
-            if memory != simulator.memory: # pragma: no cover
+            if memory != simulator.memory: # pragma: Python no cover
                 memory[:] = simulator.memory[:]
             _write_sim_state(writer, simulator, tracer)
             if ay:
@@ -1403,7 +1403,7 @@ def parse_sim(writer, text, index, *cwd):
             start = simulator.registers[PC]
         simulator.set_tracer(tracer)
         simulator.run(start, stop, execint > 0)
-        if memory != simulator.memory: # pragma: no cover
+        if memory != simulator.memory: # pragma: Python no cover
             memory[:] = simulator.memory[:]
     _write_sim_state(writer, simulator, tracer)
     return end, ''

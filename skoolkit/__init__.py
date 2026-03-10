@@ -1,4 +1,4 @@
-# Copyright 2011-2026 Richard Dymond (rjdymond@gmail.com)
+# © 2011-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -24,12 +24,12 @@ import importlib
 
 try:
     from skoolkit.csimulator import CSimulator
-except ImportError: # pragma: no cover
+except ImportError: # pragma: C no cover
     CSimulator = None
 
 try:
     from skoolkit.ccmiosimulator import CCMIOSimulator
-except ImportError: # pragma: no cover
+except ImportError: # pragma: C no cover
     CCMIOSimulator = None
 
 VERSION = '10.0b1'

@@ -67,14 +67,14 @@ class Tracer(PagingTracer):
 
         if trace_header:
             print(trace_header)
-        if hasattr(simulator, 'trace'):
+        if hasattr(simulator, 'trace'): # pragma: Python no cover
             if trace_line:
                 df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                 tf = lambda pc, i, t0: print(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
             else:
                 df = tf = None
             stop_cond, operations = simulator.trace(self, start, stop, max_operations, max_time, interrupts, draw, exec_map, keyboard, df, tf)
-        else:
+        else: # pragma: C no cover
             opcodes = simulator.opcodes
             frame_duration = simulator.frame_duration
             prev_frame = start_time // frame_duration

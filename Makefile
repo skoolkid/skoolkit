@@ -123,7 +123,11 @@ test-c-cmio: cmods
 
 .PHONY: test-cover
 test-cover: remove-disassembly-tests remove-c
-	$(NOSE) -C --coverage skoolkit --coverage-report term-missing
+	$(NOSE) -C --coverage skoolkit --coverage-report term-missing --coverage-config .coveragerc-python
+
+.PHONY: test-c-cover
+test-c-cover: remove-disassembly-tests cmods
+	$(NOSE) -C --coverage skoolkit --coverage-report term-missing --coverage-config .coveragerc-c
 
 .PHONY: release
 release:

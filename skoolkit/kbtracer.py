@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Richard Dymond (rjdymond@gmail.com)
+# © 2023-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -324,14 +324,14 @@ class KeyboardTracer(PagingTracer):
         if tracefile:
             r = Registers(registers)
 
-        if hasattr(simulator, 'press_keys'): # pragma: no cover
+        if hasattr(simulator, 'press_keys'): # pragma: Python no cover
             if trace_line:
                 df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                 tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
             else:
                 df = tf = None
             simulator.press_keys(keys, stop, timeout, df, tf)
-        else:
+        else: # pragma: C no cover
             opcodes = simulator.opcodes
             frame_duration = simulator.frame_duration
             int_active = simulator.int_active
@@ -393,14 +393,14 @@ class KeypressTracer(PagingTracer):
         if tracefile:
             r = Registers(registers)
 
-        if hasattr(simulator, 'press'): # pragma: no cover
+        if hasattr(simulator, 'press'): # pragma: Python no cover
             if trace_line:
                 df = lambda pc: disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                 tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
             else:
                 df = tf = None
             simulator.press(keys, timeout, df, tf)
-        else:
+        else: # pragma: C no cover
             opcodes = simulator.opcodes
             frame_duration = simulator.frame_duration
             int_active = simulator.int_active
