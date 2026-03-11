@@ -360,7 +360,7 @@ def run(snafile, options, config):
                 if delays:
                     audio_writer = get_audio_writer({CLOCK_SPEED: cpu_freq})
                     with open(fname, 'wb') as f:
-                        audio_writer.write_audio(f, delays, ma_filter=True)
+                        audio_writer.write_audio(f, delays)
                 else:
                     raise SkoolKitError('No audio detected')
         elif ext == '.png':

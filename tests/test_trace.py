@@ -41,10 +41,9 @@ class MockAudioWriter:
         audio_writer = self
         self.config = config
 
-    def write_audio(self, audio_file, delays, ma_filter=None):
+    def write_audio(self, audio_file, delays):
         self.fname = audio_file.name
         self.delays = delays
-        self.ma_filter = ma_filter
 
 class MockAYAudioWriter:
     def __init__(self):
@@ -3305,7 +3304,6 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(exp_config, audio_writer.config)
         self.assertEqual(audio_writer.fname, outfile)
         self.assertEqual(exp_delays, audio_writer.delays)
-        self.assertTrue(audio_writer.ma_filter)
 
     @patch.object(trace, 'get_audio_writer', MockAudioWriter)
     def test_write_wav_128k(self):
@@ -3333,7 +3331,6 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(exp_config, audio_writer.config)
         self.assertEqual(audio_writer.fname, outfile)
         self.assertEqual(exp_delays, audio_writer.delays)
-        self.assertTrue(audio_writer.ma_filter)
 
     @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
     def test_write_wav_128k_ay(self):
