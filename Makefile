@@ -20,7 +20,7 @@ usage:
 	@echo "  test[-c]-cmio   run timing tests for [C]CMIOSimulator"
 	@echo "  test[-c]-all    run core and disassembly tests [with C extension modules]"
 	@echo "  test[-c]-3X-all run core and disassembly tests with Python 3.X (10<=X<=14) [and C extension modules]"
-	@echo "  test-cover      run core tests with coverage info"
+	@echo "  test[-c]-cover  run core tests with coverage info [and C extension modules]"
 	@echo "  release         build a SkoolKit release tarball and zip archive"
 	@echo "  tarball         build a SkoolKit release tarball"
 	@echo "  deb             build a SkoolKit Debian package"
