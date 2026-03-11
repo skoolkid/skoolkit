@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from math import ceil
-
 from skoolkit.audio import (CLOCK_SPEED, FRAME_DURATION, SAMPLE_RATE,
                             moving_average_filter, write_wav)
 from skoolkit.simutils import CLOCK_SPEEDS, FRAME_DURATIONS
@@ -62,8 +60,8 @@ class AY:
         self.sample_rate = sample_rate
         slide_down = (self.slide_down, 31)
         slide_up = (self.slide_up, 0)
-        hold_bottom = (self.hold_bottom, 0)
-        hold_top = (self.hold_top, 31)
+        hold_bottom = (self.hold, 0)
+        hold_top = (self.hold, 31)
         self.envelopes = (
             (slide_down, hold_bottom),
             (slide_down, hold_bottom),
@@ -153,11 +151,8 @@ class AY:
             self.envelope_segment ^= 1
             self.envelope = self.envelopes[self.envelope_shape][self.envelope_segment][1]
 
-    def hold_top(self):
-        pass
-
-    def hold_bottom(self):
-        pass
+    def hold(self):
+        return
 
     def render(self, ay_log, frame_duration, ay_res, volume):
         samples = []
@@ -180,7 +175,7 @@ class AY:
 
             # Generate and store next sample
             for i in range(8):
-                self.x += self.step;
+                self.x += self.step
                 if self.x >= 1:
                     self.x -= 1
                     self.update_mixer()
