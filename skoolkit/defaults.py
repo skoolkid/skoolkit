@@ -14,10 +14,9 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from collections import OrderedDict
 import re
 
-SECTIONS = OrderedDict()
+SECTIONS = {}
 
 SECTIONS['AudioWriter'] = """
 ; ClockSpeed=3500000

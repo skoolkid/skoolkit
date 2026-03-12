@@ -1316,8 +1316,53 @@ class Skool2HtmlTest(SkoolKitTestCase):
         for option in ('-R', '--ref-file'):
             output, error = self.run_skool2html(option, catch_exit=0)
             self.assertEqual(error, '')
-            self.assertTrue(output.startswith('[AudioWriter]\n'))
-            self.assertIn('\n[Titles]\n', output)
+            sections = [line for line in output.split('\n') if line.startswith('[')]
+            exp_sections = [
+                '[AudioWriter]',
+                '[Colours]',
+                '[Config]',
+                '[Game]',
+                '[ImageWriter]',
+                '[Index]',
+                '[Index:MemoryMaps:Memory maps]',
+                '[Index:Graphics:Graphics]',
+                '[Index:DataTables:Data tables and buffers]',
+                '[Index:Reference:Reference]',
+                '[Links]',
+                '[MemoryMap:MemoryMap]',
+                '[MemoryMap:RoutinesMap]',
+                '[MemoryMap:DataMap]',
+                '[MemoryMap:MessagesMap]',
+                '[MemoryMap:UnusedMap]',
+                '[MemoryMap:GameStatusBuffer]',
+                '[Page:Bugs]',
+                '[Page:Changelog]',
+                '[Page:Facts]',
+                '[Page:Glossary]',
+                '[Page:GraphicGlitches]',
+                '[Page:Pokes]',
+                '[PageHeaders]',
+                '[Paths]',
+                '[Template:Layout]',
+                '[Template:asm]',
+                '[Template:asm_single_page]',
+                '[Template:audio]',
+                '[Template:box_entries]',
+                '[Template:box_list_entries]',
+                '[Template:footer]',
+                '[Template:home]',
+                '[Template:img]',
+                '[Template:item_list]',
+                '[Template:link]',
+                '[Template:list]',
+                '[Template:memory_map]',
+                '[Template:page]',
+                '[Template:reg]',
+                '[Template:section]',
+                '[Template:table]',
+                '[Titles]'
+            ]
+            self.assertEqual(exp_sections, sections)
 
     def test_option_r(self):
         for option in ('-r', '--ref-sections'):
