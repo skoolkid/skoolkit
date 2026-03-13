@@ -27,8 +27,8 @@ class AudioTest(SkoolKitTestCase):
             '9a7503e49f703fe48148e37698a03752',
             ('--start', '32785', '-c', 'machine=128'),
             ('--ay', '--beeper'),
-            435087,
-            '218671d6b3b060908055d670ffda436a'
+            435352,
+            '6a95e402a862a21db20316be9beb2d08'
         )
 
     def test_chase_hq_128k(self):
@@ -38,8 +38,8 @@ class AudioTest(SkoolKitTestCase):
             '2bfca22594217e032d1a59d56f57179d',
             ('--start', '60623', '-c', 'machine=128'),
             ['--ay'],
-            435313,
-            'be3d7ce709f00db390e12f04334308b2'
+            435352,
+            '405c8e675f3331b02f7b4057fd1a71b9'
         )
 
     def test_fairlight(self):
@@ -71,8 +71,8 @@ class AudioTest(SkoolKitTestCase):
             'de47e67945a6df7c58913bd7d4128be5',
             ('--start', '40627', '-c', 'machine=128'),
             ('--ay', '--beeper'),
-            435143,
-            '3088619eb57a3561b4b8528b2a6b00bb'
+            435352,
+            'b7d10f4de0b27c9691f0e0851c69e81c'
         )
 
     def test_read_heat_128k(self):
@@ -82,8 +82,8 @@ class AudioTest(SkoolKitTestCase):
             'd527d8596b8c177b3299aeb1e8de5d38',
             ('--start', '23459', '-c', 'machine=128'),
             ('--ay', '--beeper'),
-            433036,
-            '6d731504c8fd762fcbbe2793ff2f509c'
+            433394,
+            '769512f971921e25be836986ca05a27e'
         )
 
     def test_trantor_the_last_stormtrooper(self):

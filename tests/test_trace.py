@@ -3373,6 +3373,7 @@ class TraceTest(SkoolKitTestCase):
             (771, 2, 13),
             (827, 1, 14),
             (883, 0, 15),
+            (913, 15, 0),
         ]
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         self.assertEqual(ay_audio_writer.fname, outfile)
@@ -3440,6 +3441,7 @@ class TraceTest(SkoolKitTestCase):
             (1091, 255, 0),
             (1153, 0, 15),
             (1165, 255, 0),
+            (1201, 15, 0),
         ]
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         self.assertEqual(ay_audio_writer.fname, outfile)

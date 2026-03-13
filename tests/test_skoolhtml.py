@@ -1805,6 +1805,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             (771, 2, 13),
             (827, 1, 14),
             (883, 0, 15),
+            (913, 15, 0) # End marker AY record
         ]
         self._test_audio_macro(writer, macro, exp_src, exp_path, is128k=True, audio_log=exp_audio_log)
 
@@ -1863,8 +1864,30 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             (1091, 255, 0),
             (1153, 0, 15),
             (1165, 255, 0),
+            (1201, 15, 0) # End marker AY record
         ]
         self._test_audio_macro(writer, macro, exp_src, exp_path, is128k=True, audio_log=exp_audio_log, beeper=1)
+
+    def test_macro_audio_with_ay_but_no_ay_activity(self):
+        skool = """
+            @bank=0
+            ; No AY activity
+            c$C000 OUT ($FE),A
+             $C002 XOR $10
+             $C004 OUT ($FE),A
+             $C006 RET
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        fname = 'aysound.wav'
+        macro = f'#AUDIO1,$C000,$C006,,,,1({fname})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_audio_log = [
+            # No end marker AY record
+            (0, 255, 0),
+            (18, 255, 0),
+        ]
+        self._test_audio_macro(writer, macro, exp_src, exp_path, is128k=True, audio_log=exp_audio_log)
 
     def test_macro_audio_with_contention(self):
         writer = self._get_writer(skool='', mock_file_info=True)

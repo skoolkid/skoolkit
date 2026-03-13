@@ -351,6 +351,7 @@ def run(snafile, options, config):
                 if any(r < 16 for t, r, v in tracer.audio_log):
                     audio_writer = AYAudioWriter()
                     options = Options(beeper=options.beeper)
+                    tracer.audio_log.append((simulator.registers[T], 15, 0))
                     with open(fname, 'wb') as f:
                         audio_writer.write_audio(f, tracer.audio_log, options)
                 else:

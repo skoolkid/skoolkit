@@ -706,6 +706,8 @@ def parse_audio(writer, text, index, need_audio=None):
             _write_sim_state(writer, simulator, tracer)
             if ay:
                 audio_log = tracer.audio_log
+                if any(r < 16 for t, r, v in audio_log):
+                    audio_log.append((simulator.registers[T], 15, 0))
             else:
                 execint = cmio = 0
                 delays = tracer.get_delays()
