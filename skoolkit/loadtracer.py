@@ -38,18 +38,14 @@ DEC = tuple(tuple((
 
 DEC0 = DEC[0]
 
-INC = tuple(tuple((
+INC0 = tuple((
         v % 256,
         (v & 0xA8)                 # S.5.3.N.
         + (v == 256) * 0x40        # .Z......
         + (v % 16 == 0x00) * 0x10  # ...H....
         + (v == 0x80) * 0x04       # .....P..
-        + c                        # .......C
     ) for v in range(1, 257)
-    ) for c in (0, 1)
 )
-
-INC0 = INC[0]
 
 class DataBlock:
     def __init__(self, data, start, end, keys, fast_load=True):
