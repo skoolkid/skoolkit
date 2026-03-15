@@ -38,6 +38,7 @@ IGNORE_MSG_IDS = [
     'R0913', # Too many arguments
     'R0914', # Too many local variables
     'R0915', # Too many statements
+    'R0917', # Too many positional arguments
     'R1702', # Too many nested blocks
     'R1710', # Inconsistent return statements
     'R1717', # Consider using a dictionary comprehension
