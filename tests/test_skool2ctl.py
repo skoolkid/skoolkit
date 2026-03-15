@@ -2,7 +2,7 @@ from textwrap import dedent
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase, mock_find_file
-from skoolkit import config, skool2ctl, VERSION, find_file
+from skoolkit import config, skool2ctl, VERSION
 
 ELEMENTS = 'abtdrmscn'
 

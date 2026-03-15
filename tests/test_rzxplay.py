@@ -5,7 +5,6 @@ import zlib
 
 from skoolkittest import BLUE, QUIT, SkoolKitTestCase, MockPygameIO, MockPygame, RZX
 from skoolkit import VERSION, SkoolKitError, rzxplay, screen
-from skoolkit.simutils import PC
 
 class MockSimulator:
     def __init__(self, *args, **kwargs):

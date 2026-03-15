@@ -13,7 +13,6 @@ from skoolkittest import (SkoolKitTestCase, PZX, create_header_block,
                           create_tzx_pure_data_block, mock_find_file)
 from skoolkit import config, tap2sna, VERSION, SkoolKitError, CSimulator, CCMIOSimulator
 from skoolkit.cmiosimulator import CMIOSimulator
-from skoolkit.loadtracer import LoadTracer
 from skoolkit.simulator import Simulator
 
 mock_memory = None

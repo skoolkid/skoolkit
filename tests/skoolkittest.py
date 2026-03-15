@@ -4,7 +4,6 @@ from io import BytesIO, StringIO
 import os
 from os.path import abspath, dirname
 from shutil import rmtree
-import glob
 import tempfile
 from textwrap import dedent
 import zlib
