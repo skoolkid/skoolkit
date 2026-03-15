@@ -19,7 +19,7 @@ from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP,
                                I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T,
-                               IFF, IM)
+                               IFF, IM, MEMPTR)
 from skoolkit.traceutils import disassemble
 
 REGISTERS = {
@@ -43,6 +43,7 @@ REGISTERS = {
     "sp": SP,
     "iff1": IFF,
     "im": IM,
+    "wz": MEMPTR,
 }
 
 class Tracer:
@@ -78,7 +79,7 @@ def init_simulator(simulator, tracer, initial, ports):
         if mode == 'r':
             tracer.ports_r[port] = value
 
-def check_simulator(simulator, tracer, final, ports, instruction):
+def check_simulator(simulator, tracer, final, ports, instruction, check_wz):
     registers = simulator.registers
     memory = simulator.memory
     errors = []
@@ -94,7 +95,7 @@ def check_simulator(simulator, tracer, final, ports, instruction):
                     exp_v = (exp_v & 0xD7) | (registers[A] & 0x28)
                 elif instruction in ('LD A,I', 'LD A,R'):
                     exp_v = (exp_v & 0xFB) + registers[IFF] * 0x04
-                elif instruction.startswith('BIT ') and instruction.endswith(',(HL)'):
+                elif not check_wz and instruction.startswith('BIT ') and instruction.endswith(',(HL)'):
                     at_hl = memory[registers[L] + 256 * registers[H]]
                     exp_v = (exp_v & 0xD7) | (at_hl & 0x28)
             elif r == IFF:
@@ -140,6 +141,9 @@ def run_tests(simulator, jsonfiles, options):
     simulator.set_tracer(tracer)
     failed = []
     count = 0
+    check_wz = options.cmio or options.ccmio
+    if not check_wz:
+        del REGISTERS["wz"]
     for jsonfile in jsonfiles:
         with open(jsonfile) as f:
             tests = json.load(f)
@@ -156,7 +160,7 @@ def run_tests(simulator, jsonfiles, options):
                     # Advance beyond invalid 0xDD/0xFD prefix
                     instructions.append(disassemble(memory, registers[PC], '', '', '')[0])
                     simulator.run()
-                errors = check_simulator(simulator, tracer, test['final'], ports, instructions[-1])
+                errors = check_simulator(simulator, tracer, test['final'], ports, instructions[-1], check_wz)
                 i = ': '.join(instructions)
                 if errors:
                     print(f'[FAIL] {name} ({i})')
