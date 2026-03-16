@@ -1,7 +1,7 @@
 Changelog
 =========
 
-10.0b1
+10.0rc
 ------
 * Dropped support for Python 3.9
 * Added the ``--ay`` option to :ref:`trace.py` (for capturing AY audio when
