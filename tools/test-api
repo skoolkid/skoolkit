@@ -12,20 +12,20 @@ write_skool() {
 ; Start
 ;
 @ignoreua
-; Test the timestamp() method: #CALL:timestamp()
+; Test the timestamp() method: #CALL(timestamp())
 ; .
 ; Test the #RAW(#TIMESTAMP) macro: #TIMESTAMP
 ; .
 ; Test the snapshot attribute: the word at 32768 is #WORD32768
 ; .
 ; #UDGTABLE
-; { #SPRITE4(j4*)        | #SPRITE6(*j6)        | #UDGARRAY*j4;j6(anim) }
-; { #CHR(35)SPRITE4(j4*) | #CHR(35)SPRITE6(*j6) | #CHR(35)UDGARRAY*j4;j6(anim.png) }
+; { #SPRITE4(j4*)        | #SPRITE6(*j6)        | #FRAMES(j4;j6)(anim) }
+; { #CHR(35)SPRITE4(j4*) | #CHR(35)SPRITE6(*j6) | #CHR(35)FRAMES(j4;j6)(anim.png) }
 ; TABLE#
 ; .
 ; #UDGTABLE
-; { #CALL:sprite(3,j3) }
-; { #CHR(35)CALL:sprite(3,j3) }
+; { #CALL(sprite(3,j3)) }
+; { #CHR(35)CALL(sprite(3,j3)) }
 ; TABLE#
 ; .
 ; #UDGTABLE
@@ -34,11 +34,11 @@ write_skool() {
 ; TABLE#
 ; .
 ; #UDGTABLE
-; { #CALL:countdown(countdown) }
-; { #CHR(35)CALL:countdown(countdown.png) }
+; { #CALL(countdown(countdown)) }
+; { #CHR(35)CALL(countdown(countdown.png)) }
 ; TABLE#
 ; .
-; #CALL:copyright() 2015 Me
+; #CALL(copyright()) 2026 Me
 b32768 DEFB 1,2,4,8,16,32,64,128
 EOF
 }
