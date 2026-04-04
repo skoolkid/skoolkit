@@ -1,5 +1,5 @@
 Name:           skoolkit
-Version:        9.6
+Version:        10.0
 Release:        1
 Summary:        Tools for creating disassemblies of ZX Spectrum programs
 
@@ -43,6 +43,9 @@ cp -a examples %{buildroot}%{_datadir}/%{name}
 %{python3_sitearch}/skoolkit-%{version}*.egg-info/
 
 %changelog
+* Sat Apr 04 2026 Richard Dymond <rjdymond@gmail.com> 10.0-1
+- Updated to 10.0
+
 * Mon May 12 2025 Richard Dymond <rjdymond@gmail.com> 9.6-1
 - Updated to 9.6
 

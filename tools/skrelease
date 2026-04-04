@@ -147,8 +147,7 @@ _check_commands() {
     fi
     logfile=$logdir/$cmdname.log
     $cmd &> $logfile || :
-    firstword=$(head -n 1 $logfile | cut -f1 -d' ')
-    if [[ "$firstword" != "usage:" ]]; then
+    if ! grep -q ^usage: $logfile; then
       echo "FAILED (see $logfile)"
       return 1
     fi

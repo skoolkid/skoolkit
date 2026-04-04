@@ -1,8 +1,8 @@
 Changelog
 =========
 
-10.0rc
-------
+10.0 (2026-04-04)
+-----------------
 * Dropped support for Python 3.9
 * Added the ``--ay`` option to :ref:`trace.py` (for capturing AY audio when
   writing a WAV file)
