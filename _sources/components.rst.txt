@@ -87,6 +87,9 @@ API methods, in common with skoolkit.audio.AudioWriter:
    :members: formats, write_audio
    :noindex:
 
+.. versionchanged:: 10.0
+   Removed the *ma_filter* argument of the **write_audio()** method.
+
 .. _codeMapReader:
 
 Code map reader

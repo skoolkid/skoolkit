@@ -1,27 +1,23 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Changelog &#8212; SkoolKit 9.6 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
+    <title>Changelog &#8212; SkoolKit 10.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=fe13c473" />
+    <script src="_static/documentation_options.js?v=864e5427"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="SkoolKit 8.x changelog" href="changelog8.html" />
-    <link rel="prev" title="Migrating from SkoolKit 8" href="migration.html" /> 
+    <link rel="prev" title="Migrating from SkoolKit 9" href="migration.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -31,9 +27,9 @@
           <a href="changelog8.html" title="SkoolKit 8.x changelog"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="migration.html" title="Migrating from SkoolKit 8"
+          <a href="migration.html" title="Migrating from SkoolKit 9"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Changelog</a></li> 
       </ul>
     </div>  
@@ -44,9 +40,54 @@
           <div class="body" role="main">
             
   <section id="changelog">
-<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">¶</a></h1>
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
 <section id="id1">
-<h2>9.6 (2025-05-12)<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<h2>10.0 (2026-04-04)<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Dropped support for Python 3.9</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">--ay</span></code> option to <a class="reference internal" href="commands.html#trace-py"><span class="std std-ref">trace.py</span></a> (for capturing AY audio when
+writing a WAV file)</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">ay</span></code> parameter to the <a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> macro (to set whether AY
+audio is captured)</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">--beeper</span></code> option to <a class="reference internal" href="commands.html#trace-py"><span class="std std-ref">trace.py</span></a> (for capturing beeper audio
+as well when <code class="docutils literal notranslate"><span class="pre">--ay</span></code> is specified)</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">bpr</span></code> parameter to the <a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> macro (to set whether beeper
+audio is captured along with AY audio)</p></li>
+<li><p>Added support for the MEMPTR register to CMIOSimulator and CCMIOSimulator</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">memptr</span></code> parameter to the <a class="reference internal" href="skool-macros.html#sim"><span class="std std-ref">#SIM</span></a> macro (to set the MEMPTR
+register)</p></li>
+<li><p><a class="reference internal" href="commands.html#snapinfo-py"><span class="std std-ref">snapinfo.py</span></a> now shows the MEMPTR register value in SZX snapshots</p></li>
+<li><p>Added support to <a class="reference internal" href="commands.html#trace-py"><span class="std std-ref">trace.py</span></a> for setting the MEMPTR register before
+execution begins, for reading and writing MEMPTR in SZX snapshots, and for
+tracing its value via the <code class="docutils literal notranslate"><span class="pre">r[memptr]</span></code> replacement field in the
+<code class="docutils literal notranslate"><span class="pre">TraceLine*</span></code> configuration parameters</p></li>
+<li><p>Added support to <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> for setting the MEMPTR register in SZX
+snapshots, and for tracing its value via the <code class="docutils literal notranslate"><span class="pre">r[memptr]</span></code> replacement field
+in the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> configuration parameter</p></li>
+<li><p>Added support to <a class="reference internal" href="commands.html#bin2sna-py"><span class="std std-ref">bin2sna.py</span></a> and <a class="reference internal" href="commands.html#snapmod-py"><span class="std std-ref">snapmod.py</span></a> for setting the
+MEMPTR register in SZX snapshots</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">TraceHeader</span></code> and <code class="docutils literal notranslate"><span class="pre">TraceHeader2</span></code> configuration parameters for
+<a class="reference internal" href="commands.html#trace-conf"><span class="std std-ref">trace.py</span></a> (to specify headers to print before a trace)</p></li>
+<li><p>Added support to the <a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> macro for keyword arguments</p></li>
+<li><p>Added support to <a class="reference internal" href="commands.html#rzxplay-py"><span class="std std-ref">rzxplay.py</span></a> for ignoring any snapshots after the first
+one (which is useful for playing some RZX files created by the Fuse emulator)</p></li>
+<li><p>Added a border area to the screen displayed by <a class="reference internal" href="commands.html#rzxplay-py"><span class="std std-ref">rzxplay.py</span></a> and
+<a class="reference internal" href="commands.html#trace-py"><span class="std std-ref">trace.py</span></a></p></li>
+<li><p>Updated the comments generated for ‘IN r,(C)’ immediately after ‘LD BC,$XXFE’
+and ‘IN A,($FE)’ immediately after ‘LD A,n’ when a single half-row of the
+keyboard is read</p></li>
+<li><p>Updated the default values of <code class="docutils literal notranslate"><span class="pre">ContentionBegin</span></code>, <code class="docutils literal notranslate"><span class="pre">ContentionEnd</span></code> and
+<code class="docutils literal notranslate"><span class="pre">InterruptDelay</span></code> in the <a class="reference internal" href="ref-files.html#ref-audiowriter"><span class="std std-ref">[AudioWriter]</span></a> section</p></li>
+<li><p>Added support for multiple values to the <code class="docutils literal notranslate"><span class="pre">InterruptDelay</span></code> parameter in the
+<a class="reference internal" href="ref-files.html#ref-audiowriter"><span class="std std-ref">[AudioWriter]</span></a> section</p></li>
+<li><p>Fixed the bug in CSimulator that restricts the <code class="docutils literal notranslate"><span class="pre">timeout</span></code> simulated load
+configuration parameter to a maximum value of 1227 seconds</p></li>
+<li><p>Fixed how <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> handles zero-length pulses in the encodings of 0s
+and 1s in a PZX DATA block</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>9.6 (2025-05-12)<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> can now load from two tape files (e.g. when side 1 and side
 2 of a tape are in separate files)</p></li>
@@ -80,8 +121,8 @@ the <code class="docutils literal notranslate"><span class="pre">TraceLine</span
 custom LOAD command</p></li>
 </ul>
 </section>
-<section id="id2">
-<h2>9.5 (2025-01-28)<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<section id="id3">
+<h2>9.5 (2025-01-28)<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Dropped support for Python 3.8</p></li>
 <li><p>Added the <a class="reference internal" href="components.html#commentgenerator"><span class="std std-ref">comment generator</span></a> component</p></li>
@@ -114,8 +155,8 @@ boundary</p></li>
 <li><p>Fixed how BIN expressions are evaluated in BASIC listings</p></li>
 </ul>
 </section>
-<section id="id3">
-<h2>9.4 (2024-10-05)<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
+<section id="id4">
+<h2>9.4 (2024-10-05)<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support to <a class="reference internal" href="commands.html#skool2bin-conf"><span class="std std-ref">skool2bin.py</span></a> for reading
 configuration from <cite>skoolkit.ini</cite></p></li>
@@ -152,8 +193,8 @@ of the Z80 simulator</p></li>
 simulator</p></li>
 </ul>
 </section>
-<section id="id4">
-<h2>9.3 (2024-08-10)<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
+<section id="id5">
+<h2>9.3 (2024-08-10)<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support to <a class="reference internal" href="commands.html#tapinfo-py"><span class="std std-ref">tapinfo.py</span></a> and <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> for reading PZX
 files</p></li>
@@ -184,8 +225,8 @@ items in the <a class="reference internal" href="ref-files.html#resources"><span
 accepting hexadecimal values prefixed by ‘0x’</p></li>
 </ul>
 </section>
-<section id="id5">
-<h2>9.2 (2024-05-11)<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
+<section id="id6">
+<h2>9.2 (2024-05-11)<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added a Z80 instruction set simulator implemented in C (as a faster
 alternative to the pure Python Z80 simulator)</p></li>
@@ -209,8 +250,8 @@ pure Python Z80 simulator even if the C version is available)</p></li>
 <li><p>Fixed the contention pattern for the OUTI/OUTD/OTIR/OTDR instructions</p></li>
 </ul>
 </section>
-<section id="id6">
-<h2>9.1 (2024-02-03)<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h2>
+<section id="id7">
+<h2>9.1 (2024-02-03)<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added support to <a class="reference internal" href="commands.html#snapmod-py"><span class="std std-ref">snapmod.py</span></a> for modifying SZX snapshots and 128K
 snapshots</p></li>
@@ -263,8 +304,8 @@ when the value of PROG is 65535</p></li>
 <a class="reference internal" href="control-files.html#ctlloops"><span class="std std-ref">control file loop</span></a></p></li>
 </ul>
 </section>
-<section id="id7">
-<h2>9.0 (2023-11-04)<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h2>
+<section id="id8">
+<h2>9.0 (2023-11-04)<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Dropped support for Python 3.7</p></li>
 <li><p><a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> now performs a <a class="reference internal" href="commands.html#tap2sna-sim-load"><span class="std std-ref">simulated LOAD</span></a> by
@@ -320,7 +361,7 @@ hash character (<code class="docutils literal notranslate"><span class="pre">#</
 </ul>
 </section>
 <section id="older-versions">
-<h2>Older versions<a class="headerlink" href="#older-versions" title="Permalink to this heading">¶</a></h2>
+<h2>Older versions<a class="headerlink" href="#older-versions" title="Link to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog8.html">SkoolKit 8.x changelog</a></li>
@@ -341,19 +382,20 @@ hash character (<code class="docutils literal notranslate"><span class="pre">#</
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">9.6 (2025-05-12)</a></li>
-<li><a class="reference internal" href="#id2">9.5 (2025-01-28)</a></li>
-<li><a class="reference internal" href="#id3">9.4 (2024-10-05)</a></li>
-<li><a class="reference internal" href="#id4">9.3 (2024-08-10)</a></li>
-<li><a class="reference internal" href="#id5">9.2 (2024-05-11)</a></li>
-<li><a class="reference internal" href="#id6">9.1 (2024-02-03)</a></li>
-<li><a class="reference internal" href="#id7">9.0 (2023-11-04)</a></li>
+<li><a class="reference internal" href="#id1">10.0 (2026-04-04)</a></li>
+<li><a class="reference internal" href="#id2">9.6 (2025-05-12)</a></li>
+<li><a class="reference internal" href="#id3">9.5 (2025-01-28)</a></li>
+<li><a class="reference internal" href="#id4">9.4 (2024-10-05)</a></li>
+<li><a class="reference internal" href="#id5">9.3 (2024-08-10)</a></li>
+<li><a class="reference internal" href="#id6">9.2 (2024-05-11)</a></li>
+<li><a class="reference internal" href="#id7">9.1 (2024-02-03)</a></li>
+<li><a class="reference internal" href="#id8">9.0 (2023-11-04)</a></li>
 <li><a class="reference internal" href="#older-versions">Older versions</a></li>
 </ul>
 </li>
@@ -363,7 +405,7 @@ hash character (<code class="docutils literal notranslate"><span class="pre">#</
   <div>
     <h4>Previous topic</h4>
     <p class="topless"><a href="migration.html"
-                          title="previous chapter">Migrating from SkoolKit 8</a></p>
+                          title="previous chapter">Migrating from SkoolKit 9</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
@@ -377,7 +419,7 @@ hash character (<code class="docutils literal notranslate"><span class="pre">#</
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -385,13 +427,13 @@ hash character (<code class="docutils literal notranslate"><span class="pre">#</
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -401,15 +443,15 @@ hash character (<code class="docutils literal notranslate"><span class="pre">#</
           <a href="changelog8.html" title="SkoolKit 8.x changelog"
              >next</a> |</li>
         <li class="right" >
-          <a href="migration.html" title="Migrating from SkoolKit 8"
+          <a href="migration.html" title="Migrating from SkoolKit 9"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Changelog</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2025, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    &#169; Copyright 2026, Richard Dymond.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

@@ -1,6 +1,49 @@
 Changelog
 =========
 
+10.0 (2026-04-04)
+-----------------
+* Dropped support for Python 3.9
+* Added the ``--ay`` option to :ref:`trace.py` (for capturing AY audio when
+  writing a WAV file)
+* Added the ``ay`` parameter to the :ref:`AUDIO` macro (to set whether AY
+  audio is captured)
+* Added the ``--beeper`` option to :ref:`trace.py` (for capturing beeper audio
+  as well when ``--ay`` is specified)
+* Added the ``bpr`` parameter to the :ref:`AUDIO` macro (to set whether beeper
+  audio is captured along with AY audio)
+* Added support for the MEMPTR register to CMIOSimulator and CCMIOSimulator
+* Added the ``memptr`` parameter to the :ref:`SIM` macro (to set the MEMPTR
+  register)
+* :ref:`snapinfo.py` now shows the MEMPTR register value in SZX snapshots
+* Added support to :ref:`trace.py` for setting the MEMPTR register before
+  execution begins, for reading and writing MEMPTR in SZX snapshots, and for
+  tracing its value via the ``r[memptr]`` replacement field in the
+  ``TraceLine*`` configuration parameters
+* Added support to :ref:`tap2sna.py` for setting the MEMPTR register in SZX
+  snapshots, and for tracing its value via the ``r[memptr]`` replacement field
+  in the ``TraceLine`` configuration parameter
+* Added support to :ref:`bin2sna.py` and :ref:`snapmod.py` for setting the
+  MEMPTR register in SZX snapshots
+* Added the ``TraceHeader`` and ``TraceHeader2`` configuration parameters for
+  :ref:`trace.py <trace-conf>` (to specify headers to print before a trace)
+* Added support to the :ref:`AUDIO` macro for keyword arguments
+* Added support to :ref:`rzxplay.py` for ignoring any snapshots after the first
+  one (which is useful for playing some RZX files created by the Fuse emulator)
+* Added a border area to the screen displayed by :ref:`rzxplay.py` and
+  :ref:`trace.py`
+* Updated the comments generated for 'IN r,(C)' immediately after 'LD BC,$XXFE'
+  and 'IN A,($FE)' immediately after 'LD A,n' when a single half-row of the
+  keyboard is read
+* Updated the default values of ``ContentionBegin``, ``ContentionEnd`` and
+  ``InterruptDelay`` in the :ref:`ref-AudioWriter` section
+* Added support for multiple values to the ``InterruptDelay`` parameter in the
+  :ref:`ref-AudioWriter` section
+* Fixed the bug in CSimulator that restricts the ``timeout`` simulated load
+  configuration parameter to a maximum value of 1227 seconds
+* Fixed how :ref:`tap2sna.py` handles zero-length pulses in the encodings of 0s
+  and 1s in a PZX DATA block
+
 9.6 (2025-05-12)
 ----------------
 * :ref:`tap2sna.py` can now load from two tape files (e.g. when side 1 and side

@@ -1,27 +1,23 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Extending SkoolKit &#8212; SkoolKit 9.6 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
+    <title>Extending SkoolKit &#8212; SkoolKit 10.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=fe13c473" />
+    <script src="_static/documentation_options.js?v=864e5427"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="SkoolKit components" href="components.html" />
     <link rel="prev" title="HTML templates" href="html-templates.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -33,7 +29,7 @@
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Extending SkoolKit</a></li> 
       </ul>
     </div>  
@@ -44,9 +40,9 @@
           <div class="body" role="main">
             
   <section id="extending-skoolkit">
-<span id="extendingskoolkit"></span><h1>Extending SkoolKit<a class="headerlink" href="#extending-skoolkit" title="Permalink to this heading">¶</a></h1>
+<span id="extendingskoolkit"></span><h1>Extending SkoolKit<a class="headerlink" href="#extending-skoolkit" title="Link to this heading">¶</a></h1>
 <section id="extension-modules">
-<h2>Extension modules<a class="headerlink" href="#extension-modules" title="Permalink to this heading">¶</a></h2>
+<h2>Extension modules<a class="headerlink" href="#extension-modules" title="Link to this heading">¶</a></h2>
 <p>While creating a disassembly of a game, you may find that SkoolKit’s suite of
 <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a> is inadequate for certain tasks. For example,
 the game might have large tile-based sprites that you want to create images of
@@ -126,7 +122,7 @@ current working directory and the directory containing the skool file named on
 the command line.</p>
 </section>
 <section id="call-methods">
-<h2>#CALL methods<a class="headerlink" href="#call-methods" title="Permalink to this heading">¶</a></h2>
+<h2>#CALL methods<a class="headerlink" href="#call-methods" title="Link to this heading">¶</a></h2>
 <p>Implementing a method that can be called by a <a class="reference internal" href="skool-macros.html#call"><span class="std std-ref">#CALL</span></a> macro is done by
 adding the method to the HtmlWriter or AsmWriter subclass in the extension
 module.</p>
@@ -176,7 +172,7 @@ this:</p>
 they will be expanded.</p>
 </section>
 <section id="call-functions">
-<h2>#CALL functions<a class="headerlink" href="#call-functions" title="Permalink to this heading">¶</a></h2>
+<h2>#CALL functions<a class="headerlink" href="#call-functions" title="Link to this heading">¶</a></h2>
 <p>The <a class="reference internal" href="skool-macros.html#call"><span class="std std-ref">#CALL</span></a> macro can be used not only to call a method on an HtmlWriter or
 AsmWriter subclass, but also to call an arbitrary function. This approach might
 be preferable if you don’t need to make use of any of the methods or attributes
@@ -197,7 +193,7 @@ t40000 DEFM &quot;hello&quot;,0
 parameter is passed to the function.</p>
 </section>
 <section id="skool-macros">
-<h2>Skool macros<a class="headerlink" href="#skool-macros" title="Permalink to this heading">¶</a></h2>
+<h2>Skool macros<a class="headerlink" href="#skool-macros" title="Link to this heading">¶</a></h2>
 <p>Another way to add a custom method is to implement it as a skool macro. The
 main differences between a skool macro and a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method are:</p>
 <ul class="simple">
@@ -264,7 +260,7 @@ TABLE#
 </div>
 </section>
 <section id="parsing-skool-macros">
-<span id="ext-macroparsing"></span><h2>Parsing skool macros<a class="headerlink" href="#parsing-skool-macros" title="Permalink to this heading">¶</a></h2>
+<span id="ext-macroparsing"></span><h2>Parsing skool macros<a class="headerlink" href="#parsing-skool-macros" title="Link to this heading">¶</a></h2>
 <p>The skoolkit.skoolmacro module provides some utility functions that may be used
 to parse the parameters of a skool macro.</p>
 <dl class="py function">
@@ -341,7 +337,7 @@ single parameter, regardless of commas.</p></li>
 </dd>
 </dl>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 5.1.</span></p>
+<p><span class="versionmodified added">Added in version 5.1.</span></p>
 </div>
 </dd></dl>
 
@@ -371,7 +367,7 @@ found)</p></li>
 </dd>
 </dl>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 5.1.</span></p>
+<p><span class="versionmodified added">Added in version 5.1.</span></p>
 </div>
 </dd></dl>
 
@@ -431,13 +427,13 @@ returned by <em>xparse</em> (if specified)</p></li>
 <p><span class="versionmodified changed">Changed in version 8.3: </span>Added the <em>fields</em> parameter.</p>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 5.1.</span></p>
+<p><span class="versionmodified added">Added in version 5.1.</span></p>
 </div>
 </dd></dl>
 
 </section>
 <section id="expanding-skool-macros">
-<h2>Expanding skool macros<a class="headerlink" href="#expanding-skool-macros" title="Permalink to this heading">¶</a></h2>
+<h2>Expanding skool macros<a class="headerlink" href="#expanding-skool-macros" title="Link to this heading">¶</a></h2>
 <p>Both AsmWriter and HtmlWriter provide methods for expanding skool macros. These
 are useful for immediately expanding macros in a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method or custom
 macro method.</p>
@@ -460,7 +456,7 @@ hyperlinks.</p>
 
 </section>
 <section id="parsing-ref-files">
-<h2>Parsing ref files<a class="headerlink" href="#parsing-ref-files" title="Permalink to this heading">¶</a></h2>
+<h2>Parsing ref files<a class="headerlink" href="#parsing-ref-files" title="Link to this heading">¶</a></h2>
 <p>HtmlWriter provides some convenience methods for extracting text and data from
 ref files. These methods are described below.</p>
 <dl class="py method">
@@ -532,7 +528,7 @@ that section; each line in the section should be of the form <code class="docuti
 
 </section>
 <section id="formatting-templates">
-<h2>Formatting templates<a class="headerlink" href="#formatting-templates" title="Permalink to this heading">¶</a></h2>
+<h2>Formatting templates<a class="headerlink" href="#formatting-templates" title="Link to this heading">¶</a></h2>
 <p>HtmlWriter provides a method for formatting a template defined by a
 <a class="reference internal" href="ref-files.html#template"><span class="std std-ref">[Template:*]</span></a> section.</p>
 <dl class="py method">
@@ -554,7 +550,7 @@ that section; each line in the section should be of the form <code class="docuti
 <p><span class="versionmodified changed">Changed in version 8.0: </span>Removed the <em>default</em> parameter.</p>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 4.0.</span></p>
+<p><span class="versionmodified added">Added in version 4.0.</span></p>
 </div>
 </dd></dl>
 
@@ -567,7 +563,7 @@ This is in accordance with SkoolKit’s rules for preferring <a class="reference
 templates</span></a>.</p>
 </section>
 <section id="base-case-and-fields">
-<h2>Base, case and fields<a class="headerlink" href="#base-case-and-fields" title="Permalink to this heading">¶</a></h2>
+<h2>Base, case and fields<a class="headerlink" href="#base-case-and-fields" title="Link to this heading">¶</a></h2>
 <p>The <cite>base</cite> and <cite>case</cite> attributes on AsmWriter and HtmlWriter can be inspected
 to determine the mode in which <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> or <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> is
 running.</p>
@@ -578,7 +574,7 @@ running.</p>
 <li><p>16 - hexadecimal (<code class="docutils literal notranslate"><span class="pre">--hex</span></code>)</p></li>
 </ul>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 6.1.</span></p>
+<p><span class="versionmodified added">Added in version 6.1.</span></p>
 </div>
 <p>The <cite>case</cite> attribute has one of the following values:</p>
 <ul class="simple">
@@ -587,18 +583,18 @@ running.</p>
 <li><p>2 - upper case (<code class="docutils literal notranslate"><span class="pre">--upper</span></code>)</p></li>
 </ul>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 6.1.</span></p>
+<p><span class="versionmodified added">Added in version 6.1.</span></p>
 </div>
 <p>The <cite>fields</cite> attribute on AsmWriter and HtmlWriter is a dictionary of
 replacement field names and values (see <a class="reference internal" href="skool-macros.html#replacementfields"><span class="std std-ref">Replacement fields</span></a>).
 It can be used with the <code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_ints()</span></code> and
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_image_macro()</span></code> functions.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 6.0.</span></p>
+<p><span class="versionmodified added">Added in version 6.0.</span></p>
 </div>
 </section>
 <section id="memory-snapshots">
-<h2>Memory snapshots<a class="headerlink" href="#memory-snapshots" title="Permalink to this heading">¶</a></h2>
+<h2>Memory snapshots<a class="headerlink" href="#memory-snapshots" title="Link to this heading">¶</a></h2>
 <p>The <cite>snapshot</cite> attribute on HtmlWriter and AsmWriter is a list-like object that
 represents the Spectrum’s memory. It supports both indexing and slicing for
 addresses 0-65535 ($0000-$FFFF), and reports a length (via the <strong>len</strong>
@@ -638,7 +634,7 @@ the snapshot name.</p>
 
 </section>
 <section id="graphics">
-<span id="ext-graphics"></span><h2>Graphics<a class="headerlink" href="#graphics" title="Permalink to this heading">¶</a></h2>
+<span id="ext-graphics"></span><h2>Graphics<a class="headerlink" href="#graphics" title="Link to this heading">¶</a></h2>
 <p>If you are going to implement a custom image-creating <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method or skool
 macro, you will need to make use of the skoolkit.graphics.Udg and
 skoolkit.graphics.Frame classes.</p>
@@ -763,7 +759,7 @@ added the <em>name</em> parameter.</p>
 <a class="reference internal" href="skool-macros.html#masks"><span class="std std-ref">Masks</span></a>).</p>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 3.6.</span></p>
+<p><span class="versionmodified added">Added in version 3.6.</span></p>
 </div>
 </dd></dl>
 
@@ -808,7 +804,7 @@ created.</p>
 <code class="docutils literal notranslate"><span class="pre">{UDGImagePath}</span></code>).</p>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 5.1.</span></p>
+<p><span class="versionmodified added">Added in version 5.1.</span></p>
 </div>
 </dd></dl>
 
@@ -879,7 +875,7 @@ specified by <cite>mask</cite> is used.</p></li>
 </dd>
 </dl>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 8.5.</span></p>
+<p><span class="versionmodified added">Added in version 8.5.</span></p>
 </div>
 </dd></dl>
 
@@ -900,7 +896,7 @@ specified by <cite>mask</cite> is used.</p></li>
 
 </section>
 <section id="html-page-initialisation">
-<h2>HTML page initialisation<a class="headerlink" href="#html-page-initialisation" title="Permalink to this heading">¶</a></h2>
+<h2>HTML page initialisation<a class="headerlink" href="#html-page-initialisation" title="Link to this heading">¶</a></h2>
 <p>If you need to perform page-specific actions or customise the <code class="docutils literal notranslate"><span class="pre">SkoolKit</span></code> and
 <code class="docutils literal notranslate"><span class="pre">Game</span></code> parameter dictionaries that are used by the <a class="reference internal" href="html-templates.html#htmltemplates"><span class="std std-ref">HTML templates</span></a>, the
 place to do that is the <cite>init_page()</cite> method.</p>
@@ -921,13 +917,13 @@ method does nothing, but subclasses may override it.</p>
 </dd>
 </dl>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 7.0.</span></p>
+<p><span class="versionmodified added">Added in version 7.0.</span></p>
 </div>
 </dd></dl>
 
 </section>
 <section id="writer-initialisation">
-<h2>Writer initialisation<a class="headerlink" href="#writer-initialisation" title="Permalink to this heading">¶</a></h2>
+<h2>Writer initialisation<a class="headerlink" href="#writer-initialisation" title="Link to this heading">¶</a></h2>
 <p>If your AsmWriter or HtmlWriter subclass needs to perform some initialisation
 tasks, such as creating instance variables, or parsing ref file sections, the
 place to do that is the <cite>init()</cite> method.</p>
@@ -938,7 +934,7 @@ place to do that is the <cite>init()</cite> method.</p>
 <cite>__init__()</cite> has completed. By default the method does nothing, but
 subclasses may override it.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 6.1.</span></p>
+<p><span class="versionmodified added">Added in version 6.1.</span></p>
 </div>
 </dd></dl>
 
@@ -967,7 +963,7 @@ subclasses may override it.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
@@ -1008,7 +1004,7 @@ subclasses may override it.</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -1016,13 +1012,13 @@ subclasses may override it.</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -1034,13 +1030,13 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Extending SkoolKit</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2025, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    &#169; Copyright 2026, Richard Dymond.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

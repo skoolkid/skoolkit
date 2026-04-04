@@ -1,27 +1,23 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>HTML templates &#8212; SkoolKit 9.6 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
+    <title>HTML templates &#8212; SkoolKit 10.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=fe13c473" />
+    <script src="_static/documentation_options.js?v=864e5427"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Extending SkoolKit" href="extending.html" />
     <link rel="prev" title="ASM templates" href="asm-templates.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -33,7 +29,7 @@
         <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">HTML templates</a></li> 
       </ul>
     </div>  
@@ -44,7 +40,7 @@
           <div class="body" role="main">
             
   <section id="html-templates">
-<span id="htmltemplates"></span><h1>HTML templates<a class="headerlink" href="#html-templates" title="Permalink to this heading">¶</a></h1>
+<span id="htmltemplates"></span><h1>HTML templates<a class="headerlink" href="#html-templates" title="Link to this heading">¶</a></h1>
 <p>Every page in an HTML disassembly is built from the <a class="reference internal" href="#t-layout"><span class="std std-ref">Layout</span></a> template
 and zero or more subtemplates defined by <a class="reference internal" href="ref-files.html#template"><span class="std std-ref">[Template:*]</span></a> sections in the ref
 file.</p>
@@ -86,7 +82,7 @@ and <code class="docutils literal notranslate"><span class="pre">SkoolKit[styles
 <p><span class="versionmodified changed">Changed in version 6.4: </span>Added <code class="docutils literal notranslate"><span class="pre">SkoolKit[path]</span></code>.</p>
 </div>
 <section id="layout">
-<span id="t-layout"></span><h2>Layout<a class="headerlink" href="#layout" title="Permalink to this heading">¶</a></h2>
+<span id="t-layout"></span><h2>Layout<a class="headerlink" href="#layout" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Layout</span></code> template is used to format every HTML page.</p>
 <p>In any page defined by a <a class="reference internal" href="ref-files.html#page"><span class="std std-ref">[Page:*]</span></a> section, the following identifier is
 available (in addition to the universal identifiers):</p>
@@ -105,11 +101,11 @@ available (in addition to the universal identifiers):</p>
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 8.0.</span></p>
+<p><span class="versionmodified added">Added in version 8.0.</span></p>
 </div>
 </section>
 <section id="asm">
-<span id="t-asm"></span><h2>asm<a class="headerlink" href="#asm" title="Permalink to this heading">¶</a></h2>
+<span id="t-asm"></span><h2>asm<a class="headerlink" href="#asm" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">asm</span></code> template is used to format the content between the header and
 footer of a disassembly page.</p>
 <p>The following identifiers are available (in addition to the universal
@@ -236,11 +232,11 @@ identifier produces an empty string.</p>
 attribute of instruction objects.</p>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 8.0.</span></p>
+<p><span class="versionmodified added">Added in version 8.0.</span></p>
 </div>
 </section>
 <section id="asm-single-page">
-<span id="t-asm-single-page"></span><h2>asm_single_page<a class="headerlink" href="#asm-single-page" title="Permalink to this heading">¶</a></h2>
+<span id="t-asm-single-page"></span><h2>asm_single_page<a class="headerlink" href="#asm-single-page" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">asm_single_page</span></code> template is used to format the content between the
 header and footer of a single-page disassembly.</p>
 <p>The following identifier is available (in addition to the universal
@@ -255,11 +251,11 @@ identifiers):</p>
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 8.0.</span></p>
+<p><span class="versionmodified added">Added in version 8.0.</span></p>
 </div>
 </section>
 <section id="audio">
-<span id="t-audio"></span><h2>audio<a class="headerlink" href="#audio" title="Permalink to this heading">¶</a></h2>
+<span id="t-audio"></span><h2>audio<a class="headerlink" href="#audio" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">audio</span></code> template is used to format <code class="docutils literal notranslate"><span class="pre">&lt;audio&gt;</span></code> elements created by the
 <a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> macro.</p>
 <p>The following identifier is available (in addition to the universal
@@ -272,11 +268,11 @@ identifiers):</p>
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 8.7.</span></p>
+<p><span class="versionmodified added">Added in version 8.7.</span></p>
 </div>
 </section>
 <section id="box-entries">
-<span id="t-box-entries"></span><h2>box_entries<a class="headerlink" href="#box-entries" title="Permalink to this heading">¶</a></h2>
+<span id="t-box-entries"></span><h2>box_entries<a class="headerlink" href="#box-entries" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">box_entries</span></code> template is used to format the content between the header
 and footer of a <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a> with a default <code class="docutils literal notranslate"><span class="pre">SectionType</span></code>.</p>
 <p>The following identifier is available (in addition to the universal
@@ -296,11 +292,11 @@ identifiers):</p>
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 8.0.</span></p>
+<p><span class="versionmodified added">Added in version 8.0.</span></p>
 </div>
 </section>
 <section id="box-list-entries">
-<span id="t-box-list-entries"></span><h2>box_list_entries<a class="headerlink" href="#box-list-entries" title="Permalink to this heading">¶</a></h2>
+<span id="t-box-list-entries"></span><h2>box_list_entries<a class="headerlink" href="#box-list-entries" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">box_list_entries</span></code> template is used to format the content between the
 header and footer of a <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a> whose <code class="docutils literal notranslate"><span class="pre">SectionType</span></code> is
 <code class="docutils literal notranslate"><span class="pre">BulletPoints</span></code> or <code class="docutils literal notranslate"><span class="pre">ListItems</span></code>.</p>
@@ -322,11 +318,11 @@ identifiers):</p>
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 8.0.</span></p>
+<p><span class="versionmodified added">Added in version 8.0.</span></p>
 </div>
 </section>
 <section id="footer">
-<span id="t-footer"></span><h2>footer<a class="headerlink" href="#footer" title="Permalink to this heading">¶</a></h2>
+<span id="t-footer"></span><h2>footer<a class="headerlink" href="#footer" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">footer</span></code> template is the subtemplate included in the <a class="reference internal" href="#t-layout"><span class="std std-ref">Layout</span></a>
 template to format the <code class="docutils literal notranslate"><span class="pre">&lt;footer&gt;</span></code> element of a page.</p>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">footer</span></code> template, run the following command:</p>
@@ -338,11 +334,11 @@ template to format the <code class="docutils literal notranslate"><span class="p
 the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section.</p>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 5.0.</span></p>
+<p><span class="versionmodified added">Added in version 5.0.</span></p>
 </div>
 </section>
 <section id="home">
-<span id="t-home"></span><h2>home<a class="headerlink" href="#home" title="Permalink to this heading">¶</a></h2>
+<span id="t-home"></span><h2>home<a class="headerlink" href="#home" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">home</span></code> template is used to format the content between the header and
 footer of the disassembly home page.</p>
 <p>The following identifier is available (in addition to the universal
@@ -370,11 +366,11 @@ defined in the <a class="reference internal" href="ref-files.html#links"><span c
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 8.0.</span></p>
+<p><span class="versionmodified added">Added in version 8.0.</span></p>
 </div>
 </section>
 <section id="img">
-<span id="t-img"></span><h2>img<a class="headerlink" href="#img" title="Permalink to this heading">¶</a></h2>
+<span id="t-img"></span><h2>img<a class="headerlink" href="#img" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">img</span></code> template is used to format <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> elements for the
 <a class="reference internal" href="skool-macros.html#imagemacros"><span class="std std-ref">image macros</span></a> and for the game logo image (if defined) in
 the header of every page.</p>
@@ -390,7 +386,7 @@ identifiers):</p>
 </div>
 </section>
 <section id="item-list">
-<span id="t-item-list"></span><h2>item_list<a class="headerlink" href="#item-list" title="Permalink to this heading">¶</a></h2>
+<span id="t-item-list"></span><h2>item_list<a class="headerlink" href="#item-list" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">item_list</span></code> template is the subtemplate used by the
 <a class="reference internal" href="#t-box-list-entries"><span class="std std-ref">box_list_entries</span></a> template to format a list of items (or subitems, or
 subsubitems etc.) in an entry on a <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a> whose
@@ -415,11 +411,11 @@ attribute of each item (this template is recursive).</p>
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 8.0.</span></p>
+<p><span class="versionmodified added">Added in version 8.0.</span></p>
 </div>
 </section>
 <section id="link">
-<span id="t-link"></span><h2>link<a class="headerlink" href="#link" title="Permalink to this heading">¶</a></h2>
+<span id="t-link"></span><h2>link<a class="headerlink" href="#link" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">link</span></code> template is the subtemplate used to format the hyperlinks created
 by the <a class="reference internal" href="skool-macros.html#link"><span class="std std-ref">#LINK</span></a> and <a class="reference internal" href="skool-macros.html#r"><span class="std std-ref">#R</span></a> macros, and the hyperlinks in instruction
 operands on disassembly pages.</p>
@@ -435,7 +431,7 @@ identifiers):</p>
 </div>
 </section>
 <section id="list">
-<span id="t-list"></span><h2>list<a class="headerlink" href="#list" title="Permalink to this heading">¶</a></h2>
+<span id="t-list"></span><h2>list<a class="headerlink" href="#list" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">list</span></code> template is used by the <a class="reference internal" href="skool-macros.html#list"><span class="std std-ref">#LIST</span></a> macro to format a list.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
@@ -451,11 +447,11 @@ identifiers):</p>
 <p><span class="versionmodified changed">Changed in version 8.0: </span>Replaced the <code class="docutils literal notranslate"><span class="pre">m_list_item</span></code> identifier with the <code class="docutils literal notranslate"><span class="pre">items</span></code> identifier.</p>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 4.2.</span></p>
+<p><span class="versionmodified added">Added in version 4.2.</span></p>
 </div>
 </section>
 <section id="memory-map">
-<span id="t-memory-map"></span><h2>memory_map<a class="headerlink" href="#memory-map" title="Permalink to this heading">¶</a></h2>
+<span id="t-memory-map"></span><h2>memory_map<a class="headerlink" href="#memory-map" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">memory_map</span></code> template is used to format the content between the header
 and footer of memory map pages and the ‘Game status buffer’ page.</p>
 <p>The following identifier is available (in addition to the universal
@@ -470,11 +466,11 @@ identifiers):</p>
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 8.0.</span></p>
+<p><span class="versionmodified added">Added in version 8.0.</span></p>
 </div>
 </section>
 <section id="page">
-<span id="t-page"></span><h2>page<a class="headerlink" href="#page" title="Permalink to this heading">¶</a></h2>
+<span id="t-page"></span><h2>page<a class="headerlink" href="#page" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">page</span></code> template is used to format the content between the header and
 footer of a non-box page defined by a <a class="reference internal" href="ref-files.html#page"><span class="std std-ref">[Page:*]</span></a> section.</p>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">page</span></code> template, run the following command:</p>
@@ -482,11 +478,11 @@ footer of a non-box page defined by a <a class="reference internal" href="ref-fi
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 8.0.</span></p>
+<p><span class="versionmodified added">Added in version 8.0.</span></p>
 </div>
 </section>
 <section id="reg">
-<span id="t-reg"></span><h2>reg<a class="headerlink" href="#reg" title="Permalink to this heading">¶</a></h2>
+<span id="t-reg"></span><h2>reg<a class="headerlink" href="#reg" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">reg</span></code> template is the subtemplate used by the <a class="reference internal" href="skool-macros.html#reg"><span class="std std-ref">#REG</span></a> macro to format
 a register name.</p>
 <p>The following identifier is available (in addition to the universal
@@ -500,7 +496,7 @@ identifiers):</p>
 </div>
 </section>
 <section id="section">
-<span id="t-section"></span><h2>section<a class="headerlink" href="#section" title="Permalink to this heading">¶</a></h2>
+<span id="t-section"></span><h2>section<a class="headerlink" href="#section" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">section</span></code> template is used to format the paragraphs in a ref file section
 processed by the <a class="reference internal" href="skool-macros.html#include"><span class="std std-ref">#INCLUDE</span></a> macro.</p>
 <p>The following identifier is available (in addition to the universal
@@ -513,11 +509,11 @@ identifiers):</p>
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 8.0.</span></p>
+<p><span class="versionmodified added">Added in version 8.0.</span></p>
 </div>
 </section>
 <section id="table">
-<span id="t-table"></span><h2>table<a class="headerlink" href="#table" title="Permalink to this heading">¶</a></h2>
+<span id="t-table"></span><h2>table<a class="headerlink" href="#table" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">table</span></code> template is used by the <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro to format a table.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
@@ -542,16 +538,16 @@ that row. Each cell object has the following attributes:</p>
 <p><span class="versionmodified changed">Changed in version 8.0: </span>Replaced the <code class="docutils literal notranslate"><span class="pre">m_table_row</span></code> identifier with the <code class="docutils literal notranslate"><span class="pre">rows</span></code> identifier.</p>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 4.2.</span></p>
+<p><span class="versionmodified added">Added in version 4.2.</span></p>
 </div>
 </section>
 <section id="template-directives">
-<span id="id1"></span><h2>Template directives<a class="headerlink" href="#template-directives" title="Permalink to this heading">¶</a></h2>
+<span id="id1"></span><h2>Template directives<a class="headerlink" href="#template-directives" title="Link to this heading">¶</a></h2>
 <p>HTML templates may contain directives enclosed by <code class="docutils literal notranslate"><span class="pre">&lt;#</span></code> and <code class="docutils literal notranslate"><span class="pre">#&gt;</span></code> to
 conditionally include or repeat content. To take effect, a directive must
 appear on a line of its own.</p>
 <section id="foreach">
-<span id="td-foreach"></span><h3>foreach<a class="headerlink" href="#foreach" title="Permalink to this heading">¶</a></h3>
+<span id="td-foreach"></span><h3>foreach<a class="headerlink" href="#foreach" title="Link to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">foreach</span></code> directive repeats the content between it and the corresponding
 <code class="docutils literal notranslate"><span class="pre">endfor</span></code> directive, once for each object in a list.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;# foreach(var,list) #&gt;
@@ -581,7 +577,7 @@ Carol
 </div>
 </section>
 <section id="if">
-<span id="td-if"></span><h3>if<a class="headerlink" href="#if" title="Permalink to this heading">¶</a></h3>
+<span id="td-if"></span><h3>if<a class="headerlink" href="#if" title="Link to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">if</span></code> directive includes the content between it and the corresponding
 <code class="docutils literal notranslate"><span class="pre">else</span></code> directive (optional) or <code class="docutils literal notranslate"><span class="pre">endif</span></code> directive (required) if a given
 expression is true, and excludes it otherwise.</p>
@@ -604,7 +600,7 @@ true, because it’s a non-empty string); but <code class="docutils literal notr
 false).</p>
 </section>
 <section id="include">
-<span id="td-include"></span><h3>include<a class="headerlink" href="#include" title="Permalink to this heading">¶</a></h3>
+<span id="td-include"></span><h3>include<a class="headerlink" href="#include" title="Link to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">include</span></code> directive includes content from another template.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;# include(template) #&gt;
 </pre></div>
@@ -628,7 +624,7 @@ then:</p>
 </section>
 </section>
 <section id="page-specific-templates">
-<span id="ps-templates"></span><h2>Page-specific templates<a class="headerlink" href="#page-specific-templates" title="Permalink to this heading">¶</a></h2>
+<span id="ps-templates"></span><h2>Page-specific templates<a class="headerlink" href="#page-specific-templates" title="Link to this heading">¶</a></h2>
 <p>When SkoolKit builds an HTML page, it uses the template whose name matches the
 page ID (<code class="docutils literal notranslate"><span class="pre">PageID</span></code>) if it exists, or the stock <a class="reference internal" href="#t-layout"><span class="std std-ref">Layout</span></a> template
 otherwise. For example, when building the <code class="docutils literal notranslate"><span class="pre">RoutinesMap</span></code> memory map page,
@@ -795,7 +791,7 @@ the <a class="reference internal" href="skool-macros.html#reg"><span class="std 
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
@@ -847,7 +843,7 @@ the <a class="reference internal" href="skool-macros.html#reg"><span class="std 
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -855,13 +851,13 @@ the <a class="reference internal" href="skool-macros.html#reg"><span class="std 
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -873,13 +869,13 @@ the <a class="reference internal" href="skool-macros.html#reg"><span class="std 
         <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">HTML templates</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2025, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    &#169; Copyright 2026, Richard Dymond.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

@@ -1,12 +1,7 @@
 /*
- * sphinxdoc.css_t
- * ~~~~~~~~~~~~~~~
+ * Sphinx stylesheet -- sphinxdoc theme.
  *
- * Sphinx stylesheet -- sphinxdoc theme.  Originally created by
- * Armin Ronacher for Werkzeug.
- *
- * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
- * :license: BSD, see LICENSE for details.
+ * Originally created by Armin Ronacher for Werkzeug.
  *
  */
 
@@ -151,6 +146,10 @@ a:hover {
     color: #2491CF;
 }
 
+a:visited {
+    color: #551A8B;
+}
+
 div.body a {
     text-decoration: underline;
 }
@@ -265,9 +264,9 @@ div.quotebar {
     padding: 2px 7px;
     border: 1px solid #ccc;
 }
+
 nav.contents,
 aside.topic,
-
 div.topic {
     background-color: #f8f8f8;
 }

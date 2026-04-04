@@ -1,27 +1,23 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Disassembly DIY &#8212; SkoolKit 9.6 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
+    <title>Disassembly DIY &#8212; SkoolKit 10.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=fe13c473" />
+    <script src="_static/documentation_options.js?v=864e5427"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Commands" href="commands.html" />
     <link rel="prev" title="Installing and using SkoolKit" href="usage.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -33,7 +29,7 @@
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Disassembly DIY</a></li> 
       </ul>
     </div>  
@@ -44,11 +40,11 @@
           <div class="body" role="main">
             
   <section id="disassembly-diy">
-<span id="disassemblydiy"></span><h1>Disassembly DIY<a class="headerlink" href="#disassembly-diy" title="Permalink to this heading">¶</a></h1>
+<span id="disassemblydiy"></span><h1>Disassembly DIY<a class="headerlink" href="#disassembly-diy" title="Link to this heading">¶</a></h1>
 <p>The following sections describe how to use SkoolKit to get started on your own
 Spectrum game disassembly.</p>
 <section id="getting-started">
-<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading">¶</a></h2>
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
 <p>The first thing to do is select a Spectrum game to disassemble. For the purpose
 of this discussion, we’ll use <a class="reference external" href="https://spectrumcomputing.co.uk/entry/2390/">Hungry Horace</a>. To build a pristine snapshot of
 the game, run the following command in the directory where SkoolKit was
@@ -80,7 +76,7 @@ if you could supply <cite>sna2skool.py</cite> with this information, so that it 
 disassemble the blocks accordingly. That is where the control file comes in.</p>
 </section>
 <section id="the-control-file">
-<h2>The control file<a class="headerlink" href="#the-control-file" title="Permalink to this heading">¶</a></h2>
+<h2>The control file<a class="headerlink" href="#the-control-file" title="Link to this heading">¶</a></h2>
 <p>In its most basic form, a control file contains a list of start addresses of
 code and data blocks. Each address is marked with a ‘control directive’, which
 is a single letter that indicates what the block contains: <code class="docutils literal notranslate"><span class="pre">c</span></code> for a code
@@ -107,7 +103,7 @@ c 25167
 <a class="reference internal" href="control-files.html#controlfiles"><span class="std std-ref">Control files</span></a>.</p>
 </section>
 <section id="a-skeleton-disassembly">
-<h2>A skeleton disassembly<a class="headerlink" href="#a-skeleton-disassembly" title="Permalink to this heading">¶</a></h2>
+<h2>A skeleton disassembly<a class="headerlink" href="#a-skeleton-disassembly" title="Link to this heading">¶</a></h2>
 <p>So if we had a control file for Hungry Horace, we could produce a much more
 useful skool file. As it happens, SkoolKit includes one: <cite>hungry_horace.ctl</cite>.
 You can use it with <cite>sna2skool.py</cite> thus:</p>
@@ -141,7 +137,7 @@ with the skool file we’ve just created:</p>
 and customise a disassembly.</p>
 </section>
 <section id="generating-a-control-file">
-<h2>Generating a control file<a class="headerlink" href="#generating-a-control-file" title="Permalink to this heading">¶</a></h2>
+<h2>Generating a control file<a class="headerlink" href="#generating-a-control-file" title="Link to this heading">¶</a></h2>
 <p>If you are planning to create a disassembly of some game other than Hungry
 Horace, you will need to create your own control file. To get started, you can
 use <a class="reference internal" href="commands.html#sna2ctl-py"><span class="std std-ref">sna2ctl.py</span></a> to perform a rudimentary static code analysis of the
@@ -179,7 +175,7 @@ $ sna2skool.py --hex -c game.ctl game.z80 &gt; game.skool
 </div>
 </section>
 <section id="developing-the-disassembly">
-<h2>Developing the disassembly<a class="headerlink" href="#developing-the-disassembly" title="Permalink to this heading">¶</a></h2>
+<h2>Developing the disassembly<a class="headerlink" href="#developing-the-disassembly" title="Link to this heading">¶</a></h2>
 <p>When you’re happy that your control file does a decent job of distinguishing
 the code blocks from the data blocks in your memory snapshot, it’s time to
 start work on adding annotations that describe what the code does and what the
@@ -249,7 +245,7 @@ code and data blocks. Then generate a new skool file:</p>
 data blocks, and all the annotations you carefully added to <cite>game.skool</cite>.</p>
 </section>
 <section id="adding-pokes-bugs-and-trivia">
-<h2>Adding pokes, bugs and trivia<a class="headerlink" href="#adding-pokes-bugs-and-trivia" title="Permalink to this heading">¶</a></h2>
+<h2>Adding pokes, bugs and trivia<a class="headerlink" href="#adding-pokes-bugs-and-trivia" title="Link to this heading">¶</a></h2>
 <p>Adding ‘Pokes’, ‘Bugs’, and ‘Trivia’ pages to a disassembly is done by adding
 <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">[Poke:*]</span></a>, <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">[Bug:*]</span></a>, and
 <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">[Fact:*]</span></a> sections to the ref file. For any such sections that
@@ -277,7 +273,7 @@ page in the same order as the sections appear in the ref file.</p>
 <code class="docutils literal notranslate"><span class="pre">Bug</span></code>, and <code class="docutils literal notranslate"><span class="pre">Fact</span></code> (and other) sections that may appear in a ref file.</p>
 </section>
 <section id="themes">
-<h2>Themes<a class="headerlink" href="#themes" title="Permalink to this heading">¶</a></h2>
+<h2>Themes<a class="headerlink" href="#themes" title="Link to this heading">¶</a></h2>
 <p>In addition to the default theme (defined in <cite>skoolkit.css</cite>), SkoolKit includes
 some alternative themes:</p>
 <ul class="simple">
@@ -298,7 +294,7 @@ example, to use the ‘dark’ theme:</p>
 </div>
 </section>
 <section id="base-switching">
-<h2>Base switching<a class="headerlink" href="#base-switching" title="Permalink to this heading">¶</a></h2>
+<h2>Base switching<a class="headerlink" href="#base-switching" title="Link to this heading">¶</a></h2>
 <p>If you would like to build both decimal and hexadecimal versions of your
 disassembly in HTML format and have them link to each other, then one possible
 approach is to define a custom page footer that contains a link to the
@@ -325,7 +321,7 @@ versa.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
@@ -361,7 +357,7 @@ versa.</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -369,13 +365,13 @@ versa.</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -387,13 +383,13 @@ versa.</p>
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 9.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Disassembly DIY</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2025, Richard Dymond.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    &#169; Copyright 2026, Richard Dymond.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

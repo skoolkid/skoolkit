@@ -898,53 +898,53 @@ General macros
 
 #AUDIO
 ------
-In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
+In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. It
+is not supported in ASM mode. ::
 
-  #AUDIO[flags,offset](fname)[(delays)]
+  #AUDIOsim[,start,stop,execint,cmio,offset,ay,bpr](fname)[(delays)]
 
-Or, when executing code in a simulator (bit 2 of ``flags`` set)::
-
-  #AUDIO[flags,offset](fname)(start,stop[,execint,cmio])
-
-* ``flags`` controls various options (see below)
+* ``sim`` specifies whether to generate audio by executing instructions in a
+  simulator (1), or to specify ``delays`` manually (0)
+* ``start`` is the address at which to start executing code (when ``sim`` is 1)
+* ``stop`` is the address at which to stop executing code (when ``sim`` is 1)
+* ``execint`` specifies whether to ignore interrupts (0, the default), execute
+  interrupt routines (1), or (when ``sim`` is 1) enable interrupts before
+  execution begins and execute interrupt routines (2)
+* ``cmio`` specifies whether memory and I/O contention (and MEMPTR) are
+  simulated (1), or not simulated (0, the default)
 * ``offset`` is the initial offset in T-states from the start of a frame
-  (default: 0); this value affects when contention and interrupt delays (if
-  enabled) first take effect
+* ``ay`` specifies whether to capture AY audio (1), or ignore it (0, the
+  default)
+* ``bpr`` specifies whether to capture beeper audio as well (1), or ignore it
+  (0, the default) when ``ay`` is 1
 * ``fname`` is the name of the audio file
 * ``delays`` is a comma-separated list of delays (in T-states) between speaker
-  state changes; this parameter may contain skool macros (which are expanded
-  first) and :ref:`replacement fields <replacementFields>` (which are replaced
-  after any skool macros have been expanded)
-* ``start`` is the address at which to start executing code
-* ``stop`` is the address at which to stop executing code
-* ``execint`` specifies whether to execute interrupt routines (1), or ignore
-  interrupts (0, the default)
-* ``cmio`` specifies whether memory and I/O contention are simulated (1), or
-  not simulated (0, the default)
+  state changes (when ``sim`` is 0)
 
-``flags`` is the sum of the following values, chosen according to the desired
-outcome:
+The integer parameters (i.e. all except ``fname`` and ``delays``) of the
+``#AUDIO`` macro may contain :ref:`replacement fields <replacementFields>` and
+may also be given as keyword arguments.
 
-* 1 (bit 0) - modify delays to approximate the effect of running in contended
-  memory; this increases any delays that occur during the contended period of a
-  frame by a given factor (as specified by the ``ContentionBegin``,
-  ``ContentionEnd`` and ``ContentionFactor`` parameters in the
-  :ref:`ref-AudioWriter` section)
-* 2 (bit 1) - modify delays as if interrupts were enabled; this increases any
-  delays that occur over a frame boundary by a given number of T-states (as
-  specified by the ``InterruptDelay`` parameter in the :ref:`ref-AudioWriter`
-  section)
-* 4 (bit 2) - execute instructions from ``start`` to ``stop`` in a simulator to
-  obtain the delays between speaker state changes
-* 8 (bit 3) - pass delays through a moving average filter; while this can
-  produce higher quality audio (especially for multi-channel tunes), it is
-  slower than the default sampling algorithm
+When ``sim`` is 0 and ``execint`` is 1, the delays are modified as if
+interrupts were enabled. This increases any delays that occur over a frame
+boundary by a given number of T-states (as specified by the ``InterruptDelay``
+parameter in the :ref:`ref-AudioWriter` section).
 
-If ``execint`` is set to 1, make sure that bit 1 of ``flags`` is 0, otherwise
-interrupt delays may be applied twice: once during execution of the code, and
-again in post-processing. Similarly, if ``cmio`` is set to 1, make sure that
-bit 0 of ``flags`` is 0, otherwise memory and I/O contention delays may be
-applied twice.
+When ``sim`` is 0 and ``cmio`` is 1, the delays are modified to approximate the
+effect of running in contended memory. This increases any delays that occur
+during the contended period of a frame by a given factor (as specified by the
+``ContentionBegin``, ``ContentionEnd`` and ``ContentionFactor`` parameters in
+the :ref:`ref-AudioWriter` section).
+
+When ``sim`` is 0 and ``execint`` or ``cmio`` is 1, ``offset`` affects when
+contention and interrupt delays first take effect. In this case the default
+value is 0 (i.e. the start of a frame). When ``sim`` is 1, ``offset`` defaults
+to the current value of the simulator's clock (as it was left by any previous
+invocation of the ``#AUDIO`` or :ref:`SIM` macro).
+
+When ``sim`` is 1 and ``execint`` is 1 or 2, take care that the required
+interrupt routine is present in the memory snapshot. If that is the interrupt
+routine in the 48K ROM, the :ref:`rom` directive can be used to load it.
 
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly. Otherwise the filename is taken to be relative to
@@ -967,19 +967,20 @@ This would be flattened into a list of integers, as follows:
 
 The sum of this list of integers being 1131000, this would result in an audio
 file of duration 1131000 / 3500000 = 0.323s (assuming that no memory contention
-is simulated and interrupts are disabled, i.e. bits 0 and 1 of ``flags`` are
-reset).
+is simulated and interrupts are disabled).
 
 The characters allowed in the ``delays`` parameter are ' ' (space), newline,
-the digits 0-9, and any of ``,*+-%()[]``.
+the digits 0-9, and any of ``,*+-%()[]``. This parameter may also contain skool
+macros (which are expanded first) and
+:ref:`replacement fields <replacementFields>` (which are replaced after any
+skool macros have been expanded).
 
 An alternative to supplying the delay values manually is to execute the code
 that produces the sound effect in a simulator, and let the simulator compute
-the delays. This can be done by setting bit 2 of ``flags`` and specifying the
-code to execute via the ``start`` and ``stop`` address parameters. For
-example::
+the delays. This can be done by setting ``sim`` to 1 and specifying the code to
+execute via the ``start`` and ``stop`` address parameters. For example::
 
-  ; #AUDIO4(beep.wav)(32768,32782)
+  ; #AUDIO1,32768,32782(beep.wav)
   c32768 LD L,0
   *32771 OUT (254),A
    32773 XOR 16
@@ -997,17 +998,17 @@ Note that code executed by the ``#AUDIO`` macro operates directly on the
 internal memory snapshot, and therefore can modify it. To avoid that, use the
 :ref:`PUSHS` and :ref:`POPS` macros to operate on a copy of the snapshot.
 
-If ``delays`` or ``start`` and ``stop`` parameters are specified, but ``fname``
-does not end with '.wav', no audio file is written. This enables the parameters
-to be kept in place as a reminder of how an original WAV file was created by
-the ``#AUDIO`` macro before it was converted to another format.
+If ``sim`` is 1 or ``delays`` is specified, but ``fname`` does not end with
+'.wav', no audio file is written. This enables the parameters to be kept in
+place as a reminder of how an original WAV file was created by the ``#AUDIO``
+macro before it was converted to another format.
 
-If neither ``delays`` nor ``start`` and ``stop`` parameters are specified, or
-``fname`` does not end with '.wav', the named audio file must already exist in
-the specified location, otherwise the ``<audio>`` element controls will not
-work. To make sure that a pre-built audio file is copied into the desired
-location when :ref:`skool2html.py` is run, it can be declared in the
-:ref:`resources` section.
+If ``sim`` is 0 and ``delays`` is not specified, or ``fname`` does not end with
+'.wav', the named audio file must already exist in the specified location,
+otherwise the ``<audio>`` element controls will not work. To make sure that a
+pre-built audio file is copied into the desired location when
+:ref:`skool2html.py` is run, it can be declared in the :ref:`resources`
+section.
 
 By default, if ``fname`` ends with '.wav', but a '.flac', '.mp3' or '.ogg' file
 with the same basename already exists, that file is used and no WAV file is
@@ -1017,9 +1018,6 @@ written. This enables an original WAV file to be replaced by an alternative
 looks for before writing a WAV file are specified by the ``AudioFormats``
 parameter in the :ref:`ref-game` section.
 
-The integer parameters (i.e. all except ``fname`` and ``delays``) of the
-``#AUDIO`` macro may contain :ref:`replacement fields <replacementFields>`.
-
 The :ref:`t_audio` template is used to format the ``<audio>`` element.
 
 Audio file creation can be configured via the :ref:`ref-AudioWriter` section.
@@ -1027,6 +1025,9 @@ Audio file creation can be configured via the :ref:`ref-AudioWriter` section.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.0    | Added the ``ay`` and ``bpr`` parameters and support for capturing |
+|         | AY audio; added support for keyword arguments                     |
++---------+-------------------------------------------------------------------+
 | 9.1     | Added the ``cmio`` and ``execint`` parameters; added support for  |
 |         | executing code in a 128K memory snapshot                          |
 +---------+-------------------------------------------------------------------+
@@ -1091,9 +1092,6 @@ with the argument ``32768``.
 For information on writing methods or functions that may be called by a
 ``#CALL`` macro, see the documentation on
 :ref:`extending SkoolKit <extendingSkoolKit>`.
-
-.. note::
-   The ``#CALL:method(args)`` syntax is deprecated since version 9.5.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
@@ -1308,15 +1306,9 @@ In HTML mode, the anchor of this ``#LINK`` macro (40000) is converted to the
 format specified by the ``AddressAnchor`` parameter in the :ref:`ref-Game`
 section.
 
-.. note::
-   The ``#LINK:PageId[#name](link text)`` syntax is deprecated since version
-   9.5.
-
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 9.5     | Added support for the ``#LINK(PageId[#name])(link text)`` syntax |
-+---------+------------------------------------------------------------------+
 | 5.4     | When linking to an entry on a :ref:`box page <boxpages>`, the    |
 |         | link text, if left blank, defaults to the title of the entry (in |
 |         | HTML mode)                                                       |
@@ -1593,7 +1585,7 @@ For example:
 The ``#SIM`` macro simulates the execution of machine code in the internal
 memory snapshot constructed from the contents of the skool file. ::
 
-  #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im,cmio]
+  #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im,cmio,memptr]
 
 * ``stop`` is the address at which to stop execution; if not given, no code is
   executed
@@ -1622,8 +1614,9 @@ memory snapshot constructed from the contents of the skool file. ::
 * ``tstates`` sets the value of the simulator's clock (default: 0)
 * ``iff`` sets whether interrupts are disabled (0, the default) or enabled (1)
 * ``im`` sets the interrupt mode (default: 1)
-* ``cmio`` specifies whether memory and I/O contention are simulated (1), or
-  not simulated (0, the default)
+* ``cmio`` specifies whether memory and I/O contention and the MEMPTR register
+  are simulated (1), or not simulated (0, the default)
+* ``memptr`` sets the value of the MEMPTR register (default: 0)
 
 The parameters of the ``#SIM`` macro may contain
 :ref:`replacement fields <replacementFields>` and may also be given as keyword
@@ -1650,6 +1643,7 @@ names:
 * ``sim[SP]``
 * ``sim[PC]`` - the program counter (equal to ``stop``); this is used as the
   default value of ``start`` for the next invocation of the ``#SIM`` macro
+* ``sim[MEMPTR]``
 
 In addition, the simulator's hardware state is copied to the ``sim``
 dictionary, where it is accessible via replacement fields with the following
@@ -1687,8 +1681,8 @@ now HL=14371'.
 Note that, by default, the simulator does not simulate memory contention or
 I/O contention. This means that ``sim[tstates]`` may not be accurate if the
 code being simulated runs in or accesses contended memory, or performs I/O
-operations. To simulate memory and I/O contention, set the ``cmio`` parameter
-to 1.
+operations. To simulate memory and I/O contention (and MEMPTR), set the
+``cmio`` parameter to 1.
 
 If the ``stop`` parameter is not given, no code is executed, but the
 simulator's registers and hardware state may be updated by providing other
@@ -1706,6 +1700,9 @@ memory snapshot, and therefore can modify it. To avoid that, use the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.0    | Added the ``memptr`` parameter, and the ``MEMPTR`` field to the   |
+|         | ``sim`` dictionary                                                |
++---------+-------------------------------------------------------------------+
 | 9.1     | Added the ``cmio``, ``execint``, ``iff``, ``im`` and ``tstates``  |
 |         | parameters; added support for executing code in a 128K memory     |
 |         | snapshot; added the ``7ffd``, ``ay``, ``fffd``, ``halted``,       |
@@ -1872,8 +1869,8 @@ or more instructions. ::
   ``$tstates`` for the actual timing value when bit 2 of ``flags`` is set
 * ``execint`` specifies whether to execute interrupt routines (1), or ignore
   interrupts (0, the default) when simulating code execution
-* ``cmio`` specifies whether memory and I/O contention are simulated (1), or
-  not simulated (0, the default)
+* ``cmio`` specifies whether memory and I/O contention and the MEMPTR register
+  are simulated (1), or not simulated (0, the default)
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
@@ -1989,10 +1986,10 @@ The ``#VERSION`` macro expands to the version of SkoolKit. ::
 
 Image macros
 ^^^^^^^^^^^^
-The :ref:`COPY`, :ref:`FONT`, :ref:`OVER`, :ref:`PLOT`, :ref:`SCR`, :ref:`UDG`,
-:ref:`UDGARRAY` and :ref:`UDGS` macros (described in the following sections)
-may be used to create images based on graphic data in the memory snapshot. They
-are not supported in ASM mode.
+The :ref:`COPY`, :ref:`FRAMES`, :ref:`FONT`, :ref:`OVER`, :ref:`PLOT`,
+:ref:`SCR`, :ref:`UDG`, :ref:`UDGARRAY` and :ref:`UDGS` macros (described in
+the following sections) may be used to create images based on graphic data in
+the memory snapshot. They are not supported in ASM mode.
 
 Some of these macros have several numeric parameters, most of which are
 optional. This can give rise to a long sequence of commas in a macro parameter
@@ -2069,8 +2066,8 @@ of text rendered in the game font. ::
   #FONTaddr[,chars,attr,scale,tindex,alpha][(text)][{CROP}][(fname)]
 
 * ``addr`` is the base address of the font graphic data
-* ``chars`` is the number of characters to render (default: 96), or 0 if the
-  ``text`` parameter is present
+* ``chars`` is either 0 (the default) if the ``text`` parameter is present, or
+  the number of characters to render from code 32 to code 127
 * ``attr`` is the attribute byte to use (default: 56)
 * ``scale`` is the scale of the image (default: 2)
 * ``tindex`` is the index (0-15) of the entry in the palette to use as the
@@ -2078,8 +2075,7 @@ of text rendered in the game font. ::
 * ``alpha`` is the alpha value (0-255) to use for the transparent colour
   (default: the value of the ``PNGAlpha`` parameter in the
   :ref:`ref-ImageWriter` section)
-* ``text`` is the text to render (default: the 96 characters from code 32 to
-  code 127); if specified, ``chars`` must be 0
+* ``text`` is the text to render; if specified, ``chars`` must be 0
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (see :ref:`Filenames`; default:
   '`font`')
@@ -2088,7 +2084,7 @@ For example::
 
   ; Font graphic data
   ;
-  ; #HTML[#FONT49152,0(0123456789)]
+  ; #HTML[#FONT49152(0123456789)]
 
 In HTML mode, this instance of the ``#FONT`` macro expands to an ``<img>``
 element for the image of the digits 0-9 in the 8x8 font whose graphic data
@@ -2100,16 +2096,9 @@ may contain :ref:`replacement fields <replacementFields>`.
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``text`` parameter.
 
-.. note::
-   The ``#FONT:(text)params[{CROP}][(fname)]`` syntax is deprecated since
-   version 9.5.
-
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 9.5     | Added support for the ``#FONTparams[(text)][{CROP}][(fname)]``   |
-|         | syntax                                                           |
-+---------+------------------------------------------------------------------+
 | 8.3     | Added support for replacement fields in the integer parameters   |
 |         | and the cropping specification                                   |
 +---------+------------------------------------------------------------------+
@@ -2171,9 +2160,9 @@ forms:
 For example::
 
   ; #UDGTABLE {
-  ; #FONT$3D00,0(hello)(hello*) |
-  ; #FONT$3D00,0(there)(there*) |
-  ; #FONT$3D00,0(peeps)(peeps*) |
+  ; #FONT$3D00(hello)(hello*) |
+  ; #FONT$3D00(there)(there*) |
+  ; #FONT$3D00(peeps)(peeps*) |
   ; #FRAMES(hello,50;there;peeps)(hello_there_peeps)
   ; } TABLE#
 
@@ -2187,10 +2176,6 @@ The integer parameters of a frame specification may contain
 Note that the first frame of an animated image determines the size of the image
 as a whole. Therefore, the region defined by the width, height and coordinates
 of any subsequent frame must fall entirely inside the first frame.
-
-.. note::
-   The ``#FRAMES`` macro has the same syntax and function as the older
-   ``#UDGARRAY*`` macro, which is deprecated since version 9.5.
 
 +---------+---------+
 | Version | Changes |
@@ -2565,19 +2550,9 @@ specification and cropping specification of the ``#UDGARRAY`` macro may contain
 
 See also :ref:`UDGS`.
 
-.. note::
-   Omitting the parentheses around the UDG specifications, and using the ``@``
-   notation instead of square brackets around the attribute address range
-   specifications are both deprecated since version 9.5.
-
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.5     | The attribute address range specifications may be enclosed in     |
-|         | square brackets                                                   |
-+---------+-------------------------------------------------------------------+
-| 8.6     | The UDG specifications may be enclosed in parentheses             |
-+---------+-------------------------------------------------------------------+
 | 8.3     | Added support for replacement fields in the integer parameters    |
 |         | and the UDG, attribute address range and cropping specifications  |
 +---------+-------------------------------------------------------------------+
@@ -2595,9 +2570,6 @@ See also :ref:`UDGS`.
 +---------+-------------------------------------------------------------------+
 | 4.0     | Added the ``mask`` parameter and support for AND-OR masking;      |
 |         | added support for keyword arguments                               |
-+---------+-------------------------------------------------------------------+
-| 3.6     | Added support for creating an animated image from an arbitrary    |
-|         | sequence of frames                                                |
 +---------+-------------------------------------------------------------------+
 | 3.1.1   | Added support for UDG address ranges with horizontal and vertical |
 |         | steps                                                             |
