@@ -1,0 +1,357 @@
+0/10x10.rzx|--force
+0/12mysteriousbooks/12MysteriousBooks_End.rzx|--force
+0/48irons/48irons_1.rzx|--force
+0/48irons/48irons_2.rzx|--force
+0/48irons/48irons_3.rzx|--force
+0/48irons/48irons_4.rzx|--force
+0/48irons/48irons_5.rzx|--force
+a/abadia/Abadia_Intro_English.rzx|--force
+a/agressor/Agressor_1.rzx|--force
+a/agressor/Agressor_2.rzx|--force
+a/agressor/Agressor_intro.rzx|--force
+a/alhambra.rzx|--force
+a/alienstorm.rzx|--force
+a/arcadia.rzx|--force
+a/assaultcourse.rzx|--force
+a/astronut/astronut_l1to14.rzx
+b/baldyzx.rzx|--force
+b/beachbuggy/Beach Buggy Simulator.rzx|--force
+b/beastiefeastie.rzx|--force
+b/beverlyhillscop.rzx|--force
+b/bigsleaze/TheBigSleaze_PartOne.rzx
+b/bigsleaze/TheBigSleaze_PartTwo.rzx
+b/blackraven/intro.rzx|--force
+b/blackraven/outroh.rzx|--force
+b/bombare.rzx|--force
+b/bonanzabros.rzx|--force
+b/booty/booty_spinonly.rzx
+b/brianbullies.rzx|--force
+b/buffalobillswildwestshow/buffalo1.rzx|--force
+b/byfairmeans.rzx
+c/cauldron2.rzx
+c/cavesofdoom.rzx
+c/cerius.rzx
+c/chernobil/Chernobil.rzx
+c/christmasgifthunt.rzx|--force
+c/clockchess89/Clock Chess disk.rzx|--force
+c/codezero.rzx|--force
+c/columns.rzx|--force
+c/computerspiele.rzx|--force
+c/coronacapers/Corona Capers [33m00s].rzx|--force
+c/corruption.rzx|--force
+c/countabout.rzx
+c/countandadd.rzx|--force
+c/countcats.rzx
+c/crimequiz.rzx
+c/crimesantaclaus/CscDv1.rzx|--force
+c/crimesantaclaus/CscDv2.rzx|--force
+c/crimesantaclaus/CscDv3.rzx|--force
+c/crimesantaclaus/CscDv4.rzx|--force
+c/csu.rzx|--force
+c/cyborgterminator2/CyborgTerminator2_1.rzx
+c/cyborgterminator2/CyborgTerminator2_2.rzx
+c/cyborgterminator2/CyborgTerminator2_3.rzx
+d/darkwingduck.rzx|--force
+d/dfb.rzx|--force
+d/dirtydozer.rzx|--force
+d/dizzymushroom.rzx|--force
+d/dizzymysticalletter.rzx|--force
+d/domin8tr1s/Domin8tr1s (ZX81 emulated on 128K Spectrum) - 6 digits [18m47s].rzx
+d/domin8tr1s/Domin8tr1s (ZX81 emulated on 128K Spectrum) - 7 digits [21m55s].rzx
+d/domin8tr1s/Domin8tr1s (ZX81 emulated on 128K Spectrum) - 8 digits [20m27s].rzx
+d/domin8tr1s/Domin8tr1s (ZX81 emulated on 128K Spectrum) - 9 digits [22m21s].rzx
+d/doomprerelease/doom_game.rzx|--force
+d/doomprerelease/doom_intro.rzx|--force
+d/dragonspirit.rzx|--force
+d/dubbeldool.rzx
+d/dungeonraiders/dungeonraiders.rzx
+e/effugit.rzx|--force
+e/elixirvitae.rzx|--force
+e/embuscado.rzx|--force
+f/firegear/FireGear_01.rzx|--force
+f/firegear/FireGear_02.rzx|--force
+f/firegear/FireGear_03.rzx|--force
+f/firegear/FireGear_04.rzx|--force
+f/fireice/fi01.rzx|--force
+f/fireice/fi02.rzx|--force
+f/fireice/fi03.rzx|--force
+f/fireice/fi04.rzx|--force
+f/fireice/fi05.rzx|--force
+f/fireice/fi06.rzx|--force
+f/fireice/fi07.rzx|--force
+f/fireice/fi08.rzx|--force
+f/fireice/fi09.rzx|--force
+f/fireice/fi10.rzx|--force
+f/fish.rzx|--force
+f/flashgordon/Flash_Gordon_1.rzx
+f/flashgordon/Flash_Gordon_2.rzx
+g/geminiwing.rzx|--force
+g/ghastlygetawaydizzy.rzx|--force
+g/ghoulies.rzx
+g/gilbertdrill.rzx|--force
+g/globus/Globus.rzx|--force
+g/guildthieves.rzx|--force
+h/hearts_barisoft.rzx|--force
+h/hedgehogs.rzx|--force
+h/hermitage/Hermitage[FSF].rzx|--force
+h/homersimpson2/HomerSimpsonInRussia2_1.rzx|--force
+h/homersimpson2/HomerSimpsonInRussia2_2.rzx|--force
+h/homersimpson2/HomerSimpsonInRussia2_3.rzx|--force
+h/homersimpson2/HomerSimpsonInRussia2_BadEnding.rzx|--force
+h/homersimpsoninrussia.rzx|--force
+h/hopchop.rzx|--force
+h/housemanygames.rzx|--force
+h/humphrey/Humphrey - Fase 01.rzx|--force
+h/humphrey/Humphrey - Fase 02.rzx|--force
+h/humphrey/Humphrey - Fase 03.rzx|--force
+h/humphrey/Humphrey - Fase 04.rzx|--force
+h/humphrey/Humphrey - Fase 05.rzx|--force
+h/humphrey/Humphrey - Fase 06.rzx|--force
+h/humphrey/Humphrey - Fase 07.rzx|--force
+h/humphrey/Humphrey - Fase 08.rzx|--force
+h/humphrey/Humphrey - Fase 09.rzx|--force
+h/humphrey/Humphrey - Fase 10.rzx|--force
+h/humphrey/Humphrey - Fase 11.rzx|--force
+h/humphrey/Humphrey - Fase 12.rzx|--force
+h/humphrey/Humphrey - Fase 13.rzx|--force
+h/humphrey/Humphrey - Fase 14.rzx|--force
+h/humphrey/Humphrey - Fase 15.rzx|--force
+h/humphrey/Humphrey - Fase 16.rzx|--force
+h/humphrey/Humphrey - Fase 17.rzx|--force
+h/humphrey/Humphrey - Fase 18.rzx|--force
+h/humphrey/Humphrey - Fase 19.rzx|--force
+h/humphrey/Humphrey - Fase 20.rzx|--force
+h/humphrey/Humphrey - Fase 21.rzx|--force
+h/humphrey/Humphrey - Fase 22.rzx|--force
+h/humphrey/Humphrey - Fase 23.rzx|--force
+h/humphrey/Humphrey - Fase 24.rzx|--force
+h/humphrey/Humphrey - Fase 25.rzx|--force
+h/humphrey/Humphrey - Fase 26.rzx|--force
+h/humphrey/Humphrey - Fase 27.rzx|--force
+h/humphrey/Humphrey - Fase 28.rzx|--force
+h/humphrey/Humphrey - Fase 29.rzx|--force
+h/humphrey/Humphrey - Fase 30.rzx|--force
+h/humphrey/Humphrey - Fase 31.rzx|--force
+h/humphrey/Humphrey - Fase 32.rzx|--force
+h/humphrey/Humphrey - Fase 33.rzx|--force
+h/humphrey/Humphrey - Fase 34.rzx|--force
+h/humphrey/Humphrey - Fase 35.rzx|--force
+h/humphrey/Humphrey - Fase 36.rzx|--force
+h/humphrey/Humphrey - Fase 37.rzx|--force
+h/humphrey/Humphrey - Fase 38.rzx|--force
+h/humphrey/Humphrey - Fase 39.rzx|--force
+h/humphrey/Humphrey - Fase 40.rzx|--force
+i/inobody.rzx
+i/interalia/Cerius 2 - Interalia (Part 1).rzx
+i/interalia/Cerius 2 - Interalia (Part 2).rzx
+i/ivanoffroadracer/Ivan 'Ironman' Stewart's Super Off Road Racer.rzx|--force
+j/jawstext.rzx|--force
+j/jinxter.rzx|--force
+j/join.rzx|--force
+j/jubbles.rzx|--force
+j/judgedredd/JudgeDredd1.rzx|--force
+j/judgedredd/JudgeDredd2.rzx|--force
+j/judgedredd/JudgeDredd3.rzx|--force
+j/judgedredd/JudgeDredd4.rzx|--force
+j/judgedredd/JudgeDredd5.rzx|--force
+j/judgedredd/JudgeDredd6.rzx|--force
+l/labourpains/LabourPains_Part1.rzx
+l/labourpains/LabourPains_Part2.rzx
+l/lapuglyone.rzx
+l/leftbehind.rzx|--force
+l/legendofkyrandia.rzx|--force
+l/lethargy/Lethargy_End.rzx|--force
+l/lethargy/Lethargy_Intro.rzx|--force
+l/logcabindizzy.rzx|--force
+l/lostlittlespaceman.rzx
+l/losttapesofalbion.rzx|--force
+l/losttombananka.rzx
+l/losttreasure.rzx|--force
+l/lunaris.rzx|--force
+m/magictokens.rzx
+m/monstrland/Monstrland_End.rzx|--force
+m/moonwind/moonwind1.rzx|--force
+m/moonwind/moonwind2.rzx|--force
+m/moonwind/moonwind3.rzx|--force
+m/mortalkombat.rzx|--force
+m/mot/Mot1.rzx|--force
+m/mot/Mot2.rzx|--force
+m/mot/Mot3.rzx|--force
+m/mpthrilla.rzx|--force
+m/mutantfortress.rzx|--force
+m/mystical.rzx|--force
+m/myth2/myth2_1.rzx|--force
+m/myth2/myth2_3.rzx|--force
+m/myth2/Myth2_5.rzx|--force
+n/nadral.rzx|--force
+n/netwalk_faceoff/Netwalk(Faceoff)_01-10.rzx|--force
+n/netwalk_faceoff/Netwalk(Faceoff)_11-20.rzx
+n/netwalk_faceoff/Netwalk(Faceoff)_21-30.rzx|--force
+n/netwalk_faceoff/Netwalk(Faceoff)_31-40.rzx
+n/netwalk_faceoff/Netwalk(Faceoff)_41-50.rzx|--force
+n/netwalk_style/netwalk_01-10.rzx|--force
+n/netwalk_style/Netwalk(Style)_11-20.rzx|--force
+n/netwalk_style/Netwalk(Style)_21-30.rzx|--force
+n/netwalk_style/Netwalk(Style)_31-40.rzx
+n/netwalk_style/Netwalk(Style)_41-49.rzx|--force
+n/netwalk_style/Netwalk(Style)_50-60.rzx
+n/netwalk_style/Netwalk(Style)_61-70.rzx
+n/netwalk_style/Netwalk(Style)_71-80.rzx
+n/netwalk_style/Netwalk(Style)_81-90.rzx|--force
+n/netwalk_style/Netwalk(Style)_91-100.rzx|--force
+n/northandsouth.rzx|--force
+o/ooze.rzx|--force
+o/outruneuropa/OutrunEuropa1.rzx|--force
+o/outruneuropa/OutrunEuropa2.rzx|--force
+o/outruneuropa/OutrunEuropa3.rzx|--force
+o/outruneuropa/OutrunEuropa4.rzx|--force
+o/outruneuropa/OutrunEuropa5.rzx|--force
+o/outruneuropa/OutrunEuropa6.rzx|--force
+o/outruneuropa/OutrunEuropa7.rzx|--force
+p/p-47/p47_1.rzx|--force
+p/papanoel.rzx|--force
+p/paradiselost.rzx|--force
+p/penaltysoccer.rzx|--force
+p/pharaohstomb.rzx
+p/pheenix/pheenix_albert.rzx
+p/pitfall3/Pitfall III - Wrath of Kingcrock (different ending).rzx|--force
+p/pitfall3/Pitfall III - Wrath of Kingcrock.rzx|--force
+p/plutoniya.rzx|--force
+p/pyramania.rzx|--force
+r/ragnablock.rzx|--force
+r/rallybug.rzx|--force
+r/rebelstarsearch.rzx|--force
+r/redivivus.rzx|--force
+r/revengec5.rzx
+r/rigelsrevenge/RigelsRevenge_PartOne.rzx
+r/robobro1.rzx|--force
+r/robot1/robot1_1.rzx|--force
+r/robot1/robot1_2.rzx|--force
+r/runningman.rzx|--force
+s/shadowspast.rzx
+s/shadowunicorn/ShadowOfTheUnicorn1.rzx|--force
+s/shadowunicorn/ShadowOfTheUnicorn2.rzx|--force
+s/shadowunicorn/ShadowOfTheUnicorn3.rzx|--force
+s/shadowunicorn/ShadowOfTheUnicorn4.rzx|--force
+s/shadowunicorn/ShadowOfTheUnicorn5.rzx|--force
+s/shadowunicorn/ShadowOfTheUnicorn6.rzx|--force
+s/shadowunicorn/ShadowOfTheUnicorn7.rzx|--force
+s/shrewsburykey.rzx
+s/sinbad/SinbadAndTheGoldenShip_PartOne.rzx
+s/sliders/Sliders01.rzx|--force
+s/sliders/Sliders02.rzx|--force
+s/smagly.rzx|--force
+s/soviet/Soviet_1.rzx|--force
+s/soviet/Soviet_2.rzx|--force
+s/spacejunk.rzx|--force
+s/spywholovedme.rzx|--force
+s/starcontrol/broodhome.rzx
+s/starcontrol/dreadnought.rzx
+s/starcontrol/guardian.rzx
+s/starcontrol/terminator.rzx
+s/starinheritance/ZN_1.rzx|--force
+s/starinheritance/ZN_2.rzx|--force
+s/starinheritance/ZN_4.rzx|--force
+s/starinheritance/ZN_5.rzx|--force
+s/stela/stela.rzx|--force
+s/summergames2.rzx|--force
+s/supermanmos/Superman_Intro.rzx|--force
+s/supermanmos/Superman_Level2.rzx|--force
+s/supermanmos/Superman_Level3.rzx|--force
+s/supermanmos/Superman_Level4.rzx|--force
+s/supermanmos/Superman_Level6.rzx|--force
+s/supermariobros.rzx|--force
+s/superspy.rzx
+s/survivisection/Survivisection_Lvl08B.rzx|--force
+s/swordofianna/SwordOfIanna_Pavel/SwordOfIanna_level1.rzx|--force
+s/swordofianna/SwordOfIanna_Pavel/SwordOfIanna_level2.rzx|--force
+s/swordofianna/SwordOfIanna_Pavel/SwordOfIanna_level3.rzx|--force
+s/swordofianna/SwordOfIanna_Pavel/SwordOfIanna_level4.rzx|--force
+s/swordofianna/SwordOfIanna_Pavel/SwordOfIanna_level5.rzx|--force
+s/swordofianna/SwordOfIanna_Pavel/SwordOfIanna_level6.rzx|--force
+s/swordofianna/SwordOfIanna_Pavel/SwordOfIanna_level8.rzx|--force
+s/swordofianna/SwordOfIanna_Pavel/SwordOfIanna_menu.rzx|--force
+s/swordofianna/SwordOfIanna_Pavel/SwordOfIanna_secret.rzx|--force
+s/swordofianna/SwordOfIanna_Rafal/Ianna_Intro.rzx|--force
+s/swordofianna/SwordOfIanna_Rafal/Ianna_Lvl1.rzx|--force
+s/swordofianna/SwordOfIanna_Rafal/Ianna_Lvl2.rzx|--force
+s/swordofianna/SwordOfIanna_Rafal/Ianna_Lvl3.rzx|--force
+s/swordofianna/SwordOfIanna_Rafal/Ianna_Lvl4.rzx|--force
+s/swordofianna/SwordOfIanna_Rafal/Ianna_Lvl5.rzx|--force
+s/swordofianna/SwordOfIanna_Rafal/Ianna_Lvl6.rzx|--force
+s/swordofianna/SwordOfIanna_Rafal/Ianna_Lvl8.rzx|--force
+s/swordofianna/SwordOfIanna_Rafal/Ianna_Outro.rzx|--force
+t/takeout.rzx|--force
+t/thatsinkingfeeling.rzx|--force
+t/thunderblade.rzx|--force
+t/timecop/TimeCop.rzx|--force
+t/toofy.rzx|--force
+t/twilight/twilight_intro_en.rzx|--force
+t/twilight/twilight_outro_en.rzx|--force
+t/twister.rzx|--force
+u/ufoenemyunknown/FinalBattle/FinalBattle3.rzx|--force
+v/vikingquest3/vq3_1.rzx|--force
+v/vikingquest3/vq3_2.rzx|--force
+v/vikingquest3/vq3_3.rzx|--force
+v/vikingquest3/vq3_4.rzx|--force
+v/vixen.rzx|--force
+w/winniepooh/winnypooh.rzx|--force
+w/winterolympiad88/1. Downhill.rzx|--force
+w/winterolympiad88/2. Biathlon.rzx|--force
+w/winterolympiad88/3. Bob Sled.rzx|--force
+w/winterolympiad88/4. Ski Jump.rzx|--force
+w/winterolympiad88/5. Slalom.rzx|--force
+w/wiwo.rzx|--force
+w/wolfenstein2004/Wolf_01.rzx|--force
+w/wolfenstein2004/Wolf_02.rzx|--force
+w/wolfenstein2004/Wolf_03.rzx|--force
+w/wolfenstein2004/Wolf_04.rzx|--force
+w/wolfenstein2004/Wolf_05.rzx|--force
+w/wolfenstein2004/Wolf_06.rzx|--force
+w/wolfenstein2004/Wolf_07.rzx|--force
+w/wolfenstein2004/Wolf_08.rzx|--force
+w/wolfenstein2004/Wolf_09.rzx|--force
+w/wolfenstein2004/Wolf_10.rzx|--force
+w/wolfenstein2004/Wolf_11.rzx|--force
+w/wolfenstein2004/Wolf_12.rzx|--force
+w/wolfenstein2004/Wolf_13.rzx|--force
+w/wolfenstein2004/Wolf_14.rzx|--force
+w/wolfenstein2004/Wolf_15.rzx|--force
+w/wolfenstein2004/Wolf_16.rzx|--force
+w/wolfenstein2004/Wolf_17.rzx|--force
+w/wolfenstein2004/Wolf_End.rzx|--force
+w/wolfenstein2004/Wolf_Intro.rzx|--force
+w/worldclass/WorldClassLeaderboard1A.rzx|--force
+w/worldclass/WorldClassLeaderboard2A.rzx|--force
+x/xenophobe.rzx|--force
+x/xout.rzx|--force
+zxdb/sinclair/entries/0003978/QuestionOfSportA.rzx/QuestionOfSportA.rzx|--force
+zxdb/sinclair/entries/0005296/Titanic.rzx/Titanic.rzx
+zxdb/sinclair/entries/0005870/ZoneTrooper.rzx/ZoneTrooper.rzx|--force
+zxdb/sinclair/entries/0012060/ScottishTowns.rzx/ScottishTowns.rzx
+zxdb/sinclair/entries/0013300/RoughJustice.rzx/RoughJustice.rzx|--force
+zxdb/sinclair/entries/0023329/CastleRathbone.rzx/CastleRathbone.rzx
+zxdb/sinclair/entries/0025056/RadioRobot.rzx/RadioRobot.rzx|--force
+zxdb/sinclair/entries/0025133/Mario.rzx/Mario.rzx|--force
+zxdb/sinclair/entries/0025196/Chronos.rzx/Chronos.rzx|--force
+zxdb/sinclair/entries/0025197/Dizzy.rzx/Dizzy.rzx|--force
+zxdb/sinclair/entries/0025203/Walk.rzx/Walk.rzx|--force
+zxdb/sinclair/entries/0025293/IRun.rzx/IRun.rzx|--force
+zxdb/sinclair/entries/0030371/SpaceInvadersEmulator.rzx/SpaceInvadersEmulator.rzx|--force
+zxdb/sinclair/entries/0031347/ArtyPants(MykePCityscape).rzx/rtap-cityscape.rzx|--force
+zxdb/sinclair/entries/0031366/InsideTheBox.rzx/rtitb_uzxsgdcrash.rzx|--force
+zxdb/sinclair/entries/0035225/CharadeEngineDemo.rzx/CharadeEngineDemo.rzx|--force
+zxdb/sinclair/entries/0035226/MiniPanchoBros.rzx/MiniPanchoBros.rzx|--force
+zxdb/sinclair/entries/0035321/CurseOfRabensteinThe.rzx/CurseOfRabensteinThe.rzx|--force
+zxdb/sinclair/entries/0036141/LastNightInTheOffice.rzx/LastNightInTheOffice.rzx|--force
+zxdb/sinclair/entries/0043660/ManulaDeLaEstepaSiberianaLa.rzx/ManulaDeLaEstepaSiberianaLa.rzx
+zxdb/sinclair/entries/0044081/Nonstop.rzx/Nonstop.rzx
+zxdb/sinclair/entries/0044323/Goblinarama.rzx/Goblinarama.rzx
+z/zerkalo/Intro.rzx|--force
+z/zerkalo/Part1.rzx|--force
+z/zerkalo/Part2.rzx|--force
+z/zerkalo/Part3.rzx|--force
+z/zerkalo/Part4.rzx|--force
+z/zona0.rzx|--force
+z/zoohero.rzx
+z/zunny2.rzx|--force
