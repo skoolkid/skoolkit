@@ -1,0 +1,91 @@
+{
+    "cosmic-shock-absorber.pzx": {
+        "options": [
+            "--start",
+            "65373",
+            "--sim-load-config",
+            "first-edge=9668"
+        ]
+    },
+    "duel-2.pzx": {
+        "options": [
+            "--start",
+            "54220",
+            "--sim-load-config",
+            "polarity=1"
+        ]
+    },
+    "forbidden-planet-128k.pzx": {
+        "options": [
+            "--start",
+            "25088",
+            "--sim-load-config",
+            "machine=128",
+            "--sim-load-config",
+            "polarity=1"
+        ]
+    },
+    "forbidden-planet.pzx": {
+        "options": [
+            "--start",
+            "25088",
+            "--sim-load-config",
+            "polarity=1"
+        ]
+    },
+    "mag-max.pzx": {
+        "options": [
+            "--start",
+            "34833",
+            "--sim-load-config",
+            "first-edge=5127"
+        ]
+    },
+    "quadrados.pzx": {
+        "options": [
+            "--start",
+            "7427",
+            "--sim-load-config",
+            "fast-load=0"
+        ]
+    },
+    "quahappy-128k.pzx": {
+        "options": [
+            "--start",
+            "25509",
+            "--sim-load-config",
+            "machine=128",
+            "--sim-load-config",
+            "first-edge=4682"
+        ]
+    },
+    "robot-1-in-the-planet-of-death-128k.pzx": {
+        "options": [
+            "--start",
+            "32000",
+            "--sim-load-config",
+            "machine=128",
+            "--sim-load-config",
+            "first-edge=16230"
+        ]
+    },
+    "sophistry.pzx": {
+        "options": [
+            "--start",
+            "36220",
+            "--sim-load-config",
+            "pause=0"
+        ]
+    },
+    "yaggoo-the-numeral-madness-128k.pzx": {
+        "error": "timed out",
+        "options": [
+            "--start",
+            "40000",
+            "--sim-load-config",
+            "machine=128",
+            "--sim-load-config",
+            "first-edge=6900"
+        ]
+    }
+}

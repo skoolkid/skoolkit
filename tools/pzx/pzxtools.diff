@@ -1,0 +1,20 @@
+--- a/pzxtools/src/tzx.cpp	2009-05-12 05:32:36.000000000 -0300
++++ b/pzxtools/src/tzx.cpp	2024-06-27 15:37:55.286762263 -0300
+@@ -76,6 +76,7 @@
+         case TZX_CALL_SEQUENCE:     return GET2(0x00)*2 ;
+         case TZX_RETURN:            return 0 ;
+         case TZX_SELECT_BLOCK:      return GET2(0x00) ;
++        case TZX_STOP_IF_48K:       return 0 ;
+         case TZX_TEXT_INFO:         return GET1(0x00) ;
+         case TZX_MESSAGE:           return GET1(0x01) ;
+         case TZX_ARCHIVE_INFO:      return GET2(0x00) ;
+@@ -940,8 +941,7 @@
+             const uint major = GET1(0x07) ;
+             const uint minor = GET1(0x08) ;
+             if ( major != TZX_MAJOR ) {
+-                warn( "unsupported TZX major version %u.%u encountered - stopping", major, minor ) ;
+-                return false ;
++                warn( "unsupported TZX major version %u.%u encountered - proceeding", major, minor ) ;
+             }
+             if ( minor > TZX_MINOR ) {
+                 warn( "unsupported TZX minor revision %u.%u encountered - proceeding", major, minor ) ;
