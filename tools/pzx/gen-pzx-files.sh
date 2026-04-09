@@ -8,6 +8,18 @@ if [[ ! -d $T2SFILES_HOME ]]; then
   exit 1
 fi
 
+if [[ -z $SPECTRUM_TAPES ]]; then
+  echo "ERROR: SPECTRUM_TAPES environment variable not defined"
+  exit 1
+fi
+
+if [[ -d $SPECTRUM_TAPES ]]; then
+  MD5SUMS=$SPECTRUM_TAPES/md5sums.txt
+else
+  echo "ERROR: SPECTRUM_TAPES=$SPECTRUM_TAPES: directory not found"
+  exit 1
+fi
+
 if [[ ! -f tzx2pzx ]]; then
   rm -rf pzxtools pzxtools_11_src.zip
   wget http://zxds.raxoft.cz/pzx/pzxtools_11_src.zip &&
@@ -27,37 +39,31 @@ LOG=gen-pzx-files.log
 mkdir -p $PZXDIR/{0,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z}
 rm -f $LOG
 find $T2SFILES_HOME/t2s -name '*.t2s' | while read t2s; do
+  ntapes=$(grep -c '^--tape-name' $t2s)
+  [[ $ntapes -gt 1 ]] && continue
   t2sp=${t2s#$T2SFILES_HOME/t2s/}
   pzx=${t2sp%.t2s}.pzx
-  if [[ -f $PZXDIR/$pzx ]]; then
+  [[ -f $PZXDIR/$pzx ]] && continue
+  md5=$(grep -oPm 1 '(?<=--tape-sum )[0-9a-f]{32}' $t2s)
+  if [[ -z $md5 ]]; then
+     echo "Unable to obtain tape sum from $t2s" >> $LOG
+     continue
+  fi
+  tape_file=$(grep -oPm 1 "(?<=$md5  ).*" $MD5SUMS)
+  if [[ ! -f $tape_file ]]; then
+    echo "$(basename $t2s): Tape file not found: $tape_file" >> $LOG
     continue
   fi
-  z=$(grep -oPm 1 '(spectrumcomputing.co.uk|worldofspectrum.net)/.*\.zip' $t2s)
-  if [[ -n $z ]]; then
-    tape_dir=$SPECTRUM_TAPES/${z%.zip}
-    if [[ -d $tape_dir ]]; then
-      ntapes=$(grep -c '^--tape-name' $t2s)
-      [[ $ntapes -gt 1 ]] && continue
-      fname=$(grep '^--tape-name' $t2s | cut -f2- -d' ' | tr -d '"')
-      tape_file="$tape_dir/$fname"
-      if [[ -f $tape_file ]]; then
-        ext=${fname##*.}
-        converter=./${ext,,}2pzx
-        if [[ -f $converter ]]; then
-          [[ $converter == ./tap2pzx ]] && options="-p 1000" || options=""
-          echo "Writing $pzx"
-          if ! $converter $options "$tape_file" > $PZXDIR/$pzx; then
-            echo "Failed to convert $tape_file" >> $LOG
-          fi
-        else
-          echo "Unrecognised tape format ($ext): $tape_file" >> $LOG
-        fi
-      else
-        echo "$(basename $t2s): Tape file not found: $tape_file" >> $LOG
-      fi
-    else
-      echo "$(basename $t2s): Tape directory not found: $tape_dir" >> $LOG
-    fi
+  ext=${tape_file##*.}
+  converter=./${ext,,}2pzx
+  if [[ ! -f $converter ]]; then
+    echo "Unrecognised tape format ($ext): $tape_file" >> $LOG
+    continue
+  fi
+  [[ $converter == ./tap2pzx ]] && options="-p 1000" || options=""
+  echo "Writing $pzx"
+  if ! $converter $options "$tape_file" > $PZXDIR/$pzx; then
+    echo "Failed to convert $tape_file" >> $LOG
   fi
 done
 
