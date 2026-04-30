@@ -1,6 +1,9 @@
 Changelog
 =========
 
+10.1b1
+------
+
 10.0 (2026-04-04)
 -----------------
 * Dropped support for Python 3.9
