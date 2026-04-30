@@ -178,6 +178,28 @@ class RzxinfoTest(SkoolKitTestCase):
         """
         self._test_rzx(rzx, exp_output)
 
+    def test_encrypted_frames(self):
+        ram = [0] * 49152
+        z80data = self.write_z80_file(None, ram, ret_data=True)
+        rzx = RZX()
+        rzx.add_snapshot(z80data, 'z80', io_flags=1)
+        exp_output = """
+            Version: 0.13
+            Signed: No
+            Creator information:
+              ID: SkoolKit 9.2 (0.9.0.2)
+            Snapshot:
+              Filename extension: z80
+              Size: 49247 bytes
+              Machine: 48K Spectrum
+              Start address: 0
+            Input recording:
+              Number of frames: 1 (0h00m00s)
+              T-states: 0
+              Encrypted: Yes
+        """
+        self._test_rzx(rzx, exp_output)
+
     def test_unknown_snapshot_type(self):
         rzx = RZX()
         rzx.add_snapshot([0] * 10, 'ust')
@@ -429,6 +451,30 @@ class RzxinfoTest(SkoolKitTestCase):
               Frame 1:
                 Fetch counter: 2
                 IN counter: 0
+        """
+        self._test_rzx(rzx, exp_output, '--frames')
+
+    def test_option_frames_encrypted(self):
+        rzx = RZX()
+        frames = (
+            (1, 2, (3, 4)), # Frame 0
+            (2, 2, (5, 6)), # Frame 1
+        )
+        rzx.add_snapshot([0] * 49179, 'sna', frames, io_flags=1)
+        exp_output = """
+            Version: 0.13
+            Signed: No
+            Creator information:
+              ID: SkoolKit 9.2 (0.9.0.2)
+            Snapshot:
+              Filename extension: sna
+              Size: 49179 bytes
+              Machine: 48K Spectrum
+              Start address: 0
+            Input recording:
+              Number of frames: 2 (0h00m00s)
+              T-states: 0
+              Encrypted: Yes
         """
         self._test_rzx(rzx, exp_output, '--frames')
 

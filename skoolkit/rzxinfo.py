@@ -93,7 +93,7 @@ def _show_blocks(data, options):
             tstates = get_dword(data, i + 10)
             print(f'  T-states: {tstates}')
             flags = get_dword(data, i + 14)
-            encrypted = flags % 1
+            encrypted = flags & 1
             print('  Encrypted: {}'.format('Yes' if encrypted else 'No'))
             if options.frames and not encrypted:
                 frames = data[i + 18:i + block_len]
