@@ -1,4 +1,4 @@
-# Copyright 2024 Richard Dymond (rjdymond@gmail.com)
+# © 2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -33,7 +33,7 @@ def _show_blocks(data, options):
     vmajor, vminor = data[4:6]
     print(f'Version: {vmajor}.{vminor}')
     flags = get_dword(data, 6)
-    print('Signed: {}'.format('Yes' if flags % 1 else 'No'))
+    print('Signed: {}'.format('Yes' if flags & 1 else 'No'))
     i = 10
     while i < len(data):
         block_id = data[i]

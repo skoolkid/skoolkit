@@ -3,6 +3,7 @@ Changelog
 
 10.1b1
 ------
+* Fixed how :ref:`rzxinfo.py` detects a signed RZX file
 
 10.0 (2026-04-04)
 -----------------

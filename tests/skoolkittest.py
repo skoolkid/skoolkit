@@ -417,8 +417,10 @@ class RZX:
             0, 0, 0, 0      # Flags
         ]
         data.extend(self.creator)
-        data.extend(self.security)
-        data.extend(self.signature)
+        if self.security and self.signature:
+            data[6] |= 1 # Signature flag
+            data.extend(self.security)
+            data.extend(self.signature)
         for snapshot, input_recording in self.snapshots:
             data.extend(snapshot)
             data.extend(input_recording)

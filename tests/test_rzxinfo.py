@@ -170,7 +170,7 @@ class RzxinfoTest(SkoolKitTestCase):
         rzx.set_signature((1, 2, 3), (4, 5, 6))
         exp_output = """
             Version: 0.13
-            Signed: No
+            Signed: Yes
             Creator information:
               ID: SkoolKit 9.2 (0.9.0.2)
             Security information
@@ -205,7 +205,7 @@ class RzxinfoTest(SkoolKitTestCase):
         rzx.signature[0] = 0xFF # Change block ID
         exp_output = """
             Version: 0.13
-            Signed: No
+            Signed: Yes
             Creator information:
               ID: SkoolKit 9.2 (0.9.0.2)
             Security information
