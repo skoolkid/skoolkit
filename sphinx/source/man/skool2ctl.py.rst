@@ -61,6 +61,7 @@ OPTIONS
   |   ``m`` = mid-block comments and block start/end comments
   |   ``s`` = sub-block types and addresses
   |   ``c`` = instruction-level comments
+  |   ``n`` = non-entry blocks
 
   The default is to write all of these elements.
 

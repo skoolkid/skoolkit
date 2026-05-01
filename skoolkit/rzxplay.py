@@ -418,7 +418,7 @@ def main(args):
     group.add_argument('--flags', default='0',
                        help="Set playback flags. Do '--flags help' for more information.")
     group.add_argument('--force', action='store_true',
-                       help="Force playback when unsupported hardware is detected.")
+                       help="Force playback when an unsupported machine is detected.")
     group.add_argument('--fps', type=int, default=50,
                        help="Run at this many frames per second (default: 50). "
                             "0 means maximum speed.")

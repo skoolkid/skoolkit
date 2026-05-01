@@ -96,7 +96,8 @@ input, where:
 By default, the 128K RAM bank loader (which is 39-45 bytes long, depending on
 the number of RAM banks to load) is placed one above the CLEAR address. Use the
 ``--loader`` option to place it at an alternative address. The lowest usable
-address with the ``--clear`` option on a bare 128K Spectrum is 23977 (0x5DA9).
+address with the ``--clear`` option on a bare 128K Spectrum is 23977 (0x5DA9)
+if a loading screen is used, or 23957 (0x5D95) otherwise.
 
 By default, 128K RAM banks 0, 1, 3, 4, 6 and 7 are added to the tape file. If
 one or more of these RAM banks are not required, use the ``--banks`` option to

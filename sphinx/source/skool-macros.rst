@@ -1884,7 +1884,7 @@ For example::
 
   c30000 LD A,1   ; This instruction takes #TSTATES30000 T-states
 
-This instance of the ``#TSTATES`` macros expands to '7'.
+This instance of the ``#TSTATES`` macro expands to '7'.
 
 For any instruction in the range ``start`` to ``stop`` whose timing is variable
 (e.g. a conditional call, return or relative jump), the smaller timing value is
@@ -1892,7 +1892,7 @@ used by default::
 
   c40000 RET Z    ; This instruction takes at least #TSTATES40000 T-states
 
-This instance of the ``#TSTATES`` macros expands to '5'.
+This instance of the ``#TSTATES`` macro expands to '5'.
 
 To use the larger timing values, set bit 0 of ``flags``. If both smaller and
 larger timing values are required, set bit 1 of ``flags`` and use the ``text``

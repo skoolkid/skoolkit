@@ -20,7 +20,7 @@ OPTIONS
   section on ``FLAGS`` below.
 
 --force
-  Force playback when unsupported hardware is detected.
+  Force playback when an unsupported machine is detected.
 
 --fps FPS
   Run at this many frames per second (default: 50). 0 means maximum speed.
@@ -55,10 +55,10 @@ OPTIONS
 SUPPORTED MACHINES
 ==================
 ``rzxplay.py`` can play RZX files that were recorded in 48K, 128K or +2 mode
-with no peripherals (e.g. Interface 1) attached. The ``--force`` option can be
-used to make ``rzxplay.py`` attempt playback of files that were recorded on
-unsupported machines or with unsupported hardware attached, but they are
-unlikely to play to the end.
+with no peripherals (e.g. Interface 1) attached. If any peripherals are
+attached, playback may fail. The ``--force`` option can be used to make
+``rzxplay.py`` attempt playback of a file that was recorded on an unsupported
+machine, but it is unlikely to play to the end.
 
 SCREEN
 ======

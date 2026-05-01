@@ -243,7 +243,7 @@ To list the options supported by `rzxplay.py`, run it with no arguments::
 
   Options:
     --flags FLAGS    Set playback flags. Do '--flags help' for more information.
-    --force          Force playback when unsupported hardware is detected.
+    --force          Force playback when an unsupported machine is detected.
     --fps FPS        Run at this many frames per second (default: 50). 0 means
                      maximum speed.
     --map FILE       Log addresses of executed instructions to a file.
@@ -257,10 +257,10 @@ To list the options supported by `rzxplay.py`, run it with no arguments::
     -V, --version    Show SkoolKit version number and exit.
 
 `rzxplay.py` can play RZX files that were recorded in 48K, 128K or +2 mode with
-no peripherals (e.g. Interface 1) attached. The ``--force`` option can be used
-to make `rzxplay.py` attempt playback of files that were recorded on
-unsupported machines or with unsupported hardware attached, but they are
-unlikely to play to the end.
+no peripherals (e.g. Interface 1) attached. If any peripherals are attached,
+playback may fail. The ``--force`` option can be used to make `rzxplay.py`
+attempt playback of a file that was recorded on an unsupported machine, but it
+is unlikely to play to the end.
 
 If `pygame`_ is installed, `rzxplay.py` will use it to render the Spectrum's
 screen contents at 50 frames per second by default. Use the ``--fps`` option
@@ -355,7 +355,7 @@ assembler (see :ref:`supportedAssemblers`). For example::
     -S ADDR, --start ADDR
                           Start converting at this address.
     -u, --upper           Write the disassembly in upper case.
-    --var name=value      Define a variable that can be used by @if and the SMPL
+    --var name=value      Define a variable that can be used by @if and skool
                           macros. This option may be used multiple times.
     -V, --version         Show SkoolKit version number and exit.
     -w, --no-warnings     Suppress warnings.
@@ -635,7 +635,7 @@ current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
 * ``Hex`` - write addresses in decimal (``0``, the default), lower case
-  hexadecimal (``1``),  or upper case hexadecimal (``2``)
+  hexadecimal (``1``), or upper case hexadecimal (``2``)
 * ``KeepLines`` - preserve line breaks in comments (``1``), or don't (``0``,
   the default)
 * ``PreserveBase`` - preserve the base of decimal and hexadecimal values in
@@ -748,7 +748,7 @@ list::
                           Use this CSS theme. This option may be used multiple
                           times.
     -u, --upper           Write the disassembly in upper case.
-    --var name=value      Define a variable that can be used by @if and the SMPL
+    --var name=value      Define a variable that can be used by @if and skool
                           macros. This option may be used multiple times.
     -V, --version         Show SkoolKit version number and exit.
     -w X, --write X       Write only these files, where X is one or more of:
@@ -987,7 +987,7 @@ configuration parameters are:
 * ``HandleRST`` - activate the :ref:`rstHandler` (``1``), or don't (``0``, the
   default)
 * ``Hex`` - write addresses in decimal (``0``, the default), lower case
-  hexadecimal (``1``),  or upper case hexadecimal (``2``)
+  hexadecimal (``1``), or upper case hexadecimal (``2``)
 * ``TextChars`` - characters eligible for being marked as text (default:
   letters, digits, space, and the following non-alphanumeric characters:
   ``!"$%&\'()*+,-./:;<=>?[]``)

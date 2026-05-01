@@ -262,7 +262,7 @@ Non-entry blocks such as this copyright comment are reproduced by
 
 To qualify as a regular entry, a block must contain at least one line that
 starts with ``b``, ``c``, ``g``, ``i``, ``s``, ``t``, ``u`` or ``w`` when
-parsed in the relevant :ref:`subtitution mode <substitutionModes>` or
+parsed in the relevant :ref:`substitution mode <substitutionModes>` or
 :ref:`bugfix mode <bugfixModes>` (which depends on the command being run).
 
 So, for example::

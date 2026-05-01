@@ -10,7 +10,7 @@ SkoolKit 10.
 
 #AUDIO
 ------
-In SkoolKit 9, the :ref:`AUDIO` macro could written in one of two ways,
+In SkoolKit 9, the :ref:`AUDIO` macro could be written in one of two ways,
 depending on whether code execution in a simulator is enabled (bit 2 of
 ``flags`` set)::
 

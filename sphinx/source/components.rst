@@ -94,7 +94,7 @@ API methods, in common with skoolkit.audio.AudioWriter:
 
 Code map reader
 ---------------
-This object is reponsible for generating a list of code block start addresses
+This object is responsible for generating a list of code block start addresses
 and lengths from a code map file and corresponding snapshot. The code map
 reader object must supply the following API function, in common with
 skoolkit.snactl:
@@ -143,7 +143,7 @@ recover, it should raise a SkoolParsingError:
 
 Control file generator
 ----------------------
-This object is reponsible for generating a dictionary of control directives
+This object is responsible for generating a dictionary of control directives
 from a snapshot. Each key in the dictionary is an address, and the associated
 value is the control directive (e.g. 'b' or 'c') for that address. The control
 file generator object must supply the following API function, in common with
