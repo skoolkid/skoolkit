@@ -2083,7 +2083,7 @@ example::
 
 To list the options supported by `tapinfo.py`, run it with no arguments::
 
-  usage: tapinfo.py FILE
+  usage: tapinfo.py [options] FILE
 
   Show the blocks in a PZX, TAP or TZX file.
 

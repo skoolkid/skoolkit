@@ -1,5 +1,4 @@
-# Copyright 2013, 2015, 2017, 2020, 2022-2024
-# Richard Dymond (rjdymond@gmail.com)
+# © 2013, 2015, 2017, 2020, 2022-2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -109,7 +108,7 @@ def _analyse_tape(tape, basic_block, text_reader, show_data):
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage="tapinfo.py FILE",
+        usage="tapinfo.py [options] FILE",
         description="Show the blocks in a PZX, TAP or TZX file.",
         add_help=False
     )
