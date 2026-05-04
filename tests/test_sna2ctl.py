@@ -840,6 +840,20 @@ class Sna2CtlTest(SkoolKitTestCase):
         """
         self._test_generation(data, exp_ctl, options='-C -h -l')
 
+    def test_comment_generation_without_rst_handler(self):
+        data = [
+            207,  # 65533 RST 8
+            175,  # 65534 XOR A
+            201,  # 65535 RET
+        ]
+        exp_ctl = """
+            c 65533
+              65533 CALL #R8
+              65534 #REGa=0
+              65535 Return
+        """
+        self._test_generation(data, exp_ctl, options='-C')
+
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_comment_generator(self):
         custom_cg = """

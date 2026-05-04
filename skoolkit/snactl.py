@@ -1,4 +1,4 @@
-# Copyright 2009-2021, 2024, 2025 Richard Dymond (rjdymond@gmail.com)
+# © 2009-2021, 2024-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -419,7 +419,6 @@ def _generate_ctls_without_code_map(snapshot, start, end, config, rst_handler):
     return ctls
 
 def _generate_subctls(snapshot, ctls, subctls, rst_handler, cg):
-    rst_handler = get_rst_handler()
     blocks = [(a, ctls[a]) for a in sorted(ctls) if a < 65536] + [(65536, '')]
     for i in range(len(blocks) - 1):
         start, ctl = blocks[i]
