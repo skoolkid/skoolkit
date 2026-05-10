@@ -51,8 +51,9 @@ class CMIOSimulator(Simulator):
         delay = 0
         for address, tstates in timings:
             if 0x4000 <= address < 0x8000:
-                delay += DELAYS_48K[t % 69888]
-                t += DELAYS_48K[t % 69888]
+                cd = DELAYS_48K[t % 69888]
+                delay += cd
+                t += cd
             t += tstates
         return delay
 
@@ -72,8 +73,9 @@ class CMIOSimulator(Simulator):
         delay = 0
         for address, tstates in timings:
             if 0x4000 <= address < 0x8000 or (c and address >= 0xC000):
-                delay += DELAYS_128K[t % 70908]
-                t += DELAYS_128K[t % 70908]
+                cd = DELAYS_128K[t % 70908]
+                delay += cd
+                t += cd
             t += tstates
         return delay
 
