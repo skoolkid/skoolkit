@@ -51,7 +51,7 @@ class CMIOSimulator(Simulator):
         delay = 0
         for address, tstates in timings:
             if 0x4000 <= address < 0x8000:
-                cd = DELAYS_48K[t % 69888]
+                cd = DELAYS_48K[t]
                 delay += cd
                 t += cd
             t += tstates
@@ -73,7 +73,7 @@ class CMIOSimulator(Simulator):
         delay = 0
         for address, tstates in timings:
             if 0x4000 <= address < 0x8000 or (c and address >= 0xC000):
-                cd = DELAYS_128K[t % 70908]
+                cd = DELAYS_128K[t]
                 delay += cd
                 t += cd
             t += tstates
@@ -102,8 +102,9 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             hl = registers[7] + 256 * registers[6]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), (hl, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), (hl, 3)))
             else:
                 delay = 0
             registers[:2] = af[registers[0]][memory[hl]]
@@ -118,8 +119,9 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             pc1 = (pc + 1) % 65536
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), (pc1, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), (pc1, 3)))
             else:
                 delay = 0
             registers[:2] = af[registers[0]][memory[pc1]]
@@ -134,13 +136,14 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if size == 1:
                     # CPL / DAA / RLA / RLCA / RRA / RRCA; r = A/B/C/D/E/H/L
-                    delay = contend(registers[25], ((pc, 4),))
+                    delay = contend(tm, ((pc, 4),))
                 else:
                     # r = IXh/IXl/IYh/IYl
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4)))
             else:
                 delay = 0
             registers[:2] = af[registers[0]][registers[r]]
@@ -157,8 +160,9 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             pc2 = (pc + 2) % 65536
             xy = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[pc2]]) % 65536
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (xy, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (xy, 3)))
             else:
                 delay = 0
             registers[:2] = af[registers[0]][memory[xy]]
@@ -174,8 +178,9 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             hl = registers[7] + 256 * registers[6]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), (hl, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), (hl, 3)))
             else:
                 delay = 0
             registers[:2] = afc[registers[1] % 2][registers[0]][memory[hl]]
@@ -190,8 +195,9 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             pc1 = (pc + 1) % 65536
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), (pc1, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), (pc1, 3)))
             else:
                 delay = 0
             registers[:2] = afc[registers[1] % 2][registers[0]][memory[pc1]]
@@ -205,13 +211,14 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if size == 1:
                     # r = B/C/D/E/H/L
-                    delay = contend(registers[25], ((pc, 4),))
+                    delay = contend(tm, ((pc, 4),))
                 else:
                     # r = IXh/IXl/IYh/IYl
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4)))
             else:
                 delay = 0
             registers[:2] = afc[registers[1] % 2][registers[0]][registers[r]]
@@ -227,8 +234,9 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             pc2 = (pc + 2) % 65536
             xy = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[pc2]]) % 65536
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (xy, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (xy, 3)))
             else:
                 delay = 0
             registers[:2] = afc[registers[1] % 2][registers[0]][memory[xy]]
@@ -244,8 +252,9 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             hl = registers[7] + 256 * registers[6]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 3)))
             else:
                 delay = 0
             value, registers[1] = f[memory[hl]]
@@ -261,8 +270,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4)))
             else:
                 delay = 0
             registers[r], registers[1] = f[registers[r]]
@@ -278,9 +288,10 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             pc2 = (pc + 2) % 65536
             xy = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[pc2]]) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 pc3 = (pc + 3) % 65536
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc3, 3), (pc3, 1), (pc3, 1), (xy, 3), (xy, 1), (xy, 3)))
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc3, 3), (pc3, 1), (pc3, 1), (xy, 3), (xy, 1), (xy, 3)))
             else:
                 delay = 0
             value, registers[1] = f[memory[xy]]
@@ -300,13 +311,14 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             hl = registers[7] + 256 * registers[6]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if size == 2:
                     # RL/RR (HL)
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 3)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 3)))
                 else:
                     # DEC/INC (HL)
-                    delay = contend(registers[25], ((pc, 4), (hl, 3), (hl, 1), (hl, 3)))
+                    delay = contend(tm, ((pc, 4), (hl, 3), (hl, 1), (hl, 3)))
             else:
                 delay = 0
             value, registers[1] = fc[registers[1] % 2][memory[hl]]
@@ -322,13 +334,14 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if size == 1:
                     # DEC/INC r / ADC A,A / SBC A,A
-                    delay = contend(registers[25], ((pc, 4),))
+                    delay = contend(tm, ((pc, 4),))
                 else:
                     # RL/RR r
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4)))
             else:
                 delay = 0
             registers[r], registers[1] = fc[registers[1] % 2][registers[r]]
@@ -344,14 +357,15 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             pc2 = (pc + 2) % 65536
             xy = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[pc2]]) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if size == 3:
                     # DEC/INC (IX/Y+d)
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (xy, 3), (xy, 1), (xy, 3)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (xy, 3), (xy, 1), (xy, 3)))
                 else:
                     # RL/RR (IX/Y+d)[,r]
                     pc3 = (pc + 3) % 65536
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc3, 3), (pc3, 1), (pc3, 1), (xy, 3), (xy, 1), (xy, 3)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc3, 3), (pc3, 1), (pc3, 1), (xy, 3), (xy, 1), (xy, 3)))
             else:
                 delay = 0
             value, registers[1] = fc[registers[1] % 2][memory[xy]]
@@ -370,9 +384,10 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 ir = registers[15] + 256 * registers[14]
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1)))
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1)))
             else:
                 delay = 0
             rr = registers[rl] + 256 * registers[rh]
@@ -404,14 +419,15 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 ir = registers[15] + 256 * registers[14]
                 if size == 1:
                     # ADD HL,BC/DE/HL/SP
-                    delay = contend(registers[25], ((pc, 4), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1)))
+                    delay = contend(tm, ((pc, 4), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1)))
                 else:
                     # ADD IX/IY,BC/DE/SP/IX/IY
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1)))
             else:
                 delay = 0
             addend_v = registers[rl] + 256 * registers[rh]
@@ -440,8 +456,9 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             hl = registers[7] + 256 * registers[6]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1)))
             else:
                 delay = 0
             registers[1] = (bit[registers[1] % 2][b][memory[hl]] & 0xD7) | ((registers[29] // 256) & 0x28)
@@ -455,8 +472,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4)))
             else:
                 delay = 0
             registers[1] = bit[registers[1] % 2][b][registers[reg]]
@@ -472,9 +490,10 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             pc2 = (pc + 2) % 65536
             xy = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[pc2]]) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 pc3 = (pc + 3) % 65536
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc3, 3), (pc3, 1), (pc3, 1), (xy, 3), (xy, 1)))
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc3, 3), (pc3, 1), (pc3, 1), (xy, 3), (xy, 1)))
             else:
                 delay = 0
             registers[1] = (bit[registers[1] % 2][b][memory[xy]] & 0xD7) + ((xy // 256) & 0x28)
@@ -491,14 +510,15 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             pc1 = (pc + 1) % 65536
             pc2 = (pc + 2) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if c_and and registers[1] & c_and == c_val:
                     # Condition not met
-                    delay = contend(registers[25], ((pc, 4), (pc1, 3), (pc2, 3)))
+                    delay = contend(tm, ((pc, 4), (pc1, 3), (pc2, 3)))
                 else:
                     # Condition met
                     sp = registers[12]
-                    delay = contend(registers[25], ((pc, 4), (pc1, 3), (pc2, 3), (pc2, 1), ((sp - 1) % 65536, 3), ((sp - 2) % 65536, 3)))
+                    delay = contend(tm, ((pc, 4), (pc1, 3), (pc2, 3), (pc2, 1), ((sp - 1) % 65536, 3), ((sp - 2) % 65536, 3)))
             else:
                 delay = 0
             registers[29] = memory[pc1] + 256 * memory[pc2] # MEMPTR
@@ -524,8 +544,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4),))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4),))
             else:
                 delay = 0
             registers[1] = cf[registers[1]][registers[0]]
@@ -543,11 +564,12 @@ class CMIOSimulator(Simulator):
             bc = registers[3] + 256 * registers[2]
             a = registers[0]
             value = memory[hl]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if repeat and a != value and bc != 1:
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1)))
                 else:
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1)))
             else:
                 delay = 0
             hl = (hl + inc) % 65536
@@ -577,8 +599,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4),))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4),))
             else:
                 delay = 0
             registers[26] = iff
@@ -593,11 +616,12 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             pc1 = (pc + 1) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if registers[2] != 1:
-                    delay = contend(registers[25], ((pc, 4), (registers[15] + 256 * registers[14], 1), (pc1, 3), (pc1, 1), (pc1, 1), (pc1, 1), (pc1, 1), (pc1, 1)))
+                    delay = contend(tm, ((pc, 4), (registers[15] + 256 * registers[14], 1), (pc1, 3), (pc1, 1), (pc1, 1), (pc1, 1), (pc1, 1), (pc1, 1)))
                 else:
-                    delay = contend(registers[25], ((pc, 4), (registers[15] + 256 * registers[14], 1), (pc1, 3)))
+                    delay = contend(tm, ((pc, 4), (registers[15] + 256 * registers[14], 1), (pc1, 3)))
             else:
                 delay = 0
             b = (registers[2] - 1) % 256
@@ -617,8 +641,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4),))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4),))
             else:
                 delay = 0
             registers[0], registers[16] = registers[16], registers[0]
@@ -633,8 +658,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4),))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4),))
             else:
                 delay = 0
             registers[4], registers[6] = registers[6], registers[4]
@@ -651,13 +677,14 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             sp = registers[12]
             sp1 = (sp + 1) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if size == 1:
                     # EX (SP),HL
-                    delay = contend(registers[25], ((pc, 4), (sp, 3), (sp1, 3), (sp1, 1), (sp1, 3), (sp, 3), (sp, 1), (sp, 1)))
+                    delay = contend(tm, ((pc, 4), (sp, 3), (sp1, 3), (sp1, 1), (sp1, 3), (sp, 3), (sp, 1), (sp, 1)))
                 else:
                     # EX (SP),IX/IY
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (sp, 3), (sp1, 3), (sp1, 1), (sp1, 3), (sp, 3), (sp, 1), (sp, 1)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (sp, 3), (sp1, 3), (sp1, 1), (sp1, 3), (sp, 3), (sp, 1), (sp, 1)))
             else:
                 delay = 0
             v1 = memory[sp]
@@ -679,8 +706,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4),))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4),))
             else:
                 delay = 0
             registers[2:8], registers[18:24] = registers[18:24], registers[2:8]
@@ -694,11 +722,12 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if registers[28]:
-                    delay = contend(registers[25], (((pc + 1) % 65536, 4),))
+                    delay = contend(tm, (((pc + 1) % 65536, 4),))
                 else:
-                    delay = contend(registers[25], ((pc, 4),))
+                    delay = contend(tm, ((pc, 4),))
             else:
                 delay = 0
             registers[25] += 4 + delay # T-states
@@ -715,8 +744,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4)))
             else:
                 delay = 0
             registers[27] = mode
@@ -732,9 +762,10 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             pc1 = (pc + 1) % 65536
             port = memory[pc1] + 256 * registers[0]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 io_c = io_contention(port)
-                delay = contend(registers[25], ((pc, 4), (pc1, 3), *io_c))
+                delay = contend(tm, ((pc, 4), (pc1, 3), *io_c))
             else:
                 delay = 0
             if self.in_a_n_tracer:
@@ -753,9 +784,10 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             bc = registers[3] + 256 * registers[2]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 io_c = io_contention(bc)
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), *io_c))
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), *io_c))
             else:
                 delay = 0
             if self.in_r_c_tracer:
@@ -776,14 +808,15 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 ir = registers[15] + 256 * registers[14]
                 if size == 1:
                     # INC/DEC BC/DE/HL/SP
-                    delay = contend(registers[25], ((pc, 4), (ir, 1), (ir, 1)))
+                    delay = contend(tm, ((pc, 4), (ir, 1), (ir, 1)))
                 else:
                     # INC/DEC IX/IY
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (ir, 1), (ir, 1)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (ir, 1), (ir, 1)))
             else:
                 delay = 0
             if rl == 12:
@@ -806,14 +839,15 @@ class CMIOSimulator(Simulator):
             b = registers[2]
             c = registers[3]
             bc = c + 256 * b
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 io_c = io_contention(bc)
                 if repeat and b != 1:
                     # 21 T-states
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), *io_c, (hl, 3), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), *io_c, (hl, 3), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 1)))
                 else:
                     # 16 T-states
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), *io_c, (hl, 3)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), *io_c, (hl, 3)))
             else:
                 delay = 0
             if self.ini_tracer:
@@ -859,8 +893,9 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             pc1 = (pc + 1) % 65536
             pc2 = (pc + 2) % 65536
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), (pc1, 3), (pc2, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), (pc1, 3), (pc2, 3)))
             else:
                 delay = 0
             registers[29] = memory[pc1] + 256 * memory[pc2] # MEMPTR
@@ -876,14 +911,15 @@ class CMIOSimulator(Simulator):
         # JP (HL/IX/IY)
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if timing == 4:
                     # JP (HL)
-                    delay = contend(registers[25], ((registers[24], 4),))
+                    delay = contend(tm, ((registers[24], 4),))
                 else:
                     # JP (IX/IY)
                     pc = registers[24]
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4)))
             else:
                 delay = 0
             registers[15] = r_inc[registers[15]] # R
@@ -897,13 +933,14 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             pc1 = (pc + 1) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if registers[1] & c_and == c_val:
                     # Condition met
-                    delay = contend(registers[25], ((pc, 4), (pc1, 3), (pc1, 1), (pc1, 1), (pc1, 1), (pc1, 1), (pc1, 1)))
+                    delay = contend(tm, ((pc, 4), (pc1, 3), (pc1, 1), (pc1, 1), (pc1, 1), (pc1, 1), (pc1, 1)))
                 else:
                     # Condition not met
-                    delay = contend(registers[25], ((pc, 4), (pc1, 3)))
+                    delay = contend(tm, ((pc, 4), (pc1, 3)))
             else:
                 delay = 0
             if registers[1] & c_and == c_val:
@@ -921,8 +958,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1)))
             else:
                 delay = 0
             registers[15] = R2[registers[15]] # R
@@ -942,8 +980,9 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             pc1 = (pc + 1) % 65536
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), (pc1, 3), (registers[7] + 256 * registers[6], 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), (pc1, 3), (registers[7] + 256 * registers[6], 3)))
             else:
                 delay = 0
             addr = registers[7] + 256 * registers[6]
@@ -959,12 +998,13 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if size == 2:
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 3)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 3)))
                 else:
                     # LD IXh/IXl/IYh/IYl,n
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), ((pc + 2) % 65536, 3)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), ((pc + 2) % 65536, 3)))
             else:
                 delay = 0
             end = pc + size
@@ -979,15 +1019,16 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if size == 1:
-                    delay = contend(registers[25], ((pc, 4),))
+                    delay = contend(tm, ((pc, 4),))
                 elif timing == 8:
                     # LD r,IXh/IXl/IYh/IYl / LD IXh/IXl/IYh/IYl,r
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4)))
                 else:
                     # LD I/R,A
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1)))
             else:
                 delay = 0
             registers[15] = r_inc[registers[15]] # R
@@ -1001,8 +1042,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), (registers[rl] + 256 * registers[rh], 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), (registers[rl] + 256 * registers[rh], 3)))
             else:
                 delay = 0
             registers[r] = memory[registers[rl] + 256 * registers[rh]]
@@ -1018,8 +1060,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), (registers[rl] + 256 * registers[rh], 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), (registers[rl] + 256 * registers[rh], 3)))
             else:
                 delay = 0
             addr = registers[rl] + 256 * registers[rh]
@@ -1039,8 +1082,9 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             pc2 = (pc + 2) % 65536
             xy = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[pc2]]) % 65536
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (xy, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (xy, 3)))
             else:
                 delay = 0
             registers[r] = memory[xy]
@@ -1058,8 +1102,9 @@ class CMIOSimulator(Simulator):
             pc2 = (pc + 2) % 65536
             pc3 = (pc + 3) % 65536
             xy = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[pc2]]) % 65536
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc3, 3), (pc3, 1), (pc3, 1), (xy, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc3, 3), (pc3, 1), (pc3, 1), (xy, 3)))
             else:
                 delay = 0
             if xy > 0x3FFF:
@@ -1077,8 +1122,9 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             pc2 = (pc + 2) % 65536
             xy = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[pc2]]) % 65536
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (xy, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (pc2, 1), (xy, 3)))
             else:
                 delay = 0
             if xy > 0x3FFF:
@@ -1094,13 +1140,14 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if size == 3:
                     # LD BC/DE/HL/SP,nn
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 3), ((pc + 2) % 65536, 3)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 3), ((pc + 2) % 65536, 3)))
                 else:
                     # LD IX/IY,nn
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), ((pc + 2) % 65536, 3), ((pc + 3) % 65536, 3)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), ((pc + 2) % 65536, 3), ((pc + 3) % 65536, 3)))
             else:
                 delay = 0
             end = pc + size
@@ -1122,8 +1169,9 @@ class CMIOSimulator(Simulator):
             pc1 = (pc + 1) % 65536
             pc2 = (pc + 2) % 65536
             nn = memory[pc1] + 256 * memory[pc2]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), (pc1, 3), (pc2, 3), (nn, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), (pc1, 3), (pc2, 3), (nn, 3)))
             else:
                 delay = 0
             registers[0] = memory[nn]
@@ -1141,8 +1189,9 @@ class CMIOSimulator(Simulator):
             pc1 = (pc + 1) % 65536
             pc2 = (pc + 2) % 65536
             nn = memory[pc1] + 256 * memory[pc2]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), (pc1, 3), (pc2, 3), (nn, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), (pc1, 3), (pc2, 3), (nn, 3)))
             else:
                 delay = 0
             if nn > 0x3FFF:
@@ -1161,16 +1210,17 @@ class CMIOSimulator(Simulator):
             end = pc + size
             nn = memory[(end - 2) % 65536] + 256 * memory[(end - 1) % 65536]
             nn1 = (nn + 1) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 pc1 = (pc + 1) % 65536
                 pc2 = (pc + 2) % 65536
                 if size == 3:
                     # LD HL,(nn) (unprefixed)
-                    delay = contend(registers[25], ((pc, 4), (pc1, 3), (pc2, 3), (nn, 3), (nn1, 3)))
+                    delay = contend(tm, ((pc, 4), (pc1, 3), (pc2, 3), (nn, 3), (nn1, 3)))
                 else:
                     # LD BC/DE/SP/IX/IY,(nn) (and prefixed LD HL,(nn))
                     pc3 = (pc + 3) % 65536
-                    delay = contend(registers[25], ((pc, 4), (pc1, 4), (pc2, 3), (pc3, 3), (nn, 3), (nn1, 3)))
+                    delay = contend(tm, ((pc, 4), (pc1, 4), (pc2, 3), (pc3, 3), (nn, 3), (nn1, 3)))
             else:
                 delay = 0
             if rl == 12:
@@ -1192,16 +1242,17 @@ class CMIOSimulator(Simulator):
             end = pc + size
             nn = memory[(end - 2) % 65536] + 256 * memory[(end - 1) % 65536]
             nn1 = (nn + 1) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 pc1 = (pc + 1) % 65536
                 pc2 = (pc + 2) % 65536
                 if size == 3:
                     # LD (nn),HL (unprefixed)
-                    delay = contend(registers[25], ((pc, 4), (pc1, 3), (pc2, 3), (nn, 3), (nn1, 3)))
+                    delay = contend(tm, ((pc, 4), (pc1, 3), (pc2, 3), (nn, 3), (nn1, 3)))
                 else:
                     # LD (nn),BC/DE/SP/IX/IY (and prefixed LD (nn),HL)
                     pc3 = (pc + 3) % 65536
-                    delay = contend(registers[25], ((pc, 4), (pc1, 4), (pc2, 3), (pc3, 3), (nn, 3), (nn1, 3)))
+                    delay = contend(tm, ((pc, 4), (pc1, 4), (pc2, 3), (pc3, 3), (nn, 3), (nn1, 3)))
             else:
                 delay = 0
             if rl == 12:
@@ -1229,13 +1280,14 @@ class CMIOSimulator(Simulator):
             hl = registers[7] + 256 * registers[6]
             de = registers[5] + 256 * registers[4]
             bc = registers[3] + 256 * registers[2]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if repeat and bc != 1:
                     # 21 T-states
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (de, 3), (de, 1), (de, 1), (de, 1), (de, 1), (de, 1), (de, 1), (de, 1)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (de, 3), (de, 1), (de, 1), (de, 1), (de, 1), (de, 1), (de, 1), (de, 1)))
                 else:
                     # 16 T-states
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (de, 3), (de, 1), (de, 1)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (de, 3), (de, 1), (de, 1)))
             else:
                 delay = 0
             at_hl = memory[hl]
@@ -1267,14 +1319,15 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 ir = registers[15] + 256 * registers[14]
                 if size == 1:
                     # LD SP,HL
-                    delay = contend(registers[25], ((pc, 4), (ir, 1), (ir, 1)))
+                    delay = contend(tm, ((pc, 4), (ir, 1), (ir, 1)))
                 else:
                     # LD SP,IX/IY
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (ir, 1), (ir, 1)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (ir, 1), (ir, 1)))
             else:
                 delay = 0
             registers[12] = registers[rl] + 256 * registers[rh]
@@ -1288,8 +1341,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4)))
             else:
                 delay = 0
             registers[:2] = neg[registers[0]]
@@ -1303,11 +1357,12 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if size == 1:
-                    delay = contend(registers[25], ((pc, 4),))
+                    delay = contend(tm, ((pc, 4),))
                 else:
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4)))
             else:
                 delay = 0
             registers[15] = r_inc[registers[15]] # R
@@ -1321,9 +1376,10 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             pc1 = (pc + 1) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 io_c = io_contention(memory[pc1] + 256 * registers[0])
-                delay = contend(registers[25], ((pc, 4), (pc1, 3), *io_c))
+                delay = contend(tm, ((pc, 4), (pc1, 3), *io_c))
             else:
                 delay = 0
             if self.out_tracer:
@@ -1341,9 +1397,10 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             bc = registers[3] + 256 * registers[2]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 io_c = io_contention(bc)
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), *io_c))
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), *io_c))
             else:
                 delay = 0
             if self.out_tracer:
@@ -1366,14 +1423,15 @@ class CMIOSimulator(Simulator):
             bc = registers[3] + 256 * b
             port = (bc - 256) % 65536
             hl = registers[7] + 256 * registers[6]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 io_c = io_contention(port)
                 if repeat and b != 1:
                     # 21 T-states
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), (hl, 3), *io_c, (bc, 1), (bc, 1), (bc, 1), (bc, 1), (bc, 1)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), (hl, 3), *io_c, (bc, 1), (bc, 1), (bc, 1), (bc, 1), (bc, 1)))
                 else:
                     # 16 T-states
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), (hl, 3), *io_c))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), (hl, 3), *io_c))
             else:
                 delay = 0
             b = (b - 1) % 256
@@ -1417,13 +1475,14 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             sp = registers[12]
             sp1 = (sp + 1) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if size == 1:
                     # POP AF/BC/DE/HL
-                    delay = contend(registers[25], ((pc, 4), (sp, 3), (sp1, 3)))
+                    delay = contend(tm, ((pc, 4), (sp, 3), (sp1, 3)))
                 else:
                     # POP IX/IY
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (sp, 3), (sp1, 3)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (sp, 3), (sp1, 3)))
             else:
                 delay = 0
             registers[12] = (sp + 2) % 65536
@@ -1442,13 +1501,14 @@ class CMIOSimulator(Simulator):
             sp = registers[12]
             sp1 = (sp - 1) % 65536
             sp2 = (sp - 2) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if size == 1:
                     # PUSH AF/BC/DE/HL
-                    delay = contend(registers[25], ((pc, 4), (registers[15] + 256 * registers[14], 1), (sp1, 3), (sp2, 3)))
+                    delay = contend(tm, ((pc, 4), (registers[15] + 256 * registers[14], 1), (sp1, 3), (sp2, 3)))
                 else:
                     # PUSH IX/IY
-                    delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), (sp1, 3), (sp2, 3)))
+                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), (sp1, 3), (sp2, 3)))
             else:
                 delay = 0
             registers[12] = sp2
@@ -1467,8 +1527,9 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             hl = registers[7] + 256 * registers[6]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 3)))
             else:
                 delay = 0
             if hl > 0x3FFF:
@@ -1483,8 +1544,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4)))
             else:
                 delay = 0
             registers[reg] &= bit
@@ -1500,9 +1562,10 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             pc2 = (pc + 2) % 65536
             xy = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[pc2]]) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 pc3 = (pc + 3) % 65536
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc3, 3), (pc3, 1), (pc3, 1), (xy, 3), (xy, 1), (xy, 3)))
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc3, 3), (pc3, 1), (pc3, 1), (xy, 3), (xy, 1), (xy, 3)))
             else:
                 delay = 0
             value = memory[xy] & bit
@@ -1522,17 +1585,18 @@ class CMIOSimulator(Simulator):
         def func():
             sp = registers[12]
             sp1 = (sp + 1) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 if c_and:
                     if registers[1] & c_and == c_val:
                         # Condition not met
-                        delay = contend(registers[25], ((registers[24], 4), (registers[15] + 256 * registers[14], 1)))
+                        delay = contend(tm, ((registers[24], 4), (registers[15] + 256 * registers[14], 1)))
                     else:
                         # Condition met
-                        delay = contend(registers[25], ((registers[24], 4), (registers[15] + 256 * registers[14], 1), (sp, 3), (sp1, 3)))
+                        delay = contend(tm, ((registers[24], 4), (registers[15] + 256 * registers[14], 1), (sp, 3), (sp1, 3)))
                 else:
                     # RET
-                    delay = contend(registers[25], ((registers[24], 4), (sp, 3), (sp1, 3)))
+                    delay = contend(tm, ((registers[24], 4), (sp, 3), (sp1, 3)))
             else:
                 delay = 0
             if c_and:
@@ -1558,9 +1622,10 @@ class CMIOSimulator(Simulator):
         def func():
             sp = registers[12]
             sp1 = (sp + 1) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 pc = registers[24]
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (sp, 3), (sp1, 3)))
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (sp, 3), (sp1, 3)))
             else:
                 delay = 0
             registers[15] = R2[registers[15]] # R
@@ -1576,8 +1641,9 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             hl = registers[7] + 256 * registers[6]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 3)))
             else:
                 delay = 0
             a = registers[0]
@@ -1598,8 +1664,9 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             hl = registers[7] + 256 * registers[6]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 1), (hl, 1), (hl, 1), (hl, 3)))
             else:
                 delay = 0
             a = registers[0]
@@ -1622,8 +1689,9 @@ class CMIOSimulator(Simulator):
             sp = registers[12]
             sp1 = (sp - 1) % 65536
             sp2 = (sp - 2) % 65536
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), (registers[15] + 256 * registers[14], 1), (sp1, 3), (sp2, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), (registers[15] + 256 * registers[14], 1), (sp1, 3), (sp2, 3)))
             else:
                 delay = 0
             registers[12] = sp2
@@ -1643,9 +1711,10 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 ir = registers[15] + 256 * registers[14]
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1)))
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1), (ir, 1)))
             else:
                 delay = 0
             rr = registers[rl] + 256 * registers[rh]
@@ -1678,8 +1747,9 @@ class CMIOSimulator(Simulator):
         def func():
             pc = registers[24]
             hl = registers[7] + 256 * registers[6]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 3)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (hl, 3), (hl, 1), (hl, 3)))
             else:
                 delay = 0
             if hl > 0x3FFF:
@@ -1694,8 +1764,9 @@ class CMIOSimulator(Simulator):
         t0, t1, frame_duration, contend = self.t0, self.t1, self.frame_duration, self.contend
         def func():
             pc = registers[24]
-            if t0 < registers[25] % frame_duration < t1:
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4)))
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4)))
             else:
                 delay = 0
             registers[reg] |= bit
@@ -1711,9 +1782,10 @@ class CMIOSimulator(Simulator):
             pc = registers[24]
             pc2 = (pc + 2) % 65536
             xy = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[pc2]]) % 65536
-            if t0 < registers[25] % frame_duration < t1:
+            tm = registers[25] % frame_duration
+            if t0 < tm < t1:
                 pc3 = (pc + 3) % 65536
-                delay = contend(registers[25], ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc3, 3), (pc3, 1), (pc3, 1), (xy, 3), (xy, 1), (xy, 3)))
+                delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (pc2, 3), (pc3, 3), (pc3, 1), (pc3, 1), (xy, 3), (xy, 1), (xy, 3)))
             else:
                 delay = 0
             value = memory[xy] | bit
