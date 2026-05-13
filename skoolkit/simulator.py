@@ -80,10 +80,19 @@ class Simulator:
         elif interrupts:
             frame_duration = self.frame_duration
             int_active = self.int_active
+            frame_start = (registers[25] // frame_duration) * frame_duration
+            if registers[25] < frame_start + int_active:
+                next_int = frame_start
+            else:
+                next_int = frame_start + frame_duration
             while True:
                 opcodes[memory[pc]]()
-                if registers[26] and registers[25] % frame_duration < int_active:
-                    self.accept_interrupt(registers, memory, pc)
+                if registers[25] >= next_int:
+                    if registers[25] < next_int + int_active:
+                        if registers[26]:
+                            self.accept_interrupt(registers, memory, pc)
+                    else:
+                        next_int += frame_duration
                 pc = registers[24]
                 if pc == stop:
                     break
