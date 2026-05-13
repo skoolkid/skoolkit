@@ -82,6 +82,12 @@ class Tracer(PagingTracer):
             pc = registers[PC] = start
             operations = 0
             tstates = registers[25]
+            if interrupts:
+                frame_start = (tstates // frame_duration) * frame_duration
+                if tstates < frame_start + int_active:
+                    next_int = frame_start
+                else:
+                    next_int = frame_start + frame_duration
             while True:
                 t0 = tstates
                 if trace_line:
@@ -95,9 +101,13 @@ class Tracer(PagingTracer):
                 if exec_map is not None:
                     exec_map.add(pc)
 
-                if interrupts and registers[26] and tstates % frame_duration < int_active:
-                    simulator.accept_interrupt(registers, memory, pc)
-                    tstates = registers[25]
+                if interrupts and tstates >= next_int:
+                    if tstates < next_int + int_active:
+                        if registers[26]:
+                            simulator.accept_interrupt(registers, memory, pc)
+                            tstates = registers[25]
+                    else:
+                        next_int += frame_duration
 
                 pc = registers[24]
                 operations += 1
