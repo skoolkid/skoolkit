@@ -28,7 +28,7 @@
 #define TIME reg[T]
 #ifdef CONTENTION
 #define CONTEND unsigned t = TIME % self->frame_duration; unsigned delay = 0; if (self->t0 < t && t < self->t1)
-#define CPATTERN(...) self->contend(&t, &delay, self->out7ffd & 1, __VA_ARGS__)
+#define CPATTERN(nargs, ...) const unsigned cpattern[] = { __VA_ARGS__ }; self->contend(&t, &delay, self->out7ffd & 1, nargs, cpattern)
 #define INC_T(i) TIME += i + delay
 #else
 #define INC_T(i) TIME += i
@@ -41,7 +41,7 @@
 
 typedef unsigned char byte;
 
-typedef void (*contend_f)(unsigned* t, unsigned* delay, int urc, int n, ...);
+typedef void (*contend_f)(unsigned* t, unsigned* delay, int urc, int n, const unsigned* cpattern);
 
 typedef struct CSimulatorObject CSimulatorObject;
 
@@ -785,13 +785,17 @@ static int accept_interrupt(CSimulatorObject* self, unsigned prev_pc) {
 }
 
 #ifdef CONTENTION
-static void contend_48k(unsigned* t, unsigned* delay, int urc, int n, ...) {
-    va_list ptr;
+static const unsigned IOC_1[] = {0x4000, 1, 0x4000, 1, 0x4000, 1, 0x4000, 1};
+static const unsigned IOC_2[] = {0x0000, 4};
+static const unsigned IOC_3[] = {0x4000, 1, 0x4000, 3};
+static const unsigned IOC_4[] = {0x0000, 1, 0x4000, 3};
 
-    va_start(ptr, n);
-    for (int i = 0; i < n; i += 2) {
-        unsigned address = va_arg(ptr, unsigned);
-        unsigned tstates = va_arg(ptr, unsigned);
+static void contend_48k(unsigned* t, unsigned* delay, int urc, int n, const unsigned* cpattern) {
+    const unsigned* ptr = cpattern;
+
+    for (int i = 0; i < n; i++) {
+        unsigned address = *ptr++;
+        unsigned tstates = *ptr++;
         if (tstates) {
             if (0x4000 <= address && address < 0x8000) {
                 *delay += DELAYS_48K[*t];
@@ -802,27 +806,25 @@ static void contend_48k(unsigned* t, unsigned* delay, int urc, int n, ...) {
             // I/O contention
             if (address & 1) {
                 if (0x4000 <= address && address < 0x8000) {
-                    contend_48k(t, delay, urc, 8, 0x4000, 1, 0x4000, 1, 0x4000, 1, 0x4000, 1);
+                    contend_48k(t, delay, urc, 4, IOC_1);
                 } else {
-                    contend_48k(t, delay, urc, 2, 0, 4);
+                    contend_48k(t, delay, urc, 1, IOC_2);
                 }
             } else if (0x4000 <= address && address < 0x8000) {
-                contend_48k(t, delay, urc, 4, 0x4000, 1, 0x4000, 3);
+                contend_48k(t, delay, urc, 2, IOC_3);
             } else {
-                contend_48k(t, delay, urc, 4, 0, 1, 0x4000, 3);
+                contend_48k(t, delay, urc, 2, IOC_4);
             }
         }
     }
-    va_end(ptr);
 }
 
-static void contend_128k(unsigned* t, unsigned* delay, int urc, int n, ...) {
-    va_list ptr;
+static void contend_128k(unsigned* t, unsigned* delay, int urc, int n, const unsigned* cpattern) {
+    const unsigned* ptr = cpattern;
 
-    va_start(ptr, n);
-    for (int i = 0; i < n; i += 2) {
-        unsigned address = va_arg(ptr, unsigned);
-        unsigned tstates = va_arg(ptr, unsigned);
+    for (int i = 0; i < n; i++) {
+        unsigned address = *ptr++;
+        unsigned tstates = *ptr++;
         if (tstates) {
             if ((0x4000 <= address && address < 0x8000) || (urc && address >= 0xC000)) {
                 *delay += DELAYS_128K[*t];
@@ -833,18 +835,17 @@ static void contend_128k(unsigned* t, unsigned* delay, int urc, int n, ...) {
             // I/O contention
             if (address & 1) {
                 if ((0x4000 <= address && address < 0x8000) || (urc && address >= 0xC000)) {
-                    contend_128k(t, delay, urc, 8, 0x4000, 1, 0x4000, 1, 0x4000, 1, 0x4000, 1);
+                    contend_128k(t, delay, urc, 4, IOC_1);
                 } else {
-                    contend_128k(t, delay, urc, 2, 0, 4);
+                    contend_128k(t, delay, urc, 1, IOC_2);
                 }
             } else if ((0x4000 <= address && address < 0x8000) || (urc && address >= 0xC000)) {
-                contend_128k(t, delay, urc, 4, 0x4000, 1, 0x4000, 3);
+                contend_128k(t, delay, urc, 2, IOC_3);
             } else {
-                contend_128k(t, delay, urc, 4, 0, 1, 0x4000, 3);
+                contend_128k(t, delay, urc, 2, IOC_4);
             }
         }
     }
-    va_end(ptr);
 }
 #endif
 
@@ -859,7 +860,7 @@ static void af_hl(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned hl = REG(L) + 256 * REG(H);
 #ifdef CONTENTION
     CONTEND {
-        CPATTERN(4, REG(PC), 4, hl, 3);
+        CPATTERN(2, REG(PC), 4, hl, 3);
     }
 #endif
     byte* values = table[REG(A)][PEEK(hl)];
@@ -880,7 +881,7 @@ static void af_n(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(4, pc, 4, ADDR(pc + 1), 3);
+        CPATTERN(2, pc, 4, ADDR(pc + 1), 3);
     }
 #endif
     byte* values = table[REG(A)][PEEK(ADDR(REG(PC) + 1))];
@@ -905,9 +906,9 @@ static void af_r(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         if (size == 1) {
-            CPATTERN(2, pc, 4);
+            CPATTERN(1, pc, 4);
         } else {
-            CPATTERN(4, pc, 4, ADDR(pc + 1), 4);
+            CPATTERN(2, pc, 4, ADDR(pc + 1), 4);
         }
     }
 #endif
@@ -935,7 +936,7 @@ static void af_xy(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         unsigned pc2 = ADDR(pc + 2);
-        CPATTERN(18, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc2, 1, pc2, 1, pc2, 1, pc2, 1, pc2, 1, addr, 3);
+        CPATTERN(9, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc2, 1, pc2, 1, pc2, 1, pc2, 1, pc2, 1, addr, 3);
     }
     LD(MEMPTR, addr);
 #endif
@@ -957,7 +958,7 @@ static void afc_hl(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned hl = REG(L) + 256 * REG(H);
 #ifdef CONTENTION
     CONTEND {
-        CPATTERN(4, REG(PC), 4, hl, 3);
+        CPATTERN(2, REG(PC), 4, hl, 3);
     }
 #endif
     byte* values = table[REG(F) & 1][REG(A)][PEEK(hl)];
@@ -978,7 +979,7 @@ static void afc_n(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(4, pc, 4, ADDR(pc + 1), 3);
+        CPATTERN(2, pc, 4, ADDR(pc + 1), 3);
     }
 #endif
     byte* values = table[REG(F) & 1][REG(A)][PEEK(ADDR(REG(PC) + 1))];
@@ -1003,9 +1004,9 @@ static void afc_r(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         if (size == 1) {
-            CPATTERN(2, pc, 4);
+            CPATTERN(1, pc, 4);
         } else {
-            CPATTERN(4, pc, 4, ADDR(pc + 1), 4);
+            CPATTERN(2, pc, 4, ADDR(pc + 1), 4);
         }
     }
 #endif
@@ -1033,7 +1034,7 @@ static void afc_xy(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         unsigned pc2 = ADDR(pc + 2);
-        CPATTERN(18, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc2, 1, pc2, 1, pc2, 1, pc2, 1, pc2, 1, addr, 3);
+        CPATTERN(9, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc2, 1, pc2, 1, pc2, 1, pc2, 1, pc2, 1, addr, 3);
     }
     LD(MEMPTR, addr);
 #endif
@@ -1056,7 +1057,7 @@ static void f_hl(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(10, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 3);
+        CPATTERN(5, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 3);
     }
 #endif
     byte* values = table[PEEK(hl)];
@@ -1079,7 +1080,7 @@ static void f_r(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(4, pc, 4, ADDR(pc + 1), 4);
+        CPATTERN(2, pc, 4, ADDR(pc + 1), 4);
     }
 #endif
     byte* values = table[REG(r)];
@@ -1107,7 +1108,7 @@ static void f_xy(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         unsigned pc3 = ADDR(pc + 3);
-        CPATTERN(18, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, pc3, 3, pc3, 1, pc3, 1, addr, 3, addr, 1, addr, 3);
+        CPATTERN(9, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, pc3, 3, pc3, 1, pc3, 1, addr, 3, addr, 1, addr, 3);
     }
     LD(MEMPTR, addr);
 #endif
@@ -1139,9 +1140,9 @@ static void fc_hl(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         if (size == 2) {
-            CPATTERN(10, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 3);
+            CPATTERN(5, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 3);
         } else {
-            CPATTERN(8, pc, 4, hl, 3, hl, 1, hl, 3);
+            CPATTERN(4, pc, 4, hl, 3, hl, 1, hl, 3);
         }
     }
 #endif
@@ -1169,9 +1170,9 @@ static void fc_r(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         if (size == 1) {
-            CPATTERN(2, pc, 4);
+            CPATTERN(1, pc, 4);
         } else {
-            CPATTERN(4, pc, 4, ADDR(pc + 1), 4);
+            CPATTERN(2, pc, 4, ADDR(pc + 1), 4);
         }
     }
 #endif
@@ -1203,9 +1204,9 @@ static void fc_xy(CSimulatorObject* self, void* lookup, int args[]) {
         unsigned pc2 = ADDR(pc + 2);
         unsigned pc3 = ADDR(pc + 3);
         if (size == 3) {
-            CPATTERN(22, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc2, 1, pc2, 1, pc2, 1, pc2, 1, pc2, 1, addr, 3, addr, 1, addr, 3);
+            CPATTERN(11, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc2, 1, pc2, 1, pc2, 1, pc2, 1, pc2, 1, addr, 3, addr, 1, addr, 3);
         } else {
-            CPATTERN(18, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc3, 3, pc3, 1, pc3, 1, addr, 3, addr, 1, addr, 3);
+            CPATTERN(9, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc3, 3, pc3, 1, pc3, 1, addr, 3, addr, 1, addr, 3);
         }
     }
     LD(MEMPTR, addr);
@@ -1236,7 +1237,7 @@ static void adc_hl(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         unsigned ir = REG(R) + 256 * REG(I);
-        CPATTERN(18, pc, 4, ADDR(pc + 1), 4, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1);
+        CPATTERN(9, pc, 4, ADDR(pc + 1), 4, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1);
     }
     LD(MEMPTR, ADDR(hl + 1));
 #endif
@@ -1285,9 +1286,9 @@ static void add_rr(CSimulatorObject* self, void* lookup, int args[]) {
         unsigned pc = REG(PC);
         unsigned ir = REG(R) + 256 * REG(I);
         if (size == 1) {
-            CPATTERN(16, pc, 4, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1);
+            CPATTERN(8, pc, 4, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1);
         } else {
-            CPATTERN(18, pc, 4, ADDR(pc + 1), 4, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1);
+            CPATTERN(9, pc, 4, ADDR(pc + 1), 4, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1);
         }
     }
     LD(MEMPTR, ADDR(augend_v + 1));
@@ -1322,7 +1323,7 @@ static void bit_hl(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(8, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1);
+        CPATTERN(4, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1);
     }
     LD(F, (REG(F) & 0xD7) | ((REG(MEMPTR) >> 8) & 0x28));
 #endif
@@ -1341,7 +1342,7 @@ static void bit_r(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(4, pc, 4, ADDR(pc + 1), 4);
+        CPATTERN(2, pc, 4, ADDR(pc + 1), 4);
     }
 #endif
     LD(F, BIT[REG(F) & 1][b][REG(r)]);
@@ -1366,7 +1367,7 @@ static void bit_xy(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         unsigned pc3 = ADDR(pc + 3);
-        CPATTERN(16, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, pc3, 3, pc3, 1, pc3, 1, addr, 3, addr, 1);
+        CPATTERN(8, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, pc3, 3, pc3, 1, pc3, 1, addr, 3, addr, 1);
     }
     LD(MEMPTR, addr);
 #endif
@@ -1388,7 +1389,7 @@ static void call(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
         unsigned pc = REG(PC);
         CONTEND {
-            CPATTERN(6, pc, 4, ADDR(pc + 1), 3, ADDR(pc + 2), 3);
+            CPATTERN(3, pc, 4, ADDR(pc + 1), 3, ADDR(pc + 2), 3);
         }
         byte* mem = self->memory;
         LD(MEMPTR, PEEK(ADDR(pc + 1)) + 256 * PEEK(ADDR(pc + 2)));
@@ -1412,7 +1413,7 @@ static void call(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
         CONTEND {
             unsigned pc2 = ADDR(pc + 2);
-            CPATTERN(12, pc, 4, ADDR(pc + 1), 3, pc2, 3, pc2, 1, sp, 3, ADDR(sp - 1), 3);
+            CPATTERN(6, pc, 4, ADDR(pc + 1), 3, pc2, 3, pc2, 1, sp, 3, ADDR(sp - 1), 3);
         }
         LD(MEMPTR, REG(PC));
 #endif
@@ -1429,7 +1430,7 @@ static void cf(CSimulatorObject* self, void* lookup, int args[]) {
 
 #ifdef CONTENTION
     CONTEND {
-        CPATTERN(2, REG(PC), 4);
+        CPATTERN(1, REG(PC), 4);
     }
 #endif
     LD(F, table[REG(F)][REG(A)]);
@@ -1465,7 +1466,7 @@ static void cpi(CSimulatorObject* self, void* lookup, int args[]) {
         unsigned pc = REG(PC);
         CONTEND {
             hl = ADDR(hl - inc);
-            CPATTERN(26, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1);
+            CPATTERN(13, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1);
         }
         LD(MEMPTR, ADDR(pc + 1));
 #endif
@@ -1477,7 +1478,7 @@ static void cpi(CSimulatorObject* self, void* lookup, int args[]) {
         CONTEND {
             unsigned pc = REG(PC);
             hl = ADDR(hl - inc);
-            CPATTERN(16, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1);
+            CPATTERN(8, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1);
         }
         LD(MEMPTR, ADDR(REG(MEMPTR) + inc));
 #endif
@@ -1495,7 +1496,7 @@ static void di_ei(CSimulatorObject* self, void* lookup, int args[]) {
 
 #ifdef CONTENTION
     CONTEND {
-        CPATTERN(2, REG(PC), 4);
+        CPATTERN(1, REG(PC), 4);
     }
 #endif
     LD(IFF, iff);
@@ -1519,7 +1520,7 @@ static void djnz(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
         CONTEND {
             unsigned pc1 = ADDR(pc + 1);
-            CPATTERN(16, pc, 4, REG(R) + 256 * REG(I), 1, pc1, 3, pc1, 1, pc1, 1, pc1, 1, pc1, 1, pc1, 1);
+            CPATTERN(8, pc, 4, REG(R) + 256 * REG(I), 1, pc1, 3, pc1, 1, pc1, 1, pc1, 1, pc1, 1, pc1, 1);
         }
         LD(MEMPTR, REG(PC));
 #endif
@@ -1528,7 +1529,7 @@ static void djnz(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
         CONTEND {
             unsigned pc = REG(PC);
-            CPATTERN(6, pc, 4, REG(R) + 256 * REG(I), 1, ADDR(pc + 1), 3);
+            CPATTERN(3, pc, 4, REG(R) + 256 * REG(I), 1, ADDR(pc + 1), 3);
         }
 #endif
         INC_T(8);
@@ -1544,7 +1545,7 @@ static void ex_af(CSimulatorObject* self, void* lookup, int arg[]) {
 
 #ifdef CONTENTION
     CONTEND {
-        CPATTERN(2, REG(PC), 4);
+        CPATTERN(1, REG(PC), 4);
     }
 #endif
     unsigned a = REG(A);
@@ -1565,7 +1566,7 @@ static void ex_de_hl(CSimulatorObject* self, void* lookup, int arg[]) {
 
 #ifdef CONTENTION
     CONTEND {
-        CPATTERN(2, REG(PC), 4);
+        CPATTERN(1, REG(PC), 4);
     }
 #endif
     unsigned d = REG(D);
@@ -1596,9 +1597,9 @@ static void ex_sp(CSimulatorObject* self, void* lookup, int args[]) {
         unsigned pc = REG(PC);
         unsigned spn = ADDR(sp + 1);
         if (size == 1) {
-            CPATTERN(16, pc, 4, sp, 3, spn, 3, spn, 1, spn, 3, sp, 3, sp, 1, sp, 1);
+            CPATTERN(8, pc, 4, sp, 3, spn, 3, spn, 1, spn, 3, sp, 3, sp, 1, sp, 1);
         } else {
-            CPATTERN(18, pc, 4, ADDR(pc + 1), 4, sp, 3, spn, 3, spn, 1, spn, 3, sp, 3, sp, 1, sp, 1);
+            CPATTERN(9, pc, 4, ADDR(pc + 1), 4, sp, 3, spn, 3, spn, 1, spn, 3, sp, 3, sp, 1, sp, 1);
         }
     }
 #endif
@@ -1628,7 +1629,7 @@ static void exx(CSimulatorObject* self, void* lookup, int args[]) {
 
 #ifdef CONTENTION
     CONTEND {
-        CPATTERN(2, REG(PC), 4);
+        CPATTERN(1, REG(PC), 4);
     }
 #endif
     unsigned b = REG(B);
@@ -1661,7 +1662,7 @@ static void halt(CSimulatorObject* self, void* lookup, int args[]) {
 
 #ifdef CONTENTION
     CONTEND {
-        CPATTERN(2, ADDR(REG(PC) + REG(HALT)), 4);
+        CPATTERN(1, ADDR(REG(PC) + REG(HALT)), 4);
     }
 #endif
     INC_T(4);
@@ -1683,7 +1684,7 @@ static void im(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(4, pc, 4, ADDR(pc + 1), 4);
+        CPATTERN(2, pc, 4, ADDR(pc + 1), 4);
     }
 #endif
     LD(IM, mode);
@@ -1703,7 +1704,7 @@ static void in_a(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned pc1 = ADDR(pc + 1);
     unsigned port = PEEK(pc1) + 256 * REG(A);
     CONTEND {
-        CPATTERN(6, pc, 4, pc1, 3, port, 0);
+        CPATTERN(3, pc, 4, pc1, 3, port, 0);
     }
     LD(MEMPTR, ADDR(port + 1));
 #endif
@@ -1739,7 +1740,7 @@ static void in_c(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned port = REG(C) + 256 * REG(B);
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(6, pc, 4, ADDR(pc + 1), 4, port, 0);
+        CPATTERN(3, pc, 4, ADDR(pc + 1), 4, port, 0);
     }
     LD(MEMPTR, ADDR(port + 1));
 #endif
@@ -1783,9 +1784,9 @@ static void inc_dec_rr(CSimulatorObject* self, void* lookup, int args[]) {
         unsigned pc = REG(PC);
         unsigned ir = REG(R) + 256 * REG(I);
         if (size == 1) {
-            CPATTERN(6, pc, 4, ir, 1, ir, 1);
+            CPATTERN(3, pc, 4, ir, 1, ir, 1);
         } else {
-            CPATTERN(8, pc, 4, ADDR(pc + 1), 4, ir, 1, ir, 1);
+            CPATTERN(4, pc, 4, ADDR(pc + 1), 4, ir, 1, ir, 1);
         }
     }
 #endif
@@ -1860,7 +1861,7 @@ static void ini(CSimulatorObject* self, void* lookup, int args[]) {
             unsigned port = c + 256 * ((b + 1) % 256);
             unsigned ir = REG(R) + 256 * REG(I);
             hl = ADDR(hl - inc);
-            CPATTERN(20, pc, 4, ADDR(pc + 1), 4, ir, 1, port, 0, hl, 3, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1);
+            CPATTERN(10, pc, 4, ADDR(pc + 1), 4, ir, 1, port, 0, hl, 3, hl, 1, hl, 1, hl, 1, hl, 1, hl, 1);
         }
         LD(MEMPTR, ADDR(pc + 1));
 #endif
@@ -1873,7 +1874,7 @@ static void ini(CSimulatorObject* self, void* lookup, int args[]) {
         CONTEND {
             unsigned ir = REG(R) + 256 * REG(I);
             hl = ADDR(hl - inc);
-            CPATTERN(10, pc, 4, ADDR(pc + 1), 4, ir, 1, port, 0, hl, 3);
+            CPATTERN(5, pc, 4, ADDR(pc + 1), 4, ir, 1, port, 0, hl, 3);
         }
         LD(MEMPTR, ADDR(port + inc));
 #endif
@@ -1894,7 +1895,7 @@ static void jp(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned pc = REG(PC);
     byte* mem = self->memory;
     CONTEND {
-        CPATTERN(6, pc, 4, ADDR(pc + 1), 3, ADDR(pc + 2), 3);
+        CPATTERN(3, pc, 4, ADDR(pc + 1), 3, ADDR(pc + 2), 3);
     }
     LD(MEMPTR, PEEK(ADDR(REG(PC) + 1)) + 256 * PEEK(ADDR(REG(PC) + 2)));
 #endif
@@ -1923,9 +1924,9 @@ static void jp_rr(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         if (timing == 4) {
-            CPATTERN(2, pc, 4);
+            CPATTERN(1, pc, 4);
         } else {
-            CPATTERN(4, pc, 4, ADDR(pc + 1), 4);
+            CPATTERN(2, pc, 4, ADDR(pc + 1), 4);
         }
     }
 #endif
@@ -1944,7 +1945,7 @@ static void jr(CSimulatorObject* self, void* lookup, int args[]) {
         CONTEND {
             unsigned pc = REG(PC);
             unsigned pc1 = ADDR(pc + 1);
-            CPATTERN(14, pc, 4, pc1, 3, pc1, 1, pc1, 1, pc1, 1, pc1, 1, pc1, 1);
+            CPATTERN(7, pc, 4, pc1, 3, pc1, 1, pc1, 1, pc1, 1, pc1, 1, pc1, 1);
         }
 #endif
         byte* mem = self->memory;
@@ -1958,7 +1959,7 @@ static void jr(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
         CONTEND {
             unsigned pc = REG(PC);
-            CPATTERN(4, pc, 4, ADDR(pc + 1), 3);
+            CPATTERN(2, pc, 4, ADDR(pc + 1), 3);
         }
 #endif
         INC_PC(2);
@@ -1976,7 +1977,7 @@ static void ld_a_ir(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(6, pc, 4, ADDR(pc + 1), 4, REG(R) + 256 * REG(I), 1);
+        CPATTERN(3, pc, 4, ADDR(pc + 1), 4, REG(R) + 256 * REG(I), 1);
     }
 #endif
     INC_R(2);
@@ -1999,7 +2000,7 @@ static void ld_hl_n(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(6, pc, 4, ADDR(pc + 1), 3, hl, 3);
+        CPATTERN(3, pc, 4, ADDR(pc + 1), 3, hl, 3);
     }
 #endif
     if (hl > 0x3FFF) {
@@ -2025,9 +2026,9 @@ static void ld_r_n(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         if (size == 2) {
-            CPATTERN(4, pc, 4, ADDR(pc + 1), 3);
+            CPATTERN(2, pc, 4, ADDR(pc + 1), 3);
         } else {
-            CPATTERN(6, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3);
+            CPATTERN(3, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3);
         }
     }
 #endif
@@ -2051,13 +2052,13 @@ static void ld_r_r(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         if (size == 1) {
-            CPATTERN(2, pc, 4);
+            CPATTERN(1, pc, 4);
         } else if (timing == 8) {
             // LD r,IXh/IXl/IYh/IYl / LD IXh/IXl/IYh/IYl,r
-            CPATTERN(4, pc, 4, ADDR(pc + 1), 4);
+            CPATTERN(2, pc, 4, ADDR(pc + 1), 4);
         } else {
             // LD I/R,A
-            CPATTERN(6, pc, 4, ADDR(pc + 1), 4, REG(R) + 256 * REG(I), 1);
+            CPATTERN(3, pc, 4, ADDR(pc + 1), 4, REG(R) + 256 * REG(I), 1);
         }
     }
 #endif
@@ -2077,7 +2078,7 @@ static void ld_r_rr(CSimulatorObject* self, void* lookup, int args[]) {
 
 #ifdef CONTENTION
     CONTEND {
-        CPATTERN(4, REG(PC), 4, REG(rl) + 256 * REG(rh), 3);
+        CPATTERN(2, REG(PC), 4, REG(rl) + 256 * REG(rh), 3);
     }
     if (r == A && rh <= D) {
         LD(MEMPTR, ADDR(REG(rl) + 256 * REG(rh) + 1));
@@ -2100,7 +2101,7 @@ static void ld_rr_r(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned addr = REG(rl) + 256 * REG(rh);
 #ifdef CONTENTION
     CONTEND {
-        CPATTERN(4, REG(PC), 4, addr, 3);
+        CPATTERN(2, REG(PC), 4, addr, 3);
     }
     if (r == A && rh <= D) {
         LD(MEMPTR, ((REG(rl) + 1) & 0xFF) + 256 * REG(A));
@@ -2131,7 +2132,7 @@ static void ld_r_xy(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         unsigned pc2 = ADDR(pc + 2);
-        CPATTERN(18, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc2, 1, pc2, 1, pc2, 1, pc2, 1, pc2, 1, addr, 3);
+        CPATTERN(9, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc2, 1, pc2, 1, pc2, 1, pc2, 1, pc2, 1, addr, 3);
     }
     LD(MEMPTR, addr);
 #endif
@@ -2157,7 +2158,7 @@ static void ld_xy_n(CSimulatorObject* self, void* lookup, int args[]) {
         unsigned pc = REG(PC);
         unsigned pc2 = ADDR(pc + 2);
         unsigned pc3 = ADDR(pc + 3);
-        CPATTERN(14, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc3, 3, pc3, 1, pc3, 1, addr, 3);
+        CPATTERN(7, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc3, 3, pc3, 1, pc3, 1, addr, 3);
     }
     LD(MEMPTR, addr);
 #endif
@@ -2185,7 +2186,7 @@ static void ld_xy_r(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         unsigned pc2 = ADDR(pc + 2);
-        CPATTERN(18, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc2, 1, pc2, 1, pc2, 1, pc2, 1, pc2, 1, addr, 3);
+        CPATTERN(9, pc, 4, ADDR(pc + 1), 4, pc2, 3, pc2, 1, pc2, 1, pc2, 1, pc2, 1, pc2, 1, addr, 3);
     }
     LD(MEMPTR, addr);
 #endif
@@ -2212,9 +2213,9 @@ static void ld_rr_nn(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         if (size == 3) {
-            CPATTERN(6, pc, 4, ADDR(pc + 1), 3, ADDR(pc + 2), 3);
+            CPATTERN(3, pc, 4, ADDR(pc + 1), 3, ADDR(pc + 2), 3);
         } else {
-            CPATTERN(8, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, ADDR(pc + 3), 3);
+            CPATTERN(4, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, ADDR(pc + 3), 3);
         }
     }
 #endif
@@ -2240,7 +2241,7 @@ static void ld_a_m(CSimulatorObject* self, void* lookup, int args[]) {
         unsigned pc = REG(PC);
         unsigned pc1 = ADDR(pc + 1);
         unsigned pc2 = ADDR(pc + 2);
-        CPATTERN(8, pc, 4, pc1, 3, pc2, 3, PEEK(pc1) + 256 * PEEK(pc2), 3);
+        CPATTERN(4, pc, 4, pc1, 3, pc2, 3, PEEK(pc1) + 256 * PEEK(pc2), 3);
     }
     LD(MEMPTR, ADDR(PEEK(ADDR(REG(PC) + 1)) + 256 * PEEK(ADDR(REG(PC) + 2)) + 1));
 #endif
@@ -2260,7 +2261,7 @@ static void ld_m_a(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(8, pc, 4, ADDR(pc + 1), 3, ADDR(pc + 2), 3, addr, 3);
+        CPATTERN(4, pc, 4, ADDR(pc + 1), 3, ADDR(pc + 2), 3, addr, 3);
     }
     LD(MEMPTR, ((addr + 1) & 0xFF) + 256 * REG(A));
 #endif
@@ -2288,9 +2289,9 @@ static void ld_rr_mm(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         if (size == 3) {
-            CPATTERN(10, pc, 4, ADDR(pc + 1), 3, ADDR(pc + 2), 3, addr, 3, ADDR(addr + 1), 3);
+            CPATTERN(5, pc, 4, ADDR(pc + 1), 3, ADDR(pc + 2), 3, addr, 3, ADDR(addr + 1), 3);
         } else {
-            CPATTERN(12, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, ADDR(pc + 3), 3, addr, 3, ADDR(addr + 1), 3);
+            CPATTERN(6, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, ADDR(pc + 3), 3, addr, 3, ADDR(addr + 1), 3);
         }
     }
     LD(MEMPTR, ADDR(addr + 1));
@@ -2322,9 +2323,9 @@ static void ld_mm_rr(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         if (size == 3) {
-            CPATTERN(10, pc, 4, ADDR(pc + 1), 3, ADDR(pc + 2), 3, addr, 3, ADDR(addr + 1), 3);
+            CPATTERN(5, pc, 4, ADDR(pc + 1), 3, ADDR(pc + 2), 3, addr, 3, ADDR(addr + 1), 3);
         } else {
-            CPATTERN(12, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, ADDR(pc + 3), 3, addr, 3, ADDR(addr + 1), 3);
+            CPATTERN(6, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, ADDR(pc + 3), 3, addr, 3, ADDR(addr + 1), 3);
         }
     }
     LD(MEMPTR, ADDR(addr + 1));
@@ -2383,7 +2384,7 @@ static void ldi(CSimulatorObject* self, void* lookup, int args[]) {
         CONTEND {
             hl = ADDR(hl - inc);
             de = ADDR(de - inc);
-            CPATTERN(22, pc, 4, ADDR(pc + 1), 4, hl, 3, de, 3, de, 1, de, 1, de, 1, de, 1, de, 1, de, 1, de, 1);
+            CPATTERN(11, pc, 4, ADDR(pc + 1), 4, hl, 3, de, 3, de, 1, de, 1, de, 1, de, 1, de, 1, de, 1, de, 1);
         }
         LD(MEMPTR, ADDR(pc + 1));
 #endif
@@ -2396,7 +2397,7 @@ static void ldi(CSimulatorObject* self, void* lookup, int args[]) {
             unsigned pc = REG(PC);
             hl = ADDR(hl - inc);
             de = ADDR(de - inc);
-            CPATTERN(12, pc, 4, ADDR(pc + 1), 4, hl, 3, de, 3, de, 1, de, 1);
+            CPATTERN(6, pc, 4, ADDR(pc + 1), 4, hl, 3, de, 3, de, 1, de, 1);
         }
 #endif
         INC_T(16);
@@ -2420,9 +2421,9 @@ static void ld_sp_rr(CSimulatorObject* self, void* lookup, int args[]) {
         unsigned pc = REG(PC);
         unsigned ir = REG(R) + 256 * REG(I);
         if (size == 1) {
-            CPATTERN(6, pc, 4, ir, 1, ir, 1);
+            CPATTERN(3, pc, 4, ir, 1, ir, 1);
         } else {
-            CPATTERN(8, pc, 4, ADDR(pc + 1), 4, ir, 1, ir, 1);
+            CPATTERN(4, pc, 4, ADDR(pc + 1), 4, ir, 1, ir, 1);
         }
     }
 #endif
@@ -2440,7 +2441,7 @@ static void neg(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(4, pc, 4, ADDR(pc + 1), 4);
+        CPATTERN(2, pc, 4, ADDR(pc + 1), 4);
     }
 #endif
     byte* values = NEG[REG(A)];
@@ -2464,9 +2465,9 @@ static void nop(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         if (size == 1) {
-            CPATTERN(2, pc, 4);
+            CPATTERN(1, pc, 4);
         } else {
-            CPATTERN(4, pc, 4, ADDR(pc + 1), 4);
+            CPATTERN(2, pc, 4, ADDR(pc + 1), 4);
         }
     }
 #endif
@@ -2483,7 +2484,7 @@ static void out_a(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(6, pc, 4, ADDR(pc + 1), 3, port, 0);
+        CPATTERN(3, pc, 4, ADDR(pc + 1), 3, port, 0);
     }
     LD(MEMPTR, ((PEEK(ADDR(REG(PC) + 1)) + 1) & 0xFF) + 256 * REG(A));
 #endif
@@ -2514,7 +2515,7 @@ static void out_c(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(6, pc, 4, ADDR(pc + 1), 4, port, 0);
+        CPATTERN(3, pc, 4, ADDR(pc + 1), 4, port, 0);
     }
     LD(MEMPTR, ADDR(port + 1));
 #endif
@@ -2586,7 +2587,7 @@ static void outi(CSimulatorObject* self, void* lookup, int args[]) {
             unsigned bc = REG(C) + 256 * ((b + 1) % 256);
             unsigned ir = REG(R) + 256 * REG(I);
             hl = ADDR(hl - inc);
-            CPATTERN(20, pc, 4, ADDR(pc + 1), 4, ir, 1, hl, 3, port, 0, bc, 1, bc, 1, bc, 1, bc, 1, bc, 1);
+            CPATTERN(10, pc, 4, ADDR(pc + 1), 4, ir, 1, hl, 3, port, 0, bc, 1, bc, 1, bc, 1, bc, 1, bc, 1);
         }
         LD(MEMPTR, ADDR(pc + 1));
 #endif
@@ -2598,7 +2599,7 @@ static void outi(CSimulatorObject* self, void* lookup, int args[]) {
             unsigned pc = REG(PC);
             unsigned ir = REG(R) + 256 * REG(I);
             hl = ADDR(hl - inc);
-            CPATTERN(10, pc, 4, ADDR(pc + 1), 4, ir, 1, hl, 3, port, 0);
+            CPATTERN(5, pc, 4, ADDR(pc + 1), 4, ir, 1, hl, 3, port, 0);
         }
         LD(MEMPTR, ADDR(port + inc));
 #endif
@@ -2624,9 +2625,9 @@ static void pop(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         if (size == 1) {
-            CPATTERN(6, pc, 4, sp, 3, ADDR(sp + 1), 3);
+            CPATTERN(3, pc, 4, sp, 3, ADDR(sp + 1), 3);
         } else {
-            CPATTERN(8, pc, 4, ADDR(pc + 1), 4, sp, 3, ADDR(sp + 1), 3);
+            CPATTERN(4, pc, 4, ADDR(pc + 1), 4, sp, 3, ADDR(sp + 1), 3);
         }
     }
 #endif
@@ -2663,9 +2664,9 @@ static void push(CSimulatorObject* self, void* lookup, int args[]) {
         unsigned pc = REG(PC);
         unsigned ir = REG(R) + 256 * REG(I);
         if (size == 1) {
-            CPATTERN(8, pc, 4, ir, 1, sp, 3, ADDR(sp - 1), 3);
+            CPATTERN(4, pc, 4, ir, 1, sp, 3, ADDR(sp - 1), 3);
         } else {
-            CPATTERN(10, pc, 4, ADDR(pc + 1), 4, ir, 1, sp, 3, ADDR(sp - 1), 3);
+            CPATTERN(5, pc, 4, ADDR(pc + 1), 4, ir, 1, sp, 3, ADDR(sp - 1), 3);
         }
     }
 #endif
@@ -2684,7 +2685,7 @@ static void res_hl(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(10, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 3);
+        CPATTERN(5, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 3);
     }
 #endif
     if (hl > 0x3FFF) {
@@ -2706,7 +2707,7 @@ static void res_r(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(4, pc, 4, ADDR(pc + 1), 4);
+        CPATTERN(2, pc, 4, ADDR(pc + 1), 4);
     }
 #endif
     LD(r, REG(r) & bit);
@@ -2732,7 +2733,7 @@ static void res_xy(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         unsigned pc3 = ADDR(pc + 3);
-        CPATTERN(18, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, pc3, 3, pc3, 1, pc3, 1, addr, 3, addr, 1, addr, 3);
+        CPATTERN(9, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, pc3, 3, pc3, 1, pc3, 1, addr, 3, addr, 1, addr, 3);
     }
     LD(MEMPTR, addr);
 #endif
@@ -2762,7 +2763,7 @@ static void ret(CSimulatorObject* self, void* lookup, int args[]) {
             CONTEND {
                 unsigned pc = REG(PC);
                 unsigned ir = REG(R) + 256 * REG(I);
-                CPATTERN(4, pc, 4, ir, 1);
+                CPATTERN(2, pc, 4, ir, 1);
             }
 #endif
             INC_T(5);
@@ -2773,7 +2774,7 @@ static void ret(CSimulatorObject* self, void* lookup, int args[]) {
             CONTEND {
                 unsigned pc = REG(PC);
                 unsigned ir = REG(R) + 256 * REG(I);
-                CPATTERN(8, pc, 4, ir, 1, sp, 3, ADDR(sp + 1), 3);
+                CPATTERN(4, pc, 4, ir, 1, sp, 3, ADDR(sp + 1), 3);
             }
 #endif
             INC_T(11);
@@ -2788,7 +2789,7 @@ static void ret(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
         CONTEND {
             unsigned pc = REG(PC);
-            CPATTERN(6, pc, 4, sp, 3, ADDR(sp + 1), 3);
+            CPATTERN(3, pc, 4, sp, 3, ADDR(sp + 1), 3);
         }
 #endif
         INC_T(10);
@@ -2811,7 +2812,7 @@ static void reti(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
         CONTEND {
             unsigned pc = REG(PC);
-            CPATTERN(8, pc, 4, ADDR(pc + 1), 4, sp, 3, ADDR(sp + 1), 3);
+            CPATTERN(4, pc, 4, ADDR(pc + 1), 4, sp, 3, ADDR(sp + 1), 3);
         }
 #endif
     LD(SP, ADDR(sp + 2));
@@ -2832,7 +2833,7 @@ static void rld(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(16, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 1, hl, 1, hl, 1, hl, 3);
+        CPATTERN(8, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 1, hl, 1, hl, 1, hl, 3);
     }
     LD(MEMPTR, ADDR(hl + 1));
 #endif
@@ -2858,7 +2859,7 @@ static void rrd(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(16, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 1, hl, 1, hl, 1, hl, 3);
+        CPATTERN(8, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 1, hl, 1, hl, 1, hl, 3);
     }
     LD(MEMPTR, ADDR(hl + 1));
 #endif
@@ -2894,7 +2895,7 @@ static void rst(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned ir = REG(R) + 256 * REG(I);
-        CPATTERN(8, REG(PC), 4, ir, 1, sp, 3, ADDR(sp - 1), 3);
+        CPATTERN(4, REG(PC), 4, ir, 1, sp, 3, ADDR(sp - 1), 3);
     }
     LD(MEMPTR, addr);
 #endif
@@ -2916,7 +2917,7 @@ static void sbc_hl(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         unsigned ir = REG(R) + 256 * REG(I);
-        CPATTERN(18, pc, 4, ADDR(pc + 1), 4, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1);
+        CPATTERN(9, pc, 4, ADDR(pc + 1), 4, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1, ir, 1);
     }
     LD(MEMPTR, ADDR(hl + 1));
 #endif
@@ -2957,7 +2958,7 @@ static void set_hl(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(10, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 3);
+        CPATTERN(5, pc, 4, ADDR(pc + 1), 4, hl, 3, hl, 1, hl, 3);
     }
 #endif
     if (hl > 0x3FFF) {
@@ -2979,7 +2980,7 @@ static void set_r(CSimulatorObject* self, void* lookup, int args[]) {
 #ifdef CONTENTION
     CONTEND {
         unsigned pc = REG(PC);
-        CPATTERN(4, pc, 4, ADDR(pc + 1), 4);
+        CPATTERN(2, pc, 4, ADDR(pc + 1), 4);
     }
 #endif
     LD(r, REG(r) | bit);
@@ -3005,7 +3006,7 @@ static void set_xy(CSimulatorObject* self, void* lookup, int args[]) {
     CONTEND {
         unsigned pc = REG(PC);
         unsigned pc3 = ADDR(pc + 3);
-        CPATTERN(18, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, pc3, 3, pc3, 1, pc3, 1, addr, 3, addr, 1, addr, 3);
+        CPATTERN(9, pc, 4, ADDR(pc + 1), 4, ADDR(pc + 2), 3, pc3, 3, pc3, 1, pc3, 1, addr, 3, addr, 1, addr, 3);
     }
     LD(MEMPTR, addr);
 #endif
