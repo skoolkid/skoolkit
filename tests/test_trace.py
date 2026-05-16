@@ -297,8 +297,8 @@ class TraceTest(SkoolKitTestCase):
         self._test_trace(f'-vv -S 24578 {snafile}', exp_output)
         self.assertEqual(simulator.registers[IFF], 0)
         self.assertEqual(simulator.registers[IM], 2)
-        self.assertTrue(all(b == 1 for b in simulator.memory[0xC000:0x10000]))
-        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM128_1_MD5)
+        self.assertTrue(all(b == 1 for b in simulator.memory.memory[3]))
+        self.assertEqual(hashlib.md5(bytes(simulator.memory.memory[0])).hexdigest(), ROM128_1_MD5)
 
     @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
@@ -391,8 +391,8 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[IFF], 1)
         self.assertEqual(simulator.registers[IM], 2)
         self.assertEqual(simulator.registers[T], 20012)
-        self.assertTrue(all(b == 1 for b in simulator.memory[0xC000:0x10000]))
-        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM128_0_MD5)
+        self.assertTrue(all(b == 1 for b in simulator.memory.memory[3]))
+        self.assertEqual(hashlib.md5(bytes(simulator.memory.memory[0])).hexdigest(), ROM128_0_MD5)
 
     @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
@@ -440,8 +440,8 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[IFF], 1)
         self.assertEqual(simulator.registers[IM], 2)
         self.assertEqual(simulator.registers[T], 20012)
-        self.assertTrue(all(b == 1 for b in simulator.memory[0xC000:0x10000]))
-        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM_PLUS2_0_MD5)
+        self.assertTrue(all(b == 1 for b in simulator.memory.memory[3]))
+        self.assertEqual(hashlib.md5(bytes(simulator.memory.memory[0])).hexdigest(), ROM_PLUS2_0_MD5)
 
     @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
@@ -514,8 +514,8 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[IFF], 1)
         self.assertEqual(simulator.registers[IM], 0)
         self.assertEqual(simulator.registers[T], 269)
-        self.assertTrue(all(b == 3 for b in simulator.memory[0xC000:0x10000]))
-        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM128_1_MD5)
+        self.assertTrue(all(b == 3 for b in simulator.memory.memory[3]))
+        self.assertEqual(hashlib.md5(bytes(simulator.memory.memory[0])).hexdigest(), ROM128_1_MD5)
 
     @patch.object(trace, 'CSimulator', TestSimulator)
     @patch.object(trace, 'Simulator', TestSimulator)
@@ -554,8 +554,8 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[IFF], 1)
         self.assertEqual(simulator.registers[IM], 0)
         self.assertEqual(simulator.registers[T], 269)
-        self.assertTrue(all(b == 3 for b in simulator.memory[0xC000:0x10000]))
-        self.assertEqual(hashlib.md5(bytes(simulator.memory[0x0000:0x4000])).hexdigest(), ROM_PLUS2_1_MD5)
+        self.assertTrue(all(b == 3 for b in simulator.memory.memory[3]))
+        self.assertEqual(hashlib.md5(bytes(simulator.memory.memory[0])).hexdigest(), ROM_PLUS2_1_MD5)
 
     def test_no_snapshot_48k(self):
         output, error = self.run_trace(f'-v -S 2 48')
@@ -1870,6 +1870,35 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.scr[0], 255)
         self.assertEqual(screen.frame, 1)
         self.assertEqual(screen.border, 7)
+
+    @patch.object(trace, 'pygame', True)
+    @patch.object(trace, 'Screen', MockScreen)
+    def test_option_screen_128k(self):
+        data = (
+            0x3E, 0x06, # $8000 LD A,$06    ; T=70895
+            0xD3, 0xFE, # $8002 OUT ($FE),A ; T=70902 (screen draw follows)
+            0x00,       # $8004 NOP         ; T=70913
+        )
+        start = 0x8000
+        stop = start + len(data)
+        ram = [0] * 49152
+        ram[0] = 255
+        ram[start - 0x4000:stop - 0x4000] = data
+        registers = {'PC': start, 'tstates': 70895}
+        z80file = self.write_z80_file(None, ram, machine_id=4, registers=registers)
+        output, error = self.run_trace(f'-S {stop} --screen {z80file}')
+        self.assertEqual(error, '')
+        exp_output = f"""
+            Using pygame
+            Stopped at ${stop:04X}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(screen.scale, 2)
+        self.assertEqual(screen.fps, 50)
+        self.assertEqual(screen.caption, 'trace.py')
+        self.assertEqual(screen.scr[0], 255)
+        self.assertEqual(screen.frame, 1)
+        self.assertEqual(screen.border, 6)
 
     def test_option_show_config(self):
         output, error = self.run_trace('--show-config', catch_exit=0)

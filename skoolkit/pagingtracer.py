@@ -27,9 +27,7 @@ class Memory:
         self.machine = machine
 
     def __getitem__(self, index):
-        if isinstance(index, int):
-            return self.memory[index // 0x4000][index % 0x4000]
-        return [self.memory[a // 0x4000][a % 0x4000] for a in range(index.start, min(index.stop, 65536), index.step or 1)]
+        return self.memory[index // 0x4000][index % 0x4000]
 
     def __setitem__(self, index, value):
         self.memory[index // 0x4000][index % 0x4000] = value
@@ -49,6 +47,12 @@ class Memory:
         self.roms = tuple(bytearray(rom) for rom in self.roms)
         self.banks = [bytearray(bank) for bank in self.banks]
         self.memory = [self.roms[rom_id], self.banks[5], self.banks[2], self.banks[page]]
+
+class SliceableMemory(Memory):
+    def __getitem__(self, index):
+        if isinstance(index, int):
+            return self.memory[index // 0x4000][index % 0x4000]
+        return [self.memory[a // 0x4000][a % 0x4000] for a in range(index.start, min(index.stop, 65536), index.step or 1)]
 
 class PagingTracer:
     def write_port(self, registers, port, value):

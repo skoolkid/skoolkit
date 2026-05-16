@@ -1681,3 +1681,23 @@ class RzxplayTest(SkoolKitTestCase):
         """
         self._test_rzx(rzx, exp_output, '--quiet', exp_trace)
         self.assertEqual(TestScreen.instance.border, 5)
+
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', new_callable=MockPygame)
+    @patch.object(rzxplay, 'pygame', True)
+    @patch.object(rzxplay, 'Screen', TestScreen)
+    def test_screen_128k(self, mock_pygame):
+        ram = [0] * 0xC000
+        ram[0], ram[0x1800] = 0x01, BLUE
+        pc = 0xF000
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, machine_id=4, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = 'Using pygame\n'
+        rzxfile = self._test_rzx(rzx, exp_output, '--quiet')
+        mock_pygame.display.set_mode.assert_called_with((640, 480))
+        TestScreen.instance.clock.tick.assert_called_with(50)
+        mock_pygame.display.set_caption.assert_called_with(rzxfile)
+        self.assertEqual(mock_pygame.display.get_surface().get_pixel(7, 0), BLUE)

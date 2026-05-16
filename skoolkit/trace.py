@@ -53,6 +53,7 @@ class Tracer(PagingTracer):
             exec_map, trace_header, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
         memory = simulator.memory
+        is128k = len(memory) == 0x20000
         registers = simulator.registers
         start_time = registers[T]
         if max_tstates > 0:
@@ -115,7 +116,11 @@ class Tracer(PagingTracer):
                 if draw:
                     frame = tstates // frame_duration
                     if frame > prev_frame:
-                        if not draw(memory[16384:23296], frame, self.border, keyboard):
+                        if is128k:
+                            scr = memory.memory[1][:6912]
+                        else:
+                            scr = memory[16384:23296]
+                        if not draw(scr, frame, self.border, keyboard):
                             stop_cond = 0
                             break
                         prev_frame = frame
@@ -375,7 +380,11 @@ def run(snafile, options, config):
                 else:
                     raise SkoolKitError('No audio detected')
         elif ext == '.png':
-            frame = Frame(scr_udgs(simulator.memory, 0, 0, 32, 24), config['PNGScale'])
+            if len(simulator.memory) == 0x20000:
+                scr = scr_udgs(simulator.memory.memory[1], 0, 0, 32, 24, 0, 6144)
+            else:
+                scr = scr_udgs(simulator.memory, 0, 0, 32, 24)
+            frame = Frame(scr, config['PNGScale'])
             with open(fname, 'wb') as f:
                 get_image_writer().write_image([frame], f)
         else:

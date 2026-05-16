@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2018, 2020-2026 Richard Dymond (rjdymond@gmail.com)
+# © 2013, 2015-2018, 2020-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -31,7 +31,7 @@ from skoolkit.config import get_config, show_config, update_options
 from skoolkit.kbtracer import KeyboardTracer, KeypressTracer
 from skoolkit.loadsample import ACCELERATORS, Accelerator
 from skoolkit.loadtracer import LoadTracer, get_edges
-from skoolkit.pagingtracer import Memory
+from skoolkit.pagingtracer import SliceableMemory
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import FRAME_DURATIONS, INT_ACTIVE, PC, T, get_state
 from skoolkit.snapshot import (move, patch, poke, print_reg_help,
@@ -491,7 +491,7 @@ def sim_load(blocks, options, config):
         state = {'tstates': 3453395}
         sim_cfg['frame_duration'] = FRAME_DURATIONS[1]
         sim_cfg['int_active'] = INT_ACTIVE[1]
-        memory = Memory()
+        memory = SliceableMemory()
         stop = 0x13BE
         kb_delay = 13
     else:

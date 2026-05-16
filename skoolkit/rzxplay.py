@@ -259,6 +259,7 @@ def process_block(block, options, flags, context):
         simulator.set_tracer(tracer)
     opcodes = simulator.opcodes if hasattr(simulator, 'opcodes') else None
     memory = simulator.memory
+    is128k = len(memory) == 0x20000
     registers = simulator.registers
     total_frames = context.total_frames
     context.fnwidth = len(str(total_frames)) - 1
@@ -299,7 +300,11 @@ def process_block(block, options, flags, context):
                 else:
                     fetch_counter -= 2 - ((registers[15] ^ r0) % 2)
         if draw:
-            run = draw(memory[16384:23296], context.frame_count, tracer.border)
+            if is128k:
+                scr = memory.memory[1][:6912]
+            else:
+                scr = memory[16384:23296]
+            run = draw(scr, context.frame_count, tracer.border)
         registers[25] = 0
         fetch_counter = tracer.next_frame()
         if registers[26]:
