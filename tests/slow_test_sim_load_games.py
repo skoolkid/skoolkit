@@ -1,7 +1,7 @@
 import hashlib
 import tempfile
 
-from skoolkittest import SkoolKitTestCase
+from skoolkittest import T2S_USER_AGENT, SkoolKitTestCase
 from skoolkit import tap2sna
 from skoolkit.snapshot import Snapshot
 
@@ -11,10 +11,11 @@ class SimLoadGamesTest(SkoolKitTestCase):
             if isinstance(options, str):
                 options = options.split()
             z80file = f'{d}/{tapname[:-4]}.z80'
+            args = ('-u', T2S_USER_AGENT, *options, url, z80file)
             if isinstance(tapname, str):
-                tap2sna.main(('--tape-name', tapname, '--tape-sum', tapsum, *options, url, z80file))
+                tap2sna.main(('--tape-name', tapname, '--tape-sum', tapsum, *args))
             else:
-                tap2sna.main(('--tape-name', tapname[0], '--tape-sum', tapsum[0], '--tape-name', tapname[1], '--tape-sum', tapsum[1], *options, url, z80file))
+                tap2sna.main(('--tape-name', tapname[0], '--tape-sum', tapsum[0], '--tape-name', tapname[1], '--tape-sum', tapsum[1], *args))
             r = Snapshot.get(z80file)
             ram = r.ram(-1)
             md5sum = hashlib.md5(bytes(ram)).hexdigest()

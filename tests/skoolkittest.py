@@ -47,6 +47,8 @@ COLOURS = {
 
 QUIT = 1
 
+T2S_USER_AGENT = "Mozilla/5.0"
+
 def mock_find_file(fname, search_dirs=('',)):
     if fname == 'skoolkit.ini':
         # Ignore ~/.skoolkit/skoolkit.ini, if it exists

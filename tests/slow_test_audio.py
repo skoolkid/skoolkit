@@ -2,7 +2,7 @@ import hashlib
 import tempfile
 import wave
 
-from skoolkittest import SkoolKitTestCase
+from skoolkittest import T2S_USER_AGENT, SkoolKitTestCase
 from skoolkit import tap2sna, trace
 
 class AudioTest(SkoolKitTestCase):
@@ -10,7 +10,7 @@ class AudioTest(SkoolKitTestCase):
         with tempfile.TemporaryDirectory() as d:
             z80file = f'{d}/{tapname[:-4]}.z80'
             wavfile = f'{d}/{tapname[:-4]}.wav'
-            tap2sna.main(('--tape-name', tapname, '--tape-sum', tapsum, *tap2sna_options, url, z80file))
+            tap2sna.main(('--tape-name', tapname, '--tape-sum', tapsum, '-u', T2S_USER_AGENT, *tap2sna_options, url, z80file))
             trace.main((*trace_options, '-M', '35000000', z80file, wavfile))
             with wave.open(wavfile, 'rb') as wav:
                 self.assertEqual(wav.getnchannels(), 1)
