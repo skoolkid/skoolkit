@@ -1715,9 +1715,9 @@ static void in_a(CSimulatorObject* self, void* lookup, int args[]) {
         if (self->read_port) {
             value = self->read_port(self, port);
         } else {
-            PyObject* port_obj = PyLong_FromLong(port);
-            PyObject* rv = PyObject_CallOneArg(self->in_a_n_tracer, port_obj);
-            Py_XDECREF(port_obj);
+            PyObject* m_args = Py_BuildValue("(OI)", self->registers_obj, port);
+            PyObject* rv = PyObject_Call(self->in_a_n_tracer, m_args, NULL);
+            Py_XDECREF(m_args);
             if (rv) {
                 value = PyLong_AsLong(rv);
                 Py_DECREF(rv);
@@ -1750,9 +1750,9 @@ static void in_c(CSimulatorObject* self, void* lookup, int args[]) {
         if (self->read_port) {
             value = self->read_port(self, port);
         } else {
-            PyObject* port_obj = PyLong_FromLong(port);
-            PyObject* rv = PyObject_CallOneArg(self->in_r_c_tracer, port_obj);
-            Py_XDECREF(port_obj);
+            PyObject* m_args = Py_BuildValue("(OI)", self->registers_obj, port);
+            PyObject* rv = PyObject_Call(self->in_r_c_tracer, m_args, NULL);
+            Py_XDECREF(m_args);
             if (rv) {
                 value = PyLong_AsLong(rv);
                 Py_DECREF(rv);
@@ -1819,9 +1819,9 @@ static void ini(CSimulatorObject* self, void* lookup, int args[]) {
         if (self->read_port) {
             value = self->read_port(self, port);
         } else {
-            PyObject* port_obj = PyLong_FromLong(port);
-            PyObject* rv = PyObject_CallOneArg(self->ini_tracer, port_obj);
-            Py_XDECREF(port_obj);
+            PyObject* m_args = Py_BuildValue("(OI)", self->registers_obj, port);
+            PyObject* rv = PyObject_Call(self->ini_tracer, m_args, NULL);
+            Py_XDECREF(m_args);
             if (rv) {
                 value = (byte)PyLong_AsLong(rv);
                 Py_DECREF(rv);
@@ -2491,7 +2491,7 @@ static void out_a(CSimulatorObject* self, void* lookup, int args[]) {
     byte value = REG(A);
     OUT(port, value);
     if (self->out_tracer) {
-        PyObject* m_args = Py_BuildValue("(IB)", port, value);
+        PyObject* m_args = Py_BuildValue("(OIB)", self->registers_obj, port, value);
         PyObject* rv = PyObject_Call(self->out_tracer, m_args, NULL);
         Py_XDECREF(m_args);
         if (rv == NULL) {
@@ -2522,7 +2522,7 @@ static void out_c(CSimulatorObject* self, void* lookup, int args[]) {
     byte value = r >= 0 ? REG(r) : 0;
     OUT(port, value);
     if (self->out_tracer) {
-        PyObject* m_args = Py_BuildValue("(IB)", port, value);
+        PyObject* m_args = Py_BuildValue("(OIB)", self->registers_obj, port, value);
         PyObject* rv = PyObject_Call(self->out_tracer, m_args, NULL);
         Py_XDECREF(m_args);
         if (rv == NULL) {
@@ -2549,7 +2549,7 @@ static void outi(CSimulatorObject* self, void* lookup, int args[]) {
     byte value = PEEK(hl);
     OUT(port, value);
     if (self->out_tracer) {
-        PyObject* m_args = Py_BuildValue("(IB)", port, value);
+        PyObject* m_args = Py_BuildValue("(OIB)", self->registers_obj, port, value);
         PyObject* rv = PyObject_Call(self->out_tracer, m_args, NULL);
         Py_XDECREF(m_args);
         if (rv == NULL) {
@@ -5127,8 +5127,6 @@ static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwd
 
 static PyObject* CSimulator_set_tracer(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
     int ok = 1;
-    PyObject* functools = NULL;
-    PyObject* partial = NULL;
     static char* kwlist[] = {"", "in_r_c", "ini", NULL};
     PyObject* tracer = NULL;
     int in_r_c = 1;
@@ -5136,17 +5134,6 @@ static PyObject* CSimulator_set_tracer(CSimulatorObject* self, PyObject* args, P
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|ii", kwlist, &tracer, &in_r_c, &ini)) {
         return NULL;
-    }
-
-    functools = PyImport_ImportModule("functools");
-    if (functools == NULL) {
-        ok = 0;
-        goto done;
-    }
-    partial = PyObject_GetAttrString(functools, "partial");
-    if (partial == NULL) {
-        ok = 0;
-        goto done;
     }
 
     Py_INCREF(tracer);
@@ -5158,16 +5145,15 @@ static PyObject* CSimulator_set_tracer(CSimulatorObject* self, PyObject* args, P
 
     if (PyObject_HasAttrString(tracer, "read_port")) {
         PyObject* read_port = PyObject_GetAttrString(tracer, "read_port");
-        PyObject* args = Py_BuildValue("(OO)", read_port, self->registers_obj);
-        self->in_a_n_tracer = PyObject_CallObject(partial, args);
+        self->in_a_n_tracer = read_port;
         if (in_r_c) {
-            self->in_r_c_tracer = PyObject_CallObject(partial, args);
+            self->in_r_c_tracer = read_port;
+            Py_XINCREF(self->in_r_c_tracer);
         }
         if (ini) {
-            self->ini_tracer = PyObject_CallObject(partial, args);
+            self->ini_tracer = read_port;
+            Py_XINCREF(self->ini_tracer);
         }
-        Py_XDECREF(args);
-        Py_XDECREF(read_port);
         if (self->in_a_n_tracer == NULL) {
             ok = 0;
             goto done;
@@ -5183,11 +5169,7 @@ static PyObject* CSimulator_set_tracer(CSimulatorObject* self, PyObject* args, P
     }
 
     if (PyObject_HasAttrString(tracer, "write_port")) {
-        PyObject* write_port = PyObject_GetAttrString(tracer, "write_port");
-        PyObject* args = Py_BuildValue("(OO)", write_port, self->registers_obj);
-        self->out_tracer = PyObject_CallObject(partial, args);
-        Py_XDECREF(args);
-        Py_XDECREF(write_port);
+        self->out_tracer = PyObject_GetAttrString(tracer, "write_port");
         if (self->out_tracer == NULL) {
             ok = 0;
             goto done;
@@ -5195,8 +5177,6 @@ static PyObject* CSimulator_set_tracer(CSimulatorObject* self, PyObject* args, P
     }
 
 done:
-    Py_XDECREF(functools);
-    Py_XDECREF(partial);
     if (ok) {
         Py_RETURN_NONE;
     }

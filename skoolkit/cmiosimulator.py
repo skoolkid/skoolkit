@@ -769,7 +769,7 @@ class CMIOSimulator(Simulator):
             else:
                 delay = 0
             if self.in_a_n_tracer:
-                registers[0] = self.in_a_n_tracer(port)
+                registers[0] = self.in_a_n_tracer(registers, port)
             else:
                 registers[0] = 255
             registers[15] = R1[registers[15]] # R
@@ -791,7 +791,7 @@ class CMIOSimulator(Simulator):
             else:
                 delay = 0
             if self.in_r_c_tracer:
-                value = self.in_r_c_tracer(bc)
+                value = self.in_r_c_tracer(registers, bc)
             else:
                 value = 255
             if reg != 1:
@@ -851,7 +851,7 @@ class CMIOSimulator(Simulator):
             else:
                 delay = 0
             if self.ini_tracer:
-                value = self.ini_tracer(bc)
+                value = self.ini_tracer(registers, bc)
             else:
                 value = 191
             if hl > 0x3FFF:
@@ -1384,7 +1384,7 @@ class CMIOSimulator(Simulator):
                 delay = 0
             if self.out_tracer:
                 a = registers[0]
-                self.out_tracer(memory[pc1] + 256 * a, a)
+                self.out_tracer(registers, memory[pc1] + 256 * a, a)
             registers[15] = R1[registers[15]] # R
             registers[29] = ((memory[pc1] + 1) % 256) + 256 * registers[0] # MEMPTR
             registers[25] += 11 + delay # T-states
@@ -1405,9 +1405,9 @@ class CMIOSimulator(Simulator):
                 delay = 0
             if self.out_tracer:
                 if reg >= 0:
-                    self.out_tracer(bc, registers[reg])
+                    self.out_tracer(registers, bc, registers[reg])
                 else:
-                    self.out_tracer(bc, 0)
+                    self.out_tracer(registers, bc, 0)
             registers[15] = R2[registers[15]] # R
             registers[29] = (bc + 1) % 65536 # MEMPTR
             registers[25] += 12 + delay # T-states
@@ -1437,7 +1437,7 @@ class CMIOSimulator(Simulator):
             b = (b - 1) % 256
             value = memory[hl]
             if self.out_tracer:
-                self.out_tracer(port, value)
+                self.out_tracer(registers, port, value)
             hl = (hl + inc) % 65536
             l = hl % 256
             registers[7] = l

@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from functools import partial
-
 from skoolkit import simutils
 from skoolkit.simutils import (FRAME_DURATIONS, INT_ACTIVE, A, F, B, C, D, E,
                                H, L, IXh, IXl, IYh, IYl, SP, SP2, I, R)
@@ -59,13 +57,13 @@ class Simulator:
         self.ini_tracer = None
         self.out_tracer = None
         if hasattr(tracer, 'read_port'):
-            self.in_a_n_tracer = partial(tracer.read_port, self.registers)
+            self.in_a_n_tracer = tracer.read_port
             if in_r_c:
-                self.in_r_c_tracer = partial(tracer.read_port, self.registers)
+                self.in_r_c_tracer = tracer.read_port
             if ini:
-                self.ini_tracer = partial(tracer.read_port, self.registers)
+                self.ini_tracer = tracer.read_port
         if hasattr(tracer, 'write_port'):
-            self.out_tracer = partial(tracer.write_port, self.registers)
+            self.out_tracer = tracer.write_port
 
     def run(self, start=None, stop=None, interrupts=False):
         opcodes = self.opcodes
@@ -539,7 +537,7 @@ class Simulator:
         def func():
             pcn = registers[24] + 1
             if self.in_a_n_tracer:
-                registers[0] = self.in_a_n_tracer(memory[pcn % 65536] + 256 * registers[0])
+                registers[0] = self.in_a_n_tracer(registers, memory[pcn % 65536] + 256 * registers[0])
             else:
                 registers[0] = 255
             registers[15] = R1[registers[15]] # R
@@ -551,7 +549,7 @@ class Simulator:
         # IN r,(C)
         def func():
             if self.in_r_c_tracer:
-                value = self.in_r_c_tracer(registers[3] + 256 * registers[2])
+                value = self.in_r_c_tracer(registers, registers[3] + 256 * registers[2])
             else:
                 value = 255
             if reg != 1:
@@ -584,7 +582,7 @@ class Simulator:
             c = registers[3]
 
             if self.ini_tracer:
-                value = self.ini_tracer(c + 256 * b)
+                value = self.ini_tracer(registers, c + 256 * b)
             else:
                 value = 191
             if hl > 0x3FFF:
@@ -923,7 +921,7 @@ class Simulator:
             pcn = registers[24] + 1
             if self.out_tracer:
                 a = registers[0]
-                self.out_tracer(memory[pcn % 65536] + 256 * a, a)
+                self.out_tracer(registers, memory[pcn % 65536] + 256 * a, a)
             registers[15] = R1[registers[15]] # R
             registers[25] += 11 # T-states
             registers[24] = (pcn + 1) % 65536 # PC
@@ -934,9 +932,9 @@ class Simulator:
         def func():
             if self.out_tracer:
                 if reg >= 0:
-                    self.out_tracer(registers[3] + 256 * registers[2], registers[reg])
+                    self.out_tracer(registers, registers[3] + 256 * registers[2], registers[reg])
                 else:
-                    self.out_tracer(registers[3] + 256 * registers[2], 0)
+                    self.out_tracer(registers, registers[3] + 256 * registers[2], 0)
             registers[15] = R2[registers[15]] # R
             registers[25] += 12 # T-states
             registers[24] = (registers[24] + 2) % 65536 # PC
@@ -950,7 +948,7 @@ class Simulator:
 
             value = memory[hl]
             if self.out_tracer:
-                self.out_tracer(registers[3] + 256 * b, value)
+                self.out_tracer(registers, registers[3] + 256 * b, value)
             hl = (hl + inc) % 65536
             l = hl % 256
             registers[7] = l
