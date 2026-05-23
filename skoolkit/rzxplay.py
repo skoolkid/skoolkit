@@ -261,6 +261,7 @@ def process_block(block, options, flags, context):
     memory = simulator.memory
     is128k = len(memory) == 0x20000
     registers = simulator.registers
+    accept_interrupt = simulator.accept_interrupt
     total_frames = context.total_frames
     context.fnwidth = len(str(total_frames)) - 1
     show_progress = not options.quiet
@@ -288,17 +289,18 @@ def process_block(block, options, flags, context):
         else: # pragma: C no cover
             while fetch_counter > 0:
                 pc = registers[24]
-                r0 = registers[15]
-                ld_r_a = memory[pc] == 0xED and memory[(pc + 1) % 65536] == 0x4F
+                opcode = memory[pc]
                 if tracefile:
                     trace_exec(tracefile, context, fetch_counter, pc)
                 if exec_map is not None:
                     exec_map.add(pc)
-                opcodes[memory[pc]]()
-                if ld_r_a:
-                    fetch_counter -= 2
-                else:
+                if opcode in (0xDD, 0xFD):
+                    r0 = registers[15]
+                    opcodes[opcode]()
                     fetch_counter -= 2 - ((registers[15] ^ r0) % 2)
+                else:
+                    opcodes[opcode]()
+                    fetch_counter -= 2 if opcode in (0xCB, 0xED) else 1
         if draw:
             if is128k:
                 scr = memory.memory[1][:6912]
@@ -311,20 +313,20 @@ def process_block(block, options, flags, context):
             if memory[pc] == 0x76:
                 # Advance PC if the CPU was halted
                 registers[24] = (registers[24] + 1) % 65536
-                simulator.accept_interrupt(registers, memory, 0)
+                accept_interrupt(registers, memory, 0)
             elif flags_ldair and memory[pc] == 0xED and memory[(pc + 1) % 65536] in (0x57, 0x5F):
                 # If bit 0 of the playback flags is set and the last
                 # instruction was 'LD A,I' or 'LD A,R', reset bit 2 of F
                 registers[1] &= 0b11111011
-                simulator.accept_interrupt(registers, memory, 0)
+                accept_interrupt(registers, memory, 0)
             elif flags_ei:
                 # If bit 1 of the playback flags is set, accept an interrupt at
                 # a frame boundary unless the last instruction was EI and the
                 # next frame is short
                 if memory[pc] != 0xFB or fetch_counter > 2:
-                    simulator.accept_interrupt(registers, memory, 0)
+                    accept_interrupt(registers, memory, 0)
             else:
-                simulator.accept_interrupt(registers, memory, 0)
+                accept_interrupt(registers, memory, 0)
         if show_progress:
             p = (context.frame_count / total_frames) * 100
             write(f'[{p:5.1f}%]\x08\x08\x08\x08\x08\x08\x08\x08')

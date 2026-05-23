@@ -17,6 +17,9 @@ class MockSimulator:
     def set_tracer(self, tracer, *args, **kwargs):
         self.tracer = tracer
 
+    def accept_interrupt(self, registers, memory, pc):
+        pass
+
     def nop(self):
         pass
 
