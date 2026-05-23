@@ -83,11 +83,13 @@ TEST = """
         )
 """
 
-FOOTER = """
+FOOTER = r"""
 if __name__ == '__main__':
-    import nose2, subprocess
-    if {c}:
-        subprocess.run(('make', '-C', SKOOLKIT_HOME, 'cmods'))
+    import nose2
+    from skoolkit import CSimulator
+    if {c} and CSimulator is None:
+        print('CSimulator not found. Run the following command and try again:\n\n  make -C $SKOOLKIT_HOME cmods')
+        sys.exit(1)
     sys.argv.extend(('--plugin=nose2.plugins.mp', '-N', '{processes}', '-B'))
     nose2.main()
 """
