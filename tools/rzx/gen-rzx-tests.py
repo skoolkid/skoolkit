@@ -48,7 +48,7 @@ from skoolkit.snapshot import Snapshot
 
 class RZXTest(unittest.TestCase):
     def _test_rzx(self, options, rzx, fname, reg):
-        outfile = f'tmp/{fname}'
+        outfile = f'/tmp/{fname}'
         outfile_dir = os.path.dirname(outfile)
         try:
             if not os.path.isdir(outfile_dir):
