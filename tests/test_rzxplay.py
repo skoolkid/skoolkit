@@ -1704,3 +1704,29 @@ class RzxplayTest(SkoolKitTestCase):
         TestScreen.instance.clock.tick.assert_called_with(50)
         mock_pygame.display.set_caption.assert_called_with(rzxfile)
         self.assertEqual(mock_pygame.display.get_surface().get_pixel(7, 0), BLUE)
+
+    def test_0xDD_0xFD_prefixes(self):
+        ram = [0] * 0xC000
+        pc = 0xD000
+        code = (
+            0xDD, # DEFB $DD
+            0xDD, # DEFB $DD
+            0xFD, # DEFB $FD
+            0xFD, # DEFB $FD
+            0x00, # NOP
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(5, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            F:0 C:00005 I:00000 $D000 DEFB $DD
+            F:0 C:00004 I:00000 $D001 DEFB $DD
+            F:0 C:00003 I:00000 $D002 DEFB $FD
+            F:0 C:00002 I:00000 $D003 DEFB $FD
+            F:0 C:00001 I:00000 $D004 NOP
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
