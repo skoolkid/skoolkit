@@ -1,4 +1,4 @@
-# Copyright 2016-2018, 2020, 2023 Richard Dymond (rjdymond@gmail.com)
+# © 2016-2018, 2020, 2023, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -17,7 +17,7 @@
 import os
 import argparse
 
-from skoolkit import integer, read_bin_file, VERSION
+from skoolkit import SkoolKitError, integer, read_bin_file, VERSION
 from skoolkit.snapshot import Memory, poke, print_reg_help, print_state_help, write_snapshot
 
 def bank(arg):
@@ -30,7 +30,9 @@ def bank(arg):
         raise argparse.ArgumentTypeError(f"invalid integer '{bank}' in '{arg}'")
 
 def run(infile, outfile, options):
-    ram = list(read_bin_file(infile, 0x20000))
+    ram = list(read_bin_file(infile, 0x20001))
+    if len(ram) > 0x20000:
+        raise SkoolKitError(f'{infile} is larger than 128K')
     if len(ram) == 0x20000:
         org = 0
         memory = Memory(ram, page=options.page or 0)

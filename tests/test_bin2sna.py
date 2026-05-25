@@ -95,6 +95,11 @@ class Bin2SnaTest(SkoolKitTestCase):
             self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: bin2sna.py'))
 
+    def test_input_file_over_128k(self):
+        binfile = self.write_bin_file([0] * 0x20001, suffix='.bin')
+        with self.assertRaisesRegex(SkoolKitError, rf'^{binfile} is larger than 128K$'):
+            self.run_bin2sna(binfile)
+
     def test_no_options(self):
         data = [1, 2, 3, 4, 5]
         args = self.write_bin_file(data, suffix='.bin')
