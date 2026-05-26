@@ -6605,6 +6605,7 @@ zxdb/sinclair/entries/0000082/AddamsFamilyThe.rzx/AddamsFamilyThe.rzx
 zxdb/sinclair/entries/0000254/Arcanoid.rzx/Arcanoid.rzx
 zxdb/sinclair/entries/0000298/Astroball.rzx/Astroball.rzx
 zxdb/sinclair/entries/0000330/AufWiedersehenPet.rzx/AufWiedersehenPet.rzx
+zxdb/sinclair/entries/0000500/Beetle.rzx/Beetle.rzx
 zxdb/sinclair/entries/0000502/BeetsnEggs.rzx/BeetsnEggs.rzx
 zxdb/sinclair/entries/0000515/Biff.rzx/Biff.rzx
 zxdb/sinclair/entries/0000572/BlobTheCop.rzx/BlobTheCop.rzx
@@ -6627,6 +6628,9 @@ zxdb/sinclair/entries/0001656/ET.rzx/ET.rzx
 zxdb/sinclair/entries/0001841/Forensic.rzx/Forensic.rzx
 zxdb/sinclair/entries/0002031/GhostbustersII.rzx/GhostbustersII.rzx
 zxdb/sinclair/entries/0002037/GhostsRevenge.rzx/GhostsRevenge.rzx
+zxdb/sinclair/entries/0002100/Goolf.rzx/Goolf.rzx
+zxdb/sinclair/entries/0002101/GoolfReturns.rzx/GoolfReturns.rzx
+zxdb/sinclair/entries/0002102/GoolfsExit.rzx/GoolfsExit.rzx
 zxdb/sinclair/entries/0002154/MyNameIsUncleGrouchoYouWinAFatCigar.rzx/MyNameIsUncleGrouchoYouWinAFatCigar.rzx
 zxdb/sinclair/entries/0002232/HardCheese.rzx/HardCheese.rzx
 zxdb/sinclair/entries/0002302/HeroQuest.rzx/HeroQuest.rzx
@@ -6637,6 +6641,7 @@ zxdb/sinclair/entries/0002379/HumptyDumpty.rzx/HumptyDumpty.rzx
 zxdb/sinclair/entries/0002450/IkariWarriors.rzx/IkariWarriors.rzx
 zxdb/sinclair/entries/0002521/IntoAfrica.rzx/IntoAfrica.rzx
 zxdb/sinclair/entries/0002566/JackTheNipperII-InCoconutCapers.rzx/JackTheNipperII-InCoconutCapers.rzx
+zxdb/sinclair/entries/0002659/JungleAdventure.rzx/JungleAdventure.rzx
 zxdb/sinclair/entries/0002667/Kaboom.rzx/Kaboom.rzx
 zxdb/sinclair/entries/0002697/KillerRing.rzx/KillerRing.rzx
 zxdb/sinclair/entries/0002827/LastNinja2.rzx/LastNinja2.rzx
@@ -6648,6 +6653,7 @@ zxdb/sinclair/entries/0003180/Micromaze.rzx/Micromaze.rzx
 zxdb/sinclair/entries/0003216/Minefield_3.rzx/Minefield_3.rzx
 zxdb/sinclair/entries/0003251/MonsterMunch.rzx/MonsterMunch.rzx
 zxdb/sinclair/entries/0003252/MonsterMuncher.rzx/MonsterMuncher.rzx
+zxdb/sinclair/entries/0003360/NARC.rzx/NARC.rzx
 zxdb/sinclair/entries/0003489/OddJobEddie.rzx/OddJobEddie.rzx
 zxdb/sinclair/entries/0003527/Oops.rzx/Oops.rzx
 zxdb/sinclair/entries/0003592/Pandemonia.rzx/Pandemonia.rzx
@@ -6671,6 +6677,7 @@ zxdb/sinclair/entries/0004623/Sokoban.rzx/Sokoban.rzx
 zxdb/sinclair/entries/0004638/Solitaire.rzx/Solitaire.rzx
 zxdb/sinclair/entries/0004801/StDragon.rzx/StDragon.rzx
 zxdb/sinclair/entries/0004839/StarTrip.rzx/StarTrip.rzx
+zxdb/sinclair/entries/0005092/SWIV.rzx/SWIV.rzx
 zxdb/sinclair/entries/0005149/Tarzan_2.rzx/Tarzan_2.rzx
 zxdb/sinclair/entries/0005168/TeenageMutantHeroTurtles.rzx/TeenageMutantHeroTurtles.rzx
 zxdb/sinclair/entries/0005213/Tetris2.rzx/tetris2/tetris2_00-09.rzx
@@ -6687,6 +6694,7 @@ zxdb/sinclair/entries/0005270/Tiler.rzx/Tiler.rzx
 zxdb/sinclair/entries/0005294/Titan.rzx/titan_1_to_42.rzx
 zxdb/sinclair/entries/0005294/Titan.rzx/titan_43_to_75_with_43fix_poke28966,28.rzx
 zxdb/sinclair/entries/0005294/Titan.rzx/titan_77_to_80.rzx
+zxdb/sinclair/entries/0005351/TouristTrap.rzx/TouristTrap.rzx
 zxdb/sinclair/entries/0005385/Trantor-TheLastStormtrooper.rzx/Trantor-TheLastStormtrooper.rzx
 zxdb/sinclair/entries/0005420/TrivialPursuit-ANewBeginning.rzx/TrivialPursuit-ANewBeginning.rzx
 zxdb/sinclair/entries/0005423/TrivialPursuit.rzx/TrivialPursuit.rzx
@@ -6750,6 +6758,7 @@ zxdb/sinclair/entries/0007119/Tinderbox.rzx/Tinderbox.rzx
 zxdb/sinclair/entries/0007124/TotalWar.rzx/TotalWar.rzx
 zxdb/sinclair/entries/0007125/TotalWar2.rzx/TotalWar2.rzx
 zxdb/sinclair/entries/0007131/Trasochin.rzx/Trasochin.rzx
+zxdb/sinclair/entries/0007135/TreasureOfTheSantaMariaThe.rzx/TreasureOfTheSantaMariaThe.rzx
 zxdb/sinclair/entries/0007139/TroubleAtBridgeton.rzx/TroubleAtBridgeton.rzx
 zxdb/sinclair/entries/0007200/WoodsOfWinterThe.rzx/WoodsOfWinterThe.rzx
 zxdb/sinclair/entries/0007216/ZiggaratOfDread.rzx/ZiggaratOfDread.rzx|--force
@@ -6797,6 +6806,7 @@ zxdb/sinclair/entries/0009690/DrBongosSafariPark.rzx/DrBongosSafariPark.rzx
 zxdb/sinclair/entries/0009694/DungeonOfDeath.rzx/part1 playthru.rzx
 zxdb/sinclair/entries/0009694/DungeonOfDeath.rzx/part2 playthru.rzx
 zxdb/sinclair/entries/0009694/DungeonOfDeath.rzx/part3 playthru.rzx
+zxdb/sinclair/entries/0009780/GissaKiss.rzx/GissaKiss.rzx
 zxdb/sinclair/entries/0009783/GodzillaAndTheMartians.rzx/GodzillaAndTheMartians.rzx
 zxdb/sinclair/entries/0009850/InspectorInch.rzx/InspectorInch.rzx
 zxdb/sinclair/entries/0009949/MegaTwins.rzx/MegaTwins.rzx|--force
@@ -6810,17 +6820,22 @@ zxdb/sinclair/entries/0010312/TimePort1.rzx/TimePort1.rzx
 zxdb/sinclair/entries/0010442/Bananaby.rzx/Bananaby.rzx
 zxdb/sinclair/entries/0010465/CastleOfDoomThe.rzx/CastleOfDoomThe.rzx
 zxdb/sinclair/entries/0010519/GoblinCrusher.rzx/GoblinCrusher.rzx
+zxdb/sinclair/entries/0010567/KamikazeCollector.rzx/KamikazeCollector.rzx
 zxdb/sinclair/entries/0010595/Minefield_2.rzx/Minefield_2.rzx
 zxdb/sinclair/entries/0010637/Reversi.rzx/Reversi.rzx
 zxdb/sinclair/entries/0010712/AcornsQuest.rzx/AcornsQuest.rzx
 zxdb/sinclair/entries/0010719/AlienAdventure.rzx/AlienAdventure.rzx
+zxdb/sinclair/entries/0010791/FabledTreasureOfKoosarThe.rzx/FabledTreasureOfKoosarThe.rzx
 zxdb/sinclair/entries/0010809/GauntletOfMeldir.rzx/GauntletOfMeldir.rzx
+zxdb/sinclair/entries/0010853/LetterBomb.rzx/LetterBomb.rzx
 zxdb/sinclair/entries/0010860/MagicSwordThe.rzx/MagicSwordThe.rzx
 zxdb/sinclair/entries/0010865/MerhowniesLight.rzx/MerhowniesLight.rzx
 zxdb/sinclair/entries/0010875/MurdersInTheRueMorgue.rzx/MurdersInTheRueMorgue.rzx
+zxdb/sinclair/entries/0010881/OnceUponALilyPad.rzx/OnceUponALilyPad.rzx
 zxdb/sinclair/entries/0010910/RingOfIngerThe.rzx/RingOfIngerThe.rzx
 zxdb/sinclair/entries/0010935/SuicideIsland.rzx/suicide_island_part1.rzx
 zxdb/sinclair/entries/0010935/SuicideIsland.rzx/suicide_island_part2.rzx
+zxdb/sinclair/entries/0010945/TouristTrouble.rzx/TouristTrouble.rzx
 zxdb/sinclair/entries/0010989/Getset.rzx/getset_sideA.rzx
 zxdb/sinclair/entries/0010989/Getset.rzx/getset_sideB.rzx
 zxdb/sinclair/entries/0010998/KidsOnKeys.rzx/KidsOnKeys.rzx
@@ -6871,14 +6886,18 @@ zxdb/sinclair/entries/0013947/Aftermath.rzx/Aftermath.rzx
 zxdb/sinclair/entries/0014002/Jeremy.rzx/Jeremy.rzx
 zxdb/sinclair/entries/0014006/OddOneOut.rzx/OddOneOut.rzx
 zxdb/sinclair/entries/0014294/CVGRockfall.rzx/CVGRockfall.rzx
+zxdb/sinclair/entries/0014414/CastilloMaldito.rzx/CastilloMaldito.rzx
 zxdb/sinclair/entries/0014477/OSQuiz.rzx/OSQuiz.rzx
 zxdb/sinclair/entries/0014512/SpaceEscape.rzx/SpaceEscape.rzx
 zxdb/sinclair/entries/0014516/TruckRace.rzx/TruckRace.rzx
+zxdb/sinclair/entries/0014521/Superspell.rzx/Superspell.rzx
 zxdb/sinclair/entries/0014536/CrystalQuest.rzx/CrystalQuest.rzx
+zxdb/sinclair/entries/0014545/4Gewinnt.rzx/4Gewinnt.rzx
 zxdb/sinclair/entries/0014615/Crossbow.rzx/Crossbow.rzx
 zxdb/sinclair/entries/0014644/TopsAndTails.rzx/TopsAndTails.rzx
 zxdb/sinclair/entries/0014765/GravelyManor.rzx/GravelyManor.rzx
 zxdb/sinclair/entries/0014766/StPetersburgIkonThe.rzx/StPetersburgIkonThe.rzx
+zxdb/sinclair/entries/0014868/RunBillRun.rzx/RunBillRun.rzx
 zxdb/sinclair/entries/0014936/HomeIslandDizzy.rzx/HomeIslandDizzy.rzx
 zxdb/sinclair/entries/0015073/SillyconWarThe.rzx/SillyconWarThe.rzx
 zxdb/sinclair/entries/0015125/EvilRealm.rzx/EvilRealm.rzx
@@ -6910,6 +6929,8 @@ zxdb/sinclair/entries/0015973/DaylightRobbery.rzx/DaylightRobbery.rzx
 zxdb/sinclair/entries/0015974/Battleships.rzx/Battleships.rzx
 zxdb/sinclair/entries/0015976/DockingTheSpaceship.rzx/DockingTheSpaceship.rzx
 zxdb/sinclair/entries/0015986/PokerDice_2.rzx/PokerDice_2.rzx
+zxdb/sinclair/entries/0016095/Hicksted.rzx/Hicksted.rzx
+zxdb/sinclair/entries/0016096/Mathsted.rzx/Mathsted.rzx
 zxdb/sinclair/entries/0016275/CuatroEnRayaLas.rzx/CuatroEnRayaLas.rzx
 zxdb/sinclair/entries/0016426/Saturno2.rzx/Saturno2.rzx
 zxdb/sinclair/entries/0016666/Firewolf.rzx/Firewolf.rzx
@@ -6923,12 +6944,14 @@ zxdb/sinclair/entries/0016846/Dizzy-ReturnToTheMagicland.rzx/dizzymagicland_ru.r
 zxdb/sinclair/entries/0016853/CazaDelHomoSapiensLa.rzx/CazaDelHomoSapiensLa.rzx
 zxdb/sinclair/entries/0016924/ZX-Reactor.rzx/ZX-Reactor.rzx
 zxdb/sinclair/entries/0016947/SunglassSamGoesAlpineSkiing.rzx/SunglassSamGoesAlpineSkiing.rzx
+zxdb/sinclair/entries/0016961/Ski-Run.rzx/Ski-Run.rzx
 zxdb/sinclair/entries/0016967/BullsAndCows.rzx/BullsAndCows.rzx
 zxdb/sinclair/entries/0017062/Highwire.rzx/Highwire.rzx
 zxdb/sinclair/entries/0017139/Solitaire_7.rzx/Solitaire_7.rzx
 zxdb/sinclair/entries/0017218/Arcanoid_2.rzx/Arcanoid_2.rzx
 zxdb/sinclair/entries/0017267/Bugout.rzx/Bugout.rzx
 zxdb/sinclair/entries/0017318/TreasureIsland.rzx/TreasureIsland.rzx
+zxdb/sinclair/entries/0017417/DraculasDiamanten.rzx/DraculasDiamanten.rzx
 zxdb/sinclair/entries/0017493/DraculasCastle.rzx/DraculasCastle.rzx
 zxdb/sinclair/entries/0017562/BlizzardsRift.rzx/Blizzard's Rift - 1.Pollastre.rzx
 zxdb/sinclair/entries/0017562/BlizzardsRift.rzx/Blizzard's Rift - 2.Casino.rzx
@@ -6965,6 +6988,7 @@ zxdb/sinclair/entries/0018724/Kongo.rzx/Kongo.rzx
 zxdb/sinclair/entries/0018725/Anagrams.rzx/Anagrams.rzx
 zxdb/sinclair/entries/0018726/Pelmanism.rzx/Pelmanism.rzx
 zxdb/sinclair/entries/0018727/Pairs.rzx/Pairs.rzx
+zxdb/sinclair/entries/0018749/StiltonPatience.rzx/StiltonPatience.rzx
 zxdb/sinclair/entries/0018760/Legionario.rzx/Legionario.rzx
 zxdb/sinclair/entries/0019090/EscapeFromTheParadise.rzx/EscapefromtheParadise_game.rzx
 zxdb/sinclair/entries/0019090/EscapeFromTheParadise.rzx/EscapefromtheParadise_intro.rzx
@@ -6989,7 +7013,9 @@ zxdb/sinclair/entries/0021070/OrdinaryStory.rzx/OrdinaryStory.rzx|--force
 zxdb/sinclair/entries/0021613/BennyBunny-GoldRush.rzx/BennyBunny-GoldRush.rzx
 zxdb/sinclair/entries/0021614/BennyBunny-MonsterMansion.rzx/BennyBunny-MonsterMansion.rzx
 zxdb/sinclair/entries/0021627/ComputerPatience.rzx/ComputerPatience.rzx
+zxdb/sinclair/entries/0021628/JapanesePatience.rzx/JapanesePatience.rzx
 zxdb/sinclair/entries/0021635/Bobik.rzx/Bobik.rzx|--force
+zxdb/sinclair/entries/0022046/CavesOfMystery.rzx/CavesOfMystery.rzx|--force
 zxdb/sinclair/entries/0022138/Zig-Zag.rzx/Zig-Zag.rzx
 zxdb/sinclair/entries/0022206/Solitaire_4.rzx/Solitaire_4.rzx
 zxdb/sinclair/entries/0022453/MonsterRace.rzx/MonsterRace.rzx
@@ -7068,10 +7094,17 @@ zxdb/sinclair/entries/0025458/MazeChase.rzx/MazeChase.rzx
 zxdb/sinclair/entries/0025473/PanicRestaurant.rzx/PanicRestaurant.rzx|--force
 zxdb/sinclair/entries/0025483/Navrat.rzx/Navrat.rzx
 zxdb/sinclair/entries/0025488/CandyCrank.rzx/CandyCrank.rzx|--force
+zxdb/sinclair/entries/0025695/Bats.rzx/Bats.rzx
 zxdb/sinclair/entries/0025709/Break-Out.rzx/Break-Out.rzx
 zxdb/sinclair/entries/0025711/Buzzz.rzx/Buzzz.rzx
 zxdb/sinclair/entries/0025738/CrazyBalloons.rzx/CrazyBalloons.rzx
+zxdb/sinclair/entries/0025760/Drainpipes.rzx/Drainpipes.rzx
+zxdb/sinclair/entries/0025798/HellsAngels.rzx/HellsAngels.rzx
 zxdb/sinclair/entries/0025847/Minefield_4.rzx/Minefield_4.rzx
+zxdb/sinclair/entries/0025871/Patience3-11-UpPatience.rzx/Patience3-11-UpPatience.rzx
+zxdb/sinclair/entries/0025872/Patience4-TheWall.rzx/Patience4-TheWall.rzx
+zxdb/sinclair/entries/0025873/Patience5-Pairs.rzx/Patience5-Pairs.rzx
+zxdb/sinclair/entries/0026025/KnifeStonePaper.rzx/KnifeStonePaper.rzx
 zxdb/sinclair/entries/0026132/Sabotage.rzx/Sabotage.rzx
 zxdb/sinclair/entries/0026192/ChocIceEater2011.rzx/ChocIceEater2011.rzx
 zxdb/sinclair/entries/0026196/IBall.rzx/IBall.rzx
@@ -7112,6 +7145,7 @@ zxdb/sinclair/entries/0027442/TrainKombat.rzx/TrainKombat.rzx|--force
 zxdb/sinclair/entries/0027517/Pool.rzx/Pool.rzx
 zxdb/sinclair/entries/0027544/PlatformLeaper.rzx/PlatformLeaper.rzx
 zxdb/sinclair/entries/0027595/HeartStealer-OneKeyVersion.rzx/HeartStealer-OneKeyVersion.rzx
+zxdb/sinclair/entries/0027810/Klondike.rzx/Klondike.rzx|--force
 zxdb/sinclair/entries/0027841/PanicoAlloStadio.rzx/PanicoAlloStadio.rzx
 zxdb/sinclair/entries/0027853/CasaLa.rzx/CasaLa.rzx
 zxdb/sinclair/entries/0027854/TicTac.rzx/TicTac.rzx
@@ -7146,15 +7180,18 @@ zxdb/sinclair/entries/0030347/PietroBros.rzx/PietroBros.rzx
 zxdb/sinclair/entries/0030353/Breakhouse.rzx/Breakhouse.rzx
 zxdb/sinclair/entries/0030354/Christmaze.rzx/Christmaze.rzx
 zxdb/sinclair/entries/0030358/FrankieTheRescuer.rzx/FrankieTheRescuer.rzx
+zxdb/sinclair/entries/0030389/DoubleDragonRedux.rzx/DoubleDragonRedux.rzx|--force
 zxdb/sinclair/entries/0030414/MatthewCranstonBattles.rzx/MatthewCranstonBattles.rzx
 zxdb/sinclair/entries/0030450/2DMinimaze.rzx/2DMinimaze.rzx
 zxdb/sinclair/entries/0030451/Maze3D.rzx/Maze3D.rzx
 zxdb/sinclair/entries/0030456/BurpMan.rzx/BurpMan.rzx
 zxdb/sinclair/entries/0030467/Hangman.rzx/Hangman.rzx
+zxdb/sinclair/entries/0030490/Sokoban.rzx/Sokoban.rzx
 zxdb/sinclair/entries/0030496/SuperBomber.rzx/SuperBomber.rzx
 zxdb/sinclair/entries/0030506/WashingDay.rzx/WashingDay.rzx
 zxdb/sinclair/entries/0030508/AdvancedAdvocacySimulator.rzx/AdvancedAdvocacySimulator.rzx
 zxdb/sinclair/entries/0030524/Escape.rzx/Escape.rzx
+zxdb/sinclair/entries/0030553/TourOfTheKnight.rzx/TourOfTheKnight.rzx
 zxdb/sinclair/entries/0030554/Wheelchair.rzx/Wheelchair.rzx
 zxdb/sinclair/entries/0030635/MowBusiness.rzx/MowBusiness.rzx
 zxdb/sinclair/entries/0030642/ReallySmartGame.rzx/ReallySmartGame.rzx
@@ -7167,6 +7204,8 @@ zxdb/sinclair/entries/0030762/AboriginalMinesweeper.rzx/AboriginalMinesweeper.rz
 zxdb/sinclair/entries/0030773/Amnesia.rzx/Amnesia.rzx
 zxdb/sinclair/entries/0030777/Ascent.rzx/Ascent.rzx
 zxdb/sinclair/entries/0030801/LyingMinesweeper.rzx/LyingMinesweeper.rzx
+zxdb/sinclair/entries/0030807/NightmarePark_2.rzx/NightmarePark_2.rzx
+zxdb/sinclair/entries/0030813/SavingJessicaLynch.rzx/SavingJessicaLynch.rzx
 zxdb/sinclair/entries/0030861/LiveJournal-TheGame.rzx/LiveJournal-TheGame.rzx
 zxdb/sinclair/entries/0030890/1DNoughtsAndCrosses.rzx/1DNoughtsAndCrosses.rzx
 zxdb/sinclair/entries/0030928/UnusualLumberjackAdventure.rzx/UnusualLumberjackAdventure.rzx
@@ -7177,7 +7216,10 @@ zxdb/sinclair/entries/0030940/DrWhoTardisode.rzx/DrWhoTardisode.rzx
 zxdb/sinclair/entries/0030946/MaggotInvasion.rzx/MaggotInvasion.rzx
 zxdb/sinclair/entries/0030951/Scroll.rzx/Scroll.rzx
 zxdb/sinclair/entries/0030961/Z2A.rzx/Z2A.rzx
+zxdb/sinclair/entries/0030962/AdvancedJetSetWillyGuardianSimulator.rzx/AdvancedJetSetWillyGuardianSimulator.rzx
 zxdb/sinclair/entries/0030965/BedAndBreakfast.rzx/BedAndBreakfast.rzx
+zxdb/sinclair/entries/0030989/ShaveRicksBeard.rzx/ShaveRicksBeard.rzx
+zxdb/sinclair/entries/0030991/SlipperyFeet2000.rzx/SlipperyFeet2000.rzx
 zxdb/sinclair/entries/0031013/AdvancedLawnmowerSimulator3D.rzx/AdvancedLawnmowerSimulator3D.rzx
 zxdb/sinclair/entries/0031035/DidgesDungeon.rzx/DidgesDungeon.rzx
 zxdb/sinclair/entries/0031057/Kabaddi.rzx/Kabaddi.rzx
@@ -7188,12 +7230,15 @@ zxdb/sinclair/entries/0031114/MONObirinth.rzx/MONObirinth.rzx
 zxdb/sinclair/entries/0031118/PGD.rzx/PGD.rzx
 zxdb/sinclair/entries/0031127/SpookiCastle.rzx/SpookiCastle.rzx
 zxdb/sinclair/entries/0031157/HomelessHorace.rzx/HomelessHorace.rzx
+zxdb/sinclair/entries/0031174/SpectrumBlindFlightSimulator2-FlyingThePlane.rzx/SpectrumBlindFlightSimulator2-FlyingThePlane.rzx
+zxdb/sinclair/entries/0031178/WhackANunIII.rzx/WhackANunIII.rzx|--force
 zxdb/sinclair/entries/0031185/DoNotBeSeen.rzx/DoNotBeSeen.rzx
 zxdb/sinclair/entries/0031231/NinetyNine.rzx/NinetyNine.rzx
 zxdb/sinclair/entries/0031244/127Hours.rzx/127Hours.rzx
 zxdb/sinclair/entries/0031250/AdvancedPianoSimulator(OdeToJoyLeeSpoons).rzx/AdvancedPianoSimulator(OdeToJoyLeeSpoons).rzx
 zxdb/sinclair/entries/0031297/LostTreasureOfSomethingThe.rzx/LostTreasureOfSomethingThe.rzx
 zxdb/sinclair/entries/0031300/MentalDisorderPac-Man.rzx/MentalDisorderPac-Man.rzx
+zxdb/sinclair/entries/0031373/RemoveTheLogo.rzx/RemoveTheLogo.rzx
 zxdb/sinclair/entries/0031376/ShadowOfTheBeef.rzx/ShadowOfTheBeef.rzx
 zxdb/sinclair/entries/0031382/TheBlindSpritemaker.rzx/blindsprite.rzx
 zxdb/sinclair/entries/0031391/YesDear.rzx/YesDear.rzx
@@ -7219,6 +7264,9 @@ zxdb/sinclair/entries/0032245/Impossabubble.rzx/Impossabubble.rzx
 zxdb/sinclair/entries/0032269/Castelan.rzx/Castelan.rzx
 zxdb/sinclair/entries/0032276/ExtraCocoteca.rzx/ExtraCocoteca.rzx
 zxdb/sinclair/entries/0032281/ExtraCocoteca2.rzx/ExtraCocoteca2.rzx
+zxdb/sinclair/entries/0033355/SinclairBlindFlightSimulator.rzx/SinclairBlindFlightSimulator.rzx
+zxdb/sinclair/entries/0033356/WhackANun.rzx/WhackANun.rzx|--force
+zxdb/sinclair/entries/0033357/WhackANunII.rzx/WhackANunII.rzx|--force
 zxdb/sinclair/entries/0033389/Tarzan.rzx/Tarzan.rzx
 zxdb/sinclair/entries/0033464/Lightfire.rzx/Lightfire.rzx
 zxdb/sinclair/entries/0034303/CapitalCitiesTester.rzx/CapitalCitiesTester.rzx
@@ -7235,6 +7283,7 @@ zxdb/sinclair/entries/0034662/Join35.rzx/Join35.rzx
 zxdb/sinclair/entries/0034663/Join4.rzx/Join4.rzx
 zxdb/sinclair/entries/0034671/Sorcery.rzx/Sorcery.rzx
 zxdb/sinclair/entries/0034681/SophiaII.rzx/SophiaII.rzx
+zxdb/sinclair/entries/0034698/DogWalk.rzx/DogWalk.rzx
 zxdb/sinclair/entries/0034707/RussianRoulette.rzx/RussianRoulette.rzx
 zxdb/sinclair/entries/0034808/LittleFishBigTale.rzx/LittleFishBigTale.rzx
 zxdb/sinclair/entries/0034815/BeingLeftIsNotRight.rzx/BeingLeftIsNotRight.rzx
@@ -7504,6 +7553,7 @@ zxdb/sinclair/entries/0037765/BunnyVsFox.rzx/BunnyVsFox.rzx
 zxdb/sinclair/entries/0037775/FathersDay.rzx/FathersDay.rzx
 zxdb/sinclair/entries/0037777/MahjongSolitaire.rzx/MahjongSolitaire.rzx
 zxdb/sinclair/entries/0037843/SeaHunt.rzx/SeaHunt.rzx
+zxdb/sinclair/entries/0037845/SplatSuperman.rzx/SplatSuperman.rzx
 zxdb/sinclair/entries/0037904/Tardigrade_2.rzx/Tardigrade_2.rzx
 zxdb/sinclair/entries/0037904/Tardigrade.rzx/Tardigrade.rzx
 zxdb/sinclair/entries/0038038/Monster-Wall.rzx/Monster-Wall.rzx
@@ -7554,6 +7604,7 @@ zxdb/sinclair/entries/0039420/Escapade.rzx/Escapade.rzx
 zxdb/sinclair/entries/0039435/SBOT.rzx/SBOT1.rzx
 zxdb/sinclair/entries/0039435/SBOT.rzx/SBOT2.rzx
 zxdb/sinclair/entries/0039446/DJPuffRemastered.rzx/DJPuffRemastered.rzx
+zxdb/sinclair/entries/0039448/ALS2023.rzx/ALS2023.rzx
 zxdb/sinclair/entries/0039474/JankyJoeInRetroHell.rzx/JankyJoeInRetroHell.rzx
 zxdb/sinclair/entries/0039484/LASKAPijeActivie.rzx/LASKAPijeActivie.rzx
 zxdb/sinclair/entries/0039489/Plantonio.rzx/Plantonio.rzx
@@ -7573,6 +7624,7 @@ zxdb/sinclair/entries/0039540/TreasureIslandDizzy-ClassicEdition2023.rzx/Treasur
 zxdb/sinclair/entries/0039590/Hunchy.rzx/Hunchy.rzx
 zxdb/sinclair/entries/0039597/InjunJim.rzx/InjunJim.rzx
 zxdb/sinclair/entries/0039667/FourInARow.rzx/FourInARow.rzx
+zxdb/sinclair/entries/0040533/FireChief.rzx/FireChief.rzx
 zxdb/sinclair/entries/0040551/MouseMaze.rzx/MouseMaze.rzx
 zxdb/sinclair/entries/0040588/DropABlock.rzx/DropABlock.rzx
 zxdb/sinclair/entries/0040996/GhostMonster.rzx/GhostMonster.rzx
@@ -7643,6 +7695,7 @@ zxdb/sinclair/entries/0042838/FantasyWorldDizzy-ExtendedEdition2023.rzx/FantasyW
 zxdb/sinclair/entries/0042843/BillieNight.rzx/BillieNight.rzx
 zxdb/sinclair/entries/0042887/ARLO.rzx/ARLO.rzx
 zxdb/sinclair/entries/0042945/PepaVDole.rzx/PepaVDole.rzx
+zxdb/sinclair/entries/0042955/DianaCaveAdventure.rzx/DianaCaveAdventure.rzx
 zxdb/sinclair/entries/0042957/Bolalela4.rzx/Bolalela4.rzx
 zxdb/sinclair/entries/0042983/MazeCastle.rzx/MazeCastle.rzx
 zxdb/sinclair/entries/0043065/ArtificialIntelligenceCliveSinclair.rzx/ArtificialIntelligenceCliveSinclair.rzx
@@ -7659,6 +7712,7 @@ zxdb/sinclair/entries/0043295/Zlalox.rzx/Zlalox.rzx
 zxdb/sinclair/entries/0043353/Pulzar.rzx/Pulzar.rzx
 zxdb/sinclair/entries/0043368/MochiloZX.rzx/MochiloZX.rzx
 zxdb/sinclair/entries/0043388/BasiliscoDeRoccoEl.rzx/BasiliscoDeRoccoEl.rzx
+zxdb/sinclair/entries/0043395/BarbraRun.rzx/BarbraRun.rzx
 zxdb/sinclair/entries/0043396/BunnyVsBears.rzx/BunnyVsBears.rzx
 zxdb/sinclair/entries/0043398/DungeonEscape[2].rzx/DungeonEscape[2].rzx
 zxdb/sinclair/entries/0043399/EggRun.rzx/EggRun.rzx
@@ -7711,6 +7765,7 @@ zxdb/sinclair/entries/0043887/Retroversum.rzx/retroversum2.rzx
 zxdb/sinclair/entries/0043887/Retroversum.rzx/retroversum.rzx
 zxdb/sinclair/entries/0043896/RetroRobbinsInMicroblitz.rzx/RetroRobbinsInMicroblitz.rzx
 zxdb/sinclair/entries/0043897/Glulander.rzx/Glulander.rzx
+zxdb/sinclair/entries/0043902/EnElRioAquel.rzx/EnElRioAquel.rzx
 zxdb/sinclair/entries/0043903/Pasapantallas.rzx/Pasapantallas.rzx
 zxdb/sinclair/entries/0043918/GolfDash.rzx/GolfDash.rzx
 zxdb/sinclair/entries/0043940/Vanoce2024.rzx/Vanoce2024.rzx
@@ -7734,6 +7789,7 @@ zxdb/sinclair/entries/0044088/MickysMineField.rzx/MickysMineField.rzx
 zxdb/sinclair/entries/0044098/TheyKilledMyLittleOne.rzx/TheyKilledMyLittleOne - Game.rzx
 zxdb/sinclair/entries/0044098/TheyKilledMyLittleOne.rzx/TheyKilledMyLittleOne - Intro.rzx
 zxdb/sinclair/entries/0044115/MasterPiece.rzx/MasterPiece.rzx
+zxdb/sinclair/entries/0044116/Mille.rzx/Mille.rzx
 zxdb/sinclair/entries/0044119/FrankeeGoesHome.rzx/FrankeeGoesHome.rzx
 zxdb/sinclair/entries/0044137/YouAreThePlatform.rzx/YouAreThePlatform.rzx
 zxdb/sinclair/entries/0044148/FarWest.rzx/FarWest.rzx
@@ -7760,6 +7816,8 @@ zxdb/sinclair/entries/0044446/BreakSpace.rzx/BreakSpace.rzx
 zxdb/sinclair/entries/0044462/FujiNoYama.rzx/FujiNoYama.rzx
 zxdb/sinclair/entries/0044489/EscapeFromTheTwilightCastle.rzx/EscapeFromTheTwilightCastle.rzx
 zxdb/sinclair/entries/0044492/GunmanMessiah.rzx/GunmanMessiah.rzx
+zxdb/sinclair/entries/0044499/MegaSerpiente.rzx/MegaSerpiente.rzx
+zxdb/sinclair/entries/0044509/PiramideDeXaltocanLa.rzx/PiramideDeXaltocanLa.rzx
 zxdb/sinclair/entries/0044530/MagentaSky.rzx/MagentaSky.rzx
 zxdb/sinclair/entries/0044535/ReturnToFreakonia.rzx/ReturnToFreakonia.rzx|--flags 4
 zxdb/sinclair/entries/0044536/Ecclesia.rzx/Ecclesia.rzx
@@ -7769,24 +7827,40 @@ zxdb/sinclair/entries/0044545/HitTheFan.rzx/HitTheFan.rzx
 zxdb/sinclair/entries/0044562/ZakMcDruckenSavesTheChickens.rzx/ZakMcDruckenSavesTheChickens.rzx
 zxdb/sinclair/entries/0044564/ZXnake2_2.rzx/ZXnake2_2.rzx
 zxdb/sinclair/entries/0044564/ZXnake2.rzx/ZXnake2.rzx
+zxdb/sinclair/entries/0044576/HammerKnight.rzx/HammerKnight.rzx
 zxdb/sinclair/entries/0044598/FateOfThePirateThe.rzx/FateOfThePirateThe.rzx
 zxdb/sinclair/entries/0044617/BubbleBack-TheStoryOfForwardToThePast2.rzx/BubbleBack-TheStoryOfForwardToThePast2.rzx
 zxdb/sinclair/entries/0044631/RebirthOfCthulhuThe.rzx/RebirthOfCthulhuThe.rzx
+zxdb/sinclair/entries/0044633/ColleyAdventure.rzx/ColleyAdventure.rzx
+zxdb/sinclair/entries/0044640/LysergicMushroomsDesire.rzx/LysergicMushroomsDesire.rzx
+zxdb/sinclair/entries/0044643/SinclairTower.rzx/SinclairTower.rzx
+zxdb/sinclair/entries/0044653/SpeccySagaCodenameRKW.rzx/SpeccySagaCodenameRKW.rzx
 zxdb/sinclair/entries/0044666/BubliBoy2.rzx/BubliBoy2.rzx
 zxdb/sinclair/entries/0044671/Astrodrone.rzx/Astrodrone.rzx
 zxdb/sinclair/entries/0044681/JohnnyDoe.rzx/JohnnyDoe.rzx
 zxdb/sinclair/entries/0044682/RebelLemmingThe.rzx/RebelLemmingThe.rzx
+zxdb/sinclair/entries/0044683/BASICTower.rzx/BasicTower01-06.rzx
+zxdb/sinclair/entries/0044683/BASICTower.rzx/BasicTower07-12.rzx
+zxdb/sinclair/entries/0044683/BASICTower.rzx/BasicTower13-16.rzx
 zxdb/sinclair/entries/0044706/Bolalela5.rzx/Bolalela5.rzx
+zxdb/sinclair/entries/0044707/Syrion-TheTimeOfTheDragon_2.rzx/Syrion-TheTimeOfTheDragon_2.rzx
+zxdb/sinclair/entries/0044707/Syrion-TheTimeOfTheDragon.rzx/Syrion-TheTimeOfTheDragon.rzx
 zxdb/sinclair/entries/0044711/Partuza.rzx/Partuza.rzx
+zxdb/sinclair/entries/0044713/RebelWars.rzx/RebelWars.rzx
+zxdb/sinclair/entries/0044715/OperationBee.rzx/OperationBee.rzx
 zxdb/sinclair/entries/0044717/AstroSpy.rzx/AstroSpy.rzx
 zxdb/sinclair/entries/0044725/WorldsHardestGameInAttributesThe.rzx/WorldsHardestGameInAttributesThe.rzx
 zxdb/sinclair/entries/0044736/RoshiMilkCourse.rzx/Roshi Milk Course A.rzx
 zxdb/sinclair/entries/0044736/RoshiMilkCourse.rzx/Roshi Milk Course B.rzx
+zxdb/sinclair/entries/0044758/Away.rzx/Away.rzx
+zxdb/sinclair/entries/0044759/SingleDragon.rzx/SingleDragon.rzx
 zxdb/sinclair/entries/0044775/HappinessTest.rzx/HappinessTest.rzx
+zxdb/sinclair/entries/0044894/Diana.rzx/Diana.rzx
 zxdb/sinclair/entries/0045005/FloppyVerse.rzx/FloppyVerse.rzx
 zxdb/sinclair/entries/0045009/JAAMRivals.rzx/JAAMRivals.rzx
 zxdb/sinclair/entries/0045066/TreasureHunt.rzx/TreasureHunt.rzx
 zxdb/sinclair/entries/0045068/HelicopterRescue.rzx/HelicopterRescue.rzx
+zxdb/sinclair/entries/0045069/Skiing.rzx/Skiing.rzx
 zxdb/sinclair/entries/0045072/CodeBreaker.rzx/CodeBreaker.rzx
 zxdb/sinclair/entries/0045075/WordSearch.rzx/WordSearch.rzx
 zxdb/sinclair/entries/0045076/HorseRace.rzx/HorseRace.rzx
@@ -7807,13 +7881,35 @@ zxdb/sinclair/entries/0045178/AdvancedKittiwakeSimulator.rzx/AdvancedKittiwakeSi
 zxdb/sinclair/entries/0045182/MasterMind.rzx/MasterMind.rzx
 zxdb/sinclair/entries/0045186/HakkisacksThe.rzx/hakkisacks_new.rzx
 zxdb/sinclair/entries/0045186/HakkisacksThe.rzx/hakkisacks_old.rzx
+zxdb/sinclair/entries/0045188/TinyTimZX.rzx/TinyTimZX.rzx
 zxdb/sinclair/entries/0045195/Bit101SavesChristmas.rzx/Bit101SavesChristmas.rzx
 zxdb/sinclair/entries/0045205/LexiconZ80.rzx/LexiconZ80.rzx
+zxdb/sinclair/entries/0045216/Mined-OutFaster.rzx/Mined-OutFaster.rzx
 zxdb/sinclair/entries/0045218/PutMoneyAside.rzx/PutMoneyAside.rzx
+zxdb/sinclair/entries/0045219/Cafetonic.rzx/Cafetonic.rzx
 zxdb/sinclair/entries/0045225/Shift.rzx/Shift.rzx
 zxdb/sinclair/entries/0045226/WorldOfSpells-SantaClaus.rzx/WorldOfSpells-SantaClaus.rzx
+zxdb/sinclair/entries/0045234/Welcome2TheMachine.rzx/Welcome2TheMachine.rzx
 zxdb/sinclair/entries/0045247/ParkourLabs.rzx/ParkourLabs.rzx
 zxdb/sinclair/entries/0045257/MouseLifeA.rzx/MouseLifeA.rzx
+zxdb/sinclair/entries/0045308/ViceCityBlues.rzx/Day1.rzx
+zxdb/sinclair/entries/0045308/ViceCityBlues.rzx/Day2.rzx
+zxdb/sinclair/entries/0045308/ViceCityBlues.rzx/Intro.rzx
+zxdb/sinclair/entries/0045308/ViceCityBlues.rzx/Outro.rzx
+zxdb/sinclair/entries/0045310/Crossword.rzx/Crossword.rzx
+zxdb/sinclair/entries/0045314/SyrionII-TheSixStonesOfNefertiti_2.rzx/SyrionII-TheSixStonesOfNefertiti_2.rzx
+zxdb/sinclair/entries/0045314/SyrionII-TheSixStonesOfNefertiti.rzx/SyrionII-TheSixStonesOfNefertiti.rzx
+zxdb/sinclair/entries/0045377/Apokalypsa.rzx/Apokalypsa.rzx
+zxdb/sinclair/entries/0045379/JewelledEyeballOfThePurpleIconThe.rzx/JewelledEyeballOfThePurpleIconThe.rzx
+zxdb/sinclair/entries/0045382/RescueRocky.rzx/RescueRocky.rzx
+zxdb/sinclair/entries/0045390/ShrineOfEvil.rzx/ShrineOfEvil.rzx
+zxdb/sinclair/entries/0045398/TrajaPatraci.rzx/TrajaPatraci.rzx
+zxdb/sinclair/entries/0045403/PevnostBielychMravcov.rzx/PevnostBielychMravcov.rzx
+zxdb/sinclair/entries/0045422/ArbyFriends.rzx/ArbyFriends.rzx
+zxdb/sinclair/entries/0045435/BombJackInJapan.rzx/BombJackInJapan.rzx
+zxdb/sinclair/entries/0045437/SwordWork.rzx/SwordWork.rzx
+zxdb/sinclair/entries/0045441/Cafetonic2.rzx/Cafetonic2 hard.rzx
+zxdb/sinclair/entries/0045441/Cafetonic2.rzx/Cafetonic2 normal.rzx
 z/zabarachuda.rzx
 z/zacaronmystery/zacaronmystery_part1.rzx
 z/zacaronmystery/zacaronmystery_part2.rzx

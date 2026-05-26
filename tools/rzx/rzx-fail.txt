@@ -330,6 +330,8 @@ zxdb/sinclair/entries/0005296/Titanic.rzx/Titanic.rzx
 zxdb/sinclair/entries/0005870/ZoneTrooper.rzx/ZoneTrooper.rzx|--force
 zxdb/sinclair/entries/0012060/ScottishTowns.rzx/ScottishTowns.rzx
 zxdb/sinclair/entries/0013300/RoughJustice.rzx/RoughJustice.rzx|--force
+zxdb/sinclair/entries/0014390/SegundaMuerteDeDraculaLa.rzx/SegundaMuerteDeDraculaLa.rzx
+zxdb/sinclair/entries/0022336/SantaTheAdventure.rzx/SantaTheAdventure.rzx
 zxdb/sinclair/entries/0023329/CastleRathbone.rzx/CastleRathbone.rzx
 zxdb/sinclair/entries/0025056/RadioRobot.rzx/RadioRobot.rzx|--force
 zxdb/sinclair/entries/0025133/Mario.rzx/Mario.rzx|--force
@@ -337,6 +339,7 @@ zxdb/sinclair/entries/0025196/Chronos.rzx/Chronos.rzx|--force
 zxdb/sinclair/entries/0025197/Dizzy.rzx/Dizzy.rzx|--force
 zxdb/sinclair/entries/0025203/Walk.rzx/Walk.rzx|--force
 zxdb/sinclair/entries/0025293/IRun.rzx/IRun.rzx|--force
+zxdb/sinclair/entries/0027245/PoliceQuiz.rzx/PoliceQuiz.rzx
 zxdb/sinclair/entries/0030371/SpaceInvadersEmulator.rzx/SpaceInvadersEmulator.rzx|--force
 zxdb/sinclair/entries/0031347/ArtyPants(MykePCityscape).rzx/rtap-cityscape.rzx|--force
 zxdb/sinclair/entries/0031366/InsideTheBox.rzx/rtitb_uzxsgdcrash.rzx|--force
@@ -347,6 +350,7 @@ zxdb/sinclair/entries/0036141/LastNightInTheOffice.rzx/LastNightInTheOffice.rzx|
 zxdb/sinclair/entries/0043660/ManulaDeLaEstepaSiberianaLa.rzx/ManulaDeLaEstepaSiberianaLa.rzx
 zxdb/sinclair/entries/0044081/Nonstop.rzx/Nonstop.rzx
 zxdb/sinclair/entries/0044323/Goblinarama.rzx/Goblinarama.rzx
+zxdb/sinclair/entries/0045308/ViceCityBlues.rzx/Day3.rzx
 z/zerkalo/Intro.rzx|--force
 z/zerkalo/Part1.rzx|--force
 z/zerkalo/Part2.rzx|--force
