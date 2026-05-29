@@ -1,4 +1,4 @@
-NOSE ?= nose2-3
+NOSE ?= /usr/bin/nose2-3
 CORES ?= 0
 OPTIONS = -d build/html -t
 
@@ -103,7 +103,7 @@ test-c-3%-all: write-disassembly-tests
 
 .PHONY: test-slow
 test-slow: remove-c
-	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) -c tests/slow_test.cfg
+	pypy3 $(NOSE) --plugin=nose2.plugins.mp -N $(CORES) -c tests/slow_test.cfg
 
 .PHONY: test-c-slow
 test-c-slow: cmods
@@ -112,7 +112,7 @@ test-c-slow: cmods
 .PHONY: test-cmio
 test-cmio:
 	tools/write-cmiosimulator-tests.py --quiet --vslow
-	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) slow_test_cmiosimulator
+	pypy3 $(NOSE) --plugin=nose2.plugins.mp -N $(CORES) slow_test_cmiosimulator
 	rm slow_test_cmiosimulator.py
 
 .PHONY: test-c-cmio
