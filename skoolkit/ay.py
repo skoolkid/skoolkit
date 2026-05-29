@@ -129,7 +129,6 @@ class AY:
     def frames(self, ay_log, ay_res):
         ay = [0] * 16
         frame = -1
-        t0 = ay_log[0][0]
         for tstates, reg, value in ay_log:
             if frame >= 0:
                 nframe = tstates // ay_res

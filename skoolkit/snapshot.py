@@ -1,4 +1,4 @@
-# Copyright 2009-2013, 2015-2026 Richard Dymond (rjdymond@gmail.com)
+# © 2009-2013, 2015-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -275,7 +275,6 @@ class SZX(Snapshot):
             self.machine = '128K'
         elif machine_id == 3:
             self.machine = '+2'
-        page = 0
         i = 8
         while i + 8 <= len(data):
             block_id = bytes(data[i:i + 4])
