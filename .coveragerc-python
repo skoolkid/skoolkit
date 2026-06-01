@@ -1,3 +1,5 @@
 [report]
+include =
+    skoolkit/*
 exclude_also =
     [#] pragma: Python no cover

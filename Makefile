@@ -1,4 +1,5 @@
 NOSE ?= /usr/bin/nose2-3
+COVERAGE ?= /usr/bin/python3-coverage
 CORES ?= 0
 OPTIONS = -d build/html -t
 
@@ -30,6 +31,8 @@ usage:
 	@echo "  THEMES     CSS theme(s) to use"
 	@echo "  HTML_OPTS  options passed to skool2html.py"
 	@echo "  CORES      number of processes to use when running tests"
+	@echo "  NOSE       full path of 'nose2' executable"
+	@echo "  COVERAGE   full path of 'coverage' executable"
 
 .PHONY: doc
 doc:
@@ -123,11 +126,13 @@ test-c-cmio: cmods
 
 .PHONY: test-cover
 test-cover: remove-disassembly-tests remove-c
-	$(NOSE) -C --coverage skoolkit --coverage-report term-missing --coverage-config .coveragerc-python
+	$(COVERAGE) run --rcfile .coveragerc-python -m nose2 -s tests
+	$(COVERAGE) report --rcfile .coveragerc-python -m
 
 .PHONY: test-c-cover
 test-c-cover: remove-disassembly-tests cmods
-	$(NOSE) -C --coverage skoolkit --coverage-report term-missing --coverage-config .coveragerc-c
+	$(COVERAGE) run --rcfile .coveragerc-c -m nose2 -s tests
+	$(COVERAGE) report --rcfile .coveragerc-c -m
 
 .PHONY: release
 release:

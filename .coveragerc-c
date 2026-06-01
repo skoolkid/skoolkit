@@ -5,5 +5,7 @@ omit =
     skoolkit/simulator.py
 
 [report]
+include =
+    skoolkit/*
 exclude_also =
     [#] pragma: C no cover
