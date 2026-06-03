@@ -144,6 +144,25 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
         self.assertEqual(samples[432:], b'\x00\x80\x00\x80\x00\x80\x00\x80')
 
+    def test_envelope(self):
+        options = Options()
+        records = (
+            (0, 7, 0b11111000), # Mixer (enable tone for channels A, B, C)
+            (4, 0, 0xFC),       # Channel A fine pitch
+            (8, 8, 0x10),       # Channel A volume (envelope)
+            (12, 2, 0xFD),      # Channel B fine pitch
+            (16, 9, 0x10),      # Channel B volume (envelope)
+            (20, 4, 0xFE),      # Channel C fine pitch
+            (24, 10, 0x10),     # Channel C volume (envelope)
+            (28, 11, 0xFF),     # Envelope fine duration
+            (70908, 8, 0x00),   # Channel A volume (off)
+        )
+        audio_bytes = self._get_audio_data(AYAudioWriter(), records, options)
+        samples = self._check_header(audio_bytes, options)
+        self.assertEqual(len(samples), 1762)
+        self.assertEqual(samples[:8], b'\x00\x80\x00\x80\x00\x80\x00\x80')
+        self.assertEqual(samples[1754:], b'\x0c\xa3\x0c\xa3\x0c\xa3\x0c\xa3')
+
     def test_invalid_sample_rate(self):
         ay_audio_writer = AYAudioWriter({SAMPLE_RATE: 'NaN'})
         self.assertEqual(ay_audio_writer.options[SAMPLE_RATE], 44100)
