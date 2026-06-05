@@ -1470,7 +1470,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=False,
                           interrupts=False, offset=0, is128k=False, config=None,
-                          audio_log=None, beeper=0):
+                          audio_log=None, beeper=0, volume=100):
         exp_html = f"""
             <audio controls="" src="{src}">
             <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
@@ -1499,7 +1499,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             self.assertIsNone(ay_audio_writer.write_options)
         else:
             self.assertEqual(audio_log, ay_audio_writer.audio_log)
-            self.assertEqual(ay_audio_writer.write_options.volume, 100)
+            self.assertEqual(ay_audio_writer.write_options.volume, volume)
             self.assertIsNone(ay_audio_writer.write_options.ay_res)
             self.assertIs(ay_audio_writer.write_options.beeper, beeper)
         is128k = len(writer.snapshot) == 0x20000
@@ -1809,6 +1809,34 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         self._test_audio_macro(writer, macro, exp_src, exp_path, is128k=True, audio_log=exp_audio_log)
 
+    def test_macro_audio_with_ay_volume(self):
+        skool = """
+            @bank=4
+            ; AY activity
+            c$C000 LD C,$FD
+             $C002 LD DE,$0001
+            *$C005 LD B,$FF
+             $C007 OUT (C),E
+             $C009 LD B,$BF
+             $C00B OUT (C),D
+             $C00D INC D
+             $C00E DEC E
+             $C00F JP P,$C005
+             $C012 RET
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        fname = 'ayvolume.wav'
+        vol = 50
+        macro = f'#AUDIO1,$C000,$C012,,,,1,,{vol}({fname})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_audio_log = [
+            (43, 1, 0),
+            (99, 0, 1),
+            (129, 15, 0) # End marker AY record
+        ]
+        self._test_audio_macro(writer, macro, exp_src, exp_path, is128k=True, audio_log=exp_audio_log, volume=vol)
+
     def test_macro_audio_with_ay_and_beeper(self):
         skool = """
             @bank=6
@@ -1974,7 +2002,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool=skool, mock_file_info=True)
         offset = 14335
         fname = 'sound.wav'
-        macro = f'#AUDIO(execint=0,cmio=1,ay=0,bpr=0,offset={offset},sim=1,start=24576,stop=24589)({fname})'
+        macro = f'#AUDIO(execint=0,cmio=1,ay=0,vol=50,bpr=0,offset={offset},sim=1,start=24576,stop=24589)({fname})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [203, 214, 217, 215, 220]

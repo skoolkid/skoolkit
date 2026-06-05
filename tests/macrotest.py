@@ -50,7 +50,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_audio_macro(writer, '#AUDIO1', "Missing filename: #AUDIO1", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO(', "No closing bracket: (", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO1(', "No closing bracket: (", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(1,2,3,4,5,6,7,8,9)(f)', "Too many parameters (expected 8): '1,2,3,4,5,6,7,8,9'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(1,2,3,4,5,6,7,8,9,10)(f)', "Too many parameters (expected 9): '1,2,3,4,5,6,7,8,9,10'", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO({x})(f)', "Unrecognised field 'x': {x}", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO({x)(f)', "Invalid format string: {x", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO1(f)', "Missing start parameter: 1(f)", prefix)

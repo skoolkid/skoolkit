@@ -901,7 +901,7 @@ General macros
 In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. It
 is not supported in ASM mode. ::
 
-  #AUDIOsim[,start,stop,execint,cmio,offset,ay,bpr](fname)[(delays)]
+  #AUDIOsim[,start,stop,execint,cmio,offset,ay,bpr,vol](fname)[(delays)]
 
 * ``sim`` specifies whether to generate audio by executing instructions in a
   simulator (1), or to specify ``delays`` manually (0)
@@ -917,6 +917,7 @@ is not supported in ASM mode. ::
   default)
 * ``bpr`` specifies whether to capture beeper audio as well (1), or ignore it
   (0, the default) when ``ay`` is 1
+* ``vol`` is the AY audio volume percentage (default: 100)
 * ``fname`` is the name of the audio file
 * ``delays`` is a comma-separated list of delays (in T-states) between speaker
   state changes (when ``sim`` is 0)
@@ -1025,6 +1026,8 @@ Audio file creation can be configured via the :ref:`ref-AudioWriter` section.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.1    | Added the ``vol`` parameter                                       |
++---------+-------------------------------------------------------------------+
 | 10.0    | Added the ``ay`` and ``bpr`` parameters and support for capturing |
 |         | AY audio; added support for keyword arguments                     |
 +---------+-------------------------------------------------------------------+
