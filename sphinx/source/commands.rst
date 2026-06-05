@@ -2187,6 +2187,7 @@ To list the options supported by `trace.py`, run it with no arguments::
     -v, --verbose         Show executed instructions. Repeat this option to show
                           register values too.
     -V, --version         Show SkoolKit version number and exit.
+    --volume VOL          Set AY audio volume percentage (default: 100).
 
 By default, `trace.py` silently simulates code execution beginning with the
 instruction at the address specified by the ``--start`` option (or the program
@@ -2278,6 +2279,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.1    | Added the ``--volume`` option                                     |
++---------+-------------------------------------------------------------------+
 | 10.0    | Added the ``--ay`` and ``--beeper`` options and support for       |
 |         | capturing AY audio; added support to the ``--reg`` option for     |
 |         | setting the MEMPTR register; reads and writes the MEMPTR register |

@@ -155,7 +155,7 @@ class AY:
 
 class Options:
     def __init__(self, volume=100, ay_res=None, beeper=False):
-        self.volume = volume
+        self.volume = max(min(volume, 100), 0)
         self.ay_res = ay_res
         self.beeper = beeper
 

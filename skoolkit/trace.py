@@ -365,10 +365,10 @@ def run(snafile, options, config):
             if options.ay:
                 if any(r < 16 for t, r, v in tracer.audio_log):
                     audio_writer = AYAudioWriter()
-                    options = Options(beeper=options.beeper)
+                    ay_options = Options(options.volume, beeper=options.beeper)
                     tracer.audio_log.append((simulator.registers[T], 15, 0))
                     with open(fname, 'wb') as f:
-                        audio_writer.write_audio(f, tracer.audio_log, options)
+                        audio_writer.write_audio(f, tracer.audio_log, ay_options)
                 else:
                     raise SkoolKitError('No AY activity detected')
             else:
@@ -456,6 +456,8 @@ def main(args):
                        help="Show executed instructions. Repeat this option to show register values too.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
+    group.add_argument('--volume', metavar='VOL', type=int, default=100,
+                       help='Set AY audio volume percentage (default: 100).')
     namespace, unknown_args = parser.parse_known_args(args)
     if namespace.show_config:
         show_config('trace', config)

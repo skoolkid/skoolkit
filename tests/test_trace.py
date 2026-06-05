@@ -163,6 +163,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(options.state, [])
         self.assertFalse(options.stats)
         self.assertEqual(options.verbose, 0)
+        self.assertEqual(options.volume, 100)
         self.assertEqual(config['TraceLine'], '${pc:04X} {i}')
         self.assertEqual(
             config['TraceLine2'],
@@ -2263,6 +2264,98 @@ class TraceTest(SkoolKitTestCase):
         for option in ('-V', '--version'):
             output, error = self.run_trace(option, catch_exit=0)
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
+
+    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    def test_option_volume(self):
+        data = (
+            0x0E, 0xFD,             # $8000 LD C,$FD
+            0x11, 0x02, 0x00,       # $8002 LD DE,$0002
+            0x06, 0xFF,             # $8005 LD B,$FF
+            0xED, 0x59,             # $8007 OUT (C),E
+            0x06, 0xBF,             # $8009 LD B,$BF
+            0xED, 0x51,             # $800B OUT (C),D
+            0x14,                   # $800D INC D
+            0x1D,                   # $800E DEC E
+            0xF2, 0x05, 0x80,       # $800F JP P,$8005
+        )
+        ram = [0] * 49152
+        start = 32768
+        stop = start + len(data)
+        ram[start - 0x4000:stop - 0x4000] = data
+        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        outfile = 'out.wav'
+        volume = 50
+        output, error = self.run_trace(f'-S {stop} --ay {infile} --volume {volume} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        exp_audio_log = [
+            (43, 2, 0),
+            (99, 1, 1),
+            (155, 0, 2),
+            (185, 15, 0)
+        ]
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(ay_audio_writer.fname, outfile)
+        self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
+        self.assertEqual(ay_audio_writer.options.volume, 50)
+        self.assertIsNone(ay_audio_writer.options.ay_res)
+        self.assertFalse(ay_audio_writer.options.beeper)
+
+    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    def test_option_volume_over_100(self):
+        data = (
+            0x11, 0x03, 0x02,       # $8000 LD DE,$0203
+            0x01, 0xFD, 0xFF,       # $8003 LD BC,$FFFD
+            0xED, 0x59,             # $8006 OUT (C),E
+            0x01, 0xFD, 0xBF,       # $8008 LD BC,$BFFD
+            0xED, 0x51,             # $800B OUT (C),D
+        )
+        ram = [0] * 49152
+        start = 32768
+        stop = start + len(data)
+        ram[start - 0x4000:stop - 0x4000] = data
+        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        outfile = 'out.wav'
+        output, error = self.run_trace(f'-S {stop} --ay {infile} --volume 101 {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        exp_audio_log = [
+            (42, 3, 2),
+            (54, 15, 0),
+        ]
+        self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
+        self.assertEqual(ay_audio_writer.options.volume, 100)
+
+    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    def test_option_volume_under_0(self):
+        data = (
+            0x11, 0x04, 0x01,       # $8000 LD DE,$0104
+            0x01, 0xFD, 0xFF,       # $8003 LD BC,$FFFD
+            0xED, 0x59,             # $8006 OUT (C),E
+            0x01, 0xFD, 0xBF,       # $8008 LD BC,$BFFD
+            0xED, 0x51,             # $800B OUT (C),D
+        )
+        ram = [0] * 49152
+        start = 32768
+        stop = start + len(data)
+        ram[start - 0x4000:stop - 0x4000] = data
+        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        outfile = 'out.wav'
+        output, error = self.run_trace(f'-S {stop} --ay {infile} --volume -1 {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        exp_audio_log = [
+            (42, 4, 1),
+            (54, 15, 0),
+        ]
+        self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
+        self.assertEqual(ay_audio_writer.options.volume, 0)
 
     @patch.object(trace, 'get_image_writer', MockImageWriter)
     def test_config_PNGScale_read_from_file(self):

@@ -3,6 +3,8 @@ Changelog
 
 10.1b1
 ------
+* Added the ``--volume`` option to :ref:`trace.py` (for setting the AY audio
+  volume when writing a WAV file)
 * Fixed how :ref:`rzxinfo.py` detects a signed RZX file and encrypted frames
 * Fixed the bug in :ref:`sna2ctl.py` that enables the :ref:`rstHandler` when
   the :ref:`comment generator <commentGenerator>` is enabled

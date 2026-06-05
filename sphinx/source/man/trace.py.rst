@@ -114,6 +114,9 @@ OPTIONS
 -V, --version
   Show SkoolKit version number and exit.
 
+--volume `VOL`
+  Set AY audio volume percentage (default: 100).
+
 REGISTERS
 =========
 The ``--reg`` option sets the value of a register before execution begins.
