@@ -26,13 +26,18 @@ with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
 CELLS = tuple((x, y, 2048 * (y // 8) + 32 * (y % 8) + x, 6144 + 32 * y + x) for x in range(32) for y in range(24))
 
 class Screen:
-    def __init__(self, scale, fps, caption):
+    def __init__(self, scale, fps, caption, is128k):
         self._init_colours_and_keys()
         pygame.init()
         pygame.display.set_mode((320 * scale, 240 * scale))
         pygame.display.set_caption(caption)
         self.pygame_msg = pygame_io.getvalue()
+        self.scale = scale
         self.fps = fps
+        if is128k:
+            self.draw_border = self._draw_border_128k
+        else:
+            self.draw_border = self._draw_border_48k
         self.pixel_rects = [[pygame.Rect((32 + px) * scale, (24 + py) * scale, scale, scale) for py in range(192)] for px in range(256)]
         self.cell_rects = [[pygame.Rect((32 + px) * scale, (24 + py) * scale, 8 * scale, 8 * scale) for py in range(0, 192, 8)] for px in range(0, 256, 8)]
         self.border_rects = (
@@ -133,6 +138,68 @@ class Screen:
             (pygame.K_KP_PERIOD, 7, 0b00100),   # SYMBOL SHIFT + M
         ) if pygame else None
 
+    def _draw_chunks(self, border, chunks):
+        screen = self.surface
+        scale = self.scale
+        Rect = pygame.Rect
+
+        for c, x, y, t in chunks:
+            if 24 <= y < 216 and 32 - t < x < 288:
+                if x < 32:
+                    # Left border to left edge of main screen
+                    screen.fill(c, Rect(x * scale, y * scale, (32 - x) * scale, scale))
+                if x + t > 288:
+                    # From right edge of main screen into right border
+                    screen.fill(c, Rect(288 * scale, y * scale, (x + t - 288) * scale, scale))
+            else:
+                # Top/bottom/left/right border only
+                screen.fill(c, Rect(x * scale, y * scale, t * scale, scale))
+
+        border[:] = [(0, border[-2][1])]
+
+    def _draw_border_48k(self, border):
+        colours = self.colours
+        chunks = []
+        x, y = 0, 0
+        for i, (ts, colour) in enumerate(border[:-1]):
+            t = border[i + 1][0] - ts
+            c = colours[colour]
+            while y < 280:
+                x1 = x + t
+                t0 = t - max(0, x1 - 224)
+                if y >= 40 and 8 - t0 <= x < 168:
+                    if x < 8:
+                        chunks.append((c, 0, y - 40, (t0 + x - 8) * 2))
+                    else:
+                        chunks.append((c, (x - 8) * 2, y - 40, t0 * 2))
+                if x1 < 224:
+                    x = x1
+                    break
+                x = 0
+                y += 1
+                t -= t0
+        self._draw_chunks(border, chunks)
+
+    def _draw_border_128k(self, border):
+        colours = self.colours
+        chunks = []
+        x, y = 0, 0
+        for i, (ts, colour) in enumerate(border[:-1]):
+            t = border[i + 1][0] - ts
+            c = colours[colour]
+            while y < 279:
+                x1 = x + t
+                t0 = t - max(0, x1 - 228)
+                if y >= 39 and x < 160:
+                    chunks.append((c, x * 2, y - 39, t0 * 2))
+                if x1 < 228:
+                    x = x1
+                    break
+                x = 0
+                y += 1
+                t -= t0
+        self._draw_chunks(border, chunks)
+
     def draw(self, scr, frame, border, keyboard=None):
         screen = self.surface
         pixel_rects = self.pixel_rects
@@ -142,11 +209,15 @@ class Screen:
         flash_switch = (frame // 16) % 2
         colours = self.colours
 
-        if border != self.prev_border:
-            bcolour = colours[border]
-            for brect in self.border_rects:
-                screen.fill(bcolour, brect)
-            self.prev_border = border
+        if isinstance(border, int):
+            if border != self.prev_border:
+                bcolour = colours[border]
+                for brect in self.border_rects:
+                    screen.fill(bcolour, brect)
+                self.prev_border = border
+        else:
+            border.append((99999, 0))
+            self.draw_border(border)
 
         for (x, y, df_addr, af_addr) in CELLS:
             update = False

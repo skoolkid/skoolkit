@@ -1,7 +1,7 @@
 from collections import defaultdict
 from unittest.mock import patch, Mock
 
-from skoolkittest import BLACK, BLUE, MAGENTA, GREEN, CYAN, YELLOW, QUIT, MockPygame, SkoolKitTestCase
+from skoolkittest import BLACK, BLUE, RED, MAGENTA, GREEN, CYAN, YELLOW, QUIT, MockPygame, SkoolKitTestCase
 from skoolkit import screen
 
 KEYS = (
@@ -72,8 +72,8 @@ SS_KEYS = (
 )
 
 class ScreenTest(SkoolKitTestCase):
-    def _test_init(self, mock_pygame, scale, caption):
-        s = screen.Screen(scale, 50, caption)
+    def _test_init(self, mock_pygame, scale, caption, is128k=False):
+        s = screen.Screen(scale, 50, caption, is128k)
         self.assertTrue(mock_pygame.init_called)
         mock_pygame.display.set_mode.assert_called_with((320 * scale, 240 * scale))
         mock_pygame.display.set_caption.assert_called_with(caption)
@@ -83,7 +83,7 @@ class ScreenTest(SkoolKitTestCase):
     @patch.object(screen, 'CELLS', ())
     @patch.object(screen, 'pygame', new_callable=MockPygame)
     def _test_keys(self, keys, extra, mock_pygame):
-        s = screen.Screen(1, 50, 'screen')
+        s = screen.Screen(1, 50, 'screen', False)
         scr = [0] * 6912
         keyboard = [0] * 8
         for k, i, b in keys:
@@ -105,7 +105,7 @@ class ScreenTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame', new_callable=MockPygame)
     def test_draw(self, mock_pygame):
-        s = screen.Screen(1, 50, 'screen')
+        s = screen.Screen(1, 50, 'screen', False)
         self.assertTrue(s.draw([0] * 6912, 0, BLACK))
         mock_surface = mock_pygame.display.get_surface()
         self.assertTrue(all(p == BLACK for p in mock_surface.pixels))
@@ -114,7 +114,7 @@ class ScreenTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame', new_callable=MockPygame)
     def test_pixel_change(self, mock_pygame):
-        s = screen.Screen(1, 50, 'screen')
+        s = screen.Screen(1, 50, 'screen', False)
         scr = [0] * 0x1800 + [BLUE] * 0x300
         self.assertTrue(s.draw(scr, 0, BLACK))
         mock_surface = mock_pygame.display.get_surface()
@@ -126,7 +126,7 @@ class ScreenTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame', new_callable=MockPygame)
     def test_attr_change(self, mock_pygame):
-        s = screen.Screen(1, 50, 'screen')
+        s = screen.Screen(1, 50, 'screen', False)
         scr = [0] * 0x1800 + [8 * GREEN] * 0x300
         self.assertTrue(s.draw(scr, 0, GREEN))
         mock_surface = mock_pygame.display.get_surface()
@@ -140,7 +140,7 @@ class ScreenTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame', new_callable=MockPygame)
     def test_flash(self, mock_pygame):
-        s = screen.Screen(1, 50, 'screen')
+        s = screen.Screen(1, 50, 'screen', False)
         paper, ink = MAGENTA, CYAN
         scr = [0] * 0x1800 + [0x80 + 8 * paper + ink] * 0x300
         self.assertTrue(s.draw(scr, 0x0F, paper))
@@ -151,9 +151,52 @@ class ScreenTest(SkoolKitTestCase):
         self.assertTrue(s.draw(scr.copy(), 0x20, paper))
         self.assertTrue(all(p == paper for p in mock_surface.pixels))
 
+    @patch.object(screen, 'pygame', new_callable=MockPygame)
+    def test_border_colours_48k(self, mock_pygame):
+        s = screen.Screen(1, 50, 'screen', False)
+        scr = [0] * 0x1800 + [8 * CYAN] * 0x300
+        border = [
+            (0, MAGENTA),         # 64 scanlines (top border)
+            (64 * 224, GREEN),    # Invisible left border (8 T-states)
+            (64 * 224 + 8, BLUE), # 192 scanlines (main screen)
+            (256 * 224, RED),     # 56 scanlines (bottom border)
+        ]
+        self.assertTrue(s.draw(scr, 0, border))
+        mock_surface = mock_pygame.display.get_surface()
+        self.assertEqual(mock_surface.get_abs_pixel(0, 0), MAGENTA)
+        self.assertEqual(mock_surface.get_abs_pixel(319, 23), MAGENTA)
+        for y in (24, 215):
+            for x in (0, 31, 288, 319):
+                self.assertEqual(mock_surface.get_abs_pixel(x, y), BLUE)
+            for x in (32, 287):
+                self.assertEqual(mock_surface.get_abs_pixel(x, y), CYAN)
+        self.assertEqual(mock_surface.get_abs_pixel(0, 216), RED)
+        self.assertEqual(mock_surface.get_abs_pixel(319, 239), RED)
+
+    @patch.object(screen, 'pygame', new_callable=MockPygame)
+    def test_border_colours_128k(self, mock_pygame):
+        s = screen.Screen(1, 50, 'screen', True)
+        scr = [0] * 0x1800 + [8 * GREEN] * 0x300
+        border = [
+            (0, YELLOW),       # 63 scanlines (top border)
+            (63 * 228, CYAN),  # 192 scanlines (main screen)
+            (255 * 228, BLUE), # 56 scanlines (bottom border)
+        ]
+        self.assertTrue(s.draw(scr, 0, border))
+        mock_surface = mock_pygame.display.get_surface()
+        self.assertEqual(mock_surface.get_abs_pixel(0, 0), YELLOW)
+        self.assertEqual(mock_surface.get_abs_pixel(319, 23), YELLOW)
+        for y in (24, 215):
+            for x in (0, 31, 288, 319):
+                self.assertEqual(mock_surface.get_abs_pixel(x, y), CYAN)
+            for x in (32, 287):
+                self.assertEqual(mock_surface.get_abs_pixel(x, y), GREEN)
+        self.assertEqual(mock_surface.get_abs_pixel(0, 216), BLUE)
+        self.assertEqual(mock_surface.get_abs_pixel(319, 239), BLUE)
+
     @patch.object(screen, 'pygame', MockPygame([Mock(type=QUIT)]))
     def test_quit(self):
-        s = screen.Screen(1, 50, 'screen')
+        s = screen.Screen(1, 50, 'screen', False)
         self.assertFalse(s.draw([0] * 6912, 0, 0))
 
     def test_keys(self):

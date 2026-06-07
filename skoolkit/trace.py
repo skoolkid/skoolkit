@@ -29,21 +29,25 @@ from skoolkit.graphics import Frame, scr_udgs
 from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.screen import pygame, Screen
 from skoolkit.simulator import Simulator
-from skoolkit.simutils import CLOCK_SPEEDS, PC, T, from_snapshot, get_state
+from skoolkit.simutils import (CLOCK_SPEEDS, FRAME_DURATIONS, PC, T,
+                               from_snapshot, get_state)
 from skoolkit.snapshot import (Snapshot, make_snapshot, poke, print_reg_help,
                                print_state_help, write_snapshot)
 from skoolkit.traceutils import Registers, disassemble, get_trace_line
 
 class Tracer(PagingTracer):
-    def __init__(self, simulator, border, out7ffd, outfffd, ay, outfe, audio):
+    def __init__(self, simulator, border, out7ffd, outfffd, ay, outfe, port_fe):
         self.simulator = simulator
-        self.border = border
         self.out7ffd = out7ffd
         self.outfffd = outfffd
         self.ay = ay
         self.outfe = outfe
-        if audio:
+        if port_fe:
+            self.frame_duration = FRAME_DURATIONS[len(simulator.memory) == 0x20000]
             self.write_port = self._write_port
+            self.border = [(0, border)]
+        else:
+            self.border = border
         self.operations = 0
         self.spkr = None
         self.audio_log = []
@@ -163,7 +167,7 @@ class Tracer(PagingTracer):
 
     def _write_port(self, registers, port, value):
         if port % 2 == 0:
-            self.border = value % 8
+            self.border.append((registers[T] % self.frame_duration, value % 8))
             self.outfe = value
             if self.spkr != value & 0x10:
                 self.spkr = value & 0x10
@@ -302,8 +306,8 @@ def run(snafile, options, config):
             start = org
     for spec in options.pokes:
         poke(simulator.memory, spec)
-    audio = options.audio or any(f.lower().endswith('.wav') for f in options.dump)
-    tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe, audio)
+    port_fe = options.audio or any(f.lower().endswith('.wav') for f in options.dump) or options.screen
+    tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe, port_fe)
     simulator.set_tracer(tracer)
     if options.verbose:
         b = ('', 'Decimal')[options.decimal]
@@ -322,7 +326,7 @@ def run(snafile, options, config):
         except Exception as e:
             raise SkoolKitError(f"Invalid format string: '{orig_trace_line}'")
     if options.screen and pygame:
-        screen = Screen(config['ScreenScale'], config['ScreenFps'], 'trace.py')
+        screen = Screen(config['ScreenScale'], config['ScreenFps'], 'trace.py', len(memory) == 0x20000)
         print(screen.pygame_msg)
         draw = screen.draw
     else:

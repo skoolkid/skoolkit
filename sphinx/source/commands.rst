@@ -2279,7 +2279,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.1    | Added the ``--volume`` option                                     |
+| 10.1    | Added the ``--volume`` option; added support for multiple colours |
+|         | in the border area of the screen                                  |
 +---------+-------------------------------------------------------------------+
 | 10.0    | Added the ``--ay`` and ``--beeper`` options and support for       |
 |         | capturing AY audio; added support to the ``--reg`` option for     |

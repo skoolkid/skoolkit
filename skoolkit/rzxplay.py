@@ -335,8 +335,17 @@ def process_block(block, options, flags, context):
             break
 
 def run(infile, options):
-    if options.screen and pygame:
-        screen = Screen(options.scale, options.fps, os.path.basename(infile))
+    rzx_blocks = parse_rzx(infile)
+    if options.snapshot:
+        rzx_blocks.insert(0, RZXBlock(None, Snapshot.get(options.snapshot)))
+    while rzx_blocks and isinstance(rzx_blocks[-1].obj, Snapshot):
+        rzx_blocks.pop()
+    if rzx_blocks and isinstance(rzx_blocks[0].obj, InputRecording):
+        raise SkoolKitError('Missing snapshot')
+
+    if options.screen and pygame and rzx_blocks:
+        is128k = rzx_blocks[0].obj.machine != '48K'
+        screen = Screen(options.scale, options.fps, os.path.basename(infile), is128k)
         print(screen.pygame_msg)
     else:
         screen = None
@@ -350,18 +359,12 @@ def run(infile, options):
                         context.exec_map.add(int(line[1:5], 16))
     if options.trace:
         context.tracefile = open(options.trace, 'w')
-    rzx_blocks = parse_rzx(infile)
-    if options.snapshot:
-        rzx_blocks.insert(0, RZXBlock(None, Snapshot.get(options.snapshot)))
-    while rzx_blocks and isinstance(rzx_blocks[-1].obj, Snapshot):
-        rzx_blocks.pop()
-    if rzx_blocks and isinstance(rzx_blocks[0].obj, InputRecording):
-        raise SkoolKitError('Missing snapshot')
     for block in rzx_blocks:
         if isinstance(block.obj, InputRecording):
             context.total_frames += len(block.obj.frames)
     if options.stop and options.stop > 0:
         context.total_frames = min(options.stop, context.total_frames)
+
     flags = parse_int(options.flags, 0)
     while rzx_blocks:
         process_block(rzx_blocks.pop(0).obj, options, flags, context)

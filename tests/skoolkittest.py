@@ -66,7 +66,7 @@ class MockSurface:
 
     def fill(self, colour, rect):
         x0, y0, w, h = rect
-        for x in range(x0 // self.scale, (x0 + w) // self.scale):
+        for x in range(x0 // self.scale, min(320, (x0 + w) // self.scale)):
             for y in range(y0 // self.scale, (y0 + h) // self.scale):
                 self.pixels[320 * y + x] = colour
 
@@ -75,6 +75,9 @@ class MockSurface:
 
     def get_pixel(self, x, y):
         return self.pixels[320 * (24 + y) + 32 + x]
+
+    def get_abs_pixel(self, x, y):
+        return self.pixels[320 * y + x]
 
 class MockPygame:
     def __init__(self, events=()):
