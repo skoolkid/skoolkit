@@ -40,16 +40,9 @@ class Screen:
             self.draw_border = self._draw_border_48k
         self.pixel_rects = [[pygame.Rect((32 + px) * scale, (24 + py) * scale, scale, scale) for py in range(192)] for px in range(256)]
         self.cell_rects = [[pygame.Rect((32 + px) * scale, (24 + py) * scale, 8 * scale, 8 * scale) for py in range(0, 192, 8)] for px in range(0, 256, 8)]
-        self.border_rects = (
-            pygame.Rect(0, 0, 320 * scale, 24 * scale),
-            pygame.Rect(0, 216 * scale, 320 * scale, 24 * scale),
-            pygame.Rect(0, 24 * scale, 32 * scale, 192 * scale),
-            pygame.Rect(288 * scale, 24 * scale, 32 * scale, 192 * scale)
-        )
         self.surface = pygame.display.get_surface()
         self.clock = pygame.time.Clock()
         self.prev_scr = [None] * 6912
-        self.prev_border = None
 
     def _init_colours_and_keys(self):
         self.colours = (
@@ -209,15 +202,8 @@ class Screen:
         flash_switch = (frame // 16) % 2
         colours = self.colours
 
-        if isinstance(border, int):
-            if border != self.prev_border:
-                bcolour = colours[border]
-                for brect in self.border_rects:
-                    screen.fill(bcolour, brect)
-                self.prev_border = border
-        else:
-            border.append((99999, 0))
-            self.draw_border(border)
+        border.append((99999, 0))
+        self.draw_border(border)
 
         for (x, y, df_addr, af_addr) in CELLS:
             update = False

@@ -149,8 +149,13 @@ def get_state(simulator, tstates=True):
         f'PC={simulator.registers[PC]}',
         f'MEMPTR={simulator.registers[MEMPTR]}'
     ]
+    border = simulator.tracer.border
+    if isinstance(border, int):
+        colour = border
+    else:
+        colour = border[-1][1]
     state = [
-        f'border={simulator.tracer.border}',
+        f'border={colour}',
         f'fe={simulator.tracer.outfe}',
         f'iff={simulator.registers[IFF]}',
         f'im={simulator.registers[IM]}'

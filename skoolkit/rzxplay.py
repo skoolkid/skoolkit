@@ -22,10 +22,10 @@ import zlib
 
 from skoolkit import (VERSION, SkoolKitError, CSimulator, as_dword, get_dword,
                       get_word, parse_int, read_bin_file, warn, write)
-from skoolkit.pagingtracer import PagingTracer
+from skoolkit.pagingtracer import Memory
 from skoolkit.screen import pygame, Screen
 from skoolkit.simulator import Simulator
-from skoolkit.simutils import from_snapshot, get_state
+from skoolkit.simutils import FRAME_DURATIONS, from_snapshot, get_state
 from skoolkit.snapshot import Snapshot, write_snapshot
 from skoolkit.traceutils import disassemble
 
@@ -46,13 +46,14 @@ class Frame:
         self.start = start
         self.end = end
 
-class RZXTracer(PagingTracer):
+class RZXTracer:
     def __init__(self, context, input_rec):
         self.context = context
         self.set_input_rec(input_rec)
         self.simulator = context.simulator
         self.simulator.registers[25] = input_rec.tstates
-        self.border = context.snapshot.border
+        self.frame_duration = FRAME_DURATIONS[len(self.simulator.memory) == 0x20000]
+        self.border = [(0, context.snapshot.border)]
         self.out7ffd = context.snapshot.out7ffd
         self.outfffd = context.snapshot.outfffd
         self.ay = list(context.snapshot.ay)
@@ -86,6 +87,20 @@ class RZXTracer(PagingTracer):
             self.index += 1
             return self.data[self.index - 1]
         raise SkoolKitError(f'Port readings exhausted for frame {self.context.frame_count}')
+
+    def write_port(self, registers, port, value):
+        if port % 2 == 0:
+            self.border.append((registers[25] % self.frame_duration, value % 8))
+            self.outfe = value
+        if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
+            memory = self.simulator.memory
+            if isinstance(memory, Memory):
+                memory.out7ffd(value)
+                self.out7ffd = value
+        if port & 0xC002 == 0xC000:
+            self.outfffd = value
+        elif port & 0xC002 == 0x8000 and self.outfffd < 16:
+            self.ay[self.outfffd] = value
 
 class RZXContext:
     def __init__(self, screen):
@@ -307,6 +322,8 @@ def process_block(block, options, flags, context):
             else:
                 scr = memory[16384:23296]
             run = draw(scr, context.frame_count, tracer.border)
+        else:
+            tracer.border[:] = [(0, tracer.border[-1][1])]
         registers[25] = 0
         fetch_counter = tracer.next_frame()
         if registers[26]:

@@ -825,6 +825,8 @@ class RzxplayTest(SkoolKitTestCase):
         ram = [0] * 0xC000
         pc = 0xF000
         code = [
+            0x3E, 0x03, # LD A,$03
+            0xD3, 0xFE, # OUT ($FE),A
             0xDB, 0xFE, # IN A,($FE)
         ]
         end = pc + len(code)
@@ -832,13 +834,14 @@ class RzxplayTest(SkoolKitTestCase):
         registers = {'PC': pc}
         z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
         rzx = RZX()
-        frames = [(1, 1, [191])]
+        frames = [(3, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
         outfile = 'out.z80'
         exp_output = f'Wrote {outfile}\n'
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', outfile=outfile)
         self.assertEqual(s_fname, outfile)
         self.assertLessEqual({'A=191', f'PC={end}'}, set(s_reg))
+        self.assertIn('border=3', s_state)
         self.assertIn('tstates=0', s_state)
         self.assertIsNone(s_banks)
         self.assertEqual(code, s_memory[pc:end])
@@ -848,21 +851,31 @@ class RzxplayTest(SkoolKitTestCase):
         ram = [0] * 0xC000
         pc = 0xF000
         code = [
-            0xDB, 0xFE, # IN A,($FE)
+            0x11, 0x04, 0x01, # LD DE,$0104
+            0x01, 0xFD, 0xFF, # LD BC,$FFFD
+            0xED, 0x59,       # OUT (C),E
+            0x01, 0xFD, 0xBF, # LD BC,$BFFD
+            0xED, 0x51,       # OUT (C),D
+            0x3E, 0x02,       # LD A,$02
+            0xD3, 0xFE,       # OUT ($FE),A
+            0xDB, 0xFE,       # IN A,($FE)
         ]
         end = pc + len(code)
         ram[pc - 0x4000:end - 0x4000] = code
         registers = {'PC': pc}
         z80data = self.write_z80_file(None, ram, machine_id=4, registers=registers, ret_data=True)
         rzx = RZX()
-        frames = [(1, 1, [191])]
+        frames = [(10, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
         outfile = 'out.z80'
         exp_output = f'Wrote {outfile}\n'
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', outfile=outfile)
         self.assertEqual(s_fname, outfile)
         self.assertLessEqual({'A=191', f'PC={end}'}, set(s_reg))
+        self.assertIn('border=2', s_state)
         self.assertIn('tstates=0', s_state)
+        self.assertIn('ay[4]=1', s_state)
+        self.assertIn('fffd=4', s_state)
         self.assertIsNotNone(s_banks)
         self.assertEqual(s_machine, '128K')
         self.assertEqual(code, s_memory[pc:end])
@@ -1683,7 +1696,7 @@ class RzxplayTest(SkoolKitTestCase):
             F:0 C:00001 I:00000 $F002 OUT ($FE),A
         """
         self._test_rzx(rzx, exp_output, '--quiet', exp_trace)
-        self.assertEqual(TestScreen.instance.border, 5)
+        self.assertEqual([(0, 5)], TestScreen.instance.border)
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
     @patch.object(screen, 'pygame', new_callable=MockPygame)
