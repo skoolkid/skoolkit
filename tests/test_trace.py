@@ -2286,7 +2286,7 @@ class TraceTest(SkoolKitTestCase):
         infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
         outfile = 'out.wav'
         volume = 50
-        output, error = self.run_trace(f'-S {stop} --ay {infile} --volume {volume} {outfile}')
+        output, error = self.run_trace(f'-S {stop} --ay --volume {volume} {infile} {outfile}')
         exp_output = f"""
             Stopped at ${stop:04X}
             Wrote {outfile}
@@ -2319,7 +2319,7 @@ class TraceTest(SkoolKitTestCase):
         ram[start - 0x4000:stop - 0x4000] = data
         infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
         outfile = 'out.wav'
-        output, error = self.run_trace(f'-S {stop} --ay {infile} --volume 101 {outfile}')
+        output, error = self.run_trace(f'-S {stop} --ay --volume 101 {infile} {outfile}')
         exp_output = f"""
             Stopped at ${stop:04X}
             Wrote {outfile}
@@ -2346,7 +2346,7 @@ class TraceTest(SkoolKitTestCase):
         ram[start - 0x4000:stop - 0x4000] = data
         infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
         outfile = 'out.wav'
-        output, error = self.run_trace(f'-S {stop} --ay {infile} --volume -1 {outfile}')
+        output, error = self.run_trace(f'-S {stop} --ay --volume -1 {infile} {outfile}')
         exp_output = f"""
             Stopped at ${stop:04X}
             Wrote {outfile}
