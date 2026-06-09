@@ -52,6 +52,9 @@ OPTIONS
   Set the value of a register. Do ``--reg help`` for more information, or see
   the section on ``REGISTERS`` below. This option may be used multiple times.
 
+--screen
+  Display screen contents while running.
+
 --show-config
   Show configuration parameter values.
 

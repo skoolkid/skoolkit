@@ -5087,6 +5087,35 @@ done:
     return memory;
 }
 
+static int draw_screen(CSimulatorObject* self, PyObject* draw, unsigned long long frame, PyObject* border, PyObject* keyboard) {
+    PyObject* scr = PyList_New(SCR_LEN);
+    if (scr == NULL) {
+        return -2;
+    }
+    byte* mem = self->memory;
+    for (unsigned j = 0; j < SCR_LEN; j++) {
+        PyObject* byte = PyLong_FromLong(PEEK(j + 0x4000));
+        if (byte == NULL || PyList_SetItem(scr, j, byte)) {
+            return -2;
+        }
+    }
+    PyObject* args;
+    if (keyboard) {
+        args = Py_BuildValue("(OIOO)", scr, frame, border, keyboard);
+    } else {
+        args = Py_BuildValue("(OIO)", scr, frame, border);
+    }
+    PyObject* rv = PyObject_CallObject(draw, args);
+    Py_XDECREF(args);
+    Py_XDECREF(scr);
+    if (rv == NULL) {
+        return -2;
+    }
+    int quit = !PyObject_IsTrue(rv);
+    Py_DECREF(rv);
+    return quit ? -1 : 0;
+}
+
 static int CSimulator_init(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
     static char* kwlist[] = {"memory", "registers", "state", "config", NULL};
     PyObject* memory = NULL;
@@ -5546,28 +5575,13 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
         if (draw != Py_None) {
             unsigned long long frame = TIME / frame_duration;
             if (frame > prev_frame) {
-                PyObject* scr = PyList_New(SCR_LEN);
-                if (scr == NULL) {
-                    return NULL;
-                }
-                for (unsigned j = 0; j < SCR_LEN; j++) {
-                    PyObject* byte = PyLong_FromLong(PEEK(j + 0x4000));
-                    if (byte == NULL || PyList_SetItem(scr, j, byte)) {
-                        return NULL;
-                    }
-                }
                 PyObject* border = PyObject_GetAttrString(tracer, "border");
-                PyObject* args = Py_BuildValue("(OIOO)", scr, frame, border, keyboard);
-                PyObject* rv = PyObject_CallObject(draw, args);
-                Py_XDECREF(args);
+                int rv = draw_screen(self, draw, frame, border, keyboard);
                 Py_XDECREF(border);
-                Py_XDECREF(scr);
-                if (rv == NULL) {
+                if (rv == -2) {
                     return NULL;
                 }
-                int quit = !PyObject_IsTrue(rv);
-                Py_DECREF(rv);
-                if (quit) {
+                if (rv == -1) {
                     return Py_BuildValue("(IL)", 0, operations);
                 }
                 prev_frame = frame;
@@ -6065,15 +6079,17 @@ static unsigned read_port(CSimulatorObject* self, unsigned port) {
 }
 
 static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", "", "", "", NULL};
+    static char* kwlist[] = {"", "", "", "", "", "", "", "", NULL};
+    PyObject* tracer;
     PyObject* stop_obj;
     int fast_load;
     int finish_tape;
     unsigned long long timeout;
+    PyObject* draw;
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OiiKOO", kwlist, &stop_obj, &fast_load, &finish_tape, &timeout, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOiiKOOO", kwlist, &tracer, &stop_obj, &fast_load, &finish_tape, &timeout, &draw, &disassemble, &trace)) {
         return NULL;
     }
 
@@ -6181,6 +6197,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     while (ok) {
         PyObject* i = NULL;
         unsigned long long t0 = TIME;
+        unsigned long long prev_frame = t0 / frame_duration;
         byte opcode = PEEK(pc);
         OpcodeFunction* opcode_func = self->opcodes[opcode];
         if (!opcode_func->func) {
@@ -6237,6 +6254,22 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
 
         if (REG(IFF) && (TIME % frame_duration) < int_active) {
             accept_interrupt(self, pc);
+        }
+
+        if (draw != Py_None) {
+            unsigned long long frame = TIME / frame_duration;
+            if (frame > prev_frame) {
+                PyObject* border = PyObject_GetAttrString(tracer, "border");
+                int rv = draw_screen(self, draw, frame, border, NULL);
+                Py_XDECREF(border);
+                if (rv == -2) {
+                    return NULL;
+                }
+                if (rv == -1) {
+                    return PyLong_FromLong(6);
+                }
+                prev_frame = frame;
+            }
         }
 
         unsigned long long tstates = TIME;

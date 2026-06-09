@@ -19,9 +19,10 @@ from functools import partial
 
 from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
-from skoolkit.pagingtracer import PagingTracer
+from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.simulator import R1
-from skoolkit.simutils import A, D, E, F, H, IXh, IXl, SP, PC, T, IFF
+from skoolkit.simutils import (FRAME_DURATIONS, A, D, E, F, H, IXh, IXl, SP,
+                               PC, T, IFF)
 from skoolkit.traceutils import Registers, disassemble
 
 DEC = tuple(tuple((
@@ -173,12 +174,13 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
     return edges, data_blocks
 
 class LoadTracer(PagingTracer):
-    def __init__(self, simulator, blocks, config):
+    def __init__(self, simulator, blocks, config, draw):
         self.tsl_misses = 0
         self.dec_a_jr_hits = 0
         self.dec_a_jp_hits = 0
         self.dec_a_misses = 0
         self.simulator = simulator
+        self.frame_duration = FRAME_DURATIONS[len(simulator.memory) == 0x20000]
         self.edges, self.blocks = get_edges(blocks, config['first_edge'], config['polarity'])
         self.keys = None
         self.pause = config['pause']
@@ -202,6 +204,9 @@ class LoadTracer(PagingTracer):
         self.prefix = config['prefix']
         self.byte_fmt = config['byte_fmt']
         self.word_fmt = config['word_fmt']
+        self.draw = draw
+        if draw: # pragma: no cover
+            self.write_port = self._write_port
         self.text = TextReader()
         self.state = [
             0,                  # state[0]: next edge (timestamp)
@@ -219,11 +224,11 @@ class LoadTracer(PagingTracer):
         self.read_port = partial(self._read_port, self.state, list(self.accelerators), simulator.memory)
 
     def run(self, border, out7ffd, outfffd, ay, outfe):
-        self.border = border
-        if len(self.simulator.memory) == 65536:
-            self.out7ffd = 0x10 # Signal: 48K ROM always
-        else: # pragma: no cover
+        is128k = len(self.simulator.memory) == 0x20000
+        if is128k: # pragma: no cover
             self.out7ffd = out7ffd # 128K ROM 0/1
+        else:
+            self.out7ffd = 0x10 # Signal: 48K ROM always
         self.outfffd = outfffd
         self.ay = ay
         self.outfe = outfe
@@ -239,6 +244,11 @@ class LoadTracer(PagingTracer):
             word_fmt = self.word_fmt
             r = Registers(registers)
             m = memory
+        draw = self.draw
+        if draw: # pragma: no cover
+            self.border = [(0, border)]
+        else:
+            self.border = border
 
         if hasattr(simulator, 'load'): # pragma: Python no cover
             if tracefile:
@@ -246,11 +256,12 @@ class LoadTracer(PagingTracer):
                 tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0, m=m))
             else:
                 df = tf = None
-            stop_cond = simulator.load(self.stop, self.flash_load, self.finish_tape, self.timeout, df, tf)
+            stop_cond = simulator.load(self, self.stop, self.flash_load, self.finish_tape, self.timeout, draw, df, tf)
             pc = registers[24]
         else: # pragma: C no cover
             opcodes = simulator.opcodes
-            frame_duration = simulator.frame_duration
+            frame_duration = self.frame_duration
+            prev_frame = registers[T] // frame_duration
             int_active = simulator.int_active
             pc = registers[24]
             progress = 0
@@ -276,6 +287,18 @@ class LoadTracer(PagingTracer):
                 if registers[26] and tstates % frame_duration < int_active:
                     simulator.accept_interrupt(registers, memory, pc)
                     tstates = registers[25]
+
+                if draw: # pragma: no cover
+                    frame = tstates // frame_duration
+                    if frame > prev_frame:
+                        if is128k:
+                            scr = memory.memory[1][:6912]
+                        else:
+                            scr = memory[16384:23296]
+                        if not draw(scr, frame, self.border):
+                            stop_cond = 6
+                            break
+                        prev_frame = frame
 
                 if state[4] and tstates >= state[0]:
                     index = state[1]
@@ -349,6 +372,8 @@ class LoadTracer(PagingTracer):
             write_line(f'Simulation stopped (timed out): PC={pc}')
         elif stop_cond == 5: # pragma: no cover
             write_line('Tape paused')
+        elif stop_cond == 6: # pragma: no cover
+            write_line('Simulation stopped (screen closed)')
 
     def dec_a(self, dec_a_jr, dec_a_jp, registers, memory):
         # Speed up any 'DEC A: JR/JP NZ,$-1' loop if configured to do so, and
@@ -452,6 +477,20 @@ class LoadTracer(PagingTracer):
                 return 0
             return self.ay[ay_reg]
         return 255
+
+    def _write_port(self, registers, port, value, offset): # pragma: no cover
+        if port % 2 == 0:
+            self.border.append(((registers[25] % self.frame_duration) + offset, value % 8))
+            self.outfe = value
+        if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
+            memory = self.simulator.memory
+            if isinstance(memory, Memory):
+                memory.out7ffd(value)
+                self.out7ffd = value
+        if port & 0xC002 == 0xC000:
+            self.outfffd = value
+        elif port & 0xC002 == 0x8000 and self.outfffd < 16:
+            self.ay[self.outfffd] = value
 
     def next_block(self, tstates):
         self.block_index += 1

@@ -1638,6 +1638,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           information. This option may be used multiple times.
     --reg name=value      Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
+    --screen              Display screen contents while running.
     --show-config         Show configuration parameter values.
     -s START, --start START
                           Set the start address to JP to.
@@ -1986,6 +1987,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.1    | Added the ``--screen`` option                                     |
++---------+-------------------------------------------------------------------+
 | 10.0    | Added support for setting the MEMPTR register in SZX snapshots;   |
 |         | added support for the ``r[memptr]`` replacement field in the      |
 |         | ``TraceLine`` configuration parameter                             |

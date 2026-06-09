@@ -3,6 +3,8 @@ Changelog
 
 10.1b1
 ------
+* Added the ``--screen`` option to :ref:`tap2sna.py` (to display screen
+  contents while running)
 * Added the ``--volume`` option to :ref:`trace.py` (for setting the AY audio
   volume when writing a WAV file)
 * Added the ``vol`` parameter to the :ref:`AUDIO` macro (to set the AY audio

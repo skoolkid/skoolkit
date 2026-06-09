@@ -124,7 +124,7 @@ class TimedOutKeypressTracer(MockKeypressTracer):
         self.keys.append('ENTER')
 
 class MockLoadTracer:
-    def __init__(self, simulator, blocks, config):
+    def __init__(self, simulator, blocks, config, draw):
         global load_tracer
         self.simulator = simulator
         self.blocks = blocks
@@ -146,6 +146,7 @@ class MockLoadTracer:
         self.prefix = config['prefix']
         self.byte_fmt = config['byte_fmt']
         self.word_fmt = config['word_fmt']
+        self.draw = draw
         self.run_called = False
         load_tracer = self
 
@@ -158,9 +159,22 @@ class MockLoadTracer:
         self.run_called = True
 
 class MockLoadTracerWithKeys(MockLoadTracer):
-    def __init__(self, simulator, blocks, config):
-        super().__init__(simulator, blocks, config)
+    def __init__(self, simulator, blocks, config, draw):
+        super().__init__(simulator, blocks, config, draw)
         self.keys = ['a']
+
+class MockScreen:
+    def __init__(self, scale, fps, caption, is128k):
+        global screen
+        screen = self
+        self.scale = scale
+        self.fps = fps
+        self.caption = caption
+        self.is128k = is128k
+        self.pygame_msg = 'Using pygame'
+
+    def draw(self, scr, frame, border):
+        pass
 
 class InterruptedTracer:
     def __init__(self, *args):
@@ -272,6 +286,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertIsNone(options.stack)
         self.assertEqual([], options.ram_ops)
         self.assertEqual([], options.reg)
+        self.assertFalse(options.screen)
         self.assertIsNone(options.start)
         self.assertEqual([], options.sim_load_config)
         self.assertEqual([], options.state)
@@ -513,6 +528,21 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'-p {stack} --ram load=1,16384 {tapfile} out.z80')
         self.assertEqual(error, '')
         self.assertIn(f'sp={stack}', s_reg)
+
+    @patch.object(tap2sna, 'pygame', True)
+    @patch.object(tap2sna, 'Screen', MockScreen)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    def test_option_screen(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'--screen {tapfile} out.z80')
+        self.assertTrue(output.startswith('Using pygame'))
+        self.assertEqual(error, '')
+        self.assertIsNotNone(load_tracer.draw)
+        self.assertIsNotNone(screen)
+        self.assertEqual(screen.scale, 2)
+        self.assertEqual(screen.fps, 50)
+        self.assertEqual(screen.caption, 'tap2sna.py')
+        self.assertFalse(screen.is128k)
 
     def test_option_show_config(self):
         output, error = self.run_tap2sna('--show-config', catch_exit=0)

@@ -32,6 +32,7 @@ from skoolkit.kbtracer import KeyboardTracer, KeypressTracer
 from skoolkit.loadsample import ACCELERATORS, Accelerator
 from skoolkit.loadtracer import LoadTracer, get_edges
 from skoolkit.pagingtracer import SliceableMemory
+from skoolkit.screen import pygame, Screen
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import FRAME_DURATIONS, INT_ACTIVE, PC, T, get_state
 from skoolkit.snapshot import (move, patch, poke, print_reg_help,
@@ -524,6 +525,13 @@ def sim_load(blocks, options, config):
     else:
         simulator_cls = CSimulator or Simulator
 
+    if options.screen and pygame:
+        screen = Screen(2, 50, 'tap2sna.py', len(memory) == 0x20000)
+        print(screen.pygame_msg)
+        draw = screen.draw
+    else:
+        draw = None
+
     if options.load:
         load = options.load.split()
         if load[-1].startswith('PC='):
@@ -603,7 +611,7 @@ def sim_load(blocks, options, config):
             'trace_line': trace_line,
             'word_fmt': word_fmt,
         }
-        tracer = LoadTracer(simulator, blocks, ltconfig)
+        tracer = LoadTracer(simulator, blocks, ltconfig, draw)
         simulator.set_tracer(tracer, options.in_flags & 4, False)
         try:
             tracer.run(border, out7ffd, outfffd, ay, outfe)
@@ -1027,6 +1035,8 @@ def main(args):
     group.add_argument('--reg', dest='reg', metavar='name=value', action='append', default=[],
                        help="Set the value of a register. Do '--reg help' for more information. "
                             "This option may be used multiple times.")
+    group.add_argument('--screen', dest='screen', action='store_true',
+                       help="Display screen contents while running.")
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
     group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
