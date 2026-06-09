@@ -153,9 +153,9 @@ class Screen:
     def _draw_border_48k(self, border):
         colours = self.colours
         chunks = []
-        x, y = 0, 0
+        x, y = 20, 0
         for i, (ts, colour) in enumerate(border[:-1]):
-            t = border[i + 1][0] - ts
+            t = (border[i + 1][0] & 0xFFFFC) - (ts & 0xFFFFC)
             c = colours[colour]
             while y < 280:
                 x1 = x + t
@@ -176,9 +176,9 @@ class Screen:
     def _draw_border_128k(self, border):
         colours = self.colours
         chunks = []
-        x, y = 0, 0
+        x, y = 16, 0
         for i, (ts, colour) in enumerate(border[:-1]):
-            t = border[i + 1][0] - ts
+            t = (border[i + 1][0] & 0xFFFFC) - (ts & 0xFFFFC)
             c = colours[colour]
             while y < 279:
                 x1 = x + t

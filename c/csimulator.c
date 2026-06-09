@@ -2487,11 +2487,13 @@ static void out_a(CSimulatorObject* self, void* lookup, int args[]) {
         CPATTERN(3, pc, 4, ADDR(pc + 1), 3, port, 0);
     }
     LD(MEMPTR, ((PEEK(ADDR(REG(PC) + 1)) + 1) & 0xFF) + 256 * REG(A));
+#else
+    unsigned delay = 0;
 #endif
     byte value = REG(A);
     OUT(port, value);
     if (self->out_tracer) {
-        PyObject* m_args = Py_BuildValue("(OIB)", self->registers_obj, port, value);
+        PyObject* m_args = Py_BuildValue("(OIBI)", self->registers_obj, port, value, 12 + delay);
         PyObject* rv = PyObject_Call(self->out_tracer, m_args, NULL);
         Py_XDECREF(m_args);
         if (rv == NULL) {
@@ -2518,11 +2520,13 @@ static void out_c(CSimulatorObject* self, void* lookup, int args[]) {
         CPATTERN(3, pc, 4, ADDR(pc + 1), 4, port, 0);
     }
     LD(MEMPTR, ADDR(port + 1));
+#else
+    unsigned delay = 0;
 #endif
     byte value = r >= 0 ? REG(r) : 0;
     OUT(port, value);
     if (self->out_tracer) {
-        PyObject* m_args = Py_BuildValue("(OIB)", self->registers_obj, port, value);
+        PyObject* m_args = Py_BuildValue("(OIBI)", self->registers_obj, port, value, 13 + delay);
         PyObject* rv = PyObject_Call(self->out_tracer, m_args, NULL);
         Py_XDECREF(m_args);
         if (rv == NULL) {
@@ -2546,10 +2550,23 @@ static void outi(CSimulatorObject* self, void* lookup, int args[]) {
     unsigned hl = REG(L) + 256 * REG(H);
     unsigned b = (REG(B) - 1) % 256;
     unsigned port = REG(C) + 256 * b;
+    unsigned io_delay = 0;
+#ifdef CONTENTION
+    unsigned pc = REG(PC);
+    unsigned ir = REG(R) + 256 * REG(I);
+    CONTEND {
+        CPATTERN(5, pc, 4, ADDR(pc + 1), 4, ir, 1, hl, 3, port, 0);
+        io_delay = delay;
+        if (repeat && b) {
+            unsigned bc = REG(C) + 256 * REG(B);
+            CPATTERN(5, bc, 1, bc, 1, bc, 1, bc, 1, bc, 1);
+        }
+    }
+#endif
     byte value = PEEK(hl);
     OUT(port, value);
     if (self->out_tracer) {
-        PyObject* m_args = Py_BuildValue("(OIB)", self->registers_obj, port, value);
+        PyObject* m_args = Py_BuildValue("(OIBI)", self->registers_obj, port, value, 17 + io_delay);
         PyObject* rv = PyObject_Call(self->out_tracer, m_args, NULL);
         Py_XDECREF(m_args);
         if (rv == NULL) {
@@ -2582,25 +2599,12 @@ static void outi(CSimulatorObject* self, void* lookup, int args[]) {
         }
         LD(F, (b & 0x80) + ((REG(PC) >> 8) & 0x28) + hf + p + n + cf);
 #ifdef CONTENTION
-        unsigned pc = REG(PC);
-        CONTEND {
-            unsigned bc = REG(C) + 256 * ((b + 1) % 256);
-            unsigned ir = REG(R) + 256 * REG(I);
-            hl = ADDR(hl - inc);
-            CPATTERN(10, pc, 4, ADDR(pc + 1), 4, ir, 1, hl, 3, port, 0, bc, 1, bc, 1, bc, 1, bc, 1, bc, 1);
-        }
         LD(MEMPTR, ADDR(pc + 1));
 #endif
         INC_T(21);
     } else {
         LD(F, (b & 0xA8) + (b == 0) * 0x40 + cf * 0x11 + PARITY[(j % 8) ^ b] + n);
 #ifdef CONTENTION
-        CONTEND {
-            unsigned pc = REG(PC);
-            unsigned ir = REG(R) + 256 * REG(I);
-            hl = ADDR(hl - inc);
-            CPATTERN(5, pc, 4, ADDR(pc + 1), 4, ir, 1, hl, 3, port, 0);
-        }
         LD(MEMPTR, ADDR(port + inc));
 #endif
         INC_PC(2);

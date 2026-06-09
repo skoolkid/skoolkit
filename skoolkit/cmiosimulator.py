@@ -1384,7 +1384,7 @@ class CMIOSimulator(Simulator):
                 delay = 0
             if self.out_tracer:
                 a = registers[0]
-                self.out_tracer(registers, memory[pc1] + 256 * a, a)
+                self.out_tracer(registers, memory[pc1] + 256 * a, a, 12 + delay)
             registers[15] = R1[registers[15]] # R
             registers[29] = ((memory[pc1] + 1) % 256) + 256 * registers[0] # MEMPTR
             registers[25] += 11 + delay # T-states
@@ -1405,9 +1405,9 @@ class CMIOSimulator(Simulator):
                 delay = 0
             if self.out_tracer:
                 if reg >= 0:
-                    self.out_tracer(registers, bc, registers[reg])
+                    self.out_tracer(registers, bc, registers[reg], 13 + delay)
                 else:
-                    self.out_tracer(registers, bc, 0)
+                    self.out_tracer(registers, bc, 0, 13 + delay)
             registers[15] = R2[registers[15]] # R
             registers[29] = (bc + 1) % 65536 # MEMPTR
             registers[25] += 12 + delay # T-states
@@ -1426,18 +1426,15 @@ class CMIOSimulator(Simulator):
             tm = registers[25] % frame_duration
             if t0 < tm < t1:
                 io_c = io_contention(port)
+                io_delay = delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), (hl, 3), *io_c))
                 if repeat and b != 1:
-                    # 21 T-states
-                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), (hl, 3), *io_c, (bc, 1), (bc, 1), (bc, 1), (bc, 1), (bc, 1)))
-                else:
-                    # 16 T-states
-                    delay = contend(tm, ((pc, 4), ((pc + 1) % 65536, 4), (registers[15] + 256 * registers[14], 1), (hl, 3), *io_c))
+                    delay += contend(tm + 16 + delay, ((bc, 1), (bc, 1), (bc, 1), (bc, 1), (bc, 1)))
             else:
-                delay = 0
+                io_delay = delay = 0
             b = (b - 1) % 256
             value = memory[hl]
             if self.out_tracer:
-                self.out_tracer(registers, port, value)
+                self.out_tracer(registers, port, value, 17 + io_delay)
             hl = (hl + inc) % 65536
             l = hl % 256
             registers[7] = l

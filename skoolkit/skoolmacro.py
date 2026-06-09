@@ -116,7 +116,7 @@ class PagingTracer:
             return self.ay[self.outfffd]
         return 255
 
-    def write_port(self, registers, port, value):
+    def write_port(self, registers, port, value, offset):
         if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
             self.memory.out7ffd(value)
             self.out7ffd = value
@@ -130,7 +130,7 @@ class AudioTracer:
         self.spkr = None
         self.out_times = []
 
-    def write_port(self, registers, port, value):
+    def write_port(self, registers, port, value, offset):
         if port % 2 == 0 and self.spkr != value & 0x10:
             self.spkr = value & 0x10
             self.out_times.append(registers[T])
@@ -144,7 +144,7 @@ class AudioTracer128(PagingTracer):
         self.spkr = None
         self.audio_log = []
 
-    def write_port(self, registers, port, value):
+    def write_port(self, registers, port, value, offset):
         if port % 2 == 0 and self.spkr != value & 0x10:
             self.spkr = value & 0x10
             self.audio_log.append((registers[T], 0xFF, 0))

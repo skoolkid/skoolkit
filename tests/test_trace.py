@@ -1871,7 +1871,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 255)
         self.assertEqual(screen.frame, 1)
-        self.assertEqual([(0, 0), (69882, 7)], screen.border)
+        self.assertEqual([(0, 0), (69894, 7)], screen.border)
 
     @patch.object(trace, 'pygame', True)
     @patch.object(trace, 'Screen', MockScreen)
@@ -1900,7 +1900,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 255)
         self.assertEqual(screen.frame, 1)
-        self.assertEqual([(0, 0), (70902, 6)], screen.border)
+        self.assertEqual([(0, 0), (70914, 6)], screen.border)
 
     def test_option_show_config(self):
         output, error = self.run_trace('--show-config', catch_exit=0)
@@ -2447,7 +2447,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 55)
         self.assertEqual(screen.frame, 1)
-        self.assertEqual([(0, 0), (69882, 6)], screen.border)
+        self.assertEqual([(0, 0), (69894, 6)], screen.border)
 
     @patch.object(trace, 'pygame', True)
     @patch.object(trace, 'Screen', MockScreen)
@@ -2476,7 +2476,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 72)
         self.assertEqual(screen.frame, 1)
-        self.assertEqual([(0, 0), (69882, 5)], screen.border)
+        self.assertEqual([(0, 0), (69894, 5)], screen.border)
 
     @patch.object(trace, 'pygame', True)
     @patch.object(trace, 'Screen', MockScreen)
@@ -2510,7 +2510,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 128)
         self.assertEqual(screen.frame, 1)
-        self.assertEqual([(0, 0), (69882, 4)], screen.border)
+        self.assertEqual([(0, 0), (69894, 4)], screen.border)
 
     @patch.object(trace, 'pygame', True)
     @patch.object(trace, 'Screen', MockScreen)
@@ -2539,7 +2539,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 1)
         self.assertEqual(screen.frame, 1)
-        self.assertEqual([(0, 0), (69882, 3)], screen.border)
+        self.assertEqual([(0, 0), (69894, 3)], screen.border)
 
     @patch.object(trace, 'pygame', True)
     @patch.object(trace, 'Screen', MockScreen)
@@ -2573,7 +2573,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 240)
         self.assertEqual(screen.frame, 1)
-        self.assertEqual([(0, 0), (69882, 2)], screen.border)
+        self.assertEqual([(0, 0), (69894, 2)], screen.border)
 
     @patch.object(trace, 'pygame', True)
     @patch.object(trace, 'Screen', MockScreen)
@@ -2602,7 +2602,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'trace.py')
         self.assertEqual(screen.scr[0], 16)
         self.assertEqual(screen.frame, 1)
-        self.assertEqual([(0, 0), (69882, 1)], screen.border)
+        self.assertEqual([(0, 0), (69894, 1)], screen.border)
 
     def test_config_TraceHeader_read_from_file(self):
         ini = """

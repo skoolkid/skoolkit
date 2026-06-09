@@ -88,9 +88,9 @@ class RZXTracer:
             return self.data[self.index - 1]
         raise SkoolKitError(f'Port readings exhausted for frame {self.context.frame_count}')
 
-    def write_port(self, registers, port, value):
+    def write_port(self, registers, port, value, offset):
         if port % 2 == 0:
-            self.border.append((registers[25] % self.frame_duration, value % 8))
+            self.border.append(((registers[25] % self.frame_duration) + offset, value % 8))
             self.outfe = value
         if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
             memory = self.simulator.memory

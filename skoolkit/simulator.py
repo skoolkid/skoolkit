@@ -921,7 +921,7 @@ class Simulator:
             pcn = registers[24] + 1
             if self.out_tracer:
                 a = registers[0]
-                self.out_tracer(registers, memory[pcn % 65536] + 256 * a, a)
+                self.out_tracer(registers, memory[pcn % 65536] + 256 * a, a, 12)
             registers[15] = R1[registers[15]] # R
             registers[25] += 11 # T-states
             registers[24] = (pcn + 1) % 65536 # PC
@@ -932,9 +932,9 @@ class Simulator:
         def func():
             if self.out_tracer:
                 if reg >= 0:
-                    self.out_tracer(registers, registers[3] + 256 * registers[2], registers[reg])
+                    self.out_tracer(registers, registers[3] + 256 * registers[2], registers[reg], 13)
                 else:
-                    self.out_tracer(registers, registers[3] + 256 * registers[2], 0)
+                    self.out_tracer(registers, registers[3] + 256 * registers[2], 0, 13)
             registers[15] = R2[registers[15]] # R
             registers[25] += 12 # T-states
             registers[24] = (registers[24] + 2) % 65536 # PC
@@ -948,7 +948,7 @@ class Simulator:
 
             value = memory[hl]
             if self.out_tracer:
-                self.out_tracer(registers, registers[3] + 256 * b, value)
+                self.out_tracer(registers, registers[3] + 256 * b, value, 17)
             hl = (hl + inc) % 65536
             l = hl % 256
             registers[7] = l

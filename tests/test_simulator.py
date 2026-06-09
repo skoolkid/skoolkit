@@ -29,7 +29,7 @@ class PortTracer:
         self.in_ports.append(port)
         return self.in_value
 
-    def write_port(self, registers, port, value):
+    def write_port(self, registers, port, value, offset):
         self.out_ports.append((port, value))
 
 class SimulatorTest(SkoolKitTestCase):

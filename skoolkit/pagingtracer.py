@@ -55,7 +55,7 @@ class SliceableMemory(Memory):
         return [self.memory[a // 0x4000][a % 0x4000] for a in range(index.start, min(index.stop, 65536), index.step or 1)]
 
 class PagingTracer:
-    def write_port(self, registers, port, value):
+    def write_port(self, registers, port, value, offset):
         if port % 2 == 0:
             self.border = value % 8
             self.outfe = value
