@@ -7,8 +7,10 @@ Changelog
   volume when writing a WAV file)
 * Added the ``vol`` parameter to the :ref:`AUDIO` macro (to set the AY audio
   volume)
+* Added the ``--cmio`` option to :ref:`rzxplay.py` (to enable simulation of
+  memory and I/O contention and the MEMPTR register)
 * Added support for multiple colours in the border area of the screen displayed
-  by :ref:`trace.py`
+  by :ref:`rzxplay.py` and :ref:`trace.py`
 * Fixed how :ref:`rzxinfo.py` detects a signed RZX file and encrypted frames
 * Fixed the bug in :ref:`sna2ctl.py` that enables the :ref:`rstHandler` when
   the :ref:`comment generator <commentGenerator>` is enabled

@@ -15,6 +15,9 @@ or an RZX file is written after playback has completed.
 
 OPTIONS
 =======
+-c, --cmio
+  Simulate memory and I/O contention delays and the MEMPTR register.
+
 --flags FLAGS
   Set playback flags. Do ``--flags help`` for more information, or see the
   section on ``FLAGS`` below.

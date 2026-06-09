@@ -100,6 +100,7 @@ class RzxplayTest(SkoolKitTestCase):
         rzxplay.main(['test.rzx'])
         rzxfile, options = run_args
         self.assertEqual(rzxfile, 'test.rzx')
+        self.assertFalse(options.cmio)
         self.assertFalse(options.force)
         self.assertEqual(options.fps, 50)
         self.assertTrue(options.screen)
@@ -1404,6 +1405,22 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertTrue(output.startswith('Usage: --flags FLAGS\n'))
         self.assertEqual(error, '')
 
+    @patch.object(rzxplay, 'CMIOSimulator', MockSimulator)
+    @patch.object(rzxplay, 'CCMIOSimulator', MockSimulator)
+    def test_option_cmio(self):
+        global simulator
+        simulator = None
+        ram = [0] * 0xC000
+        pc = 0xF000
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        self._test_rzx(rzx, exp_output, '--cmio --quiet --no-screen')
+        self.assertIsNotNone(simulator)
+
     def test_option_force(self):
         ram = [0] * 0xC000
         pc = 0xC000
@@ -1518,6 +1535,21 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         self._test_rzx(rzx, exp_output, '--python --quiet --no-screen')
+        self.assertIsNotNone(simulator)
+
+    @patch.object(rzxplay, 'CMIOSimulator', MockSimulator)
+    def test_option_python_with_cmio(self):
+        global simulator
+        simulator = None
+        ram = [0] * 0xC000
+        pc = 0xF000
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        self._test_rzx(rzx, exp_output, '-c --python --quiet --no-screen')
         self.assertIsNotNone(simulator)
 
     @patch.object(screen, 'pygame_io', MockPygameIO())

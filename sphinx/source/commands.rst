@@ -242,6 +242,7 @@ To list the options supported by `rzxplay.py`, run it with no arguments::
   is written after playback has completed.
 
   Options:
+    -c, --cmio       Simulate memory and I/O contention and the MEMPTR register.
     --flags FLAGS    Set playback flags. Do '--flags help' for more information.
     --force          Force playback when an unsupported machine is detected.
     --fps FPS        Run at this many frames per second (default: 50). 0 means
@@ -308,6 +309,9 @@ empty (i.e. contain no frames).
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.1    | Added the ``--cmio`` option; added support for multiple colours   |
+|         | in the border area of the screen                                  |
++---------+-------------------------------------------------------------------+
 | 10.0    | Added support for ignoring any snapshots after the first one;     |
 |         | added a border area to the screen                                 |
 +---------+-------------------------------------------------------------------+

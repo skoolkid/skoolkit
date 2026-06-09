@@ -20,8 +20,10 @@ import os
 import re
 import zlib
 
-from skoolkit import (VERSION, SkoolKitError, CSimulator, as_dword, get_dword,
-                      get_word, parse_int, read_bin_file, warn, write)
+from skoolkit import (VERSION, SkoolKitError, CSimulator, CCMIOSimulator,
+                      as_dword, get_dword, get_word, parse_int, read_bin_file,
+                      warn, write)
+from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.pagingtracer import Memory
 from skoolkit.screen import pygame, Screen
 from skoolkit.simulator import Simulator
@@ -264,7 +266,12 @@ def process_block(block, options, flags, context):
         # Set 'int_active' to 0 to prevent 'HALT' and 'LD A,I/R' from ever
         # behaving as if an interrupt is to be accepted
         config = {'int_active': 0}
-        if options.python:
+        if options.cmio:
+            if options.python:
+                simulator_cls = CMIOSimulator
+            else:
+                simulator_cls = CCMIOSimulator or CMIOSimulator
+        elif options.python:
             simulator_cls = Simulator
         else:
             simulator_cls = CSimulator or Simulator
@@ -442,6 +449,8 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('dump', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-c', '--cmio', action='store_true',
+                       help="Simulate memory and I/O contention and the MEMPTR register.")
     group.add_argument('--flags', default='0',
                        help="Set playback flags. Do '--flags help' for more information.")
     group.add_argument('--force', action='store_true',
