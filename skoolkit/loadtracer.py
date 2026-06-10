@@ -21,8 +21,7 @@ from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
 from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.simulator import R1
-from skoolkit.simutils import (FRAME_DURATIONS, A, D, E, F, H, IXh, IXl, SP,
-                               PC, T, IFF)
+from skoolkit.simutils import A, D, E, F, H, IXh, IXl, SP, PC, T, IFF
 from skoolkit.traceutils import Registers, disassemble
 
 DEC = tuple(tuple((
@@ -180,7 +179,7 @@ class LoadTracer(PagingTracer):
         self.dec_a_jp_hits = 0
         self.dec_a_misses = 0
         self.simulator = simulator
-        self.frame_duration = FRAME_DURATIONS[len(simulator.memory) == 0x20000]
+        self.frame_duration = simulator.frame_duration
         self.edges, self.blocks = get_edges(blocks, config['first_edge'], config['polarity'])
         self.keys = None
         self.pause = config['pause']

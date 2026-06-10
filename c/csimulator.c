@@ -6416,6 +6416,7 @@ static PyMemberDef CSimulator_members[] = {
     {"memory", T_OBJECT_EX, offsetof(CSimulatorObject, memory_obj), 0, "memory"},
     {"registers", T_OBJECT_EX, offsetof(CSimulatorObject, registers_obj), 0, "registers"},
     {"tracer", T_OBJECT_EX, offsetof(CSimulatorObject, tracer), 0, "tracer"},
+    {"frame_duration", T_UINT, offsetof(CSimulatorObject, frame_duration), 0, "frame duration"},
     {NULL}  /* Sentinel */
 };
 

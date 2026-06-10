@@ -13,6 +13,7 @@ class MockSimulator:
         self.memory = [0] * 65536
         self.opcodes = [self.nop] * 256
         self.registers = [0] * 29
+        self.frame_duration = 69888
 
     def set_tracer(self, tracer, *args, **kwargs):
         self.tracer = tracer

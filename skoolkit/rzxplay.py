@@ -27,7 +27,7 @@ from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.pagingtracer import Memory
 from skoolkit.screen import pygame, Screen
 from skoolkit.simulator import Simulator
-from skoolkit.simutils import FRAME_DURATIONS, from_snapshot, get_state
+from skoolkit.simutils import from_snapshot, get_state
 from skoolkit.snapshot import Snapshot, write_snapshot
 from skoolkit.traceutils import disassemble
 
@@ -54,7 +54,7 @@ class RZXTracer:
         self.set_input_rec(input_rec)
         self.simulator = context.simulator
         self.simulator.registers[25] = input_rec.tstates
-        self.frame_duration = FRAME_DURATIONS[len(self.simulator.memory) == 0x20000]
+        self.frame_duration = self.simulator.frame_duration
         self.border = [(0, context.snapshot.border)]
         self.out7ffd = context.snapshot.out7ffd
         self.outfffd = context.snapshot.outfffd

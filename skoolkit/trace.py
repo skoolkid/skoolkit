@@ -29,8 +29,7 @@ from skoolkit.graphics import Frame, scr_udgs
 from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.screen import pygame, Screen
 from skoolkit.simulator import Simulator
-from skoolkit.simutils import (CLOCK_SPEEDS, FRAME_DURATIONS, PC, T,
-                               from_snapshot, get_state)
+from skoolkit.simutils import CLOCK_SPEEDS, PC, T, from_snapshot, get_state
 from skoolkit.snapshot import (Snapshot, make_snapshot, poke, print_reg_help,
                                print_state_help, write_snapshot)
 from skoolkit.traceutils import Registers, disassemble, get_trace_line
@@ -43,7 +42,7 @@ class Tracer(PagingTracer):
         self.ay = ay
         self.outfe = outfe
         if port_fe:
-            self.frame_duration = FRAME_DURATIONS[len(simulator.memory) == 0x20000]
+            self.frame_duration = simulator.frame_duration
             self.write_port = self._write_port
             self.border = [(0, border)]
         else:
