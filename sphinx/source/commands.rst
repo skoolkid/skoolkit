@@ -1932,6 +1932,7 @@ configuration parameters are:
 * ``DefaultSnapshotFormat`` - the format of the snapshot written when no output
   snapshot argument is specified; valid values are ``z80`` (the default) and
   ``szx``
+* ``ScreenScale`` - screen scale factor (default: ``2``)
 * ``TraceLine`` - the format of each line in the trace log file for a simulated
   LOAD (default: ``${pc:04X} {i}``)
 * ``TraceOperand`` - the prefix, byte format, and word format for the numeric
@@ -1987,7 +1988,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.1    | Added the ``--screen`` option                                     |
+| 10.1    | Added the ``--screen`` option; added the ``ScreenScale``          |
+|         | configuration parameter                                           |
 +---------+-------------------------------------------------------------------+
 | 10.0    | Added support for setting the MEMPTR register in SZX snapshots;   |
 |         | added support for the ``r[memptr]`` replacement field in the      |

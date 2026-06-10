@@ -550,6 +550,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_output = r"""
             [tap2sna]
             DefaultSnapshotFormat=z80
+            ScreenScale=2
             TraceLine=${pc:04X} {i}
             TraceOperand=$,02X,04X
             UserAgent=
@@ -568,6 +569,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_output = """
             [tap2sna]
             DefaultSnapshotFormat=z80
+            ScreenScale=2
             TraceLine={pc:05} {i}
             TraceOperand=$,02X,04X
             UserAgent=tap2sna.py/9.5
@@ -3383,6 +3385,41 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--ram load=1,16384 -I DefaultSnapshotFormat=szx {tapfile}')
         self.assertEqual(len(error), 0)
         self.assertEqual(s_fname, exp_outfile)
+
+    @patch.object(tap2sna, 'pygame', True)
+    @patch.object(tap2sna, 'Screen', MockScreen)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    def test_config_ScreenScale_read_from_file(self):
+        ini = """
+            [tap2sna]
+            ScreenScale=3
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'--screen {tapfile} out.z80')
+        self.assertTrue(output.startswith('Using pygame'))
+        self.assertEqual(error, '')
+        self.assertIsNotNone(load_tracer.draw)
+        self.assertIsNotNone(screen)
+        self.assertEqual(screen.scale, 3)
+        self.assertEqual(screen.fps, 50)
+        self.assertEqual(screen.caption, 'tap2sna.py')
+        self.assertFalse(screen.is128k)
+
+    @patch.object(tap2sna, 'pygame', True)
+    @patch.object(tap2sna, 'Screen', MockScreen)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    def test_config_ScreenScale_set_on_command_line(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'--screen -I ScreenScale=1 {tapfile} out.z80')
+        self.assertTrue(output.startswith('Using pygame'))
+        self.assertEqual(error, '')
+        self.assertIsNotNone(load_tracer.draw)
+        self.assertIsNotNone(screen)
+        self.assertEqual(screen.scale, 1)
+        self.assertEqual(screen.fps, 50)
+        self.assertEqual(screen.caption, 'tap2sna.py')
+        self.assertFalse(screen.is128k)
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_config_TraceLine_read_from_file(self):

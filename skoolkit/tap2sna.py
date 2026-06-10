@@ -526,7 +526,7 @@ def sim_load(blocks, options, config):
         simulator_cls = CSimulator or Simulator
 
     if options.screen and pygame:
-        screen = Screen(2, 50, 'tap2sna.py', len(memory) == 0x20000)
+        screen = Screen(config['ScreenScale'], 50, 'tap2sna.py', len(memory) == 0x20000)
         print(screen.pygame_msg)
         draw = screen.draw
     else:

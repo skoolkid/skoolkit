@@ -133,6 +133,7 @@ COMMANDS = {
     },
     'tap2sna': {
         'DefaultSnapshotFormat': ('z80', ''),
+        'ScreenScale': (2, ''),
         'TraceLine': ('${pc:04X} {i}', ''),
         'TraceOperand': ('$,02X,04X', ''),
         'UserAgent': ('', 'user_agent'),

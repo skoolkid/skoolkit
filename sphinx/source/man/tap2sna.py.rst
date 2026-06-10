@@ -53,7 +53,7 @@ OPTIONS
   the section on ``REGISTERS`` below. This option may be used multiple times.
 
 --screen
-  Display screen contents while running.
+  Display screen contents while running (requires pygame).
 
 --show-config
   Show configuration parameter values.
@@ -518,6 +518,7 @@ configuration parameters are:
   :DefaultSnapshotFormat: The format of the snapshot written when no output
     snapshot argument is specified. Valid values are ``z80`` (the default) and
     ``szx``.
+  :ScreenScale: Screen scale factor (default: ``2``).
   :TraceLine: The format of each line in the trace log file for a simulated
     LOAD (default: ``${pc:04X} {i}``).
   :TraceOperand: The prefix, byte format, and word format for the numeric
