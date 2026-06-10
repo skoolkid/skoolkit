@@ -146,6 +146,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertIsNone(options.stop)
         self.assertFalse(options.audio)
         self.assertFalse(options.ay)
+        self.assertEqual(options.ay_res, 622)
         self.assertFalse(options.beeper)
         self.assertFalse(options.cmio)
         self.assertEqual(options.depth, 2)
@@ -1232,6 +1233,37 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(simulator.memory[0xC000], 1) # Bank 3 paged in
         self.assertEqual(simulator.memory[0x0001], 1) # ROM 0 paged in
 
+    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    def test_option_ay_res(self):
+        data = (
+            0x11, 0x05, 0x02,       # $C000 LD DE,$0205
+            0x01, 0xFD, 0xFF,       # $C003 LD BC,$FFFD
+            0xED, 0x59,             # $C006 OUT (C),E
+            0x01, 0xFD, 0xBF,       # $C008 LD BC,$BFFD
+            0xED, 0x51,             # $C00B OUT (C),D
+        )
+        ram = [0] * 49152
+        start = 0xC000
+        stop = start + len(data)
+        ram[start - 0x4000:stop - 0x4000] = data
+        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        outfile = 'out.wav'
+        output, error = self.run_trace(f'-S {stop} --ay --ay-res 70908 {infile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        exp_audio_log = [
+            (42, 5, 2),
+            (54, 15, 0),
+        ]
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(ay_audio_writer.fname, outfile)
+        self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
+        self.assertEqual(ay_audio_writer.options.volume, 100)
+        self.assertEqual(ay_audio_writer.options.ay_res, 70908)
+        self.assertFalse(ay_audio_writer.options.beeper)
+
     def test_option_cmio(self):
         data = (
             0xAF,             # $6000 XOR A        ;  4T -> 10T [ 4T ->  10T]
@@ -2301,7 +2333,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(ay_audio_writer.fname, outfile)
         self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
         self.assertEqual(ay_audio_writer.options.volume, 50)
-        self.assertIsNone(ay_audio_writer.options.ay_res)
+        self.assertEqual(ay_audio_writer.options.ay_res, 622)
         self.assertFalse(ay_audio_writer.options.beeper)
 
     @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
@@ -3502,7 +3534,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(ay_audio_writer.fname, outfile)
         self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
         self.assertEqual(ay_audio_writer.options.volume, 100)
-        self.assertIsNone(ay_audio_writer.options.ay_res)
+        self.assertEqual(ay_audio_writer.options.ay_res, 622)
         self.assertFalse(ay_audio_writer.options.beeper)
 
     @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
@@ -3570,7 +3602,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(ay_audio_writer.fname, outfile)
         self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
         self.assertEqual(ay_audio_writer.options.volume, 100)
-        self.assertIsNone(ay_audio_writer.options.ay_res)
+        self.assertEqual(ay_audio_writer.options.ay_res, 622)
         self.assertTrue(ay_audio_writer.options.beeper)
 
     @patch.object(trace, 'get_audio_writer', MockAudioWriter)

@@ -2155,6 +2155,8 @@ To list the options supported by `trace.py`, run it with no arguments::
   Options:
     --audio               Show beeper delays.
     --ay                  Capture AY audio (when writing a WAV file).
+    --ay-res T            Set AY sampling resolution to this many T-states
+                          (default: 622).
     --beeper              Capture beeper audio (when used with --ay).
     -c, --cmio            Simulate memory and I/O contention and the MEMPTR
                           register.
@@ -2208,6 +2210,15 @@ of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)
 between those changes. This list can be supplied to the :ref:`AUDIO` macro to
 produce a WAV file for the sound effect that would be produced by the same code
 running on a real ZX Spectrum.
+
+When writing a WAV file, `trace.py` captures only beeper activity by default.
+To capture AY activity instead, use the ``--ay`` option. To capture both AY and
+beeper activity, use the ``--ay`` and ``--beeper`` options together. By
+default, the AY registers are sampled at a resolution of 622 T-states (5700Hz),
+which is usually good enough for capturing AY speech. The sampling resolution
+can be changed by using the ``--ay-res`` option. A higher value such as 70908
+(50Hz) is usually good enough for capturing AY music, and may also require less
+time to produce the WAV file.
 
 If the ``--screen`` option is given and `pygame`_ is installed, `trace.py` will
 use it to render the Spectrum's screen contents at 50 frames per second with a
@@ -2286,8 +2297,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.1    | Added the ``--volume`` option; added support for multiple colours |
-|         | in the border area of the screen                                  |
+| 10.1    | Added the ``--ay-res`` and ``--volume`` options; added support    |
+|         | for multiple colours in the border area of the screen             |
 +---------+-------------------------------------------------------------------+
 | 10.0    | Added the ``--ay`` and ``--beeper`` options and support for       |
 |         | capturing AY audio; added support to the ``--reg`` option for     |

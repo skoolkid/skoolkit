@@ -25,6 +25,12 @@ OPTIONS
 --ay
   Capture AY audio (when writing a WAV file).
 
+--ay-res `T`
+  Set the AY sampling resolution to this many T-states. The default value of
+  622 is equivalent to 5700Hz, which is usually good enough for capturing AY
+  speech. A higher value such as 70908 (50Hz) is usually good enough for
+  capturing AY music, and may also require less time to produce the WAV file.
+
 --beeper
   Capture beeper audio (when used with ``--ay``).
 

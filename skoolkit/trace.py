@@ -369,7 +369,7 @@ def run(snafile, options, config):
             if options.ay:
                 if any(r < 16 for t, r, v in tracer.audio_log):
                     audio_writer = AYAudioWriter()
-                    ay_options = Options(options.volume, beeper=options.beeper)
+                    ay_options = Options(options.volume, options.ay_res, options.beeper)
                     tracer.audio_log.append((simulator.registers[T], 15, 0))
                     with open(fname, 'wb') as f:
                         audio_writer.write_audio(f, tracer.audio_log, ay_options)
@@ -412,6 +412,8 @@ def main(args):
                        help="Show beeper delays.")
     group.add_argument('--ay', action='store_true',
                        help="Capture AY audio (when writing a WAV file).")
+    group.add_argument('--ay-res', metavar='T', type=int, default=622,
+                       help='Set AY sampling resolution to this many T-states (default: 622).')
     group.add_argument('--beeper', action='store_true',
                        help="Capture beeper audio (when used with --ay).")
     group.add_argument('-c', '--cmio', action='store_true',

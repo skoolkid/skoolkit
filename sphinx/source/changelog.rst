@@ -9,6 +9,8 @@ Changelog
   volume when writing a WAV file)
 * Added the ``vol`` parameter to the :ref:`AUDIO` macro (to set the AY audio
   volume)
+* Added the ``--ay-res`` option to :ref:`trace.py` (for setting the AY sampling
+  resolution when writing a WAV file)
 * Added the ``--cmio`` option to :ref:`rzxplay.py` (to enable simulation of
   memory and I/O contention and the MEMPTR register)
 * Added support for multiple colours in the border area of the screen displayed
