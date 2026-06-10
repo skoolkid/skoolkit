@@ -1802,6 +1802,12 @@ This can be reversed by setting ``polarity=1``. Run *tap2sna.py* with the
 ``--tape-analysis`` option to see the timings and EAR bit readings of the
 pulses on a tape.
 
+If the ``--screen`` option is given and `pygame`_ is installed, `tap2sna.py`
+will use it to render the Spectrum's screen contents at 50 frames per second
+with a scale factor of 2 while the simulated LOAD is running. The frame rate
+and scale factor can be changed by setting the ``ScreenFps`` and
+``ScreenScale`` configuration parameters.
+
 .. _tap2sna-accelerators:
 
 Accelerators
@@ -1932,6 +1938,8 @@ configuration parameters are:
 * ``DefaultSnapshotFormat`` - the format of the snapshot written when no output
   snapshot argument is specified; valid values are ``z80`` (the default) and
   ``szx``
+* ``ScreenFps`` - screen refresh rate in frames per second (default: ``50``);
+  if set to 0, `tap2sna.py` runs at maximum speed
 * ``ScreenScale`` - screen scale factor (default: ``2``)
 * ``TraceLine`` - the format of each line in the trace log file for a simulated
   LOAD (default: ``${pc:04X} {i}``)
@@ -1988,8 +1996,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.1    | Added the ``--screen`` option; added the ``ScreenScale``          |
-|         | configuration parameter                                           |
+| 10.1    | Added the ``--screen`` option; added the ``ScreenFps`` and        |
+|         | ``ScreenScale`` configuration parameters                          |
 +---------+-------------------------------------------------------------------+
 | 10.0    | Added support for setting the MEMPTR register in SZX snapshots;   |
 |         | added support for the ``r[memptr]`` replacement field in the      |
