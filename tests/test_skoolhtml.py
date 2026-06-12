@@ -1470,7 +1470,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=False,
                           interrupts=False, offset=0, is128k=False, config=None,
-                          audio_log=None, beeper=0, volume=100, ay_res=622):
+                          audio_log=None, beeper=0, volume=100, ay_mode=0, ay_res=622):
         exp_html = f"""
             <audio controls="" src="{src}">
             <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
@@ -1500,6 +1500,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         else:
             self.assertEqual(audio_log, ay_audio_writer.audio_log)
             self.assertEqual(ay_audio_writer.write_options.volume, volume)
+            self.assertEqual(ay_audio_writer.write_options.mode, ay_mode)
             self.assertEqual(ay_audio_writer.write_options.ay_res, ay_res)
             self.assertIs(ay_audio_writer.write_options.beeper, beeper)
         is128k = len(writer.snapshot) == 0x20000
@@ -1837,6 +1838,118 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         self._test_audio_macro(writer, macro, exp_src, exp_path, is128k=True, audio_log=exp_audio_log, volume=vol)
 
+    def test_macro_audio_with_ay_mode_0(self):
+        skool = """
+            @bank=6
+            ; AY activity
+            c$C000 LD C,$FD
+             $C002 LD DE,$0101
+            *$C005 LD B,$FF
+             $C007 OUT (C),E
+             $C009 LD B,$BF
+             $C00B OUT (C),D
+             $C00D INC D
+             $C00E DEC E
+             $C00F JP P,$C005
+             $C012 RET
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        fname = 'aymode0.wav'
+        ay_mode = 0
+        macro = f'#AUDIO1,$C000,$C012,,,,1,,,{ay_mode}({fname})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_audio_log = [
+            (43, 1, 1),
+            (99, 0, 2),
+            (129, 15, 0) # End marker AY record
+        ]
+        self._test_audio_macro(writer, macro, exp_src, exp_path, is128k=True, audio_log=exp_audio_log, ay_mode=ay_mode)
+
+    def test_macro_audio_with_ay_mode_1(self):
+        skool = """
+            @bank=4
+            ; AY activity
+            c$C000 LD C,$FD
+             $C002 LD DE,$0201
+            *$C005 LD B,$FF
+             $C007 OUT (C),E
+             $C009 LD B,$BF
+             $C00B OUT (C),D
+             $C00D INC D
+             $C00E DEC E
+             $C00F JP P,$C005
+             $C012 RET
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        fname = 'aymode1.wav'
+        ay_mode = 1
+        macro = f'#AUDIO1,$C000,$C012,,,,1,,,{ay_mode}({fname})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_audio_log = [
+            (43, 1, 2),
+            (99, 0, 3),
+            (129, 15, 0) # End marker AY record
+        ]
+        self._test_audio_macro(writer, macro, exp_src, exp_path, is128k=True, audio_log=exp_audio_log, ay_mode=ay_mode)
+
+    def test_macro_audio_with_ay_mode_2(self):
+        skool = """
+            @bank=3
+            ; AY activity
+            c$C000 LD C,$FD
+             $C002 LD DE,$0301
+            *$C005 LD B,$FF
+             $C007 OUT (C),E
+             $C009 LD B,$BF
+             $C00B OUT (C),D
+             $C00D INC D
+             $C00E DEC E
+             $C00F JP P,$C005
+             $C012 RET
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        fname = 'aymode2.wav'
+        ay_mode = 2
+        macro = f'#AUDIO1,$C000,$C012,,,,1,,,{ay_mode}({fname})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_audio_log = [
+            (43, 1, 3),
+            (99, 0, 4),
+            (129, 15, 0) # End marker AY record
+        ]
+        self._test_audio_macro(writer, macro, exp_src, exp_path, is128k=True, audio_log=exp_audio_log, ay_mode=ay_mode)
+
+    def test_macro_audio_with_ay_mode_greater_than_2(self):
+        skool = """
+            @bank=1
+            ; AY activity
+            c$C000 LD C,$FD
+             $C002 LD DE,$0501
+            *$C005 LD B,$FF
+             $C007 OUT (C),E
+             $C009 LD B,$BF
+             $C00B OUT (C),D
+             $C00D INC D
+             $C00E DEC E
+             $C00F JP P,$C005
+             $C012 RET
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        fname = 'aymode4.wav'
+        ay_mode = 4
+        macro = f'#AUDIO1,$C000,$C012,,,,1,,,{ay_mode}({fname})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_audio_log = [
+            (43, 1, 5),
+            (99, 0, 6),
+            (129, 15, 0) # End marker AY record
+        ]
+        self._test_audio_macro(writer, macro, exp_src, exp_path, is128k=True, audio_log=exp_audio_log, ay_mode=ay_mode % 3)
+
     def test_macro_audio_with_ay_resolution(self):
         skool = """
             @bank=7
@@ -1855,7 +1968,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool=skool, mock_file_info=True)
         fname = 'ayres.wav'
         ay_res = 70908
-        macro = f'#AUDIO1,$C000,$C012,,,,1,,,{ay_res}({fname})'
+        macro = f'#AUDIO1,$C000,$C012,,,,1,,,,{ay_res}({fname})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_audio_log = [
@@ -2030,7 +2143,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool=skool, mock_file_info=True)
         offset = 14335
         fname = 'sound.wav'
-        macro = f'#AUDIO(execint=0,cmio=1,ay=0,ayres=70908,vol=50,bpr=0,offset={offset},sim=1,start=24576,stop=24589)({fname})'
+        macro = f'#AUDIO(execint=0,cmio=1,ay=0,ayres=70908,vol=50,aymode=2,bpr=0,offset={offset},sim=1,start=24576,stop=24589)({fname})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [203, 214, 217, 215, 220]

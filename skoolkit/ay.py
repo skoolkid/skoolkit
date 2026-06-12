@@ -163,7 +163,7 @@ class Options:
         self.volume = max(min(volume, 100), 0)
         self.ay_res = ay_res
         self.beeper = beeper
-        self.mode = mode
+        self.mode = mode % len(AY_MODES)
 
 class AYAudioWriter:
     def __init__(self, config=None):
