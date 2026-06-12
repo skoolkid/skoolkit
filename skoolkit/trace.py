@@ -21,7 +21,7 @@ import time
 from skoolkit import (ROM48, VERSION, SkoolKitError, CSimulator,
                       CCMIOSimulator, get_int_param, integer, read_bin_file)
 from skoolkit.audio import CLOCK_SPEED
-from skoolkit.ay import AYAudioWriter, Options
+from skoolkit.ay import AY_MODES, AYAudioWriter, Options
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.components import get_audio_writer, get_image_writer
 from skoolkit.config import get_config, show_config, update_options
@@ -33,6 +33,8 @@ from skoolkit.simutils import CLOCK_SPEEDS, PC, T, from_snapshot, get_state
 from skoolkit.snapshot import (Snapshot, make_snapshot, poke, print_reg_help,
                                print_state_help, write_snapshot)
 from skoolkit.traceutils import Registers, disassemble, get_trace_line
+
+AY_MODE_NAMES = tuple(m[0] for m in AY_MODES)
 
 class Tracer(PagingTracer):
     def __init__(self, simulator, border, out7ffd, outfffd, ay, outfe, port_fe):
@@ -368,7 +370,8 @@ def run(snafile, options, config):
             if options.ay:
                 if any(r < 16 for t, r, v in tracer.audio_log):
                     audio_writer = AYAudioWriter()
-                    ay_options = Options(options.volume, options.ay_res, options.beeper)
+                    mode = AY_MODE_NAMES.index(options.ay_mode)
+                    ay_options = Options(options.volume, options.ay_res, options.beeper, mode)
                     tracer.audio_log.append((simulator.registers[T], 15, 0))
                     with open(fname, 'wb') as f:
                         audio_writer.write_audio(f, tracer.audio_log, ay_options)
@@ -411,6 +414,8 @@ def main(args):
                        help="Show beeper delays.")
     group.add_argument('--ay', action='store_true',
                        help="Capture AY audio (when writing a WAV file).")
+    group.add_argument('--ay-mode', metavar='MODE', choices=AY_MODE_NAMES, default='MONO',
+                       help='Set AY mode to ABC, ACB or MONO (the default).')
     group.add_argument('--ay-res', metavar='T', type=int, default=622,
                        help='Set AY sampling resolution to this many T-states (default: 622).')
     group.add_argument('--beeper', action='store_true',

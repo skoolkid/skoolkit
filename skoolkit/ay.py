@@ -23,6 +23,11 @@ AY_DAC_TABLE = tuple(v / 0xFFFF for v in (
     0x0000, 0x0385, 0x053D, 0x0770, 0x0AD7, 0x0FD5, 0x15B0, 0x230C,
     0x2B4C, 0x43C1, 0x5A4B, 0x732F, 0x9204, 0xAFF1, 0xD921, 0xFFFF
 ))
+AY_MODES = (
+    ('MONO', 1, (0.5, 0.5, 0.5)),
+    ('ABC', 2, (0.0, 0.5, 1.0)),
+    ('ACB', 2, (0.0, 1.0, 0.5)),
+)
 SLIDE_DOWN = (-1, 31)
 SLIDE_UP = (1, 0)
 HOLD_BOTTOM = (0, 0)
@@ -59,8 +64,8 @@ class Channel:
         self.pan_right = pan
 
 class AY:
-    def __init__(self):
-        self.channels = (Channel(0.5), Channel(0.5), Channel(0.5))
+    def __init__(self, pan):
+        self.channels = tuple(Channel(p) for p in pan)
 
     def frames(self, ay_log, ay_res):
         ay = [0] * 16
@@ -154,10 +159,11 @@ class AY:
         return samples
 
 class Options:
-    def __init__(self, volume=100, ay_res=None, beeper=False):
+    def __init__(self, volume, ay_res, beeper, mode):
         self.volume = max(min(volume, 100), 0)
         self.ay_res = ay_res
         self.beeper = beeper
+        self.mode = mode
 
 class AYAudioWriter:
     def __init__(self, config=None):
@@ -183,7 +189,8 @@ class AYAudioWriter:
                 beeper_log.insert(0, ay_log[0][0])
             else:
                 ay_log.insert(0, (beeper_log[0], 0, 0))
-        ay = AY()
+        channels, pan = AY_MODES[options.mode][1:]
+        ay = AY(pan)
         frame_duration = self.options[FRAME_DURATION]
         ay_res = options.ay_res or 622 # 70908/622=114 (5700Hz)
         ay_samples = ay.render(ay_log, self.options[SAMPLE_RATE], frame_duration, ay_res, ay_volume)
@@ -193,7 +200,9 @@ class AYAudioWriter:
             samples = self._combine(ay_samples, beeper_samples)
         else:
             samples = ay_samples
-        write_wav(audio_file, samples[::2], self.options[SAMPLE_RATE])
+        if channels == 1:
+            samples = samples[::2]
+        write_wav(audio_file, samples, self.options[SAMPLE_RATE], channels)
 
     def _parse_log(self, audio_log):
         ay_log = []

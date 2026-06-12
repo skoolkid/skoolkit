@@ -1057,7 +1057,7 @@ class HtmlWriter:
                     is128k = len(self.snapshot) == 0x20000
                     self.audio_writer.write_audio(f, delays, contention, interrupts, offset, is128k)
                 else:
-                    options = Options(volume, ay_res, beeper)
+                    options = Options(volume, ay_res, beeper, 0)
                     self.ay_audio_writer.write_audio(f, audio_log, options)
             self.file_info.add_audio(fname)
         return end, self.format_template('audio', {'src': self.relpath(cwd, fname)})

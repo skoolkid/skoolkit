@@ -2165,6 +2165,7 @@ To list the options supported by `trace.py`, run it with no arguments::
   Options:
     --audio               Show beeper delays.
     --ay                  Capture AY audio (when writing a WAV file).
+    --ay-mode MODE        Set AY mode to ABC, ACB or MONO (the default).
     --ay-res T            Set AY sampling resolution to this many T-states
                           (default: 622).
     --beeper              Capture beeper audio (when used with --ay).
@@ -2307,8 +2308,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.1    | Added the ``--ay-res`` and ``--volume`` options; added support    |
-|         | for multiple colours in the border area of the screen             |
+| 10.1    | Added the ``--ay-mode``, ``--ay-res`` and ``--volume`` options;   |
+|         | added support for multiple colours in the border area of the      |
+|         | screen                                                            |
 +---------+-------------------------------------------------------------------+
 | 10.0    | Added the ``--ay`` and ``--beeper`` options and support for       |
 |         | capturing AY audio; added support to the ``--reg`` option for     |

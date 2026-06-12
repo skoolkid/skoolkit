@@ -12,6 +12,8 @@ Changelog
   volume when writing a WAV file)
 * Added the ``vol`` parameter to the :ref:`AUDIO` macro (to set the AY audio
   volume)
+* Added the ``--ay-mode`` option to :ref:`trace.py` (for setting the AY stereo
+  mode when writing a WAV file)
 * Added the ``--ay-res`` option to :ref:`trace.py` (for setting the AY sampling
   resolution when writing a WAV file)
 * Added the ``ayres`` parameter to the :ref:`AUDIO` macro (to set the AY

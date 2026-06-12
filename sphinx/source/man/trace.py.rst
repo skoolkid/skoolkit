@@ -25,6 +25,9 @@ OPTIONS
 --ay
   Capture AY audio (when writing a WAV file).
 
+--ay-mode `MODE`
+  Set the AY stereo mode to ABC, ACB or MONO (the default).
+
 --ay-res `T`
   Set the AY sampling resolution to this many T-states. The default value of
   622 is equivalent to 5700Hz, which is usually good enough for capturing AY
