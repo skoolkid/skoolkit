@@ -84,6 +84,15 @@ REGISTERS = {
     'T': T
 }
 
+def from_memory(cls, memory, registers=None, state=None, config=None):
+    s_config = {
+        'frame_duration': FRAME_DURATIONS[len(memory) == 0x20000],
+        'int_active': INT_ACTIVE[len(memory) == 0x20000]
+    }
+    if config:
+        s_config.update(config)
+    return cls(memory, registers, state, s_config)
+
 def from_snapshot(cls, snapshot, registers=None, state=None, config=None, rom_file=None):
     ram = snapshot.ram(-1)
     if len(ram) == 0x20000:
@@ -121,13 +130,7 @@ def from_snapshot(cls, snapshot, registers=None, state=None, config=None, rom_fi
     }
     if state:
         s_state.update(state)
-    s_config = {
-        'frame_duration': FRAME_DURATIONS[len(ram) == 0x20000],
-        'int_active': INT_ACTIVE[len(ram) == 0x20000]
-    }
-    if config:
-        s_config.update(config)
-    return cls(s_memory, s_registers, s_state, s_config)
+    return from_memory(cls, s_memory, s_registers, s_state, config)
 
 def get_state(simulator, tstates=True):
     registers = [

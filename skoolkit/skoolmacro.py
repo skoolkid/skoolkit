@@ -27,10 +27,9 @@ from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.graphics import Udg
 from skoolkit.simulator import Simulator
-from skoolkit.simutils import (FRAME_DURATIONS, INT_ACTIVE, A, F, B, C, D, E,
-                               H, L, IXh, IXl, IYh, IYl, SP, I, R, xA, xF, xB,
-                               xC, xD, xE, xH, xL, PC, T, IFF, IM, HALT,
-                               MEMPTR)
+from skoolkit.simutils import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP,
+                               I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T,
+                               IFF, IM, HALT, MEMPTR, from_memory)
 
 _map_cache = {}
 
@@ -608,9 +607,6 @@ def _read_sim_state(writer, reg=None, clear=0):
                 registers[r] = v
     state = {a: registers.pop(a) for a in ('iff', 'im', 'halted', 'tstates', 'fffd', 'ay')}
     config = {'fast_djnz': True, 'fast_ldir': True}
-    if len(writer.snapshot) == 0x20000:
-        config['frame_duration'] = FRAME_DURATIONS[1]
-        config['int_active'] = INT_ACTIVE[1]
     return registers, state, config
 
 def _write_sim_state(writer, simulator, tracer=None):
@@ -693,7 +689,7 @@ def parse_audio(writer, text, index, need_audio=None):
                 state['iff'] = 1
             if offset is not None:
                 state['tstates'] = offset
-            simulator = simulator_cls(writer.snapshot, registers, state, config)
+            simulator = from_memory(simulator_cls, writer.snapshot, registers, state, config)
             memory = writer.snapshot
             if len(memory) == 0x20000:
                 tracer = AudioTracer128(memory, memory.o7ffd, state['fffd'], state['ay'])
@@ -1399,7 +1395,7 @@ def parse_sim(writer, text, index, *cwd):
         tracer = PagingTracer(memory, memory.o7ffd, state['fffd'], state['ay'])
     else:
         tracer = None
-    simulator = simulator_cls(memory, registers, state, config)
+    simulator = from_memory(simulator_cls, memory, registers, state, config)
     if stop >= 0:
         if start < 0:
             start = simulator.registers[PC]
@@ -1471,7 +1467,7 @@ def parse_tstates(writer, text, index, *cwd):
             tracer = PagingTracer(memory, memory.o7ffd, state['fffd'], state['ay'])
         else:
             tracer = None
-        simulator = simulator_cls(memory, registers, state, config)
+        simulator = from_memory(simulator_cls, memory, registers, state, config)
         simulator.set_tracer(tracer)
         start_time = simulator.registers[T]
         simulator.run(start, stop, execint)

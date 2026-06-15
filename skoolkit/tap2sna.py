@@ -34,7 +34,7 @@ from skoolkit.loadtracer import LoadTracer, get_edges
 from skoolkit.pagingtracer import SliceableMemory
 from skoolkit.screen import pygame, Screen
 from skoolkit.simulator import Simulator
-from skoolkit.simutils import FRAME_DURATIONS, INT_ACTIVE, PC, T, get_state
+from skoolkit.simutils import PC, T, from_memory, get_state
 from skoolkit.snapshot import (move, patch, poke, print_reg_help,
                                print_state_help, write_snapshot)
 from skoolkit.tape import parse_pzx, parse_tap, parse_tzx
@@ -490,8 +490,6 @@ def sim_load(blocks, options, config):
             options.load = 'ENTER'
         registers = {'PC': 0x00EA, '^HL': 0xFFFF, 'R': 0x38}
         state = {'tstates': 3453395}
-        sim_cfg['frame_duration'] = FRAME_DURATIONS[1]
-        sim_cfg['int_active'] = INT_ACTIVE[1]
         memory = SliceableMemory()
         stop = 0x13BE
         kb_delay = 13
@@ -542,7 +540,7 @@ def sim_load(blocks, options, config):
                 raise SkoolKitError(f"Invalid integer in 'load' parameter: {pc}")
         if not load or load[-1] != 'ENTER':
             load.append('ENTER')
-        simulator = simulator_cls(memory, registers, state, sim_cfg)
+        simulator = from_memory(simulator_cls, memory, registers, state, sim_cfg)
         tracer = KeyboardTracer(simulator, load, kb_delay)
         simulator.set_tracer(tracer)
         try:
@@ -577,7 +575,7 @@ def sim_load(blocks, options, config):
                 if b > 0xFF:
                     memory[a + 1] = b // 256
         memory[0xFF58:] = memory[0x3E08:0x3EB0] # UDGs
-        simulator = simulator_cls(memory, {'PC': 0x0605, 'SP': 0xFF50}, config=sim_cfg)
+        simulator = from_memory(simulator_cls, memory, {'PC': 0x0605, 'SP': 0xFF50}, config=sim_cfg)
         border = 7
         out7ffd = 0
         outfffd = 0
