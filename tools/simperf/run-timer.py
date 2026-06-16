@@ -10,7 +10,7 @@ import time
 from libtimer import (RUNS, RUN_THRESHOLD, FRAMES_PYTHON, FRAMES_C,
                       HALTS_PYTHON, HALTS_C, INSTRUCTIONS_PYTHON,
                       INSTRUCTIONS_C, read_timings, write_timings,
-                      print_comparison)
+                      print_comparison, write_cfg)
 
 SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
 if not SKOOLKIT_HOME:
@@ -256,10 +256,12 @@ def run_trace(options):
     compare(timings, options)
 
 parser = argparse.ArgumentParser(
-    usage="%(prog)s [options] rzxplay|simulator|tap2sna|trace [before.txt]",
+    usage="%(prog)s [options] init|rzxplay|simulator|tap2sna|trace [before.txt]",
     description="Exercise (C)(CMIO)Simulator and collect timings. "
-                "If before.txt is given, it's compared with the collected timings (written to after.txt); "
-                "otherwise, collected timings are written to a text file.",
+                "If the command is 'init', write a default configuration file if one is not already present. "
+                "If before.txt is given, compare it with the collected timings (written to after.txt). "
+                "Otherwise, write collected timings to a file named timings-HOSTNAME-TAG.txt, "
+                "where TAG is a commit hash or (when -s is used) the SkoolKit version number.",
     add_help=False
 )
 parser.add_argument('cmd', help=argparse.SUPPRESS, nargs='?')
@@ -276,9 +278,11 @@ group.add_argument('-n', dest='nruns', metavar='NUM', type=int, default=RUNS,
 group.add_argument('-s', dest='skoolkit', metavar='DIR', default=SKOOLKIT_HOME,
                    help=f'Use SkoolKit in this directory (default: {SKOOLKIT_HOME}).')
 namespace, unknown_args = parser.parse_known_args()
-if unknown_args or namespace.cmd not in ('rzxplay', 'simulator', 'tap2sna', 'trace'):
+if unknown_args or namespace.cmd not in ('init', 'rzxplay', 'simulator', 'tap2sna', 'trace'):
     parser.exit(2, parser.format_help())
-if namespace.cmd == 'rzxplay':
+if namespace.cmd == 'init':
+    write_cfg()
+elif namespace.cmd == 'rzxplay':
     run_rzxplay(namespace)
 elif namespace.cmd == 'simulator':
     run_simulator(namespace)

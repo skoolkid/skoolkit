@@ -18,17 +18,15 @@ DEF = {
     'instructions_c': 500000000,
 }
 
-cfgfile = 'simperf.cfg'
-if not os.path.isfile(cfgfile):
-    cfg = ConfigParser()
+CFG_FILE = 'simperf.cfg'
+cfg = ConfigParser()
+if os.path.isfile(CFG_FILE):
+    cfg.read(CFG_FILE)
+else:
     cfg['simperf'] = {k: DEF[k] for k in ('runs', 'run_threshold', 'cp_threshold')}
     cfg['rzxplay'] = {k: DEF[k] for k in ('frames_python', 'frames_c')}
     cfg['simulator'] = {k: DEF[k] for k in ('halts_python', 'halts_c')}
     cfg['trace'] = {k: DEF[k] for k in ('instructions_python', 'instructions_c')}
-    with open(cfgfile, 'w') as f:
-        cfg.write(f)
-cfg = ConfigParser()
-cfg.read(cfgfile)
 
 RUNS = cfg.getint('simperf', 'runs', fallback=DEF['runs'])
 RUN_THRESHOLD = cfg.getfloat('simperf', 'run_threshold', fallback=DEF['run_threshold'])
@@ -39,6 +37,14 @@ HALTS_PYTHON = cfg.getint('simulator', 'halts_python', fallback=DEF['halts_pytho
 HALTS_C = cfg.getint('simulator', 'halts_c', fallback=DEF['halts_c'])
 INSTRUCTIONS_PYTHON = cfg.getint('trace', 'instructions_python', fallback=DEF['instructions_python'])
 INSTRUCTIONS_C = cfg.getint('trace', 'instructions_c', fallback=DEF['instructions_c'])
+
+def write_cfg():
+    if os.path.isfile(CFG_FILE):
+        print(f'{CFG_FILE} already exists')
+    else:
+        with open(CFG_FILE, 'w') as f:
+            cfg.write(f)
+        print(f'Wrote {CFG_FILE}')
 
 def read_timings(fname):
     timings = {}
