@@ -27,7 +27,7 @@ from skoolkit.components import get_audio_writer, get_image_writer
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.graphics import Frame, scr_udgs
 from skoolkit.pagingtracer import Memory, PagingTracer
-from skoolkit.screen import pygame, Screen
+from skoolkit.screen import get_screen
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import CLOCK_SPEEDS, PC, T, from_snapshot, get_state
 from skoolkit.snapshot import (Snapshot, make_snapshot, poke, print_reg_help,
@@ -326,12 +326,11 @@ def run(snafile, options, config):
             trace_line.format(pc=0, i='.', r=Registers(simulator.registers), t=0, m=simulator.memory)
         except Exception as e:
             raise SkoolKitError(f"Invalid format string: '{orig_trace_line}'")
-    if options.screen and pygame:
-        screen = Screen(config['ScreenScale'], config['ScreenFps'], 'trace.py', len(memory) == 0x20000)
-        print(screen.pygame_msg)
-        draw = screen.draw
-    else:
-        draw = None
+    draw = None
+    if options.screen:
+        screen = get_screen(config['ScreenScale'], config['ScreenFps'], 'trace.py', len(memory) == 0x20000)
+        if screen:
+            draw = screen.draw
     if options.map:
         exec_map = set()
     else:

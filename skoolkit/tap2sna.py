@@ -32,7 +32,7 @@ from skoolkit.kbtracer import KeyboardTracer, KeypressTracer
 from skoolkit.loadsample import ACCELERATORS, Accelerator
 from skoolkit.loadtracer import LoadTracer, get_edges
 from skoolkit.pagingtracer import SliceableMemory
-from skoolkit.screen import pygame, Screen
+from skoolkit.screen import get_screen
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import PC, T, from_memory, get_state
 from skoolkit.snapshot import (move, patch, poke, print_reg_help,
@@ -523,12 +523,11 @@ def sim_load(blocks, options, config):
     else:
         simulator_cls = CSimulator or Simulator
 
-    if options.screen and pygame:
-        screen = Screen(config['ScreenScale'], config['ScreenFps'], 'tap2sna.py', len(memory) == 0x20000)
-        print(screen.pygame_msg)
-        draw = screen.draw
-    else:
-        draw = None
+    draw = None
+    if options.screen:
+        screen = get_screen(config['ScreenScale'], config['ScreenFps'], 'tap2sna.py', len(memory) == 0x20000)
+        if screen:
+            draw = screen.draw
 
     if options.load:
         load = options.load.split()

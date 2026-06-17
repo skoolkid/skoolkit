@@ -25,7 +25,7 @@ from skoolkit import (VERSION, SkoolKitError, CSimulator, CCMIOSimulator,
                       warn, write)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.pagingtracer import Memory
-from skoolkit.screen import pygame, Screen
+from skoolkit.screen import get_screen
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import from_snapshot, get_state
 from skoolkit.snapshot import Snapshot, write_snapshot
@@ -367,10 +367,9 @@ def run(infile, options):
     if rzx_blocks and isinstance(rzx_blocks[0].obj, InputRecording):
         raise SkoolKitError('Missing snapshot')
 
-    if options.screen and pygame and rzx_blocks:
+    if options.screen and rzx_blocks:
         is128k = rzx_blocks[0].obj.machine != '48K'
-        screen = Screen(options.scale, options.fps, os.path.basename(infile), is128k)
-        print(screen.pygame_msg)
+        screen = get_screen(options.scale, options.fps, os.path.basename(infile), is128k)
     else:
         screen = None
     context = RZXContext(screen)

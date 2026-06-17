@@ -33,6 +33,9 @@ class TestScreen(screen.Screen):
         super().draw(scr, frame, border, keyboard)
         self.border = border
 
+def mock_get_screen(scale, fps, caption, is128k):
+    return TestScreen(scale, fps, caption, is128k)
+
 def mock_run(*args):
     global run_args
     run_args = args
@@ -1439,8 +1442,7 @@ class RzxplayTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
     @patch.object(screen, 'pygame', new_callable=MockPygame)
-    @patch.object(rzxplay, 'pygame', True)
-    @patch.object(rzxplay, 'Screen', TestScreen)
+    @patch.object(rzxplay, 'get_screen', mock_get_screen)
     def test_option_fps(self, mock_pygame):
         ram = [0] * 0xC000
         ram[0], ram[0x1800] = 0x80, BLUE
@@ -1450,7 +1452,7 @@ class RzxplayTest(SkoolKitTestCase):
         rzx = RZX()
         frames = [(1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
-        exp_output = 'Using pygame\n'
+        exp_output = ''
         rzxfile = self._test_rzx(rzx, exp_output, '--quiet --fps 100')
         mock_pygame.display.set_mode.assert_called_with((640, 480))
         TestScreen.instance.clock.tick.assert_called_with(100)
@@ -1555,8 +1557,7 @@ class RzxplayTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
     @patch.object(screen, 'pygame', new_callable=MockPygame)
-    @patch.object(rzxplay, 'pygame', True)
-    @patch.object(rzxplay, 'Screen', TestScreen)
+    @patch.object(rzxplay, 'get_screen', mock_get_screen)
     def test_option_scale(self, mock_pygame):
         ram = [0] * 0xC000
         ram[0], ram[0x1800] = 0x01, BLUE
@@ -1566,7 +1567,7 @@ class RzxplayTest(SkoolKitTestCase):
         rzx = RZX()
         frames = [(1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
-        exp_output = 'Using pygame\n'
+        exp_output = ''
         rzxfile = self._test_rzx(rzx, exp_output, '--quiet --scale 3')
         mock_pygame.display.set_mode.assert_called_with((960, 720))
         TestScreen.instance.clock.tick.assert_called_with(50)
@@ -1688,7 +1689,7 @@ class RzxplayTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
     @patch.object(screen, 'pygame', MockPygame([Mock(type=QUIT)]))
-    @patch.object(rzxplay, 'pygame', True)
+    @patch.object(rzxplay, 'get_screen', mock_get_screen)
     def test_screen_closed(self):
         ram = [0] * 0xC000
         pc = 0xF000
@@ -1702,14 +1703,13 @@ class RzxplayTest(SkoolKitTestCase):
         rzx = RZX()
         frames = [(1, 0, []), (1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
-        exp_output = 'Using pygame\n'
+        exp_output = ''
         exp_trace = "F:0 C:00001 I:00000 $F000 XOR A\n"
         self._test_rzx(rzx, exp_output, '--quiet', exp_trace)
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
     @patch.object(screen, 'pygame', new_callable=MockPygame)
-    @patch.object(rzxplay, 'pygame', True)
-    @patch.object(rzxplay, 'Screen', TestScreen)
+    @patch.object(rzxplay, 'get_screen', mock_get_screen)
     def test_screen_border(self, mock_pygame):
         ram = [0] * 0xC000
         pc = 0xF000
@@ -1723,7 +1723,7 @@ class RzxplayTest(SkoolKitTestCase):
         rzx = RZX()
         frames = [(2, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
-        exp_output = 'Using pygame\n'
+        exp_output = ''
         exp_trace = """
             F:0 C:00002 I:00000 $F000 LD A,$05
             F:0 C:00001 I:00000 $F002 OUT ($FE),A
@@ -1733,8 +1733,7 @@ class RzxplayTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
     @patch.object(screen, 'pygame', new_callable=MockPygame)
-    @patch.object(rzxplay, 'pygame', True)
-    @patch.object(rzxplay, 'Screen', TestScreen)
+    @patch.object(rzxplay, 'get_screen', mock_get_screen)
     def test_screen_128k(self, mock_pygame):
         ram = [0] * 0xC000
         ram[0], ram[0x1800] = 0x01, BLUE
@@ -1744,7 +1743,7 @@ class RzxplayTest(SkoolKitTestCase):
         rzx = RZX()
         frames = [(1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
-        exp_output = 'Using pygame\n'
+        exp_output = ''
         rzxfile = self._test_rzx(rzx, exp_output, '--quiet')
         mock_pygame.display.set_mode.assert_called_with((640, 480))
         TestScreen.instance.clock.tick.assert_called_with(50)

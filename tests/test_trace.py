@@ -83,6 +83,9 @@ class MockScreen:
         self.keyboard = keyboard
         return True
 
+def mock_get_screen(scale, fps, caption, is128k):
+    return MockScreen(scale, fps, caption, is128k)
+
 class TestTracer(Tracer):
     def __init__(self, simulator, border, out7ffd, outfffd, ay, outfe, audio):
         global tracer
@@ -1973,8 +1976,7 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
-    @patch.object(trace, 'pygame', True)
-    @patch.object(trace, 'Screen', MockScreen)
+    @patch.object(trace, 'get_screen', mock_get_screen)
     def test_option_screen(self):
         data = (
             0x3E, 0x07, # $8000 LD A,$07    ; T=69875
@@ -1990,11 +1992,8 @@ class TraceTest(SkoolKitTestCase):
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-S {stop} --screen {z80file}')
         self.assertEqual(error, '')
-        exp_output = f"""
-            Using pygame
-            Stopped at ${stop:04X}
-        """
-        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        exp_output = f"Stopped at ${stop:04X}"
+        self.assertEqual(exp_output, output.rstrip())
         self.assertEqual(screen.scale, 2)
         self.assertEqual(screen.fps, 50)
         self.assertEqual(screen.caption, 'trace.py')
@@ -2002,8 +2001,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.frame, 1)
         self.assertEqual([(0, 0), (69894, 7)], screen.border)
 
-    @patch.object(trace, 'pygame', True)
-    @patch.object(trace, 'Screen', MockScreen)
+    @patch.object(trace, 'get_screen', mock_get_screen)
     def test_option_screen_128k(self):
         data = (
             0x3E, 0x06, # $8000 LD A,$06    ; T=70895
@@ -2019,11 +2017,8 @@ class TraceTest(SkoolKitTestCase):
         z80file = self.write_z80_file(None, ram, machine_id=4, registers=registers)
         output, error = self.run_trace(f'-S {stop} --screen {z80file}')
         self.assertEqual(error, '')
-        exp_output = f"""
-            Using pygame
-            Stopped at ${stop:04X}
-        """
-        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        exp_output = f"Stopped at ${stop:04X}"
+        self.assertEqual(exp_output, output.rstrip())
         self.assertEqual(screen.scale, 2)
         self.assertEqual(screen.fps, 50)
         self.assertEqual(screen.caption, 'trace.py')
@@ -2544,8 +2539,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(len(udgs[0]), 32)
         self.assertEqual(udgs[0][0].attr, 2)
 
-    @patch.object(trace, 'pygame', True)
-    @patch.object(trace, 'Screen', MockScreen)
+    @patch.object(trace, 'get_screen', mock_get_screen)
     def test_config_Screen_read_from_file(self):
         ini = """
             [trace]
@@ -2566,11 +2560,8 @@ class TraceTest(SkoolKitTestCase):
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-S {stop} {z80file}')
         self.assertEqual(error, '')
-        exp_output = f"""
-            Using pygame
-            Stopped at ${stop:04X}
-        """
-        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        exp_output = f"Stopped at ${stop:04X}"
+        self.assertEqual(exp_output, output.rstrip())
         self.assertEqual(screen.scale, 2)
         self.assertEqual(screen.fps, 50)
         self.assertEqual(screen.caption, 'trace.py')
@@ -2578,8 +2569,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.frame, 1)
         self.assertEqual([(0, 0), (69894, 6)], screen.border)
 
-    @patch.object(trace, 'pygame', True)
-    @patch.object(trace, 'Screen', MockScreen)
+    @patch.object(trace, 'get_screen', mock_get_screen)
     def test_config_Screen_set_on_command_line(self):
         data = (
             0x3E, 0x05, # $8000 LD A,$05    ; T=69875
@@ -2595,11 +2585,8 @@ class TraceTest(SkoolKitTestCase):
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-I Screen=1 -S {stop} {z80file}')
         self.assertEqual(error, '')
-        exp_output = f"""
-            Using pygame
-            Stopped at ${stop:04X}
-        """
-        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        exp_output = f"Stopped at ${stop:04X}"
+        self.assertEqual(exp_output, output.rstrip())
         self.assertEqual(screen.scale, 2)
         self.assertEqual(screen.fps, 50)
         self.assertEqual(screen.caption, 'trace.py')
@@ -2607,8 +2594,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.frame, 1)
         self.assertEqual([(0, 0), (69894, 5)], screen.border)
 
-    @patch.object(trace, 'pygame', True)
-    @patch.object(trace, 'Screen', MockScreen)
+    @patch.object(trace, 'get_screen', mock_get_screen)
     def test_config_ScreenFps_read_from_file(self):
         ini = """
             [trace]
@@ -2629,11 +2615,8 @@ class TraceTest(SkoolKitTestCase):
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-S {stop} --screen {z80file}')
         self.assertEqual(error, '')
-        exp_output = f"""
-            Using pygame
-            Stopped at ${stop:04X}
-        """
-        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        exp_output = f"Stopped at ${stop:04X}"
+        self.assertEqual(exp_output, output.rstrip())
         self.assertEqual(screen.scale, 2)
         self.assertEqual(screen.fps, 100)
         self.assertEqual(screen.caption, 'trace.py')
@@ -2641,8 +2624,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.frame, 1)
         self.assertEqual([(0, 0), (69894, 4)], screen.border)
 
-    @patch.object(trace, 'pygame', True)
-    @patch.object(trace, 'Screen', MockScreen)
+    @patch.object(trace, 'get_screen', mock_get_screen)
     def test_config_ScreenFps_set_on_command_line(self):
         data = (
             0x3E, 0x03, # $8000 LD A,$03    ; T=69875
@@ -2658,11 +2640,8 @@ class TraceTest(SkoolKitTestCase):
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-I ScreenFps=150 -S {stop} --screen {z80file}')
         self.assertEqual(error, '')
-        exp_output = f"""
-            Using pygame
-            Stopped at ${stop:04X}
-        """
-        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        exp_output = f"Stopped at ${stop:04X}"
+        self.assertEqual(exp_output, output.rstrip())
         self.assertEqual(screen.scale, 2)
         self.assertEqual(screen.fps, 150)
         self.assertEqual(screen.caption, 'trace.py')
@@ -2670,8 +2649,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.frame, 1)
         self.assertEqual([(0, 0), (69894, 3)], screen.border)
 
-    @patch.object(trace, 'pygame', True)
-    @patch.object(trace, 'Screen', MockScreen)
+    @patch.object(trace, 'get_screen', mock_get_screen)
     def test_config_ScreenScale_read_from_file(self):
         ini = """
             [trace]
@@ -2692,11 +2670,8 @@ class TraceTest(SkoolKitTestCase):
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-S {stop} --screen {z80file}')
         self.assertEqual(error, '')
-        exp_output = f"""
-            Using pygame
-            Stopped at ${stop:04X}
-        """
-        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        exp_output = f"Stopped at ${stop:04X}"
+        self.assertEqual(exp_output, output.rstrip())
         self.assertEqual(screen.scale, 1)
         self.assertEqual(screen.fps, 50)
         self.assertEqual(screen.caption, 'trace.py')
@@ -2704,8 +2679,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.frame, 1)
         self.assertEqual([(0, 0), (69894, 2)], screen.border)
 
-    @patch.object(trace, 'pygame', True)
-    @patch.object(trace, 'Screen', MockScreen)
+    @patch.object(trace, 'get_screen', mock_get_screen)
     def test_config_ScreenScale_set_on_command_line(self):
         data = (
             0x3E, 0x01, # $8000 LD A,$01    ; T=69875
@@ -2721,11 +2695,8 @@ class TraceTest(SkoolKitTestCase):
         z80file = self.write_z80_file(None, ram, registers=registers)
         output, error = self.run_trace(f'-I ScreenScale=3 -S {stop} --screen {z80file}')
         self.assertEqual(error, '')
-        exp_output = f"""
-            Using pygame
-            Stopped at ${stop:04X}
-        """
-        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        exp_output = f"Stopped at ${stop:04X}"
+        self.assertEqual(exp_output, output.rstrip())
         self.assertEqual(screen.scale, 3)
         self.assertEqual(screen.fps, 50)
         self.assertEqual(screen.caption, 'trace.py')
@@ -4055,7 +4026,6 @@ class TraceTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
     @patch.object(screen, 'pygame', new_callable=MockPygame)
-    @patch.object(trace, 'pygame', True)
     def test_keypresses(self, mock_pygame):
         data = (
             0x3E, 0xFD,  # $8000 LD A,$FD    ; T=69886 (keyboard check follows)
@@ -4090,7 +4060,6 @@ class TraceTest(SkoolKitTestCase):
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
     @patch.object(screen, 'pygame', MockPygame([Mock(type=QUIT)]))
-    @patch.object(trace, 'pygame', True)
     def test_screen_closed(self):
         data = (
             0x00,  # $8000 NOP ; T=69886 (quit check follows)

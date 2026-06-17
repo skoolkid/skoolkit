@@ -25,13 +25,20 @@ with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
 
 CELLS = tuple((x, y, 2048 * (y // 8) + 32 * (y % 8) + x, 6144 + 32 * y + x) for x in range(32) for y in range(24))
 
+def get_screen(scale, fps, caption, is128k):
+    if pygame:
+        screen = Screen(scale, fps, caption, is128k)
+        if hasattr(screen, 'msg'):
+            print(screen.msg)
+        return screen
+
 class Screen:
     def __init__(self, scale, fps, caption, is128k):
         self._init_colours_and_keys()
         pygame.init()
         pygame.display.set_mode((320 * scale, 240 * scale))
         pygame.display.set_caption(caption)
-        self.pygame_msg = pygame_io.getvalue()
+        self.msg = pygame_io.getvalue()
         self.scale = scale
         self.fps = fps
         if is128k:
