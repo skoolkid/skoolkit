@@ -275,12 +275,12 @@ class TestAudioWriter(AudioWriter):
     ma_filter = None
     is128k = None
 
-    def write_audio(self, audio_file, delays, contention=False, interrupts=False, offset=0, is128k=False):
+    def write_audio(self, audio_file, delays, options):
         self.delays = delays
-        self.contention = bool(contention)
-        self.interrupts = bool(interrupts)
-        self.offset = offset
-        self.is128k = is128k
+        self.contention = bool(options.contention)
+        self.interrupts = bool(options.interrupts)
+        self.offset = options.offset
+        self.is128k = options.is128k
 
 class TestAYAudioWriter(AYAudioWriter):
     audio_log = None
@@ -11757,11 +11757,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_custom_audio_writer(self):
         custom_audio_writer = """
             class CustomAudioWriter:
-                def __init__(self, config):
+                def __init__(self, config=None):
                     pass
                 def formats(self):
                     return ('.wav',)
-                def write_audio(self, audio_file, delays, contention, interrupts, offset, is128k):
+                def write_audio(self, audio_file, delays, options):
                     audio_file.write(b'sound')
         """
         self.write_component_config('AudioWriter', '*.CustomAudioWriter', custom_audio_writer)

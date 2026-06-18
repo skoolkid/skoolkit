@@ -158,7 +158,7 @@ class AY:
 
         return samples
 
-class Options:
+class AYOptions:
     def __init__(self, volume, ay_res, beeper, mode):
         self.volume = max(min(volume, 100), 0)
         self.ay_res = ay_res

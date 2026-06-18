@@ -20,8 +20,8 @@ import time
 
 from skoolkit import (ROM48, VERSION, SkoolKitError, CSimulator,
                       CCMIOSimulator, get_int_param, integer, read_bin_file)
-from skoolkit.audio import CLOCK_SPEED
-from skoolkit.ay import AY_MODES, AYAudioWriter, Options
+from skoolkit.audio import BeeperOptions
+from skoolkit.ay import AY_MODES, AYAudioWriter, AYOptions
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.components import get_audio_writer, get_image_writer
 from skoolkit.config import get_config, show_config, update_options
@@ -340,10 +340,8 @@ def run(snafile, options, config):
                options.interrupts, draw, exec_map, trace_header, trace_line,
                prefix, byte_fmt, word_fmt)
     rt = time.time() - begin
-    if len(simulator.memory) == 65536:
-        cpu_freq = CLOCK_SPEEDS[0]
-    else:
-        cpu_freq = CLOCK_SPEEDS[1]
+    is128k = len(simulator.memory) == 0x20000
+    cpu_freq = CLOCK_SPEEDS[is128k]
     if options.stats:
         z80t = simulator.registers[T] - t0
         z80s = z80t / cpu_freq
@@ -370,7 +368,7 @@ def run(snafile, options, config):
                 if any(r < 16 for t, r, v in tracer.audio_log):
                     audio_writer = AYAudioWriter()
                     mode = AY_MODE_NAMES.index(options.ay_mode)
-                    ay_options = Options(options.volume, options.ay_res, options.beeper, mode)
+                    ay_options = AYOptions(options.volume, options.ay_res, options.beeper, mode)
                     tracer.audio_log.append((simulator.registers[T], 15, 0))
                     with open(fname, 'wb') as f:
                         audio_writer.write_audio(f, tracer.audio_log, ay_options)
@@ -379,9 +377,10 @@ def run(snafile, options, config):
             else:
                 delays = tracer.get_delays()
                 if delays:
-                    audio_writer = get_audio_writer({CLOCK_SPEED: cpu_freq})
+                    audio_writer = get_audio_writer()
+                    options = BeeperOptions(False, False, 0, is128k)
                     with open(fname, 'wb') as f:
-                        audio_writer.write_audio(f, delays)
+                        audio_writer.write_audio(f, delays, options)
                 else:
                     raise SkoolKitError('No audio detected')
         elif ext == '.png':

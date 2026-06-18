@@ -36,14 +36,15 @@ class MockSimulator:
         self.registers[T] = self.t1
 
 class MockAudioWriter:
-    def __init__(self, config):
+    def __init__(self, config=None):
         global audio_writer
         audio_writer = self
         self.config = config
 
-    def write_audio(self, audio_file, delays):
+    def write_audio(self, audio_file, delays, options):
         self.fname = audio_file.name
         self.delays = delays
+        self.options = options
 
 class MockAYAudioWriter:
     def __init__(self):
@@ -3521,12 +3522,15 @@ class TraceTest(SkoolKitTestCase):
             Stopped at ${stop:04X}
             Wrote {outfile}
         """
-        exp_config = {'ClockSpeed': 3500000}
         exp_delays = [34] * 9
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
-        self.assertEqual(exp_config, audio_writer.config)
+        self.assertIsNone(audio_writer.config)
         self.assertEqual(audio_writer.fname, outfile)
         self.assertEqual(exp_delays, audio_writer.delays)
+        self.assertFalse(audio_writer.options.contention)
+        self.assertFalse(audio_writer.options.interrupts)
+        self.assertEqual(audio_writer.options.offset, 0)
+        self.assertFalse(audio_writer.options.is128k)
 
     @patch.object(trace, 'get_audio_writer', MockAudioWriter)
     def test_write_wav_128k(self):
@@ -3548,12 +3552,15 @@ class TraceTest(SkoolKitTestCase):
             Stopped at ${stop:04X}
             Wrote {outfile}
         """
-        exp_config = {'ClockSpeed': 3546900}
         exp_delays = [32] * 9
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
-        self.assertEqual(exp_config, audio_writer.config)
+        self.assertIsNone(audio_writer.config)
         self.assertEqual(audio_writer.fname, outfile)
         self.assertEqual(exp_delays, audio_writer.delays)
+        self.assertFalse(audio_writer.options.contention)
+        self.assertFalse(audio_writer.options.interrupts)
+        self.assertEqual(audio_writer.options.offset, 0)
+        self.assertTrue(audio_writer.options.is128k)
 
     @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
     def test_write_wav_128k_ay(self):
@@ -3721,11 +3728,11 @@ class TraceTest(SkoolKitTestCase):
     def test_custom_audio_writer(self):
         custom_audio_writer = f"""
             class CustomAudioWriter:
-                def __init__(self, config):
+                def __init__(self, config=None):
                     pass
                 def formats(self):
                     return ('.wav',)
-                def write_audio(self, audio_file, delays, *args, **kwargs):
+                def write_audio(self, audio_file, delays, options):
                     audio_file.write(bytes(delays))
         """
         self.write_component_config('AudioWriter', '*.CustomAudioWriter', custom_audio_writer)

@@ -27,7 +27,8 @@ import re
 from io import StringIO
 
 from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, evaluate, format_template, parse_int, warn
-from skoolkit.ay import AYAudioWriter, Options
+from skoolkit.audio import BeeperOptions
+from skoolkit.ay import AYAudioWriter, AYOptions
 from skoolkit.components import get_audio_writer, get_component, get_image_writer
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
@@ -1055,9 +1056,10 @@ class HtmlWriter:
             with self.file_info.open_file(fname, mode='wb') as f:
                 if delays:
                     is128k = len(self.snapshot) == 0x20000
-                    self.audio_writer.write_audio(f, delays, contention, interrupts, offset, is128k)
+                    options = BeeperOptions(contention, interrupts, offset, is128k)
+                    self.audio_writer.write_audio(f, delays, options)
                 else:
-                    options = Options(volume, ay_res, beeper, ay_mode)
+                    options = AYOptions(volume, ay_res, beeper, ay_mode)
                     self.ay_audio_writer.write_audio(f, audio_log, options)
             self.file_info.add_audio(fname)
         return end, self.format_template('audio', {'src': self.relpath(cwd, fname)})

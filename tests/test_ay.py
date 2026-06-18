@@ -2,9 +2,9 @@ from io import BytesIO
 from struct import pack
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit.ay import CLOCK_SPEED, FRAME_DURATION, SAMPLE_RATE, AYAudioWriter, Options
+from skoolkit.ay import CLOCK_SPEED, FRAME_DURATION, SAMPLE_RATE, AYAudioWriter, AYOptions
 
-DEFAULT_OPTIONS = Options(100, 622, False, 0)
+DEFAULT_OPTIONS = AYOptions(100, 622, False, 0)
 
 class AudioWriterTest(SkoolKitTestCase):
     def _get_audio_data(self, audio_writer, records, options):
@@ -55,7 +55,7 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(samples[1754:], b'\xff\x7f\xff\x7f\xff\x7f\xff\x7f')
 
     def test_beeper_starts_before_ay(self):
-        options = Options(100, 622, True, 0)
+        options = AYOptions(100, 622, True, 0)
         log = {
             70908: (7, 0b11111110), # Mixer (enable tone for channel A)
             70912: (0, 0xFC),       # Channel A fine pitch
@@ -72,7 +72,7 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(samples[3518:], b'\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa')
 
     def test_beeper_starts_after_ay(self):
-        options = Options(100, 622, True, 0)
+        options = AYOptions(100, 622, True, 0)
         log = {
             0: (7, 0b11111110), # Mixer (enable tone for channel A)
             4: (0, 0xFC),       # Channel A fine pitch
@@ -89,7 +89,7 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(samples[1754:], b'\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa')
 
     def test_ay_res(self):
-        options = Options(100, 2000, False, 0)
+        options = AYOptions(100, 2000, False, 0)
         log = {
             0: (7, 0b11111110), # Mixer (enable tone for channel A)
             4: (0, 0xFC),       # Channel A fine pitch
@@ -106,7 +106,7 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(samples[1732:], b'\x55\xd5\x55\xd5\x55\xd5\x55\xd5')
 
     def test_mode_abc(self):
-        options = Options(100, 622, False, 1)
+        options = AYOptions(100, 622, False, 1)
         records = (
             (0, 7, 0b11111000), # Mixer (enable tone for channels A, B, C)
             (4, 0, 0xFC),       # Channel A fine pitch
@@ -124,7 +124,7 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(samples[3516:], b'\xc3\x48\x53\xa5\xc3\x48\x53\xa5')
 
     def test_mode_acb(self):
-        options = Options(100, 622, False, 2)
+        options = AYOptions(100, 622, False, 2)
         records = (
             (0, 7, 0b11111000), # Mixer (enable tone for channels A, B, C)
             (4, 0, 0xFC),       # Channel A fine pitch
@@ -144,7 +144,7 @@ class AudioWriterTest(SkoolKitTestCase):
     def test_clock_speed(self):
         config = {CLOCK_SPEED: '3000000'}
         records = [(t, 255, 0) for t in range(0, 10000, 1000)]
-        options = Options(100, 622, True, 0)
+        options = AYOptions(100, 622, True, 0)
         audio_bytes = self._get_audio_data(AYAudioWriter(config), records, options)
         samples = self._check_header(audio_bytes, options)
         self.assertEqual(len(samples), 264)

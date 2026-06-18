@@ -69,6 +69,13 @@ def write_wav(audio_file, samples, sample_rate, channels=1):
     for sample in samples:
         audio_file.write(pack('<h', round(sample * 0xFFFF) - 0x8000))
 
+class BeeperOptions:
+    def __init__(self, contention, interrupts, offset, is128k):
+        self.contention = contention
+        self.interrupts = interrupts
+        self.offset = offset
+        self.is128k = is128k
+
 class AudioWriter:
     """
     Initialise the audio writer.
@@ -106,27 +113,29 @@ class AudioWriter:
                     pass
 
     # Component API
-    def write_audio(self, audio_file, delays, contention=False, interrupts=False, offset=0, is128k=False):
+    def write_audio(self, audio_file, delays, options):
         """
         Write an audio file.
 
         :param audio_file: The file object to write the audio to.
         :param delays: A sequence of integers representing the intervals (in
                        T-states) between speaker flips.
-        :param contention: Whether to simulate additional delays due to memory
-                           and I/O contention.
-        :param interrupts: Whether to simulate additional delays due to
-                           interrupts.
-        :param offset: The offset (in T-states) of the first speaker flip from
-                       the start of the frame. Used when simulating delays due
-                       to contention and interrupts.
-        :param is128k: Whether to use 128K timings.
+        :param options: Configuration object with the following attributes:
+
+                        * `contention` - whether to simulate additional delays
+                          due to memory and I/O contention
+                        * `interrupts` - whether to simulate additional delays
+                          due to interrupts
+                        * `is128k` - whether to use 128K timings
+                        * `offset` - the offset (in T-states) of the first
+                          speaker flip from the start of the frame (used when
+                          `contention` or `interrupts` is True)
         """
-        options = self.options[is128k]
-        if contention or interrupts:
-            self._add_contention(delays, contention, interrupts, offset, options)
-        samples = moving_average_filter(delays, options)
-        write_wav(audio_file, samples, options[SAMPLE_RATE])
+        aw_config = self.options[options.is128k]
+        if options.contention or options.interrupts:
+            self._add_contention(delays, options.contention, options.interrupts, options.offset, aw_config)
+        samples = moving_average_filter(delays, aw_config)
+        write_wav(audio_file, samples, aw_config[SAMPLE_RATE])
 
     # Component API
     def formats(self):

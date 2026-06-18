@@ -87,6 +87,10 @@ API methods, in common with skoolkit.audio.AudioWriter:
    :members: formats, write_audio
    :noindex:
 
+.. versionchanged:: 10.1
+   Moved the *contention*, *interrupts*, *offset* and *is128k* arguments of the
+   **write_audio()** method into the *options* object.
+
 .. versionchanged:: 10.0
    Removed the *ma_filter* argument of the **write_audio()** method.
 
