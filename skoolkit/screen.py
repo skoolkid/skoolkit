@@ -17,11 +17,12 @@
 import contextlib
 import io
 
-with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
-    try:
-        import pygame
-    except ImportError: # pragma: no cover
-        pygame = None
+with contextlib.redirect_stderr(io.StringIO()):
+    with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
+        try:
+            import pygame
+        except ImportError: # pragma: no cover
+            pygame = None
 
 CELLS = tuple((x, y, 2048 * (y // 8) + 32 * (y % 8) + x, 6144 + 32 * y + x) for x in range(32) for y in range(24))
 
