@@ -10,7 +10,7 @@ Changelog
   when displaying screen contents)
 * Added the ``--volume`` option to :ref:`trace.py` (for setting the audio
   volume when writing a WAV file)
-* Added the ``vol`` parameter to the :ref:`AUDIO` macro (to set the AY audio
+* Added the ``vol`` parameter to the :ref:`AUDIO` macro (to set the audio
   volume)
 * Added the ``--ay-mode`` option to :ref:`trace.py` (for setting the AY stereo
   mode when writing a WAV file)

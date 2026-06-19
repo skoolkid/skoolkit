@@ -917,7 +917,7 @@ is not supported in ASM mode. ::
   default)
 * ``bpr`` specifies whether to capture beeper audio as well (1), or ignore it
   (0, the default) when ``ay`` is 1
-* ``vol`` is the AY audio volume percentage (default: 100)
+* ``vol`` is the audio volume percentage (default: 100)
 * ``aymode`` is the AY stereo mode: 0 for MONO (the default), 1 for ABC, or 2
   for ACB
 * ``ayres`` is the AY sampling resolution in T-states (default: 622)

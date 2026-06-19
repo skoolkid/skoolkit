@@ -269,6 +269,7 @@ class TestImageWriter(ImageWriter):
 
 class TestAudioWriter(AudioWriter):
     delays = None
+    volume = None
     contention = None
     interrupts = None
     offset = None
@@ -277,6 +278,7 @@ class TestAudioWriter(AudioWriter):
 
     def write_audio(self, audio_file, delays, options):
         self.delays = delays
+        self.volume = options.volume
         self.contention = bool(options.contention)
         self.interrupts = bool(options.interrupts)
         self.offset = options.offset
@@ -1482,13 +1484,15 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             self.assertEqual(writer.file_info.fname, path)
         audio_writer = writer.audio_writer
         if delays is None:
-            self.assertEqual(audio_writer.delays, None)
-            self.assertEqual(audio_writer.contention, None)
-            self.assertEqual(audio_writer.interrupts, None)
-            self.assertEqual(audio_writer.offset, None)
-            self.assertEqual(audio_writer.is128k, None)
+            self.assertIsNone(audio_writer.delays)
+            self.assertIsNone(audio_writer.volume)
+            self.assertIsNone(audio_writer.contention)
+            self.assertIsNone(audio_writer.interrupts)
+            self.assertIsNone(audio_writer.offset)
+            self.assertIsNone(audio_writer.is128k)
         else:
             self.assertEqual(delays, audio_writer.delays)
+            self.assertEqual(volume, audio_writer.volume)
             self.assertEqual(contention, audio_writer.contention)
             self.assertEqual(interrupts, audio_writer.interrupts)
             self.assertEqual(offset, audio_writer.offset)
@@ -1607,6 +1611,17 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_path = f'audio/{fname}'
         exp_delays = [500, 101, 198, 798, 300, 400, 300, 400] * 3
         self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays)
+
+    def test_macro_audio_with_volume(self):
+        writer = self._get_writer(skool='', mock_file_info=True)
+        fname = 'sound.wav'
+        delays = '[500, 400, 300, 200, 100] * 2'
+        volume = 75
+        macro = f'#AUDIO0,,,,,,,,{volume}({fname})({delays})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [500, 400, 300, 200, 100] * 2
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, volume=volume)
 
     def test_macro_audio_with_code_simulation(self):
         skool = """
@@ -2147,7 +2162,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [203, 214, 217, 215, 220]
-        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, offset=offset)
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, offset=offset, volume=50)
 
     def test_macro_audio_with_custom_config(self):
         config = {

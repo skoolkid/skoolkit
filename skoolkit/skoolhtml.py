@@ -1056,7 +1056,7 @@ class HtmlWriter:
             with self.file_info.open_file(fname, mode='wb') as f:
                 if delays:
                     is128k = len(self.snapshot) == 0x20000
-                    options = BeeperOptions(100, contention, interrupts, offset, is128k)
+                    options = BeeperOptions(volume, contention, interrupts, offset, is128k)
                     self.audio_writer.write_audio(f, delays, options)
                 else:
                     options = AYOptions(volume, ay_res, beeper, ay_mode)
