@@ -8,7 +8,7 @@ Changelog
 * Added the ``ScreenFps`` and ``ScreenScale`` configuration parameters for
   :ref:`tap2sna.py <tap2sna-conf>` (to specify the frame rate and scale factor
   when displaying screen contents)
-* Added the ``--volume`` option to :ref:`trace.py` (for setting the AY audio
+* Added the ``--volume`` option to :ref:`trace.py` (for setting the audio
   volume when writing a WAV file)
 * Added the ``vol`` parameter to the :ref:`AUDIO` macro (to set the AY audio
   volume)

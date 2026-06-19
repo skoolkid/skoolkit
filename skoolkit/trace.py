@@ -378,7 +378,7 @@ def run(snafile, options, config):
                 delays = tracer.get_delays()
                 if delays:
                     audio_writer = get_audio_writer()
-                    options = BeeperOptions(False, False, 0, is128k)
+                    options = BeeperOptions(options.volume, False, False, 0, is128k)
                     with open(fname, 'wb') as f:
                         audio_writer.write_audio(f, delays, options)
                 else:
@@ -465,7 +465,7 @@ def main(args):
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     group.add_argument('--volume', metavar='VOL', type=int, default=100,
-                       help='Set AY audio volume percentage (default: 100).')
+                       help='Set audio volume percentage (default: 100).')
     namespace, unknown_args = parser.parse_known_args(args)
     if namespace.show_config:
         show_config('trace', config)

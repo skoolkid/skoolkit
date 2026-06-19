@@ -23,8 +23,8 @@ def mock_moving_average_filter(delays, *args):
     uf_delays = delays
 
 class AudioWriterTest(SkoolKitTestCase):
-    def _get_audio_data(self, audio_writer, delays, is128k=False):
-        options = BeeperOptions(False, False, 0, is128k)
+    def _get_audio_data(self, audio_writer, delays, volume=100, is128k=False):
+        options = BeeperOptions(volume, False, False, 0, is128k)
         audio_stream = BytesIO()
         audio_writer.write_audio(audio_stream, delays, options)
         audio_bytes = bytearray(audio_stream.getvalue())
@@ -61,12 +61,18 @@ class AudioWriterTest(SkoolKitTestCase):
         samples = self._check_header(audio_bytes)
         self.assertEqual(samples, b'\x00\x80\x32\x43\x42\xfb\x66\xc6')
 
+    def test_volume(self):
+        audio_writer = AudioWriter()
+        audio_bytes = self._get_audio_data(audio_writer, [100] * 4, volume=50)
+        samples = self._check_header(audio_bytes)
+        self.assertEqual(samples, b'\x00\x80\x98\xdf\x99\xc1\x2a\x9d\x00\x00')
+
     @patch.object(audio, 'moving_average_filter', mock_moving_average_filter)
     @patch.object(audio, 'write_wav', mock_write_wav)
     def test_contention_48k(self):
         audio_writer = AudioWriter()
         delays_in = _flatten([13000, [1000] * 31, 500])
-        options = BeeperOptions(True, False, 0, False)
+        options = BeeperOptions(100, True, False, 0, False)
         audio_writer.write_audio(None, delays_in, options)
         exp_delays = _flatten([13000, 1000, 1339, [1510] * 27, 1384, 1000, 500])
         self.assertEqual(exp_delays, uf_delays)
@@ -76,7 +82,7 @@ class AudioWriterTest(SkoolKitTestCase):
     def test_contention_128k(self):
         audio_writer = AudioWriter()
         delays_in = _flatten([13000, [1000] * 32, 500])
-        options = BeeperOptions(True, False, 0, True)
+        options = BeeperOptions(100, True, False, 0, True)
         audio_writer.write_audio(None, delays_in, options)
         exp_delays = _flatten([13000, 1000, 1325, [1510] * 28, 1146, 1000, 500])
         self.assertEqual(exp_delays, uf_delays)
@@ -86,7 +92,7 @@ class AudioWriterTest(SkoolKitTestCase):
     def test_interrupts_48k(self):
         audio_writer = AudioWriter()
         delays_in = [10000] * 8
-        options = BeeperOptions(False, True, 0, False)
+        options = BeeperOptions(100, False, True, 0, False)
         audio_writer.write_audio(None, delays_in, options)
         exp_delays = _flatten([[10000] * 6, 10895, 10000])
         self.assertEqual(exp_delays, uf_delays)
@@ -96,7 +102,7 @@ class AudioWriterTest(SkoolKitTestCase):
     def test_interrupts_128k(self):
         audio_writer = AudioWriter()
         delays_in = [10000] * 15
-        options = BeeperOptions(False, True, 0, True)
+        options = BeeperOptions(100, False, True, 0, True)
         audio_writer.write_audio(None, delays_in, options)
         exp_delays = _flatten([[10000] * 6, 11565, [10000] * 6, 11385, 10000])
         self.assertEqual(exp_delays, uf_delays)
@@ -139,7 +145,7 @@ class AudioWriterTest(SkoolKitTestCase):
     def test_custom_contention_period(self):
         audio_writer = AudioWriter({'ContentionBegin': '10000', 'ContentionEnd': '20000'})
         delays_in = _flatten([8500, [1000] * 10, 500])
-        options = BeeperOptions(True, False, 0, False)
+        options = BeeperOptions(100, True, False, 0, False)
         audio_writer.write_audio(None, delays_in, options)
         exp_delays = _flatten([8500, 1000, 1255, [1510] * 6, 1063, 1000, 500])
         self.assertEqual(exp_delays, uf_delays)
@@ -149,7 +155,7 @@ class AudioWriterTest(SkoolKitTestCase):
     def test_custom_contention_factor(self):
         audio_writer = AudioWriter({'ContentionFactor': '62'})
         delays_in = _flatten([13000, [1000] * 29, 500])
-        options = BeeperOptions(True, False, 0, False)
+        options = BeeperOptions(100, True, False, 0, False)
         audio_writer.write_audio(None, delays_in, options)
         exp_delays = _flatten([13000, 1000, 1412, [1620] * 25, 1511, 1000, 500])
         self.assertEqual(exp_delays, uf_delays)
@@ -159,7 +165,7 @@ class AudioWriterTest(SkoolKitTestCase):
     def test_custom_frame_duration(self):
         audio_writer = AudioWriter({'FrameDuration': '30000'})
         delays_in = [10000] * 4
-        options = BeeperOptions(False, True, 0, False)
+        options = BeeperOptions(100, False, True, 0, False)
         audio_writer.write_audio(None, delays_in, options)
         exp_delays = [10000, 10000, 10895, 10000]
         self.assertEqual(exp_delays, uf_delays)
@@ -169,7 +175,7 @@ class AudioWriterTest(SkoolKitTestCase):
     def test_custom_interrupt_delay(self):
         audio_writer = AudioWriter({'InterruptDelay': '1050,2000'})
         delays_in = [10000] * 15
-        options = BeeperOptions(False, True, 0, False)
+        options = BeeperOptions(100, False, True, 0, False)
         audio_writer.write_audio(None, delays_in, options)
         exp_delays = _flatten([[10000] * 6, 12000, [10000] * 6, 11050, 10000])
         self.assertEqual(exp_delays, uf_delays)
@@ -187,7 +193,7 @@ class AudioWriterTest(SkoolKitTestCase):
         audio_writer = AudioWriter()
         delays_in = [10000] * 3
         offset = 50000
-        options = BeeperOptions(False, True, offset, False)
+        options = BeeperOptions(100, False, True, offset, False)
         audio_writer.write_audio(None, delays_in, options)
         exp_delays = [10000, 10895, 10000]
         self.assertEqual(exp_delays, uf_delays)

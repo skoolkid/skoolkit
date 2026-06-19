@@ -27,7 +27,7 @@ FRAME_DURATION = 'FrameDuration'
 INTERRUPT_DELAY = 'InterruptDelay'
 SAMPLE_RATE = 'SampleRate'
 
-def moving_average_filter(delays, options, volume=1):
+def moving_average_filter(delays, options, volume):
     sample_delay = options[CLOCK_SPEED] / options[SAMPLE_RATE]
     s0, s1 = 0, sample_delay
     t, t1 = 0, ceil(s1)
@@ -70,7 +70,8 @@ def write_wav(audio_file, samples, sample_rate, channels=1):
         audio_file.write(pack('<h', round(sample * 0xFFFF) - 0x8000))
 
 class BeeperOptions:
-    def __init__(self, contention, interrupts, offset, is128k):
+    def __init__(self, volume, contention, interrupts, offset, is128k):
+        self.volume = max(min(volume, 100), 0)
         self.contention = contention
         self.interrupts = interrupts
         self.offset = offset
@@ -130,11 +131,12 @@ class AudioWriter:
                         * `offset` - the offset (in T-states) of the first
                           speaker flip from the start of the frame (used when
                           `contention` or `interrupts` is True)
+                        * `volume` - audio volume percentage
         """
         aw_config = self.options[options.is128k]
         if options.contention or options.interrupts:
             self._add_contention(delays, options.contention, options.interrupts, options.offset, aw_config)
-        samples = moving_average_filter(delays, aw_config)
+        samples = moving_average_filter(delays, aw_config, options.volume / 100)
         write_wav(audio_file, samples, aw_config[SAMPLE_RATE])
 
     # Component API

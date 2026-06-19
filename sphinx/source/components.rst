@@ -89,7 +89,8 @@ API methods, in common with skoolkit.audio.AudioWriter:
 
 .. versionchanged:: 10.1
    Moved the *contention*, *interrupts*, *offset* and *is128k* arguments of the
-   **write_audio()** method into the *options* object.
+   **write_audio()** method into the *options* object, alongside the new
+   *volume* attribute.
 
 .. versionchanged:: 10.0
    Removed the *ma_filter* argument of the **write_audio()** method.

@@ -2207,7 +2207,7 @@ To list the options supported by `trace.py`, run it with no arguments::
     -v, --verbose         Show executed instructions. Repeat this option to show
                           register values too.
     -V, --version         Show SkoolKit version number and exit.
-    --volume VOL          Set AY audio volume percentage (default: 100).
+    --volume VOL          Set audio volume percentage (default: 100).
 
 By default, `trace.py` silently simulates code execution beginning with the
 instruction at the address specified by the ``--start`` option (or the program

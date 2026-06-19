@@ -124,7 +124,7 @@ OPTIONS
   Show SkoolKit version number and exit.
 
 --volume `VOL`
-  Set AY audio volume percentage (default: 100).
+  Set audio volume percentage (default: 100).
 
 REGISTERS
 =========
