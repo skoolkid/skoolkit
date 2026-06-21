@@ -28,8 +28,8 @@ from io import StringIO
 
 from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, evaluate, format_template, parse_int, warn
 from skoolkit.audio import BeeperOptions
-from skoolkit.ay import AYAudioWriter, AYOptions
-from skoolkit.components import get_audio_writer, get_component, get_image_writer
+from skoolkit.ay import AYOptions
+from skoolkit.components import get_audio_writer, get_ay_audio_writer, get_component, get_image_writer
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.refparser import RefParser
@@ -109,7 +109,7 @@ class HtmlWriter:
 
         aw_config = self.get_dictionary('AudioWriter')
         self.audio_writer = get_audio_writer(aw_config)
-        self.ay_audio_writer = AYAudioWriter(aw_config)
+        self.ay_audio_writer = get_ay_audio_writer(aw_config)
         self.audio_formats = ['.' + f for f in self.game_vars['AudioFormats'].split(',')]
 
         self.page_ids = []
@@ -1035,12 +1035,16 @@ class HtmlWriter:
             prev_path = path
         return path
 
-    def _need_audio(self, fname):
+    def _need_audio(self, fname, ay):
         if fname.startswith('/'):
             fname = fname.lstrip('/')
         else:
             fname = join(self.paths['AudioPath'], fname)
-        for fmt in self.audio_writer.formats():
+        if ay:
+            audio_writer = self.ay_audio_writer
+        else:
+            audio_writer = self.audio_writer
+        for fmt in audio_writer.formats():
             if fname.lower().endswith(fmt.lower()):
                 bname = fname[:-len(fmt)]
                 for alt_fmt in self.audio_formats:

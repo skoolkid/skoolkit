@@ -327,7 +327,7 @@ class HtmlWriterTestCase(SkoolKitTestCase):
         if mock_audio_writer:
             patch.object(skoolhtml, 'get_audio_writer', TestAudioWriter).start()
         if mock_ay_audio_writer:
-            patch.object(skoolhtml, 'AYAudioWriter', TestAYAudioWriter).start()
+            patch.object(skoolhtml, 'get_ay_audio_writer', TestAYAudioWriter).start()
         self.addCleanup(patch.stopall)
         writer = HtmlWriter(skool_parser, ref_parser, file_info)
         if mock_write_file:
@@ -11775,20 +11775,52 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
                 def __init__(self, config=None):
                     pass
                 def formats(self):
-                    return ('.wav',)
+                    return ('.log',)
                 def write_audio(self, audio_file, delays, options):
-                    audio_file.write(b'sound')
+                    audio_file.write(bytes(delays))
         """
         self.write_component_config('AudioWriter', '*.CustomAudioWriter', custom_audio_writer)
         page_id = 'Sounds'
-        wavfile = 'sound.wav'
+        ofile = 'sound.log'
         ref = f"""
             [Page:{page_id}]
-            PageContent=#AUDIO0({wavfile})(1,2)
+            PageContent=#AUDIO0({ofile})(1,2)
         """
         writer = self._get_writer(ref=ref, mock_audio_writer=False, mock_file_info=True)
         writer.write_page(page_id)
-        self.assertEqual(writer.file_info.files[f'audio/{wavfile}'], b'sound')
+        self.assertEqual(writer.file_info.files[f'audio/{ofile}'], bytes((1, 2)))
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_ay_audio_writer(self):
+        custom_ay_audio_writer = """
+            class CustomAYAudioWriter:
+                def __init__(self, config=None):
+                    pass
+                def formats(self):
+                    return ('.raw',)
+                def write_audio(self, audio_file, audio_log, options):
+                    for t, r, v in audio_log:
+                        audio_file.write(bytes((t, r, v)))
+        """
+        self.write_component_config('AYAudioWriter', '*.CustomAYAudioWriter', custom_ay_audio_writer)
+        ofile = 'aysound.raw'
+        skool = f"""
+            @bank=4
+            ; #AUDIO1,$C000,$C012,ay=1({ofile})
+            c$C000 LD C,$FD
+             $C002 LD DE,$0201
+            *$C005 LD B,$FF
+             $C007 OUT (C),E
+             $C009 LD B,$BF
+             $C00B OUT (C),D
+             $C00D INC D
+             $C00E DEC E
+             $C00F JP P,$C005
+             $C012 RET
+        """
+        writer = self._get_writer(skool=skool, mock_ay_audio_writer=False, mock_file_info=True)
+        writer.write_asm_entries()
+        self.assertEqual(writer.file_info.files[f'audio/{ofile}'], bytes((43, 1, 2, 99, 0, 3, 129, 15, 0)))
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_image_writer(self):

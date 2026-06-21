@@ -7,6 +7,7 @@ SkoolKit relies on several components in order to function:
 
 * :ref:`assembler`
 * :ref:`audioWriter`
+* :ref:`ayAudioWriter`
 * :ref:`codeMapReader`
 * :ref:`commentGenerator`
 * :ref:`ctlComposer`
@@ -94,6 +95,17 @@ API methods, in common with skoolkit.audio.AudioWriter:
 
 .. versionchanged:: 10.0
    Removed the *ma_filter* argument of the **write_audio()** method.
+
+.. _ayAudioWriter:
+
+AY audio writer
+---------------
+This class is responsible for writing AY audio files. It must supply the
+following API methods, in common with skoolkit.audio.AYAudioWriter:
+
+.. autoclass:: skoolkit.ay.AYAudioWriter
+   :members: formats, write_audio
+   :noindex:
 
 .. _codeMapReader:
 

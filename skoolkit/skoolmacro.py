@@ -673,7 +673,7 @@ def parse_audio(writer, text, index, need_audio=None):
         raise MacroParsingError('Missing filename: #AUDIO{}'.format(text[index:end]))
     delays, eval_delays, audio_log = None, False, None
     if need_audio:
-        fname, eval_delays = need_audio(fname)
+        fname, eval_delays = need_audio(fname, ay)
     if sim:
         if start is None:
             raise MacroParsingError(f'Missing start parameter: {text[index:end]}')

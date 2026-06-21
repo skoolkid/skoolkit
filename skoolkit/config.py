@@ -24,6 +24,7 @@ COMMANDS = {
     'skoolkit': {
         'Assembler': 'skoolkit.z80.Assembler',
         'AudioWriter': 'skoolkit.audio.AudioWriter',
+        'AYAudioWriter': 'skoolkit.ay.AYAudioWriter',
         'CodeMapReader': 'skoolkit.snactl',
         'CommentGenerator': 'skoolkit.comment.CommentGenerator',
         'ControlDirectiveComposer': 'skoolkit.skoolctl.ControlDirectiveComposer',

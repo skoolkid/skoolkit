@@ -1,4 +1,4 @@
-# Copyright 2019-2021, 2024, 2025 Richard Dymond (rjdymond@gmail.com)
+# © 2019-2021, 2024-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -49,6 +49,9 @@ def get_assembler():
 
 def get_audio_writer(*args):
     return get_component('AudioWriter', *args)
+
+def get_ay_audio_writer(*args):
+    return get_component('AYAudioWriter', *args)
 
 def get_comment_generator():
     return get_component('CommentGenerator')

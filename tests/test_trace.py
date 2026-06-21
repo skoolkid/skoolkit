@@ -1238,7 +1238,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(simulator.memory[0xC000], 1) # Bank 3 paged in
         self.assertEqual(simulator.memory[0x0001], 1) # ROM 0 paged in
 
-    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    @patch.object(trace, 'get_ay_audio_writer', MockAYAudioWriter)
     def test_option_ay_mode_MONO(self):
         data = (
             0x11, 0x05, 0x02,       # $C000 LD DE,$0205
@@ -1270,7 +1270,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertFalse(ay_audio_writer.options.beeper)
         self.assertEqual(ay_audio_writer.options.mode, 0)
 
-    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    @patch.object(trace, 'get_ay_audio_writer', MockAYAudioWriter)
     def test_option_ay_mode_ABC(self):
         data = (
             0x11, 0x05, 0x02,       # $C000 LD DE,$0205
@@ -1302,7 +1302,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertFalse(ay_audio_writer.options.beeper)
         self.assertEqual(ay_audio_writer.options.mode, 1)
 
-    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    @patch.object(trace, 'get_ay_audio_writer', MockAYAudioWriter)
     def test_option_ay_mode_ACB(self):
         data = (
             0x11, 0x05, 0x02,       # $C000 LD DE,$0205
@@ -1334,7 +1334,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertFalse(ay_audio_writer.options.beeper)
         self.assertEqual(ay_audio_writer.options.mode, 2)
 
-    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    @patch.object(trace, 'get_ay_audio_writer', MockAYAudioWriter)
     def test_option_ay_res(self):
         data = (
             0x11, 0x05, 0x02,       # $C000 LD DE,$0205
@@ -2471,7 +2471,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(exp_delays, audio_writer.delays)
         self.assertEqual(audio_writer.options.volume, 0)
 
-    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    @patch.object(trace, 'get_ay_audio_writer', MockAYAudioWriter)
     def test_option_volume_ay(self):
         data = (
             0x0E, 0xFD,             # $8000 LD C,$FD
@@ -2509,7 +2509,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(ay_audio_writer.options.ay_res, 622)
         self.assertFalse(ay_audio_writer.options.beeper)
 
-    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    @patch.object(trace, 'get_ay_audio_writer', MockAYAudioWriter)
     def test_option_volume_ay_over_100(self):
         data = (
             0x11, 0x03, 0x02,       # $8000 LD DE,$0203
@@ -2536,7 +2536,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(exp_audio_log, ay_audio_writer.audio_log)
         self.assertEqual(ay_audio_writer.options.volume, 100)
 
-    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    @patch.object(trace, 'get_ay_audio_writer', MockAYAudioWriter)
     def test_option_volume_ay_under_0(self):
         data = (
             0x11, 0x04, 0x01,       # $8000 LD DE,$0104
@@ -3644,7 +3644,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(audio_writer.options.offset, 0)
         self.assertTrue(audio_writer.options.is128k)
 
-    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    @patch.object(trace, 'get_ay_audio_writer', MockAYAudioWriter)
     def test_write_wav_128k_ay(self):
         data = (
             0x0E, 0xFD,             # $8000 LD C,$FD
@@ -3694,7 +3694,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(ay_audio_writer.options.ay_res, 622)
         self.assertFalse(ay_audio_writer.options.beeper)
 
-    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    @patch.object(trace, 'get_ay_audio_writer', MockAYAudioWriter)
     def test_write_wav_128k_ay_with_beeper(self):
         data = (
             0x0E, 0xFD,             # $8000 LD C,$FD
@@ -3775,7 +3775,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], 'No audio detected')
         self.assertIsNone(audio_writer)
 
-    @patch.object(trace, 'AYAudioWriter', MockAYAudioWriter)
+    @patch.object(trace, 'get_ay_audio_writer', MockAYAudioWriter)
     def test_write_wav_no_ay_activity(self):
         global ay_audio_writer
         ay_audio_writer = None
@@ -3836,6 +3836,44 @@ class TraceTest(SkoolKitTestCase):
         """
         with open(outfile, 'rb') as f:
             self.assertEqual(f.read(), bytes((18, 18)))
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_ay_audio_writer(self):
+        custom_ay_audio_writer = f"""
+            class CustomAYAudioWriter:
+                def __init__(self, config=None):
+                    pass
+                def formats(self):
+                    return ('.wav',)
+                def write_audio(self, audio_file, audio_log, options):
+                    for t, r, v in audio_log:
+                        audio_file.write(bytes((t, r, v)))
+        """
+        self.write_component_config('AYAudioWriter', '*.CustomAYAudioWriter', custom_ay_audio_writer)
+        data = (
+            0x0E, 0xFD,             # $8000 LD C,$FD
+            0x11, 0x02, 0x05,       # $8002 LD DE,$0502
+            0x06, 0xFF,             # $8005 LD B,$FF
+            0xED, 0x59,             # $8007 OUT (C),E
+            0x06, 0xBF,             # $8009 LD B,$BF
+            0xED, 0x51,             # $800B OUT (C),D
+            0x14,                   # $800D INC D
+            0x1D,                   # $800E DEC E
+            0xF2, 0x05, 0x80,       # $800F JP P,$8005
+        )
+        ram = [0] * 49152
+        start = 32768
+        stop = start + len(data)
+        ram[start - 0x4000:stop - 0x4000] = data
+        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        outfile = 'out.wav'
+        output, error = self.run_trace(f'-S {stop} --ay {infile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        with open(outfile, 'rb') as f:
+            self.assertEqual(f.read(), bytes((43, 2, 5, 99, 1, 6, 155, 0, 7, 185, 15, 0)))
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_write_z80_48k(self):

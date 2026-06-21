@@ -21,9 +21,10 @@ import time
 from skoolkit import (ROM48, VERSION, SkoolKitError, CSimulator,
                       CCMIOSimulator, get_int_param, integer, read_bin_file)
 from skoolkit.audio import BeeperOptions
-from skoolkit.ay import AY_MODES, AYAudioWriter, AYOptions
+from skoolkit.ay import AY_MODES, AYOptions
 from skoolkit.cmiosimulator import CMIOSimulator
-from skoolkit.components import get_audio_writer, get_image_writer
+from skoolkit.components import (get_audio_writer, get_ay_audio_writer,
+                                 get_image_writer)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.graphics import Frame, scr_udgs
 from skoolkit.pagingtracer import Memory, PagingTracer
@@ -366,7 +367,7 @@ def run(snafile, options, config):
         if ext == '.wav':
             if options.ay:
                 if any(r < 16 for t, r, v in tracer.audio_log):
-                    audio_writer = AYAudioWriter()
+                    audio_writer = get_ay_audio_writer()
                     mode = AY_MODE_NAMES.index(options.ay_mode)
                     ay_options = AYOptions(options.volume, options.ay_res, options.beeper, mode)
                     tracer.audio_log.append((simulator.registers[T], 15, 0))

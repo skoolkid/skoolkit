@@ -166,6 +166,13 @@ class AYOptions:
         self.mode = mode % len(AY_MODES)
 
 class AYAudioWriter:
+    """
+    Initialise the AY audio writer.
+
+    :param config: A dictionary constructed from the contents of the
+                   :ref:`ref-AudioWriter` section of the ref file.
+    """
+    # Component API
     def __init__(self, config=None):
         self.options = {
             CLOCK_SPEED: CLOCK_SPEEDS[1],
@@ -179,7 +186,34 @@ class AYAudioWriter:
                 except ValueError:
                     pass
 
+    # Component API
+    def formats(self):
+        """
+        Return a sequence of filename extensions (including the '.')
+        corresponding to the audio formats supported by this writer.
+        """
+        return ('.wav',)
+
+    # Component API
     def write_audio(self, audio_file, audio_log, options):
+        """
+        Write an audio file.
+
+        :param audio_file: The file object to write the audio to.
+        :param audio_log: The log of beeper and AY output. It is a list of
+                          3-element sequences of the form ``(t, r, v)``, where:
+
+                          * ``t`` is the time in T-states
+                          * ``r`` is either the AY register (0-13), or 255 to
+                            indicate a beeper flip
+                          * ``v`` is the AY register value (if applicable)
+        :param options: Configuration object with the following attributes:
+
+                        * `ay_res` - AY sample resolution (in T-states)
+                        * `beeper` - whether to include beeper audio
+                        * `mode` - AY stereo mode: 0 - mono; 1 - ABC; 2 - ACB
+                        * `volume` - audio volume percentage
+        """
         volume = min(max(0, options.volume), 100) / 100
         ay_volume = volume * 2 / 3
         ay_log, beeper_log = self._parse_log(audio_log)
