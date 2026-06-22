@@ -38,6 +38,7 @@ COMMANDS = {
         'OperandFormatter': 'skoolkit.disassembler.OperandFormatter',
         'RSTHandler': 'skoolkit.rst.RSTHandler',
         'RSTHandlerConfig': '8:B',
+        'Screen': 'skoolkit.screen.Screen',
         'SnapshotReader': 'skoolkit.snapshot',
         'SnapshotReferenceCalculator': 'skoolkit.snaskool',
         'SnapshotReferenceOperations': 'DJ,JR,JP,CA,RS'

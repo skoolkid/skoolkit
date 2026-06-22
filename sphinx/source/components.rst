@@ -19,6 +19,7 @@ SkoolKit relies on several components in order to function:
 * :ref:`operandEvaluator`
 * :ref:`operandFormatter`
 * :ref:`rstHandler`
+* :ref:`screen`
 * :ref:`snapshotReader`
 * :ref:`snapshotRefCalc`
 
@@ -49,6 +50,7 @@ or in `~/.skoolkit`. The default contents of this section are as follows::
   OperandFormatter=skoolkit.disassembler.OperandFormatter
   RSTHandler=skoolkit.rst.RSTHandler
   RSTHandlerConfig=8:B
+  Screen=skoolkit.screen.Screen
   SnapshotReader=skoolkit.snapshot
   SnapshotReferenceCalculator=skoolkit.snaskool
   SnapshotReferenceOperations=DJ,JR,JP,CA,RS
@@ -408,6 +410,44 @@ every address at which an instruction - RST or otherwise - is identified. This
 means that a custom RST handler component could be implemented to handle the
 byte/word arguments of CALL instructions as well as or instead of RST
 instructions, for example.
+
+.. _screen:
+
+Screen
+------
+This class is responsible for displaying screen contents and reading the
+keyboard while Z80 code execution is being simulated. It must supply the
+following API methods, in common with skoolkit.screen.Screen:
+
+.. autoclass:: skoolkit.screen.Screen
+   :members: draw
+   :noindex:
+
+**border** is a non-empty list of 2-element tuples of the form ``(t, c)``,
+where:
+
+* ``t`` is the OUT time in T-states
+* ``c`` is the border colour (0-7)
+
+After processing, the contents of **border** are replaced by a single item of
+the form ``(0, c)``, where ``c`` is the border colour of the last item in the
+list as it was upon entry.
+
+If provided, **keyboard** is populated with eight values, each one
+corresponding to the state of a keyboard row:
+
+* row 0: CS-Z-X-C-V
+* row 1: A-S-D-F-G
+* row 2: Q-W-E-R-T
+* row 3: 1-2-3-4-5
+* row 4: 6-7-8-9-0
+* row 5: Y-U-I-O-P
+* row 6: H-J-K-L-ENTER
+* row 7: B-N-M-SS-SPACE
+
+Bit 0 of each value is 1 if and only if the outermost key in the row is being
+pressed (e.g. SPACE in row 7), bit 1 corresponds to the next key in the row,
+and so on up to the innermost key in bit 4 (e.g. CAPS SHIFT in row 0).
 
 .. _snapshotReader:
 

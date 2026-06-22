@@ -27,12 +27,12 @@ from skoolkit import (SkoolKitError, CSimulator, CCMIOSimulator, get_int_param,
                       get_object, get_word, integer, open_file, parse_int,
                       read_bin_file, warn, write_line, ROM48, VERSION)
 from skoolkit.cmiosimulator import CMIOSimulator
+from skoolkit.components import get_screen
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.kbtracer import KeyboardTracer, KeypressTracer
 from skoolkit.loadsample import ACCELERATORS, Accelerator
 from skoolkit.loadtracer import LoadTracer, get_edges
 from skoolkit.pagingtracer import SliceableMemory
-from skoolkit.screen import get_screen
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import PC, T, from_memory, get_state
 from skoolkit.snapshot import (move, patch, poke, print_reg_help,

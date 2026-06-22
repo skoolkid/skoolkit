@@ -11,7 +11,8 @@ from skoolkittest import (SkoolKitTestCase, PZX, create_header_block,
                           create_tap_data_block, create_tzx_header_block,
                           create_tzx_data_block, create_tzx_turbo_data_block,
                           create_tzx_pure_data_block, mock_find_file)
-from skoolkit import config, tap2sna, VERSION, SkoolKitError, CSimulator, CCMIOSimulator
+from skoolkit import (components, config, tap2sna, VERSION, SkoolKitError,
+                      CSimulator, CCMIOSimulator)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.simulator import Simulator
 
@@ -4007,3 +4008,48 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(exp_out_lines, self._format_output(output))
         self.assertEqual(error, '')
         self.assertEqual(simulator.registers[7], 134) # L
+
+    @patch.object(components, 'SK_CONFIG', None)
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_custom_screen(self):
+        custom_screen = """
+            class CustomScreen:
+                def __init__(self, scale, fps, caption, is128k):
+                    pass
+                def draw(self, scr, frame, border, keyboard=None):
+                    print(f'Frame {frame}: ATTR(0,1)={scr[6145]}; BORDER={border[-1][1]}')
+                    return True
+        """
+        self.write_component_config('Screen', '*.CustomScreen', custom_screen)
+
+        # A code start address of 0xFF50 ensures that the return address on the
+        # stack will be overwritten by the first two bytes of the code block
+        code_start = 0xFF50
+        code = [
+            0x52, 0xFF,             # $FF50 DEFW $FF52
+            0x3E, 0x01,             # $FF52 LD A,$01
+            0xD3, 0xFE,             # $FF54 OUT ($FE),A
+            0x21, 0x01, 0x58,       # $FF56 LD HL,$5801
+            0x36, 0x04,             # $FF59 LD (HL),$04
+            0x76,                   # $FF5B HALT
+            0x00,                   # $FF5C NOP         ; Force screen draw
+        ]
+        blocks = [
+            create_tap_header_block("code", code_start, len(code)),
+            create_tap_data_block(code)
+        ]
+        tapfile = self._write_tap(blocks)
+        start = code_start + len(code)
+        exp_out_lines = [
+            'Bytes: code      ',
+            'Frame 254: ATTR(0,1)=56; BORDER=7',
+            'Frame 255: ATTR(0,1)=56; BORDER=7',
+            'Fast loading data block: 65360,13',
+            'Tape finished',
+            'Frame 256: ATTR(0,1)=4; BORDER=1',
+            f'Simulation stopped (PC at start address): PC={start}',
+            'Writing out.z80'
+        ]
+        output, error = self.run_tap2sna(f'--screen --start {start} {tapfile} out.z80')
+        self.assertEqual(exp_out_lines, output.strip().split('\n'))
+        self.assertEqual(error, '')

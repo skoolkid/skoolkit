@@ -26,20 +26,27 @@ with contextlib.redirect_stderr(io.StringIO()):
 
 CELLS = tuple((x, y, 2048 * (y // 8) + 32 * (y % 8) + x, 6144 + 32 * y + x) for x in range(32) for y in range(24))
 
-def get_screen(scale, fps, caption, is128k):
-    if pygame:
-        screen = Screen(scale, fps, caption, is128k)
-        if hasattr(screen, 'msg'):
-            print(screen.msg)
-        return screen
-
 class Screen:
+    """
+    Initialise the screen.
+
+    :param scale: The screen scale factor.
+    :param fps: The target frame rate.
+    :param caption: Window title bar text.
+    :param is128k: Whether to use 128K screen draw timings.
+    """
+    # Component API
+    def __new__(cls, scale, fps, caption, is128k):
+        # Return None if pygame is not available
+        if pygame:
+            return super().__new__(cls)
+
     def __init__(self, scale, fps, caption, is128k):
         self._init_colours_and_keys()
         pygame.init()
         pygame.display.set_mode((320 * scale, 240 * scale))
         pygame.display.set_caption(caption)
-        self.msg = pygame_io.getvalue()
+        print(pygame_io.getvalue())
         self.scale = scale
         self.fps = fps
         if is128k:
@@ -201,7 +208,19 @@ class Screen:
                 t -= t0
         self._draw_chunks(border, chunks)
 
+    # Component API
     def draw(self, scr, frame, border, keyboard=None):
+        """
+        Draw the screen.
+
+        :param scr: A 6912-element list of byte values from the display file
+                    and attribute file.
+        :param frame: Frame number (used to determine the state of flashing
+                      cells).
+        :param border: A log of the output to port 0xFE.
+        :param keyboard: A list for capturing the keyboard state.
+        :return: `False` if the window has been closed, `True` otherwise.
+        """
         screen = self.surface
         pixel_rects = self.pixel_rects
         cell_rects = self.cell_rects
@@ -249,7 +268,7 @@ class Screen:
             if event.type == pygame.QUIT:
                 return False
 
-        if keyboard:
+        if keyboard is not None:
             keyboard[:] = (0,) * 8
             pressed = pygame.key.get_pressed()
             for k, i, b in self.keys:

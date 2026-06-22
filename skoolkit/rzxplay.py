@@ -24,8 +24,8 @@ from skoolkit import (VERSION, SkoolKitError, CSimulator, CCMIOSimulator,
                       as_dword, get_dword, get_word, parse_int, read_bin_file,
                       warn, write)
 from skoolkit.cmiosimulator import CMIOSimulator
+from skoolkit.components import get_screen
 from skoolkit.pagingtracer import Memory
-from skoolkit.screen import get_screen
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import from_snapshot, get_state
 from skoolkit.snapshot import Snapshot, write_snapshot

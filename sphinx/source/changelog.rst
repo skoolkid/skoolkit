@@ -25,6 +25,7 @@ Changelog
 * Added support for multiple colours in the border area of the screen displayed
   by :ref:`rzxplay.py` and :ref:`trace.py`
 * Made the :ref:`AY audio writer <ayAudioWriter>` a pluggable component
+* Made the :ref:`screen <screen>` a pluggable component
 * Fixed how :ref:`rzxinfo.py` detects a signed RZX file and encrypted frames
 * Fixed the bug in :ref:`sna2ctl.py` that enables the :ref:`rstHandler` when
   the :ref:`comment generator <commentGenerator>` is enabled

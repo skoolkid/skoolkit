@@ -6188,6 +6188,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         self->out7ffd = 0x10; // Signal: 48K ROM always
     }
     unsigned frame_duration = self->frame_duration;
+    unsigned long long prev_frame = TIME / frame_duration;
     unsigned int_active = self->int_active;
     unsigned progress = 0;
     unsigned pc = REG(PC);
@@ -6197,7 +6198,6 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     while (ok) {
         PyObject* i = NULL;
         unsigned long long t0 = TIME;
-        unsigned long long prev_frame = t0 / frame_duration;
         byte opcode = PEEK(pc);
         OpcodeFunction* opcode_func = self->opcodes[opcode];
         if (!opcode_func->func) {

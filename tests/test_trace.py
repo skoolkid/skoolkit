@@ -3834,6 +3834,7 @@ class TraceTest(SkoolKitTestCase):
             Stopped at ${stop:04X}
             Wrote {outfile}
         """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         with open(outfile, 'rb') as f:
             self.assertEqual(f.read(), bytes((18, 18)))
 
@@ -3872,8 +3873,38 @@ class TraceTest(SkoolKitTestCase):
             Stopped at ${stop:04X}
             Wrote {outfile}
         """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         with open(outfile, 'rb') as f:
             self.assertEqual(f.read(), bytes((43, 2, 5, 99, 1, 6, 155, 0, 7, 185, 15, 0)))
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_screen(self):
+        custom_screen = """
+            class CustomScreen:
+                def __init__(self, scale, fps, caption, is128k):
+                    pass
+                def draw(self, scr, frame, border, keyboard=None):
+                    print(f'Frame {frame}: ATTR(0,2)={scr[6146]}; BORDER={border[-1][1]}')
+                    return True
+        """
+        self.write_component_config('Screen', '*.CustomScreen', custom_screen)
+        data = (
+            0x3E, 0x03,             # $8000 LD A,$03    ; t=69850
+            0xD3, 0xFE,             # $8002 OUT ($FE),A ; t=69857
+            0x21, 0x02, 0x58,       # $8004 LD HL,$5802 ; t=69868
+            0x36, 0x05,             # $8007 LD (HL),$05 ; t=69878
+        )
+        ram = [0] * 49152
+        start = 32768
+        stop = start + len(data)
+        ram[start - 0x4000:stop - 0x4000] = data
+        infile = self.write_z80_file(None, ram, registers={'PC': start, 'tstates': 69850})
+        output, error = self.run_trace(f'-S {stop} --screen {infile}')
+        exp_output = f"""
+            Frame 1: ATTR(0,2)=5; BORDER=3
+            Stopped at ${stop:04X}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)
     def test_write_z80_48k(self):

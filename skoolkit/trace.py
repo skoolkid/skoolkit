@@ -24,11 +24,10 @@ from skoolkit.audio import BeeperOptions
 from skoolkit.ay import AY_MODES, AYOptions
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.components import (get_audio_writer, get_ay_audio_writer,
-                                 get_image_writer)
+                                 get_image_writer, get_screen)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.graphics import Frame, scr_udgs
 from skoolkit.pagingtracer import Memory, PagingTracer
-from skoolkit.screen import get_screen
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import CLOCK_SPEEDS, PC, T, from_snapshot, get_state
 from skoolkit.snapshot import (Snapshot, make_snapshot, poke, print_reg_help,

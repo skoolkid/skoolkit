@@ -68,5 +68,8 @@ def get_operand_evaluator():
 def get_rst_handler():
     return get_component('RSTHandler', get_value('RSTHandlerConfig'))
 
+def get_screen(*args):
+    return get_component('Screen', *args)
+
 def get_snapshot_reader():
     return get_component('SnapshotReader')
