@@ -40,21 +40,31 @@ class MockAudioWriter:
         global audio_writer
         audio_writer = self
         self.config = config
+        self.wrote_audio = False
+
+    def formats(self):
+        return ('.wav',)
 
     def write_audio(self, audio_file, delays, options):
         self.fname = audio_file.name
         self.delays = delays
         self.options = options
+        self.wrote_audio = True
 
 class MockAYAudioWriter:
     def __init__(self):
         global ay_audio_writer
         ay_audio_writer = self
+        self.wrote_audio = False
+
+    def formats(self):
+        return ('.wav',)
 
     def write_audio(self, audio_file, audio_log, options):
         self.fname = audio_file.name
         self.audio_log = audio_log
         self.options = options
+        self.wrote_audio = True
 
 class MockImageWriter:
     def __init__(self, config=None, palette=None):
@@ -3773,7 +3783,7 @@ class TraceTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_trace(f'-n -o {start} -S {stop} {infile} out.wav')
         self.assertEqual(cm.exception.args[0], 'No audio detected')
-        self.assertIsNone(audio_writer)
+        self.assertFalse(audio_writer.wrote_audio)
 
     @patch.object(trace, 'get_ay_audio_writer', MockAYAudioWriter)
     def test_write_wav_no_ay_activity(self):
@@ -3792,7 +3802,7 @@ class TraceTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_trace(f'-S {stop} --ay {infile} out.wav')
         self.assertEqual(cm.exception.args[0], 'No AY activity detected')
-        self.assertIsNone(ay_audio_writer)
+        self.assertFalse(ay_audio_writer.wrote_audio)
 
     @patch.object(trace, 'Tracer', TestTracer)
     def test_no_audio(self):
@@ -3813,7 +3823,7 @@ class TraceTest(SkoolKitTestCase):
                 def __init__(self, config=None):
                     pass
                 def formats(self):
-                    return ('.wav',)
+                    return ('.log',)
                 def write_audio(self, audio_file, delays, options):
                     audio_file.write(bytes(delays))
         """
@@ -3826,7 +3836,7 @@ class TraceTest(SkoolKitTestCase):
             0xD3, 0xFE,             # $8008 OUT ($FE),A
         )
         infile = self.write_bin_file(data, suffix='.bin')
-        outfile = 'out.wav'
+        outfile = 'out.log'
         start = 32768
         stop = start + len(data)
         output, error = self.run_trace(f'-n -o {start} -S {stop} {infile} {outfile}')
@@ -3845,7 +3855,7 @@ class TraceTest(SkoolKitTestCase):
                 def __init__(self, config=None):
                     pass
                 def formats(self):
-                    return ('.wav',)
+                    return ('.dat',)
                 def write_audio(self, audio_file, audio_log, options):
                     for t, r, v in audio_log:
                         audio_file.write(bytes((t, r, v)))
@@ -3867,7 +3877,7 @@ class TraceTest(SkoolKitTestCase):
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
         infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
-        outfile = 'out.wav'
+        outfile = 'out.dat'
         output, error = self.run_trace(f'-S {stop} --ay {infile} {outfile}')
         exp_output = f"""
             Stopped at ${stop:04X}

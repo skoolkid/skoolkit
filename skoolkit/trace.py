@@ -307,7 +307,12 @@ def run(snafile, options, config):
             start = org
     for spec in options.pokes:
         poke(simulator.memory, spec)
-    port_fe = options.audio or any(f.lower().endswith('.wav') for f in options.dump) or options.screen
+    audio_writer = get_audio_writer()
+    bpr_audio_fmts = [f.lower() for f in audio_writer.formats()]
+    ay_audio_writer = get_ay_audio_writer()
+    ay_audio_fmts = [f.lower() for f in ay_audio_writer.formats()]
+    audio_fmts = set(bpr_audio_fmts) | set(ay_audio_fmts)
+    port_fe = options.audio or any(f.lower().endswith(tuple(audio_fmts)) for f in options.dump) or options.screen
     tracer = Tracer(simulator, border, out7ffd, outfffd, ay, outfe, port_fe)
     simulator.set_tracer(tracer)
     if options.verbose:
@@ -363,26 +368,23 @@ def run(snafile, options, config):
         print(f'Wrote {options.map}')
     for fname in options.dump:
         ext = fname.lower()[-4:]
-        if ext == '.wav':
-            if options.ay:
-                if any(r < 16 for t, r, v in tracer.audio_log):
-                    audio_writer = get_ay_audio_writer()
-                    mode = AY_MODE_NAMES.index(options.ay_mode)
-                    ay_options = AYOptions(options.volume, options.ay_res, options.beeper, mode)
-                    tracer.audio_log.append((simulator.registers[T], 15, 0))
-                    with open(fname, 'wb') as f:
-                        audio_writer.write_audio(f, tracer.audio_log, ay_options)
-                else:
-                    raise SkoolKitError('No AY activity detected')
+        if ext in ay_audio_fmts and options.ay:
+            if any(r < 16 for t, r, v in tracer.audio_log):
+                mode = AY_MODE_NAMES.index(options.ay_mode)
+                ay_options = AYOptions(options.volume, options.ay_res, options.beeper, mode)
+                tracer.audio_log.append((simulator.registers[T], 15, 0))
+                with open(fname, 'wb') as f:
+                    ay_audio_writer.write_audio(f, tracer.audio_log, ay_options)
             else:
-                delays = tracer.get_delays()
-                if delays:
-                    audio_writer = get_audio_writer()
-                    options = BeeperOptions(options.volume, False, False, 0, is128k)
-                    with open(fname, 'wb') as f:
-                        audio_writer.write_audio(f, delays, options)
-                else:
-                    raise SkoolKitError('No audio detected')
+                raise SkoolKitError('No AY activity detected')
+        elif ext in bpr_audio_fmts:
+            delays = tracer.get_delays()
+            if delays:
+                options = BeeperOptions(options.volume, False, False, 0, is128k)
+                with open(fname, 'wb') as f:
+                    audio_writer.write_audio(f, delays, options)
+            else:
+                raise SkoolKitError('No audio detected')
         elif ext == '.png':
             if len(simulator.memory) == 0x20000:
                 scr = scr_udgs(simulator.memory.memory[1], 0, 0, 32, 24, 0, 6144)
