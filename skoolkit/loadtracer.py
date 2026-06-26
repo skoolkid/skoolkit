@@ -465,8 +465,8 @@ class LoadTracer(PagingTracer):
                         self.tsl_misses += 1
                 if index % 2 == 0:
                     return 191
-        elif port == 0xFFFD: # pragma: no cover
-            ay_reg = self.outfffd % 16
+        elif port & 0xC002 == 0xC000 and self.outfffd < 16: # pragma: no cover
+            ay_reg = self.outfffd
             if ay_reg == 14 and registers[24] == 0x08B2:
                 # Avoid an infinite loop at 0x08AF in the 128K ROM:
                 #   $08AF CALL $05D6  ; Check for BREAK.

@@ -6057,9 +6057,9 @@ static unsigned read_port(CSimulatorObject* self, unsigned port) {
             }
             return (index & 1) ? 0xFF : 0xBF;
         }
-    } else if (port == 0xFFFD) {
+    } else if ((port & 0xC002) == 0xC000) {
         PyObject* outfffd_obj = PyObject_GetAttrString(self->tracer, "outfffd");
-        unsigned ay_reg = PyLong_AsLong(outfffd_obj) & 0x0F;
+        unsigned ay_reg = PyLong_AsLong(outfffd_obj);
         Py_XDECREF(outfffd_obj);
         if (ay_reg == 14 && REG(PC) == 0x08B2) {
             /* Avoid an infinite loop at 0x08AF in the 128K ROM:
@@ -6069,10 +6069,12 @@ static unsigned read_port(CSimulatorObject* self, unsigned port) {
                  $08B6 JR NZ,$08AF ; Jump back if not (bit 6 set). */
             return 0;
         }
-        PyObject* ay = PyObject_GetAttrString(self->tracer, "ay");
-        PyObject* value = PyList_GetItem(ay, ay_reg);
-        Py_XDECREF(ay);
-        return PyLong_AsLong(value);
+        if (ay_reg < 16) {
+            PyObject* ay = PyObject_GetAttrString(self->tracer, "ay");
+            PyObject* value = PyList_GetItem(ay, ay_reg);
+            Py_XDECREF(ay);
+            return PyLong_AsLong(value);
+        }
     }
 
     return 0xFF;
