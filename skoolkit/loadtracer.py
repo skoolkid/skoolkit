@@ -79,6 +79,7 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
         analysis = ['T-states    EAR  Description']
     else:
         analysis = ()
+    byte_timings = {}
 
     for i, block in enumerate(blocks):
         timings = block.timings
@@ -114,19 +115,42 @@ def get_edges(blocks, first_edge, polarity, analyse=False):
                 one = ','.join(str(d) for d in timings.one)
                 analysis.append(f'{tstates:>10}  {ear:>3}  Data ({data_len} bytes{bits}; {zero}/{one} T-states)')
             start = len(edges) - 1
-            p = q = 0
-            for k, b in enumerate(data, 1):
-                for j in range(8 if k < len(data) else timings.used_bits):
-                    for d in timings.one if b & 0x80 else timings.zero:
-                        if d:
-                            tstates += d
-                            if p == q:
-                                edges.append(tstates)
-                                q = 1 - q
-                            else:
-                                edges[-1] += d
-                        p = 1 - p
-                    b *= 2
+
+            if 0 in timings.zero or 0 in timings.one:
+                p = q = 0
+                for k, b in enumerate(data, 1):
+                    for j in range(8 if k < len(data) else timings.used_bits):
+                        for d in timings.one if b & 0x80 else timings.zero:
+                            if d:
+                                tstates += d
+                                if p == q:
+                                    edges.append(tstates)
+                                    q = 1 - q
+                                else:
+                                    edges[-1] += d
+                            p = 1 - p
+                        b *= 2
+            else:
+                key = (timings.zero, timings.one)
+                b_timings = byte_timings.get(key)
+                if b_timings is None:
+                    b_timings = [None] * 256
+                    for v in range(256):
+                        offsets = []
+                        b = v
+                        for j in range(8):
+                            offsets.extend(timings.one if b & 0x80 else timings.zero)
+                            b *= 2
+                        b_timings[v] = offsets
+                    byte_timings[key] = b_timings
+                for b in data[:-1]:
+                    for d in b_timings[b]:
+                        tstates += d
+                        edges.append(tstates)
+                bt = b_timings[data[-1]]
+                for d in bt[:(len(bt) * timings.used_bits) // 8]:
+                    tstates += d
+                    edges.append(tstates)
 
             # Tail pulse
             if timings.tail:

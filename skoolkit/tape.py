@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2018, 2020-2024 Richard Dymond (rjdymond@gmail.com)
+# © 2013, 2015-2018, 2020-2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -335,12 +335,12 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
         tail = get_word(data, i + 12)
         p0, p1 = data[i + 14:i + 16]
         j = i + 16
-        s0 = [get_word(data, k) for k in range(j, j + 2 * p0, 2)]
+        s0 = tuple(get_word(data, k) for k in range(j, j + 2 * p0, 2))
         j += 2 * p0
-        s1 = [get_word(data, k) for k in range(j, j + 2 * p1, 2)]
+        s1 = tuple(get_word(data, k) for k in range(j, j + 2 * p1, 2))
         j += 2 * p1
         tape_data = data[j:j + num_bytes + int(used_bits < 8)]
-        standard = prev_rom_pilot and p0 == 2 and p1 == 2 and s0 == [855, 855] and s1 == [1710, 1710]
+        standard = prev_rom_pilot and p0 == 2 and p1 == 2 and s0 == (855, 855) and s1 == (1710, 1710)
         if used_bits < 8:
             info.append(f'Bits: {bits} ({num_bytes} bytes + {used_bits} bits)')
         else:
