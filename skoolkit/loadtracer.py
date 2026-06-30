@@ -15,7 +15,6 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import array
-from functools import partial
 
 from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
@@ -213,7 +212,7 @@ class LoadTracer(PagingTracer):
         if hasattr(simulator, 'opcodes') and self.accel_dec_a:
             dec_a_jr = self.accel_dec_a & 1
             dec_a_jp = self.accel_dec_a & 2
-            simulator.opcodes[0x3D] = partial(self.dec_a, dec_a_jr, dec_a_jp, simulator.registers, simulator.memory)
+            simulator.opcodes[0x3D] = self.dec_a(dec_a_jr, dec_a_jp)
         self.list_accelerators = config['list_accelerators']
         self.block_index = 0
         self.block_data_index = self.blocks[0].start
@@ -398,40 +397,44 @@ class LoadTracer(PagingTracer):
         elif stop_cond == 6: # pragma: no cover
             write_line('Simulation stopped (screen closed)')
 
-    def dec_a(self, dec_a_jr, dec_a_jp, registers, memory):
+    def dec_a(self, dec_a_jr, dec_a_jp):
         # Speed up any 'DEC A: JR/JP NZ,$-1' loop if configured to do so, and
         # also count hits and misses
-        pc = registers[24]
-        if registers[26] == 0:
-            if dec_a_jr and memory[(pc + 1) % 65536] == 0x20 and memory[(pc + 2) % 65536] == 0xFD:
-                self.dec_a_jr_hits += 1
-                a = registers[0]
-                if a == 0:
-                    a = 256
-                registers[0] = 0
-                registers[1] = 0x42 + (registers[1] % 2)
-                r = registers[15]
-                registers[15] = (r & 0x80) + ((r + a * 2) % 128)
-                registers[25] += 16 * a - 5
-                registers[24] = (pc + 3) % 65536
-                return
-            if dec_a_jp and memory[(pc + 1) % 65536] == 0xC2 and memory[(pc + 2) % 65536] == pc % 256 and memory[(pc + 3) % 65536] == pc // 256:
-                self.dec_a_jp_hits += 1
-                a = registers[0]
-                if a == 0:
-                    a = 256
-                registers[0] = 0
-                registers[1] = 0x42 + (registers[1] % 2)
-                r = registers[15]
-                registers[15] = (r & 0x80) + ((r + a * 2) % 128)
-                registers[25] += 14 * a
-                registers[24] = (pc + 4) % 65536
-                return
-            self.dec_a_misses += 1
-        registers[0], registers[1] = DEC[registers[1] % 2][registers[0]]
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (pc + 1) % 65536
+        registers = self.simulator.registers
+        memory = self.simulator.memory
+        def func():
+            pc = registers[24]
+            if registers[26] == 0:
+                if dec_a_jr and memory[(pc + 1) % 65536] == 0x20 and memory[(pc + 2) % 65536] == 0xFD:
+                    self.dec_a_jr_hits += 1
+                    a = registers[0]
+                    if a == 0:
+                        a = 256
+                    registers[0] = 0
+                    registers[1] = 0x42 + (registers[1] % 2)
+                    r = registers[15]
+                    registers[15] = (r & 0x80) + ((r + a * 2) % 128)
+                    registers[25] += 16 * a - 5
+                    registers[24] = (pc + 3) % 65536
+                    return
+                if dec_a_jp and memory[(pc + 1) % 65536] == 0xC2 and memory[(pc + 2) % 65536] == pc % 256 and memory[(pc + 3) % 65536] == pc // 256:
+                    self.dec_a_jp_hits += 1
+                    a = registers[0]
+                    if a == 0:
+                        a = 256
+                    registers[0] = 0
+                    registers[1] = 0x42 + (registers[1] % 2)
+                    r = registers[15]
+                    registers[15] = (r & 0x80) + ((r + a * 2) % 128)
+                    registers[25] += 14 * a
+                    registers[24] = (pc + 4) % 65536
+                    return
+                self.dec_a_misses += 1
+            registers[0], registers[1] = DEC[registers[1] % 2][registers[0]]
+            registers[15] = R1[registers[15]]
+            registers[25] += 4
+            registers[24] = (pc + 1) % 65536
+        return func
 
     def _read_port(self):
         in_min_addr = self.in_min_addr
