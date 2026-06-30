@@ -92,7 +92,7 @@ class RZXTracer:
 
     def write_port(self, registers, port, value, offset):
         if port % 2 == 0:
-            self.border.append(((registers[25] % self.frame_duration) + offset, value % 8))
+            self.border.append(((registers[25] % self.frame_duration) + offset, value))
             self.outfe = value
         if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
             memory = self.simulator.memory

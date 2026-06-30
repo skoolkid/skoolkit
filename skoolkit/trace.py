@@ -168,7 +168,7 @@ class Tracer(PagingTracer):
 
     def _write_port(self, registers, port, value, offset):
         if port % 2 == 0:
-            self.border.append(((registers[T] % self.frame_duration) + offset, value % 8))
+            self.border.append(((registers[T] % self.frame_duration) + offset, value))
             self.outfe = value
             if self.spkr != value & 0x10:
                 self.spkr = value & 0x10

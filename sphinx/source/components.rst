@@ -423,15 +423,15 @@ following API methods, in common with skoolkit.screen.Screen:
    :members: draw
    :noindex:
 
-**border** is a non-empty list of 2-element tuples of the form ``(t, c)``,
+**border** is a non-empty list of 2-element tuples of the form ``(t, v)``,
 where:
 
 * ``t`` is the OUT time in T-states
-* ``c`` is the border colour (0-7)
+* ``v`` is the OUT value (border colour in bits 0-2)
 
 After processing, the contents of **border** are replaced by a single item of
-the form ``(0, c)``, where ``c`` is the border colour of the last item in the
-list as it was upon entry.
+the form ``(0, v)``, where ``v`` is the OUT value of the last item in the list
+as it was upon entry.
 
 If provided, **keyboard** is populated with eight values, each one
 corresponding to the state of a keyboard row:

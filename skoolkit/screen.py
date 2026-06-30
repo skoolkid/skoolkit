@@ -169,9 +169,9 @@ class Screen:
         colours = self.colours
         chunks = []
         x, y = 20, 0
-        for i, (ts, colour) in enumerate(border[:-1]):
+        for i, (ts, outv) in enumerate(border[:-1]):
             t = (border[i + 1][0] & 0xFFFFC) - (ts & 0xFFFFC)
-            c = colours[colour]
+            c = colours[outv & 0x07]
             while y < 280:
                 x1 = x + t
                 t0 = t - max(0, x1 - 224)
@@ -192,9 +192,9 @@ class Screen:
         colours = self.colours
         chunks = []
         x, y = 16, 0
-        for i, (ts, colour) in enumerate(border[:-1]):
+        for i, (ts, outv) in enumerate(border[:-1]):
             t = (border[i + 1][0] & 0xFFFFC) - (ts & 0xFFFFC)
-            c = colours[colour]
+            c = colours[outv & 0x07]
             while y < 279:
                 x1 = x + t
                 t0 = t - max(0, x1 - 228)

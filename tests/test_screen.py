@@ -157,7 +157,7 @@ class ScreenTest(SkoolKitTestCase):
         s = screen.Screen(1, 50, 'screen', False)
         scr = [0] * 0x1800 + [8 * CYAN] * 0x300
         border = [
-            (0, MAGENTA),              # 64 scanlines (top border)
+            (0, MAGENTA | 0x80),       # 64 scanlines (top border)
             (64 * 224 - 20, GREEN),    # Invisible left border (8 T-states)
             (64 * 224 + 8 - 20, BLUE), # 192 scanlines (main screen)
             (256 * 224 - 20, RED),     # 56 scanlines (bottom border)
@@ -179,7 +179,7 @@ class ScreenTest(SkoolKitTestCase):
         s = screen.Screen(1, 50, 'screen', True)
         scr = [0] * 0x1800 + [8 * GREEN] * 0x300
         border = [
-            (0, YELLOW),            # 63 scanlines (top border)
+            (0, YELLOW | 0x40),     # 63 scanlines (top border)
             (63 * 228 - 16, CYAN),  # 192 scanlines (main screen)
             (255 * 228 - 16, BLUE), # 56 scanlines (bottom border)
         ]
