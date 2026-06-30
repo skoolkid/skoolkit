@@ -244,7 +244,7 @@ class LoadTracer(PagingTracer):
         if hasattr(simulator, 'load'): # pragma: Python no cover
             self.edges = array.array('Q', self.edges)
             self.state = array.array('Q', self.state)
-        self.read_port = partial(self._read_port, self.state, list(self.accelerators), simulator.memory)
+        self.read_port = self._read_port()
 
     def run(self, border, out7ffd, outfffd, ay, outfe):
         is128k = len(self.simulator.memory) == 0x20000
@@ -433,73 +433,82 @@ class LoadTracer(PagingTracer):
         registers[25] += 4
         registers[24] = (pc + 1) % 65536
 
-    def _read_port(self, state, accelerators, memory, registers, port):
-        if port % 256 == 0xFE:
-            pc = registers[24]
-            if pc >= self.in_min_addr or (0x0562 <= pc <= 0x05F1 and self.out7ffd & 0x10):
-                state[5] = 1 # Signal: custom loader detected
-                index = state[1]
-                if state[7] and not state[2]:
-                    state[7] = 0 # Signal: data block announced
-                    state[4] = 1 # Signal: tape is running
-                    registers[T] = self.edges[index]
-                    length = len(self.blocks[self.block_index].data)
-                    if length:
-                        write_line(f'Data ({length} bytes)')
-                elif index == self.max_index:
-                    # Final edge, so stop the tape
-                    self.stop_tape(registers[T])
-                elif state[4] and registers[26] == 0 and index < state[3] - 1:
-                    loops = 0
-                    for i, acc in enumerate(accelerators):
-                        if memory[pc - acc.c0:pc + acc.c1] == acc.code:
-                            acc.hits += 1
-                            if acc.ear_mask:
-                                ffwd = registers[acc.ear] & acc.ear_mask == ((index - acc.polarity) % 2) * acc.ear_mask
-                            else:
-                                # Polarity-sensitive loop
-                                ffwd = (index - acc.polarity) % 2
-                            if ffwd and state[0] > registers[25]:
-                                counter = registers[acc.counter]
-                                if acc.inc:
-                                    # INC r
-                                    loops = min((state[0] - registers[25]) // acc.loop_time + 1, 255 - counter)
+    def _read_port(self):
+        in_min_addr = self.in_min_addr
+        state = self.state
+        edges = self.edges
+        blocks = self.blocks
+        max_index = self.max_index
+        accelerators = list(self.accelerators)
+        memory = self.simulator.memory
+        def func(registers, port):
+            if port & 0xFF == 0xFE:
+                pc = registers[24]
+                if pc >= in_min_addr or (0x0562 <= pc <= 0x05F1 and self.out7ffd & 0x10):
+                    state[5] = 1 # Signal: custom loader detected
+                    index = state[1]
+                    if state[7] and not state[2]:
+                        state[7] = 0 # Signal: data block announced
+                        state[4] = 1 # Signal: tape is running
+                        registers[T] = edges[index]
+                        length = len(blocks[self.block_index].data)
+                        if length:
+                            write_line(f'Data ({length} bytes)')
+                    elif index == max_index:
+                        # Final edge, so stop the tape
+                        self.stop_tape(registers[T])
+                    elif state[4] and registers[26] == 0 and index < state[3] - 1:
+                        loops = 0
+                        for i, acc in enumerate(accelerators):
+                            if memory[pc - acc.c0:pc + acc.c1] == acc.code:
+                                acc.hits += 1
+                                if acc.ear_mask:
+                                    ffwd = registers[acc.ear] & acc.ear_mask == ((index - acc.polarity) % 2) * acc.ear_mask
                                 else:
-                                    # DEC r
-                                    loops = min((state[0] - registers[25]) // acc.loop_time + 1, counter - 1)
-                                if loops:
+                                    # Polarity-sensitive loop
+                                    ffwd = (index - acc.polarity) % 2
+                                if ffwd and state[0] > registers[25]:
+                                    counter = registers[acc.counter]
                                     if acc.inc:
                                         # INC r
-                                        registers[acc.counter], registers[1] = INC0[counter + loops - 1]
+                                        loops = min((state[0] - registers[25]) // acc.loop_time + 1, 255 - counter)
                                     else:
                                         # DEC r
-                                        registers[acc.counter], registers[1] = DEC0[counter - loops + 1]
-                                    r = registers[15]
-                                    registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops) % 0x80)
-                                    registers[25] += acc.loop_time * loops
-                                    if registers[25] > state[0]:
-                                        index += 1
-                            if i:
-                                # Move the selected accelerator to the beginning of the
-                                # list so that it can be found quicker next time
-                                accelerators.remove(acc)
-                                accelerators.insert(0, acc)
-                            break
-                    else:
-                        self.tsl_misses += 1
-                if index % 2 == 0:
-                    return 191
-        elif port & 0xC002 == 0xC000 and self.outfffd < 16: # pragma: no cover
-            ay_reg = self.outfffd
-            if ay_reg == 14 and registers[24] == 0x08B2:
-                # Avoid an infinite loop at 0x08AF in the 128K ROM:
-                #   $08AF CALL $05D6  ; Check for BREAK.
-                #   $08B2 IN A,(C)    ; Read AY register 14 (BC=$FFFD).
-                #   $08B4 AND $40     ; Ready to send data?
-                #   $08B6 JR NZ,$08AF ; Jump back if not (bit 6 set).
-                return 0
-            return self.ay[ay_reg]
-        return 255
+                                        loops = min((state[0] - registers[25]) // acc.loop_time + 1, counter - 1)
+                                    if loops:
+                                        if acc.inc:
+                                            # INC r
+                                            registers[acc.counter], registers[1] = INC0[counter + loops - 1]
+                                        else:
+                                            # DEC r
+                                            registers[acc.counter], registers[1] = DEC0[counter - loops + 1]
+                                        r = registers[15]
+                                        registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops) % 0x80)
+                                        registers[25] += acc.loop_time * loops
+                                        if registers[25] > state[0]:
+                                            index += 1
+                                if i:
+                                    # Move the selected accelerator to the beginning of the
+                                    # list so that it can be found quicker next time
+                                    accelerators.remove(acc)
+                                    accelerators.insert(0, acc)
+                                break
+                        else:
+                            self.tsl_misses += 1
+                    if index % 2 == 0:
+                        return 191
+            elif port & 0xC002 == 0xC000 and self.outfffd < 16: # pragma: no cover
+                ay_reg = self.outfffd
+                if ay_reg == 14 and registers[24] == 0x08B2:
+                    # Avoid an infinite loop at 0x08AF in the 128K ROM:
+                    #   $08AF CALL $05D6  ; Check for BREAK.
+                    #   $08B2 IN A,(C)    ; Read AY register 14 (BC=$FFFD).
+                    #   $08B4 AND $40     ; Ready to send data?
+                    #   $08B6 JR NZ,$08AF ; Jump back if not (bit 6 set).
+                    return 0
+                return self.ay[ay_reg]
+            return 255
+        return func
 
     def _write_port(self, registers, port, value, offset): # pragma: no cover
         if port % 2 == 0:
