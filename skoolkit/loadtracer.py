@@ -267,7 +267,7 @@ class LoadTracer(PagingTracer):
             r = Registers(registers)
             m = memory
         draw = self.draw
-        if draw: # pragma: no cover
+        if draw and isinstance(border, int): # pragma: no cover
             self.border = [(0, border)]
         else:
             self.border = border

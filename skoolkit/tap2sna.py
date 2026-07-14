@@ -540,7 +540,7 @@ def sim_load(blocks, options, config):
         if not load or load[-1] != 'ENTER':
             load.append('ENTER')
         simulator = from_memory(simulator_cls, memory, registers, state, sim_cfg)
-        tracer = KeyboardTracer(simulator, load, kb_delay)
+        tracer = KeyboardTracer(simulator, load, kb_delay, draw)
         simulator.set_tracer(tracer)
         try:
             tracer.run(stop, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)

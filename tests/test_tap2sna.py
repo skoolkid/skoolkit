@@ -73,11 +73,12 @@ def mock_write_snapshot(fname, ram, registers, state):
     s_state = state
 
 class MockKeyboardTracer:
-    def __init__(self, simulator, load, kb_delay):
+    def __init__(self, simulator, load, kb_delay, draw):
         global kbtracer
         self.simulator = simulator
         self.load = load
         self.kb_delay = kb_delay
+        self.draw = draw
         self.run_called = False
         kbtracer = self
 

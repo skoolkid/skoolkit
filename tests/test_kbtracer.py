@@ -91,7 +91,7 @@ class KeyboardTracerTest(SkoolKitTestCase):
         config = {'frame_duration': 1000}
         simulator = self.simulator_cls(memory, config=config)
         delay = 0
-        kbtracer = KeyboardTracer(simulator, list(keys) + ['1+2'], delay)
+        kbtracer = KeyboardTracer(simulator, list(keys) + ['1+2'], delay, None)
         simulator.set_tracer(kbtracer)
         exp_data = [0] * 3
         for reading in exp_readings:
@@ -188,12 +188,12 @@ class KeyboardTracerTest(SkoolKitTestCase):
 
     def test_unrecognised_token(self):
         with self.assertRaises(SkoolKitError) as cm:
-            KeyboardTracer(None, ['`'], 0)
+            KeyboardTracer(None, ['`'], 0, None)
         self.assertEqual(cm.exception.args[0], 'Unrecognised token: `')
 
     def test_unrecognised_key(self):
         with self.assertRaises(SkoolKitError) as cm:
-            KeyboardTracer(None, ['CS+WHAT'], 0)
+            KeyboardTracer(None, ['CS+WHAT'], 0, None)
         self.assertEqual(cm.exception.args[0], 'Unrecognised key: WHAT')
 
     def test_trace(self):
@@ -218,7 +218,7 @@ class KeyboardTracerTest(SkoolKitTestCase):
         memory[:len(code)] = code
         stop = len(code)
         simulator = self.simulator_cls(memory)
-        kbtracer = KeyboardTracer(simulator, ['ENTER'], 0)
+        kbtracer = KeyboardTracer(simulator, ['ENTER'], 0, None)
         simulator.set_tracer(kbtracer)
         tracefile = StringIO()
         trace_line = "{t:03} ${pc:04X} {i:<13} AFBCDEHL={r[a]:02X}{r[f]:02X}{r[b]:02X}{r[c]:02X}{r[d]:02X}{r[e]:02X}{r[h]:02X}{r[l]:02X}"
@@ -260,7 +260,7 @@ class KeyboardTracerTest(SkoolKitTestCase):
         memory[:len(code)] = code
         stop = len(code)
         simulator = self.simulator_cls(memory)
-        kbtracer = KeyboardTracer(simulator, ['ENTER'], 0)
+        kbtracer = KeyboardTracer(simulator, ['ENTER'], 0, None)
         simulator.set_tracer(kbtracer)
         tracefile = StringIO()
         trace_line = "${pc:04X} {i:<13} BCDEHL={r[bc]:04X}{r[de]:04X}{r[hl]:04X}"
@@ -284,7 +284,7 @@ class KeyboardTracerTest(SkoolKitTestCase):
         memory = [0] * 65536
         stop = 4
         simulator = self.simulator_cls(memory)
-        kbtracer = KeyboardTracer(simulator, ['ENTER'], 0)
+        kbtracer = KeyboardTracer(simulator, ['ENTER'], 0, None)
         simulator.set_tracer(kbtracer)
         timeout = 10
         kbtracer.run(stop, timeout, None, None, None, None, None)
