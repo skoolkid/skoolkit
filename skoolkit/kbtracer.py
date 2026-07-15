@@ -15,7 +15,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from skoolkit import SkoolKitError, parse_int
-from skoolkit.pagingtracer import Memory, PagingTracer
+from skoolkit.pagingtracer import PagingTracer
 from skoolkit.traceutils import Registers, disassemble
 
 KEYS = {
@@ -312,7 +312,7 @@ class KeyboardTracer(PagingTracer):
         self.keys = get_keys(keys, delay)
         self.draw = draw
         if draw:
-            self.write_port = self._write_port
+            self.write_port = self.write_port_with_border_list
             self.border = [(0, 7)]
         else:
             self.border = 7
@@ -341,11 +341,11 @@ class KeyboardTracer(PagingTracer):
         else: # pragma: C no cover
             opcodes = simulator.opcodes
             frame_duration = simulator.frame_duration
-            prev_frame = registers[25] // frame_duration
-            is128k = len(memory) == 0x20000
             int_active = simulator.int_active
             pc = registers[24]
             tstates = registers[25]
+            prev_frame = tstates // frame_duration
+            is128k = len(memory) == 0x20000
             while True:
                 t0 = tstates
                 if tracefile:
@@ -385,22 +385,8 @@ class KeyboardTracer(PagingTracer):
                 return kb.pop(port)
         return 255
 
-    def _write_port(self, registers, port, value, offset):
-        if port % 2 == 0:
-            self.border.append(((registers[25] % self.frame_duration) + offset, value))
-            self.outfe = value
-        if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
-            memory = self.simulator.memory
-            if isinstance(memory, Memory):
-                memory.out7ffd(value)
-                self.out7ffd = value
-        if port & 0xC002 == 0xC000:
-            self.outfffd = value
-        elif port & 0xC002 == 0x8000 and self.outfffd < 16:
-            self.ay[self.outfffd] = value
-
 class KeypressTracer(PagingTracer):
-    def __init__(self, simulator, keys, border, out7ffd, outfffd, ay, outfe):
+    def __init__(self, simulator, keys, border, out7ffd, outfffd, ay, outfe, draw):
         self.simulator = simulator
         self.keys = []
         try:
@@ -417,6 +403,10 @@ class KeypressTracer(PagingTracer):
         self.outfffd = outfffd
         self.ay = ay
         self.outfe = outfe
+        self.draw = draw
+        if draw: # pragma: no cover
+            self.write_port = self.write_port_with_border_list
+        self.frame_duration = simulator.frame_duration
 
     def run(self, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
@@ -425,6 +415,7 @@ class KeypressTracer(PagingTracer):
         keys = self.keys
         if tracefile:
             r = Registers(registers)
+        draw = self.draw
 
         if hasattr(simulator, 'press'): # pragma: Python no cover
             if trace_line:
@@ -432,12 +423,14 @@ class KeypressTracer(PagingTracer):
                 tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
             else:
                 df = tf = None
-            simulator.press(keys, timeout, df, tf)
+            simulator.press(self, keys, timeout, draw, df, tf)
         else: # pragma: C no cover
             opcodes = simulator.opcodes
             frame_duration = simulator.frame_duration
             int_active = simulator.int_active
             tstates = registers[25]
+            prev_frame = tstates // frame_duration
+            is128k = len(memory) == 0x20000
             while tstates <= timeout and keys:
                 pc = registers[24]
                 if tracefile:
@@ -450,6 +443,15 @@ class KeypressTracer(PagingTracer):
                 if registers[26] and tstates % frame_duration < int_active:
                     simulator.accept_interrupt(registers, memory, pc)
                     tstates = registers[25]
+                if draw: # pragma: no cover
+                    frame = tstates // frame_duration
+                    if frame > prev_frame:
+                        if is128k:
+                            scr = memory.memory[1][:6912]
+                        else:
+                            scr = memory[16384:23296]
+                        draw(scr, frame, self.border)
+                        prev_frame = frame
 
     def read_port(self, registers, port):
         if port % 2 == 0 and self.keys and (port ^ 0xFF00) & self.keys[0][0]:

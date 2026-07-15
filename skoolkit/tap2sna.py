@@ -615,7 +615,7 @@ def sim_load(blocks, options, config):
             while tracer.keys:
                 print('Pressing keys: {}'.format(' '.join(tracer.keys)))
                 t0 = simulator.registers[T]
-                kp_tracer = KeypressTracer(simulator, tracer.keys, tracer.border, tracer.out7ffd, tracer.outfffd, tracer.ay, tracer.outfe)
+                kp_tracer = KeypressTracer(simulator, tracer.keys, tracer.border, tracer.out7ffd, tracer.outfffd, tracer.ay, tracer.outfe, draw)
                 simulator.set_tracer(kp_tracer)
                 kp_tracer.run(timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
                 if kp_tracer.keys:

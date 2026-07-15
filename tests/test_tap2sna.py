@@ -99,7 +99,7 @@ class MockKeyboardTracer:
         self.run_called = True
 
 class MockKeypressTracer:
-    def __init__(self, simulator, keys, border, out7ffd, outfffd, ay, outfe):
+    def __init__(self, simulator, keys, border, out7ffd, outfffd, ay, outfe, draw):
         global kptracer
         self.simulator = simulator
         self.keys = keys
@@ -108,6 +108,7 @@ class MockKeypressTracer:
         self.outfffd = outfffd
         self.ay = ay
         self.outfe = outfe
+        self.draw = draw
         kptracer = self
 
     def run(self, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):

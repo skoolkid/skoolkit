@@ -5730,19 +5730,27 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
 }
 
 static PyObject* CSimulator_press(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", "", NULL};
+    static char* kwlist[] = {"", "", "", "", "", "", NULL};
+    PyObject* tracer;
     PyObject* keys;
     unsigned long long timeout;
+    PyObject* draw;
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OKOO", kwlist, &keys, &timeout, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKOOO", kwlist, &tracer, &keys, &timeout, &draw, &disassemble, &trace)) {
+        return NULL;
+    }
+
+    PyObject* border = PyObject_GetAttrString(tracer, "border");
+    if (border == NULL) {
         return NULL;
     }
 
     unsigned long long* reg = self->registers;
     byte* mem = self->memory;
     unsigned frame_duration = self->frame_duration;
+    unsigned long long prev_frame = TIME / frame_duration;
     unsigned int_active = self->int_active;
 
     while (TIME <= timeout && PyList_Size(keys)) {
@@ -5806,8 +5814,20 @@ static PyObject* CSimulator_press(CSimulatorObject* self, PyObject* args, PyObje
         if (REG(IFF) && (TIME % frame_duration) < int_active) {
             accept_interrupt(self, pc);
         }
+
+        if (draw != Py_None) {
+            unsigned long long frame = TIME / frame_duration;
+            if (frame > prev_frame) {
+                int rv = draw_screen(self, draw, frame, border, NULL);
+                if (rv == -2) {
+                    return NULL;
+                }
+                prev_frame = frame;
+            }
+        }
     }
 
+    Py_XDECREF(border);
     Py_RETURN_NONE;
 }
 

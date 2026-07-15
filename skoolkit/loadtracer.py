@@ -18,7 +18,7 @@ import array
 
 from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
-from skoolkit.pagingtracer import Memory, PagingTracer
+from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import R1
 from skoolkit.simutils import A, D, E, F, H, IXh, IXl, SP, PC, T, IFF
 from skoolkit.traceutils import Registers, disassemble
@@ -228,7 +228,7 @@ class LoadTracer(PagingTracer):
         self.word_fmt = config['word_fmt']
         self.draw = draw
         if draw: # pragma: no cover
-            self.write_port = self._write_port
+            self.write_port = self.write_port_with_border_list
         self.text = TextReader()
         self.state = [
             0,                  # state[0]: next edge (timestamp)
@@ -512,20 +512,6 @@ class LoadTracer(PagingTracer):
                 return self.ay[ay_reg]
             return 255
         return func
-
-    def _write_port(self, registers, port, value, offset): # pragma: no cover
-        if port % 2 == 0:
-            self.border.append(((registers[25] % self.frame_duration) + offset, value))
-            self.outfe = value
-        if port & 0x8002 == 0 and self.out7ffd & 32 == 0:
-            memory = self.simulator.memory
-            if isinstance(memory, Memory):
-                memory.out7ffd(value)
-                self.out7ffd = value
-        if port & 0xC002 == 0xC000:
-            self.outfffd = value
-        elif port & 0xC002 == 0x8000 and self.outfffd < 16:
-            self.ay[self.outfffd] = value
 
     def next_block(self, tstates):
         self.block_index += 1
