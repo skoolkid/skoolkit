@@ -227,7 +227,7 @@ class LoadTracer(PagingTracer):
         self.byte_fmt = config['byte_fmt']
         self.word_fmt = config['word_fmt']
         self.draw = draw
-        if draw: # pragma: no cover
+        if draw:
             self.write_port = self.write_port_with_border_list
         self.text = TextReader()
         self.state = [
@@ -247,7 +247,7 @@ class LoadTracer(PagingTracer):
 
     def run(self, border, out7ffd, outfffd, ay, outfe):
         is128k = len(self.simulator.memory) == 0x20000
-        if is128k: # pragma: no cover
+        if is128k:
             self.out7ffd = out7ffd # 128K ROM 0/1
         else:
             self.out7ffd = 0x10 # Signal: 48K ROM always
@@ -267,7 +267,7 @@ class LoadTracer(PagingTracer):
             r = Registers(registers)
             m = memory
         draw = self.draw
-        if draw and isinstance(border, int): # pragma: no cover
+        if draw and isinstance(border, int):
             self.border = [(0, border)]
         else:
             self.border = border
@@ -310,7 +310,7 @@ class LoadTracer(PagingTracer):
                     simulator.accept_interrupt(registers, memory, pc)
                     tstates = registers[25]
 
-                if draw: # pragma: no cover
+                if draw:
                     frame = tstates // frame_duration
                     if frame > prev_frame:
                         if is128k:
@@ -330,8 +330,8 @@ class LoadTracer(PagingTracer):
                     if index == max_index:
                         # Allow 1ms for the final edge on the tape to be read
                         if tstates - edges[index] > 3500:
-                            self.stop_tape(tstates) # pragma: Python no cover
-                    elif index > state[3]: # pragma: Python no cover
+                            self.stop_tape(tstates) # pragma: no cover
+                    elif index > state[3]:
                         # Pause tape between blocks
                         self.next_block(tstates)
                         if self.keys:
@@ -374,11 +374,11 @@ class LoadTracer(PagingTracer):
                             # PC in RAM
                             stop_cond = 2
                             break
-                        if tstates - self.state[6] > 3500000: # pragma: Python no cover
+                        if tstates - self.state[6] > 3500000:
                             # Tape ended 1 second ago
                             stop_cond = 3
                             break
-                    if tstates > timeout: # pragma: Python no cover
+                    if tstates > timeout:
                         stop_cond = 4
                         break
 
@@ -388,13 +388,13 @@ class LoadTracer(PagingTracer):
             write_line(f'Simulation stopped (end of tape): PC={pc}')
         elif stop_cond == 2:
             write_line(f'Simulation stopped (PC in RAM): PC={pc}')
-        elif stop_cond == 3: # pragma: no cover
+        elif stop_cond == 3:
             write_line(f'Simulation stopped (tape ended 1 second ago): PC={pc}')
-        elif stop_cond == 4: # pragma: no cover
+        elif stop_cond == 4:
             write_line(f'Simulation stopped (timed out): PC={pc}')
-        elif stop_cond == 5: # pragma: no cover
+        elif stop_cond == 5:
             write_line('Tape paused')
-        elif stop_cond == 6: # pragma: no cover
+        elif stop_cond == 6:
             write_line('Simulation stopped (screen closed)')
 
     def dec_a(self, dec_a_jr, dec_a_jp):

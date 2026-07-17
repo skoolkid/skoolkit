@@ -16,6 +16,11 @@ from skoolkit import (components, config, tap2sna, VERSION, SkoolKitError,
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.simulator import Simulator
 
+if CSimulator is None:
+    # Pre-load the simtables module so that its (significant) load time does
+    # not become part of the test run time
+    from skoolkit import simtables
+
 mock_memory = None
 
 class MockSimulator:
@@ -167,20 +172,30 @@ class MockLoadTracerWithKeys(MockLoadTracer):
         self.keys = ['a']
 
 class MockScreen:
-    def __init__(self, scale, fps, caption, is128k):
+    def __init__(self, scale, fps, caption, is128k, stay_open=True):
         global screen
         screen = self
         self.scale = scale
         self.fps = fps
         self.caption = caption
         self.is128k = is128k
+        self.stay_open = stay_open
         self.pygame_msg = 'Using pygame'
+        self.scr = None
+        self.frame = None
+        self.border = None
 
     def draw(self, scr, frame, border):
-        pass
+        self.scr = scr
+        self.frame = frame
+        self.border = border
+        return self.stay_open
 
 def mock_get_screen(scale, fps, caption, is128k):
     return MockScreen(scale, fps, caption, is128k)
+
+def mock_get_screen_close(scale, fps, caption, is128k):
+    return MockScreen(scale, fps, caption, is128k, False)
 
 class InterruptedTracer:
     def __init__(self, *args):
@@ -220,16 +235,14 @@ class Tap2SnaTest(SkoolKitTestCase):
         return self.write_bin_file(tzx_data, suffix='.tzx')
 
     def _write_basic_loader(self, start, data, write=True, program='simloadbas', code='simloadbyt'):
-        start_str = [ord(c) for c in str(start)]
+        start_fp = (0, 0, start % 256, start // 256, 0)
         basic_data = [
             0, 10,            # Line 10
-            16, 0,            # Line length
+            15, 0,            # Line length
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *start_str,       # start address
-            34,               # "
+            249, 192, 46,     # RANDOMIZE USR .
+            14, *start_fp,    # start address in floating point form
             13                # ENTER
         ]
         blocks = [
@@ -471,24 +484,49 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(['TraceLine=Goodbye'], options.params)
         self.assertEqual(config['TraceLine'], 'Goodbye')
 
-    @patch.object(tap2sna, 'KeypressTracer', MockKeypressTracer)
-    @patch.object(tap2sna, 'LoadTracer', MockLoadTracerWithKeys)
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_press(self):
-        tapfile = self._write_tap([
-            create_tap_data_block([0]),
-            create_tap_data_block([0])
-        ])
-        outfile = 'out.z80'
-        exp_output = [
-            'Pressing keys: a',
-            'Resuming LOAD',
-            f'Writing {outfile}'
+        basic_data = [
+            0, 10,                # Line 10
+            10, 0,                # Line length
+            249, 192, 46,         # RANDOMIZE USR .
+            14, 0, 0, 222, 92, 0, # 23774
+            13,                   # ENTER
+            0, 20,                # Line 20
+            21, 0,                # Line length
+            234,                  # REM
+            62, 191,              # 23774 LD A,191
+            219, 254,             # 23776 IN A,(254)  ; Read H-J-K-L-ENTER
+            31,                   # 23778 RRA         ; Was ENTER pressed?
+            56, 249,              # 23779 JR C,23774  ; Jump back if not
+            221, 33, 0, 192,      # 23781 LD IX,49152
+            17, 1, 0,             # 23785 LD DE,1
+            55,                   # 23788 SCF
+            159,                  # 23789 SBC A,A
+            195, 86, 5,           # 23790 JP 1366
+            13,                   # ENTER
         ]
-        output, error = self.run_tap2sna(f'--press 2:ENTER {tapfile} {outfile}')
+        data = [123]
+        blocks = [
+            create_tap_header_block('simldpress', 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+            create_tap_data_block(data)
+        ]
+        tapfile = self._write_tap(blocks)
+        exp_output = [
+            'Program: simldpress',
+            'Fast loading data block: 23755,39',
+            'Tape paused',
+            'Pressing keys: ENTER',
+            'Resuming LOAD',
+            'Fast loading data block: 49152,1',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=1343',
+            'Writing out.z80'
+        ]
+        output, error = self.run_tap2sna(f'--press 3:ENTER --start 1343 -c finish-tape=1 {tapfile} out.z80')
         self.assertEqual(error, '')
         self.assertEqual(exp_output, output.strip().split('\n'))
-        self.assertTrue(kptracer.run_called)
 
     @patch.object(tap2sna, 'KeypressTracer', TimedOutKeypressTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracerWithKeys)
@@ -547,6 +585,22 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(screen.fps, 50)
         self.assertEqual(screen.caption, 'tap2sna.py')
         self.assertFalse(screen.is128k)
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'get_screen', mock_get_screen_close)
+    def test_option_screen_128k(self):
+        code_start = 32768
+        code = [1]
+        tapfile, basic_data = self._write_basic_loader(code_start, code)
+        output, error = self.run_tap2sna(f'--screen -c machine=128 {tapfile} out.z80')
+        self.assertEqual(error, '')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Simulation stopped (screen closed)',
+            'Writing out.z80'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertTrue(screen.is128k)
 
     def test_option_show_config(self):
         output, error = self.run_tap2sna('--show-config', catch_exit=0)
@@ -1914,7 +1968,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
             'Tape finished',
@@ -1962,7 +2016,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
             'Tape finished',
@@ -1979,19 +2033,17 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_sim_load_with_character_array(self):
         code_start = 32768
-        code_start_str = [ord(c) for c in str(code_start)]
+        c_start_fp = (0, 0, code_start % 256, code_start // 256, 0)
         basic_data = [
             0, 10,            # Line 10
-            25, 0,            # Line length
+            23, 0,            # Line length
             239, 34, 34, 228, # LOAD "" DATA
             97, 36, 40, 41,   # a$()
             58,               # :
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *code_start_str,  # start address
-            34,               # "
+            249, 192, 46,     # RANDOMIZE USR .
+            14, *c_start_fp,  # start address
             13                # ENTER
         ]
         ca_name = "characters"
@@ -2010,9 +2062,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,29',
+            'Fast loading data block: 23755,28',
             'Character array: characters',
-            'Fast loading data block: 23787,8',
+            'Fast loading data block: 23786,8',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
             'Tape finished',
@@ -2022,7 +2074,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(ca_data, snapshot[23787:23787 + len(ca_data)])
+        self.assertEqual(ca_data, snapshot[23786:23786 + len(ca_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(s_reg))
@@ -2030,19 +2082,17 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_sim_load_with_number_array(self):
         code_start = 32768
-        code_start_str = [ord(c) for c in str(code_start)]
+        c_start_fp = (0, 0, code_start % 256, code_start // 256, 0)
         basic_data = [
             0, 10,            # Line 10
-            24, 0,            # Line length
+            23, 0,            # Line length
             239, 34, 34, 228, # LOAD "" DATA
             97, 40, 41,       # a()
             58,               # :
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *code_start_str,  # start address
-            34,               # "
+            249, 192, 46,     # RANDOMIZE USR .
+            14, *c_start_fp,  # start address
             13                # ENTER
         ]
         na_name = "numbers"
@@ -2061,9 +2111,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,28',
+            'Fast loading data block: 23755,27',
             'Number array: numbers   ',
-            'Fast loading data block: 23786,16',
+            'Fast loading data block: 23785,16',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
             'Tape finished',
@@ -2073,7 +2123,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(na_data, snapshot[23786:23786 + len(na_data)])
+        self.assertEqual(na_data, snapshot[23785:23785 + len(na_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(s_reg))
@@ -2081,16 +2131,14 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_sim_load_with_headerless_block(self):
         code_start = 32768
-        code_start_str = [ord(c) for c in str(code_start)]
+        c_start_fp = (0, 0, code_start % 256, code_start // 256, 0)
         basic_data = [
             0, 10,            # Line 10
             16, 0,            # Line length
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *code_start_str,  # start address
-            34,               # "
+            249, 192, 46,     # RANDOMIZE USR .
+            14, *c_start_fp,  # start address
             13                # ENTER
         ]
         code = [
@@ -2114,7 +2162,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,14',
             'Fast loading data block: 49152,2',
@@ -2133,16 +2181,14 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_sim_load_with_overlong_blocks(self):
         code_start = 32768
-        code_start_str = [ord(c) for c in str(code_start)]
+        c_start_fp = (0, 0, code_start % 256, code_start // 256, 0)
         basic_data = [
             0, 10,            # Line 10
-            16, 0,            # Line length
+            15, 0,            # Line length
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *code_start_str,  # start address
-            34,               # "
+            249, 192, 46,     # RANDOMIZE USR .
+            14, *c_start_fp,  # start address
             13                # ENTER
         ]
         code = [4, 5]
@@ -2169,7 +2215,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
             'Tape finished',
@@ -2197,16 +2243,14 @@ class Tap2SnaTest(SkoolKitTestCase):
             195, 86, 5,       # JP 1366
         ]
         code_start = 32768
-        code_start_str = [ord(c) for c in str(code_start)]
+        c_start_fp = (0, 0, code_start % 256, code_start // 256, 0)
         basic_data = [
             0, 10,            # Line 10
-            16, 0,            # Line length
+            15, 0,            # Line length
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *code_start_str,  # start address
-            34,               # "
+            249, 192, 46,     # RANDOMIZE USR .
+            14, *c_start_fp,  # start address
             13                # ENTER
         ]
         code2_data_block = create_tap_data_block(code2)
@@ -2230,7 +2274,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,14',
             'Fast loading data block: 49152,5',
@@ -2244,16 +2288,14 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_sim_load_skips_blocks_with_wrong_flag_byte(self):
         code_start = 32768
-        code_start_str = [ord(c) for c in str(code_start)]
+        c_start_fp = (0, 0, code_start % 256, code_start // 256, 0)
         basic_data = [
             0, 10,            # Line 10
-            16, 0,            # Line length
+            15, 0,            # Line length
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *code_start_str,  # start address
-            34,               # "
+            249, 192, 46,     # RANDOMIZE USR .
+            14, *c_start_fp,  # start address
             13                # ENTER
         ]
         code = [
@@ -2281,7 +2323,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Data block (18 bytes) [skipped]',
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,18',
             'Bytes: IGNORE ME  [skipped]',
@@ -2308,7 +2350,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
             'Tape finished',
@@ -2325,20 +2367,18 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_sim_load_preserves_border_colour(self):
         code_start = 32768
-        code_start_str = [ord(c) for c in str(code_start)]
+        c_start_fp = (0, 0, code_start % 256, code_start // 256, 0)
         basic_data = [
-            0, 10,            # Line 10
-            22, 0,            # Line length
-            239, 34, 34, 175, # LOAD ""CODE
-            58,               # :
-            231, 176,         # BORDER VAL
-            34, 51, 34,       # "3"
-            58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *code_start_str,  # start address
-            34,               # "
-            13                # ENTER
+            0, 10,             # Line 10
+            24, 0,             # Line length
+            239, 34, 34, 175,  # LOAD ""CODE
+            58,                # :
+            231, 51,           # BORDER 3
+            14, 0, 0, 3, 0, 0, # 3 in floating point form
+            58,                # :
+            249, 192, 46,      # RANDOMIZE USR .
+            14, *c_start_fp,   # start address
+            13                 # ENTER
         ]
         code = [201]
         blocks = [
@@ -2352,7 +2392,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,26',
+            'Fast loading data block: 23755,28',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,1',
             'Tape finished',
@@ -2377,7 +2417,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,4',
             'Tape finished',
@@ -2391,16 +2431,14 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_sim_load_fast_load_does_not_overwrite_rom(self):
-        start_str = [ord(c) for c in "16384"]
+        start_fp = [0, 0, 0, 64, 0] # 16384
         basic_data = [
             0, 10,            # Line 10
-            16, 0,            # Line length
+            15, 0,            # Line length
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *start_str,       # start address
-            34,               # "
+            249, 192, 46,     # RANDOMIZE USR .
+            14, *start_fp,    # start address
             13                # ENTER
         ]
         start = 16380
@@ -2423,7 +2461,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadrom',
             'Fast loading data block: 16380,16',
             'Tape finished',
@@ -2440,16 +2478,14 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_sim_load_fast_load_checks_parity(self):
         code_start = 32768
-        code_start_str = [ord(c) for c in str(code_start)]
+        c_start_fp = (0, 0, code_start % 256, code_start // 256, 0)
         basic_data = [
             0, 10,            # Line 10
-            16, 0,            # Line length
+            15, 0,            # Line length
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *code_start_str,  # start address
-            34,               # "
+            249, 192, 46,     # RANDOMIZE USR .
+            14, *c_start_fp,  # start address
             13                # ENTER
         ]
         code = [
@@ -2477,7 +2513,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,17',
             'Fast loading data block: 49152,2',
@@ -2510,7 +2546,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
             'Tape finished',
@@ -2533,7 +2569,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
             'Tape finished',
@@ -2582,7 +2618,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
             'Tape finished',
@@ -2605,7 +2641,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Fast loading data block: 23755,20',
+            'Fast loading data block: 23755,19',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
             'Tape finished',
@@ -2912,11 +2948,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertIn('PC=32826', s_reg)
         with open(tracefile, 'r') as f:
             trace_lines = f.read().rstrip().split('\n')
-        self.assertEqual(len(trace_lines), 19502)
-        self.assertEqual(trace_lines[19497], '$8034 LD HL,$8037')
-        self.assertEqual(trace_lines[19498], '$8037 LD (HL),L')
-        self.assertEqual(trace_lines[19499], '$8038 JR NC,$8037')
-        self.assertEqual(trace_lines[19500], '$8037 SCF')
+        self.assertEqual(len(trace_lines), 13428)
+        self.assertEqual(trace_lines[13423], '$8034 LD HL,$8037')
+        self.assertEqual(trace_lines[13424], '$8037 LD (HL),L')
+        self.assertEqual(trace_lines[13425], '$8038 JR NC,$8037')
+        self.assertEqual(trace_lines[13426], '$8037 SCF')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_sim_load_with_trace_and_interrupts_and_timestamps(self):
@@ -3002,6 +3038,63 @@ class Tap2SnaTest(SkoolKitTestCase):
                 output, error = self.run_tap2sna(f'{option} help-{param}')
                 self.assertTrue(output.startswith(f'--sim-load-config {param}='))
                 self.assertEqual(error, '')
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_sim_load_timed_out(self):
+        code_start = 32768
+        code = [2]
+        tapfile, basic_data = self._write_basic_loader(code_start, code)
+        output, error = self.run_tap2sna(f'-c timeout=1 {tapfile} out.z80')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Simulation stopped (timed out): PC=1343',
+            'Writing out.z80'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'get_screen', mock_get_screen_close)
+    def test_sim_load_screen_closed(self):
+        code_start = 32768
+        code = [1]
+        tapfile, basic_data = self._write_basic_loader(code_start, code)
+        output, error = self.run_tap2sna(f'--screen {tapfile} out.z80')
+        self.assertEqual(error, '')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Simulation stopped (screen closed)',
+            'Writing out.z80'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_sim_load_tape_ended_1_second_ago(self):
+        basic_data = [
+            0, 10,             # Line 10
+            9, 0,              # Line length
+            242, 48,           # PAUSE 0
+            14, 0, 0, 0, 0, 0, # 0 in floating point form
+            13                 # ENTER
+        ]
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ]
+        tapfile = self._write_tap(blocks)
+        output, error = self.run_tap2sna(f'{tapfile} out.z80')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,13',
+            'Tape finished',
+            'Simulation stopped (tape ended 1 second ago): PC=7997',
+            'Writing out.z80'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
 
     def test_sim_load_config_help_invalid_parameter(self):
         for option in ('-c', '--sim-load-config'):
