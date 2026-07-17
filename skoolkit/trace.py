@@ -88,12 +88,7 @@ class Tracer(PagingTracer):
             pc = registers[PC] = start
             operations = 0
             tstates = registers[25]
-            if interrupts:
-                frame_start = (tstates // frame_duration) * frame_duration
-                if tstates < frame_start + int_active:
-                    next_int = frame_start
-                else:
-                    next_int = frame_start + frame_duration
+            next_int = ((tstates + frame_duration - int_active) // frame_duration) * frame_duration
             while True:
                 t0 = tstates
                 if trace_line:
@@ -107,28 +102,27 @@ class Tracer(PagingTracer):
                 if exec_map is not None:
                     exec_map.add(pc)
 
-                if interrupts and tstates >= next_int:
+                if tstates >= next_int:
                     if tstates < next_int + int_active:
-                        if registers[26]:
+                        if registers[26] and interrupts:
                             simulator.accept_interrupt(registers, memory, pc)
                             tstates = registers[25]
+                        if draw:
+                            frame = tstates // frame_duration
+                            if frame > prev_frame:
+                                if is128k:
+                                    scr = memory.memory[1][:6912]
+                                else:
+                                    scr = memory[16384:23296]
+                                if not draw(scr, frame, self.border, keyboard):
+                                    stop_cond = 0
+                                    break
+                                prev_frame = frame
                     else:
                         next_int += frame_duration
 
                 pc = registers[24]
                 operations += 1
-
-                if draw:
-                    frame = tstates // frame_duration
-                    if frame > prev_frame:
-                        if is128k:
-                            scr = memory.memory[1][:6912]
-                        else:
-                            scr = memory[16384:23296]
-                        if not draw(scr, frame, self.border, keyboard):
-                            stop_cond = 0
-                            break
-                        prev_frame = frame
 
                 if max_operations > 0 and operations >= max_operations:
                     stop_cond = 1
