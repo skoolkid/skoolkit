@@ -130,10 +130,10 @@ class Tracer(PagingTracer):
                             break
                         prev_frame = frame
 
-                if operations >= max_operations > 0:
+                if max_operations > 0 and operations >= max_operations:
                     stop_cond = 1
                     break
-                if tstates >= max_time > 0:
+                if max_time > 0 and tstates >= max_time:
                     stop_cond = 2
                     break
                 if pc == stop:
