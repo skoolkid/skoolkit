@@ -307,6 +307,7 @@ def run(snafile, options, config):
             start = org
     for spec in options.pokes:
         poke(simulator.memory, spec)
+    image_writer = get_image_writer()
     audio_writer = get_audio_writer()
     bpr_audio_fmts = [f.lower() for f in audio_writer.formats()]
     ay_audio_writer = get_ay_audio_writer()
@@ -385,14 +386,14 @@ def run(snafile, options, config):
                     audio_writer.write_audio(f, delays, options)
             else:
                 raise SkoolKitError('No audio detected')
-        elif ext == '.png':
+        elif image_writer.image_fname(fname) == fname:
             if len(simulator.memory) == 0x20000:
                 scr = scr_udgs(simulator.memory.memory[1], 0, 0, 32, 24, 0, 6144)
             else:
                 scr = scr_udgs(simulator.memory, 0, 0, 32, 24)
             frame = Frame(scr, config['PNGScale'])
             with open(fname, 'wb') as f:
-                get_image_writer().write_image([frame], f)
+                image_writer.write_image([frame], f)
         else:
             ram, registers, state, machine = get_state(simulator)
             write_snapshot(fname, ram, registers, state, machine)

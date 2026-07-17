@@ -73,6 +73,11 @@ class MockImageWriter:
         self.config = config
         self.palette = palette
 
+    def image_fname(self, fname):
+        if fname.lower()[-4:] != '.png':
+            return fname + '.png'
+        return fname
+
     def write_image(self, frames, img_file):
         self.frames = frames
         self.fname = img_file.name
@@ -3886,6 +3891,38 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         with open(outfile, 'rb') as f:
             self.assertEqual(f.read(), bytes((43, 2, 5, 99, 1, 6, 155, 0, 7, 185, 15, 0)))
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_image_writer(self):
+        custom_image_writer = """
+            class CustomImageWriter:
+                def __init__(self, options=None, palette=None):
+                    pass
+                def image_fname(self, fname):
+                    return fname
+                def write_image(self, frames, img_file):
+                    udg = frames[0].udgs[0][0]
+                    img_file.write(bytes((udg.data[0], udg.attr)))
+        """
+        self.write_component_config('ImageWriter', '*.CustomImageWriter', custom_image_writer)
+        data = (
+            0x3E, 0x55,             # $8000 LD A,$55
+            0x32, 0x00, 0x40,       # $8002 LD ($4000),A
+            0x3E, 0x04,             # $8005 LD A,$04
+            0x32, 0x00, 0x58,       # $8007 LD ($5800),A
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        outfile = 'cell0.img'
+        start = 32768
+        stop = start + len(data)
+        output, error = self.run_trace(f'-n -o {start} -S {stop} {binfile} {outfile}')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {outfile}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        with open(outfile, 'rb') as f:
+            self.assertEqual(f.read(), bytes((0x55, 0x04)))
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_screen(self):
