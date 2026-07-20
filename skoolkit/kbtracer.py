@@ -456,6 +456,6 @@ class KeypressTracer(PagingTracer):
     def read_port(self, registers, port):
         if port % 2 == 0 and self.keys and (port ^ 0xFF00) & self.keys[0][0]:
             return self.keys.pop(0)[1]
-        if port == 0xFFFD:
-            return self.ay[self.outfffd % 16]
+        if port & 0xC002 == 0xC000 and self.outfffd < 16:
+            return self.ay[self.outfffd]
         return 0xFF
