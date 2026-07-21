@@ -1,9 +1,11 @@
 from io import StringIO
 from textwrap import dedent
+from unittest.mock import Mock
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import CSimulator, SkoolKitError
 from skoolkit.kbtracer import KeyboardTracer, KeypressTracer
+from skoolkit.pagingtracer import Memory
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import A, B, PC, T
 
@@ -291,6 +293,54 @@ class KeyboardTracerTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[T], 12)
         self.assertNotEqual(simulator.registers[PC], stop)
 
+    def test_draw(self):
+        memory = [a // 256 for a in range(65536)]
+        code = (
+            0x3E, 0x05,        # $8000 [69880] LD A,$05
+            0xD3, 0xFE,        # $8002 [69887] OUT ($FE),A
+        )
+        start = 0
+        stop = start + len(code)
+        memory[start:stop] = code
+        exp_scr = memory[16384:23296]
+        exp_frame = 1
+        exp_border = [(0, 7), (69899, 5)]
+        tstates = 69880
+        simulator = self.simulator_cls(memory, {'PC': start}, state={'tstates': tstates})
+        draw = Mock()
+        kbtracer = KeyboardTracer(simulator, ['a'], 0, draw)
+        simulator.set_tracer(kbtracer)
+        kbtracer.run(stop, tstates + 100, None, None, None, None, None)
+        self.assertEqual(simulator.registers[T], tstates + 18)
+        self.assertEqual(simulator.registers[PC], stop)
+        draw.assert_called_with(exp_scr, exp_frame, exp_border)
+
+    def test_draw_128k(self):
+        memory = Memory()
+        for a in range(65536):
+            memory[a] = a // 256
+        code = (
+            0x3E, 0x06,        # $8000 [70900] LD A,$06
+            0xD3, 0xFE,        # $8002 [70907] OUT ($FE),A
+        )
+        start = 0x8000
+        stop = start + len(code)
+        for a, b in enumerate(code, start):
+            memory[a] = b
+        exp_scr = memory.memory[1][:6912]
+        exp_frame = 1
+        exp_border = [(0, 7), (70919, 6)]
+        frame_duration = 70908
+        tstates = 70900
+        simulator = self.simulator_cls(memory, {'PC': start}, {'tstates': tstates}, {'frame_duration': frame_duration})
+        draw = Mock()
+        kbtracer = KeyboardTracer(simulator, ['a'], 0, draw)
+        simulator.set_tracer(kbtracer)
+        kbtracer.run(stop, tstates + 100, None, None, None, None, None)
+        self.assertEqual(simulator.registers[T], tstates + 18)
+        self.assertEqual(simulator.registers[PC], stop)
+        draw.assert_called_with(exp_scr, exp_frame, exp_border)
+
 class KeypressTracerTest(SkoolKitTestCase):
     simulator_cls = CSimulator or Simulator
 
@@ -485,3 +535,56 @@ class KeypressTracerTest(SkoolKitTestCase):
         kptracer.run(timeout, None, None, None, None, None)
         self.assertEqual(simulator.registers[T], 12)
         self.assertEqual(len(kptracer.keys), 1)
+
+    def test_draw(self):
+        memory = [a // 256 for a in range(65536)]
+        code = (
+            0x3E, 0x02,        # $0000 [69870] LD A,$02
+            0xD3, 0xFE,        # $0002 [69877] OUT ($FE),A
+            0x3E, 0xFB,        # $0004 [69888] LD A,$FB
+            0xDB, 0xFE,        # $0006 [69895] IN A,($FE) ; Read keys q-w-e-r-t
+        )
+        start = 0
+        end = start + len(code)
+        memory[start:end] = code
+        exp_scr = memory[16384:23296]
+        exp_frame = 1
+        border = [(0, 4)]
+        exp_border = border + [(69889, 2)]
+        tstates = 69870
+        simulator = self.simulator_cls(memory, {'PC': start}, {'tstates': tstates})
+        draw = Mock()
+        kptracer = KeypressTracer(simulator, ['q'], border, None, None, None, None, draw)
+        simulator.set_tracer(kptracer)
+        kptracer.run(tstates + 100, None, None, None, None, None)
+        self.assertEqual(simulator.registers[T], tstates + 36)
+        self.assertEqual(simulator.registers[PC], end)
+        draw.assert_called_with(exp_scr, exp_frame, exp_border)
+
+    def test_draw_128k(self):
+        memory = Memory()
+        for a in range(65536):
+            memory[a] = a // 256
+        code = (
+            0x3E, 0x01,        # $8000 [70890] LD A,$01
+            0xD3, 0xFE,        # $8002 [70897] OUT ($FE),A
+            0x3E, 0xFB,        # $8004 [70908] LD A,$FB
+            0xDB, 0xFE,        # $8006 [70915] IN A,($FE) ; Read keys q-w-e-r-t
+        )
+        start = 0x8000
+        for a, b in enumerate(code, start):
+            memory[a] = b
+        exp_scr = memory.memory[1][:6912]
+        exp_frame = 1
+        border = [(0, 3)]
+        exp_border = border + [(70909, 1)]
+        frame_duration = 70908
+        tstates = 70890
+        simulator = self.simulator_cls(memory, {'PC': start}, {'tstates': tstates}, {'frame_duration': frame_duration})
+        draw = Mock()
+        kptracer = KeypressTracer(simulator, ['q'], border, None, None, None, None, draw)
+        simulator.set_tracer(kptracer)
+        kptracer.run(tstates + 100, None, None, None, None, None)
+        self.assertEqual(simulator.registers[T], tstates + 36)
+        self.assertEqual(simulator.registers[PC], start + len(code))
+        draw.assert_called_with(exp_scr, exp_frame, exp_border)

@@ -367,7 +367,7 @@ class KeyboardTracer(PagingTracer):
                         if is128k:
                             scr = memory.memory[1][:6912]
                         else:
-                            scr = memory[16384:23296] # pragma: no cover
+                            scr = memory[16384:23296]
                         draw(scr, frame, self.border)
                         prev_frame = frame
 
@@ -404,7 +404,7 @@ class KeypressTracer(PagingTracer):
         self.ay = ay
         self.outfe = outfe
         self.draw = draw
-        if draw: # pragma: no cover
+        if draw:
             self.write_port = self.write_port_with_border_list
         self.frame_duration = simulator.frame_duration
 
@@ -443,7 +443,7 @@ class KeypressTracer(PagingTracer):
                 if registers[26] and tstates % frame_duration < int_active:
                     simulator.accept_interrupt(registers, memory, pc)
                     tstates = registers[25]
-                if draw: # pragma: no cover
+                if draw:
                     frame = tstates // frame_duration
                     if frame > prev_frame:
                         if is128k:
