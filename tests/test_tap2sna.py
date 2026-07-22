@@ -77,6 +77,9 @@ def mock_write_snapshot(fname, ram, registers, state):
     s_reg = registers
     s_state = state
 
+def null_write_snapshot(fname, ram, registers, state):
+    pass
+
 class MockKeyboardTracer:
     def __init__(self, simulator, load, kb_delay, draw):
         global kbtracer
@@ -103,32 +106,16 @@ class MockKeyboardTracer:
         self.simulator.registers[25] = 70000 * len(self.load)
         self.run_called = True
 
-class MockKeypressTracer:
+class TimedOutKeypressTracer:
     def __init__(self, simulator, keys, border, out7ffd, outfffd, ay, outfe, draw):
         global kptracer
-        self.simulator = simulator
         self.keys = keys
         self.border = border
-        self.out7ffd = out7ffd
-        self.outfffd = outfffd
-        self.ay = ay
         self.outfe = outfe
-        self.draw = draw
         kptracer = self
 
     def run(self, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
-        self.timeout = timeout
-        self.tracefile = tracefile
-        self.trace_line = trace_line
-        self.prefix = prefix
-        self.byte_fmt = byte_fmt
-        self.word_fmt = word_fmt
-        self.keys.clear()
         self.run_called = True
-
-class TimedOutKeypressTracer(MockKeypressTracer):
-    def run(self, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
-        super().run(timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt)
         self.keys.append('ENTER')
 
 class MockLoadTracer:
@@ -484,7 +471,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(['TraceLine=Goodbye'], options.params)
         self.assertEqual(config['TraceLine'], 'Goodbye')
 
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_press(self):
         basic_data = [
             0, 10,                # Line 10
@@ -530,7 +517,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'KeypressTracer', TimedOutKeypressTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracerWithKeys)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_press_timed_out(self):
         tapfile = self._write_tap([
             create_tap_data_block([0]),
@@ -573,6 +560,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertIn(f'sp={stack}', s_reg)
 
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     @patch.object(tap2sna, 'get_screen', mock_get_screen)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     def test_option_screen(self):
@@ -586,7 +574,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'tap2sna.py')
         self.assertFalse(screen.is128k)
 
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     @patch.object(tap2sna, 'get_screen', mock_get_screen_close)
     def test_option_screen_128k(self):
         code_start = 32768
@@ -971,7 +959,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_name_twice(self):
         tap1_data = create_tap_data_block([1, 2, 3, 4, 5])
         tap1_fname = 'code1.tap'
@@ -1003,7 +991,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(s_fname, zipfile + '.z80')
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_skip(self):
         blocks = (
             create_tap_data_block([1, 2, 3]),
@@ -1018,7 +1006,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(blocks[2][2:], list(load_tracer.blocks[1].data))
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_skip_with_range(self):
         blocks = (
             create_tap_data_block([1, 2]),
@@ -1034,7 +1022,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(blocks[3][2:], list(load_tracer.blocks[1].data))
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_skip_with_pzx(self):
         data_blocks = [create_data_block([i]) for i in range(4)]
         pzx = PZX()
@@ -1051,7 +1039,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(data_blocks[3], list(load_tracer.blocks[3].data))
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_skip_with_tzx(self):
         data_blocks = [[i] for i in range(4)]
         tzxfile = self._write_tzx(create_tzx_data_block(b) for b in data_blocks)
@@ -1066,7 +1054,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self._test_bad_spec('--tape-skip a-b', 'Invalid integer(s): --tape-skip a-b')
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_start_with_pzx(self):
         pzx = PZX()
         pzx.add_puls()
@@ -1081,7 +1069,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(data, list(load_tracer.blocks[1].data))
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_start_with_tap(self):
         blocks = [
             create_tap_header_block(),
@@ -1093,7 +1081,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(load_tracer.blocks), 1)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_start_with_tzx(self):
         blocks = [
             create_tzx_header_block(),
@@ -1105,7 +1093,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(load_tracer.blocks), 1)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_start_with_two_tapes(self):
         t1_data = [[1, 2, 3], [4, 5, 6]]
         t1_bytes = bytearray(create_tap_data_block(t1_data[0]) + create_tap_data_block(t1_data[1]))
@@ -1131,7 +1119,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(t2_bytes[2:], load_tracer.blocks[1].data)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_stop_with_pzx(self):
         pzx = PZX()
         pzx.add_puls()
@@ -1146,7 +1134,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(data, list(load_tracer.blocks[1].data))
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_stop_with_tap(self):
         blocks = [
             create_tap_header_block(),
@@ -1158,7 +1146,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(load_tracer.blocks), 1)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_stop_with_tzx(self):
         blocks = [
             create_tzx_header_block(),
@@ -1170,7 +1158,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(load_tracer.blocks), 1)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_stop_with_two_tapes(self):
         t1_data = [1, 2, 3]
         t1_bytes = bytearray(create_tap_data_block(t1_data))
@@ -1673,7 +1661,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: Not a TZX file')
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_tape_stops_at_pzx_48k_stop_block_in_48k_mode(self):
         pzx = PZX()
         pzx.add_puls()
@@ -1690,7 +1678,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_tape_does_not_stop_at_pzx_48k_stop_block_in_128k_mode(self):
         pzx = PZX()
         pzx.add_puls()
@@ -1706,7 +1694,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(load_tracer.blocks), 6)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_tape_stops_at_pzx_always_stop_block_in_48k_mode(self):
         pzx = PZX()
         pzx.add_puls()
@@ -1723,7 +1711,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_tape_stops_at_pzx_always_stop_block_in_128k_mode(self):
         pzx = PZX()
         pzx.add_puls()
@@ -1739,7 +1727,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(load_tracer.blocks), 4)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_tape_stops_at_pause_block_with_duration_0(self):
         blocks = [
             create_tzx_header_block(),
@@ -1752,7 +1740,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(load_tracer.blocks), 2)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_tzx_loop(self):
         blocks = [
             (0x24, 2, 0), # 0x24 Loop start
@@ -1765,7 +1753,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(load_tracer.blocks), 4)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_tape_stops_at_tzx_block_type_0x2A_in_48k_mode(self):
         blocks = [
             create_tzx_header_block(),
@@ -1779,7 +1767,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_tape_does_not_stop_at_tzx_block_type_0x2A_in_128k_mode(self):
         blocks = [
             create_tzx_header_block(),
@@ -2659,7 +2647,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(s_reg))
 
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_with_initial_pause_block(self):
         pause_block = [
             32,    # Block ID
@@ -2680,7 +2668,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')
 
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_with_unexpected_end_of_tape(self):
         basic_data = [
             0, 10,       # Line 10
@@ -2706,7 +2694,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x15_first_bit_0(self):
         direct_recording_block = (
             21,          # Block ID
@@ -2727,7 +2715,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual([(1, 350), (1, 50), (1, 300), (1, 50), (1, 350), (1, 100)], block.timings.pulses)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x15_first_bit_1(self):
         direct_recording_block = (
             21,          # Block ID
@@ -2748,7 +2736,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual([(1, 0), (1, 10), (1, 130), (1, 10), (1, 70), (1, 20)], block.timings.pulses)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x15_unused_bits_in_last_byte(self):
         direct_recording_block = (
             21,          # Block ID
@@ -2769,7 +2757,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual([(1, 700), (1, 100), (1, 600), (1, 100), (1, 100), (1, 400)], block.timings.pulses)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x15_followed_by_bytes(self):
         direct_recording_block = (
             21,          # Block ID
@@ -2790,7 +2778,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         load_cmd = [239, 34, 34, 13] # LOAD "" ENTER
         self.assertEqual(load_cmd, list(load_tracer.simulator.memory[23756:23760]))
 
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x16(self):
         block = [
             22,         # Block ID
@@ -2804,7 +2792,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x17(self):
         block = [
             23,         # Block ID
@@ -2818,7 +2806,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x18(self):
         block = [
             24,          # Block ID
@@ -2837,7 +2825,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_can_ignore_tzx_block_type_0x18(self):
         csw_recording_block = (
             24,          # Block ID
@@ -2856,7 +2844,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(len(load_tracer.blocks), 1)
 
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_with_tzx_block_type_0x19(self):
         block = [
             25,          # Block ID
@@ -2877,7 +2865,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_can_ignore_tzx_block_type_0x19(self):
         generalized_data_block = (
             25,          # Block ID
@@ -3039,7 +3027,7 @@ class Tap2SnaTest(SkoolKitTestCase):
                 self.assertTrue(output.startswith(f'--sim-load-config {param}='))
                 self.assertEqual(error, '')
 
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_timed_out(self):
         code_start = 32768
         code = [2]
@@ -3054,7 +3042,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')
 
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     @patch.object(tap2sna, 'get_screen', mock_get_screen_close)
     def test_sim_load_screen_closed(self):
         code_start = 32768
@@ -3070,7 +3058,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         self.assertEqual(exp_out_lines, out_lines)
 
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_tape_ended_1_second_ago(self):
         basic_data = [
             0, 10,             # Line 10
@@ -3188,7 +3176,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_config_parameter_default_values(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(tapfile)
@@ -3220,7 +3208,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_config_parameters(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         trace_log = 'trace.log'
@@ -3279,7 +3267,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_disables_fast_djnz_ldir(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(tapfile)
@@ -3290,7 +3278,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_disables_fast_djnz_ldir_when_tracing(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c trace=load.log {tapfile}')
@@ -3300,7 +3288,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_cmio_1_disables_acceleration(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         trace_log = 'trace.log'
@@ -3319,7 +3307,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_in_flags_parameter_bit_0(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c in-flags=1 {tapfile}')
@@ -3332,7 +3320,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_in_flags_parameter_bit_1(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c in-flags=2 {tapfile}')
@@ -3345,7 +3333,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_in_flags_parameter_bit_2(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c in-flags=4 {tapfile}')
@@ -3357,7 +3345,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_load_parameter_defaults_to_enter_for_128k(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c machine=128 {tapfile}')
@@ -3366,7 +3354,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_load_parameter_with_pc(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c load=PC=16384 {tapfile}')
@@ -3377,7 +3365,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_keyboard_tracer_config_for_48k(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c load=RUN {tapfile}')
@@ -3390,7 +3378,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_keyboard_tracer_config_for_128k(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c machine=128 {tapfile}')
@@ -3403,7 +3391,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_python_parameter(self):
         global mock_memory
         mock_memory = [1] * 65536
@@ -3414,7 +3402,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'CMIOSimulator', MockSimulator)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_python_parameter_with_cmio(self):
         global mock_memory
         mock_memory = [1] * 65536
@@ -3423,7 +3411,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertIs(load_tracer.simulator.__class__, MockSimulator)
 
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_empty_tape(self):
         tapfile = self._write_tap([])
         with self.assertRaises(SkoolKitError) as cm:
@@ -3438,7 +3425,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_keyboard_tracer_timed_out(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         load = ' '.join(['a'] * 50)
@@ -3449,7 +3436,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertIn('Simulation stopped (timed out): PC=4608\n', output)
 
     @patch.object(tap2sna, 'KeyboardTracer', InterruptedTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_interrupted_keyboard_tracer(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c load=RUN {tapfile}')
@@ -3457,7 +3444,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertIn('Simulation stopped (interrupted): PC=4608\n', output)
 
     @patch.object(tap2sna, 'LoadTracer', InterruptedTracer)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_interrupted_load_tracer(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(tapfile)
@@ -3485,6 +3472,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(error), 0)
         self.assertEqual(s_fname, exp_outfile)
 
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     @patch.object(tap2sna, 'get_screen', mock_get_screen)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     def test_config_ScreenFps_read_from_file(self):
@@ -3503,6 +3491,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'tap2sna.py')
         self.assertFalse(screen.is128k)
 
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     @patch.object(tap2sna, 'get_screen', mock_get_screen)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     def test_config_ScreenFps_set_on_command_line(self):
@@ -3516,6 +3505,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'tap2sna.py')
         self.assertTrue(screen.is128k)
 
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     @patch.object(tap2sna, 'get_screen', mock_get_screen)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     def test_config_ScreenScale_read_from_file(self):
@@ -3534,6 +3524,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'tap2sna.py')
         self.assertFalse(screen.is128k)
 
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     @patch.object(tap2sna, 'get_screen', mock_get_screen)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     def test_config_ScreenScale_set_on_command_line(self):
@@ -3642,7 +3633,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[29], "$250C LD C,(HL)     BCDEHL=001C00002597 BCDEHL'=000000000000 IX=0000 IY=5C3A")
         self.assertEqual(trace_lines[30], "$250D ADD HL,BC     BCDEHL=001C000025B3 BCDEHL'=000000000000 IX=0000 IY=5C3A")
 
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_config_TraceLine_with_memptr(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
         tracefile = 'sim-load.trace'
@@ -3952,7 +3943,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_dec_a_jr(self):
         global mock_memory
         mock_memory = [0] * 65536
@@ -3975,7 +3966,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_dec_a_jp(self):
         global mock_memory
         mock_memory = [0] * 65536
@@ -3999,7 +3990,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_list_accelerators_inc_b(self):
         global mock_memory
         mock_memory = [0] * 65536
@@ -4036,7 +4027,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_list_accelerators_dec_b(self):
         global mock_memory
         mock_memory = [0] * 65536
@@ -4073,7 +4064,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'CSimulator', MockSimulator)
     @patch.object(tap2sna, 'Simulator', MockSimulator)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_list_accelerators_polarity_sensitive(self):
         global mock_memory
         mock_memory = [0] * 65536
@@ -4105,7 +4096,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[7], 134) # L
 
     @patch.object(components, 'SK_CONFIG', None)
-    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_custom_screen(self):
         custom_screen = """
             class CustomScreen:
