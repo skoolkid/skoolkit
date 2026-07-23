@@ -1349,6 +1349,14 @@ class TraceTest(SkoolKitTestCase):
         self.assertFalse(ay_audio_writer.options.beeper)
         self.assertEqual(ay_audio_writer.options.mode, 2)
 
+    def test_option_ay_mode_bad_values(self):
+        for mode in ('BAC', 'BCA', 'CAB', 'CBA'):
+            output, error = self.run_trace(f'--ay-mode {mode} 128', catch_exit=2)
+            self.assertEqual(output, '')
+            self.assertTrue(error.startswith('usage: trace.py [options] FILE [OUTFILE...]\n'))
+            line = error.rstrip().split('\n')[-1]
+            self.assertIn(f"error: argument --ay-mode: invalid choice: '{mode}'", line)
+
     @patch.object(trace, 'get_ay_audio_writer', MockAYAudioWriter)
     def test_option_ay_res(self):
         data = (
