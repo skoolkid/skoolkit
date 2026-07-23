@@ -181,14 +181,14 @@ class SNATest(SnapshotTest):
         tmp_sna = self.write_bin_file(sna, suffix='.sna')
         ram = get_snapshot(tmp_sna, -1)
         self.assertEqual(len(ram), 131072)
-        self.assertTrue(set(ram[0x00000:0x04000]), {5})
-        self.assertTrue(set(ram[0x04000:0x08000]), {2})
-        self.assertTrue(set(ram[0x08000:0x0C000]), {0})
-        self.assertTrue(set(ram[0x0C000:0x10000]), {1})
-        self.assertTrue(set(ram[0x10000:0x14000]), {3})
-        self.assertTrue(set(ram[0x14000:0x18000]), {4})
-        self.assertTrue(set(ram[0x18000:0x1C000]), {6})
-        self.assertTrue(set(ram[0x1C000:0x20000]), {7})
+        self.assertEqual(set(ram[0x00000:0x04000]), {0})
+        self.assertEqual(set(ram[0x04000:0x08000]), {1})
+        self.assertEqual(set(ram[0x08000:0x0C000]), {2})
+        self.assertEqual(set(ram[0x0C000:0x10000]), {3})
+        self.assertEqual(set(ram[0x10000:0x14000]), {4})
+        self.assertEqual(set(ram[0x14000:0x18000]), {5})
+        self.assertEqual(set(ram[0x18000:0x1C000]), {6})
+        self.assertEqual(set(ram[0x1C000:0x20000]), {7})
 
 class Z80Test(SnapshotTest):
     def _test_z80(self, exp_ram, version, compress, machine_id=0, modify=False, out7ffd=0, pages={}, page=None):
