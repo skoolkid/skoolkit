@@ -191,11 +191,17 @@ class SNATest(SnapshotTest):
         self.assertTrue(set(ram[0x1C000:0x20000]), {7})
 
 class Z80Test(SnapshotTest):
-    def _test_z80(self, exp_ram, version, compress, machine_id=0, modify=False, out_7ffd=0, pages={}, page=None):
-        model, tmp_z80 = self.write_z80(exp_ram, version, compress, machine_id, modify, out_7ffd, pages)
+    def _test_z80(self, exp_ram, version, compress, machine_id=0, modify=False, out7ffd=0, pages={}, page=None):
+        tmp_z80 = self.write_z80(exp_ram, None, version, compress, machine_id, modify, out7ffd, pages)
+        if version == 1:
+            model = 1 # 48K
+        elif (version == 2 and machine_id < 2) or (version == 3 and machine_id in (0, 1, 3)) or machine_id in (14, 15, 128):
+            model = 0 if modify else 1 # 16K/48K
+        else:
+            model = 2 # 128K
         snapshot = get_snapshot(tmp_z80, page)
         ram = snapshot[16384:] if len(snapshot) == 65536 else snapshot
-        self._check_ram(ram, exp_ram, model, out_7ffd, pages, page)
+        self._check_ram(ram, exp_ram, model, out7ffd, pages, page)
 
     def test_z80v1(self):
         exp_ram = [n & 255 for n in range(49152)]
@@ -347,7 +353,7 @@ class Z80StateTest(SkoolKitTestCase):
 
     def test_tstates_is_ignored_v1(self):
         ram = [0] * 0xC000
-        z80file = self.write_z80_file(None, ram, version=1)
+        z80file = self.write_z80(ram, version=1)
         z80 = Snapshot.get(z80file)
         exp_header = list(z80.header)
         z80.set_registers_and_state((), ['tstates=50000'])
@@ -355,7 +361,7 @@ class Z80StateTest(SkoolKitTestCase):
 
     def test_tstates_is_ignored_v2(self):
         ram = [0] * 0xC000
-        z80file = self.write_z80_file(None, ram, version=2)
+        z80file = self.write_z80(ram, version=2)
         z80 = Snapshot.get(z80file)
         exp_header = list(z80.header)
         z80.set_registers_and_state((), ['tstates=50000'])
@@ -390,7 +396,7 @@ class Z80StateTest(SkoolKitTestCase):
 
     def test_7ffd_is_ignored_v1(self):
         ram = [0] * 0xC000
-        z80file = self.write_z80_file(None, ram, version=1)
+        z80file = self.write_z80(ram, version=1)
         z80 = Snapshot.get(z80file)
         exp_header = list(z80.header)
         z80.set_registers_and_state((), ['7ffd=7'])
@@ -398,7 +404,7 @@ class Z80StateTest(SkoolKitTestCase):
 
     def test_fffd_is_ignored_v1(self):
         ram = [0] * 0xC000
-        z80file = self.write_z80_file(None, ram, version=1)
+        z80file = self.write_z80(ram, version=1)
         z80 = Snapshot.get(z80file)
         exp_header = list(z80.header)
         z80.set_registers_and_state((), ['fffd=8'])
@@ -406,7 +412,7 @@ class Z80StateTest(SkoolKitTestCase):
 
     def test_ay_is_ignored_v1(self):
         ram = [0] * 0xC000
-        z80file = self.write_z80_file(None, ram, version=1)
+        z80file = self.write_z80(ram, version=1)
         z80 = Snapshot.get(z80file)
         exp_header = list(z80.header)
         z80.set_registers_and_state((), ('ay[0]=1', 'ay[15]=15'))

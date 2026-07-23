@@ -40,7 +40,7 @@ class SnapmodTest(SkoolKitTestCase):
             ram = [0] * 49152
         if exp_ram is None:
             exp_ram = ram
-        infile = self.write_z80_file(header, ram, version, compress)
+        infile = self.write_z80(ram, version=version, compress=compress, header=header)
         outfile = '{}-out.z80'.format(infile[:-4])
         output, error = self.run_snapmod('{} {} {}'.format(options, infile, outfile))
         self.assertEqual(output, '')
@@ -80,7 +80,7 @@ class SnapmodTest(SkoolKitTestCase):
             exp_ram = ram
         pages = {p: ram[p * 0x4000:(p + 1) * 0x4000] for p in range(8)}
         low_ram = pages.pop(5) + pages.pop(2) + pages.pop(header[35] % 8)
-        infile = self.write_z80_file(header, low_ram, version, compress, pages=pages)
+        infile = self.write_z80(low_ram, version=version, compress=compress, pages=pages, header=header)
         outfile = f'{infile[:-4]}-out.z80'
         output, error = self.run_snapmod(f'{options} {infile} {outfile}')
         self.assertEqual(output, '')
@@ -181,7 +181,7 @@ class SnapmodTest(SkoolKitTestCase):
         exp_header = header[:]
         exp_header[12] |= 34 # RAM block compressed, BORDER 1
         ram = [0] * 49152
-        infile = self.write_z80_file(header, ram, 1)
+        infile = self.write_z80(ram, version=1, header=header)
         output, error = self.run_snapmod('-s border=1 {}'.format(infile))
         self.assertEqual(output, '')
         self.assertEqual(error, '')
@@ -194,7 +194,7 @@ class SnapmodTest(SkoolKitTestCase):
         exp_header = header[:]
         exp_header[12] |= 36 # RAM block compressed, BORDER 2
         ram = [0] * 49152
-        infile = self.write_z80_file(header, ram, 1)
+        infile = self.write_z80(ram, version=1, header=header)
         outfile = self.write_bin_file(suffix='.z80')
         output, error = self.run_snapmod('-s border=2 {} {}'.format(infile, outfile))
         self.assertEqual(output, '')
@@ -318,7 +318,7 @@ class SnapmodTest(SkoolKitTestCase):
         self._test_move('-m', 0x91AF, [21] * 3, 0xA20D, 1, False, '0x')
 
     def test_option_m_invalid_values(self):
-        infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
+        infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)
         self._test_bad_spec('-m 1', infile, 'Not enough arguments in move spec (expected 3): 1')
         self._test_bad_spec('-m 1,2', infile, 'Not enough arguments in move spec (expected 3): 1,2')
         self._test_bad_spec('-m s:1,2,3', infile, 'Invalid page number in move spec: s:1,2,3')
@@ -391,14 +391,14 @@ class SnapmodTest(SkoolKitTestCase):
         self._test_z80(' '.join(options), header, exp_header, ram, exp_ram, 3, False)
 
     def test_option_patch_nonexistent_patch_file(self):
-        infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
+        infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)
         pfile = 'non-existent.bin'
         with self.assertRaises(SkoolKitError) as cm:
             self.run_snapmod(f'--patch 32768,{pfile} {infile}')
         self.assertEqual(cm.exception.args[0], f'{pfile}: file not found')
 
     def test_option_patch_invalid_values(self):
-        infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
+        infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)
         self._test_bad_spec('--patch 1', infile, 'Filename missing in patch spec: 1')
         self._test_bad_spec('--patch x,p.bin', infile, 'Invalid address in patch spec: x,p.bin')
         self._test_bad_spec('--patch q:0,p.bin', infile, 'Invalid page number in patch spec: q:0,p.bin')
@@ -571,7 +571,7 @@ class SnapmodTest(SkoolKitTestCase):
         self._test_z80(options, header, exp_header, ram, exp_ram, 1, False)
 
     def test_option_p_invalid_values(self):
-        infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
+        infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)
         self._test_bad_spec('-p 1', infile, 'Value missing in poke spec: 1')
         self._test_bad_spec('-p q', infile, 'Value missing in poke spec: q')
         self._test_bad_spec('-p p:1,x', infile, 'Invalid page number in poke spec: p:1,x')
@@ -665,7 +665,7 @@ class SnapmodTest(SkoolKitTestCase):
         self._test_szx(options, exp_block_diffs, exp_ram_diffs, 16)
 
     def test_option_r_invalid_values(self):
-        infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
+        infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)
         self._test_bad_spec('-r sp=j', infile, 'Cannot parse register value: sp=j')
         self._test_bad_spec('-r x=b', infile, 'Invalid register: x=b')
 
@@ -795,7 +795,7 @@ class SnapmodTest(SkoolKitTestCase):
         self._test_szx(options, exp_block_diffs, exp_ram_diffs, 128)
 
     def test_option_s_invalid_values(self):
-        infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
+        infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)
         self._test_bad_spec('-s border=k', infile, 'Cannot parse integer: border=k')
         self._test_bad_spec('-s iff=$', infile, 'Cannot parse integer: iff=$')
         self._test_bad_spec('-s im=?', infile, 'Cannot parse integer: im=?')

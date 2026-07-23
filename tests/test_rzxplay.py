@@ -140,7 +140,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, version=1, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, version=1, ret_data=True)
         rzx = RZX()
         frames = [(1, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -155,7 +155,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, version=2, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, version=2, ret_data=True)
         rzx = RZX()
         frames = [(1, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -170,7 +170,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, version=3, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, version=3, ret_data=True)
         rzx = RZX()
         frames = [(1, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -201,7 +201,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, version=2, machine_id=4, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, version=2, machine_id=4, ret_data=True)
         rzx = RZX()
         frames = [(1, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -217,7 +217,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, version=3, machine_id=5, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, version=3, machine_id=5, ret_data=True)
         rzx = RZX()
         frames = [(1, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -233,7 +233,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, version=3, machine_id=5, modify=True, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, version=3, machine_id=5, modify=True, ret_data=True)
         rzx = RZX()
         frames = [(1, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -311,7 +311,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 1, [191]), (1, 65535, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -333,7 +333,7 @@ class RzxplayTest(SkoolKitTestCase):
             ram = [0] * 0xC000
             ram[pc - 0x4000:pc - 0x4000 + len(c)] = c
             registers = {'PC': pc, 'iff1': 1}
-            z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+            z80data = self.write_z80(ram, registers, ret_data=True)
             rzx.add_snapshot(z80data, 'z80', f)
         exp_output = ''
         exp_trace = """
@@ -357,7 +357,7 @@ class RzxplayTest(SkoolKitTestCase):
             ram = [0] * 0xC000
             ram[pc - 0x4000:pc - 0x4000 + len(c)] = c
             registers = {'PC': pc, 'iff1': 1}
-            z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+            z80data = self.write_z80(ram, registers, ret_data=True)
             rzx.add_snapshot(z80data, 'z80', f)
         exp_output = ''
         exp_trace = """
@@ -377,7 +377,7 @@ class RzxplayTest(SkoolKitTestCase):
         ram = [0] * 0xC000
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         input_recs = (
             [(1, 0, [])],
             [(1, 1, [191])],
@@ -402,7 +402,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram1[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram1, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram1, registers, ret_data=True)
         rzx = RZX()
         frames1 = [(1, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames1)
@@ -422,7 +422,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc, 'iff1': 1}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(2, 0, []), (2, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames, tstates=69886)
@@ -446,7 +446,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (3, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -470,7 +470,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (3, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -494,7 +494,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (3, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -518,7 +518,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (3, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -540,7 +540,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (1, 0, []), (2, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -563,7 +563,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (2, 0, []), (1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -585,7 +585,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (1, 0, []), (3, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -609,7 +609,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (2, 0, []), (3, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -633,7 +633,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (3, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -655,7 +655,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(0, 0, []), (1, 0, []), (1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -675,7 +675,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (0, 0, []), (1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -695,7 +695,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (1, 0, []), (0, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -715,7 +715,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(0, 0, [])] * 3
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -734,7 +734,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (0, 0, []), (2, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -756,7 +756,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc, 'a': a}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(3, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -779,7 +779,7 @@ class RzxplayTest(SkoolKitTestCase):
         pages = {a: [0] * 0x4000}
         pages[a][0] = 0xAF # $C000 XOR A
         registers = {'A': a, 'B': bc // 256, 'C': bc % 256, 'PC': pc, 'iff1': 1}
-        z80data = self.write_z80_file(None, ram, machine_id=4, out7ffd=4, pages=pages, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, machine_id=4, out7ffd=4, pages=pages, ret_data=True)
         rzx = RZX()
         frames = [(3, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -799,7 +799,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -817,7 +817,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, [])] * 4
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -837,7 +837,7 @@ class RzxplayTest(SkoolKitTestCase):
         end = pc + len(code)
         ram[pc - 0x4000:end - 0x4000] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(3, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -868,7 +868,7 @@ class RzxplayTest(SkoolKitTestCase):
         end = pc + len(code)
         ram[pc - 0x4000:end - 0x4000] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, machine_id=4, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, machine_id=4, ret_data=True)
         rzx = RZX()
         frames = [(10, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -895,7 +895,7 @@ class RzxplayTest(SkoolKitTestCase):
         end = pc + len(code)
         ram[pc - 0x4000:end - 0x4000] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, machine_id=4, modify=True, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, machine_id=4, modify=True, ret_data=True)
         rzx = RZX()
         frames = [(1, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -920,7 +920,7 @@ class RzxplayTest(SkoolKitTestCase):
         ram = [0] * 0xC000
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         frames = ((1, 0, []), (1, 0, []), (1, 1, [0]))
         rzx.add_snapshot(z80data, 'z80', frames)
         outfile = 'out.rzx'
@@ -952,7 +952,7 @@ class RzxplayTest(SkoolKitTestCase):
             ram = [0] * 0xC000
             ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
             registers = {'PC': pc}
-            z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+            z80data = self.write_z80(ram, registers, ret_data=True)
             rzx.add_snapshot(z80data, 'z80', frames)
 
         outfile = 'out.rzx'
@@ -979,7 +979,7 @@ class RzxplayTest(SkoolKitTestCase):
         ram = [0] * 0xC000
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, version=1, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, version=1, ret_data=True)
         frames = [(1, 0, []), (1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
 
@@ -1010,7 +1010,7 @@ class RzxplayTest(SkoolKitTestCase):
         ram = [0] * 0xC000
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, version=2, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, version=2, ret_data=True)
         frames = [(1, 0, []), (1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
 
@@ -1044,7 +1044,7 @@ class RzxplayTest(SkoolKitTestCase):
         ram = [0] * 0xC000
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, machine_id=4, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, machine_id=4, ret_data=True)
         frames = [(1, 0, []), (4, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
 
@@ -1076,7 +1076,7 @@ class RzxplayTest(SkoolKitTestCase):
         ram = [0] * 0xC000
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, machine_id=4, modify=True, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, machine_id=4, modify=True, ret_data=True)
         frames = [(1, 0, []), (4, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
 
@@ -1106,7 +1106,7 @@ class RzxplayTest(SkoolKitTestCase):
         ram = [0] * 0xC000
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, machine_id=1, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, machine_id=1, ret_data=True)
         frames = [(1, 0, []), (1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
 
@@ -1194,7 +1194,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1230,7 +1230,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 1, [191]), (1, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1249,7 +1249,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         input_recs = (
             [(1, 1, [191])],     # Frame 0
@@ -1271,7 +1271,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 1, [191]), (1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1290,7 +1290,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         input_recs = (
             [(1, 0, [])],   # Frame 0
@@ -1380,7 +1380,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         rzx.add_snapshot(None, None)
         frames = [(1, 1, [191])]
@@ -1417,7 +1417,7 @@ class RzxplayTest(SkoolKitTestCase):
         ram = [0] * 0xC000
         pc = 0xF000
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1433,7 +1433,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, version=3, machine_id=5, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, version=3, machine_id=5, ret_data=True)
         rzx = RZX()
         frames = [(1, 1, [191])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1448,7 +1448,7 @@ class RzxplayTest(SkoolKitTestCase):
         ram[0], ram[0x1800] = 0x80, BLUE
         pc = 0xF000
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1470,7 +1470,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(9, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1499,7 +1499,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(9, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1532,7 +1532,7 @@ class RzxplayTest(SkoolKitTestCase):
         ram = [0] * 0xC000
         pc = 0xF000
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1547,7 +1547,7 @@ class RzxplayTest(SkoolKitTestCase):
         ram = [0] * 0xC000
         pc = 0xF000
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1563,7 +1563,7 @@ class RzxplayTest(SkoolKitTestCase):
         ram[0], ram[0x1800] = 0x01, BLUE
         pc = 0xF000
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1583,7 +1583,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         rzx = RZX()
         esdata = [0] * 4 + [ord(c) for c in 'external.z80'] + [0]
         frames = [(2, 0, [])]
@@ -1615,7 +1615,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (1, 0, []), (1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1636,7 +1636,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (0, 0, []), (2, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1663,7 +1663,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, [])] * 10
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1699,7 +1699,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, []), (1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1719,7 +1719,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(2, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1739,7 +1739,7 @@ class RzxplayTest(SkoolKitTestCase):
         ram[0], ram[0x1800] = 0x01, BLUE
         pc = 0xF000
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, machine_id=4, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, machine_id=4, ret_data=True)
         rzx = RZX()
         frames = [(1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1763,7 +1763,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(2, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1792,7 +1792,7 @@ class RzxplayTest(SkoolKitTestCase):
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
-        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
         frames = [(5, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
@@ -1826,7 +1826,7 @@ class RzxplayTest(SkoolKitTestCase):
             0x36, 0x06,             # $E007 LD (HL),$06
         )
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
-        z80data = self.write_z80_file(None, ram, registers={'PC': pc}, ret_data=True)
+        z80data = self.write_z80(ram, {'PC': pc}, ret_data=True)
         rzx = RZX()
         frames = [(4, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)

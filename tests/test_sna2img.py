@@ -34,7 +34,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             elif ftype == 'szx':
                 infile = self.write_szx(ram)
             elif ftype == 'z80':
-                infile = self.write_z80(ram)[1]
+                infile = self.write_z80(ram)
             elif ftype == 'bin':
                 infile = self.write_bin_file(data, suffix='.bin')
             else:

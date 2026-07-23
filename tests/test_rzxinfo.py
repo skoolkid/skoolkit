@@ -57,7 +57,7 @@ class RzxinfoTest(SkoolKitTestCase):
 
     def test_z80(self):
         ram = [0] * 49152
-        z80data = self.write_z80_file(None, ram, ret_data=True)
+        z80data = self.write_z80(ram, ret_data=True)
         rzx = RZX()
         rzx.add_snapshot(z80data, 'z80')
         exp_output = """
@@ -180,7 +180,7 @@ class RzxinfoTest(SkoolKitTestCase):
 
     def test_encrypted_frames(self):
         ram = [0] * 49152
-        z80data = self.write_z80_file(None, ram, ret_data=True)
+        z80data = self.write_z80(ram, ret_data=True)
         rzx = RZX()
         rzx.add_snapshot(z80data, 'z80', io_flags=1)
         exp_output = """

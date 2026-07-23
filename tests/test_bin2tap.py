@@ -676,7 +676,7 @@ class Bin2TapTest(SkoolKitTestCase):
         data = range(20)
         begin = 65536 - len(data)
         ram[begin - 16384:] = data
-        z80 = self.write_z80(ram)[1]
+        z80 = self.write_z80(ram)
         blocks = self._run('-b {} {}'.format(begin, z80))
         self._check_tape(blocks, data, z80, begin)
 
@@ -800,7 +800,7 @@ class Bin2TapTest(SkoolKitTestCase):
         begin = 32768
         end = begin + len(data)
         ram[begin - 16384:end - 16384] = data
-        z80 = self.write_z80(ram)[1]
+        z80 = self.write_z80(ram)
         blocks = self._run('-b {} -e {} {}'.format(begin, end, z80))
         self._check_tape(blocks, data, z80, begin)
 
@@ -867,7 +867,7 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_screen_with_z80(self):
         scr = [129] * 6912
-        z80 = self.write_z80(scr + [0] * 42240)[1]
+        z80 = self.write_z80(scr + [0] * 42240)
         data = [51]
         binfile = self.write_bin_file(data, suffix='.bin')
         blocks = self._run('--screen {} {}'.format(z80, binfile))

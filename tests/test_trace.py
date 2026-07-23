@@ -357,7 +357,7 @@ class TraceTest(SkoolKitTestCase):
             'tstates': 20000
         }
         ram = [0] * 49152
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         exp_output = """
             $8000 NOP              A=01  F=00000010  BC=0304  DE=0506  HL=0708  IX=0B0C IY=090A
                                    A'=0F F'=00010000 BC'=1112 DE'=1314 HL'=1516 SP=FFFF IR=0D0F
@@ -404,7 +404,7 @@ class TraceTest(SkoolKitTestCase):
             'im': 2,
             'tstates': 20000
         }
-        z80file = self.write_z80(ram, machine_id=4, out_7ffd=18, pages=pages, registers=registers)[1]
+        z80file = self.write_z80(ram, registers, machine_id=4, out7ffd=18, pages=pages)
         exp_output = """
             $6000 OUT (C),A        A=01  F=00000010  BC=7FFD  DE=0506  HL=0708  IX=0B0C IY=090A
                                    A'=0F F'=00010000 BC'=1112 DE'=1314 HL'=1516 SP=FFFF IR=0D10
@@ -453,7 +453,7 @@ class TraceTest(SkoolKitTestCase):
             'im': 2,
             'tstates': 20000
         }
-        z80file = self.write_z80(ram, machine_id=4, modify=True, out_7ffd=18, pages=pages, registers=registers)[1]
+        z80file = self.write_z80(ram, registers, machine_id=4, modify=True, out7ffd=18, pages=pages)
         exp_output = """
             $6000 OUT (C),A        A=01  F=00000010  BC=7FFD  DE=0506  HL=0708  IX=0B0C IY=090A
                                    A'=0F F'=00010000 BC'=1112 DE'=1314 HL'=1516 SP=FFFF IR=0D10
@@ -662,7 +662,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 0, 'tstates': 69884}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
@@ -682,7 +682,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 69884}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
@@ -705,7 +705,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'I': 127, 'iff1': 1, 'im': 2, 'tstates': 69882}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
@@ -726,7 +726,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 69882}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
@@ -749,7 +749,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 69882}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
@@ -773,7 +773,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 69882}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
@@ -795,7 +795,7 @@ class TraceTest(SkoolKitTestCase):
         ram[0x1C00] = ram[0x1C04] = 0xFF # KSTATE0/4
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 69886}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
@@ -818,7 +818,7 @@ class TraceTest(SkoolKitTestCase):
         ram[0x1C00] = ram[0x1C04] = 0xFF # KSTATE0/4
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 69886}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
@@ -844,7 +844,7 @@ class TraceTest(SkoolKitTestCase):
         ram[0x1C00] = ram[0x1C04] = 0xFF # KSTATE0/4
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 69886}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
@@ -868,7 +868,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 69884}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
@@ -898,7 +898,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 69805}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file} {outfile}')
         self.assertEqual(error, '')
         self.assertEqual(s_memory[0xc001], 2) # DJNZ interrupted when B=2
@@ -923,7 +923,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 69805}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file} {outfile}')
         self.assertEqual(error, '')
         self.assertEqual(s_memory[0xc000], 2) # LDIR interrupted when BC=2
@@ -948,7 +948,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 69805}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file} {outfile}')
         self.assertEqual(error, '')
         self.assertEqual(s_memory[0xc000], 2) # LDDR interrupted when BC=2
@@ -963,7 +963,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 69884}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         trace_line = 'TraceLine={t} ${pc:04X} {i}'
         output, error = self.run_trace(('-I', trace_line, '-S', str(stop), '-v', z80file))
         self.assertEqual(error, '')
@@ -988,7 +988,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'I': 127, 'iff1': 1, 'im': 2, 'tstates': 69884}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         trace_line = 'TraceLine={t} ${pc:04X} {i}'
         output, error = self.run_trace(('-I', trace_line, '-S', str(stop), '-v', z80file))
         self.assertEqual(error, '')
@@ -1012,7 +1012,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'I': 127, 'iff1': 1, 'im': 2, 'tstates': 69884}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         exp_output = """
@@ -1040,7 +1040,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'I': 127, 'iff1': 1, 'im': 2, 'tstates': 70904}
-        z80file = self.write_z80_file(None, ram, machine_id=4, registers=registers)
+        z80file = self.write_z80(ram, registers, machine_id=4)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         exp_output = """
@@ -1072,7 +1072,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'im': 1, 'tstates': 69884}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         exp_output = """
@@ -1109,7 +1109,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'im': 1, 'tstates': 69884}
-        z80file = self.write_z80_file(None, ram, machine_id=4, registers=registers)
+        z80file = self.write_z80(ram, registers, machine_id=4)
         output, error = self.run_trace(f'-S {stop} -v {z80file}')
         self.assertEqual(error, '')
         exp_output = """
@@ -1190,7 +1190,7 @@ class TraceTest(SkoolKitTestCase):
         stop = start + len(data)
         ram = [0] * 49152
         ram[start - 0x4000:stop - 0x4000] = data
-        z80file = self.write_z80(ram, machine_id=4, registers={'PC': start})[1]
+        z80file = self.write_z80(ram, {'PC': start}, machine_id=4)
         exp_output = """
             Stopped at $8016
             Sound duration: 1110 T-states (0.000s)
@@ -1242,7 +1242,7 @@ class TraceTest(SkoolKitTestCase):
         bank = 3
         pages = {bank: [1] * 16384}
         registers = {'A': bank, 'B': 0x7F, 'C': 0xFD, 'PC': 0x6000}
-        z80file = self.write_z80(ram, machine_id=4, out_7ffd=18, pages=pages, registers=registers)[1]
+        z80file = self.write_z80(ram, registers, machine_id=4, out7ffd=18, pages=pages)
         exp_output = """
             $6000 OUT (C),A
             Stopped at $6002
@@ -1266,7 +1266,7 @@ class TraceTest(SkoolKitTestCase):
         start = 0xC000
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        infile = self.write_z80(ram, {'PC': start}, machine_id=4)
         outfile = 'out.wav'
         output, error = self.run_trace(f'-S {stop} --ay --ay-mode MONO {infile} {outfile}')
         exp_output = f"""
@@ -1298,7 +1298,7 @@ class TraceTest(SkoolKitTestCase):
         start = 0xC000
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        infile = self.write_z80(ram, {'PC': start}, machine_id=4)
         outfile = 'out.wav'
         output, error = self.run_trace(f'-S {stop} --ay --ay-mode ABC {infile} {outfile}')
         exp_output = f"""
@@ -1330,7 +1330,7 @@ class TraceTest(SkoolKitTestCase):
         start = 0xC000
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        infile = self.write_z80(ram, {'PC': start}, machine_id=4)
         outfile = 'out.wav'
         output, error = self.run_trace(f'-S {stop} --ay --ay-mode ACB {infile} {outfile}')
         exp_output = f"""
@@ -1362,7 +1362,7 @@ class TraceTest(SkoolKitTestCase):
         start = 0xC000
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        infile = self.write_z80(ram, {'PC': start}, machine_id=4)
         outfile = 'out.wav'
         output, error = self.run_trace(f'-S {stop} --ay --ay-res 70908 {infile} {outfile}')
         exp_output = f"""
@@ -1393,7 +1393,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 14335}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         trace_line = 'TraceLine={t} ${pc:04X} {i}'
         exp_output = """
             14335 $6000 XOR A
@@ -1699,7 +1699,7 @@ class TraceTest(SkoolKitTestCase):
         ram[start - 0x4000:stop - 0x4000] = data
         start_time = 4
         registers = {'PC': start, 'tstates': start_time}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         exp_output = """
             $8000 XOR A
             $8001 INC A
@@ -1758,7 +1758,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'iff1': 1, 'im': 1, 'tstates': 69886}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         exp_output = dedent("""
             $8000 NOP
             $8001 NOP
@@ -1894,7 +1894,7 @@ class TraceTest(SkoolKitTestCase):
             'IXl': 0xFF, 'IXh': 0xFF, 'IYl': 0xFF, 'IYh': 0xFF,
             'I': 0xFF, 'R': 0xFF, 'SP': 0xFFFF, 'PC': start
         }
-        z80file = self.write_z80_file(None, ram, registers=z80reg)
+        z80file = self.write_z80(ram, z80reg)
         registers = {
             'A': 0x50,
             'F': 0b01000001,
@@ -2005,7 +2005,7 @@ class TraceTest(SkoolKitTestCase):
         ram[0] = 255
         ram[start - 0x4000:stop - 0x4000] = data
         registers = {'PC': start, 'tstates': 69875}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} --screen {z80file}')
         self.assertEqual(error, '')
         exp_output = f"Stopped at ${stop:04X}"
@@ -2030,7 +2030,7 @@ class TraceTest(SkoolKitTestCase):
         ram[0] = 255
         ram[start - 0x4000:stop - 0x4000] = data
         registers = {'PC': start, 'tstates': 70895}
-        z80file = self.write_z80_file(None, ram, machine_id=4, registers=registers)
+        z80file = self.write_z80(ram, registers, machine_id=4)
         output, error = self.run_trace(f'-S {stop} --screen {z80file}')
         self.assertEqual(error, '')
         exp_output = f"Stopped at ${stop:04X}"
@@ -2054,7 +2054,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:stop - 0x4000] = data
         registers = {'PC': start, 'tstates': 69875}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} --screen {z80file} out.z80')
         self.assertEqual(error, '')
         exp_output = f"""
@@ -2118,7 +2118,7 @@ class TraceTest(SkoolKitTestCase):
 
     def test_option_start(self):
         ram = [0] * 49152
-        z80file = self.write_z80_file(None, ram, registers={'PC': 16384})
+        z80file = self.write_z80(ram, {'PC': 16384})
         for option in ('-s 32768', '--start 0x8000'):
             output, error = self.run_trace(f'-v {option} -S 32769 {z80file}')
             self.assertEqual(error, '')
@@ -2168,7 +2168,7 @@ class TraceTest(SkoolKitTestCase):
         header[35] = 1 # Last OUT to port 0x7ffd
         header[55:58] = (0, 0, 0) # T-states (34943)
         ram = [0] * 49152
-        z80file = self.write_z80_file(header, ram)
+        z80file = self.write_z80(ram, header=header)
         state = ('border=4', 'fe=128', 'iff=0', 'im=2', 'tstates=40000')
         state_options = ' '.join(f'--state {spec}' for spec in state)
         output, error = self.run_trace(f'-s 32768 -S 32769 {state_options} {z80file} out.szx')
@@ -2192,7 +2192,7 @@ class TraceTest(SkoolKitTestCase):
         header[39:55] = [255] * 16 # AY registers
         header[55:58] = (0, 0, 0) # T-states (34943)
         ram = [0] * 49152
-        z80file = self.write_z80_file(header, ram)
+        z80file = self.write_z80(ram, header=header)
         state = ['7ffd=3', 'border=4', 'fe=128', 'fffd=12', 'iff=0', 'im=2', 'tstates=40000']
         ay = tuple(range(20, 36))
         state.extend(f'ay[{r}]={v}' for r, v in enumerate(ay))
@@ -2263,7 +2263,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:start - 0x4000 + len(data)] = data
         registers = {'PC': start, 'tstates': 10000}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} --stats {z80file}')
         self.assertEqual(error, '')
         o_lines = output.split('\n')
@@ -2527,7 +2527,7 @@ class TraceTest(SkoolKitTestCase):
         start = 32768
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        infile = self.write_z80(ram, {'PC': start}, machine_id=4)
         outfile = 'out.wav'
         volume = 50
         output, error = self.run_trace(f'-S {stop} --ay --volume {volume} {infile} {outfile}')
@@ -2561,7 +2561,7 @@ class TraceTest(SkoolKitTestCase):
         start = 32768
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        infile = self.write_z80(ram, {'PC': start}, machine_id=4)
         outfile = 'out.wav'
         output, error = self.run_trace(f'-S {stop} --ay --volume 101 {infile} {outfile}')
         exp_output = f"""
@@ -2588,7 +2588,7 @@ class TraceTest(SkoolKitTestCase):
         start = 32768
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        infile = self.write_z80(ram, {'PC': start}, machine_id=4)
         outfile = 'out.wav'
         output, error = self.run_trace(f'-S {stop} --ay --volume -1 {infile} {outfile}')
         exp_output = f"""
@@ -2677,7 +2677,7 @@ class TraceTest(SkoolKitTestCase):
         ram[0] = 55
         ram[start - 0x4000:stop - 0x4000] = data
         registers = {'PC': start, 'tstates': 69875}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} {z80file}')
         self.assertEqual(error, '')
         exp_output = f"Stopped at ${stop:04X}"
@@ -2702,7 +2702,7 @@ class TraceTest(SkoolKitTestCase):
         ram[0] = 72
         ram[start - 0x4000:stop - 0x4000] = data
         registers = {'PC': start, 'tstates': 69875}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-I Screen=1 -S {stop} {z80file}')
         self.assertEqual(error, '')
         exp_output = f"Stopped at ${stop:04X}"
@@ -2732,7 +2732,7 @@ class TraceTest(SkoolKitTestCase):
         ram[0] = 128
         ram[start - 0x4000:stop - 0x4000] = data
         registers = {'PC': start, 'tstates': 69875}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} --screen {z80file}')
         self.assertEqual(error, '')
         exp_output = f"Stopped at ${stop:04X}"
@@ -2757,7 +2757,7 @@ class TraceTest(SkoolKitTestCase):
         ram[0] = 1
         ram[start - 0x4000:stop - 0x4000] = data
         registers = {'PC': start, 'tstates': 69875}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-I ScreenFps=150 -S {stop} --screen {z80file}')
         self.assertEqual(error, '')
         exp_output = f"Stopped at ${stop:04X}"
@@ -2787,7 +2787,7 @@ class TraceTest(SkoolKitTestCase):
         ram[0] = 240
         ram[start - 0x4000:stop - 0x4000] = data
         registers = {'PC': start, 'tstates': 69875}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} --screen {z80file}')
         self.assertEqual(error, '')
         exp_output = f"Stopped at ${stop:04X}"
@@ -2812,7 +2812,7 @@ class TraceTest(SkoolKitTestCase):
         ram[0] = 16
         ram[start - 0x4000:stop - 0x4000] = data
         registers = {'PC': start, 'tstates': 69875}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-I ScreenScale=3 -S {stop} --screen {z80file}')
         self.assertEqual(error, '')
         exp_output = f"Stopped at ${stop:04X}"
@@ -3594,7 +3594,7 @@ class TraceTest(SkoolKitTestCase):
         start = 32768
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, machine_id=4)
+        infile = self.write_z80(ram, machine_id=4)
         outfile = 'out.png'
         output, error = self.run_trace(f'-s {start} -S {stop} {infile} {outfile}')
         exp_output = f"""
@@ -3665,7 +3665,7 @@ class TraceTest(SkoolKitTestCase):
         start = 32768
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, machine_id=4)
+        infile = self.write_z80(ram, machine_id=4)
         outfile = 'out.wav'
         output, error = self.run_trace(f'-s {start} -S {stop} {infile} {outfile}')
         exp_output = f"""
@@ -3700,7 +3700,7 @@ class TraceTest(SkoolKitTestCase):
         start = 32768
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        infile = self.write_z80(ram, {'PC': start}, machine_id=4)
         outfile = 'out.wav'
         output, error = self.run_trace(f'-S {stop} --ay {infile} {outfile}')
         exp_output = f"""
@@ -3752,7 +3752,7 @@ class TraceTest(SkoolKitTestCase):
         start = 32768
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        infile = self.write_z80(ram, {'PC': start}, machine_id=4)
         outfile = 'out.wav'
         output, error = self.run_trace(f'-S {stop} --ay --beeper {infile} {outfile}')
         exp_output = f"""
@@ -3827,7 +3827,7 @@ class TraceTest(SkoolKitTestCase):
         start = 32768
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        infile = self.write_z80(ram, {'PC': start}, machine_id=4)
         with self.assertRaises(SkoolKitError) as cm:
             self.run_trace(f'-S {stop} --ay {infile} out.wav')
         self.assertEqual(cm.exception.args[0], 'No AY activity detected')
@@ -3905,7 +3905,7 @@ class TraceTest(SkoolKitTestCase):
         start = 32768
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, machine_id=4, registers={'PC': start})
+        infile = self.write_z80(ram, {'PC': start}, machine_id=4)
         outfile = 'out.dat'
         output, error = self.run_trace(f'-S {stop} --ay {infile} {outfile}')
         exp_output = f"""
@@ -3969,7 +3969,7 @@ class TraceTest(SkoolKitTestCase):
         start = 32768
         stop = start + len(data)
         ram[start - 0x4000:stop - 0x4000] = data
-        infile = self.write_z80_file(None, ram, registers={'PC': start, 'tstates': 69850})
+        infile = self.write_z80(ram, {'PC': start, 'tstates': 69850})
         output, error = self.run_trace(f'-S {stop} --screen {infile}')
         exp_output = f"""
             Frame 1: ATTR(0,2)=5; BORDER=3
@@ -4132,7 +4132,7 @@ class TraceTest(SkoolKitTestCase):
         ]
         stop = start + len(code)
         ram[start - 0x4000:stop - 0x4000] = code
-        infile = self.write_z80(ram, machine_id=4, modify=True)[1]
+        infile = self.write_z80(ram, machine_id=4, modify=True)
         outfile = 'out.z80'
         output, error = self.run_trace(f'-s {start} -S {stop} {infile} {outfile}')
         exp_output = f"""
@@ -4191,7 +4191,7 @@ class TraceTest(SkoolKitTestCase):
         ram[start - 0x4000:start - 0x4000 + len(code)] = code
         stop = start + len(code)
         ay = [5] + [128 + n for n in range(16)]
-        z80file = self.write_z80(ram, machine_id=4, ay=ay)[1]
+        z80file = self.write_z80(ram, machine_id=4, ay=ay)
         output, error = self.run_trace(f'-s {start} -S {stop} {z80file} out.z80')
         exp_state = [f'ay[{n}]={v + 1}' for n, v in enumerate(ay[1:])]
         exp_state.append('fffd=0')
@@ -4245,7 +4245,7 @@ class TraceTest(SkoolKitTestCase):
         ram[start - 0x4000:start - 0x4000 + len(code)] = code
         ram[32768] = 255 # POKE 49152,255
         stop = start + len(code)
-        z80file = self.write_z80(ram, machine_id=4)[1]
+        z80file = self.write_z80(ram, machine_id=4)
         stop = start + len(code)
         self.run_trace(f'-s {start} -S {stop} {z80file} out.z80')
         out7ffd = [s[5:] for s in s_state if s.startswith('7ffd=')]
@@ -4271,7 +4271,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:stop - 0x4000] = data
         registers = {'PC': start, 'tstates': 69886}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         mock_pygame.key.get_pressed.return_value = defaultdict(int, {'a': 1, 's': 1})
         output, error = self.run_trace(f'-S {stop} -v --screen {z80file}')
         self.assertEqual(error, '')
@@ -4299,7 +4299,7 @@ class TraceTest(SkoolKitTestCase):
         ram = [0] * 49152
         ram[start - 0x4000:stop - 0x4000] = data
         registers = {'PC': start, 'tstates': 69886}
-        z80file = self.write_z80_file(None, ram, registers=registers)
+        z80file = self.write_z80(ram, registers)
         output, error = self.run_trace(f'-S {stop} -v --screen {z80file}')
         self.assertEqual(error, '')
         exp_output = f"""

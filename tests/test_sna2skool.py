@@ -440,7 +440,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         ram = [0] * 49152
         pages = {3: [201] + [0] * 16383}
         ctlfile = self.write_text_file('c49152\ni49153', suffix='.ctl')
-        z80file = self.write_z80(ram, version=3, machine_id=4, pages=pages)[1]
+        z80file = self.write_z80(ram, version=3, machine_id=4, pages=pages)
         for option in ('-p', '--page'):
             self.run_sna2skool('-c {} {} 3 {}'.format(ctlfile, option, z80file))
             self.assertEqual(mock_skool_writer.snapshot[49152], 201)

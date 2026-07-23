@@ -691,8 +691,7 @@ class SkoolKitTestCase(TestCase):
         header[28] = registers.get('iff2', 0)
         header[29] = (header[29] & 0xFC) | registers.get('im', 0)
 
-    def write_z80(self, ram, version=3, compress=False, machine_id=0, modify=False, out_7ffd=0, pages={}, header=None, registers=None, ay=None, ret_data=False):
-        model = 1
+    def write_z80(self, ram, registers=None, version=3, compress=False, machine_id=0, modify=False, out7ffd=0, pages={}, header=None, ay=None, ret_data=False):
         if version == 1:
             if header is None:
                 header = [0] * 30
@@ -711,21 +710,19 @@ class SkoolKitTestCase(TestCase):
                     header = [0] * 86
                     header[30] = 54 # Indicate a v3 Z80 snapshot
                 header[34] = machine_id
-                header[35] = out_7ffd
+                header[35] = out7ffd
                 header[37] = 128 if modify else 0
             else:
                 machine_id = header[34]
             banks = {5: ram[:16384]}
             if (version == 2 and machine_id < 2) or (version == 3 and machine_id in (0, 1, 3)) or machine_id in (14, 15, 128):
                 # 16K/48K
-                model = 0 if modify else 1
                 banks[1] = ram[16384:32768]
                 banks[2] = ram[32768:49152]
             else:
                 # 128K
-                model = 2
                 banks[2] = ram[16384:32768]
-                banks[out_7ffd & 7] = ram[32768:49152]
+                banks[out7ffd & 7] = ram[32768:49152]
                 banks.update(pages)
                 for bank in set(range(8)) - set(banks.keys()):
                     banks[bank] = [0] * 16384
@@ -737,11 +734,8 @@ class SkoolKitTestCase(TestCase):
             for bank in sorted(banks):
                 z80 += self._get_z80_ram_block(banks[bank], compress, bank + 3)
         if ret_data:
-            return model, z80
-        return model, self.write_bin_file(z80, suffix='.z80')
-
-    def write_z80_file(self, header, ram, version=3, compress=False, machine_id=0, modify=False, out7ffd=0, pages={}, registers=None, ay=None, ret_data=False):
-        return self.write_z80(ram, version, compress, machine_id, modify, out7ffd, pages, header, registers, ay, ret_data)[1]
+            return z80
+        return self.write_bin_file(z80, suffix='.z80')
 
     def _get_szx_header(self, machine_id=1, ch7ffd=0, border=0, chFe=0, specregs=True):
         header = [90, 88, 83, 84] # ZXST

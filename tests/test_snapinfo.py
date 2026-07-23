@@ -51,7 +51,7 @@ class SnapinfoTest(SkoolKitTestCase):
     def _test_z80(self, exp_output, options='', header=None, ram=None, version=3, compress=False, machine_id=0, pages=None, out7ffd=0):
         if ram is None:
             ram = [0] * 49152
-        z80file = self.write_z80_file(header, ram, version, compress, machine_id, pages=pages or {}, out7ffd=out7ffd)
+        z80file = self.write_z80(ram, None, version, compress, machine_id, pages=pages or {}, header=header, out7ffd=out7ffd)
         output, error = self.run_snapinfo(f'{options} {z80file}')
         self.assertEqual(error, '')
         self.assertEqual(dedent(exp_output).lstrip(), output)
