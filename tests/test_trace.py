@@ -2042,6 +2042,30 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.frame, 1)
         self.assertEqual([(0, 0), (70914, 6)], screen.border)
 
+    @patch.object(trace, 'get_screen', mock_get_screen)
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_option_screen_write_snapshot(self):
+        data = (
+            0x3E, 0x83, # $8000 LD A,$83    ; T=69875
+            0xD3, 0xFE, # $8002 OUT ($FE),A ; T=69882 (screen draw follows)
+        )
+        start = 0x8000
+        stop = start + len(data)
+        ram = [0] * 49152
+        ram[start - 0x4000:stop - 0x4000] = data
+        registers = {'PC': start, 'tstates': 69875}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} --screen {z80file} out.z80')
+        self.assertEqual(error, '')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote out.z80
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual([(0, 0), (69894, 131)], screen.border)
+        self.assertIn('border=3', s_state)
+        self.assertIn('fe=131', s_state)
+
     def test_option_show_config(self):
         output, error = self.run_trace('--show-config', catch_exit=0)
         self.assertEqual(error, '')

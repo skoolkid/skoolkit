@@ -1750,6 +1750,36 @@ class RzxplayTest(SkoolKitTestCase):
         mock_pygame.display.set_caption.assert_called_with(rzxfile)
         self.assertEqual(mock_pygame.display.get_surface().get_pixel(7, 0), BLUE)
 
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', new_callable=MockPygame)
+    @patch.object(rzxplay, 'get_screen', mock_get_screen)
+    @patch.object(rzxplay, 'write_snapshot', mock_write_snapshot)
+    def test_screen_write_snapshot(self, mock_pygame):
+        ram = [0] * 0xC000
+        pc = 0xA000
+        code = (
+            0x3E, 0xC5, # LD A,$C5
+            0xD3, 0xFE, # OUT ($FE),A
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        registers = {'PC': pc}
+        z80data = self.write_z80_file(None, ram, registers=registers, ret_data=True)
+        rzx = RZX()
+        frames = [(2, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = """
+            Using pygame
+            Wrote out.z80
+        """
+        exp_trace = """
+            F:0 C:00002 I:00000 $A000 LD A,$C5
+            F:0 C:00001 I:00000 $A002 OUT ($FE),A
+        """
+        self._test_rzx(rzx, exp_output, '--quiet', exp_trace, outfile='out.z80')
+        self.assertEqual([(0, 0xC5)], TestScreen.instance.border)
+        self.assertIn('border=5', s_state)
+        self.assertIn('fe=197', s_state)
+
     def test_0xDD_0xFD_prefixes(self):
         ram = [0] * 0xC000
         pc = 0xD000

@@ -156,7 +156,7 @@ def get_state(simulator, tstates=True):
     if isinstance(border, int):
         colour = border
     else:
-        colour = border[-1][1]
+        colour = border[-1][1] & 7
     state = [
         f'border={colour}',
         f'fe={simulator.tracer.outfe}',
