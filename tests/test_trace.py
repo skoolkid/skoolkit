@@ -8,8 +8,13 @@ from unittest.mock import patch, Mock
 from skoolkittest import QUIT, MockPygame, MockPygameIO, SkoolKitTestCase, mock_find_file
 from skoolkit import SkoolKitError, VERSION, CSimulator, components, config, screen, trace
 from skoolkit.simulator import Simulator
-from skoolkit.simutils import PC, IFF, IM, T
+from skoolkit.simutils import PC, IFF, IM, T, B, C
 from skoolkit.trace import Tracer
+
+if CSimulator is None:
+    # Pre-load the simtables module so that its (significant) load time does
+    # not become part of the test run time
+    from skoolkit import simtables
 
 ROM128_0_MD5 = 'b4d2692115a9f2924df92a3cbfb358fb'
 ROM128_1_MD5 = '6e09e5d3c4aef166601669feaaadc01c'
@@ -83,13 +88,14 @@ class MockImageWriter:
         self.fname = img_file.name
 
 class MockScreen:
-    def __init__(self, scale, fps, caption, is128k):
+    def __init__(self, scale, fps, caption, is128k, stay_open=True):
         global screen
         screen = self
         self.scale = scale
         self.fps = fps
         self.caption = caption
         self.is128k = is128k
+        self.stay_open = stay_open
         self.pygame_msg = 'Using pygame'
 
     def draw(self, scr, frame, border, keyboard):
@@ -97,10 +103,13 @@ class MockScreen:
         self.frame = frame
         self.border = border
         self.keyboard = keyboard
-        return True
+        return self.stay_open
 
 def mock_get_screen(scale, fps, caption, is128k):
     return MockScreen(scale, fps, caption, is128k)
+
+def mock_get_screen_close(scale, fps, caption, is128k):
+    return MockScreen(scale, fps, caption, is128k, False)
 
 class TestTracer(Tracer):
     def __init__(self, simulator, border, out7ffd, outfffd, ay, outfe, audio):
@@ -2049,6 +2058,38 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.scr[0], 255)
         self.assertEqual(screen.frame, 1)
         self.assertEqual([(0, 0), (70914, 6)], screen.border)
+
+    @patch.object(trace, 'Tracer', TestTracer)
+    @patch.object(trace, 'get_screen', mock_get_screen_close)
+    def test_option_screen_disables_fast_djnz(self):
+        data = (
+            0xF3,       # $8000 DI         ; T=69869
+            0x06, 0x02, # $8001 LD B,2     ; T=69873
+            0x10, 0xFE, # $8003 DJNZ $8002 ; T=69880
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        exp_output = "Stopped at $8003: screen closed"
+        output, error = self.run_trace(f'-o 32768 --state tstates=69869 --screen {binfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output.rstrip())
+        self.assertEqual(tracer.simulator.registers[T], 69893)
+        self.assertEqual(tracer.simulator.registers[B], 1)
+
+    @patch.object(trace, 'Tracer', TestTracer)
+    @patch.object(trace, 'get_screen', mock_get_screen_close)
+    def test_option_screen_disables_fast_ldir(self):
+        data = (
+            0xF3,             # $8000 DI          ; T=69866
+            0x01, 0x02, 0x00, # $8001 LD BC,$0002 ; T=69870
+            0xED, 0xB0,       # $8004 LDIR        ; T=69880
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        exp_output = "Stopped at $8004: screen closed"
+        output, error = self.run_trace(f'-o 32768 --state tstates=69866 --screen {binfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output.rstrip())
+        self.assertEqual(tracer.simulator.registers[T], 69901)
+        self.assertEqual(tracer.simulator.registers[C], 1)
 
     @patch.object(trace, 'get_screen', mock_get_screen)
     @patch.object(trace, 'write_snapshot', mock_write_snapshot)

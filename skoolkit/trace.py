@@ -262,7 +262,7 @@ def run(snafile, options, config):
                     state[attr] = get_int_param(val)
             except ValueError:
                 raise SkoolKitError(f'Cannot parse integer: {spec}')
-    fast = options.verbose == 0 and options.max_operations == 0 and options.max_tstates == 0
+    fast = options.verbose == 0 and options.max_operations == 0 and options.max_tstates == 0 and not options.screen
     sim_config = {'fast_djnz': fast, 'fast_ldir': fast}
     if snapshot:
         border = state.get('border', snapshot.border)
