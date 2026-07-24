@@ -26,6 +26,8 @@ Changelog
   by :ref:`rzxplay.py` and :ref:`trace.py`
 * Made the :ref:`AY audio writer <ayAudioWriter>` a pluggable component
 * Made the :ref:`screen <screen>` a pluggable component
+* Fixed how :ref:`trace.py` sets the frame duration when the input file
+  argument is '128' or '+2'
 * Fixed how :ref:`rzxinfo.py` detects a signed RZX file and encrypted frames
 * Fixed the bug in :ref:`sna2ctl.py` that enables the :ref:`rstHandler` when
   the :ref:`comment generator <commentGenerator>` is enabled

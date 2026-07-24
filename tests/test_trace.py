@@ -4316,3 +4316,36 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $8001: screen closed
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    @patch.object(trace, 'Tracer', TestTracer)
+    def test_48(self):
+        output, error = self.run_trace('-S 1 48')
+        self.assertEqual(error, '')
+        exp_output = "Stopped at $0001"
+        self.assertEqual(exp_output, output.rstrip())
+        simulator = tracer.simulator
+        self.assertEqual(len(simulator.memory), 65536)
+        self.assertEqual(simulator.memory[155], 75)
+        self.assertEqual(simulator.frame_duration, 69888)
+
+    @patch.object(trace, 'Tracer', TestTracer)
+    def test_128(self):
+        output, error = self.run_trace('-S 1 128')
+        self.assertEqual(error, '')
+        exp_output = "Stopped at $0001"
+        self.assertEqual(exp_output, output.rstrip())
+        simulator = tracer.simulator
+        self.assertEqual(len(simulator.memory), 0x20000)
+        self.assertEqual(simulator.memory[155], 216)
+        self.assertEqual(simulator.frame_duration, 70908)
+
+    @patch.object(trace, 'Tracer', TestTracer)
+    def test_plus2(self):
+        output, error = self.run_trace('-S 1 +2')
+        self.assertEqual(error, '')
+        exp_output = "Stopped at $0001"
+        self.assertEqual(exp_output, output.rstrip())
+        simulator = tracer.simulator
+        self.assertEqual(len(simulator.memory), 0x20000)
+        self.assertEqual(simulator.memory[155], 247)
+        self.assertEqual(simulator.frame_duration, 70908)

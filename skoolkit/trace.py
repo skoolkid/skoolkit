@@ -29,7 +29,8 @@ from skoolkit.config import get_config, show_config, update_options
 from skoolkit.graphics import Frame, scr_udgs
 from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.simulator import Simulator
-from skoolkit.simutils import CLOCK_SPEEDS, PC, T, from_snapshot, get_state
+from skoolkit.simutils import (CLOCK_SPEEDS, PC, T, from_memory, from_snapshot,
+                               get_state)
 from skoolkit.snapshot import (Snapshot, make_snapshot, poke, print_reg_help,
                                print_state_help, write_snapshot)
 from skoolkit.traceutils import Registers, disassemble, get_trace_line
@@ -286,7 +287,7 @@ def run(snafile, options, config):
             banks = [memory[a:a + 0x4000] for a in range(0, 0x20000, 0x4000)]
             memory = Memory(banks, out7ffd, machine)
         state.setdefault('iff', 1)
-        simulator = simulator_cls(memory, registers, state, sim_config)
+        simulator = from_memory(simulator_cls, memory, registers, state, sim_config)
     for r, v in enumerate(state['ay']):
         if v is not None:
             ay[r] = v
