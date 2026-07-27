@@ -330,7 +330,7 @@ class LoadTracer(PagingTracer):
                     if index == max_index:
                         # Allow 1ms for the final edge on the tape to be read
                         if tstates - edges[index] > 3500:
-                            self.stop_tape(tstates) # pragma: no cover
+                            self.stop_tape(tstates)
                     elif index > state[3]:
                         # Pause tape between blocks
                         self.next_block(tstates)
@@ -436,7 +436,7 @@ class LoadTracer(PagingTracer):
             registers[24] = (pc + 1) % 65536
         return func
 
-    def _read_port(self):
+    def _read_port(self): # pragma: C no cover
         in_min_addr = self.in_min_addr
         state = self.state
         edges = self.edges
@@ -500,7 +500,7 @@ class LoadTracer(PagingTracer):
                             self.tsl_misses += 1
                     if index % 2 == 0:
                         return 191
-            elif port & 0xC002 == 0xC000 and self.outfffd < 16: # pragma: no cover
+            elif port & 0xC002 == 0xC000 and self.outfffd < 16:
                 ay_reg = self.outfffd
                 if ay_reg == 14 and registers[24] == 0x08B2:
                     # Avoid an infinite loop at 0x08AF in the 128K ROM:

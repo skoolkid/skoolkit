@@ -4139,3 +4139,80 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--screen --start {start} {tapfile} out.z80')
         self.assertEqual(exp_out_lines, output.strip().split('\n'))
         self.assertEqual(error, '')
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_tape_stops_1ms_after_final_edge(self):
+        # A code start address of 0xFF50 ensures that the return address on the
+        # stack will be overwritten by the first two bytes of the code block
+        code_start = 0xFF50
+        code = [
+            0x52, 0xFF,       # $FF50 DEFW $FF52
+            0xDB, 0xFE,       # $FF52 IN A,($FE)  ; Resume tape
+            0x01, 0x00, 0x00, # $FF54 LD BC,$0000
+            0x03,             # $FF57 INC BC      ; 18 T-states
+            0x18, 0xFD,       # $FF58 JR $FF57    ; per loop iteration
+        ]
+        pzx = PZX()
+        pzx.add_puls()
+        pzx.add_data(create_header_block('tapstop1ms', code_start, len(code)))
+        pzx.add_puls()
+        pzx.add_data(create_data_block(code))
+        pzx.add_data([0], s0=(1, 1))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        exp_output = [
+            'Bytes: tapstop1ms',
+            'Fast loading data block: 65360,10',
+            'Data (1 bytes)',
+            '[100.0%]\x08\x08\x08\x08\x08\x08\x08\x08Tape finished',
+            'Simulation stopped (end of tape): PC=65368',
+            'Writing out.z80'
+        ]
+        output, error = self.run_tap2sna(f'{pzxfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output.strip().split('\n'))
+        self.assertIn('BC=195', s_reg)
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_128k_read_ay_reg_14(self):
+        basic_data = [
+            0, 10,                # Line 10
+            10, 0,                # Line length
+            249, 192, 46,         # RANDOMIZE USR .
+            14, 0, 0, 222, 92, 0, # 23774
+            13,                   # ENTER
+            0, 20,                # Line 20
+            27, 0,                # Line length
+            234,                  # REM
+            219, 254,             # 23774 IN A,(254)    ; Resume tape
+            243,                  # 23776 DI
+            33, 3, 0,             # 23777 LD HL,3       ; BAUD=3 minimises time
+            34, 95, 91,           # 23780 LD (23391),HL ; spent in ROM routine
+            1, 253, 127,          # 23783 LD BC,32765
+            175,                  # 23786 XOR A
+            237, 121,             # 23787 OUT (C),A     ; Page in ROM 0
+            205, 163, 8,          # 23789 CALL 2211     ; Read AY register 14
+            243,                  # 23792 DI
+            1, 0, 0,              # 23793 LD BC,0
+            3,                    # 23796 INC BC        ; 18 T-states
+            24, 253,              # 23797 JR 23796      ; per loop iteration
+            13,                   # ENTER
+        ]
+        pzx = PZX()
+        pzx.add_puls()
+        pzx.add_data(create_header_block('tapayreg14', 10, len(basic_data), 0))
+        pzx.add_puls()
+        pzx.add_data(create_data_block(basic_data))
+        pzx.add_data([0], s0=(1, 1))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        exp_output = [
+            'Program: tapayreg14',
+            'Fast loading data block: 23755,45',
+            'Data (1 bytes)',
+            '[100.0%]\x08\x08\x08\x08\x08\x08\x08\x08Tape finished',
+            'Simulation stopped (end of tape): PC=23796',
+            'Writing out.z80'
+        ]
+        output, error = self.run_tap2sna(f'-c machine=128 -c in-flags=5 {pzxfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output.strip().split('\n'))
+        self.assertIn('BC=79', s_reg)
