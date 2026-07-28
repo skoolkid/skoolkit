@@ -1,4 +1,4 @@
-# Copyright 2022-2025 Richard Dymond (rjdymond@gmail.com)
+# © 2022-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -33,7 +33,7 @@ class Accelerator:
 
 class AnyByte:
     def __eq__(self, other):
-        return True # pragma: no cover
+        return True # pragma: C no cover
 
 BYTE = AnyByte()
 

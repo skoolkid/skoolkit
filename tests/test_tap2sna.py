@@ -4216,3 +4216,83 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(exp_output, output.strip().split('\n'))
         self.assertIn('BC=79', s_reg)
+
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
+    def test_trailing_tone_unread(self):
+        blocks = [
+            create_tzx_header_block('trailingtn', 32768, 1),
+            create_tzx_data_block([1]),
+            (18, 20, 0, 2, 0), # 0x12 Pure Tone (2x20 T-states)
+            (32, 1, 0)         # 0x20 Pause (1ms)
+        ]
+        tzxfile = self._write_tzx(blocks)
+        exp_output = [
+            'Bytes: trailingtn',
+            'Fast loading data block: 32768,1',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=7030',
+            'Writing out.z80'
+        ]
+        output, error = self.run_tap2sna(f'--start 7030 {tzxfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output.strip().split('\n'))
+
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
+    def test_trailing_tone_read_by_rom(self):
+        # A code start address of 0xFF50 ensures that the return address on the
+        # stack will be overwritten by the first two bytes of the code block
+        code_start = 0xFF50
+        code = [0x56, 0x05] # $FF50 DEFW $0556
+        blocks = [
+            create_tzx_header_block('trtone-rom', code_start, len(code)),
+            create_tzx_data_block(code),
+            (18, 120, 8, 151, 12), # 0x12 Pure Tone (3223x2168 T-states)
+        ]
+        tzxfile = self._write_tzx(blocks)
+        exp_output = [
+            'Bytes: trtone-rom',
+            'Fast loading data block: 65360,2',
+            '[ 78.1%]\x08\x08\x08\x08\x08\x08\x08\x08Simulation stopped (PC at start address): PC=1393',
+            'Writing out.z80'
+        ]
+        output, error = self.run_tap2sna(f'--start 1393 {tzxfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output.strip().split('\n'))
+
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
+    def test_trailing_tone_read_by_custom_rom_tsl(self):
+        # A code start address of 0xFF50 ensures that the return address on the
+        # stack will be overwritten by the first two bytes of the code block
+        code_start = 0xFF50
+        code = [
+            0x52, 0xFF,       # $FF50 DEFW $FF52
+            0xF3,             # $FF52 DI
+            0x01, 0x00, 0xFC, # $FF53 LD BC,$FC00
+            0xC5,             # $FF56 PUSH BC
+            0x04,             # $FF57 INC B
+            0xC8,             # $FF58 RET Z       ; To $FC00
+            0x3E, 0xFE,       # $FF59 LD A,$FE
+            0xDB, 0xFE,       # $FF5B IN A,($FE)
+            0x1F,             # $FF5D RRA
+            0xD0,             # $FF5E RET NC
+            0xA9,             # $FF5F XOR C
+            0xE6, 0x20,       # $FF60 AND $20
+            0x28, 0xF3,       # $FF62 JR Z,$FF57
+            0x18, 0xF1,       # $FF64 JR $FF57
+        ]
+        blocks = [
+            create_tzx_header_block('toneromtsl', code_start, len(code)),
+            create_tzx_data_block(code),
+            (18, 100, 0, 3, 0), # 0x12 Pure Tone (3x100 T-states)
+        ]
+        tzxfile = self._write_tzx(blocks)
+        exp_output = [
+            'Bytes: toneromtsl',
+            'Fast loading data block: 65360,22',
+            '[100.0%]\x08\x08\x08\x08\x08\x08\x08\x08Simulation stopped (PC at start address): PC=64512',
+            'Accelerators: rom: 1; misses: 0; dec-a: 0/0/23',
+            'Writing out.z80'
+        ]
+        output, error = self.run_tap2sna(f'--start 0xfc00 -c accelerator=list {tzxfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output.strip().split('\n'))

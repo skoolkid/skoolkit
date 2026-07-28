@@ -516,7 +516,7 @@ class LoadTracer(PagingTracer):
     def next_block(self, tstates):
         self.block_index += 1
         if self.block_index >= len(self.blocks):
-            self.stop_tape(tstates) # pragma: no cover
+            self.stop_tape(tstates)
         else:
             self.state[1] = self.state[3] + 1
             self.state[0] = self.edges[self.state[1]]
@@ -544,7 +544,7 @@ class LoadTracer(PagingTracer):
         else:
             raise SkoolKitError("Failed to fast load block: unexpected end of tape")
         if not data_block.fast_load:
-            return False # pragma: no cover
+            return False
 
         memory = simulator.memory
         ix = registers[IXl] + 256 * registers[IXh] # Start address
