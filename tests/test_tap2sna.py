@@ -22,37 +22,18 @@ if CSimulator is None:
     # not become part of the test run time
     from skoolkit import simtables
 
-mock_memory = None
-
 class MockSimulator:
-    def __init__(self, *args, **kwargs):
+    def __init__(self, memory, registers, state, config):
         global simulator
-        self.memory = mock_memory or [1] * 65536
-        self.opcodes = [self.in_a_n] * 256
-        self.registers = [0x80] * 30
-        self.registers[3] = 0xFF # C
-        self.registers[26] = 0 # Interrupts disabled
-        self.frame_duration = 69888
-        self.int_active = 32
-        self.config = kwargs.get('config') or args[3]
-
-        # The NOP at 49151 is a dummy instruction that triggers LoadTracer's
-        # read_port() (via in_a_n() below) and starts the tape running.
-        self.registers[24] = 49151 # PC
-        self.stop = max(a for a in range(49152, 65536) if self.memory[a]) + 2
+        self.memory = memory
+        self.registers = [0] * 30
+        self.frame_duration = config['frame_duration']
+        self.config = config
         simulator = self
 
-    def set_tracer(self, tracer, *args, **kwargs):
+    def set_tracer(self, tracer, *args):
         self.tracer = tracer
         self.set_tracer_args = args
-
-    def in_a_n(self):
-        self.tracer.read_port(self.registers, 0xFE)
-        self.registers[24] += 1 # PC
-        if self.registers[24] == self.stop:
-            self.registers[25] = self.tracer.edges[self.tracer.state[3]]
-        else:
-            self.registers[25] += 1000 # T-states
 
 def mock_make_snapshot(*args):
     global make_snapshot_args
@@ -243,26 +224,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'--ram load=1,16384 {option} {tapfile} test.z80')
         self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile}: {exp_error}')
-
-    def _format_output(self, text):
-        out_lines = []
-        for line in text.strip().split('\n'):
-            if '\x08' in line:
-                shown = []
-                index = 0
-                for c in line:
-                    if c == '\x08':
-                        index -= 1
-                    elif index < len(shown):
-                        shown[index] = c
-                        index += 1
-                    else:
-                        shown.append(c)
-                        index += 1
-                out_lines.append(''.join(shown).rstrip())
-            else:
-                out_lines.append(line.rstrip())
-        return out_lines
 
     @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     def test_default_option_values(self):
@@ -3408,8 +3369,6 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_python_parameter(self):
-        global mock_memory
-        mock_memory = [1] * 65536
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c python=1 {tapfile}')
         self.assertEqual(error, '')
@@ -3419,8 +3378,6 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_python_parameter_with_cmio(self):
-        global mock_memory
-        mock_memory = [1] * 65536
         tapfile = self._write_tap([create_tap_data_block([0])])
         output, error = self.run_tap2sna(f'-c python=1 -c cmio=1 {tapfile}')
         self.assertEqual(error, '')
@@ -3956,159 +3913,132 @@ class Tap2SnaTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, '^Error while converting test.zip: HTTP Error 403: Forbidden$'):
             self.run_tap2sna('http://example.com/test.zip test.z80')
 
-    @patch.object(tap2sna, 'CSimulator', MockSimulator)
-    @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
-    def test_dec_a_jr(self):
-        global mock_memory
-        mock_memory = [0] * 65536
+    def test_dec_a(self):
+        # A code start address of 0xFF50 ensures that the return address on the
+        # stack will be overwritten by the first two bytes of the code block
+        code_start = 0xFF50
         code = (
-            0x3D,       # $C000 DEC A
-            0x20, 0xFD, # $C001 JR NZ,$C000
+            0x52, 0xFF,       # $FF50 DEFW $FF52
+            0xF3,             # $FF52 DI
+            0xAF,             # $FF53 XOR A
+            0x3D,             # $FF54 DEC A
+            0x20, 0xFD,       # $FF55 JR NZ,$FF54
+            0x3D,             # $FF57 DEC A
+            0xC2, 0x57, 0xFF, # $FF58 JP NZ,$FF57
         )
-        mock_memory[0xC000:0xC000 + len(code)] = code
-        tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
-        output, error = self.run_tap2sna(f'{tapfile} out.z80')
-        exp_out_lines = [
-            'Data (19 bytes)',
+        tapfile = self._write_tap((
+            create_tap_header_block('deca-jr-jp', code_start, len(code)),
+            create_tap_data_block(code)
+        ))
+        exp_output = [
+            'Bytes: deca-jr-jp',
+            'Fast loading data block: 65360,11',
             'Tape finished',
-            'Simulation stopped (end of tape): PC=49158',
+            'Simulation stopped (PC at start address): PC=65371',
+            'Accelerators: none; misses: 0; dec-a: 1/1/23',
             'Writing out.z80'
         ]
-        self.assertEqual(exp_out_lines, self._format_output(output))
+        output, error = self.run_tap2sna(f'--start 0xff5b -c accelerator=list {tapfile} out.z80')
         self.assertEqual(error, '')
-        self.assertEqual(simulator.registers[0], 0)
+        self.assertEqual(exp_output, output.strip().split('\n'))
 
-    @patch.object(tap2sna, 'CSimulator', MockSimulator)
-    @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
-    def test_dec_a_jp(self):
-        global mock_memory
-        mock_memory = [0] * 65536
+    def test_list_accelerators(self):
+        # A code start address of 0xFF50 ensures that the return address on the
+        # stack will be overwritten by the first two bytes of the code block
+        code_start = 0xFF50
         code = (
-            0x3D,             # $C000 DEC A
-            0x3D,             # $C001 DEC A
-            0xC2, 0x01, 0xC0, # $C002 JP NZ,$C001
+            0x52, 0xFF,       # $FF50 DEFW $FF52
+            0xF3,             # $FF52 DI
+            0x01, 0x40, 0xFC, # $FF53 LD BC,$FC40
+            0xC5,             # $FF56 PUSH BC
+            0x05,             # $FF57 DEC B
+            0xC8,             # $FF58 RET Z
+            0xDB, 0xFE,       # $FF59 IN A,($FE)
+            0xA9,             # $FF5B XOR C
+            0xE6, 0x40,       # $FF5C AND $40
+            0xCA, 0x57, 0xFF, # $FF5E JP Z,$FF57
+            0x18, 0xF4,       # $FF61 JR $FF57
         )
-        mock_memory[0xC000:0xC000 + len(code)] = code
-        tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
-        output, error = self.run_tap2sna(f'-c accelerate-dec-a=2 {tapfile} out.z80')
-        exp_out_lines = [
-            'Data (19 bytes)',
-            'Tape finished',
-            'Simulation stopped (end of tape): PC=49160',
+        tzxfile = self._write_tzx((
+            create_tzx_header_block('listaccels', code_start, len(code)),
+            create_tzx_data_block(code),
+            (18, 50, 0, 3, 0), # 0x12 Pure Tone (3x50 T-states)
+        ))
+        exp_output = [
+            'Bytes: listaccels',
+            'Fast loading data block: 65360,19',
+            '[100.0%]\x08\x08\x08\x08\x08\x08\x08\x08Tape finished',
+            'Simulation stopped (PC at start address): PC=64576',
+            'Accelerators: digital-integration: 1; misses: 0; dec-a: 0/0/23',
             'Writing out.z80'
         ]
-        self.assertEqual(exp_out_lines, self._format_output(output))
+        output, error = self.run_tap2sna(f'--start 0xfc40 -c accelerator=list {tzxfile} out.z80')
         self.assertEqual(error, '')
-        self.assertEqual(simulator.registers[0], 0)
+        self.assertEqual(exp_output, output.strip().split('\n'))
 
-    @patch.object(tap2sna, 'CSimulator', MockSimulator)
-    @patch.object(tap2sna, 'Simulator', MockSimulator)
-    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
-    def test_list_accelerators_inc_b(self):
-        global mock_memory
-        mock_memory = [0] * 65536
-        # In the MockSimulator used for this test, every address except for
-        # that of 'IN A,($FE)' and the 'DEC A' instructions counts as a
-        # tape-sampling loop miss
-        code = (
-            0x04,             # $C000 INC B
-            0xC8,             # $C001 RET Z
-            0xDB, 0xFE,       # $C002 IN A,($FE)  ; 1 hit for 'tiny'
-            0xA9,             # $C004 XOR C
-            0xE6, 0x40,       # $C005 AND $40
-            0x28, 0xF7,       # $C007 JR Z,$C000
-            0x3D,             # $C009 DEC A       ; DEC A miss
-            0x3D,             # $C00A DEC A       ; DEC A; JR NZ,$-1 hit
-            0x20, 0xFD,       # $C00B JR NZ,$C00A ;
-            0x3D,             # $C00D DEC A       ; DEC A; JP NZ,$-1 hit
-            0xC2, 0x0D, 0xC0, # $C00E JP NZ,$C00D ;
-        )
-        mock_memory[0xC000:0xC000 + len(code)] = code
-        tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
-        output, error = self.run_tap2sna(f'-c accelerator=list {tapfile} out.z80')
-        exp_out_lines = [
-            'Data (19 bytes)',
-            'Tape finished',
-            'Simulation stopped (end of tape): PC=49172',
-            'Accelerators: tiny: 1; misses: 9; dec-a: 1/1/1',
-            'Writing out.z80'
-        ]
-        self.assertEqual(exp_out_lines, self._format_output(output))
-        self.assertEqual(error, '')
-        self.assertEqual(simulator.registers[0], 0)
-        self.assertEqual(simulator.registers[2], 160)
-
-    @patch.object(tap2sna, 'CSimulator', MockSimulator)
-    @patch.object(tap2sna, 'Simulator', MockSimulator)
-    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
-    def test_list_accelerators_dec_b(self):
-        global mock_memory
-        mock_memory = [0] * 65536
-        # In the MockSimulator used for this test, every address except for
-        # that of 'IN A,($FE)' and the 'DEC A' instructions counts as a
-        # tape-sampling loop miss
-        code = (
-            0x05,             # $C000 DEC B
-            0xC8,             # $C001 RET Z
-            0xDB, 0xFE,       # $C002 IN A,($FE)  ; 1 hit for 'digital-integration'
-            0xA9,             # $C004 XOR C
-            0xE6, 0x40,       # $C005 AND $40
-            0xCA, 0x00, 0xC0, # $C007 JP Z,$C000
-            0x3D,             # $C00A DEC A       ; DEC A miss
-            0x3D,             # $C00B DEC A       ; DEC A; JP NZ,$-1 hit
-            0xC2, 0x0B, 0xC0, # $C00C JP NZ,$C00B ;
-            0x3D,             # $C00F DEC A       ; DEC A; JR NZ,$-1 hit
-            0x20, 0xFD,       # $C010 JR NZ,$C00F ;
-        )
-        mock_memory[0xC000:0xC000 + len(code)] = code
-        tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
-        output, error = self.run_tap2sna(f'-c accelerator=list {tapfile} out.z80')
-        exp_out_lines = [
-            'Data (19 bytes)',
-            'Tape finished',
-            'Simulation stopped (end of tape): PC=49173',
-            'Accelerators: digital-integration: 1; misses: 10; dec-a: 1/1/1',
-            'Writing out.z80'
-        ]
-        self.assertEqual(exp_out_lines, self._format_output(output))
-        self.assertEqual(error, '')
-        self.assertEqual(simulator.registers[0], 0)
-        self.assertEqual(simulator.registers[2], 95)
-
-    @patch.object(tap2sna, 'CSimulator', MockSimulator)
-    @patch.object(tap2sna, 'Simulator', MockSimulator)
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_list_accelerators_polarity_sensitive(self):
-        global mock_memory
-        mock_memory = [0] * 65536
-        # In the MockSimulator used for this test, every address except for
-        # that of the 'IN A,($FE)' instructions counts as a tape-sampling loop
-        # miss
+        # A code start address of 0xFF50 ensures that the return address on the
+        # stack will be overwritten by the first two bytes of the code block
+        code_start = 0xFF50
         code = (
-            0x2C,             # $C000 INC L
-            0xDB, 0xFE,       # $C001 IN A,($FE)
-            0xA4,             # $C003 AND H
-            0xCA, 0x00, 0xC0, # $C004 JP Z,$C000
-            0x2C,             # $C007 INC L
-            0xDB, 0xFE,       # $C008 IN A,($FE)
-            0xA4,             # $C00A AND H
-            0xC2, 0x07, 0xC0, # $C00B JP NZ,$C007
+            0x52, 0xFF,       # $FF50 DEFW $FF52
+            0xF3,             # $FF52 DI
+            0xDB, 0xFE,       # $FF53 IN A,($FE)  ; Resume tape
+            0x26, 0x40,       # $FF55 LD H,$40
+            0x2C,             # $FF57 INC L
+            0xDB, 0xFE,       # $FF58 IN A,($FE)
+            0xA4,             # $FF5A AND H
+            0xCA, 0x57, 0xFF, # $FF5B JP Z,$FF57
+            0x2C,             # $FF5E INC L
+            0xDB, 0xFE,       # $FF5F IN A,($FE)
+            0xA4,             # $FF61 AND H
+            0xC2, 0x5E, 0xFF, # $FF62 JP NZ,$FF5E
         )
-        mock_memory[0xC000:0xC000 + len(code)] = code
-        tapfile = self._write_tap([create_tap_header_block('bytes', 32768, 1)])
-        output, error = self.run_tap2sna(f'-c accelerator=list {tapfile} out.z80')
-        exp_out_lines = [
-            'Data (19 bytes)',
-            'Tape finished',
-            'Simulation stopped (end of tape): PC=49169',
-            'Accelerators: gremlin2-0: 1; gremlin2-1: 1; misses: 13; dec-a: 0/0/0',
+        tzxfile = self._write_tzx((
+            create_tzx_header_block('listaccels', code_start, len(code)),
+            create_tzx_data_block(code),
+            (18, 60, 0, 3, 0), # 0x12 Pure Tone (3x60 T-states)
+        ))
+        exp_output = [
+            'Bytes: listaccels',
+            'Fast loading data block: 65360,21',
+            '[100.0%]\x08\x08\x08\x08\x08\x08\x08\x08Simulation stopped (PC at start address): PC=65381',
+            'Accelerators: gremlin2-0: 1; gremlin2-1: 1; misses: 0; dec-a: 0/0/23',
             'Writing out.z80'
         ]
-        self.assertEqual(exp_out_lines, self._format_output(output))
+        output, error = self.run_tap2sna(f'--start 0xff65 -c accelerator=list {tzxfile} out.z80')
         self.assertEqual(error, '')
-        self.assertEqual(simulator.registers[7], 134) # L
+        self.assertEqual(exp_output, output.strip().split('\n'))
+
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
+    def test_list_accelerators_tsl_miss(self):
+        # A code start address of 0xFF50 ensures that the return address on the
+        # stack will be overwritten by the first two bytes of the code block
+        code_start = 0xFF50
+        code = (
+            0x52, 0xFF,       # $FF50 DEFW $FF52
+            0xF3,             # $FF52 DI
+            0xDB, 0xFE,       # $FF53 IN A,($FE)  ; Resume tape
+            0xDB, 0xFE,       # $FF55 IN A,($FE)  ; Miss
+        )
+        tzxfile = self._write_tzx((
+            create_tzx_header_block('listaccels', code_start, len(code)),
+            create_tzx_data_block(code),
+            (18, 20, 0, 3, 0), # 0x12 Pure Tone (3x20 T-states)
+        ))
+        exp_output = [
+            'Bytes: listaccels',
+            'Fast loading data block: 65360,7',
+            '[100.0%]\x08\x08\x08\x08\x08\x08\x08\x08Simulation stopped (PC at start address): PC=65367',
+            'Accelerators: none; misses: 1; dec-a: 0/0/23',
+            'Writing out.z80'
+        ]
+        output, error = self.run_tap2sna(f'--start 0xff57 -c accelerator=list {tzxfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output.strip().split('\n'))
 
     @patch.object(components, 'SK_CONFIG', None)
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)

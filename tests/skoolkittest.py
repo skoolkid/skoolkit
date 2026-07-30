@@ -134,7 +134,8 @@ def create_header_block(title='', start=0, length=0, data_type=3):
     return header
 
 def create_data_block(data):
-    data_block = [255] + data
+    data_block = [255]
+    data_block.extend(data)
     data_block.append(get_parity(data_block))
     return data_block
 

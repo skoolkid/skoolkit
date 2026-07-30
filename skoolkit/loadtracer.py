@@ -209,7 +209,7 @@ class LoadTracer(PagingTracer):
         self.in_min_addr = config['in_min_addr']
         self.accelerators = config['accelerators']
         self.accel_dec_a = config['accelerate_dec_a']
-        if hasattr(simulator, 'opcodes') and self.accel_dec_a:
+        if hasattr(simulator, 'opcodes') and self.accel_dec_a: # pragma: C no cover
             dec_a_jr = self.accel_dec_a & 1
             dec_a_jp = self.accel_dec_a & 2
             simulator.opcodes[0x3D] = self.dec_a(dec_a_jr, dec_a_jp)
@@ -397,7 +397,7 @@ class LoadTracer(PagingTracer):
         elif stop_cond == 6:
             write_line('Simulation stopped (screen closed)')
 
-    def dec_a(self, dec_a_jr, dec_a_jp):
+    def dec_a(self, dec_a_jr, dec_a_jp): # pragma: C no cover
         # Speed up any 'DEC A: JR/JP NZ,$-1' loop if configured to do so, and
         # also count hits and misses
         registers = self.simulator.registers
