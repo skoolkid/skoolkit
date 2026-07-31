@@ -414,7 +414,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_press(self):
-        basic_data = [
+        basic_data = (
             0, 10,                # Line 10
             10, 0,                # Line length
             249, 192, 46,         # RANDOMIZE USR .
@@ -433,14 +433,13 @@ class Tap2SnaTest(SkoolKitTestCase):
             159,                  # 23789 SBC A,A
             195, 86, 5,           # 23790 JP 1366
             13,                   # ENTER
-        ]
+        )
         data = [123]
-        blocks = [
-            create_tap_header_block('simldpress', 10, len(basic_data), 0),
-            create_tap_data_block(basic_data),
-            create_tap_data_block(data)
-        ]
-        tapfile = self._write_tap(blocks)
+        tzxfile = self._write_tzx((
+            create_tzx_header_block('simldpress', 10, len(basic_data), 0),
+            create_tzx_data_block(basic_data),
+            create_tzx_data_block(data)
+        ))
         exp_output = [
             'Program: simldpress',
             'Fast loading data block: 23755,39',
@@ -452,7 +451,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             'Simulation stopped (PC at start address): PC=1343',
             'Writing out.z80'
         ]
-        output, error = self.run_tap2sna(f'--press 3:ENTER --start 1343 -c finish-tape=1 {tapfile} out.z80')
+        output, error = self.run_tap2sna(f'--press 3:ENTER --start 1343 -c finish-tape=1 {tzxfile} out.z80')
         self.assertEqual(error, '')
         self.assertEqual(exp_output, output.strip().split('\n'))
 
