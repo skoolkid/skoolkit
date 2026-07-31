@@ -3039,28 +3039,26 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_sim_load_tape_ended_1_second_ago(self):
         basic_data = [
-            0, 10,             # Line 10
-            9, 0,              # Line length
-            242, 48,           # PAUSE 0
-            14, 0, 0, 0, 0, 0, # 0 in floating point form
-            13                 # ENTER
+            0, 10,               # Line 10
+            10, 0,               # Line length
+            249, 192, 46,        # RANDOMIZE USR .
+            14, 0, 0, 194, 4, 0, # 1218 (SA-BYTES)
+            13,                  # ENTER
         ]
-        blocks = [
-            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+        tapfile = self._write_tap((
+            create_tap_header_block('tapeend-1s', 10, len(basic_data), 0),
             create_tap_data_block(basic_data),
-        ]
-        tapfile = self._write_tap(blocks)
-        output, error = self.run_tap2sna(f'{tapfile} out.z80')
-        out_lines = output.strip().split('\n')
+        ))
         exp_out_lines = [
-            'Program: simloadbas',
-            'Fast loading data block: 23755,13',
+            'Program: tapeend-1s',
+            'Fast loading data block: 23755,14',
             'Tape finished',
-            'Simulation stopped (tape ended 1 second ago): PC=7997',
+            'Simulation stopped (tape ended 1 second ago): PC=1240',
             'Writing out.z80'
         ]
-        self.assertEqual(exp_out_lines, out_lines)
+        output, error = self.run_tap2sna(f'{tapfile} out.z80')
         self.assertEqual(error, '')
+        self.assertEqual(exp_out_lines, output.strip().split('\n'))
 
     def test_sim_load_config_help_invalid_parameter(self):
         for option in ('-c', '--sim-load-config'):
