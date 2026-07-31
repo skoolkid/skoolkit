@@ -3029,6 +3029,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
+            'Fast loading data block: 23755,19',
+            'Bytes: simloadbyt',
             'Simulation stopped (screen closed)',
             'Writing out.z80'
         ]
@@ -4073,7 +4075,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         start = code_start + len(code)
         exp_out_lines = [
             'Bytes: code      ',
-            'Frame 254: ATTR(0,1)=56; BORDER=7',
             'Frame 255: ATTR(0,1)=56; BORDER=7',
             'Fast loading data block: 65360,13',
             'Tape finished',

@@ -239,6 +239,8 @@ class LoadTracer(PagingTracer):
             0,                  # state[5]: custom loader detected
             0,                  # state[6]: tape end time
             1,                  # state[7]: data block not yet announced
+            0,                  # state[8]: time of next interrupt
+            0,                  # state[9]: last frame drawn
         ]
         if hasattr(simulator, 'load'): # pragma: Python no cover
             self.edges = array.array('Q', self.edges)
@@ -283,7 +285,6 @@ class LoadTracer(PagingTracer):
         else: # pragma: C no cover
             opcodes = simulator.opcodes
             frame_duration = self.frame_duration
-            prev_frame = registers[T] // frame_duration
             int_active = simulator.int_active
             pc = registers[24]
             progress = 0
@@ -296,6 +297,7 @@ class LoadTracer(PagingTracer):
             fast_load = self.flash_load
             finish_tape = self.finish_tape
             timeout = self.timeout
+            state[8] = ((tstates + frame_duration - int_active) // frame_duration) * frame_duration
             while True:
                 t0 = tstates
                 if tracefile:
@@ -306,21 +308,25 @@ class LoadTracer(PagingTracer):
                     opcodes[memory[pc]]()
                 tstates = registers[25]
 
-                if registers[26] and tstates % frame_duration < int_active:
-                    simulator.accept_interrupt(registers, memory, pc)
-                    tstates = registers[25]
-
-                if draw:
-                    frame = tstates // frame_duration
-                    if frame > prev_frame:
-                        if is128k:
-                            scr = memory.memory[1][:6912]
-                        else:
-                            scr = memory[16384:23296]
-                        if not draw(scr, frame, self.border):
-                            stop_cond = 6
-                            break
-                        prev_frame = frame
+                if tstates >= state[8]:
+                    if tstates < state[8] + int_active:
+                        if registers[26]:
+                            simulator.accept_interrupt(registers, memory, pc)
+                            tstates = registers[25]
+                        if draw:
+                            frame = tstates // frame_duration
+                            if frame > state[9]:
+                                if is128k:
+                                    scr = memory.memory[1][:6912]
+                                else:
+                                    scr = memory[16384:23296]
+                                if not draw(scr, frame, self.border):
+                                    stop_cond = 6
+                                    break
+                                state[9] = frame
+                    else:
+                        state[8] = ((tstates + frame_duration - int_active) // frame_duration) * frame_duration
+                        state[9] = tstates // frame_duration
 
                 if state[4] and tstates >= state[0]:
                     index = state[1]
@@ -361,6 +367,8 @@ class LoadTracer(PagingTracer):
                         # 'pause' period (if any) has elapsed
                         state[4] = 1 # Signal: tape is running
                         registers[25] = state[0] = edges[state[1]]
+                        state[8] = ((registers[25] + frame_duration - int_active) // frame_duration) * frame_duration
+                        state[9] = 0
                     pc = registers[24]
                     tstates = registers[25]
                 else:
@@ -454,6 +462,8 @@ class LoadTracer(PagingTracer):
                         state[7] = 0 # Signal: data block announced
                         state[4] = 1 # Signal: tape is running
                         registers[T] = edges[index]
+                        state[8] = ((registers[T] + self.frame_duration - self.simulator.int_active) // self.frame_duration) * self.frame_duration
+                        state[9] = 0
                         length = len(blocks[self.block_index].data)
                         if length:
                             write_line(f'Data ({length} bytes)')

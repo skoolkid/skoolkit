@@ -6024,6 +6024,8 @@ static unsigned read_port(CSimulatorObject* self, unsigned port) {
                 self->tracer_state[7] = 0; // Signal: data block announced
                 self->tracer_state[4] = 1; // Signal: tape is running
                 TIME = self->tape_edges[index];
+                self->tracer_state[8] = ((TIME + self->frame_duration - self->int_active) / self->frame_duration) * self->frame_duration;
+                self->tracer_state[9] = 0;
                 PyObject* blocks_obj = PyObject_GetAttrString(self->tracer, "blocks");
                 PyObject* block_index_obj = PyObject_GetAttrString(self->tracer, "block_index");
                 PyObject* block = PyList_GetItem(blocks_obj, PyLong_AsLong(block_index_obj));
@@ -6231,8 +6233,8 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         self->out7ffd = 0x10; // Signal: 48K ROM always
     }
     unsigned frame_duration = self->frame_duration;
-    unsigned long long prev_frame = TIME / frame_duration;
     unsigned int_active = self->int_active;
+    self->tracer_state[8] = ((TIME + frame_duration - int_active) / frame_duration) * frame_duration;
     unsigned progress = 0;
     unsigned pc = REG(PC);
     unsigned stop = stop_obj == Py_None ? 0x10000 : PyLong_AsLong(stop_obj);
@@ -6295,27 +6297,34 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
             Py_DECREF(t);
         }
 
-        if (REG(IFF) && (TIME % frame_duration) < int_active) {
-            accept_interrupt(self, pc);
-        }
-
-        if (draw != Py_None) {
-            unsigned long long frame = TIME / frame_duration;
-            if (frame > prev_frame) {
-                PyObject* border = PyObject_GetAttrString(tracer, "border");
-                int rv = draw_screen(self, draw, frame, border, NULL);
-                Py_XDECREF(border);
-                if (rv == -2) {
-                    return NULL;
+        unsigned long long tstates = TIME;
+        if (tstates >= self->tracer_state[8]) {
+            if (tstates < self->tracer_state[8] + int_active) {
+                if (REG(IFF)) {
+                    accept_interrupt(self, pc);
+                    tstates = TIME;
                 }
-                if (rv == -1) {
-                    return PyLong_FromLong(6);
+                if (draw != Py_None) {
+                    unsigned long long frame = tstates / frame_duration;
+                    if (frame > self->tracer_state[9]) {
+                        PyObject* border = PyObject_GetAttrString(tracer, "border");
+                        int rv = draw_screen(self, draw, frame, border, NULL);
+                        Py_XDECREF(border);
+                        if (rv == -2) {
+                            return NULL;
+                        }
+                        if (rv == -1) {
+                            return PyLong_FromLong(6);
+                        }
+                        self->tracer_state[9] = frame;
+                    }
                 }
-                prev_frame = frame;
+            } else {
+                self->tracer_state[8] = ((tstates + frame_duration - int_active) / frame_duration) * frame_duration;
+                self->tracer_state[9] = tstates / frame_duration;
             }
         }
 
-        unsigned long long tstates = TIME;
         int advanced = advance_tape(self, tstates, &progress);
         if (advanced < 0) {
             break;
@@ -6356,6 +6365,8 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
                     self->tracer_state[4] = 1;
                     self->tracer_state[0] = self->tape_edges[block_max_index];
                     TIME = self->tape_edges[block_max_index];
+                    self->tracer_state[8] = ((TIME + frame_duration - int_active) / frame_duration) * frame_duration;
+                    self->tracer_state[9] = 0;
                 }
             }
             pc = REG(PC);
