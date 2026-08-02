@@ -88,18 +88,6 @@ class MockKeyboardTracer:
         self.simulator.registers[25] = 70000 * len(self.load)
         self.run_called = True
 
-class TimedOutKeypressTracer:
-    def __init__(self, simulator, keys, border, out7ffd, outfffd, ay, outfe, draw):
-        global kptracer
-        self.keys = keys
-        self.border = border
-        self.outfe = outfe
-        kptracer = self
-
-    def run(self, timeout, tracefile, trace_line, prefix, byte_fmt, word_fmt):
-        self.run_called = True
-        self.keys.append('ENTER')
-
 class MockLoadTracer(LoadTracer):
     def __init__(self, simulator, blocks, config, draw):
         global load_tracer
@@ -113,11 +101,6 @@ class MockLoadTracer(LoadTracer):
         self.outfffd = outfffd
         self.ay = ay
         self.outfe = outfe
-
-class MockLoadTracerWithKeys(MockLoadTracer):
-    def __init__(self, simulator, blocks, config, draw):
-        super().__init__(simulator, blocks, config, draw)
-        self.keys = ['a']
 
 class MockScreen:
     def __init__(self, scale, fps, caption, is128k, stay_open=True):
@@ -455,24 +438,49 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(exp_output, output.strip().split('\n'))
 
-    @patch.object(tap2sna, 'KeypressTracer', TimedOutKeypressTracer)
-    @patch.object(tap2sna, 'LoadTracer', MockLoadTracerWithKeys)
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_press_timed_out(self):
-        tapfile = self._write_tap([
-            create_tap_data_block([0]),
-            create_tap_data_block([0])
-        ])
-        outfile = 'out.z80'
+        basic_data = (
+            0, 10,                # Line 10
+            10, 0,                # Line length
+            249, 192, 46,         # RANDOMIZE USR .
+            14, 0, 0, 222, 92, 0, # 23774
+            13,                   # ENTER
+            0, 20,                # Line 20
+            29, 0,                # Line length
+            234,                  # REM
+            243,                  # 23774 DI
+            14, 4,                # 23775 LD C,4      ; Wait long enough
+            16, 254,              # 23777 DJNZ 23777  ; for the
+            13,                   # 23779 DEC C       ; KeypressTracer
+            32, 251,              # 23780 JR NZ,23777 ; to time out
+            62, 191,              # 23782 LD A,191
+            219, 254,             # 23784 IN A,(254)  ; Read H-J-K-L-ENTER
+            31,                   # 23786 RRA         ; Was ENTER pressed?
+            56, 249,              # 23787 JR C,23785  ; Jump back if not
+            221, 33, 0, 192,      # 23789 LD IX,49152
+            17, 1, 0,             # 23793 LD DE,1
+            55,                   # 23796 SCF
+            159,                  # 23797 SBC A,A
+            195, 86, 5,           # 23798 JP 1366
+            13,                   # ENTER
+        )
+        tzxfile = self._write_tzx((
+            create_tzx_header_block('simldpress', 10, len(basic_data), 0),
+            create_tzx_data_block(basic_data),
+            create_tzx_data_block([0])
+        ))
         exp_output = [
-            'Pressing keys: a',
-            'Simulation stopped (timed out): PC=1541',
-            f'Writing {outfile}'
+            'Program: simldpress',
+            'Fast loading data block: 23755,47',
+            'Tape paused',
+            'Pressing keys: ENTER',
+            'Simulation stopped (timed out): PC=23777',
+            'Writing out.z80'
         ]
-        output, error = self.run_tap2sna(f'--press 2:ENTER {tapfile} {outfile}')
+        output, error = self.run_tap2sna(f'--press 3:ENTER -c timeout=8 -c first-edge=2220000 {tzxfile} out.z80')
         self.assertEqual(error, '')
         self.assertEqual(exp_output, output.strip().split('\n'))
-        self.assertTrue(kptracer.run_called)
 
     @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     def test_options_p_stack(self):
