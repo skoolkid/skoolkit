@@ -37,6 +37,7 @@ or in `~/.skoolkit`. The default contents of this section are as follows::
   [skoolkit]
   Assembler=skoolkit.z80.Assembler
   AudioWriter=skoolkit.audio.AudioWriter
+  AYAudioWriter=skoolkit.ay.AYAudioWriter
   CodeMapReader=skoolkit.snactl
   CommentGenerator=skoolkit.comment.CommentGenerator
   ControlDirectiveComposer=skoolkit.skoolctl.ControlDirectiveComposer
@@ -103,7 +104,7 @@ API methods, in common with skoolkit.audio.AudioWriter:
 AY audio writer
 ---------------
 This class is responsible for writing AY audio files. It must supply the
-following API methods, in common with skoolkit.audio.AYAudioWriter:
+following API methods, in common with skoolkit.ay.AYAudioWriter:
 
 .. autoclass:: skoolkit.ay.AYAudioWriter
    :members: formats, write_audio
