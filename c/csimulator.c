@@ -5096,6 +5096,7 @@ static int draw_screen(CSimulatorObject* self, PyObject* draw, unsigned long lon
     for (unsigned j = 0; j < SCR_LEN; j++) {
         PyObject* byte = PyLong_FromLong(PEEK(j + 0x4000));
         if (byte == NULL || PyList_SetItem(scr, j, byte)) {
+            Py_XDECREF(scr);
             return -2;
         }
     }
@@ -5105,7 +5106,7 @@ static int draw_screen(CSimulatorObject* self, PyObject* draw, unsigned long lon
     } else {
         args = Py_BuildValue("(OIO)", scr, frame, border);
     }
-    PyObject* rv = PyObject_CallObject(draw, args);
+    PyObject* rv = args ? PyObject_CallObject(draw, args) : NULL;
     Py_XDECREF(args);
     Py_XDECREF(scr);
     if (rv == NULL) {
@@ -5487,6 +5488,7 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
 
     unsigned start = PyLong_Check(start_obj) ? PyLong_AsLong(start_obj) : 0x10000;
     unsigned stop = PyLong_Check(stop_obj) ? PyLong_AsLong(stop_obj) : 0x10000;
+    int disassembling = disassemble != Py_None && trace != Py_None;
     unsigned long long* reg = self->registers;
     byte* mem = self->memory;
     unsigned frame_duration = self->frame_duration;
@@ -5531,7 +5533,7 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
             }
         }
 
-        if (disassemble != Py_None) {
+        if (disassembling) {
             PyObject* arg = PyLong_FromLong(pc);
             i = PyObject_CallOneArg(disassemble, arg);
             Py_XDECREF(arg);
@@ -5542,6 +5544,7 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
 
         opcode_func->func(self, opcode_func->lookup, opcode_func->args);
         if (PyErr_Occurred()) {
+            Py_XDECREF(i);
             return NULL;
         }
 
@@ -5550,20 +5553,21 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
             int rv = PySet_Add(exec_map, addr);
             Py_XDECREF(addr);
             if (rv == -1) {
+                Py_XDECREF(i);
                 return NULL;
             }
         }
 
-        if (trace == Py_None) {
-            CHECK_SIGNALS;
-        } else {
+        if (disassembling) {
             PyObject* args = Py_BuildValue("(INK)", pc, i, t0);
-            PyObject* rv = PyObject_CallObject(trace, args);
+            PyObject* rv = args ? PyObject_CallObject(trace, args) : NULL;
             Py_XDECREF(args);
             if (rv == NULL) {
                 return NULL;
             }
             Py_DECREF(rv);
+        } else {
+            CHECK_SIGNALS;
         }
 
         if (interrupts && REG(IFF) && (TIME % frame_duration) < int_active) {
@@ -5623,14 +5627,17 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
 
     PyObject* pop = PyObject_GetAttrString(keys, "pop");
     if (pop == NULL) {
+        Py_XDECREF(border);
         return NULL;
     }
 
+    int disassembling = disassemble != Py_None && trace != Py_None;
     unsigned long long* reg = self->registers;
     byte* mem = self->memory;
     unsigned frame_duration = self->frame_duration;
     unsigned long long prev_frame = TIME / frame_duration;
     unsigned int_active = self->int_active;
+    int ok = 1;
 
     while (1) {
         PyObject* i = NULL;
@@ -5666,26 +5673,30 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
             }
         }
 
-        if (disassemble != Py_None) {
+        if (disassembling) {
             PyObject* arg = PyLong_FromLong(pc);
             i = PyObject_CallOneArg(disassemble, arg);
             Py_XDECREF(arg);
             if (i == NULL) {
-                return NULL;
+                ok = 0;
+                break;
             }
         }
 
         opcode_func->func(self, opcode_func->lookup, opcode_func->args);
         if (PyErr_Occurred()) {
-            return NULL;
+            Py_XDECREF(i);
+            ok = 0;
+            break;
         }
 
-        if (trace != Py_None) {
+        if (disassembling) {
             PyObject* args = Py_BuildValue("(INK)", pc, i, t0);
-            PyObject* t = PyObject_CallObject(trace, args);
+            PyObject* t = args ? PyObject_CallObject(trace, args) : NULL;
             Py_XDECREF(args);
             if (t == NULL) {
-                return NULL;
+                ok = 0;
+                break;
             }
             Py_DECREF(t);
         }
@@ -5694,14 +5705,16 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
             if (accept_interrupt(self, pc) && PyList_Size(keys)) {
                 PyObject* k = PyList_GetItem(keys, 0);
                 if (k == NULL) {
-                    return NULL;
+                    ok = 0;
+                    break;
                 }
                 if (!PyObject_IsTrue(k)) {
                     PyObject* arg = PyLong_FromLong(0);
                     PyObject* p = PyObject_CallOneArg(pop, arg);
                     Py_XDECREF(arg);
                     if (p == NULL) {
-                        return NULL;
+                        ok = 0;
+                        break;
                     }
                     Py_DECREF(p);
                 }
@@ -5713,7 +5726,8 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
             if (frame > prev_frame) {
                 int rv = draw_screen(self, draw, frame, border, NULL);
                 if (rv == -2) {
-                    return NULL;
+                    ok = 0;
+                    break;
                 }
                 prev_frame = frame;
             }
@@ -5726,6 +5740,7 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
 
     Py_XDECREF(pop);
     Py_XDECREF(border);
+    if (!ok) return NULL;
     Py_RETURN_NONE;
 }
 
@@ -5747,11 +5762,13 @@ static PyObject* CSimulator_press(CSimulatorObject* self, PyObject* args, PyObje
         return NULL;
     }
 
+    int disassembling = disassemble != Py_None && trace != Py_None;
     unsigned long long* reg = self->registers;
     byte* mem = self->memory;
     unsigned frame_duration = self->frame_duration;
     unsigned long long prev_frame = TIME / frame_duration;
     unsigned int_active = self->int_active;
+    int ok = 1;
 
     while (TIME <= timeout && PyList_Size(keys)) {
         PyObject* i = NULL;
@@ -5787,26 +5804,30 @@ static PyObject* CSimulator_press(CSimulatorObject* self, PyObject* args, PyObje
             }
         }
 
-        if (disassemble != Py_None) {
+        if (disassembling) {
             PyObject* arg = PyLong_FromLong(pc);
             i = PyObject_CallOneArg(disassemble, arg);
             Py_XDECREF(arg);
             if (i == NULL) {
-                return NULL;
+                ok = 0;
+                break;
             }
         }
 
         opcode_func->func(self, opcode_func->lookup, opcode_func->args);
         if (PyErr_Occurred()) {
-            return NULL;
+            Py_XDECREF(i);
+            ok = 0;
+            break;
         }
 
-        if (trace != Py_None) {
+        if (disassembling) {
             PyObject* args = Py_BuildValue("(INK)", pc, i, t0);
-            PyObject* t = PyObject_CallObject(trace, args);
+            PyObject* t = args ? PyObject_CallObject(trace, args) : NULL;
             Py_XDECREF(args);
             if (t == NULL) {
-                return NULL;
+                ok = 0;
+                break;
             }
             Py_DECREF(t);
         }
@@ -5820,7 +5841,8 @@ static PyObject* CSimulator_press(CSimulatorObject* self, PyObject* args, PyObje
             if (frame > prev_frame) {
                 int rv = draw_screen(self, draw, frame, border, NULL);
                 if (rv == -2) {
-                    return NULL;
+                    ok = 0;
+                    break;
                 }
                 prev_frame = frame;
             }
@@ -5828,6 +5850,7 @@ static PyObject* CSimulator_press(CSimulatorObject* self, PyObject* args, PyObje
     }
 
     Py_XDECREF(border);
+    if (!ok) return NULL;
     Py_RETURN_NONE;
 }
 
@@ -5951,6 +5974,7 @@ static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs) {
     while ((item = PyIter_Next(iter)) != NULL) {
         tsl_accelerator* accelerator = &accs[i++];
         PyObject* name = PyObject_GetAttrString(item, "name");
+        accelerator->name = name;
         PyObject* code_obj = PyObject_GetAttrString(item, "code");
         PyObject* c0_obj = PyObject_GetAttrString(item, "c0");
         PyObject* c1_obj = PyObject_GetAttrString(item, "c1");
@@ -5965,7 +5989,6 @@ static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs) {
             loop_time_obj == NULL || loop_r_inc_obj == NULL || ear_obj == NULL || ear_mask_obj == NULL || polarity_obj == NULL) {
             ok = 0;
         } else {
-            accelerator->name = name;
             accelerator->c0 = PyLong_AsLong(c0_obj);
             accelerator->c1 = PyLong_AsLong(c1_obj);
             accelerator->counter = PyLong_AsLong(counter_obj);
@@ -5988,6 +6011,7 @@ static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs) {
                     }
                 }
             } else {
+                PyErr_NoMemory();
                 ok = 0;
             }
         }
@@ -6139,94 +6163,136 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     }
 
     int ok = 1;
+    PyObject* rv = NULL;
+    Py_buffer edges_buffer;
+    Py_buffer ts_buffer;
+    PyObject* fast_load_method = NULL;
+    PyObject* skoolkit = NULL;
+#ifndef CONTENTION
+    PyObject* accelerators = NULL;
+    tsl_accelerator* accs = NULL;
+    int list_accelerators = 0;
+    int num_accs = 0;
+    OpcodeFunction dec_a_accelerator = {dec_a, NULL, {0}};
+#endif
 
     self->read_port = read_port;
 
-    Py_buffer edges_buffer;
-    PyObject* e = ok ? PyObject_GetAttrString(self->tracer, "edges") : NULL;
+    PyObject* e = PyObject_GetAttrString(self->tracer, "edges");
     if (e == NULL || PyObject_GetBuffer(e, &edges_buffer, PyBUF_SIMPLE) == -1) {
         ok = 0;
     }
     Py_XDECREF(e);
+    if (!ok) goto cleanup;
     self->tape_edges = edges_buffer.buf;
-    self->max_index = self->tape_edges ? (edges_buffer.len / edges_buffer.itemsize) - 1 : 0;
+    self->max_index = (edges_buffer.len / edges_buffer.itemsize) - 1;
 
     PyObject* in_min_addr_obj = PyObject_GetAttrString(self->tracer, "in_min_addr");
-    self->in_min_addr = in_min_addr_obj ? PyLong_AsLong(in_min_addr_obj) : 0x8000;
+    if (in_min_addr_obj == NULL) {
+        ok = 0;
+        goto cleanup;
+    }
+    self->in_min_addr = PyLong_AsLong(in_min_addr_obj);
     Py_XDECREF(in_min_addr_obj);
+    if (PyErr_Occurred()) {
+        ok = 0;
+        goto cleanup;
+    }
 
-    Py_buffer ts_buffer;
-    PyObject* ts = ok ? PyObject_GetAttrString(self->tracer, "state") : NULL;
+    PyObject* ts = PyObject_GetAttrString(self->tracer, "state");
     if (ts == NULL || PyObject_GetBuffer(ts, &ts_buffer, PyBUF_WRITABLE) == -1) {
         ok = 0;
     }
     Py_XDECREF(ts);
+    if (!ok) goto cleanup;
     self->tracer_state = ts_buffer.buf;
 
-    PyObject* skoolkit = PyImport_ImportModule("skoolkit");
-    if (skoolkit) {
-        self->write = PyObject_GetAttrString(skoolkit, "write");
-        self->write_line = PyObject_GetAttrString(skoolkit, "write_line");
-        Py_DECREF(skoolkit);
-    }
-    if (self->write == NULL || self->write_line == NULL) {
+    skoolkit = PyImport_ImportModule("skoolkit");
+    if (skoolkit == NULL) {
         ok = 0;
+        goto cleanup;
+    }
+    self->write = PyObject_GetAttrString(skoolkit, "write");
+    if (self->write == NULL) {
+        ok = 0;
+        goto cleanup;
+    }
+    self->write_line = PyObject_GetAttrString(skoolkit, "write_line");
+    if (self->write_line == NULL) {
+        ok = 0;
+        goto cleanup;
     }
 
-    PyObject* fast_load_method = ok ? PyObject_GetAttrString(self->tracer, "fast_load") : NULL;
+    fast_load_method = PyObject_GetAttrString(self->tracer, "fast_load");
     if (fast_load_method == NULL) {
         ok = 0;
+        goto cleanup;
     }
 
     for (int i = 0; i < 256; i++) {
         self->opcodes[i] = &opcodes[i];
     }
 #ifndef CONTENTION
-    PyObject* list_acc_obj = ok ? PyObject_GetAttrString(self->tracer, "list_accelerators") : NULL;
-    int list_accelerators = list_acc_obj ? PyObject_IsTrue(list_acc_obj) > 0 : 0;
-    if (list_acc_obj == NULL) {
+    PyObject* list_acc_obj = PyObject_GetAttrString(self->tracer, "list_accelerators");
+    if (list_acc_obj) {
+        list_accelerators = PyObject_IsTrue(list_acc_obj) > 0;
+    } else {
         ok = 0;
     }
     Py_XDECREF(list_acc_obj);
+    if (!ok) goto cleanup;
 
-    PyObject* accel_dec_a_obj = ok ? PyObject_GetAttrString(self->tracer, "accel_dec_a") : NULL;
-    long accel_dec_a = accel_dec_a_obj ? PyLong_AsLong(accel_dec_a_obj) : 0;
-    if (accel_dec_a_obj == NULL || (accel_dec_a == -1 && PyErr_Occurred())) {
+    long accel_dec_a = 0;
+    PyObject* accel_dec_a_obj = PyObject_GetAttrString(self->tracer, "accel_dec_a");
+    if (accel_dec_a_obj) {
+        accel_dec_a = PyLong_AsLong(accel_dec_a_obj);
+        if (accel_dec_a == -1 && PyErr_Occurred()) {
+            ok = 0;
+        }
+    } else {
         ok = 0;
     }
     Py_XDECREF(accel_dec_a_obj);
+    if (!ok) goto cleanup;
 
-    OpcodeFunction dec_a_accelerator = {dec_a, NULL, {0}};
     if (accel_dec_a) {
         dec_a_accelerator.args[3] = accel_dec_a & 1; // DEC A: JR NZ,$-1
         dec_a_accelerator.args[4] = accel_dec_a & 2; // DEC A: JP NZ,$-1
         self->opcodes[0x3D] = &dec_a_accelerator;
     }
 
-    PyObject* accelerators = ok ? PyObject_GetAttrString(self->tracer, "accelerators") : NULL;
+    accelerators = PyObject_GetAttrString(self->tracer, "accelerators");
     if (accelerators == NULL) {
         ok = 0;
+        goto cleanup;
     }
-    int num_accs = PySet_Check(accelerators) ? (int)PySet_Size(accelerators) : 0;
-    tsl_accelerator* accs = NULL;
-    if (ok && num_accs) {
-        accs = malloc(num_accs * sizeof(tsl_accelerator));
-        if (accs && get_tsl_accelerators(accelerators, accs) == num_accs) {
-            self->accelerators = malloc(num_accs * sizeof(tsl_accelerator*));
-            if (self->accelerators) {
-                for (int i = 0; i < num_accs; i++) {
-                    self->accelerators[i] = &accs[i];
+    num_accs = PySet_Check(accelerators) ? (int)PySet_Size(accelerators) : 0;
+    if (num_accs) {
+        accs = calloc(num_accs, sizeof(tsl_accelerator));
+        if (accs) {
+            if (get_tsl_accelerators(accelerators, accs) == num_accs) {
+                self->accelerators = calloc(num_accs, sizeof(tsl_accelerator*));
+                if (self->accelerators) {
+                    for (int i = 0; i < num_accs; i++) {
+                        self->accelerators[i] = &accs[i];
+                    }
+                    self->num_accs = num_accs;
+                } else {
+                    PyErr_NoMemory();
+                    ok = 0;
                 }
-                self->num_accs = num_accs;
             } else {
                 ok = 0;
             }
         } else {
+            PyErr_NoMemory();
             ok = 0;
         }
     }
+    if (!ok) goto cleanup;
 #endif
 
+    int disassembling = disassemble != Py_None && trace != Py_None;
     unsigned long long* reg = self->registers;
     byte* mem = self->memory;
     if (mem) {
@@ -6237,10 +6303,16 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     self->tracer_state[8] = ((TIME + frame_duration - int_active) / frame_duration) * frame_duration;
     unsigned progress = 0;
     unsigned pc = REG(PC);
-    unsigned stop = stop_obj == Py_None ? 0x10000 : PyLong_AsLong(stop_obj);
-    PyObject* rv = NULL;
+    unsigned stop = 0x10000;
+    if (stop_obj != Py_None) {
+        stop = PyLong_AsLong(stop_obj);
+        if (PyErr_Occurred()) {
+            ok = 0;
+            goto cleanup;
+        }
+    }
 
-    while (ok) {
+    while (1) {
         PyObject* i = NULL;
         unsigned long long t0 = TIME;
         byte opcode = PEEK(pc);
@@ -6273,7 +6345,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
             }
         }
 
-        if (disassemble != Py_None) {
+        if (disassembling) {
             PyObject* arg = PyLong_FromLong(pc);
             i = PyObject_CallOneArg(disassemble, arg);
             Py_XDECREF(arg);
@@ -6284,12 +6356,13 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
 
         opcode_func->func(self, opcode_func->lookup, opcode_func->args);
         if (PyErr_Occurred()) {
+            Py_XDECREF(i);
             break;
         }
 
-        if (trace != Py_None) {
+        if (disassembling) {
             PyObject* args = Py_BuildValue("(INK)", pc, i, t0);
-            PyObject* t = PyObject_CallObject(trace, args);
+            PyObject* t = args ? PyObject_CallObject(trace, args) : NULL;
             Py_XDECREF(args);
             if (t == NULL) {
                 break;
@@ -6308,13 +6381,16 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
                     unsigned long long frame = tstates / frame_duration;
                     if (frame > self->tracer_state[9]) {
                         PyObject* border = PyObject_GetAttrString(tracer, "border");
-                        int rv = draw_screen(self, draw, frame, border, NULL);
+                        int dsrv = draw_screen(self, draw, frame, border, NULL);
                         Py_XDECREF(border);
-                        if (rv == -2) {
-                            return NULL;
+                        if (dsrv == -2) {
+                            ok = 0;
+                            break;
                         }
-                        if (rv == -1) {
-                            return PyLong_FromLong(6);
+                        if (dsrv == -1) {
+                            // Window was closed
+                            rv = PyLong_FromLong(6);
+                            break;
                         }
                         self->tracer_state[9] = frame;
                     }
@@ -6396,6 +6472,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         }
     }
 
+cleanup:
 #ifndef CONTENTION
     if (rv && list_accelerators && accelerators && accs && num_accs) {
         PyObject* iter = PyObject_GetIter(accelerators);
@@ -6448,6 +6525,9 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         free(accs);
     }
     Py_XDECREF(accelerators);
+    free(self->accelerators);
+    self->accelerators = NULL;
+    self->num_accs = 0;
 #endif
     self->read_port = NULL;
     Py_XDECREF(self->write);
@@ -6458,6 +6538,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     self->tape_edges = NULL;
     if (self->tracer_state) PyBuffer_Release(&ts_buffer);
     self->tracer_state = NULL;
+    Py_XDECREF(skoolkit);
     Py_XDECREF(fast_load_method);
     if (!ok) {
         Py_XDECREF(rv);
