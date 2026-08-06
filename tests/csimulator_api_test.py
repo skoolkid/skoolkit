@@ -12,6 +12,7 @@ class InvalidMemory48K:
 
 class TestLoadTracer:
     def __init__(self):
+        self.border = [(0, 1)]
         self.edges = array.array('Q', (0, 1))
         self.in_min_addr = 0
         self.state = array.array('Q', (0, 1))
@@ -202,6 +203,9 @@ class LoadTest(CSimulatorAPITest):
         with self.assertRaises(ValueError) as cm:
             s.load(1, True, False, 100, None, None, None)
         self.assertEqual(cm.exception.args[0], "no tracer set")
+
+    def test_no_border(self):
+        self._test_missing_attribute(TestLoadTracer, 'border')
 
     def test_no_edges(self):
         self._test_missing_attribute(TestLoadTracer, 'edges')
@@ -408,6 +412,13 @@ class TraceTest(CSimulatorAPITest):
         with self.assertRaises(TypeError) as cm:
             s.trace(1, 1, 1, max_time, True, None, None, None, None, None)
         self.assertEqual(cm.exception.args[0], "argument 4 must be int, not tuple")
+
+    def test_no_border(self):
+        s = CSimulator([0] * 65536)
+        s.set_tracer(TestTracer())
+        with self.assertRaises(AttributeError) as cm:
+            s.trace(1, 1, 1, 1, True, None, None, None, None, None)
+        self.assertEqual(cm.exception.args[0], "'TestTracer' object has no attribute 'border'")
 
 class RunTest(CSimulatorAPITest):
     def test_too_many_args(self):

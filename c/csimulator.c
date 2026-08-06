@@ -5490,6 +5490,11 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
         return NULL;
     }
 
+    PyObject* border = PyObject_GetAttrString(self->tracer, "border");
+    if (border == NULL) {
+        return NULL;
+    }
+
     unsigned start = PyLong_Check(start_obj) ? PyLong_AsLong(start_obj) : 0x10000;
     unsigned stop = PyLong_Check(stop_obj) ? PyLong_AsLong(stop_obj) : 0x10000;
     int disassembling = disassemble != Py_None && trace != Py_None;
@@ -5583,9 +5588,7 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
         if (draw != Py_None) {
             unsigned long long frame = TIME / frame_duration;
             if (frame > prev_frame) {
-                PyObject* border = PyObject_GetAttrString(self->tracer, "border");
                 int rv = draw_screen(self, draw, frame, border, keyboard);
-                Py_XDECREF(border);
                 if (rv == -2) {
                     return NULL;
                 }
@@ -5607,6 +5610,7 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
         }
     }
 
+    Py_XDECREF(border);
     Py_RETURN_NONE;
 }
 
@@ -6192,6 +6196,11 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
         return NULL;
     }
 
+    PyObject* border = PyObject_GetAttrString(self->tracer, "border");
+    if (border == NULL) {
+        return NULL;
+    }
+
     self->read_port = read_port;
 
     PyObject* e = PyObject_GetAttrString(self->tracer, "edges");
@@ -6396,9 +6405,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
                 if (draw != Py_None) {
                     unsigned long long frame = tstates / frame_duration;
                     if (frame > self->tracer_state[9]) {
-                        PyObject* border = PyObject_GetAttrString(self->tracer, "border");
                         int dsrv = draw_screen(self, draw, frame, border, NULL);
-                        Py_XDECREF(border);
                         if (dsrv == -2) {
                             ok = 0;
                             break;
@@ -6556,6 +6563,7 @@ cleanup:
     self->tracer_state = NULL;
     Py_XDECREF(skoolkit);
     Py_XDECREF(fast_load_method);
+    Py_XDECREF(border);
     if (!ok) {
         Py_XDECREF(rv);
         rv = NULL;
