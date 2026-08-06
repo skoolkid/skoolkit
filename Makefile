@@ -22,6 +22,7 @@ usage:
 	@echo "  test[-c]-all    run core and disassembly tests [with C extension modules]"
 	@echo "  test[-c]-3X-all run core and disassembly tests with Python 3.X (10<=X<=14) [and C extension modules]"
 	@echo "  test[-c]-cover  run core tests with coverage info [and C extension modules]"
+	@echo "  test-c-api      run CSimulator API tests"
 	@echo "  release         build a SkoolKit release tarball and zip archive"
 	@echo "  tarball         build a SkoolKit release tarball"
 	@echo "  deb             build a SkoolKit Debian package"
@@ -133,6 +134,10 @@ test-cover: remove-disassembly-tests remove-c
 test-c-cover: remove-disassembly-tests cmods
 	$(COVERAGE) run --rcfile .coveragerc-c -m nose2 -s tests
 	$(COVERAGE) report --rcfile .coveragerc-c -m
+
+.PHONY: test-c-api
+test-c-api: cmods
+	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) -s tests csimulator_api_test
 
 .PHONY: release
 release:

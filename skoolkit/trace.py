@@ -80,7 +80,7 @@ class Tracer(PagingTracer):
                 tf = lambda pc, i, t0: print(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
             else:
                 df = tf = None
-            stop_cond, operations = simulator.trace(self, start, stop, max_operations, max_time, interrupts, draw, exec_map, keyboard, df, tf)
+            stop_cond, operations = simulator.trace(start, stop, max_operations, max_time, interrupts, draw, exec_map, keyboard, df, tf)
         else: # pragma: C no cover
             opcodes = simulator.opcodes
             frame_duration = simulator.frame_duration

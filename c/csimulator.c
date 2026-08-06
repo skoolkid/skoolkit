@@ -5468,8 +5468,7 @@ static PyObject* CSimulator_accept_interrupt(CSimulatorObject* self, PyObject* a
 }
 
 static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", "", "", "", "", "", "", "", "", NULL};
-    PyObject* tracer;
+    static char* kwlist[] = {"", "", "", "", "", "", "", "", "", "", NULL};
     PyObject* start_obj;
     PyObject* stop_obj;
     unsigned long long max_operations;
@@ -5481,8 +5480,13 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOKKiOOOOO", kwlist, &tracer, &start_obj, &stop_obj, &max_operations,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKKpOOOOO", kwlist, &start_obj, &stop_obj, &max_operations,
                                      &max_time, &interrupts, &draw, &exec_map, &keyboard, &disassemble, &trace)) {
+        return NULL;
+    }
+
+    if (self->tracer == NULL) {
+        PyErr_SetString(PyExc_ValueError, "no tracer set");
         return NULL;
     }
 
@@ -5579,7 +5583,7 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
         if (draw != Py_None) {
             unsigned long long frame = TIME / frame_duration;
             if (frame > prev_frame) {
-                PyObject* border = PyObject_GetAttrString(tracer, "border");
+                PyObject* border = PyObject_GetAttrString(self->tracer, "border");
                 int rv = draw_screen(self, draw, frame, border, keyboard);
                 Py_XDECREF(border);
                 if (rv == -2) {
@@ -5607,8 +5611,7 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
 }
 
 static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", "", "", "", "", NULL};
-    PyObject* tracer;
+    static char* kwlist[] = {"", "", "", "", "", "", NULL};
     PyObject* keys;
     unsigned stop;
     unsigned long long timeout;
@@ -5616,11 +5619,16 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOIKOOO", kwlist, &tracer, &keys, &stop, &timeout, &draw, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OIKOOO", kwlist, &keys, &stop, &timeout, &draw, &disassemble, &trace)) {
         return NULL;
     }
 
-    PyObject* border = PyObject_GetAttrString(tracer, "border");
+    if (self->tracer == NULL) {
+        PyErr_SetString(PyExc_ValueError, "no tracer set");
+        return NULL;
+    }
+
+    PyObject* border = PyObject_GetAttrString(self->tracer, "border");
     if (border == NULL) {
         return NULL;
     }
@@ -5745,19 +5753,23 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
 }
 
 static PyObject* CSimulator_press(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", "", "", "", NULL};
-    PyObject* tracer;
+    static char* kwlist[] = {"", "", "", "", "", NULL};
     PyObject* keys;
     unsigned long long timeout;
     PyObject* draw;
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKOOO", kwlist, &tracer, &keys, &timeout, &draw, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OKOOO", kwlist, &keys, &timeout, &draw, &disassemble, &trace)) {
         return NULL;
     }
 
-    PyObject* border = PyObject_GetAttrString(tracer, "border");
+    if (self->tracer == NULL) {
+        PyErr_SetString(PyExc_ValueError, "no tracer set");
+        return NULL;
+    }
+
+    PyObject* border = PyObject_GetAttrString(self->tracer, "border");
     if (border == NULL) {
         return NULL;
     }
@@ -6148,8 +6160,7 @@ static unsigned read_port(CSimulatorObject* self, unsigned port) {
 }
 
 static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObject* kwds) {
-    static char* kwlist[] = {"", "", "", "", "", "", "", "", NULL};
-    PyObject* tracer;
+    static char* kwlist[] = {"", "", "", "", "", "", "", NULL};
     PyObject* stop_obj;
     int fast_load;
     int finish_tape;
@@ -6158,7 +6169,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     PyObject* disassemble;
     PyObject* trace;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOiiKOOO", kwlist, &tracer, &stop_obj, &fast_load, &finish_tape, &timeout, &draw, &disassemble, &trace)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OiiKOOO", kwlist, &stop_obj, &fast_load, &finish_tape, &timeout, &draw, &disassemble, &trace)) {
         return NULL;
     }
 
@@ -6175,6 +6186,11 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     int num_accs = 0;
     OpcodeFunction dec_a_accelerator = {dec_a, NULL, {0}};
 #endif
+
+    if (self->tracer == NULL) {
+        PyErr_SetString(PyExc_ValueError, "no tracer set");
+        return NULL;
+    }
 
     self->read_port = read_port;
 
@@ -6380,7 +6396,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
                 if (draw != Py_None) {
                     unsigned long long frame = tstates / frame_duration;
                     if (frame > self->tracer_state[9]) {
-                        PyObject* border = PyObject_GetAttrString(tracer, "border");
+                        PyObject* border = PyObject_GetAttrString(self->tracer, "border");
                         int dsrv = draw_screen(self, draw, frame, border, NULL);
                         Py_XDECREF(border);
                         if (dsrv == -2) {

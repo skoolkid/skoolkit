@@ -337,7 +337,7 @@ class KeyboardTracer(PagingTracer):
                 tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
             else:
                 df = tf = None
-            simulator.press_keys(self, keys, stop, timeout, draw, df, tf)
+            simulator.press_keys(keys, stop, timeout, draw, df, tf)
         else: # pragma: C no cover
             opcodes = simulator.opcodes
             frame_duration = simulator.frame_duration
@@ -423,7 +423,7 @@ class KeypressTracer(PagingTracer):
                 tf = lambda pc, i, t0: tracefile.write(trace_line.format(pc=pc, i=i, r=r, t=t0, m=memory))
             else:
                 df = tf = None
-            simulator.press(self, keys, timeout, draw, df, tf)
+            simulator.press(keys, timeout, draw, df, tf)
         else: # pragma: C no cover
             opcodes = simulator.opcodes
             frame_duration = simulator.frame_duration
