@@ -56,7 +56,7 @@ class Tracer:
             return self.ports_r[port]
         return 0xFF
 
-    def write_port(self, registers, port, value):
+    def write_port(self, registers, port, value, offset):
         self.ports_w[port] = value
 
 def init_simulator(simulator, tracer, initial, ports):
