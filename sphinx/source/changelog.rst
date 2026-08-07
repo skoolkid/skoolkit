@@ -1,7 +1,7 @@
 Changelog
 =========
 
-10.1b1
+10.1rc
 ------
 * Added the ``--screen`` option to :ref:`tap2sna.py` (to display screen
   contents while running)
