@@ -18,6 +18,7 @@ run_cmd() {
     fi
   else
     echo "done (with errors; see $error_out)"
+    exit 1
   fi
 }
 
