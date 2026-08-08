@@ -22,6 +22,16 @@ run_cmd() {
   fi
 }
 
+gen_snapshot() {
+  if [ ! -f $SNAPSHOT ]; then
+    t2s=$(ls $DHOME/*.t2s)
+    if ! ./tap2sna.py @$t2s $SNAPSHOT; then
+      echo -e "\e[0;31mFailed to generate $SNAPSHOT\e[0m"
+      exit 1
+    fi
+  fi
+}
+
 write_asms() {
   for name in $GAME load save start; do
     skool=src/$name.skool
@@ -72,12 +82,14 @@ write_ctls() {
 }
 
 write_dot() {
+  gen_snapshot
   ctl=/tmp/${GAME}-abs.ctl
   ./skool2ctl.py -w abs $skoolfile > $ctl
   run_cmd "./snapinfo.py -c $ctl -g $snapshot_opts $SNAPSHOT" dot/$GAME.dot
 }
 
 write_genctls() {
+  gen_snapshot
   profile="$SNAPSHOT.profile"
   for b in '' '-l' '-h'; do
     run_cmd "./sna2ctl.py $snapshot_opts $b $SNAPSHOT" genctl/$GAME$b.ctl
@@ -105,6 +117,7 @@ write_html() {
 }
 
 write_skools() {
+  gen_snapshot
   ctl=/tmp/${GAME}.ctl
   ./skool2ctl.py $skoolfile > $ctl
   for b in '' '-H'; do
