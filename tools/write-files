@@ -91,6 +91,12 @@ write_dot() {
 write_genctls() {
   gen_snapshot
   profile="$SNAPSHOT.profile"
+  if [ ! -f $profile ] && [ -n "$RZX" ]; then
+    if ! ./rzxplay.py --no-screen --map $profile "$RZX" 2> /dev/null; then
+      echo -e "\e[0;31mFailed to generate $profile\e[0m"
+      exit 1
+    fi
+  fi
   for b in '' '-l' '-h'; do
     run_cmd "./sna2ctl.py $snapshot_opts $b $SNAPSHOT" genctl/$GAME$b.ctl
     [[ -f $profile ]] && run_cmd "./sna2ctl.py $snapshot_opts $b -m $profile $SNAPSHOT" genctl/$GAME-m$b.ctl
