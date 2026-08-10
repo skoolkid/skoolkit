@@ -171,7 +171,15 @@ if [ $WRITE_OLD -eq 1 ] || [ ! -d $OLD_DIR ]; then
     tar xf $DISASSEMBLY_ARCHIVE/$OLD_DISASSEMBLY_TARBALL
   fi
   if [ ! -d $OLD_DIR ]; then
-    tar xf $SKOOLKIT_ARCHIVE/skoolkit-${OLD_SKOOLKIT_VERSION}.tar.xz
+    OLD_SKOOLKIT_TARBALL=skoolkit-${OLD_SKOOLKIT_VERSION}.tar.xz
+    if [ ! -f $SKOOLKIT_ARCHIVE/$OLD_SKOOLKIT_TARBALL ]; then
+      if ! wget https://github.com/skoolkid/skoolkit/releases/download/$OLD_SKOOLKIT_VERSION/$OLD_SKOOLKIT_TARBALL -O $SKOOLKIT_ARCHIVE/$OLD_SKOOLKIT_TARBALL 2>/dev/null; then
+        rm -f $SKOOLKIT_ARCHIVE/$OLD_SKOOLKIT_TARBALL
+        echo "Error: Failed to download $OLD_SKOOLKIT_TARBALL"
+        exit 1
+      fi
+    fi
+    tar xf $SKOOLKIT_ARCHIVE/$OLD_SKOOLKIT_TARBALL
     if [[ -f skoolkit-${OLD_SKOOLKIT_VERSION}/c/csimulator.c ]]; then
       echo "Building C extension modules for SkoolKit $OLD_SKOOLKIT_VERSION"
       pushd skoolkit-${OLD_SKOOLKIT_VERSION} > /dev/null
