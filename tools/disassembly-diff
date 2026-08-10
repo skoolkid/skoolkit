@@ -154,7 +154,22 @@ OLD_DIR=disassembly-${OLD_DISASSEMBLY_VERSION}-${OLD_SKOOLKIT_VERSION}
 if [ $WRITE_OLD -eq 1 ] || [ ! -d $OLD_DIR ]; then
   WRITE_OLD=1
   clean_disassembly $OLD_DIR $DIFF_TYPES
-  [ -d $OLD_DISASSEMBLY_NAME ] || tar xf $DISASSEMBLY_ARCHIVE/${OLD_DISASSEMBLY_NAME}.tar.xz
+  if [ ! -d $OLD_DISASSEMBLY_NAME ]; then
+    OLD_DISASSEMBLY_TARBALL=${OLD_DISASSEMBLY_NAME}.tar.xz
+    if [ ! -f $DISASSEMBLY_ARCHIVE/$OLD_DISASSEMBLY_TARBALL ]; then
+      if [ "$GAME" = "sd" ] || [ "$GAME" = "bts" ]; then
+        OLD_DISASSEMBLY_DOWNLOAD_DIR=skool-disassemblies
+      else
+        OLD_DISASSEMBLY_DOWNLOAD_DIR=${GAME}-disassembly
+      fi
+      if ! wget https://skoolkit.ca/downloads/$OLD_DISASSEMBLY_DOWNLOAD_DIR/$OLD_DISASSEMBLY_TARBALL -O $DISASSEMBLY_ARCHIVE/$OLD_DISASSEMBLY_TARBALL 2>/dev/null; then
+        rm -f $DISASSEMBLY_ARCHIVE/$OLD_DISASSEMBLY_TARBALL
+        echo "Error: Failed to download $OLD_DISASSEMBLY_TARBALL"
+        exit 1
+      fi
+    fi
+    tar xf $DISASSEMBLY_ARCHIVE/$OLD_DISASSEMBLY_TARBALL
+  fi
   if [ ! -d $OLD_DIR ]; then
     tar xf $SKOOLKIT_ARCHIVE/skoolkit-${OLD_SKOOLKIT_VERSION}.tar.xz
     if [[ -f skoolkit-${OLD_SKOOLKIT_VERSION}/c/csimulator.c ]]; then
