@@ -6,7 +6,7 @@ sna2skool.py
 
 SYNOPSIS
 ========
-``sna2kool.py`` [options] FILE
+``sna2skool.py`` [options] FILE
 
 DESCRIPTION
 ===========

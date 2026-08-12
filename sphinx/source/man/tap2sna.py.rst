@@ -124,7 +124,7 @@ has completed or been aborted, the values of the registers (including the
 program counter) in the simulator are used to populate the snapshot.
 
 A simulated LOAD can be configured via parameters that are set by the
-by the ``--sim-load-config`` (or ``-c``) option. The recognised configuration
+``--sim-load-config`` (or ``-c``) option. The recognised configuration
 parameters are:
 
 * ``accelerate-dec-a`` - enable acceleration of 'DEC A: JR NZ,$-1' delay loops
@@ -459,7 +459,7 @@ Recognised register names are:
 |
 |  ``^a``, ``^b``, ``^bc``, ``^c``, ``^d``, ``^de``, ``^e``, ``^f``, ``^h``, ``^hl``, ``^l``,
 |  ``a``, ``b``, ``bc``, ``c``, ``d``, ``de``, ``e``, ``f``, ``h``, ``hl``, ``l``,
-|  ``i``, ``ix``, ``iy``, ``pc``, ``r``, ``sp``
+|  ``i``, ``ix``, ``iy``, ``memptr``, ``pc``, ``r``, ``sp``
 
 The default value for each register is 0, with the following exceptions:
 
@@ -500,8 +500,8 @@ the file ``game.t2s`` has the following contents:
 |    \http://example.com/pub/games/GAME.zip
 |    -c fast-load=0      # Disable fast loading
 |    -c accelerator=none # Disable tape-sampling loop acceleration
-|    --state issue2=1    # Enable issue 2 keyboard emulation
-|    --start 34816       # Start at 34816
+|    -\-state issue2=1    # Enable issue 2 keyboard emulation
+|    -\-start 34816       # Start at 34816
 
 then:
 

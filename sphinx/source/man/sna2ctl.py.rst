@@ -54,8 +54,9 @@ OPTIONS
   Show configuration parameter values.
 
 -s, --start `ADDR`
-  Start at this address. The default start address is 16384. `ADDR` must be a
-  decimal number, or a hexadecimal number prefixed by '0x'.
+  Start at this address. The default start address is 16384 for a snapshot, or
+  the origin address for a raw memory file. `ADDR` must be a decimal number, or
+  a hexadecimal number prefixed by '0x'.
 
 -V, --version
   Show the SkoolKit version number and exit.

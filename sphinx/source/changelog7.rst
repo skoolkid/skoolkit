@@ -100,7 +100,7 @@ SkoolKit 7.x changelog
 * Added support to the :ref:`list`, :ref:`table` and :ref:`udgtable` macros for
   the ``nowrap`` and ``wrapalign`` flags (which control how :ref:`sna2skool.py`
   renders each list item or table row when reading from a control file)
-* :ref:`skool2html.py` now writes a single disassembly from the the skool file
+* :ref:`skool2html.py` now writes a single disassembly from the skool file
   given as the first positional argument; any other positional arguments are
   interpreted as extra ref files
 * Every entry title on a memory map page is now hyperlinked to the disassembly

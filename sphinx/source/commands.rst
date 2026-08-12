@@ -2171,8 +2171,8 @@ To list the options supported by `trace.py`, run it with no arguments::
     --beeper              Capture beeper audio (when used with --ay).
     -c, --cmio            Simulate memory and I/O contention and the MEMPTR
                           register.
-    --depth DEPTH         Simplify audio delays to this depth (default: 2).
     -D, --decimal         Show decimal values in verbose mode.
+    --depth DEPTH         Simplify audio delays to this depth (default: 2).
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
     --map FILE            Log addresses of executed instructions to a file.
