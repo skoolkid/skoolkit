@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Skool macros &#8212; SkoolKit 10.0 documentation</title>
+    <title>Skool macros &#8212; SkoolKit 10.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=fe13c473" />
-    <script src="_static/documentation_options.js?v=864e5427"></script>
+    <script src="_static/documentation_options.js?v=2236d03e"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -29,7 +29,7 @@
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool macros</a></li> 
       </ul>
     </div>  
@@ -953,7 +953,7 @@ are stripped from the expanded value</p></li>
 <span id="id14"></span><h3>#AUDIO<a class="headerlink" href="#audio" title="Link to this heading">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">#AUDIO</span></code> macro expands to an HTML5 <code class="docutils literal notranslate"><span class="pre">&lt;audio&gt;</span></code> element. It
 is not supported in ASM mode.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#AUDIOsim[,start,stop,execint,cmio,offset,ay,bpr](fname)[(delays)]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#AUDIOsim[,start,stop,execint,cmio,offset,ay,bpr,vol,aymode,ayres](fname)[(delays)]
 </pre></div>
 </div>
 <ul class="simple">
@@ -971,6 +971,10 @@ simulated (1), or not simulated (0, the default)</p></li>
 default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bpr</span></code> specifies whether to capture beeper audio as well (1), or ignore it
 (0, the default) when <code class="docutils literal notranslate"><span class="pre">ay</span></code> is 1</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vol</span></code> is the audio volume percentage (default: 100)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aymode</span></code> is the AY stereo mode: 0 for MONO (the default), 1 for ABC, or 2
+for ACB</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ayres</span></code> is the AY sampling resolution in T-states (default: 622)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fname</span></code> is the name of the audio file</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">delays</span></code> is a comma-separated list of delays (in T-states) between speaker
 state changes (when <code class="docutils literal notranslate"><span class="pre">sim</span></code> is 0)</p></li>
@@ -1036,6 +1040,13 @@ c32768 LD L,0
  32782 RET
 </pre></div>
 </div>
+<p>By default, only beeper activity is captured. To capture AY activity instead,
+set <code class="docutils literal notranslate"><span class="pre">ay</span></code> to 1. To capture both AY and beeper activity, set both <code class="docutils literal notranslate"><span class="pre">ay</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bpr</span></code> to 1. By default, the AY registers are sampled at a resolution of 622
+T-states (5700Hz), which is usually good enough for capturing AY speech. The
+sampling resolution can be changed by setting the <code class="docutils literal notranslate"><span class="pre">ayres</span></code> parameter. A higher
+value such as 70908 (50Hz) is usually good enough for capturing AY music, and
+may also require less time to produce the WAV file.</p>
 <p>Before executing code in a simulator, the <code class="docutils literal notranslate"><span class="pre">#AUDIO</span></code> macro copies the simulator
 state as it was left by the most recent invocation of either the <code class="docutils literal notranslate"><span class="pre">#AUDIO</span></code> or
 the <a class="reference internal" href="#sim"><span class="std std-ref">#SIM</span></a> macro (if any).</p>
@@ -1068,18 +1079,21 @@ parameter in the <a class="reference internal" href="ref-files.html#ref-game"><s
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>10.0</p></td>
+<tr class="row-even"><td><p>10.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">aymode</span></code>, <code class="docutils literal notranslate"><span class="pre">ayres</span></code> and <code class="docutils literal notranslate"><span class="pre">vol</span></code> parameters</p></td>
+</tr>
+<tr class="row-odd"><td><p>10.0</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">ay</span></code> and <code class="docutils literal notranslate"><span class="pre">bpr</span></code> parameters and support for capturing
 AY audio; added support for keyword arguments</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.1</p></td>
+<tr class="row-even"><td><p>9.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">cmio</span></code> and <code class="docutils literal notranslate"><span class="pre">execint</span></code> parameters; added support for
 executing code in a 128K memory snapshot</p></td>
 </tr>
-<tr class="row-even"><td><p>9.0</p></td>
+<tr class="row-odd"><td><p>9.0</p></td>
 <td><p>Added support for passing delays through a moving average filter</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.7</p></td>
+<tr class="row-even"><td><p>8.7</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1994,14 +2008,14 @@ variable</p></li>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>c30000 LD A,1   ; This instruction takes #TSTATES30000 T-states
 </pre></div>
 </div>
-<p>This instance of the <code class="docutils literal notranslate"><span class="pre">#TSTATES</span></code> macros expands to ‘7’.</p>
+<p>This instance of the <code class="docutils literal notranslate"><span class="pre">#TSTATES</span></code> macro expands to ‘7’.</p>
 <p>For any instruction in the range <code class="docutils literal notranslate"><span class="pre">start</span></code> to <code class="docutils literal notranslate"><span class="pre">stop</span></code> whose timing is variable
 (e.g. a conditional call, return or relative jump), the smaller timing value is
 used by default:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>c40000 RET Z    ; This instruction takes at least #TSTATES40000 T-states
 </pre></div>
 </div>
-<p>This instance of the <code class="docutils literal notranslate"><span class="pre">#TSTATES</span></code> macros expands to ‘5’.</p>
+<p>This instance of the <code class="docutils literal notranslate"><span class="pre">#TSTATES</span></code> macro expands to ‘5’.</p>
 <p>To use the larger timing values, set bit 0 of <code class="docutils literal notranslate"><span class="pre">flags</span></code>. If both smaller and
 larger timing values are required, set bit 1 of <code class="docutils literal notranslate"><span class="pre">flags</span></code> and use the <code class="docutils literal notranslate"><span class="pre">text</span></code>
 parameter:</p>
@@ -3313,7 +3327,7 @@ at 32768 like this:</p>
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool macros</a></li> 
       </ul>
     </div>

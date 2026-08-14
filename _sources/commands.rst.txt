@@ -242,8 +242,9 @@ To list the options supported by `rzxplay.py`, run it with no arguments::
   is written after playback has completed.
 
   Options:
+    -c, --cmio       Simulate memory and I/O contention and the MEMPTR register.
     --flags FLAGS    Set playback flags. Do '--flags help' for more information.
-    --force          Force playback when unsupported hardware is detected.
+    --force          Force playback when an unsupported machine is detected.
     --fps FPS        Run at this many frames per second (default: 50). 0 means
                      maximum speed.
     --map FILE       Log addresses of executed instructions to a file.
@@ -257,10 +258,10 @@ To list the options supported by `rzxplay.py`, run it with no arguments::
     -V, --version    Show SkoolKit version number and exit.
 
 `rzxplay.py` can play RZX files that were recorded in 48K, 128K or +2 mode with
-no peripherals (e.g. Interface 1) attached. The ``--force`` option can be used
-to make `rzxplay.py` attempt playback of files that were recorded on
-unsupported machines or with unsupported hardware attached, but they are
-unlikely to play to the end.
+no peripherals (e.g. Interface 1) attached. If any peripherals are attached,
+playback may fail. The ``--force`` option can be used to make `rzxplay.py`
+attempt playback of a file that was recorded on an unsupported machine, but it
+is unlikely to play to the end.
 
 If `pygame`_ is installed, `rzxplay.py` will use it to render the Spectrum's
 screen contents at 50 frames per second by default. Use the ``--fps`` option
@@ -308,6 +309,9 @@ empty (i.e. contain no frames).
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.1    | Added the ``--cmio`` option; added support for multiple colours   |
+|         | in the border area of the screen                                  |
++---------+-------------------------------------------------------------------+
 | 10.0    | Added support for ignoring any snapshots after the first one;     |
 |         | added a border area to the screen                                 |
 +---------+-------------------------------------------------------------------+
@@ -355,7 +359,7 @@ assembler (see :ref:`supportedAssemblers`). For example::
     -S ADDR, --start ADDR
                           Start converting at this address.
     -u, --upper           Write the disassembly in upper case.
-    --var name=value      Define a variable that can be used by @if and the SMPL
+    --var name=value      Define a variable that can be used by @if and skool
                           macros. This option may be used multiple times.
     -V, --version         Show SkoolKit version number and exit.
     -w, --no-warnings     Suppress warnings.
@@ -635,7 +639,7 @@ current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
 * ``Hex`` - write addresses in decimal (``0``, the default), lower case
-  hexadecimal (``1``),  or upper case hexadecimal (``2``)
+  hexadecimal (``1``), or upper case hexadecimal (``2``)
 * ``KeepLines`` - preserve line breaks in comments (``1``), or don't (``0``,
   the default)
 * ``PreserveBase`` - preserve the base of decimal and hexadecimal values in
@@ -748,7 +752,7 @@ list::
                           Use this CSS theme. This option may be used multiple
                           times.
     -u, --upper           Write the disassembly in upper case.
-    --var name=value      Define a variable that can be used by @if and the SMPL
+    --var name=value      Define a variable that can be used by @if and skool
                           macros. This option may be used multiple times.
     -V, --version         Show SkoolKit version number and exit.
     -w X, --write X       Write only these files, where X is one or more of:
@@ -987,7 +991,7 @@ configuration parameters are:
 * ``HandleRST`` - activate the :ref:`rstHandler` (``1``), or don't (``0``, the
   default)
 * ``Hex`` - write addresses in decimal (``0``, the default), lower case
-  hexadecimal (``1``),  or upper case hexadecimal (``2``)
+  hexadecimal (``1``), or upper case hexadecimal (``2``)
 * ``TextChars`` - characters eligible for being marked as text (default:
   letters, digits, space, and the following non-alphanumeric characters:
   ``!"$%&\'()*+,-./:;<=>?[]``)
@@ -1634,6 +1638,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           information. This option may be used multiple times.
     --reg name=value      Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
+    --screen              Display screen contents while running.
     --show-config         Show configuration parameter values.
     -s START, --start START
                           Set the start address to JP to.
@@ -1797,6 +1802,12 @@ This can be reversed by setting ``polarity=1``. Run *tap2sna.py* with the
 ``--tape-analysis`` option to see the timings and EAR bit readings of the
 pulses on a tape.
 
+If the ``--screen`` option is given and `pygame`_ is installed, `tap2sna.py`
+will use it to render the Spectrum's screen contents at 50 frames per second
+with a scale factor of 2 while the simulated LOAD is running. The frame rate
+and scale factor can be changed by setting the ``ScreenFps`` and
+``ScreenScale`` configuration parameters.
+
 .. _tap2sna-accelerators:
 
 Accelerators
@@ -1927,6 +1938,9 @@ configuration parameters are:
 * ``DefaultSnapshotFormat`` - the format of the snapshot written when no output
   snapshot argument is specified; valid values are ``z80`` (the default) and
   ``szx``
+* ``ScreenFps`` - screen refresh rate in frames per second (default: ``50``);
+  if set to 0, `tap2sna.py` runs at maximum speed
+* ``ScreenScale`` - screen scale factor (default: ``2``)
 * ``TraceLine`` - the format of each line in the trace log file for a simulated
   LOAD (default: ``${pc:04X} {i}``)
 * ``TraceOperand`` - the prefix, byte format, and word format for the numeric
@@ -1982,6 +1996,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.1    | Added the ``--screen`` option; added the ``ScreenFps`` and        |
+|         | ``ScreenScale`` configuration parameters                          |
++---------+-------------------------------------------------------------------+
 | 10.0    | Added support for setting the MEMPTR register in SZX snapshots;   |
 |         | added support for the ``r[memptr]`` replacement field in the      |
 |         | ``TraceLine`` configuration parameter                             |
@@ -2083,7 +2100,7 @@ example::
 
 To list the options supported by `tapinfo.py`, run it with no arguments::
 
-  usage: tapinfo.py FILE
+  usage: tapinfo.py [options] FILE
 
   Show the blocks in a PZX, TAP or TZX file.
 
@@ -2148,11 +2165,14 @@ To list the options supported by `trace.py`, run it with no arguments::
   Options:
     --audio               Show beeper delays.
     --ay                  Capture AY audio (when writing a WAV file).
+    --ay-mode MODE        Set AY mode to ABC, ACB or MONO (the default).
+    --ay-res T            Set AY sampling resolution to this many T-states
+                          (default: 622).
     --beeper              Capture beeper audio (when used with --ay).
     -c, --cmio            Simulate memory and I/O contention and the MEMPTR
                           register.
-    --depth DEPTH         Simplify audio delays to this depth (default: 2).
     -D, --decimal         Show decimal values in verbose mode.
+    --depth DEPTH         Simplify audio delays to this depth (default: 2).
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
     --map FILE            Log addresses of executed instructions to a file.
@@ -2187,6 +2207,7 @@ To list the options supported by `trace.py`, run it with no arguments::
     -v, --verbose         Show executed instructions. Repeat this option to show
                           register values too.
     -V, --version         Show SkoolKit version number and exit.
+    --volume VOL          Set audio volume percentage (default: 100).
 
 By default, `trace.py` silently simulates code execution beginning with the
 instruction at the address specified by the ``--start`` option (or the program
@@ -2200,6 +2221,15 @@ of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)
 between those changes. This list can be supplied to the :ref:`AUDIO` macro to
 produce a WAV file for the sound effect that would be produced by the same code
 running on a real ZX Spectrum.
+
+When writing a WAV file, `trace.py` captures only beeper activity by default.
+To capture AY activity instead, use the ``--ay`` option. To capture both AY and
+beeper activity, use the ``--ay`` and ``--beeper`` options together. By
+default, the AY registers are sampled at a resolution of 622 T-states (5700Hz),
+which is usually good enough for capturing AY speech. The sampling resolution
+can be changed by using the ``--ay-res`` option. A higher value such as 70908
+(50Hz) is usually good enough for capturing AY music, and may also require less
+time to produce the WAV file.
 
 If the ``--screen`` option is given and `pygame`_ is installed, `trace.py` will
 use it to render the Spectrum's screen contents at 50 frames per second with a
@@ -2278,6 +2308,10 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.1    | Added the ``--ay-mode``, ``--ay-res`` and ``--volume`` options;   |
+|         | added support for multiple colours in the border area of the      |
+|         | screen                                                            |
++---------+-------------------------------------------------------------------+
 | 10.0    | Added the ``--ay`` and ``--beeper`` options and support for       |
 |         | capturing AY audio; added support to the ``--reg`` option for     |
 |         | setting the MEMPTR register; reads and writes the MEMPTR register |

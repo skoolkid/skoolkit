@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>SkoolKit components &#8212; SkoolKit 10.0 documentation</title>
+    <title>SkoolKit components &#8212; SkoolKit 10.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=fe13c473" />
-    <script src="_static/documentation_options.js?v=864e5427"></script>
+    <script src="_static/documentation_options.js?v=2236d03e"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -25,7 +25,7 @@
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit components</a></li> 
       </ul>
     </div>  
@@ -41,6 +41,7 @@
 <ul class="simple">
 <li><p><a class="reference internal" href="#assembler"><span class="std std-ref">Assembler</span></a></p></li>
 <li><p><a class="reference internal" href="#audiowriter"><span class="std std-ref">Audio writer</span></a></p></li>
+<li><p><a class="reference internal" href="#ayaudiowriter"><span class="std std-ref">AY audio writer</span></a></p></li>
 <li><p><a class="reference internal" href="#codemapreader"><span class="std std-ref">Code map reader</span></a></p></li>
 <li><p><a class="reference internal" href="#commentgenerator"><span class="std std-ref">Comment generator</span></a></p></li>
 <li><p><a class="reference internal" href="#ctlcomposer"><span class="std std-ref">Control directive composer</span></a></p></li>
@@ -52,6 +53,7 @@
 <li><p><a class="reference internal" href="#operandevaluator"><span class="std std-ref">Operand evaluator</span></a></p></li>
 <li><p><a class="reference internal" href="#operandformatter"><span class="std std-ref">Operand formatter</span></a></p></li>
 <li><p><a class="reference internal" href="#rsthandler"><span class="std std-ref">RST handler</span></a></p></li>
+<li><p><a class="reference internal" href="#screen"><span class="std std-ref">Screen</span></a></p></li>
 <li><p><a class="reference internal" href="#snapshotreader"><span class="std std-ref">Snapshot reader</span></a></p></li>
 <li><p><a class="reference internal" href="#snapshotrefcalc"><span class="std std-ref">Snapshot reference calculator</span></a></p></li>
 </ul>
@@ -65,6 +67,7 @@ or in <cite>~/.skoolkit</cite>. The default contents of this section are as foll
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[skoolkit]
 Assembler=skoolkit.z80.Assembler
 AudioWriter=skoolkit.audio.AudioWriter
+AYAudioWriter=skoolkit.ay.AYAudioWriter
 CodeMapReader=skoolkit.snactl
 CommentGenerator=skoolkit.comment.CommentGenerator
 ControlDirectiveComposer=skoolkit.skoolctl.ControlDirectiveComposer
@@ -78,6 +81,7 @@ OperandEvaluator=skoolkit.z80
 OperandFormatter=skoolkit.disassembler.OperandFormatter
 RSTHandler=skoolkit.rst.RSTHandler
 RSTHandlerConfig=8:B
+Screen=skoolkit.screen.Screen
 SnapshotReader=skoolkit.snapshot
 SnapshotReferenceCalculator=skoolkit.snaskool
 SnapshotReferenceOperations=DJ,JR,JP,CA,RS
@@ -167,7 +171,7 @@ corresponding to the audio formats supported by this writer.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">write_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contention</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interrupts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is128k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span></dt>
+<span class="sig-name descname"><span class="pre">write_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Write an audio file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -175,14 +179,19 @@ corresponding to the audio formats supported by this writer.</p>
 <li><p><strong>audio_file</strong> – The file object to write the audio to.</p></li>
 <li><p><strong>delays</strong> – A sequence of integers representing the intervals (in
 T-states) between speaker flips.</p></li>
-<li><p><strong>contention</strong> – Whether to simulate additional delays due to memory
-and I/O contention.</p></li>
-<li><p><strong>interrupts</strong> – Whether to simulate additional delays due to
-interrupts.</p></li>
-<li><p><strong>offset</strong> – The offset (in T-states) of the first speaker flip from
-the start of the frame. Used when simulating delays due
-to contention and interrupts.</p></li>
-<li><p><strong>is128k</strong> – Whether to use 128K timings.</p></li>
+<li><p><strong>options</strong> – <p>Configuration object with the following attributes:</p>
+<ul>
+<li><p><cite>contention</cite> - whether to simulate additional delays
+due to memory and I/O contention</p></li>
+<li><p><cite>interrupts</cite> - whether to simulate additional delays
+due to interrupts</p></li>
+<li><p><cite>is128k</cite> - whether to use 128K timings</p></li>
+<li><p><cite>offset</cite> - the offset (in T-states) of the first
+speaker flip from the start of the frame (used when
+<cite>contention</cite> or <cite>interrupts</cite> is True)</p></li>
+<li><p><cite>volume</cite> - audio volume percentage</p></li>
+</ul>
+</p></li>
 </ul>
 </dd>
 </dl>
@@ -191,12 +200,71 @@ to contention and interrupts.</p></li>
 </dd></dl>
 
 <div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 10.1: </span>Moved the <em>contention</em>, <em>interrupts</em>, <em>offset</em> and <em>is128k</em> arguments of the
+<strong>write_audio()</strong> method into the <em>options</em> object, alongside the new
+<em>volume</em> attribute.</p>
+</div>
+<div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 10.0: </span>Removed the <em>ma_filter</em> argument of the <strong>write_audio()</strong> method.</p>
 </div>
 </section>
+<section id="ay-audio-writer">
+<span id="ayaudiowriter"></span><h2>AY audio writer<a class="headerlink" href="#ay-audio-writer" title="Link to this heading">¶</a></h2>
+<p>This class is responsible for writing AY audio files. It must supply the
+following API methods, in common with skoolkit.ay.AYAudioWriter:</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.ay.</span></span><span class="sig-name descname"><span class="pre">AYAudioWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Initialise the AY audio writer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> – A dictionary constructed from the contents of the
+<a class="reference internal" href="ref-files.html#ref-audiowriter"><span class="std std-ref">[AudioWriter]</span></a> section of the ref file.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">formats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Return a sequence of filename extensions (including the ‘.’)
+corresponding to the audio formats supported by this writer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">write_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Write an audio file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>audio_file</strong> – The file object to write the audio to.</p></li>
+<li><p><strong>audio_log</strong> – <p>The log of beeper and AY output. It is a list of
+3-element sequences of the form <code class="docutils literal notranslate"><span class="pre">(t,</span> <span class="pre">r,</span> <span class="pre">v)</span></code>, where:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">t</span></code> is the time in T-states</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r</span></code> is either the AY register (0-13), or 255 to
+indicate a beeper flip</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code> is the AY register value (if applicable)</p></li>
+</ul>
+</p></li>
+<li><p><strong>options</strong> – <p>Configuration object with the following attributes:</p>
+<ul>
+<li><p><cite>ay_res</cite> - AY sample resolution (in T-states)</p></li>
+<li><p><cite>beeper</cite> - whether to include beeper audio</p></li>
+<li><p><cite>mode</cite> - AY stereo mode: 0 - mono; 1 - ABC; 2 - ACB</p></li>
+<li><p><cite>volume</cite> - audio volume percentage</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="code-map-reader">
 <span id="codemapreader"></span><h2>Code map reader<a class="headerlink" href="#code-map-reader" title="Link to this heading">¶</a></h2>
-<p>This object is reponsible for generating a list of code block start addresses
+<p>This object is responsible for generating a list of code block start addresses
 and lengths from a code map file and corresponding snapshot. The code map
 reader object must supply the following API function, in common with
 skoolkit.snactl:</p>
@@ -306,7 +374,7 @@ recover, it should raise a SkoolParsingError:</p>
 </section>
 <section id="control-file-generator">
 <span id="ctlgenerator"></span><h2>Control file generator<a class="headerlink" href="#control-file-generator" title="Link to this heading">¶</a></h2>
-<p>This object is reponsible for generating a dictionary of control directives
+<p>This object is responsible for generating a dictionary of control directives
 from a snapshot. Each key in the dictionary is an address, and the associated
 value is the control directive (e.g. ‘b’ or ‘c’) for that address. The control
 file generator object must supply the following API function, in common with
@@ -983,6 +1051,73 @@ means that a custom RST handler component could be implemented to handle the
 byte/word arguments of CALL instructions as well as or instead of RST
 instructions, for example.</p>
 </section>
+<section id="screen">
+<span id="id4"></span><h2>Screen<a class="headerlink" href="#screen" title="Link to this heading">¶</a></h2>
+<p>This class is responsible for displaying screen contents and reading the
+keyboard while Z80 code execution is being simulated. It must supply the
+following API methods, in common with skoolkit.screen.Screen:</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.screen.</span></span><span class="sig-name descname"><span class="pre">Screen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is128k</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Initialise the screen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scale</strong> – The screen scale factor.</p></li>
+<li><p><strong>fps</strong> – The target frame rate.</p></li>
+<li><p><strong>caption</strong> – Window title bar text.</p></li>
+<li><p><strong>is128k</strong> – Whether to use 128K screen draw timings.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keyboard</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Draw the screen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scr</strong> – A 6912-element list of byte values from the display file
+and attribute file.</p></li>
+<li><p><strong>frame</strong> – Frame number (used to determine the state of flashing
+cells).</p></li>
+<li><p><strong>border</strong> – A log of the output to port 0xFE.</p></li>
+<li><p><strong>keyboard</strong> – A list for capturing the keyboard state.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>False</cite> if the window has been closed, <cite>True</cite> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p><strong>border</strong> is a non-empty list of 2-element tuples of the form <code class="docutils literal notranslate"><span class="pre">(t,</span> <span class="pre">v)</span></code>,
+where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">t</span></code> is the OUT time in T-states</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code> is the OUT value (border colour in bits 0-2)</p></li>
+</ul>
+<p>After processing, the contents of <strong>border</strong> are replaced by a single item of
+the form <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">v)</span></code>, where <code class="docutils literal notranslate"><span class="pre">v</span></code> is the OUT value of the last item in the list
+as it was upon entry.</p>
+<p>If provided, <strong>keyboard</strong> is populated with eight values, each one
+corresponding to the state of a keyboard row:</p>
+<ul class="simple">
+<li><p>row 0: CS-Z-X-C-V</p></li>
+<li><p>row 1: A-S-D-F-G</p></li>
+<li><p>row 2: Q-W-E-R-T</p></li>
+<li><p>row 3: 1-2-3-4-5</p></li>
+<li><p>row 4: 6-7-8-9-0</p></li>
+<li><p>row 5: Y-U-I-O-P</p></li>
+<li><p>row 6: H-J-K-L-ENTER</p></li>
+<li><p>row 7: B-N-M-SS-SPACE</p></li>
+</ul>
+<p>Bit 0 of each value is 1 if and only if the outermost key in the row is being
+pressed (e.g. SPACE in row 7), bit 1 corresponds to the next key in the row,
+and so on up to the innermost key in bit 4 (e.g. CAPS SHIFT in row 0).</p>
+</section>
 <section id="snapshot-reader">
 <span id="snapshotreader"></span><h2>Snapshot reader<a class="headerlink" href="#snapshot-reader" title="Link to this heading">¶</a></h2>
 <p>This object is responsible for producing a list of byte values from a snapshot
@@ -1151,6 +1286,7 @@ other values declared in the <code class="docutils literal notranslate"><span cl
 <li><a class="reference internal" href="#skoolkit">[skoolkit]</a></li>
 <li><a class="reference internal" href="#assembler">Assembler</a></li>
 <li><a class="reference internal" href="#audio-writer">Audio writer</a></li>
+<li><a class="reference internal" href="#ay-audio-writer">AY audio writer</a></li>
 <li><a class="reference internal" href="#code-map-reader">Code map reader</a></li>
 <li><a class="reference internal" href="#comment-generator">Comment generator</a></li>
 <li><a class="reference internal" href="#control-directive-composer">Control directive composer</a></li>
@@ -1162,6 +1298,7 @@ other values declared in the <code class="docutils literal notranslate"><span cl
 <li><a class="reference internal" href="#operand-evaluator">Operand evaluator</a></li>
 <li><a class="reference internal" href="#operand-formatter">Operand formatter</a></li>
 <li><a class="reference internal" href="#rst-handler">RST handler</a></li>
+<li><a class="reference internal" href="#screen">Screen</a></li>
 <li><a class="reference internal" href="#snapshot-reader">Snapshot reader</a></li>
 <li><a class="reference internal" href="#snapshot-reference-calculator">Snapshot reference calculator</a></li>
 <li><a class="reference internal" href="#component-api">Component API</a></li>
@@ -1205,7 +1342,7 @@ other values declared in the <code class="docutils literal notranslate"><span cl
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit components</a></li> 
       </ul>
     </div>

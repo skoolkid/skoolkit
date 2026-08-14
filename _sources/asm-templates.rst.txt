@@ -29,8 +29,8 @@ The following identifier is available:
 
 * ``text`` - the text of the comment line
 
-This template is also used to used to format lines between paragraphs in
-comments, with ``text`` set to an empty string.
+This template is also used to format lines between paragraphs in comments, with
+``text`` set to an empty string.
 
 .. _t_equ:
 

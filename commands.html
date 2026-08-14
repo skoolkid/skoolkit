@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Commands &#8212; SkoolKit 10.0 documentation</title>
+    <title>Commands &#8212; SkoolKit 10.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=fe13c473" />
-    <script src="_static/documentation_options.js?v=864e5427"></script>
+    <script src="_static/documentation_options.js?v=2236d03e"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -29,7 +29,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>  
@@ -302,8 +302,9 @@ Play an RZX file. If &#39;OUTFILE&#39; is given, an SZX or Z80 snapshot or an RZ
 is written after playback has completed.
 
 Options:
+  -c, --cmio       Simulate memory and I/O contention and the MEMPTR register.
   --flags FLAGS    Set playback flags. Do &#39;--flags help&#39; for more information.
-  --force          Force playback when unsupported hardware is detected.
+  --force          Force playback when an unsupported machine is detected.
   --fps FPS        Run at this many frames per second (default: 50). 0 means
                    maximum speed.
   --map FILE       Log addresses of executed instructions to a file.
@@ -318,10 +319,10 @@ Options:
 </pre></div>
 </div>
 <p><cite>rzxplay.py</cite> can play RZX files that were recorded in 48K, 128K or +2 mode with
-no peripherals (e.g. Interface 1) attached. The <code class="docutils literal notranslate"><span class="pre">--force</span></code> option can be used
-to make <cite>rzxplay.py</cite> attempt playback of files that were recorded on
-unsupported machines or with unsupported hardware attached, but they are
-unlikely to play to the end.</p>
+no peripherals (e.g. Interface 1) attached. If any peripherals are attached,
+playback may fail. The <code class="docutils literal notranslate"><span class="pre">--force</span></code> option can be used to make <cite>rzxplay.py</cite>
+attempt playback of a file that was recorded on an unsupported machine, but it
+is unlikely to play to the end.</p>
 <p>If <a class="reference external" href="https://pygame.org/">pygame</a> is installed, <cite>rzxplay.py</cite> will use it to render the Spectrum’s
 screen contents at 50 frames per second by default. Use the <code class="docutils literal notranslate"><span class="pre">--fps</span></code> option
 to change the frame rate. Specifying <code class="docutils literal notranslate"><span class="pre">--fps</span> <span class="pre">0</span></code> makes <cite>rzxplay.py</cite> run at
@@ -367,11 +368,15 @@ empty (i.e. contain no frames).</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>10.0</p></td>
+<tr class="row-even"><td><p>10.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--cmio</span></code> option; added support for multiple colours
+in the border area of the screen</p></td>
+</tr>
+<tr class="row-odd"><td><p>10.0</p></td>
 <td><p>Added support for ignoring any snapshots after the first one;
 added a border area to the screen</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.2</p></td>
+<tr class="row-even"><td><p>9.2</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -415,7 +420,7 @@ Options:
   -S ADDR, --start ADDR
                         Start converting at this address.
   -u, --upper           Write the disassembly in upper case.
-  --var name=value      Define a variable that can be used by @if and the SMPL
+  --var name=value      Define a variable that can be used by @if and skool
                         macros. This option may be used multiple times.
   -V, --version         Show SkoolKit version number and exit.
   -w, --no-warnings     Suppress warnings.
@@ -717,7 +722,7 @@ current working directory or in <cite>~/.skoolkit</cite>, if present. The recogn
 configuration parameters are:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Hex</span></code> - write addresses in decimal (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default), lower case
-hexadecimal (<code class="docutils literal notranslate"><span class="pre">1</span></code>),  or upper case hexadecimal (<code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
+hexadecimal (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or upper case hexadecimal (<code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">KeepLines</span></code> - preserve line breaks in comments (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>,
 the default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">PreserveBase</span></code> - preserve the base of decimal and hexadecimal values in
@@ -844,7 +849,7 @@ Options:
                         Use this CSS theme. This option may be used multiple
                         times.
   -u, --upper           Write the disassembly in upper case.
-  --var name=value      Define a variable that can be used by @if and the SMPL
+  --var name=value      Define a variable that can be used by @if and skool
                         macros. This option may be used multiple times.
   -V, --version         Show SkoolKit version number and exit.
   -w X, --write X       Write only these files, where X is one or more of:
@@ -1102,7 +1107,7 @@ it contains at least one of the words in this file</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">HandleRST</span></code> - activate the <a class="reference internal" href="components.html#rsthandler"><span class="std std-ref">RST handler</span></a> (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the
 default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Hex</span></code> - write addresses in decimal (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default), lower case
-hexadecimal (<code class="docutils literal notranslate"><span class="pre">1</span></code>),  or upper case hexadecimal (<code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
+hexadecimal (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or upper case hexadecimal (<code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TextChars</span></code> - characters eligible for being marked as text (default:
 letters, digits, space, and the following non-alphanumeric characters:
 <code class="docutils literal notranslate"><span class="pre">!&quot;$%&amp;\'()*+,-./:;&lt;=&gt;?[]</span></code>)</p></li>
@@ -1800,6 +1805,7 @@ Options:
                         information. This option may be used multiple times.
   --reg name=value      Set the value of a register. Do &#39;--reg help&#39; for more
                         information. This option may be used multiple times.
+  --screen              Display screen contents while running.
   --show-config         Show configuration parameter values.
   -s START, --start START
                         Set the start address to JP to.
@@ -1956,6 +1962,11 @@ of the pulse is even (i.e. first, third, fifth pulses etc.), or 1 otherwise.
 This can be reversed by setting <code class="docutils literal notranslate"><span class="pre">polarity=1</span></code>. Run <em>tap2sna.py</em> with the
 <code class="docutils literal notranslate"><span class="pre">--tape-analysis</span></code> option to see the timings and EAR bit readings of the
 pulses on a tape.</p>
+<p>If the <code class="docutils literal notranslate"><span class="pre">--screen</span></code> option is given and <a class="reference external" href="https://pygame.org/">pygame</a> is installed, <cite>tap2sna.py</cite>
+will use it to render the Spectrum’s screen contents at 50 frames per second
+with a scale factor of 2 while the simulated LOAD is running. The frame rate
+and scale factor can be changed by setting the <code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> configuration parameters.</p>
 </section>
 <section id="accelerators">
 <span id="tap2sna-accelerators"></span><h3>Accelerators<a class="headerlink" href="#accelerators" title="Link to this heading">¶</a></h3>
@@ -2075,6 +2086,9 @@ configuration parameters are:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">DefaultSnapshotFormat</span></code> - the format of the snapshot written when no output
 snapshot argument is specified; valid values are <code class="docutils literal notranslate"><span class="pre">z80</span></code> (the default) and
 <code class="docutils literal notranslate"><span class="pre">szx</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> - screen refresh rate in frames per second (default: <code class="docutils literal notranslate"><span class="pre">50</span></code>);
+if set to 0, <cite>tap2sna.py</cite> runs at maximum speed</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> - screen scale factor (default: <code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> - the format of each line in the trace log file for a simulated
 LOAD (default: <code class="docutils literal notranslate"><span class="pre">${pc:04X}</span> <span class="pre">{i}</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> - the prefix, byte format, and word format for the numeric
@@ -2130,12 +2144,16 @@ TraceOperand=
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>10.0</p></td>
+<tr class="row-even"><td><p>10.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--screen</span></code> option; added the <code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> configuration parameters</p></td>
+</tr>
+<tr class="row-odd"><td><p>10.0</p></td>
 <td><p>Added support for setting the MEMPTR register in SZX snapshots;
 added support for the <code class="docutils literal notranslate"><span class="pre">r[memptr]</span></code> replacement field in the
 <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.6</p></td>
+<tr class="row-even"><td><p>9.6</p></td>
 <td><p>Added the ability to load from two tape files; added the
 <code class="docutils literal notranslate"><span class="pre">--press</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-skip</span></code> options; added support to the
 <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">patch</span></code> operation; changed the default
@@ -2148,23 +2166,23 @@ tape-sampling loop accelerators; removed the <code class="docutils literal notra
 <code class="docutils literal notranslate"><span class="pre">gremlin2</span></code>, <code class="docutils literal notranslate"><span class="pre">housenka</span></code>, <code class="docutils literal notranslate"><span class="pre">suzy-soft</span></code> and <code class="docutils literal notranslate"><span class="pre">suzy-soft2</span></code>
 tape-sampling loop accelerators</p></td>
 </tr>
-<tr class="row-even"><td><p>9.5</p></td>
+<tr class="row-odd"><td><p>9.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">UserAgent</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.3</p></td>
+<tr class="row-even"><td><p>9.3</p></td>
 <td><p>Added support for PZX files; added support for the <code class="docutils literal notranslate"><span class="pre">m</span></code> (memory)
 replacement field in the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>9.2</p></td>
+<tr class="row-odd"><td><p>9.2</p></td>
 <td><p>Added support for TZX block type 0x15 (direct recording); added
 the <code class="docutils literal notranslate"><span class="pre">python</span></code> simulated LOAD configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.1</p></td>
+<tr class="row-even"><td><p>9.1</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">move</span></code> and <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">poke</span></code> options can modify specific
 RAM banks; added the <code class="docutils literal notranslate"><span class="pre">cmio</span></code> simulated LOAD configuration
 parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>9.0</p></td>
+<tr class="row-odd"><td><p>9.0</p></td>
 <td><p>A simulated LOAD is performed by default; an existing snapshot
 will be overwritten by default; added the <code class="docutils literal notranslate"><span class="pre">load</span></code>, <code class="docutils literal notranslate"><span class="pre">machine</span></code>,
 <code class="docutils literal notranslate"><span class="pre">polarity</span></code> and <code class="docutils literal notranslate"><span class="pre">in-flags</span></code> simulated LOAD configuration
@@ -2177,7 +2195,7 @@ parameter; added the <code class="docutils literal notranslate"><span class="pre
 tape-sampling loop accelerators; shows ‘DEC A’ delay loop
 statistics when <code class="docutils literal notranslate"><span class="pre">accelerator=list</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>8.10</p></td>
+<tr class="row-even"><td><p>8.10</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-analysis</span></code> options;
 added the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> and <code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> configuration
@@ -2196,45 +2214,45 @@ multiple accelerators; added the <code class="docutils literal notranslate"><spa
 <code class="docutils literal notranslate"><span class="pre">suzy-soft2</span></code>, <code class="docutils literal notranslate"><span class="pre">tiny</span></code>, <code class="docutils literal notranslate"><span class="pre">us-gold</span></code> and <code class="docutils literal notranslate"><span class="pre">weird-science</span></code>
 tape-sampling loop accelerators</p></td>
 </tr>
-<tr class="row-even"><td><p>8.9</p></td>
+<tr class="row-odd"><td><p>8.9</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--sim-load-config</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-name</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--tape-start</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-stop</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-sum</span></code> options;
 added support for TZX loops, pauses, and unused bits in data
 blocks; added support for quoted arguments in an arguments file;
 added the <code class="docutils literal notranslate"><span class="pre">tstates</span></code> hardware state attribute</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.8</p></td>
+<tr class="row-even"><td><p>8.8</p></td>
 <td><p>A simulated LOAD performs any <code class="docutils literal notranslate"><span class="pre">call/move/poke/sysvars</span></code>
 operations specified by <code class="docutils literal notranslate"><span class="pre">--ram</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>8.7</p></td>
+<tr class="row-odd"><td><p>8.7</p></td>
 <td><p>Added support for simulating a 48K Spectrum LOADing a tape; when
 a headerless block is ignored because no <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> options
 have been specified, a warning is printed</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.6</p></td>
+<tr class="row-even"><td><p>8.6</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">call</span></code> operation</p></td>
 </tr>
-<tr class="row-even"><td><p>8.4</p></td>
+<tr class="row-odd"><td><p>8.4</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">sysvars</span></code>
 operation</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.3</p></td>
+<tr class="row-even"><td><p>6.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--user-agent</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>6.2</p></td>
+<tr class="row-odd"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--ram</span></code>, <code class="docutils literal notranslate"><span class="pre">--reg</span></code>, <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options
 accept hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.3</p></td>
+<tr class="row-even"><td><p>5.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options</p></td>
 </tr>
-<tr class="row-even"><td><p>4.5</p></td>
+<tr class="row-odd"><td><p>4.5</p></td>
 <td><p>Added support for TZX block type 0x14 (pure data), for loading
 the first and last bytes of a tape block, and for modifying
 memory with XOR and ADD operations</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.5</p></td>
+<tr class="row-even"><td><p>3.5</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -2249,7 +2267,7 @@ example:</p>
 </pre></div>
 </div>
 <p>To list the options supported by <cite>tapinfo.py</cite>, run it with no arguments:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: tapinfo.py FILE
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: tapinfo.py [options] FILE
 
 Show the blocks in a PZX, TAP or TZX file.
 
@@ -2328,11 +2346,14 @@ has completed.
 Options:
   --audio               Show beeper delays.
   --ay                  Capture AY audio (when writing a WAV file).
+  --ay-mode MODE        Set AY mode to ABC, ACB or MONO (the default).
+  --ay-res T            Set AY sampling resolution to this many T-states
+                        (default: 622).
   --beeper              Capture beeper audio (when used with --ay).
   -c, --cmio            Simulate memory and I/O contention and the MEMPTR
                         register.
-  --depth DEPTH         Simplify audio delays to this depth (default: 2).
   -D, --decimal         Show decimal values in verbose mode.
+  --depth DEPTH         Simplify audio delays to this depth (default: 2).
   -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
                         &#39;v&#39;. This option may be used multiple times.
   --map FILE            Log addresses of executed instructions to a file.
@@ -2367,6 +2388,7 @@ Options:
   -v, --verbose         Show executed instructions. Repeat this option to show
                         register values too.
   -V, --version         Show SkoolKit version number and exit.
+  --volume VOL          Set audio volume percentage (default: 100).
 </pre></div>
 </div>
 <p>By default, <cite>trace.py</cite> silently simulates code execution beginning with the
@@ -2380,6 +2402,14 @@ of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)
 between those changes. This list can be supplied to the <a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> macro to
 produce a WAV file for the sound effect that would be produced by the same code
 running on a real ZX Spectrum.</p>
+<p>When writing a WAV file, <cite>trace.py</cite> captures only beeper activity by default.
+To capture AY activity instead, use the <code class="docutils literal notranslate"><span class="pre">--ay</span></code> option. To capture both AY and
+beeper activity, use the <code class="docutils literal notranslate"><span class="pre">--ay</span></code> and <code class="docutils literal notranslate"><span class="pre">--beeper</span></code> options together. By
+default, the AY registers are sampled at a resolution of 622 T-states (5700Hz),
+which is usually good enough for capturing AY speech. The sampling resolution
+can be changed by using the <code class="docutils literal notranslate"><span class="pre">--ay-res</span></code> option. A higher value such as 70908
+(50Hz) is usually good enough for capturing AY music, and may also require less
+time to produce the WAV file.</p>
 <p>If the <code class="docutils literal notranslate"><span class="pre">--screen</span></code> option is given and <a class="reference external" href="https://pygame.org/">pygame</a> is installed, <cite>trace.py</cite> will
 use it to render the Spectrum’s screen contents at 50 frames per second with a
 scale factor of 2 while running. The frame rate and scale factor can be changed
@@ -2454,7 +2484,12 @@ TraceLine={t:&gt;10} ${pc:04X} {i}
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>10.0</p></td>
+<tr class="row-even"><td><p>10.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--ay-mode</span></code>, <code class="docutils literal notranslate"><span class="pre">--ay-res</span></code> and <code class="docutils literal notranslate"><span class="pre">--volume</span></code> options;
+added support for multiple colours in the border area of the
+screen</p></td>
+</tr>
+<tr class="row-odd"><td><p>10.0</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--ay</span></code> and <code class="docutils literal notranslate"><span class="pre">--beeper</span></code> options and support for
 capturing AY audio; added support to the <code class="docutils literal notranslate"><span class="pre">--reg</span></code> option for
 setting the MEMPTR register; reads and writes the MEMPTR register
@@ -2463,44 +2498,44 @@ field in the <code class="docutils literal notranslate"><span class="pre">TraceL
 <code class="docutils literal notranslate"><span class="pre">TraceHeader</span></code> and <code class="docutils literal notranslate"><span class="pre">TraceHeader2</span></code> configuration parameters;
 added a border area to the screen</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.6</p></td>
+<tr class="row-even"><td><p>9.6</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Screen</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>9.5</p></td>
+<tr class="row-odd"><td><p>9.5</p></td>
 <td><p>Responds to keypresses while the screen is displayed; added the
 <code class="docutils literal notranslate"><span class="pre">--map</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.4</p></td>
+<tr class="row-even"><td><p>9.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--screen</span></code> option; added support for writing a PNG
 file after execution has completed; added the <code class="docutils literal notranslate"><span class="pre">PNGScale</span></code>,
 <code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> and <code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> configuration parameters; added
 support for multiple output file arguments</p></td>
 </tr>
-<tr class="row-even"><td><p>9.3</p></td>
+<tr class="row-odd"><td><p>9.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--state</span></code> option; added support for writing a WAV
 file after execution has completed; added support for the <code class="docutils literal notranslate"><span class="pre">m</span></code>
 (memory) replacement field in the <code class="docutils literal notranslate"><span class="pre">TraceLine*</span></code> configuration
 parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.2</p></td>
+<tr class="row-even"><td><p>9.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--python</span></code> option; added support for +2 snapshots</p></td>
 </tr>
-<tr class="row-even"><td><p>9.1</p></td>
+<tr class="row-odd"><td><p>9.1</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--poke</span></code> option can modify specific RAM banks; added the
 <code class="docutils literal notranslate"><span class="pre">--cmio</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.0</p></td>
+<tr class="row-even"><td><p>9.0</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-interrupts</span></code> and <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> options;
 interrupt routines are executed by default; added support for
 128K snapshots; added support for writing SZX snapshots; added
 the <code class="docutils literal notranslate"><span class="pre">-m</span></code> and <code class="docutils literal notranslate"><span class="pre">-M</span></code> short options</p></td>
 </tr>
-<tr class="row-even"><td><p>8.9</p></td>
+<tr class="row-odd"><td><p>8.9</p></td>
 <td><p>Reads and writes the T-states counter in Z80 snapshots and reads
 the T-states counter in SZX snapshots</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.8</p></td>
+<tr class="row-even"><td><p>8.8</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -2616,7 +2651,7 @@ the T-states counter in SZX snapshots</p></td>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>
