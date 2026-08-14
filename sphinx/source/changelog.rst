@@ -1,8 +1,8 @@
 Changelog
 =========
 
-10.1rc
-------
+10.1 (2026-08-14)
+-----------------
 * Added the ``--screen`` option to :ref:`tap2sna.py` (to display screen
   contents while running)
 * Added the ``ScreenFps`` and ``ScreenScale`` configuration parameters for
