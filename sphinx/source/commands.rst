@@ -247,6 +247,8 @@ To list the options supported by `rzxplay.py`, run it with no arguments::
     --force          Force playback when an unsupported machine is detected.
     --fps FPS        Run at this many frames per second (default: 50). 0 means
                      maximum speed.
+    -I, --ini p=v    Set the value of the configuration parameter 'p' to 'v'.
+                     This option may be used multiple times.
     --map FILE       Log addresses of executed instructions to a file.
     --no-screen      Run without a screen.
     --python         Use the pure Python Z80 simulator.
@@ -320,10 +322,15 @@ configuration parameters are:
 Wherever ``\n`` appears in the ``TraceHeader`` parameter value, it is replaced
 by a newline character.
 
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.2    | Configuration is read from `skoolkit.ini` if present              |
+| 10.2    | Configuration is read from `skoolkit.ini` if present; added the   |
+|         | ``--ini`` option                                                  |
 +---------+-------------------------------------------------------------------+
 | 10.1    | Added the ``--cmio`` option; added support for multiple colours   |
 |         | in the border area of the screen                                  |

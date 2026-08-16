@@ -5,6 +5,8 @@ Changelog
 ------
 * Added support to :ref:`rzxplay.py <rzxplay-conf>` for reading configuration
   from `skoolkit.ini`
+* Added the ``--ini`` option to :ref:`rzxplay.py` (for setting the value of a
+  configuration parameter)
 
 10.1 (2026-08-14)
 -----------------

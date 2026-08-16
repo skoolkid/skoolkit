@@ -25,7 +25,7 @@ from skoolkit import (VERSION, SkoolKitError, CSimulator, CCMIOSimulator,
                       warn, write)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.components import get_screen
-from skoolkit.config import get_config
+from skoolkit.config import get_config, update_options
 from skoolkit.pagingtracer import Memory
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import from_snapshot, get_state
@@ -462,6 +462,8 @@ def main(args):
     group.add_argument('--fps', type=int, default=50,
                        help="Run at this many frames per second (default: 50). "
                             "0 means maximum speed.")
+    group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
+                       help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
     group.add_argument('--map', metavar='FILE',
                        help="Log addresses of executed instructions to a file.")
     group.add_argument('--no-screen', dest='screen', action='store_false',
@@ -486,4 +488,5 @@ def main(args):
         return
     if unknown_args or namespace.infile is None:
         parser.exit(2, parser.format_help())
+    update_options('rzxplay', namespace, namespace.params, config)
     run(namespace.infile, namespace, config)

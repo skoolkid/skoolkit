@@ -62,17 +62,18 @@ def mock_write_snapshot(fname, ram, registers, state, machine):
     s_machine = machine
 
 class RzxplayTest(SkoolKitTestCase):
-    def _test_rzx(self, rzx, exp_output, options='', exp_trace=None, outfile=None, exp_error=''):
+    def _test_rzx(self, rzx, exp_output, options=(), exp_trace=None, outfile=None, exp_error=''):
         if isinstance(rzx, str):
             rzxfile = rzx
         else:
             rzxfile = self.write_rzx_file(rzx)
         logfile = 'trace.log'
+        args = options.split(' ') if isinstance(options, str) else list(options)
         if exp_trace:
-            options += f' --trace {logfile}'
-        args = f'{options} {rzxfile}'
+            args.extend(('--trace', logfile))
+        args.append(rzxfile)
         if outfile:
-            args += f' {outfile}'
+            args.append(outfile)
         output, error = self.run_rzxplay(args)
         self.assertEqual(dedent(exp_error).lstrip(), error)
         self.assertEqual(dedent(exp_output).lstrip(), output)
@@ -107,6 +108,7 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertFalse(options.cmio)
         self.assertFalse(options.force)
         self.assertEqual(options.fps, 50)
+        self.assertEqual([], options.params)
         self.assertTrue(options.screen)
         self.assertFalse(options.python)
         self.assertFalse(options.quiet)
@@ -1460,6 +1462,25 @@ class RzxplayTest(SkoolKitTestCase):
         mock_pygame.display.set_caption.assert_called_with(rzxfile)
         self.assertEqual(mock_pygame.display.get_surface().get_pixel(0, 0), BLUE)
 
+    @patch.object(rzxplay, 'run', mock_run)
+    def test_option_I(self):
+        self.run_rzxplay('-I TraceHeader=trace in.rzx')
+        rzxfile, options, config = run_args
+        self.assertEqual(['TraceHeader=trace'], options.params)
+        self.assertEqual(config['TraceHeader'], 'trace')
+
+    @patch.object(rzxplay, 'run', mock_run)
+    def test_option_I_overrides_config_read_from_file(self):
+        ini = """
+            [rzxplay]
+            TraceHeader=Instructions
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        self.run_rzxplay('--ini TraceHeader=Code in.rzx')
+        rzxfile, options, config = run_args
+        self.assertEqual(['TraceHeader=Code'], options.params)
+        self.assertEqual(config['TraceHeader'], 'Code')
+
     def test_option_map(self):
         ram = [0] * 0xC000
         pc = 0xFF00
@@ -1862,6 +1883,25 @@ class RzxplayTest(SkoolKitTestCase):
             F:0 C:00001 I:00000 $F000 LD A,$05
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_config_TraceHeader_set_on_command_line(self):
+        ram = [0] * 0xC000
+        pc = 0xB000
+        code = (
+            0x3E, 0x05, # $B000 LD A,$05
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        z80data = self.write_z80(ram, {'PC': pc}, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        th = 'Fr. Count   Input   Addr  Disassembly'
+        exp_output = ''
+        exp_trace = """
+            Fr. Count   Input   Addr  Disassembly
+            F:0 C:00001 I:00000 $B000 LD A,$05
+        """
+        self._test_rzx(rzx, exp_output, ('-I', f'TraceHeader={th}', '--quiet', '--no-screen'), exp_trace)
 
     def test_config_TraceHeader_with_newline(self):
         ini = r"""

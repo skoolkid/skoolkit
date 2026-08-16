@@ -28,6 +28,11 @@ OPTIONS
 --fps FPS
   Run at this many frames per second (default: 50). 0 means maximum speed.
 
+-I, --ini `param=value`
+  Set the value of a configuration parameter (see ``CONFIGURATION``),
+  overriding any value found in ``skoolkit.ini``. This option may be used
+  multiple times.
+
 --map FILE
   Log addresses of executed instructions to a file.
 
@@ -125,6 +130,10 @@ configuration parameters are:
 
 Wherever ``\n`` appears in the ``TraceHeader`` parameter value, it is replaced
 by a newline character.
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+``skoolkit.ini``.
 
 EXAMPLES
 ========
