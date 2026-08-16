@@ -110,6 +110,7 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertEqual(options.fps, 50)
         self.assertEqual([], options.params)
         self.assertTrue(options.screen)
+        self.assertFalse(options.show_config)
         self.assertFalse(options.python)
         self.assertFalse(options.quiet)
         self.assertEqual(options.scale, 2)
@@ -1595,6 +1596,29 @@ class RzxplayTest(SkoolKitTestCase):
         TestScreen.instance.clock.tick.assert_called_with(50)
         mock_pygame.display.set_caption.assert_called_with(rzxfile)
         self.assertEqual(mock_pygame.display.get_surface().get_pixel(7, 0), BLUE)
+
+    def test_option_show_config(self):
+        output, error = self.run_rzxplay('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            [rzxplay]
+            TraceHeader=
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_show_config_read_from_file(self):
+        ini = """
+            [rzxplay]
+            TraceHeader=Disassembly
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        output, error = self.run_rzxplay('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            [rzxplay]
+            TraceHeader=Disassembly
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     def test_option_snapshot(self):
         ram = [0] * 0xC000

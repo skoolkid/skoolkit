@@ -25,7 +25,7 @@ from skoolkit import (VERSION, SkoolKitError, CSimulator, CCMIOSimulator,
                       warn, write)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.components import get_screen
-from skoolkit.config import get_config, update_options
+from skoolkit.config import get_config, show_config, update_options
 from skoolkit.pagingtracer import Memory
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import from_snapshot, get_state
@@ -474,6 +474,8 @@ def main(args):
                        help="Don't print progress percentage.")
     group.add_argument('--scale', metavar='SCALE', type=int, default=2, choices=(1, 2, 3, 4),
                        help="Scale display up by this factor (1-4; default: 2).")
+    group.add_argument('--show-config', dest='show_config', action='store_true',
+                       help="Show configuration parameter values.")
     group.add_argument('--snapshot', metavar='FILE',
                        help="Specify an external snapshot file to start with.")
     group.add_argument('--stop', metavar='FRAMES', type=int,
@@ -483,6 +485,8 @@ def main(args):
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
+    if namespace.show_config:
+        show_config('rzxplay', config)
     if namespace.flags == 'help':
         print_flags_help()
         return

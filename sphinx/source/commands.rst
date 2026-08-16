@@ -254,6 +254,7 @@ To list the options supported by `rzxplay.py`, run it with no arguments::
     --python         Use the pure Python Z80 simulator.
     --quiet          Don't print progress percentage.
     --scale SCALE    Scale display up by this factor (1-4; default: 2).
+    --show-config    Show configuration parameter values.
     --snapshot FILE  Specify an external snapshot file to start with.
     --stop FRAMES    Stop after playing this many frames.
     --trace FILE     Log executed instructions to a file.
@@ -330,7 +331,7 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 10.2    | Configuration is read from `skoolkit.ini` if present; added the   |
-|         | ``--ini`` option                                                  |
+|         | ``--ini`` and ``--show-config`` options                           |
 +---------+-------------------------------------------------------------------+
 | 10.1    | Added the ``--cmio`` option; added support for multiple colours   |
 |         | in the border area of the screen                                  |
