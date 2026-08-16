@@ -3,6 +3,8 @@ Changelog
 
 10.2b1
 ------
+* Added support to :ref:`rzxplay.py <rzxplay-conf>` for reading configuration
+  from `skoolkit.ini`
 
 10.1 (2026-08-14)
 -----------------

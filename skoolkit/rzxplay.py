@@ -25,6 +25,7 @@ from skoolkit import (VERSION, SkoolKitError, CSimulator, CCMIOSimulator,
                       warn, write)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.components import get_screen
+from skoolkit.config import get_config
 from skoolkit.pagingtracer import Memory
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import from_snapshot, get_state
@@ -358,7 +359,7 @@ def process_block(block, options, flags, context):
             context.stop = True
             break
 
-def run(infile, options):
+def run(infile, options, config):
     rzx_blocks = parse_rzx(infile)
     if options.snapshot:
         rzx_blocks.insert(0, RZXBlock(None, Snapshot.get(options.snapshot)))
@@ -382,6 +383,9 @@ def run(infile, options):
                         context.exec_map.add(int(line[1:5], 16))
     if options.trace:
         context.tracefile = open(options.trace, 'w')
+        trace_header = config['TraceHeader'].replace(r'\n', '\n')
+        if trace_header:
+            context.tracefile.write(f'{trace_header}\n')
     for block in rzx_blocks:
         if isinstance(block.obj, InputRecording):
             context.total_frames += len(block.obj.frames)
@@ -439,6 +443,7 @@ outcome:
 """.strip())
 
 def main(args):
+    config = get_config('rzxplay')
     parser = argparse.ArgumentParser(
         usage='rzxplay.py [options] FILE [OUTFILE]',
         description="Play an RZX file. "
@@ -481,4 +486,4 @@ def main(args):
         return
     if unknown_args or namespace.infile is None:
         parser.exit(2, parser.format_help())
-    run(namespace.infile, namespace)
+    run(namespace.infile, namespace, config)

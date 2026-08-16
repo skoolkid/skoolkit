@@ -306,9 +306,25 @@ However, this makes sense only if ``--stop`` is used to end playback somewhere
 in the middle of the input RZX file, otherwise the output RZX file will be
 empty (i.e. contain no frames).
 
+.. _rzxplay-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`rzxplay.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``TraceHeader`` - the header to write when logging executed instructions to a
+  file (default: None)
+
+Wherever ``\n`` appears in the ``TraceHeader`` parameter value, it is replaced
+by a newline character.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.2    | Configuration is read from `skoolkit.ini` if present              |
++---------+-------------------------------------------------------------------+
 | 10.1    | Added the ``--cmio`` option; added support for multiple colours   |
 |         | in the border area of the screen                                  |
 +---------+-------------------------------------------------------------------+

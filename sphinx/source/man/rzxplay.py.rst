@@ -114,6 +114,18 @@ However, this makes sense only if ``--stop`` is used to end playback somewhere
 in the middle of the input RZX file, otherwise the output RZX file will be
 empty (i.e. contain no frames).
 
+CONFIGURATION
+=============
+``rzxplay.py`` will read configuration from a file named ``skoolkit.ini`` in
+the current working directory or in ``~/.skoolkit``, if present. The recognised
+configuration parameters are:
+
+  :TraceHeader: The header to write when logging executed instructions to a
+    file (default: None).
+
+Wherever ``\n`` appears in the ``TraceHeader`` parameter value, it is replaced
+by a newline character.
+
 EXAMPLES
 ========
 1. Play ``game.rzx``:

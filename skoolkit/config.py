@@ -43,6 +43,9 @@ COMMANDS = {
         'SnapshotReferenceCalculator': 'skoolkit.snaskool',
         'SnapshotReferenceOperations': 'DJ,JR,JP,CA,RS'
     },
+    'rzxplay': {
+        'TraceHeader': ('', ''),
+    },
     'sna2ctl' : {
         'Comments': (0, 'comments'),
         'Dictionary': ('', ''),

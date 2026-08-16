@@ -102,7 +102,7 @@ class RzxplayTest(SkoolKitTestCase):
     @patch.object(rzxplay, 'run', mock_run)
     def test_default_option_values(self):
         rzxplay.main(['test.rzx'])
-        rzxfile, options = run_args
+        rzxfile, options, config = run_args
         self.assertEqual(rzxfile, 'test.rzx')
         self.assertFalse(options.cmio)
         self.assertFalse(options.force)
@@ -113,6 +113,7 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertEqual(options.scale, 2)
         self.assertIsNone(options.stop)
         self.assertIsNone(options.trace)
+        self.assertEqual(config['TraceHeader'], '')
 
     def test_sna(self):
         ram = [0] * 0xC000
@@ -1838,3 +1839,50 @@ class RzxplayTest(SkoolKitTestCase):
             F:0 C:00001 I:00000 $E007 LD (HL),$06
         """
         self._test_rzx(rzx, exp_output, '--quiet', exp_trace)
+
+    def test_config_TraceHeader_read_from_file(self):
+        ini = """
+            [rzxplay]
+            TraceHeader=Frm Count   Input   Addr  Instruction
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        ram = [0] * 0xC000
+        pc = 0xF000
+        code = (
+            0x3E, 0x05, # $F000 LD A,$05
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        z80data = self.write_z80(ram, {'PC': pc}, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            Frm Count   Input   Addr  Instruction
+            F:0 C:00001 I:00000 $F000 LD A,$05
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_config_TraceHeader_with_newline(self):
+        ini = r"""
+            [rzxplay]
+            TraceHeader=Frm Count   Input   Addr  Instruction\n--- -----   -----   ----  -----------
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        ram = [0] * 0xC000
+        pc = 0xA000
+        code = (
+            0x3E, 0x15, # $A000 LD A,$15
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        z80data = self.write_z80(ram, {'PC': pc}, ret_data=True)
+        rzx = RZX()
+        frames = [(1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            Frm Count   Input   Addr  Instruction
+            --- -----   -----   ----  -----------
+            F:0 C:00001 I:00000 $A000 LD A,$15
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
