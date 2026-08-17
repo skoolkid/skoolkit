@@ -8,6 +8,8 @@ Changelog
 * Added the ``--ini`` and ``--show-config`` options to :ref:`rzxplay.py` (for
   setting the value of a configuration parameter and for showing all
   configuration parameter values)
+* Added the ``TraceHeader`` configuration parameter for
+  :ref:`tap2sna.py <tap2sna-conf>` (to specify the header for a trace log file)
 
 10.1 (2026-08-14)
 -----------------

@@ -546,6 +546,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             DefaultSnapshotFormat=z80
             ScreenFps=50
             ScreenScale=2
+            TraceHeader=
             TraceLine=${pc:04X} {i}
             TraceOperand=$,02X,04X
             UserAgent=
@@ -566,6 +567,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             DefaultSnapshotFormat=z80
             ScreenFps=50
             ScreenScale=2
+            TraceHeader=
             TraceLine={pc:05} {i}
             TraceOperand=$,02X,04X
             UserAgent=tap2sna.py/9.5
@@ -3516,6 +3518,76 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(screen.fps, 50)
         self.assertEqual(screen.caption, 'tap2sna.py')
         self.assertFalse(screen.is128k)
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_config_TraceHeader_read_from_file(self):
+        ini = """
+            [tap2sna]
+            TraceHeader=Addr  Instruction
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        basic_data = [0, 10, 2, 0, 234, 13] # 10 REM
+        tapfile = self._write_tap((
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ))
+        tracefile = 'th.trace'
+        output, error = self.run_tap2sna(f'-c trace={tracefile} --start 1343 -c finish-tape=1 {tapfile} out.z80')
+        self.assertEqual(error, '')
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 7282)
+        self.assertEqual(trace_lines[0], 'Addr  Instruction')
+        self.assertEqual(trace_lines[1], '$0605 POP AF')
+        self.assertEqual(trace_lines[7281], '$05E2 RET')
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_config_TraceHeader_set_on_command_line(self):
+        basic_data = [0, 10, 2, 0, 234, 13] # 10 REM
+        tapfile = self._write_tap((
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ))
+        tracefile = 'th.trace'
+        output, error = self.run_tap2sna((
+            '-I', f'TraceHeader=Addr  Code',
+            '-c', f'trace={tracefile}',
+            '--start', '1343',
+            '-c', 'finish-tape=1',
+            tapfile,
+            'out.z80'
+        ))
+        self.assertEqual(error, '')
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 7282)
+        self.assertEqual(trace_lines[0], 'Addr  Code')
+        self.assertEqual(trace_lines[1], '$0605 POP AF')
+        self.assertEqual(trace_lines[7281], '$05E2 RET')
+
+    def test_config_TraceHeader_with_newline(self):
+        basic_data = [0, 10, 2, 0, 234, 13] # 10 REM
+        tapfile = self._write_tap((
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ))
+        tracefile = 'thnl.trace'
+        output, error = self.run_tap2sna((
+            '-I', fr'TraceHeader=Addr  Instruction\n====  ===========',
+            '-c', f'trace={tracefile}',
+            '--start', '1343',
+            '-c', 'finish-tape=1',
+            tapfile,
+            'out.z80'
+        ))
+        self.assertEqual(error, '')
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 7283)
+        self.assertEqual(trace_lines[0], 'Addr  Instruction')
+        self.assertEqual(trace_lines[1], '====  ===========')
+        self.assertEqual(trace_lines[2], '$0605 POP AF')
+        self.assertEqual(trace_lines[7282], '$05E2 RET')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_config_TraceLine_read_from_file(self):

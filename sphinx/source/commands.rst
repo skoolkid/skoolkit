@@ -1965,6 +1965,7 @@ configuration parameters are:
 * ``ScreenFps`` - screen refresh rate in frames per second (default: ``50``);
   if set to 0, `tap2sna.py` runs at maximum speed
 * ``ScreenScale`` - screen scale factor (default: ``2``)
+* ``TraceHeader`` - the trace log file header (default: None)
 * ``TraceLine`` - the format of each line in the trace log file for a simulated
   LOAD (default: ``${pc:04X} {i}``)
 * ``TraceOperand`` - the prefix, byte format, and word format for the numeric
@@ -2004,6 +2005,9 @@ shown by the ``--tape-analysis`` option) when that block is reached. (The
 simulator's clock may at times become desynchronised with the tape because, by
 default, the tape is paused between blocks, and resumed when port 254 is read.)
 
+Wherever ``\n`` appears in the ``TraceHeader`` parameter value, it is replaced
+by a newline character.
+
 Configuration parameters must appear in a ``[tap2sna]`` section. For example,
 to make `tap2sna.py` write instruction addresses and operands in a trace log
 file in decimal format by default, add the following section to
@@ -2020,6 +2024,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.2    | Added the ``TraceHeader`` configuration parameter                 |
++---------+-------------------------------------------------------------------+
 | 10.1    | Added the ``--screen`` option; added the ``ScreenFps`` and        |
 |         | ``ScreenScale`` configuration parameters                          |
 +---------+-------------------------------------------------------------------+

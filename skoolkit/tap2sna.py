@@ -503,6 +503,9 @@ def sim_load(blocks, options, config):
 
     if options.trace:
         tracefile = open_file(options.trace, 'w')
+        th = config['TraceHeader'].replace(r'\n', '\n')
+        if th:
+            tracefile.write(f'{th}\n')
         trace_line = get_trace_line(config['TraceLine'] + '\n')
         op_fmt = config['TraceOperand']
         prefix, byte_fmt, word_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
