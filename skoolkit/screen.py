@@ -58,6 +58,7 @@ class Screen:
         self.surface = pygame.display.get_surface()
         self.clock = pygame.time.Clock()
         self.prev_scr = [None] * 6912
+        self.prev_border = None
 
     def _init_colours_and_keys(self):
         self.colours = (
@@ -146,7 +147,7 @@ class Screen:
             (pygame.K_KP_PERIOD, 7, 0b00100),   # SYMBOL SHIFT + M
         ) if pygame else None
 
-    def _draw_chunks(self, border, chunks):
+    def _draw_chunks(self, chunks):
         screen = self.surface
         scale = self.scale
         Rect = pygame.Rect
@@ -162,8 +163,6 @@ class Screen:
             else:
                 # Top/bottom/left/right border only
                 screen.fill(c, Rect(x * scale, y * scale, t * scale, scale))
-
-        border[:] = [(0, border[-2][1])]
 
     def _draw_border_48k(self, border):
         colours = self.colours
@@ -186,7 +185,7 @@ class Screen:
                 x = 0
                 y += 1
                 t -= t0
-        self._draw_chunks(border, chunks)
+        self._draw_chunks(chunks)
 
     def _draw_border_128k(self, border):
         colours = self.colours
@@ -206,7 +205,7 @@ class Screen:
                 x = 0
                 y += 1
                 t -= t0
-        self._draw_chunks(border, chunks)
+        self._draw_chunks(chunks)
 
     # Component API
     def draw(self, scr, frame, border, keyboard=None):
@@ -229,8 +228,11 @@ class Screen:
         flash_switch = (frame // 16) % 2
         colours = self.colours
 
-        border.append((99999, 0))
-        self.draw_border(border)
+        if border != self.prev_border:
+            self.prev_border = border[:]
+            border.append((99999, 0))
+            self.draw_border(border)
+            border[:] = [(0, border[-2][1])]
 
         for (x, y, df_addr, af_addr) in CELLS:
             update = False
