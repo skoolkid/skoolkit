@@ -110,6 +110,7 @@ class RZXContext:
         self.screen = screen
         self.exec_map = None
         self.tracefile = None
+        self.trace_line = ''
         self.snapshot = None
         self.simulator = None
         self.total_frames = 0
@@ -244,9 +245,15 @@ def check_supported(snapshot, options):
             warn('Unsupported block(s) ({}) in SZX snapshot'.format(', '.join(sorted(unsupported_blocks))))
 
 def trace_exec(tracefile, context, fetch_counter, pc):
-    i = disassemble(context.simulator.memory, pc)[0]
-    readings_left = context.simulator.tracer.end - context.simulator.tracer.index
-    tracefile.write(f'F:{context.frame_count:0{context.fnwidth}} C:{fetch_counter:05} I:{readings_left:05} ${pc:04X} {i}\n')
+    simulator = context.simulator
+    tracefile.write(context.trace_line.format(
+        fr=context.frame_count,
+        fw=context.fnwidth,
+        fc=fetch_counter,
+        rr=simulator.tracer.end - simulator.tracer.index,
+        pc=pc,
+        i=disassemble(simulator.memory, pc)[0]
+    ))
 
 def process_block(block, options, flags, context):
     if block is None:
@@ -386,6 +393,7 @@ def run(infile, options, config):
         trace_header = config['TraceHeader'].replace(r'\n', '\n')
         if trace_header:
             context.tracefile.write(f'{trace_header}\n')
+        context.trace_line = config['TraceLine'] + '\n'
     for block in rzx_blocks:
         if isinstance(block.obj, InputRecording):
             context.total_frames += len(block.obj.frames)

@@ -1603,6 +1603,7 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = """
             [rzxplay]
             TraceHeader=
+            TraceLine=F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -1617,6 +1618,7 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = """
             [rzxplay]
             TraceHeader=Disassembly
+            TraceLine=F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -1950,3 +1952,55 @@ class RzxplayTest(SkoolKitTestCase):
             F:0 C:00001 I:00000 $A000 LD A,$15
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_config_TraceLine_read_from_file(self):
+        ini = """
+            [rzxplay]
+            TraceLine=${pc:04X} {i:<14} (Frame={fr} FC={fc} RR={rr})
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        ram = [0] * 0xC000
+        pc = 0xF000
+        code = (
+            0x01, 0xFE, 0x7F, # $F000 LD BC,$7FFE
+            0xED, 0x78,       # $F003 IN A,(C)
+            0x1F,             # $F005 RRA
+            0xD2, 0x00, 0x00, # $F006 JP NC,$0000
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        z80data = self.write_z80(ram, {'PC': pc}, ret_data=True)
+        rzx = RZX()
+        frames = [(4, 1, [255]), (1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        exp_output = ''
+        exp_trace = """
+            $F000 LD BC,$7FFE    (Frame=0 FC=4 RR=1)
+            $F003 IN A,(C)       (Frame=0 FC=3 RR=1)
+            $F005 RRA            (Frame=0 FC=1 RR=0)
+            $F006 JP NC,$0000    (Frame=1 FC=1 RR=0)
+        """
+        self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_config_TraceLine_set_on_command_line(self):
+        ram = [0] * 0xC000
+        pc = 0xB000
+        code = (
+            0x01, 0xFE, 0x7F, # $B000 LD BC,$7FFE
+            0xED, 0x78,       # $B003 IN A,(C)
+            0x1F,             # $B005 RRA
+            0xD2, 0x00, 0x00, # $B006 JP NC,$0000
+        )
+        ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        z80data = self.write_z80(ram, {'PC': pc}, ret_data=True)
+        rzx = RZX()
+        frames = [(4, 1, [255]), (1, 0, [])]
+        rzx.add_snapshot(z80data, 'z80', frames)
+        tl = '{pc:04X} {i:<12} (Frame:{fr} RR:{rr} FC:{fc})'
+        exp_output = ''
+        exp_trace = """
+            B000 LD BC,$7FFE  (Frame:0 RR:1 FC:4)
+            B003 IN A,(C)     (Frame:0 RR:1 FC:3)
+            B005 RRA          (Frame:0 RR:0 FC:1)
+            B006 JP NC,$0000  (Frame:1 RR:0 FC:1)
+        """
+        self._test_rzx(rzx, exp_output, ('-I', f'TraceLine={tl}', '--quiet', '--no-screen'), exp_trace)

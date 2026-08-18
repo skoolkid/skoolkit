@@ -128,8 +128,20 @@ CONFIGURATION
 the current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
-  :TraceHeader: The header to write when logging executed instructions to a
-    file (default: None).
+  :TraceHeader: The header to write in the trace log file (default: None).
+  :TraceLine: The format of each line in the trace log file (default:
+    ``F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}``).
+
+``TraceLine`` is a standard Python format string that recognises the following
+replacement fields:
+
+|
+|  ``fc`` - opcode fetch counter
+|  ``fr`` - frame number (0-indexed)
+|  ``fw`` - maximum width required for the frame number field
+|  ``i`` - the current instruction
+|  ``pc`` - the address of the current instruction (program counter)
+|  ``rr`` - the number of input readings remaining in the frame
 
 Wherever ``\n`` appears in the ``TraceHeader`` parameter value, it is replaced
 by a newline character.

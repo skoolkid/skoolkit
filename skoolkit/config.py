@@ -45,6 +45,7 @@ COMMANDS = {
     },
     'rzxplay': {
         'TraceHeader': ('', ''),
+        'TraceLine': ('F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}', ''),
     },
     'sna2ctl' : {
         'Comments': (0, 'comments'),
