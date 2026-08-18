@@ -4,7 +4,8 @@ from unittest.mock import patch
 from skoolkittest import (SkoolKitTestCase, PZX, create_header_block,
                           create_data_block, create_tap_header_block,
                           create_tap_data_block, create_tzx_header_block,
-                          create_tzx_data_block)
+                          create_tzx_data_block, create_tzx_pure_data_block,
+                          create_tzx_turbo_data_block)
 from skoolkit import SkoolKitError, tapinfo, get_word, VERSION
 
 TZX_DATA_BLOCK = (16, 0, 0, 3, 0, 255, 0, 0)
@@ -28,6 +29,12 @@ class MockBasicLister:
         return 'BASIC DONE!'
 
 class TapinfoTest(SkoolKitTestCase):
+    def _write_tap(self, blocks):
+        tap_data = []
+        for block in blocks:
+            tap_data.extend(block)
+        return self.write_bin_file(tap_data, suffix='.tap')
+
     def _write_tzx(self, blocks, minor_version=20):
         tzx_data = [ord(c) for c in "ZXTape!"]
         tzx_data.extend((26, 1, minor_version))
@@ -234,12 +241,13 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], 'Not a PZX file')
 
     def test_tap_file(self):
-        tap_data = create_tap_header_block('program_01', 100, 200, 0)
         data = [1, 2, 4]
-        tap_data.extend(create_tap_header_block('test_tap01', 32768, len(data)))
-        tap_data.extend(create_tap_data_block(data))
-        tap_data.extend(create_tap_header_block('numbers_01', length=5, data_type=1))
-        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        tapfile = self._write_tap((
+            create_tap_header_block('program_01', 100, 200, 0),
+            create_tap_header_block('test_tap01', 32768, len(data)),
+            create_tap_data_block(data),
+            create_tap_header_block('numbers_01', length=5, data_type=1),
+        ))
         output, error = self.run_tapinfo(tapfile)
         self.assertEqual(error, '')
         exp_output = """
@@ -268,10 +276,11 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
     def test_tap_file_with_empty_block(self):
-        tap_data = create_tap_header_block('test_tap02', 32768, 3)
-        tap_data.extend(create_tap_data_block([1, 2, 3]))
-        tap_data.extend((0, 0))
-        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        tapfile = self._write_tap((
+            create_tap_header_block('test_tap02', 32768, 3),
+            create_tap_data_block([1, 2, 3]),
+            (0, 0)
+        ))
         output, error = self.run_tapinfo(tapfile)
         self.assertEqual(error, '')
         exp_output = """
@@ -291,10 +300,10 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
     def test_tap_file_with_extraneous_byte(self):
-        data = [1, 2, 4]
-        tap_data = create_tap_data_block(data)
-        tap_data.append(0)
-        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        tapfile = self._write_tap((
+            create_tap_data_block([1, 2, 4]),
+            [0],
+        ))
         output, error = self.run_tapinfo(tapfile)
         self.assertEqual(error, 'WARNING: Extraneous byte at end of file\n')
         exp_output = """
@@ -306,9 +315,7 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
     def test_tap_file_with_missing_bytes(self):
-        data = [1, 2, 4]
-        tap_data = create_tap_data_block(data)[:-2]
-        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        tapfile = self._write_tap([create_tap_data_block([1, 2, 4])[:-2]])
         output, error = self.run_tapinfo(tapfile)
         self.assertEqual(error, 'WARNING: Missing 2 data byte(s) at end of file\n')
         exp_output = """
@@ -844,8 +851,7 @@ class TapinfoTest(SkoolKitTestCase):
         self._test_tzx_block(block, exp_output)
 
     def test_basic_line_number_over_32767(self):
-        tap_data = create_tap_header_block('LINE-32768', 32768, 200, 0)
-        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        tapfile = self._write_tap([create_tap_header_block('LINE-32768', 32768, 200, 0)])
         output, error = self.run_tapinfo(tapfile)
         self.assertEqual(error, '')
         exp_output = """
@@ -858,9 +864,10 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
     def test_names_containing_basic_tokens(self):
-        tap_data = create_tap_header_block('\xef\xcb\xf7\xebFUN...', 32768, data_type=0)
-        tap_data.extend(create_tap_header_block('\xc6\xaf\xc6\xe4\xcc\xe3....', 32768, 200))
-        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        tapfile = self._write_tap((
+            create_tap_header_block('\xef\xcb\xf7\xebFUN...', 32768, data_type=0),
+            create_tap_header_block('\xc6\xaf\xc6\xe4\xcc\xe3....', 32768, 200),
+        ))
         output, error = self.run_tapinfo(tapfile)
         self.assertEqual(error, '')
         exp_output = """
@@ -878,6 +885,174 @@ class TapinfoTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
+    def test_option_analyse(self):
+        tapfile = self._write_tap((
+            create_tap_header_block(start=0),
+            create_tap_data_block([4, 5, 6]),
+        ))
+        exp_output = """
+            T-states    EAR  Description
+                     0    0  Tone (8063 x 2168 T-states)
+              17480584    1  Pulse (667 T-states)
+              17481251    0  Pulse (735 T-states)
+              17481986    1  Data (19 bytes; 855,855/1710,1710 T-states)
+              17765846    1  Pause (3500000 T-states)
+              21265846    1  Tone (3223 x 2168 T-states)
+              28253310    0  Pulse (667 T-states)
+              28253977    1  Pulse (735 T-states)
+              28254712    0  Data (5 bytes; 855,855/1710,1710 T-states)
+        """
+        output, error = self.run_tapinfo(f'-a {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_analyse_with_tape_start(self):
+        tapfile = self._write_tap((
+            create_tap_header_block(start=0),
+            create_tap_data_block([4, 5, 6]),
+        ))
+        exp_output = """
+            T-states    EAR  Description
+                     0    0  Tone (3223 x 2168 T-states)
+               6987464    1  Pulse (667 T-states)
+               6988131    0  Pulse (735 T-states)
+               6988866    1  Data (5 bytes; 855,855/1710,1710 T-states)
+        """
+        output, error = self.run_tapinfo(f'--analyse --tape-start 2 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_analyse_with_tape_stop(self):
+        tapfile = self._write_tap((
+            create_tap_header_block(start=0),
+            create_tap_data_block([4, 5, 6]),
+        ))
+        exp_output = """
+            T-states    EAR  Description
+                     0    0  Tone (8063 x 2168 T-states)
+              17480584    1  Pulse (667 T-states)
+              17481251    0  Pulse (735 T-states)
+              17481986    1  Data (19 bytes; 855,855/1710,1710 T-states)
+        """
+        output, error = self.run_tapinfo(f'-a --tape-stop 2 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_analyse_with_unused_bits_in_last_byte(self):
+        code = [1, 2, 3, 4]
+        blocks = [create_tzx_turbo_data_block(code, used_bits=4)]
+        tzxfile = self._write_tzx(blocks)
+        exp_output = """
+            T-states    EAR  Description
+                     0    0  Tone (3223 x 2168 T-states)
+               6987464    1  Pulse (667 T-states)
+               6988131    0  Pulse (735 T-states)
+               6988866    1  Data (5 bytes + 4 bits; 855,855/1710,1710 T-states)
+        """
+        output, error = self.run_tapinfo(f'--analyse {tzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_analyse_with_pure_tone_and_pause_and_pulse_sequence_and_pure_data(self):
+        blocks = []
+        blocks.append((18, 76, 4, 208, 7)) # 0x12 Pure Tone
+        blocks.append((32, 1, 0))          # 0x20 Pause
+        blocks.append((19, 2, 0, 1, 0, 2)) # 0x13 Pulse sequence
+        blocks.append(create_tzx_pure_data_block((1, 2, 3, 4), 500, 1000))
+        tzxfile = self._write_tzx(blocks)
+        exp_output = """
+            T-states    EAR  Description
+                     0    0  Tone (2000 x 1100 T-states)
+               2200000    0  Pause (3500 T-states)
+               2203500    0  Pulse (256 T-states)
+               2203756    1  Pulse (512 T-states)
+               2204268    0  Data (4 bytes; 500,500/1000,1000 T-states)
+        """
+        output, error = self.run_tapinfo(f'-a {tzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_analyse_with_tzx_loop(self):
+        tzxfile = self._write_tzx((
+            (0x24, 2, 0), # 0x24 Loop start (2 repetitions)
+            create_tzx_header_block(),
+            create_tzx_data_block([1, 2, 3]),
+            (0x25,), # 0x25 Loop end
+        ))
+        exp_output = """
+            T-states    EAR  Description
+                     0    0  Tone (8063 x 2168 T-states)
+              17480584    1  Pulse (667 T-states)
+              17481251    0  Pulse (735 T-states)
+              17481986    1  Data (19 bytes; 855,855/1710,1710 T-states)
+              17765846    1  Tone (3223 x 2168 T-states)
+              24753310    0  Pulse (667 T-states)
+              24753977    1  Pulse (735 T-states)
+              24754712    0  Data (5 bytes; 855,855/1710,1710 T-states)
+              24857312    0  Tone (8063 x 2168 T-states)
+              42337896    1  Pulse (667 T-states)
+              42338563    0  Pulse (735 T-states)
+              42339298    1  Data (19 bytes; 855,855/1710,1710 T-states)
+              42623158    1  Tone (3223 x 2168 T-states)
+              49610622    0  Pulse (667 T-states)
+              49611289    1  Pulse (735 T-states)
+              49612024    0  Data (5 bytes; 855,855/1710,1710 T-states)
+        """
+        output, error = self.run_tapinfo(f'-a {tzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_analyse_pzx_file(self):
+        pzx = PZX()
+        pzx.add_puls(2)
+        pzx.add_data((1, 2, 3, 4, 5))
+        pzx.add_paus()
+        pzx.add_puls(1)
+        pzx.add_data((6, 7, 8, 9, 10))
+        pzx.add_paus()
+        pzx.add_puls(pulse_counts=((5000, 2168), (1, 430), (1, 870)))
+        pzx.add_data((11, 12, 13, 14, 15), (570, 570), (1050, 1050), tail=0, used_bits=5, polarity=0)
+        pzx.add_puls(pulse_counts=((2000, 1234), (2, 500), (1, 1000)))
+        pzx.add_data((255, 0, 255, 0, 255), (80, 0), (0, 80), tail=0)
+        pzx.add_puls(pulses=(0, 1000, 1000, 1000))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        exp_output = """
+            T-states    EAR  Description
+                     0    0  Tone (8063 x 2168 T-states)
+              17480584    1  Pulse (667 T-states)
+              17481251    0  Pulse (735 T-states)
+              17481986    1  Data (5 bytes; 855,855/1710,1710 T-states)
+              17562356    1  Tail pulse (945 T-states)
+              17563301    0  Pause (3500000 T-states)
+              21063301    0  Tone (3223 x 2168 T-states)
+              28050765    1  Pulse (667 T-states)
+              28051432    0  Pulse (735 T-states)
+              28052167    1  Data (5 bytes; 855,855/1710,1710 T-states)
+              28137667    1  Tail pulse (945 T-states)
+              28138612    0  Pause (3500000 T-states)
+              31638612    0  Tone (5000 x 2168 T-states)
+              42478612    0  Pulse (430 T-states)
+              42479042    1  Pulse (870 T-states)
+              42479912    0  Data (4 bytes + 5 bits; 570,570/1050,1050 T-states)
+              42533612    0  Tone (2000 x 1234 T-states)
+              45001612    0  Tone (2 x 500 T-states)
+              45002612    0  Pulse (1000 T-states)
+              45003612    1  Data (5 bytes; 80,0/0,80 T-states)
+              45006812    1  Tone (3 x 1000 T-states)
+        """
+        output, error = self.run_tapinfo(f'--analyse {pzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_analyse_with_unsupported_tzx_block(self):
+        block = [0x19] # Generalized Data Block
+        block.extend((20, 0, 0, 0)) # Block length
+        block.extend([0] * block[1])
+        tzxfile = self._write_tzx([block])
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tapinfo(f'--analyse {tzxfile}')
+        self.assertEqual(cm.exception.args[0], "TZX Generalized Data Block (0x19) not supported")
+
     @patch.object(tapinfo, 'BasicLister', MockBasicLister)
     def test_option_b_pzx(self):
         prog = [10] * 10
@@ -893,8 +1068,7 @@ class TapinfoTest(SkoolKitTestCase):
     @patch.object(tapinfo, 'BasicLister', MockBasicLister)
     def test_option_b_tap(self):
         prog = [10] * 10
-        tap_data = create_tap_data_block(prog)
-        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        tapfile = self._write_tap([create_tap_data_block(prog)])
         exp_snapshot = [0] * 23755 + prog
         output, error = self.run_tapinfo('-b 1 {}'.format(tapfile))
         self.assertEqual(error, '')
@@ -921,8 +1095,7 @@ class TapinfoTest(SkoolKitTestCase):
         address = 23755 - len(prefix)
         prog = [9] * 9
         data = prefix + prog
-        tap_data = create_tap_data_block(data)
-        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        tapfile = self._write_tap([create_tap_data_block(data)])
         exp_snapshot = [0] * address + data
         output, error = self.run_tapinfo('-b 1,0x{:04x} {}'.format(address, tapfile))
         self.assertEqual(error, '')
@@ -961,11 +1134,12 @@ class TapinfoTest(SkoolKitTestCase):
 
     def test_option_d_with_tap_file(self):
         data = [1, 2, 4, 8]
-        tap_data = create_tap_header_block('test_tap02', 49152, len(data))
-        tap_data.extend(create_tap_data_block(data))
-        tap_data.extend(create_tap_header_block('characters', data_type=2))
-        tap_data.extend(create_tap_data_block(list(range(32, 94))))
-        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        tapfile = self._write_tap((
+            create_tap_header_block('test_tap02', 49152, len(data)),
+            create_tap_data_block(data),
+            create_tap_header_block('characters', data_type=2),
+            create_tap_data_block(list(range(32, 94))),
+        ))
         output, error = self.run_tapinfo('-d {}'.format(tapfile))
         self.assertEqual(error, '')
         exp_output = r"""
@@ -1177,10 +1351,11 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
     def test_option_tape_start_with_tap_file(self):
-        tap_data = create_tap_header_block('test_start', 32768, 3)
-        tap_data.extend(create_tap_data_block([1, 2, 3]))
-        tap_data.extend(create_tap_data_block([4, 5, 6]))
-        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        tapfile = self._write_tap((
+            create_tap_header_block('test_start', 32768, 3),
+            create_tap_data_block([1, 2, 3]),
+            create_tap_data_block([4, 5, 6]),
+        ))
         output, error = self.run_tapinfo(f'--tape-start 2 {tapfile}')
         self.assertEqual(error, '')
         exp_output = """
@@ -1196,10 +1371,11 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
     def test_option_tape_stop_with_tap_file(self):
-        tap_data = create_tap_header_block('test__stop', 32768, 3)
-        tap_data.extend(create_tap_data_block([1, 2, 3]))
-        tap_data.extend(create_tap_data_block([4, 5, 6]))
-        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        tapfile = self._write_tap((
+            create_tap_header_block('test__stop', 32768, 3),
+            create_tap_data_block([1, 2, 3]),
+            create_tap_data_block([4, 5, 6]),
+        ))
         output, error = self.run_tapinfo(f'--tape-stop 3 {tapfile}')
         self.assertEqual(error, '')
         exp_output = """
@@ -1217,10 +1393,11 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
     def test_options_tape_start_and_tape_stop_with_tap_file(self):
-        tap_data = create_tap_header_block('test__both', 32768, 3)
-        tap_data.extend(create_tap_data_block([1, 2, 3]))
-        tap_data.extend(create_tap_data_block([4, 5, 6]))
-        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        tapfile = self._write_tap((
+            create_tap_header_block('test__both', 32768, 3),
+            create_tap_data_block([1, 2, 3]),
+            create_tap_data_block([4, 5, 6]),
+        ))
         output, error = self.run_tapinfo(f'--tape-start 2 --tape-stop 3 {tapfile}')
         self.assertEqual(error, '')
         exp_output = """

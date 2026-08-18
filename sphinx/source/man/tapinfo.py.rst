@@ -14,6 +14,9 @@ DESCRIPTION
 
 OPTIONS
 =======
+-a, --analyse
+  Show an analysis of the tape's tones, pulse sequences and data blocks.
+
 -b, --basic `N[,A]`
   List the BASIC program in block number `N` loaded at address `A` (default
   23755). `A` must be a decimal number, or a hexadecimal number prefixed by

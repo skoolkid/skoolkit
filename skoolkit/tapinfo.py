@@ -18,7 +18,7 @@ import argparse
 
 from skoolkit import SkoolKitError, get_word, get_int_param, warn, VERSION
 from skoolkit.basic import BasicLister, TextReader
-from skoolkit.tape import hex_dump, parse_pzx, parse_tap, parse_tzx
+from skoolkit.tape import get_edges, hex_dump, parse_pzx, parse_tap, parse_tzx
 
 def _bytes_to_str(data):
     return ', '.join(str(b) for b in data)
@@ -95,6 +95,32 @@ def _get_basic_block(spec):
         except ValueError:
             raise SkoolKitError('Invalid block specification: {}'.format(spec))
 
+def _tape_analysis(tape, tape_type):
+    if tape_type == '.pzx':
+        blocks = tape.blocks
+    elif tape_type == '.tap':
+        blocks = [b for b in tape.blocks if b.data]
+    else:
+        blocks = []
+        loop = None
+        for block in tape.blocks:
+            if block.timings and block.timings.error:
+                raise SkoolKitError(block.timings.error)
+            if block.block_id == 0x24:
+                loop = []
+                repetitions = get_word(block.block_data, 0)
+            if loop is None:
+                blocks.append(block)
+            else:
+                loop.append(block)
+            if block.block_id == 0x25 and loop is not None:
+                blocks.extend(loop * repetitions)
+                loop = None
+    blocks = [b for b in blocks if b.timings]
+    for block in blocks:
+        block.keys = None
+    get_edges(blocks, analyse=True)
+
 def _analyse_tape(tape, basic_block, text_reader, show_data):
     if not basic_block and tape.version:
         print(f'Version: {tape.version}')
@@ -114,6 +140,8 @@ def main(args):
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-a', '--analyse', action='store_true',
+                       help="Show an analysis of the tape's tones, pulse sequences and data blocks.")
     group.add_argument('-b', '--basic', metavar='N[,A]',
                        help='List the BASIC program in block N loaded at address A (default 23755).')
     group.add_argument('-d', '--data', action='store_true',
@@ -128,14 +156,18 @@ def main(args):
     if unknown_args or namespace.infile is None:
         parser.exit(2, parser.format_help())
     basic_block = _get_basic_block(namespace.basic)
-    text_reader = TextReader()
     tape_type = namespace.infile.lower()[-4:]
     if tape_type == '.pzx':
         tape = parse_pzx(namespace.infile, namespace.tape_start, namespace.tape_stop)
     elif tape_type == '.tap':
         tape = parse_tap(namespace.infile, namespace.tape_start, namespace.tape_stop)
     elif tape_type == '.tzx':
-        tape = parse_tzx(namespace.infile, namespace.tape_start, namespace.tape_stop)
+        info = not namespace.analyse
+        timings = namespace.analyse
+        tape = parse_tzx(namespace.infile, namespace.tape_start, namespace.tape_stop, info, timings)
     else:
         raise SkoolKitError('Unrecognised tape type')
-    _analyse_tape(tape, basic_block, text_reader, namespace.data)
+    if namespace.analyse:
+        _tape_analysis(tape, tape_type)
+    else:
+        _analyse_tape(tape, basic_block, TextReader(), namespace.data)

@@ -2161,17 +2161,20 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
   Show the blocks in a PZX, TAP or TZX file.
 
   Options:
-    -b N[,A], --basic N[,A]
-                          List the BASIC program in block N loaded at address A
-                          (default 23755).
-    -d, --data            Show the entire contents of header and data blocks.
-    --tape-start BLOCK    Start at this tape block number.
-    --tape-stop BLOCK     Stop at this tape block number.
-    -V, --version         Show SkoolKit version number and exit.
+    -a, --analyse       Show an analysis of the tape's tones, pulse sequences
+                        and data blocks.
+    -b, --basic N[,A]   List the BASIC program in block N loaded at address A
+                        (default 23755).
+    -d, --data          Show the entire contents of header and data blocks.
+    --tape-start BLOCK  Start at this tape block number.
+    --tape-stop BLOCK   Stop at this tape block number.
+    -V, --version       Show SkoolKit version number and exit.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.2    | Added the ``--analyse`` option                                    |
++---------+-------------------------------------------------------------------+
 | 9.3     | Added support for PZX files; added the ``--tape-start`` and       |
 |         | ``--tape-stop`` options; shows info for TZX block types 0x18 (CSW |
 |         | recording) and 0x2B (set signal level); recognises deprecated TZX |
