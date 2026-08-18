@@ -131,6 +131,11 @@ configuration parameters are:
   :TraceHeader: The header to write in the trace log file (default: None).
   :TraceLine: The format of each line in the trace log file (default:
     ``F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}``).
+  :TraceOperand: The prefix, byte format, and word format for the numeric
+    operands of instructions in the trace log file, separated by commas
+    (default: ``$,02X,04X``). The byte and word formats are standard Python
+    format specifiers for numeric values, and default to empty strings if not
+    supplied.
 
 ``TraceLine`` is a standard Python format string that recognises the following
 replacement fields:
@@ -145,6 +150,15 @@ replacement fields:
 
 Wherever ``\n`` appears in the ``TraceHeader`` parameter value, it is replaced
 by a newline character.
+
+Configuration parameters must appear in a ``[rzxplay]`` section. For example,
+to make ``rzxplay.py`` write instruction addresses and operands in a trace log
+file in decimal format by default, add the following section to
+``skoolkit.ini``::
+
+  [rzxplay]
+  TraceLine={pc:05} {i}
+  TraceOperand=
 
 Configuration parameters may also be set on the command line by using the
 ``--ini`` option. Parameter values set this way will override any found in

@@ -320,6 +320,10 @@ configuration parameters are:
 * ``TraceHeader`` - the header to write in the trace log file (default: None)
 * ``TraceLine`` - the format of each line in the trace log file (default:
   ``F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}``)
+* ``TraceOperand`` - the prefix, byte format, and word format for the numeric
+  operands of instructions in the trace log file, separated by commas (default:
+  ``$,02X,04X``); the byte and word formats are standard Python format
+  specifiers for numeric values, and default to empty strings if not supplied
 
 ``TraceLine`` is a standard Python format string that recognises the following
 replacement fields:
@@ -334,6 +338,15 @@ replacement fields:
 Wherever ``\n`` appears in the ``TraceHeader`` parameter value, it is replaced
 by a newline character.
 
+Configuration parameters must appear in a ``[rzxplay]`` section. For example,
+to make `rzxplay.py` write instruction addresses and operands in a trace log
+file in decimal format by default, add the following section to
+`skoolkit.ini`::
+
+  [rzxplay]
+  TraceLine={pc:05} {i}
+  TraceOperand=
+
 Configuration parameters may also be set on the command line by using the
 ``--ini`` option. Parameter values set this way will override any found in
 `skoolkit.ini`.
@@ -343,7 +356,8 @@ Configuration parameters may also be set on the command line by using the
 +=========+===================================================================+
 | 10.2    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini`` and ``--show-config`` options; added the                |
-|         | ``TraceHeader`` and ``TraceLine`` configuration parameters        |
+|         | ``TraceHeader``, ``TraceLine`` and ``TraceOperand`` configuration |
+|         | parameters                                                        |
 +---------+-------------------------------------------------------------------+
 | 10.1    | Added the ``--cmio`` option; added support for multiple colours   |
 |         | in the border area of the screen                                  |

@@ -111,6 +111,7 @@ class RZXContext:
         self.exec_map = None
         self.tracefile = None
         self.trace_line = ''
+        self.operand_fmt = None
         self.snapshot = None
         self.simulator = None
         self.total_frames = 0
@@ -252,7 +253,7 @@ def trace_exec(tracefile, context, fetch_counter, pc):
         fc=fetch_counter,
         rr=simulator.tracer.end - simulator.tracer.index,
         pc=pc,
-        i=disassemble(simulator.memory, pc)[0]
+        i=disassemble(simulator.memory, pc, *context.operand_fmt)[0]
     ))
 
 def process_block(block, options, flags, context):
@@ -394,6 +395,8 @@ def run(infile, options, config):
         if trace_header:
             context.tracefile.write(f'{trace_header}\n')
         context.trace_line = config['TraceLine'] + '\n'
+        op_fmt = config['TraceOperand']
+        context.operand_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
     for block in rzx_blocks:
         if isinstance(block.obj, InputRecording):
             context.total_frames += len(block.obj.frames)
