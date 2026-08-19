@@ -544,6 +544,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_output = r"""
             [tap2sna]
             DefaultSnapshotFormat=z80
+            Screen=0
             ScreenFps=50
             ScreenScale=2
             TraceHeader=
@@ -565,6 +566,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_output = """
             [tap2sna]
             DefaultSnapshotFormat=z80
+            Screen=0
             ScreenFps=50
             ScreenScale=2
             TraceHeader=
@@ -3455,6 +3457,39 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--ram load=1,16384 -I DefaultSnapshotFormat=szx {tapfile}')
         self.assertEqual(len(error), 0)
         self.assertEqual(s_fname, exp_outfile)
+
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
+    @patch.object(tap2sna, 'get_screen', mock_get_screen)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    def test_config_Screen_read_from_file(self):
+        ini = """
+            [tap2sna]
+            Screen=1
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'{tapfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertIsNotNone(load_tracer.draw)
+        self.assertIsNotNone(screen)
+        self.assertEqual(screen.scale, 2)
+        self.assertEqual(screen.fps, 50)
+        self.assertEqual(screen.caption, 'tap2sna.py')
+        self.assertFalse(screen.is128k)
+
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
+    @patch.object(tap2sna, 'get_screen', mock_get_screen)
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    def test_config_Screen_set_on_command_line(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        output, error = self.run_tap2sna(f'-I Screen=1 {tapfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertIsNotNone(load_tracer.draw)
+        self.assertIsNotNone(screen)
+        self.assertEqual(screen.scale, 2)
+        self.assertEqual(screen.fps, 50)
+        self.assertEqual(screen.caption, 'tap2sna.py')
+        self.assertFalse(screen.is128k)
 
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     @patch.object(tap2sna, 'get_screen', mock_get_screen)

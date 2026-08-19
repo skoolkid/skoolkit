@@ -1025,7 +1025,7 @@ def main(args):
     group.add_argument('--reg', dest='reg', metavar='name=value', action='append', default=[],
                        help="Set the value of a register. Do '--reg help' for more information. "
                             "This option may be used multiple times.")
-    group.add_argument('--screen', dest='screen', action='store_true',
+    group.add_argument('--screen', dest='screen', action='store_const', const=1, default=config['Screen'],
                        help="Display screen contents while running.")
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")

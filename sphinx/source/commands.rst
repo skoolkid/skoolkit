@@ -1988,6 +1988,8 @@ configuration parameters are:
 * ``DefaultSnapshotFormat`` - the format of the snapshot written when no output
   snapshot argument is specified; valid values are ``z80`` (the default) and
   ``szx``
+* ``Screen`` - display screen contents while running (``1``), or don't (``0``,
+  the default)
 * ``ScreenFps`` - screen refresh rate in frames per second (default: ``50``);
   if set to 0, `tap2sna.py` runs at maximum speed
 * ``ScreenScale`` - screen scale factor (default: ``2``)
@@ -2050,7 +2052,7 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.2    | Added the ``TraceHeader`` configuration parameter                 |
+| 10.2    | Added the ``Screen`` and ``TraceHeader`` configuration parameters |
 +---------+-------------------------------------------------------------------+
 | 10.1    | Added the ``--screen`` option; added the ``ScreenFps`` and        |
 |         | ``ScreenScale`` configuration parameters                          |

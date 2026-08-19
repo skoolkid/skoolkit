@@ -11,6 +11,9 @@ Changelog
 * Added support to :ref:`rzxplay.py <rzxplay-conf>` for configuring the format
   of the trace log file via the ``TraceHeader``, ``TraceLine`` and
   ``TraceOperand`` configuration parameters
+* Added the ``Screen`` configuration parameter for
+  :ref:`tap2sna.py <tap2sna-conf>` (to specify whether to display screen
+  contents)
 * Added the ``TraceHeader`` configuration parameter for
   :ref:`tap2sna.py <tap2sna-conf>` (to specify the header for a trace log file)
 * Added the ``--analyse`` option to :ref:`tapinfo.py` (for showing an analysis

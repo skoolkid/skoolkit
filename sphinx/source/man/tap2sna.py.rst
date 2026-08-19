@@ -524,6 +524,8 @@ configuration parameters are:
   :DefaultSnapshotFormat: The format of the snapshot written when no output
     snapshot argument is specified. Valid values are ``z80`` (the default) and
     ``szx``.
+  :Screen: Display screen contents while running (``1``), or don't (``0``, the
+    default).
   :ScreenFps: Screen refresh rate in frames per second (default:``50``). If set
     to 0, ``tap2sna.py`` runs at maximum speed.
   :ScreenScale: Screen scale factor (default: ``2``).

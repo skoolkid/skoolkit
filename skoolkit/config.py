@@ -140,6 +140,7 @@ COMMANDS = {
     },
     'tap2sna': {
         'DefaultSnapshotFormat': ('z80', ''),
+        'Screen': (0, 'screen'),
         'ScreenScale': (2, ''),
         'ScreenFps': (50, ''),
         'TraceHeader': ('', ''),
