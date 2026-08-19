@@ -1002,8 +1002,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual([3], list(blocks[1].data[1:-1]))
 
     def test_option_tape_skip_invalid(self):
-        self._test_bad_spec('--tape-skip ?', 'Invalid integer(s): --tape-skip ?')
-        self._test_bad_spec('--tape-skip a-b', 'Invalid integer(s): --tape-skip a-b')
+        for arg in ('?', 'a-b'):
+            output, error = self.run_tap2sna(f'--tape-skip {arg} test.tap', catch_exit=2)
+            self.assertEqual(output, '')
+            self.assertTrue(error.startswith('usage: \n  tap2sna.py'))
+            self.assertIn(f"error: argument --tape-skip: invalid integer(s): '{arg}'", error)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)

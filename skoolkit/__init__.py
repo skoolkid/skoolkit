@@ -214,6 +214,15 @@ def integer(arg):
     except ValueError:
         raise argparse.ArgumentTypeError("invalid integer: '{}'".format(arg))
 
+def integer_range(arg):
+    a, sep, b = arg.partition('-')
+    try:
+        if sep:
+            return range(int(a), int(b) + 1)
+        return [int(a)]
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"invalid integer(s): '{arg}'")
+
 def eval_variable(name, value):
     if name.endswith('$'):
         return value

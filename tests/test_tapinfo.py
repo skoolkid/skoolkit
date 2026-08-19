@@ -42,6 +42,13 @@ class TapinfoTest(SkoolKitTestCase):
             tzx_data.extend(block)
         return self.write_bin_file(tzx_data, suffix='.tzx')
 
+    def _write_pzx(self, blocks):
+        pzx = PZX()
+        for block in blocks:
+            pzx.add_puls()
+            pzx.add_data(block)
+        return self.write_bin_file(pzx.data, suffix='.pzx')
+
     def _test_tzx_block(self, data, exp_output, blocks=1):
         tzxfile = self._write_tzx([data, TZX_DATA_BLOCK])
         output, error = self.run_tapinfo(tzxfile)
@@ -906,6 +913,28 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
+    def test_option_analyse_with_tape_skip(self):
+        tapfile = self._write_tap((
+            create_tap_header_block(start=0),
+            create_tap_data_block([1]),
+            create_tap_data_block([2, 3]),
+        ))
+        exp_output = """
+            T-states    EAR  Description
+                     0    0  Tone (8063 x 2168 T-states)
+              17480584    1  Pulse (667 T-states)
+              17481251    0  Pulse (735 T-states)
+              17481986    1  Data (19 bytes; 855,855/1710,1710 T-states)
+              17765846    1  Pause (3500000 T-states)
+              21265846    1  Tone (3223 x 2168 T-states)
+              28253310    0  Pulse (667 T-states)
+              28253977    1  Pulse (735 T-states)
+              28254712    0  Data (4 bytes; 855,855/1710,1710 T-states)
+        """
+        output, error = self.run_tapinfo(f'-a --tape-skip 2 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
     def test_option_analyse_with_tape_start(self):
         tapfile = self._write_tap((
             create_tap_header_block(start=0),
@@ -1236,15 +1265,208 @@ class TapinfoTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
+    def test_option_tape_skip_with_pzx_file(self):
+        pzxfile = self._write_pzx((
+            create_header_block('test_skip4', 32768, 3),
+            create_data_block([5]),
+            create_data_block([7]),
+        ))
+        exp_output = """
+            1: PZX header block
+              Version: 1.0
+            2: Pulse sequence
+              3223 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            3: Data block
+              Bits: 152 (19 bytes)
+              Initial pulse level: 1
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Header block
+              Bytes: test_skip4
+              CODE: 32768,3
+              Length: 19
+              Data: 0, 3, 116, 101, 115, 116, 95 ... 3, 0, 0, 128, 0, 0, 252
+            5: Data block
+              Bits: 24 (3 bytes)
+              Initial pulse level: 1
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Data block
+              Length: 3
+              Data: 255, 5, 250
+            6: Pulse sequence
+              3223 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            7: Data block
+              Bits: 24 (3 bytes)
+              Initial pulse level: 1
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Data block
+              Length: 3
+              Data: 255, 7, 248
+        """
+        output, error = self.run_tapinfo(f'--tape-skip 4 {pzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_skip_with_pzx_file_and_range(self):
+        pzxfile = self._write_pzx((
+            create_header_block('test_skipr', 32768, 3),
+            create_data_block([5]),
+            create_data_block([7]),
+        ))
+        exp_output = """
+            1: PZX header block
+              Version: 1.0
+            2: Pulse sequence
+              3223 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            3: Data block
+              Bits: 152 (19 bytes)
+              Initial pulse level: 1
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Header block
+              Bytes: test_skipr
+              CODE: 32768,3
+              Length: 19
+              Data: 0, 3, 116, 101, 115, 116, 95 ... 3, 0, 0, 128, 0, 0, 186
+            6: Pulse sequence
+              3223 x 2168 T-states
+              1 x 667 T-states
+              1 x 735 T-states
+            7: Data block
+              Bits: 24 (3 bytes)
+              Initial pulse level: 1
+              0-bit pulse sequence: 855, 855 (T-states)
+              1-bit pulse sequence: 1710, 1710 (T-states)
+              Tail pulse: 945 T-states
+              Type: Data block
+              Length: 3
+              Data: 255, 7, 248
+        """
+        output, error = self.run_tapinfo(f'--tape-skip 4-5 {pzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_skip_with_tap_file(self):
+        tapfile = self._write_tap((
+            create_tap_header_block('test_skip2', 32768, 3),
+            create_tap_data_block([2]),
+            create_tap_data_block([3]),
+        ))
+        exp_output = """
+            1:
+              Type: Header block
+              Bytes: test_skip2
+              CODE: 32768,3
+              Length: 19
+              Data: 0, 3, 116, 101, 115, 116, 95 ... 3, 0, 0, 128, 0, 0, 250
+            3:
+              Type: Data block
+              Length: 3
+              Data: 255, 3, 252
+        """
+        output, error = self.run_tapinfo(f'--tape-skip 2 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_skip_with_tap_file_and_range(self):
+        tapfile = self._write_tap((
+            create_tap_header_block('test_skipr', 32768, 3),
+            create_tap_data_block([2]),
+            create_tap_data_block([3]),
+            create_tap_data_block([4]),
+        ))
+        exp_output = """
+            1:
+              Type: Header block
+              Bytes: test_skipr
+              CODE: 32768,3
+              Length: 19
+              Data: 0, 3, 116, 101, 115, 116, 95 ... 3, 0, 0, 128, 0, 0, 186
+            4:
+              Type: Data block
+              Length: 3
+              Data: 255, 4, 251
+        """
+        output, error = self.run_tapinfo(f'--tape-skip 2-3 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_skip_with_tzx_file(self):
+        tzxfile = self._write_tzx((
+            create_tzx_header_block('test_skip2', 32768, 3),
+            create_tzx_data_block([2]),
+            create_tzx_data_block([3]),
+        ))
+        exp_output = """
+            Version: 1.20
+            1: Standard speed data (0x10)
+              Pause: 0ms
+              Type: Header block
+              Bytes: test_skip2
+              CODE: 32768,3
+              Length: 19
+              Data: 0, 3, 116, 101, 115, 116, 95 ... 3, 0, 0, 128, 0, 0, 250
+            3: Standard speed data (0x10)
+              Pause: 0ms
+              Type: Data block
+              Length: 3
+              Data: 255, 3, 252
+        """
+        output, error = self.run_tapinfo(f'--tape-skip 2 {tzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_skip_with_tzx_file_and_range(self):
+        tzxfile = self._write_tzx((
+            create_tzx_header_block('test_skipr', 32768, 3),
+            create_tzx_data_block([2]),
+            create_tzx_data_block([3]),
+            create_tzx_data_block([4]),
+        ))
+        exp_output = """
+            Version: 1.20
+            1: Standard speed data (0x10)
+              Pause: 0ms
+              Type: Header block
+              Bytes: test_skipr
+              CODE: 32768,3
+              Length: 19
+              Data: 0, 3, 116, 101, 115, 116, 95 ... 3, 0, 0, 128, 0, 0, 186
+            4: Standard speed data (0x10)
+              Pause: 0ms
+              Type: Data block
+              Length: 3
+              Data: 255, 4, 251
+        """
+        output, error = self.run_tapinfo(f'--tape-skip 2-3 {tzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_skip_invalid(self):
+        for arg in ('?', 'a-b'):
+            output, error = self.run_tapinfo(f'--tape-skip {arg} test.tap', catch_exit=2)
+            self.assertEqual(output, '')
+            self.assertTrue(error.startswith('usage: tapinfo.py'))
+            self.assertIn(f"error: argument --tape-skip: invalid integer(s): '{arg}'", error)
+
     def test_option_tape_start_with_pzx_file(self):
-        pzx = PZX()
-        pzx.add_puls()
-        pzx.add_data(create_header_block('test_start', 32768, 3))
-        pzx.add_puls()
-        pzx.add_data(create_data_block([1, 2, 3]))
-        pzx.add_puls()
-        pzx.add_data(create_data_block([4, 5, 6]))
-        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        pzxfile = self._write_pzx((
+            create_header_block('test_start', 32768, 3),
+            create_data_block([1, 2, 3]),
+            create_data_block([4, 5, 6]),
+        ))
         output, error = self.run_tapinfo(f'--tape-start 4 {pzxfile}')
         self.assertEqual(error, '')
         exp_output = """
@@ -1278,14 +1500,11 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
     def test_option_tape_stop_with_pzx_file(self):
-        pzx = PZX()
-        pzx.add_puls()
-        pzx.add_data(create_header_block('test__stop', 32768, 3))
-        pzx.add_puls()
-        pzx.add_data(create_data_block([1, 2, 3]))
-        pzx.add_puls()
-        pzx.add_data(create_data_block([4, 5, 6]))
-        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        pzxfile = self._write_pzx((
+            create_header_block('test__stop', 32768, 3),
+            create_data_block([1, 2, 3]),
+            create_data_block([4, 5, 6]),
+        ))
         output, error = self.run_tapinfo(f'--tape-stop 6 {pzxfile}')
         self.assertEqual(error, '')
         exp_output = """
@@ -1323,14 +1542,11 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
     def test_options_tape_start_and_tape_stop_with_pzx_file(self):
-        pzx = PZX()
-        pzx.add_puls()
-        pzx.add_data(create_header_block('test__both', 32768, 3))
-        pzx.add_puls()
-        pzx.add_data(create_data_block([1, 2, 3]))
-        pzx.add_puls()
-        pzx.add_data(create_data_block([4, 5, 6]))
-        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        pzxfile = self._write_pzx((
+            create_header_block('test__both', 32768, 3),
+            create_data_block([1, 2, 3]),
+            create_data_block([4, 5, 6]),
+        ))
         output, error = self.run_tapinfo(f'--tape-start 4 --tape-stop 6 {pzxfile}')
         self.assertEqual(error, '')
         exp_output = """

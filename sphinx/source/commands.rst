@@ -2166,6 +2166,7 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
     -b, --basic N[,A]   List the BASIC program in block N loaded at address A
                         (default 23755).
     -d, --data          Show the entire contents of header and data blocks.
+    --tape-skip A[-B]   Skip block numbers A-B on the tape.
     --tape-start BLOCK  Start at this tape block number.
     --tape-stop BLOCK   Stop at this tape block number.
     -V, --version       Show SkoolKit version number and exit.
@@ -2173,7 +2174,7 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.2    | Added the ``--analyse`` option                                    |
+| 10.2    | Added the ``--analyse`` and ``--tape-skip`` options               |
 +---------+-------------------------------------------------------------------+
 | 9.3     | Added support for PZX files; added the ``--tape-start`` and       |
 |         | ``--tape-stop`` options; shows info for TZX block types 0x18 (CSW |

@@ -16,7 +16,8 @@
 
 import argparse
 
-from skoolkit import SkoolKitError, get_word, get_int_param, warn, VERSION
+from skoolkit import (SkoolKitError, get_word, get_int_param, integer_range,
+                      warn, VERSION)
 from skoolkit.basic import BasicLister, TextReader
 from skoolkit.tape import get_edges, hex_dump, parse_pzx, parse_tap, parse_tzx
 
@@ -146,6 +147,8 @@ def main(args):
                        help='List the BASIC program in block N loaded at address A (default 23755).')
     group.add_argument('-d', '--data', action='store_true',
                        help='Show the entire contents of header and data blocks.')
+    group.add_argument('--tape-skip', metavar='A[-B]', type=integer_range, default=(),
+                       help="Skip block numbers A-B on the tape.")
     group.add_argument('--tape-start', metavar='BLOCK', type=int, default=1,
                        help="Start at this tape block number.")
     group.add_argument('--tape-stop', metavar='BLOCK', type=int, default=0,
@@ -158,13 +161,13 @@ def main(args):
     basic_block = _get_basic_block(namespace.basic)
     tape_type = namespace.infile.lower()[-4:]
     if tape_type == '.pzx':
-        tape = parse_pzx(namespace.infile, namespace.tape_start, namespace.tape_stop)
+        tape = parse_pzx(namespace.infile, namespace.tape_start, namespace.tape_stop, namespace.tape_skip)
     elif tape_type == '.tap':
-        tape = parse_tap(namespace.infile, namespace.tape_start, namespace.tape_stop)
+        tape = parse_tap(namespace.infile, namespace.tape_start, namespace.tape_stop, namespace.tape_skip)
     elif tape_type == '.tzx':
         info = not namespace.analyse
         timings = namespace.analyse
-        tape = parse_tzx(namespace.infile, namespace.tape_start, namespace.tape_stop, info, timings)
+        tape = parse_tzx(namespace.infile, namespace.tape_start, namespace.tape_stop, namespace.tape_skip, info, timings)
     else:
         raise SkoolKitError('Unrecognised tape type')
     if namespace.analyse:

@@ -838,7 +838,7 @@ def hex_dump(data, row_size=16):
         lines.append(f'{index:04X}  {values_hex} {values_text}')
     return lines
 
-def parse_pzx(pzx, start=1, stop=0):
+def parse_pzx(pzx, start=1, stop=0, skip=()):
     if isinstance(pzx, str):
         pzx = read_bin_file(pzx)
     if pzx[:4] != b'PZXT':
@@ -851,12 +851,12 @@ def parse_pzx(pzx, start=1, stop=0):
         if block_num >= stop > 0:
             break
         i, block, rom_pilot = _get_pzx_block(pzx, i, block_num, rom_pilot)
-        if block_num >= start:
+        if block_num >= start and block_num not in skip:
             blocks.append(block)
         block_num += 1
     return Tape(blocks)
 
-def parse_tap(tap, start=1, stop=0):
+def parse_tap(tap, start=1, stop=0, skip=()):
     if isinstance(tap, str):
         tap = read_bin_file(tap)
     blocks = []
@@ -866,7 +866,7 @@ def parse_tap(tap, start=1, stop=0):
         if block_num >= stop > 0:
             break
         block_len = get_word(tap, i)
-        if block_num >= start:
+        if block_num >= start and block_num not in skip:
             data = tap[i + 2:i + 2 + block_len]
             if data:
                 timings = _get_tape_block_timings(data[0])
@@ -883,7 +883,7 @@ def parse_tap(tap, start=1, stop=0):
             warnings.append(f'Missing {i - len(tap)} data byte(s) at end of file')
     return Tape(blocks, warnings=warnings)
 
-def parse_tzx(tzx, start=1, stop=0, info=True, timings=False):
+def parse_tzx(tzx, start=1, stop=0, skip=(), info=True, timings=False):
     if isinstance(tzx, str):
         tzx = read_bin_file(tzx)
     if tzx[:8] != b'ZXTape!\x1a':
@@ -899,7 +899,7 @@ def parse_tzx(tzx, start=1, stop=0, info=True, timings=False):
         if block_num >= stop > 0:
             break
         i, block = _get_tzx_block(tzx, i, block_num, info, timings)
-        if block_num >= start:
+        if block_num >= start and block_num not in skip:
             blocks.append(block)
         block_num += 1
     return Tape(blocks, version)

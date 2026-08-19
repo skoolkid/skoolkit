@@ -24,8 +24,9 @@ from urllib.request import Request, urlopen
 from urllib.parse import urlparse
 
 from skoolkit import (SkoolKitError, CSimulator, CCMIOSimulator, get_int_param,
-                      get_object, get_word, integer, open_file, parse_int,
-                      read_bin_file, warn, write_line, ROM48, VERSION)
+                      get_object, get_word, integer, integer_range, open_file,
+                      parse_int, read_bin_file, warn, write_line, ROM48,
+                      VERSION)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.components import get_screen
 from skoolkit.config import get_config, show_config, update_options
@@ -965,18 +966,7 @@ def make_snapshot(urls, options, outfile, config):
         is48 = options.machine == '48'
     else:
         is48 = True
-    if options.tape_skip:
-        a, sep, b = options.tape_skip.partition('-')
-        try:
-            if sep:
-                tape_skip = range(int(a), int(b) + 1)
-            else:
-                tape_skip = [int(a)]
-        except ValueError:
-            raise SkoolKitError(f'Invalid integer(s): --tape-skip {options.tape_skip}')
-    else:
-        tape_skip = ()
-    tape_blocks = _get_tape_blocks(tapes, options.sim_load, options.tape_start, options.tape_stop, tape_skip, is48)
+    tape_blocks = _get_tape_blocks(tapes, options.sim_load, options.tape_start, options.tape_stop, options.tape_skip, is48)
     if options.sim_load:
         blocks = [block for block in tape_blocks if block.timings]
         if not blocks:
@@ -1049,7 +1039,7 @@ def main(args):
     group.add_argument('--tape-name', metavar='NAME', action='append', default=[],
                        help="Specify the name of a tape file in a zip archive. "
                             "Use this option twice when loading two tape files.")
-    group.add_argument('--tape-skip', metavar='A[-B]',
+    group.add_argument('--tape-skip', metavar='A[-B]', type=integer_range, default=(),
                        help="Skip block numbers A-B on the tape.")
     group.add_argument('--tape-start', metavar='BLOCK', type=int, default=1,
                        help="Start the tape at this block number.")

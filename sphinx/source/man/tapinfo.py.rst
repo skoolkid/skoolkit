@@ -25,6 +25,9 @@ OPTIONS
 -d, --data
   Show the entire contents of header and data blocks.
 
+--tape-skip `A[-B]`
+  Skip block numbers A-B on the tape.
+
 --tape-start `BLOCK`
   Start at this tape block number.
 

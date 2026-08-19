@@ -15,6 +15,8 @@ Changelog
   :ref:`tap2sna.py <tap2sna-conf>` (to specify the header for a trace log file)
 * Added the ``--analyse`` option to :ref:`tapinfo.py` (for showing an analysis
   of the tape's tones, pulse sequences and data blocks)
+* Added the ``--tape-skip`` option to :ref:`tapinfo.py` (for skipping one or
+  more blocks on a tape)
 
 10.1 (2026-08-14)
 -----------------
