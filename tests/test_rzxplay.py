@@ -62,6 +62,15 @@ def mock_write_snapshot(fname, ram, registers, state, machine):
     s_machine = machine
 
 class RzxplayTest(SkoolKitTestCase):
+    def _get_rzx(self, pc, frames, code=()):
+        ram = [0] * 0xC000
+        if code:
+            ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
+        z80data = self.write_z80(ram, {'PC': pc}, ret_data=True)
+        rzx = RZX()
+        rzx.add_snapshot(z80data, 'z80', frames)
+        return rzx
+
     def _test_rzx(self, rzx, exp_output, options=(), exp_trace=None, outfile=None, exp_error=''):
         if isinstance(rzx, str):
             rzxfile = rzx
@@ -1602,6 +1611,7 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [rzxplay]
+            Screen=1
             TraceHeader=
             TraceLine=F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}
             TraceOperand=$,02X,04X
@@ -1618,6 +1628,7 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [rzxplay]
+            Screen=1
             TraceHeader=Disassembly
             TraceLine=F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}
             TraceOperand=$,02X,04X
@@ -1888,6 +1899,29 @@ class RzxplayTest(SkoolKitTestCase):
             F:0 C:00001 I:00000 $E007 LD (HL),$06
         """
         self._test_rzx(rzx, exp_output, '--quiet', exp_trace)
+
+    @patch.object(rzxplay, 'get_screen', new_callable=Mock())
+    def test_config_Screen_read_from_file(self, get_screen):
+        ini = """
+            [rzxplay]
+            Screen=0
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        pc = 0xF000
+        frames = [(1, 0, [])]
+        rzx = self._get_rzx(pc, frames)
+        exp_output = ''
+        self._test_rzx(rzx, exp_output, '--quiet')
+        get_screen.assert_not_called()
+
+    @patch.object(rzxplay, 'get_screen', new_callable=Mock())
+    def test_config_Screen_set_on_command_line(self, get_screen):
+        pc = 0xF000
+        frames = [(1, 0, [])]
+        rzx = self._get_rzx(pc, frames)
+        exp_output = ''
+        self._test_rzx(rzx, exp_output, '-I Screen=0 --quiet')
+        get_screen.assert_not_called()
 
     def test_config_TraceHeader_read_from_file(self):
         ini = """

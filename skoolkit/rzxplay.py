@@ -477,7 +477,7 @@ def main(args):
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
     group.add_argument('--map', metavar='FILE',
                        help="Log addresses of executed instructions to a file.")
-    group.add_argument('--no-screen', dest='screen', action='store_false',
+    group.add_argument('--no-screen', dest='screen', action='store_const', const=0, default=config['Screen'],
                        help="Run without a screen.")
     group.add_argument('--python', action='store_true',
                        help="Use the pure Python Z80 simulator.")

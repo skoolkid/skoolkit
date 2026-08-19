@@ -317,6 +317,8 @@ Configuration
 current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
+* ``Screen`` - display screen contents while running (``1``, the default), or
+  don't (``0``)
 * ``TraceHeader`` - the header to write in the trace log file (default: None)
 * ``TraceLine`` - the format of each line in the trace log file (default:
   ``F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}``)
@@ -355,7 +357,7 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 10.2    | Configuration is read from `skoolkit.ini` if present; added the   |
-|         | ``--ini`` and ``--show-config`` options; added the                |
+|         | ``--ini`` and ``--show-config`` options; added the ``Screen``,    |
 |         | ``TraceHeader``, ``TraceLine`` and ``TraceOperand`` configuration |
 |         | parameters                                                        |
 +---------+-------------------------------------------------------------------+
