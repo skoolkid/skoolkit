@@ -319,6 +319,8 @@ configuration parameters are:
 
 * ``Screen`` - display screen contents while running (``1``, the default), or
   don't (``0``)
+* ``ScreenFps`` - screen refresh rate in frames per second (default: ``50``);
+  if set to 0, `rzxplay.py` runs at maximum speed
 * ``TraceHeader`` - the header to write in the trace log file (default: None)
 * ``TraceLine`` - the format of each line in the trace log file (default:
   ``F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}``)
@@ -358,8 +360,8 @@ Configuration parameters may also be set on the command line by using the
 +=========+===================================================================+
 | 10.2    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini`` and ``--show-config`` options; added the ``Screen``,    |
-|         | ``TraceHeader``, ``TraceLine`` and ``TraceOperand`` configuration |
-|         | parameters                                                        |
+|         | ``ScreenFps``, ``TraceHeader``, ``TraceLine`` and                 |
+|         | ``TraceOperand`` configuration parameters                         |
 +---------+-------------------------------------------------------------------+
 | 10.1    | Added the ``--cmio`` option; added support for multiple colours   |
 |         | in the border area of the screen                                  |

@@ -470,9 +470,9 @@ def main(args):
                        help="Set playback flags. Do '--flags help' for more information.")
     group.add_argument('--force', action='store_true',
                        help="Force playback when an unsupported machine is detected.")
-    group.add_argument('--fps', type=int, default=50,
-                       help="Run at this many frames per second (default: 50). "
-                            "0 means maximum speed.")
+    group.add_argument('--fps', type=int, default=config['ScreenFps'],
+                       help="Run at this many frames per second (default: {}). "
+                            "0 means maximum speed.".format(config['ScreenFps']))
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
     group.add_argument('--map', metavar='FILE',

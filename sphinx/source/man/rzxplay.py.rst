@@ -130,6 +130,8 @@ configuration parameters are:
 
   :Screen: Display screen contents while running (``1``, the default), or don't
     (``0``).
+  :ScreenFps: Screen refresh rate in frames per second (default: ``50``). If
+    set to 0, ``rzxplay.py`` runs at maximum speed.
   :TraceHeader: The header to write in the trace log file (default: None).
   :TraceLine: The format of each line in the trace log file (default:
     ``F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}``).

@@ -45,6 +45,7 @@ COMMANDS = {
     },
     'rzxplay': {
         'Screen': (1, 'screen'),
+        'ScreenFps': (50, 'fps'),
         'TraceHeader': ('', ''),
         'TraceLine': ('F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}', ''),
         'TraceOperand': ('$,02X,04X', ''),

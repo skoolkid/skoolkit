@@ -8,9 +8,9 @@ Changelog
 * Added the ``--ini`` and ``--show-config`` options to :ref:`rzxplay.py` (for
   setting the value of a configuration parameter and for showing all
   configuration parameter values)
-* Added the ``Screen`` configuration parameter for
-  :ref:`rzxplay.py <rzxplay-conf>` (to specify whether to display screen
-  contents)
+* Added the ``Screen`` and ``ScreenFps`` configuration parameters for
+  :ref:`rzxplay.py <rzxplay-conf>` (to specify whether and at what frame rate
+  to display screen contents)
 * Added support to :ref:`rzxplay.py <rzxplay-conf>` for configuring the format
   of the trace log file via the ``TraceHeader``, ``TraceLine`` and
   ``TraceOperand`` configuration parameters

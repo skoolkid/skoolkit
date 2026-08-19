@@ -25,6 +25,8 @@ class MockSimulator:
         pass
 
 class TestScreen(screen.Screen):
+    instance = None
+
     def __init__(self, *args):
         super().__init__(*args)
         self.__class__.instance = self
@@ -1612,6 +1614,7 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = """
             [rzxplay]
             Screen=1
+            ScreenFps=50
             TraceHeader=
             TraceLine=F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}
             TraceOperand=$,02X,04X
@@ -1629,6 +1632,7 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = """
             [rzxplay]
             Screen=1
+            ScreenFps=50
             TraceHeader=Disassembly
             TraceLine=F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}
             TraceOperand=$,02X,04X
@@ -1922,6 +1926,35 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = ''
         self._test_rzx(rzx, exp_output, '-I Screen=0 --quiet')
         get_screen.assert_not_called()
+
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', MockPygame())
+    @patch.object(rzxplay, 'get_screen', mock_get_screen)
+    def test_config_ScreenFps_read_from_file(self):
+        ini = """
+            [rzxplay]
+            ScreenFps=100
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        pc = 0xF000
+        frames = [(1, 0, [])]
+        rzx = self._get_rzx(pc, frames)
+        exp_output = 'Using pygame\n'
+        self._test_rzx(rzx, exp_output, '--quiet')
+        self.assertIsNotNone(TestScreen.instance)
+        TestScreen.instance.clock.tick.assert_called_with(100)
+
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', MockPygame())
+    @patch.object(rzxplay, 'get_screen', mock_get_screen)
+    def test_config_ScreenFps_set_on_command_line(self):
+        pc = 0x8000
+        frames = [(1, 0, [])]
+        rzx = self._get_rzx(pc, frames)
+        exp_output = 'Using pygame\n'
+        self._test_rzx(rzx, exp_output, '-I ScreenFps=200 --quiet')
+        self.assertIsNotNone(TestScreen.instance)
+        TestScreen.instance.clock.tick.assert_called_with(200)
 
     def test_config_TraceHeader_read_from_file(self):
         ini = """
