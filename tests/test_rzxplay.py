@@ -64,7 +64,7 @@ def mock_write_snapshot(fname, ram, registers, state, machine):
     s_machine = machine
 
 class RzxplayTest(SkoolKitTestCase):
-    def _get_rzx(self, pc, frames, code=()):
+    def _get_rzx(self, pc=0x8000, frames=((1, 0, ()),), code=()):
         ram = [0] * 0xC000
         if code:
             ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
@@ -1615,6 +1615,7 @@ class RzxplayTest(SkoolKitTestCase):
             [rzxplay]
             Screen=1
             ScreenFps=50
+            ScreenScale=2
             TraceHeader=
             TraceLine=F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}
             TraceOperand=$,02X,04X
@@ -1633,6 +1634,7 @@ class RzxplayTest(SkoolKitTestCase):
             [rzxplay]
             Screen=1
             ScreenFps=50
+            ScreenScale=2
             TraceHeader=Disassembly
             TraceLine=F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}
             TraceOperand=$,02X,04X
@@ -1911,18 +1913,14 @@ class RzxplayTest(SkoolKitTestCase):
             Screen=0
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
-        pc = 0xF000
-        frames = [(1, 0, [])]
-        rzx = self._get_rzx(pc, frames)
+        rzx = self._get_rzx()
         exp_output = ''
         self._test_rzx(rzx, exp_output, '--quiet')
         get_screen.assert_not_called()
 
     @patch.object(rzxplay, 'get_screen', new_callable=Mock())
     def test_config_Screen_set_on_command_line(self, get_screen):
-        pc = 0xF000
-        frames = [(1, 0, [])]
-        rzx = self._get_rzx(pc, frames)
+        rzx = self._get_rzx()
         exp_output = ''
         self._test_rzx(rzx, exp_output, '-I Screen=0 --quiet')
         get_screen.assert_not_called()
@@ -1936,9 +1934,7 @@ class RzxplayTest(SkoolKitTestCase):
             ScreenFps=100
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
-        pc = 0xF000
-        frames = [(1, 0, [])]
-        rzx = self._get_rzx(pc, frames)
+        rzx = self._get_rzx()
         exp_output = 'Using pygame\n'
         self._test_rzx(rzx, exp_output, '--quiet')
         self.assertIsNotNone(TestScreen.instance)
@@ -1948,13 +1944,34 @@ class RzxplayTest(SkoolKitTestCase):
     @patch.object(screen, 'pygame', MockPygame())
     @patch.object(rzxplay, 'get_screen', mock_get_screen)
     def test_config_ScreenFps_set_on_command_line(self):
-        pc = 0x8000
-        frames = [(1, 0, [])]
-        rzx = self._get_rzx(pc, frames)
+        rzx = self._get_rzx()
         exp_output = 'Using pygame\n'
         self._test_rzx(rzx, exp_output, '-I ScreenFps=200 --quiet')
         self.assertIsNotNone(TestScreen.instance)
         TestScreen.instance.clock.tick.assert_called_with(200)
+
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', new_callable=MockPygame)
+    @patch.object(rzxplay, 'get_screen', mock_get_screen)
+    def test_config_ScreenScale_read_from_file(self, mock_pygame):
+        ini = """
+            [rzxplay]
+            ScreenScale=3
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        rzx = self._get_rzx()
+        exp_output = 'Using pygame\n'
+        self._test_rzx(rzx, exp_output, '--quiet')
+        mock_pygame.display.set_mode.assert_called_with((960, 720))
+
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', new_callable=MockPygame)
+    @patch.object(rzxplay, 'get_screen', mock_get_screen)
+    def test_config_ScreenScale_set_on_command_line(self, mock_pygame):
+        rzx = self._get_rzx()
+        exp_output = 'Using pygame\n'
+        self._test_rzx(rzx, exp_output, '-I ScreenScale=4 --quiet')
+        mock_pygame.display.set_mode.assert_called_with((1280, 960))
 
     def test_config_TraceHeader_read_from_file(self):
         ini = """

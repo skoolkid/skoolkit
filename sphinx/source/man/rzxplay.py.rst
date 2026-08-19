@@ -46,7 +46,7 @@ OPTIONS
   Don't print progress percentage during playback.
 
 --scale SCALE
-  Scale the display up by this factor (1-4; default: 2).
+  Scale the display up by this factor (default: 2).
 
 --show-config
   Show configuration parameter values.
@@ -132,6 +132,7 @@ configuration parameters are:
     (``0``).
   :ScreenFps: Screen refresh rate in frames per second (default: ``50``). If
     set to 0, ``rzxplay.py`` runs at maximum speed.
+  :ScreenScale: Screen scale factor (default: ``2``).
   :TraceHeader: The header to write in the trace log file (default: None).
   :TraceLine: The format of each line in the trace log file (default:
     ``F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}``).

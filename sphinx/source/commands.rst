@@ -253,7 +253,7 @@ To list the options supported by `rzxplay.py`, run it with no arguments::
     --no-screen      Run without a screen.
     --python         Use the pure Python Z80 simulator.
     --quiet          Don't print progress percentage.
-    --scale SCALE    Scale display up by this factor (1-4; default: 2).
+    --scale SCALE    Scale display up by this factor (default: 2).
     --show-config    Show configuration parameter values.
     --snapshot FILE  Specify an external snapshot file to start with.
     --stop FRAMES    Stop after playing this many frames.
@@ -321,6 +321,7 @@ configuration parameters are:
   don't (``0``)
 * ``ScreenFps`` - screen refresh rate in frames per second (default: ``50``);
   if set to 0, `rzxplay.py` runs at maximum speed
+* ``ScreenScale`` - screen scale factor (default: ``2``)
 * ``TraceHeader`` - the header to write in the trace log file (default: None)
 * ``TraceLine`` - the format of each line in the trace log file (default:
   ``F:{fr:0{fw}} C:{fc:05} I:{rr:05} ${pc:04X} {i}``)
@@ -360,8 +361,8 @@ Configuration parameters may also be set on the command line by using the
 +=========+===================================================================+
 | 10.2    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini`` and ``--show-config`` options; added the ``Screen``,    |
-|         | ``ScreenFps``, ``TraceHeader``, ``TraceLine`` and                 |
-|         | ``TraceOperand`` configuration parameters                         |
+|         | ``ScreenFps``, ``ScreenScale``, ``TraceHeader``, ``TraceLine``    |
+|         | and ``TraceOperand`` configuration parameters                     |
 +---------+-------------------------------------------------------------------+
 | 10.1    | Added the ``--cmio`` option; added support for multiple colours   |
 |         | in the border area of the screen                                  |

@@ -483,8 +483,8 @@ def main(args):
                        help="Use the pure Python Z80 simulator.")
     group.add_argument('--quiet', action='store_true',
                        help="Don't print progress percentage.")
-    group.add_argument('--scale', metavar='SCALE', type=int, default=2, choices=(1, 2, 3, 4),
-                       help="Scale display up by this factor (1-4; default: 2).")
+    group.add_argument('--scale', metavar='SCALE', type=int, default=config['ScreenScale'],
+                       help="Scale display up by this factor (default: {}).".format(config['ScreenScale']))
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
     group.add_argument('--snapshot', metavar='FILE',
