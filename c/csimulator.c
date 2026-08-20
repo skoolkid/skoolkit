@@ -39,6 +39,20 @@
 #define CHECK_SIGNALS if ((TIME & 0xFFFFFF) < 10) PyErr_CheckSignals()
 #define SCR_LEN 6912
 
+#define GET_OPCODE_FUNC(opcodes) \
+    byte opcode = PEEK(pc); \
+    OpcodeFunction* opcode_func = opcodes[opcode]; \
+    if (!opcode_func->func) { \
+        byte opcode2 = PEEK(ADDR(pc + 1)); \
+        switch (opcode) { \
+            case 0xCB: opcode_func = &after_CB[opcode2]; break; \
+            case 0xED: opcode_func = &after_ED[opcode2]; break; \
+            case 0xDD: opcode_func = opcode2 == 0xCB ? &after_DDCB[PEEK(ADDR(pc + 3))] : &after_DD[opcode2]; break; \
+            case 0xFD: opcode_func = opcode2 == 0xCB ? &after_FDCB[PEEK(ADDR(pc + 3))] : &after_FD[opcode2]; break; \
+            default: break; \
+        } \
+    }
+
 typedef unsigned char byte;
 
 typedef void (*contend_f)(unsigned* t, unsigned* delay, int urc, int n, const unsigned* cpattern);
@@ -5238,35 +5252,7 @@ static PyObject* CSimulator_run(CSimulatorObject* self, PyObject* args, PyObject
 
     while (1) {
         unsigned pc = REG(PC);
-        byte opcode = PEEK(pc);
-        OpcodeFunction* opcode_func = &opcodes[opcode];
-        if (!opcode_func->func) {
-            byte opcode2 = PEEK(ADDR(pc + 1));
-            switch (opcode) {
-                case 0xCB:
-                    opcode_func = &after_CB[opcode2];
-                    break;
-                case 0xED:
-                    opcode_func = &after_ED[opcode2];
-                    break;
-                case 0xDD:
-                    if (opcode2 == 0xCB) {
-                        opcode_func = &after_DDCB[PEEK(ADDR(pc + 3))];
-                    } else {
-                        opcode_func = &after_DD[opcode2];
-                    }
-                    break;
-                case 0xFD:
-                    if (opcode2 == 0xCB) {
-                        opcode_func = &after_FDCB[PEEK(ADDR(pc + 3))];
-                    } else {
-                        opcode_func = &after_FD[opcode2];
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
+        GET_OPCODE_FUNC(&opcodes);
 
         opcode_func->func(self, opcode_func->lookup, opcode_func->args);
         if (PyErr_Occurred()) {
@@ -5300,35 +5286,8 @@ static PyObject* CSimulator_exec_with_cb(CSimulatorObject* self, PyObject* args,
     byte* mem = self->memory;
 
     while (1) {
-        byte opcode = PEEK(REG(PC));
-        OpcodeFunction* opcode_func = &opcodes[opcode];
-        if (!opcode_func->func) {
-            byte opcode2 = PEEK(ADDR(REG(PC) + 1));
-            switch (opcode) {
-                case 0xCB:
-                    opcode_func = &after_CB[opcode2];
-                    break;
-                case 0xED:
-                    opcode_func = &after_ED[opcode2];
-                    break;
-                case 0xDD:
-                    if (opcode2 == 0xCB) {
-                        opcode_func = &after_DDCB[PEEK(ADDR(REG(PC) + 3))];
-                    } else {
-                        opcode_func = &after_DD[opcode2];
-                    }
-                    break;
-                case 0xFD:
-                    if (opcode2 == 0xCB) {
-                        opcode_func = &after_FDCB[PEEK(ADDR(REG(PC) + 3))];
-                    } else {
-                        opcode_func = &after_FD[opcode2];
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
+        unsigned pc = REG(PC);
+        GET_OPCODE_FUNC(&opcodes);
 
         opcode_func->func(self, opcode_func->lookup, opcode_func->args);
         if (PyErr_Occurred()) {
@@ -5513,35 +5472,7 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
         unsigned long long t0 = TIME;
         unsigned long long prev_frame = t0 / frame_duration;
         unsigned pc = REG(PC);
-        byte opcode = PEEK(pc);
-        OpcodeFunction* opcode_func = &opcodes[opcode];
-        if (!opcode_func->func) {
-            byte opcode2 = PEEK(ADDR(pc + 1));
-            switch (opcode) {
-                case 0xCB:
-                    opcode_func = &after_CB[opcode2];
-                    break;
-                case 0xED:
-                    opcode_func = &after_ED[opcode2];
-                    break;
-                case 0xDD:
-                    if (opcode2 == 0xCB) {
-                        opcode_func = &after_DDCB[PEEK(ADDR(pc + 3))];
-                    } else {
-                        opcode_func = &after_DD[opcode2];
-                    }
-                    break;
-                case 0xFD:
-                    if (opcode2 == 0xCB) {
-                        opcode_func = &after_FDCB[PEEK(ADDR(pc + 3))];
-                    } else {
-                        opcode_func = &after_FD[opcode2];
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
+        GET_OPCODE_FUNC(&opcodes);
 
         if (disassembling) {
             PyObject* arg = PyLong_FromLong(pc);
@@ -5656,35 +5587,7 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
         PyObject* i = NULL;
         unsigned pc = REG(PC);
         unsigned long long t0 = TIME;
-        byte opcode = PEEK(pc);
-        OpcodeFunction* opcode_func = &opcodes[opcode];
-        if (!opcode_func->func) {
-            byte opcode2 = PEEK(ADDR(pc + 1));
-            switch (opcode) {
-                case 0xCB:
-                    opcode_func = &after_CB[opcode2];
-                    break;
-                case 0xED:
-                    opcode_func = &after_ED[opcode2];
-                    break;
-                case 0xDD:
-                    if (opcode2 == 0xCB) {
-                        opcode_func = &after_DDCB[PEEK(ADDR(pc + 3))];
-                    } else {
-                        opcode_func = &after_DD[opcode2];
-                    }
-                    break;
-                case 0xFD:
-                    if (opcode2 == 0xCB) {
-                        opcode_func = &after_FDCB[PEEK(ADDR(pc + 3))];
-                    } else {
-                        opcode_func = &after_FD[opcode2];
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
+        GET_OPCODE_FUNC(&opcodes);
 
         if (disassembling) {
             PyObject* arg = PyLong_FromLong(pc);
@@ -5791,35 +5694,7 @@ static PyObject* CSimulator_press(CSimulatorObject* self, PyObject* args, PyObje
         PyObject* i = NULL;
         unsigned pc = REG(PC);
         unsigned long long t0 = TIME;
-        byte opcode = PEEK(pc);
-        OpcodeFunction* opcode_func = &opcodes[opcode];
-        if (!opcode_func->func) {
-            byte opcode2 = PEEK(ADDR(pc + 1));
-            switch (opcode) {
-                case 0xCB:
-                    opcode_func = &after_CB[opcode2];
-                    break;
-                case 0xED:
-                    opcode_func = &after_ED[opcode2];
-                    break;
-                case 0xDD:
-                    if (opcode2 == 0xCB) {
-                        opcode_func = &after_DDCB[PEEK(ADDR(pc + 3))];
-                    } else {
-                        opcode_func = &after_DD[opcode2];
-                    }
-                    break;
-                case 0xFD:
-                    if (opcode2 == 0xCB) {
-                        opcode_func = &after_FDCB[PEEK(ADDR(pc + 3))];
-                    } else {
-                        opcode_func = &after_FD[opcode2];
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
+        GET_OPCODE_FUNC(&opcodes);
 
         if (disassembling) {
             PyObject* arg = PyLong_FromLong(pc);
@@ -6341,35 +6216,7 @@ static PyObject* CSimulator_load(CSimulatorObject* self, PyObject* args, PyObjec
     while (1) {
         PyObject* i = NULL;
         unsigned long long t0 = TIME;
-        byte opcode = PEEK(pc);
-        OpcodeFunction* opcode_func = self->opcodes[opcode];
-        if (!opcode_func->func) {
-            byte opcode2 = PEEK(ADDR(pc + 1));
-            switch (opcode) {
-                case 0xCB:
-                    opcode_func = &after_CB[opcode2];
-                    break;
-                case 0xED:
-                    opcode_func = &after_ED[opcode2];
-                    break;
-                case 0xDD:
-                    if (opcode2 == 0xCB) {
-                        opcode_func = &after_DDCB[PEEK(ADDR(pc + 3))];
-                    } else {
-                        opcode_func = &after_DD[opcode2];
-                    }
-                    break;
-                case 0xFD:
-                    if (opcode2 == 0xCB) {
-                        opcode_func = &after_FDCB[PEEK(ADDR(pc + 3))];
-                    } else {
-                        opcode_func = &after_FD[opcode2];
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
+        GET_OPCODE_FUNC(self->opcodes);
 
         if (disassembling) {
             PyObject* arg = PyLong_FromLong(pc);
