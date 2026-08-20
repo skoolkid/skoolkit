@@ -33,27 +33,23 @@ Run `bin2sna.py` with no arguments to see the list of available options::
   Options:
     --bank N,file         Load RAM bank N (0-7) from the named file. This option
                           may be used multiple times.
-    -b BORDER, --border BORDER
-                          Set the border colour (default: 7).
-    -o ORG, --org ORG     Set the origin address (default: 65536 minus the
+    -b, --border BORDER   Set the border colour (default: 7).
+    -o, --org ORG         Set the origin address (default: 65536 minus the
                           length of file.bin).
     --page N              Specify the RAM bank (N=0-7) mapped to 49152 (0xC000)
                           in the main input file. This option creates a 128K
                           snapshot.
-    -p STACK, --stack STACK
-                          Set the stack pointer (default: ORG).
-    -P [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
+    -p, --stack STACK     Set the stack pointer (default: ORG).
+    -P, --poke [p:]a[-b[-c]],[^+]v
                           POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
                           Prefix 'v' with '^' to perform an XOR operation, or
                           '+' to perform an ADD operation. This option may be
                           used multiple times.
-    -r name=value, --reg name=value
-                          Set the value of a register. Do '--reg help' for more
+    -r, --reg name=value  Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
-    -s START, --start START
-                          Set the address at which to start execution (default:
+    -s, --start START     Set the address at which to start execution (default:
                           ORG).
-    -S name=value, --state name=value
+    -S, --state name=value
                           Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
@@ -106,28 +102,24 @@ it with no arguments to see the list of available options::
   standard input. If OUTFILE is not given, a TAP file is created.
 
   Options:
-    --7ffd N              Add 128K RAM banks to the tape file and write N to
-                          port 0x7ffd after they've loaded.
-    --banks N[,N...]      Add only these 128K RAM banks to the tape file
-                          (default: 0,1,3,4,6,7).
-    -b BEGIN, --begin BEGIN
-                          Begin conversion at this address (default: ORG for a
-                          binary file, 16384 for a snapshot).
-    -c N, --clear N       Use a 'CLEAR N' command in the BASIC loader and leave
-                          the stack pointer alone.
-    -e END, --end END     End conversion at this address.
-    --loader ADDR         Place the 128K RAM bank loader at this address
-                          (default: CLEAR address + 1).
-    -o ORG, --org ORG     Set the origin address for a binary file (default:
-                          65536 minus the length of FILE).
-    -p STACK, --stack STACK
-                          Set the stack pointer (default: BEGIN).
-    -s START, --start START
-                          Set the start address to JP to (default: BEGIN).
-    -S FILE, --screen FILE
-                          Add a loading screen to the tape file. FILE may be a
-                          snapshot or a 6912-byte SCR file.
-    -V, --version         Show SkoolKit version number and exit.
+    --7ffd N           Add 128K RAM banks to the tape file and write N to port
+                       0x7ffd after they've loaded.
+    --banks N[,N...]   Add only these 128K RAM banks to the tape file (default:
+                       0,1,3,4,6,7).
+    -b, --begin BEGIN  Begin conversion at this address (default: ORG for a
+                       binary file, 16384 for a snapshot).
+    -c, --clear N      Use a 'CLEAR N' command in the BASIC loader and leave the
+                       stack pointer alone.
+    -e, --end END      End conversion at this address.
+    --loader ADDR      Place the 128K RAM bank loader at this address (default:
+                       CLEAR address + 1).
+    -o, --org ORG      Set the origin address for a binary file (default: 65536
+                       minus the length of FILE).
+    -p, --stack STACK  Set the stack pointer (default: BEGIN).
+    -s, --start START  Set the start address to JP to (default: BEGIN).
+    -S, --screen FILE  Add a loading screen to the tape file. FILE may be a
+                       snapshot or a 6912-byte SCR file.
+    -V, --version      Show SkoolKit version number and exit.
 
 Note that the ROM tape loading routine at 1366 (0x0556) and the load routine
 used by `bin2tap.py` together require 14 bytes for stack operations, and so
@@ -405,36 +397,34 @@ assembler (see :ref:`supportedAssemblers`). For example::
   be a regular file, or '-' for standard input.
 
   Options:
-    -c, --create-labels   Create default labels for unlabelled instructions.
-    -D, --decimal         Write the disassembly in decimal.
-    -E ADDR, --end ADDR   Stop converting at this address.
-    -f N, --fixes N       Apply fixes:
-                            N=0: None (default)
-                            N=1: @ofix only
-                            N=2: @ofix and @bfix
-                            N=3: @ofix, @bfix and @rfix (implies -r)
-    -F, --force           Force conversion, ignoring @start and @end directives.
-    -H, --hex             Write the disassembly in hexadecimal.
-    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
-                          'v'. This option may be used multiple times.
-    -l, --lower           Write the disassembly in lower case.
-    -p, --package-dir     Show path to skoolkit package directory and exit.
-    -P p=v, --set p=v     Set the value of ASM writer property 'p' to 'v'. This
-                          option may be used multiple times.
-    -q, --quiet           Be quiet.
-    -r, --rsub            Apply safe substitutions (@ssub) and relocatability
-                          substitutions (@rsub) (implies '-f 1').
-    --show-config         Show configuration parameter values.
-    -s, --ssub            Apply safe substitutions (@ssub).
-    -S ADDR, --start ADDR
-                          Start converting at this address.
-    -u, --upper           Write the disassembly in upper case.
-    --var name=value      Define a variable that can be used by @if and skool
-                          macros. This option may be used multiple times.
-    -V, --version         Show SkoolKit version number and exit.
-    -w, --no-warnings     Suppress warnings.
-    -W CLASS, --writer CLASS
-                          Specify the ASM writer class to use.
+    -c, --create-labels  Create default labels for unlabelled instructions.
+    -D, --decimal        Write the disassembly in decimal.
+    -E, --end ADDR       Stop converting at this address.
+    -f, --fixes N        Apply fixes:
+                           N=0: None (default)
+                           N=1: @ofix only
+                           N=2: @ofix and @bfix
+                           N=3: @ofix, @bfix and @rfix (implies -r)
+    -F, --force          Force conversion, ignoring @start and @end directives.
+    -H, --hex            Write the disassembly in hexadecimal.
+    -I, --ini p=v        Set the value of the configuration parameter 'p' to
+                         'v'. This option may be used multiple times.
+    -l, --lower          Write the disassembly in lower case.
+    -p, --package-dir    Show path to skoolkit package directory and exit.
+    -P, --set p=v        Set the value of ASM writer property 'p' to 'v'. This
+                         option may be used multiple times.
+    -q, --quiet          Be quiet.
+    -r, --rsub           Apply safe substitutions (@ssub) and relocatability
+                         substitutions (@rsub) (implies '-f 1').
+    --show-config        Show configuration parameter values.
+    -s, --ssub           Apply safe substitutions (@ssub).
+    -S, --start ADDR     Start converting at this address.
+    -u, --upper          Write the disassembly in upper case.
+    --var name=value     Define a variable that can be used by @if and skool
+                         macros. This option may be used multiple times.
+    -V, --version        Show SkoolKit version number and exit.
+    -w, --no-warnings    Suppress warnings.
+    -W, --writer CLASS   Specify the ASM writer class to use.
 
 See :ref:`asmModesAndDirectives` for a description of the ``@ssub`` and
 ``@rsub`` substitution modes, and the ``@ofix``, ``@bfix`` and ``@rfix`` bugfix
@@ -554,26 +544,23 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
   'file.bin' may be a regular file, or '-' for standard output.
 
   Options:
-    -B, --banks           Process @bank directives and write RAM banks 0-7 to a
-                          128K file.
-    -b, --bfix            Apply @ofix and @bfix directives.
-    -d, --data            Process @defb, @defs and @defw directives.
-    -E ADDR, --end ADDR   Stop converting at this address.
-    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
-                          'v'. This option may be used multiple times.
-    -i, --isub            Apply @isub directives.
-    -o, --ofix            Apply @ofix directives.
-    -r, --rsub            Apply @isub, @ssub and @rsub directives (implies
-                          --ofix).
-    -R, --rfix            Apply @ofix, @bfix and @rfix directives (implies
-                          --rsub).
-    --show-config         Show configuration parameter values.
-    -s, --ssub            Apply @isub and @ssub directives.
-    -S ADDR, --start ADDR
-                          Start converting at this address.
-    -v, --verbose         Show info on each converted instruction.
-    -V, --version         Show SkoolKit version number and exit.
-    -w, --no-warnings     Suppress warnings.
+    -B, --banks        Process @bank directives and write RAM banks 0-7 to a
+                       128K file.
+    -b, --bfix         Apply @ofix and @bfix directives.
+    -d, --data         Process @defb, @defs and @defw directives.
+    -E, --end ADDR     Stop converting at this address.
+    -I, --ini p=v      Set the value of the configuration parameter 'p' to 'v'.
+                       This option may be used multiple times.
+    -i, --isub         Apply @isub directives.
+    -o, --ofix         Apply @ofix directives.
+    -r, --rsub         Apply @isub, @ssub and @rsub directives (implies --ofix).
+    -R, --rfix         Apply @ofix, @bfix and @rfix directives (implies --rsub).
+    --show-config      Show configuration parameter values.
+    -s, --ssub         Apply @isub and @ssub directives.
+    -S, --start ADDR   Start converting at this address.
+    -v, --verbose      Show info on each converted instruction.
+    -V, --version      Show SkoolKit version number and exit.
+    -w, --no-warnings  Suppress warnings.
 
 The ``--verbose`` option shows information on each converted instruction, such
 as whether it was inserted before or after another instruction (by a ``@*sub``
@@ -677,28 +664,27 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
   may be a regular file, or '-' for standard input.
 
   Options:
-    -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
-                          instruction operands and DEFB/DEFM/DEFS/DEFW statements.
-    -E ADDR, --end ADDR   Stop converting at this address.
-    -h, --hex             Write addresses in upper case hexadecimal format.
-    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
-                          'v'. This option may be used multiple times.
-    -k, --keep-lines      Preserve line breaks in comments.
-    -l, --hex-lower       Write addresses in lower case hexadecimal format.
-    --show-config         Show configuration parameter values.
-    -S ADDR, --start ADDR
-                          Start converting at this address.
-    -V, --version         Show SkoolKit version number and exit.
-    -w X, --write X       Write only these elements, where X is one or more of:
-                            a = ASM directives
-                            b = block types and addresses
-                            t = block titles
-                            d = block descriptions
-                            r = registers
-                            m = mid-block comments and block start/end comments
-                            s = sub-block types and addresses
-                            c = instruction-level comments
-                            n = non-entry blocks
+    -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
+                         instruction operands and DEFB/DEFM/DEFS/DEFW statements.
+    -E, --end ADDR       Stop converting at this address.
+    -h, --hex            Write addresses in upper case hexadecimal format.
+    -I, --ini p=v        Set the value of the configuration parameter 'p' to
+                         'v'. This option may be used multiple times.
+    -k, --keep-lines     Preserve line breaks in comments.
+    -l, --hex-lower      Write addresses in lower case hexadecimal format.
+    --show-config        Show configuration parameter values.
+    -S, --start ADDR     Start converting at this address.
+    -V, --version        Show SkoolKit version number and exit.
+    -w, --write X        Write only these elements, where X is one or more of:
+                           a = ASM directives
+                           b = block types and addresses
+                           t = block titles
+                           d = block descriptions
+                           r = registers
+                           m = mid-block comments and block start/end comments
+                           s = sub-block types and addresses
+                           c = instruction-level comments
+                           n = non-entry blocks
 
 .. _skool2ctl-conf:
 
@@ -790,47 +776,42 @@ list::
   Options:
     -1, --asm-one-page    Write all routines and data blocks to a single page.
     -a, --asm-labels      Use ASM labels.
-    -c S/L, --config S/L  Add the line 'L' to the ref file section 'S'. This
+    -c, --config S/L      Add the line 'L' to the ref file section 'S'. This
                           option may be used multiple times.
     -C, --create-labels   Create default labels for unlabelled instructions.
-    -d DIR, --output-dir DIR
-                          Write files in this directory (default is '.').
+    -d, --output-dir DIR  Write files in this directory (default is '.').
     -D, --decimal         Write the disassembly in decimal.
     -H, --hex             Write the disassembly in hexadecimal.
-    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+    -I, --ini p=v         Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
-    -j NAME, --join-css NAME
-                          Concatenate CSS files into a single file with this name.
+    -j, --join-css NAME   Concatenate CSS files into a single file with this name.
     -l, --lower           Write the disassembly in lower case.
     -o, --rebuild-images  Overwrite existing image files.
     -O, --rebuild-audio   Overwrite existing audio files.
     -p, --package-dir     Show path to skoolkit package directory and exit.
-    -P PAGES, --pages PAGES
-                          Write only these pages (when using '--write P').
+    -P, --pages PAGES     Write only these pages (when using '--write P').
                           PAGES is a comma-separated list of page IDs.
     -q, --quiet           Be quiet.
-    -r PREFIX, --ref-sections PREFIX
+    -r, --ref-sections PREFIX
                           Show default ref file sections whose names start with
                           PREFIX and exit.
     -R, --ref-file        Show the entire default ref file and exit.
     -s, --search-dirs     Show the locations skool2html.py searches for resources.
-    -S DIR, --search DIR  Add this directory to the resource search path. This
+    -S, --search DIR      Add this directory to the resource search path. This
                           option may be used multiple times.
     --show-config         Show configuration parameter values.
     -t, --time            Show timings.
-    -T THEME, --theme THEME
-                          Use this CSS theme. This option may be used multiple
+    -T, --theme THEME     Use this CSS theme. This option may be used multiple
                           times.
     -u, --upper           Write the disassembly in upper case.
     --var name=value      Define a variable that can be used by @if and skool
                           macros. This option may be used multiple times.
     -V, --version         Show SkoolKit version number and exit.
-    -w X, --write X       Write only these files, where X is one or more of:
+    -w, --write X         Write only these files, where X is one or more of:
                             d = Disassembly files   o = Other code
                             i = Disassembly index   P = Other pages
                             m = Memory maps
-    -W CLASS, --writer CLASS
-                          Specify the HTML writer class to use; shorthand for
+    -W, --writer CLASS    Specify the HTML writer class to use; shorthand for
                           '--config Config/HtmlWriterClass=CLASS'.
 
 `skool2html.py` searches the following directories for CSS files, JavaScript
@@ -1009,22 +990,21 @@ skool file split into blocks of code and data.
   snapshot. FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -C, --comments        Generate instruction comments.
-    -e ADDR, --end ADDR   Stop at this address (default=65536).
-    -h, --hex             Write upper case hexadecimal addresses.
-    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
-                          'v'. This option may be used multiple times.
-    -l, --hex-lower       Write lower case hexadecimal addresses.
-    -m FILE, --map FILE   Use FILE as a code execution map.
-    -o ADDR, --org ADDR   Specify the origin address of a binary file (default:
-                          65536 - length).
-    -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
-                          49152-65535.
-    -r, --handle-rst      Handle RST instruction arguments.
-    --show-config         Show configuration parameter values.
-    -s ADDR, --start ADDR
-                          Start at this address.
-    -V, --version         Show SkoolKit version number and exit.
+    -C, --comments    Generate instruction comments.
+    -e, --end ADDR    Stop at this address (default=65536).
+    -h, --hex         Write upper case hexadecimal addresses.
+    -I, --ini p=v     Set the value of the configuration parameter 'p' to 'v'.
+                      This option may be used multiple times.
+    -l, --hex-lower   Write lower case hexadecimal addresses.
+    -m, --map FILE    Use FILE as a code execution map.
+    -o, --org ADDR    Specify the origin address of a binary file (default:
+                      65536 - length).
+    -p, --page PAGE   Specify the page (0-7) of a 128K snapshot to map to
+                      49152-65535.
+    -r, --handle-rst  Handle RST instruction arguments.
+    --show-config     Show configuration parameter values.
+    -s, --start ADDR  Start at this address.
+    -V, --version     Show SkoolKit version number and exit.
 
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
 to be a binary file.
@@ -1125,28 +1105,26 @@ To list the options supported by `sna2img.py`, run it with no arguments::
   Options:
     -b, --bfix            Parse a skool file in @bfix mode.
     -B, --binary          Read the input as a binary (raw memory) file.
-    -e MACRO, --expand MACRO
-                          Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#'
+    -e, --expand MACRO    Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#'
                           prefix may be omitted.
-    -f N, --flip N        Flip the image horizontally (N=1), vertically (N=2),
+    -f, --flip N          Flip the image horizontally (N=1), vertically (N=2),
                           or both (N=3).
     -i, --invert          Invert video for cells that are flashing.
-    -m src,size,dest, --move src,size,dest
+    -m, --move src,size,dest
                           Move a block of bytes of the given size from src to
                           dest. This option may be used multiple times.
     -n, --no-animation    Do not animate flashing cells.
-    -o X,Y, --origin X,Y  Top-left crop at (X,Y).
-    -O ORG, --org ORG     Set the origin address of a binary file (default:
+    -o, --origin X,Y      Top-left crop at (X,Y).
+    -O, --org ORG         Set the origin address of a binary file (default:
                           65536 minus the length of the file).
-    -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+    -p, --poke a[-b[-c]],[^+]v
                           POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
                           with '^' to perform an XOR operation, or '+' to
                           perform an ADD operation. This option may be used
                           multiple times.
-    -r N, --rotate N      Rotate the image 90*N degrees clockwise.
-    -s SCALE, --scale SCALE
-                          Set the scale of the image (default=1).
-    -S WxH, --size WxH    Crop to this width and height (in tiles).
+    -r, --rotate N        Rotate the image 90*N degrees clockwise.
+    -s, --scale SCALE     Set the scale of the image (default=1).
+    -S, --size WxH        Crop to this width and height (in tiles).
     -V, --version         Show SkoolKit version number and exit.
 
 +---------+-------------------------------------------------------------------+
@@ -1186,29 +1164,28 @@ list::
   file. FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -c PATH, --ctl PATH   Specify a control file to use, or a directory from
-                          which to read control files. PATH may be '-' for
-                          standard input, or '0' to use no control file. This
-                          option may be used multiple times.
-    -C, --comments        Generate instruction comments.
-    -d SIZE, --defb SIZE  Disassemble as DEFB statements of this size.
-    -e ADDR, --end ADDR   Stop disassembling at this address (default: 65536).
-    -H, --hex             Write hexadecimal addresses and operands in the
-                          disassembly.
-    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
-                          'v'. This option may be used multiple times.
-    -l, --lower           Write the disassembly in lower case.
-    -o ADDR, --org ADDR   Specify the origin address of a binary (.bin) file
-                          (default: 65536 - length).
-    -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
-                          49152-65535.
-    -r, --handle-rst      Handle RST instruction arguments.
-    --show-config         Show configuration parameter values.
-    -s ADDR, --start ADDR
-                          Start disassembling at this address.
-    -V, --version         Show SkoolKit version number and exit.
-    -w W, --line-width W  Set the maximum line width of the skool file (default:
-                          79).
+    -c, --ctl PATH      Specify a control file to use, or a directory from which
+                        to read control files. PATH may be '-' for standard
+                        input, or '0' to use no control file. This option may be
+                        used multiple times.
+    -C, --comments      Generate instruction comments.
+    -d, --defb SIZE     Disassemble as DEFB statements of this size.
+    -e, --end ADDR      Stop disassembling at this address (default: 65536).
+    -H, --hex           Write hexadecimal addresses and operands in the
+                        disassembly.
+    -I, --ini p=v       Set the value of the configuration parameter 'p' to 'v'.
+                        This option may be used multiple times.
+    -l, --lower         Write the disassembly in lower case.
+    -o, --org ADDR      Specify the origin address of a binary (.bin) file
+                        (default: 65536 - length).
+    -p, --page PAGE     Specify the page (0-7) of a 128K snapshot to map to
+                        49152-65535.
+    -r, --handle-rst    Handle RST instruction arguments.
+    --show-config       Show configuration parameter values.
+    -s, --start ADDR    Start disassembling at this address.
+    -V, --version       Show SkoolKit version number and exit.
+    -w, --line-width W  Set the maximum line width of the skool file (default:
+                        79).
 
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
 to be a binary file.
@@ -1450,34 +1427,31 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
 
   Options:
     -b, --basic           List the BASIC program.
-    -c PATH, --ctl PATH   When generating a call graph, specify a control file
+    -c, --ctl PATH        When generating a call graph, specify a control file
                           to use, or a directory from which to read control
                           files. PATH may be '-' for standard input. This option
                           may be used multiple times.
-    -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
+    -f, --find A[,B...[-M[-N]]]
                           Search for the byte sequence A,B... with distance
                           ranging from M to N (default=1) between bytes.
     -g, --call-graph      Generate a call graph in DOT format.
-    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+    -I, --ini p=v         Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
-    -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
+    -o, --org ADDR        Specify the origin address of a binary (raw memory)
                           file (default: 65536 - length).
-    -p A[-B[-C]], --peek A[-B[-C]]
-                          Show the contents of addresses A TO B STEP C. This
+    -p, --peek A[-B[-C]]  Show the contents of addresses A TO B STEP C. This
                           option may be used multiple times.
-    -P PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
+    -P, --page PAGE       Specify the page (0-7) of a 128K snapshot to map to
                           49152-65535.
     --show-config         Show configuration parameter values.
-    -t TEXT, --find-text TEXT
-                          Search for a text string.
-    -T X,Y[-M[-N]], --find-tile X,Y[-M[-N]]
+    -t, --find-text TEXT  Search for a text string.
+    -T, --find-tile X,Y[-M[-N]]
                           Search for the graphic data of the tile at (X,Y) with
                           distance ranging from M to N (default=1) between
                           bytes.
     -v, --variables       List variables.
     -V, --version         Show SkoolKit version number and exit.
-    -w A[-B[-C]], --word A[-B[-C]]
-                          Show the words at addresses A TO B STEP C. This option
+    -w, --word A[-B[-C]]  Show the words at addresses A TO B STEP C. This option
                           may be used multiple times.
 
 With no options, `snapinfo.py` displays register values, the interrupt mode,
@@ -1627,21 +1601,20 @@ To list the options supported by `snapmod.py`, run it with no arguments::
   Modify an SZX or Z80 snapshot.
 
   Options:
-    -m [s:]src,size,[d:]dest, --move [s:]src,size,[d:]dest
+    -m, --move [s:]src,size,[d:]dest
                           Copy a block of bytes of the given size from src in
                           RAM bank s to dest in RAM bank d. This option may be
                           used multiple times.
     --patch [p:]a,file    Apply a binary patch file at address 'a' in RAM bank
                           'p'. This option may be used multiple times.
-    -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
+    -p, --poke [p:]a[-b[-c]],[^+]v
                           POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
                           Prefix 'v' with '^' to perform an XOR operation, or
                           '+' to perform an ADD operation. This option may be
                           used multiple times.
-    -r name=value, --reg name=value
-                          Set the value of a register. Do '--reg help' for more
+    -r, --reg name=value  Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
-    -s name=value, --state name=value
+    -s, --state name=value
                           Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
@@ -1689,20 +1662,18 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
   of (or as well as) being given on the command line.
 
   Options:
-    -c name=value, --sim-load-config name=value
+    -c, --sim-load-config name=value
                           Set the value of a simulated LOAD configuration
                           parameter. Do '-c help' for more information, or '-c
                           help-name' for help on a specific parameter. This
                           option may be used multiple times.
-    -d DIR, --output-dir DIR
-                          Write the snapshot file in this directory.
-    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+    -d, --output-dir DIR  Write the snapshot file in this directory.
+    -I, --ini p=v         Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
     --press N:KEYS        Pause the tape at block number N and press KEYS before
                           resuming. KEYS must be a space-separated list of key
                           identifiers. This option may be used multiple times.
-    -p STACK, --stack STACK
-                          Set the stack pointer.
+    -p, --stack STACK     Set the stack pointer.
     --ram OPERATION       Perform a load operation or otherwise modify the
                           memory snapshot being built. Do '--ram help' for more
                           information. This option may be used multiple times.
@@ -1710,8 +1681,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           information. This option may be used multiple times.
     --screen              Display screen contents while running.
     --show-config         Show configuration parameter values.
-    -s START, --start START
-                          Set the start address to JP to.
+    -s, --start START     Set the start address to JP to.
     --state name=value    Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
@@ -1724,7 +1694,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     --tape-stop BLOCK     Stop the tape at this block number.
     --tape-sum MD5SUM     Specify the MD5 checksum of the tape file. This option
                           may be used twice if loading two tape files.
-    -u AGENT, --user-agent AGENT
+    -u, --user-agent AGENT
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
 
@@ -2255,31 +2225,29 @@ To list the options supported by `trace.py`, run it with no arguments::
                           register.
     -D, --decimal         Show decimal values in verbose mode.
     --depth DEPTH         Simplify audio delays to this depth (default: 2).
-    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+    -I, --ini p=v         Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
     --map FILE            Log addresses of executed instructions to a file.
-    -m MAX, --max-operations MAX
+    -m, --max-operations MAX
                           Maximum number of instructions to execute.
-    -M MAX, --max-tstates MAX
+    -M, --max-tstates MAX
                           Maximum number of T-states to run for.
     -n, --no-interrupts   Don't execute interrupt routines.
-    -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
+    -o, --org ADDR        Specify the origin address of a binary (raw memory)
                           file (default: 65536 - length).
-    -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
+    -p, --poke [p:]a[-b[-c]],[^+]v
                           POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}
                           before execution begins. Prefix 'v' with '^' to
                           perform an XOR operation, or '+' to perform an ADD
                           operation. This option may be used multiple times.
     --python              Use the pure Python Z80 simulator.
-    -r name=value, --reg name=value
-                          Set the value of a register before execution begins.
+    -r, --reg name=value  Set the value of a register before execution begins.
                           Do '--reg help' for more information. This option may
                           be used multiple times.
     --rom FILE            Patch in a ROM at address 0 from this file.
     --show-config         Show configuration parameter values.
-    -s ADDR, --start ADDR
-                          Start execution at this address.
-    -S ADDR, --stop ADDR  Stop execution at this address.
+    -s, --start ADDR      Start execution at this address.
+    -S, --stop ADDR       Stop execution at this address.
     --screen              Display screen contents and respond to keypresses
                           while running.
     --state name=value    Set a hardware state attribute before execution
