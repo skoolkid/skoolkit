@@ -23,6 +23,8 @@ Changelog
   of the tape's tones, pulse sequences and data blocks)
 * Added the ``--tape-skip`` option to :ref:`tapinfo.py` (for skipping one or
   more blocks on a tape)
+* Fixed how two base prefixes are handled when applied to an instruction with
+  one operand
 
 10.1 (2026-08-14)
 -----------------

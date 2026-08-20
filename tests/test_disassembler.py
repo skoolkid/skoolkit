@@ -2766,6 +2766,30 @@ class DisassemblerTest(SkoolKitTestCase):
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0].operation, 'defw $ffff')
 
+    def test_two_base_prefixes_with_single_operand_instructions(self):
+        snapshot = [
+            6, 10,           # 00000 LD B,10
+            1, 255, 255,     # 00002 LD BC,65535
+            16, 254,         # 00005 DJNZ 5
+            207,             # 00007 RST 8
+            221, 52, 16,     # 00008 INC (IX+16)
+            221, 203, 17, 6, # 00011 RLC (IX+17)
+        ]
+        exp_instructions = (
+            (0, 'LD B,10'),
+            (2, 'LD BC,65535'),
+            (5, 'DJNZ 5'),
+            (7, 'RST 8'),
+            (8, 'INC (IX+16)'),
+            (11, 'RLC (IX+17)'),
+        )
+        disassembler = self._get_disassembler(snapshot)
+        instructions = disassembler.disassemble(0, 14, 'dh')
+        self.assertEqual(len(instructions), len(exp_instructions))
+        for instruction, (address, operation) in zip(instructions, exp_instructions):
+            self.assertEqual(instruction.address, address)
+            self.assertEqual(instruction.operation, operation)
+
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_operand_formatter(self):
         custom_formatter = """

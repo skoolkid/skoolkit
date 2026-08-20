@@ -60,7 +60,7 @@ class OperandFormatter:
         :param base: The desired base ('b', 'c', 'd', 'h', 'm' or 'n').
         :return: The formatted byte value.
         """
-        return self._num_str(value, 1, base)
+        return self._num_str(value, 1, base[:1])
 
     # Component API
     def format_word(self, value, base):
@@ -70,7 +70,7 @@ class OperandFormatter:
         :param base: The desired base ('b', 'c', 'd', 'h', 'm' or 'n').
         :return: The formatted word value.
         """
-        return self._num_str(value, 2, base)
+        return self._num_str(value, 2, base[:1])
 
     # Component API
     def is_char(self, value):
