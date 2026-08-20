@@ -64,13 +64,13 @@ def mock_write_snapshot(fname, ram, registers, state, machine):
     s_machine = machine
 
 class RzxplayTest(SkoolKitTestCase):
-    def _get_rzx(self, pc=0x8000, frames=((1, 0, ()),), code=()):
+    def _get_rzx(self, pc=0x8000, frames=((1, 0, ()),), code=(), tstates=0):
         ram = [0] * 0xC000
         if code:
             ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         z80data = self.write_z80(ram, {'PC': pc}, ret_data=True)
         rzx = RZX()
-        rzx.add_snapshot(z80data, 'z80', frames)
+        rzx.add_snapshot(z80data, 'z80', frames, tstates=tstates)
         return rzx
 
     def _test_rzx(self, rzx, exp_output, options=(), exp_trace=None, outfile=None, exp_error=''):
@@ -352,8 +352,8 @@ class RzxplayTest(SkoolKitTestCase):
             rzx.add_snapshot(z80data, 'z80', f)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $C000 XOR A
-            F:1 C:00001 I:00000 $C000 XOR B
+            F:0 C:00000 I:00000 $C000 XOR A
+            F:1 C:00000 I:00000 $C000 XOR B
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -376,8 +376,8 @@ class RzxplayTest(SkoolKitTestCase):
             rzx.add_snapshot(z80data, 'z80', f)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $8000 XOR A
-            F:1 C:00001 I:00000 $0038 PUSH AF
+            F:0 C:00000 I:00000 $8000 XOR A
+            F:1 C:00000 I:00000 $0038 PUSH AF
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen --flags 4', exp_trace)
 
@@ -403,9 +403,9 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(frames=input_recs[2])
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $7000 XOR A
-            F:1 C:00001 I:00001 $7001 IN A,($FE)
-            F:2 C:00001 I:00000 $7003 XOR B
+            F:0 C:00000 I:00000 $7000 XOR A
+            F:1 C:00000 I:00000 $7001 IN A,($FE)
+            F:2 C:00000 I:00000 $7003 XOR B
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -443,10 +443,10 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames, tstates=69886)
         exp_output = ''
         exp_trace = """
-            F:0 C:00002 I:00000 $C000 HALT
             F:0 C:00001 I:00000 $C000 HALT
-            F:1 C:00002 I:00000 $0038 PUSH AF
-            F:1 C:00001 I:00000 $0039 PUSH HL
+            F:0 C:00000 I:00000 $C000 HALT
+            F:1 C:00001 I:00000 $0038 PUSH AF
+            F:1 C:00000 I:00000 $0039 PUSH HL
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -463,14 +463,14 @@ class RzxplayTest(SkoolKitTestCase):
         registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
         z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
-        frames = [(1, 0, []), (3, 0, [])]
+        frames = [(2, 0, []), (4, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $FEFA LD A,I
+            F:0 C:00000 I:00000 $FEFA LD A,I
             F:1 C:00003 I:00000 $FF01 RET
             F:1 C:00002 I:00000 $FEFC JP PE,$FEFA
-            F:1 C:00001 I:00000 $FEFA LD A,I
+            F:1 C:00000 I:00000 $FEFA LD A,I
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -487,14 +487,14 @@ class RzxplayTest(SkoolKitTestCase):
         registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
         z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
-        frames = [(1, 0, []), (3, 0, [])]
+        frames = [(2, 0, []), (4, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $FEFA LD A,I
+            F:0 C:00000 I:00000 $FEFA LD A,I
             F:1 C:00003 I:00000 $FF01 RET
             F:1 C:00002 I:00000 $FEFC JP PO,$FEFA
-            F:1 C:00001 I:00000 $FEFA LD A,I
+            F:1 C:00000 I:00000 $FEFA LD A,I
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen --flags 1', exp_trace)
 
@@ -511,14 +511,14 @@ class RzxplayTest(SkoolKitTestCase):
         registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
         z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
-        frames = [(1, 0, []), (3, 0, [])]
+        frames = [(2, 0, []), (4, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $FEFA LD A,R
+            F:0 C:00000 I:00000 $FEFA LD A,R
             F:1 C:00003 I:00000 $FF01 RET
             F:1 C:00002 I:00000 $FEFC JP PE,$FEFA
-            F:1 C:00001 I:00000 $FEFA LD A,R
+            F:1 C:00000 I:00000 $FEFA LD A,R
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -535,14 +535,14 @@ class RzxplayTest(SkoolKitTestCase):
         registers = {'PC': pc, 'I': 0xFE, 'iff1': 1, 'im': 2}
         z80data = self.write_z80(ram, registers, ret_data=True)
         rzx = RZX()
-        frames = [(1, 0, []), (3, 0, [])]
+        frames = [(2, 0, []), (4, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $FEFA LD A,R
+            F:0 C:00000 I:00000 $FEFA LD A,R
             F:1 C:00003 I:00000 $FF01 RET
             F:1 C:00002 I:00000 $FEFC JP PO,$FEFA
-            F:1 C:00001 I:00000 $FEFA LD A,R
+            F:1 C:00000 I:00000 $FEFA LD A,R
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen --flags 1', exp_trace)
 
@@ -561,10 +561,10 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $C000 EI
-            F:1 C:00001 I:00000 $0038 PUSH AF
-            F:2 C:00002 I:00000 $0039 PUSH HL
-            F:2 C:00001 I:00000 $003A LD HL,($5C78)
+            F:0 C:00000 I:00000 $C000 EI
+            F:1 C:00000 I:00000 $0038 PUSH AF
+            F:2 C:00001 I:00000 $0039 PUSH HL
+            F:2 C:00000 I:00000 $003A LD HL,($5C78)
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -584,10 +584,10 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $C000 EI
-            F:1 C:00002 I:00000 $0038 PUSH AF
-            F:1 C:00001 I:00000 $0039 PUSH HL
-            F:2 C:00001 I:00000 $003A LD HL,($5C78)
+            F:0 C:00000 I:00000 $C000 EI
+            F:1 C:00001 I:00000 $0038 PUSH AF
+            F:1 C:00000 I:00000 $0039 PUSH HL
+            F:2 C:00000 I:00000 $003A LD HL,($5C78)
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -606,11 +606,11 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $C000 EI
-            F:1 C:00001 I:00000 $C001 XOR A
-            F:2 C:00003 I:00000 $0038 PUSH AF
-            F:2 C:00002 I:00000 $0039 PUSH HL
-            F:2 C:00001 I:00000 $003A LD HL,($5C78)
+            F:0 C:00000 I:00000 $C000 EI
+            F:1 C:00000 I:00000 $C001 XOR A
+            F:2 C:00002 I:00000 $0038 PUSH AF
+            F:2 C:00001 I:00000 $0039 PUSH HL
+            F:2 C:00000 I:00000 $003A LD HL,($5C78)
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen --flags 2', exp_trace)
 
@@ -630,12 +630,12 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $C000 EI
-            F:1 C:00002 I:00000 $C001 XOR A
-            F:1 C:00001 I:00000 $C002 XOR B
-            F:2 C:00003 I:00000 $0038 PUSH AF
-            F:2 C:00002 I:00000 $0039 PUSH HL
-            F:2 C:00001 I:00000 $003A LD HL,($5C78)
+            F:0 C:00000 I:00000 $C000 EI
+            F:1 C:00001 I:00000 $C001 XOR A
+            F:1 C:00000 I:00000 $C002 XOR B
+            F:2 C:00002 I:00000 $0038 PUSH AF
+            F:2 C:00001 I:00000 $0039 PUSH HL
+            F:2 C:00000 I:00000 $003A LD HL,($5C78)
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen --flags 2', exp_trace)
 
@@ -654,10 +654,10 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $C000 EI
-            F:1 C:00003 I:00000 $0038 PUSH AF
-            F:1 C:00002 I:00000 $0039 PUSH HL
-            F:1 C:00001 I:00000 $003A LD HL,($5C78)
+            F:0 C:00000 I:00000 $C000 EI
+            F:1 C:00002 I:00000 $0038 PUSH AF
+            F:1 C:00001 I:00000 $0039 PUSH HL
+            F:1 C:00000 I:00000 $003A LD HL,($5C78)
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen --flags 2', exp_trace)
 
@@ -676,8 +676,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:1 C:00001 I:00000 $8000 XOR A
-            F:2 C:00001 I:00000 $8001 XOR B
+            F:1 C:00000 I:00000 $8000 XOR A
+            F:2 C:00000 I:00000 $8001 XOR B
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -696,8 +696,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $8000 XOR A
-            F:2 C:00001 I:00000 $8001 XOR B
+            F:0 C:00000 I:00000 $8000 XOR A
+            F:2 C:00000 I:00000 $8001 XOR B
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -716,8 +716,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $8000 XOR A
-            F:1 C:00001 I:00000 $8001 XOR B
+            F:0 C:00000 I:00000 $8000 XOR A
+            F:1 C:00000 I:00000 $8001 XOR B
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -755,9 +755,9 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $FEFD HALT
-            F:2 C:00002 I:00000 $FF01 RET
-            F:2 C:00001 I:00000 $FEFE XOR A
+            F:0 C:00000 I:00000 $FEFD HALT
+            F:2 C:00001 I:00000 $FF01 RET
+            F:2 C:00000 I:00000 $FEFE XOR A
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -777,8 +777,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00003 I:00000 $C000 LD R,A
-            F:0 C:00001 I:00000 $C002 XOR A
+            F:0 C:00001 I:00000 $C000 LD R,A
+            F:0 C:00000 I:00000 $C002 XOR A
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -800,8 +800,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00003 I:00000 $BFFE OUT (C),A
-            F:0 C:00001 I:00000 $C000 XOR A
+            F:0 C:00001 I:00000 $BFFE OUT (C),A
+            F:0 C:00000 I:00000 $C000 XOR A
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -936,19 +936,19 @@ class RzxplayTest(SkoolKitTestCase):
         ram[pc - 0x4000:pc - 0x4000 + len(code)] = code
         registers = {'PC': pc}
         z80data = self.write_z80(ram, registers, ret_data=True)
-        frames = ((1, 0, []), (1, 0, []), (1, 1, [0]))
+        frames = ((1, 0, []), (1, 0, []), (2, 1, [0]))
         rzx.add_snapshot(z80data, 'z80', frames)
         outfile = 'out.rzx'
         exp_output = f'Wrote {outfile}\n'
         exp_trace = """
-            F:0 C:00001 I:00000 $F000 XOR A
+            F:0 C:00000 I:00000 $F000 XOR A
         """
         self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
 
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $F001 XOR B
-            F:1 C:00001 I:00001 $F002 IN A,(C)
+            F:0 C:00000 I:00000 $F001 XOR B
+            F:1 C:00000 I:00000 $F002 IN A,(C)
         """
         self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -958,7 +958,7 @@ class RzxplayTest(SkoolKitTestCase):
                 0xAF,       # XOR A
                 0xA8,       # XOR B
             )),
-            (0xF002, [(1, 1, [0])], (
+            (0xF002, [(2, 1, [0])], (
                 0xED, 0x78, # IN A,(C)
             ))
         )
@@ -973,14 +973,14 @@ class RzxplayTest(SkoolKitTestCase):
         outfile = 'out.rzx'
         exp_output = f'Wrote {outfile}\n'
         exp_trace = """
-            F:0 C:00001 I:00000 $F000 XOR A
+            F:0 C:00000 I:00000 $F000 XOR A
         """
         self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
 
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $F001 XOR B
-            F:1 C:00001 I:00001 $F002 IN A,(C)
+            F:0 C:00000 I:00000 $F001 XOR B
+            F:1 C:00000 I:00000 $F002 IN A,(C)
         """
         self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -1001,7 +1001,7 @@ class RzxplayTest(SkoolKitTestCase):
         outfile = 'out.rzx'
         exp_output = f'Wrote {outfile}\n'
         exp_trace = """
-            F:0 C:00001 I:00000 $D000 OR A
+            F:0 C:00000 I:00000 $D000 OR A
         """
         self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
 
@@ -1011,7 +1011,7 @@ class RzxplayTest(SkoolKitTestCase):
 
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $D001 OR B
+            F:0 C:00000 I:00000 $D001 OR B
         """
         self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -1032,7 +1032,7 @@ class RzxplayTest(SkoolKitTestCase):
         outfile = 'out.rzx'
         exp_output = f'Wrote {outfile}\n'
         exp_trace = """
-            F:0 C:00001 I:00000 $D000 OR A
+            F:0 C:00000 I:00000 $D000 OR A
         """
         self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
 
@@ -1043,7 +1043,7 @@ class RzxplayTest(SkoolKitTestCase):
 
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $D001 OR B
+            F:0 C:00000 I:00000 $D001 OR B
         """
         self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -1066,16 +1066,16 @@ class RzxplayTest(SkoolKitTestCase):
         outfile = 'out.rzx'
         exp_output = f'Wrote {outfile}\n'
         exp_trace = """
-            F:0 C:00001 I:00000 $D000 LD HL,$3FFD
+            F:0 C:00000 I:00000 $D000 LD HL,$3FFD
         """
         self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
 
         exp_output = ''
         exp_trace = """
-            F:0 C:00004 I:00000 $D003 LD A,(HL)
-            F:0 C:00003 I:00000 $D004 OR A
-            F:0 C:00002 I:00000 $D005 JP NZ,$009A
-            F:0 C:00001 I:00000 $009A LD HL,$06D8
+            F:0 C:00003 I:00000 $D003 LD A,(HL)
+            F:0 C:00002 I:00000 $D004 OR A
+            F:0 C:00001 I:00000 $D005 JP NZ,$009A
+            F:0 C:00000 I:00000 $009A LD HL,$06D8
         """
         self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -1098,16 +1098,16 @@ class RzxplayTest(SkoolKitTestCase):
         outfile = 'out.rzx'
         exp_output = f'Wrote {outfile}\n'
         exp_trace = """
-            F:0 C:00001 I:00000 $D000 LD HL,$3FFD
+            F:0 C:00000 I:00000 $D000 LD HL,$3FFD
         """
         self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
 
         exp_output = ''
         exp_trace = """
-            F:0 C:00004 I:00000 $D003 LD A,(HL)
-            F:0 C:00003 I:00000 $D004 OR A
-            F:0 C:00002 I:00000 $D005 JP Z,$009A
-            F:0 C:00001 I:00000 $009A LD HL,$06F7
+            F:0 C:00003 I:00000 $D003 LD A,(HL)
+            F:0 C:00002 I:00000 $D004 OR A
+            F:0 C:00001 I:00000 $D005 JP Z,$009A
+            F:0 C:00000 I:00000 $009A LD HL,$06F7
         """
         self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -1152,7 +1152,7 @@ class RzxplayTest(SkoolKitTestCase):
         outfile = 'out.rzx'
         exp_output = f'Wrote {outfile}\n'
         exp_trace = """
-            F:0 C:00001 I:00000 $D000 OR A
+            F:0 C:00000 I:00000 $D000 OR A
         """
         self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace, outfile)
 
@@ -1161,7 +1161,7 @@ class RzxplayTest(SkoolKitTestCase):
 
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $D001 OR B
+            F:0 C:00000 I:00000 $D001 OR B
         """
         self._test_rzx(outfile, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -1657,8 +1657,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(esdata, 'z80', frames, flags=1)
         exp_output = ''
         exp_trace = """
-            F:0 C:00002 I:00000 $9000 XOR A
-            F:0 C:00001 I:00000 $9001 XOR B
+            F:0 C:00001 I:00000 $9000 XOR A
+            F:0 C:00000 I:00000 $9001 XOR B
         """
         self._test_rzx(rzx, exp_output, f'--snapshot {z80file} --quiet --no-screen', exp_trace)
 
@@ -1688,8 +1688,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $F000 XOR A
-            F:1 C:00001 I:00000 $F001 XOR B
+            F:0 C:00000 I:00000 $F000 XOR A
+            F:1 C:00000 I:00000 $F001 XOR B
         """
         self._test_rzx(rzx, exp_output, '--stop 2 --quiet --no-screen', exp_trace)
 
@@ -1709,7 +1709,7 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $E000 XOR A
+            F:0 C:00000 I:00000 $E000 XOR A
         """
         self._test_rzx(rzx, exp_output, '--stop 1 --quiet --no-screen', exp_trace)
 
@@ -1736,16 +1736,16 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00001 I:00000 $F000 LD B,$00
-            F:1 C:00001 I:00000 $F002 LD B,$01
-            F:2 C:00001 I:00000 $F004 LD B,$02
-            F:3 C:00001 I:00000 $F006 LD B,$03
-            F:4 C:00001 I:00000 $F008 LD B,$04
-            F:5 C:00001 I:00000 $F00A LD B,$05
-            F:6 C:00001 I:00000 $F00C LD B,$06
-            F:7 C:00001 I:00000 $F00E LD B,$07
-            F:8 C:00001 I:00000 $F010 LD B,$08
-            F:9 C:00001 I:00000 $F012 LD B,$09
+            F:0 C:00000 I:00000 $F000 LD B,$00
+            F:1 C:00000 I:00000 $F002 LD B,$01
+            F:2 C:00000 I:00000 $F004 LD B,$02
+            F:3 C:00000 I:00000 $F006 LD B,$03
+            F:4 C:00000 I:00000 $F008 LD B,$04
+            F:5 C:00000 I:00000 $F00A LD B,$05
+            F:6 C:00000 I:00000 $F00C LD B,$06
+            F:7 C:00000 I:00000 $F00E LD B,$07
+            F:8 C:00000 I:00000 $F010 LD B,$08
+            F:9 C:00000 I:00000 $F012 LD B,$09
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -1771,7 +1771,7 @@ class RzxplayTest(SkoolKitTestCase):
         frames = [(1, 0, []), (1, 0, [])]
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = 'Using pygame\n'
-        exp_trace = "F:0 C:00001 I:00000 $F000 XOR A\n"
+        exp_trace = "F:0 C:00000 I:00000 $F000 XOR A\n"
         self._test_rzx(rzx, exp_output, '--quiet', exp_trace)
 
     @patch.object(screen, 'pygame_io', MockPygameIO())
@@ -1792,8 +1792,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = 'Using pygame\n'
         exp_trace = """
-            F:0 C:00002 I:00000 $F000 LD A,$05
-            F:0 C:00001 I:00000 $F002 OUT ($FE),A
+            F:0 C:00001 I:00000 $F000 LD A,$05
+            F:0 C:00000 I:00000 $F002 OUT ($FE),A
         """
         self._test_rzx(rzx, exp_output, '--quiet', exp_trace)
         self.assertEqual([(0, 5)], TestScreen.instance.border)
@@ -1839,8 +1839,8 @@ class RzxplayTest(SkoolKitTestCase):
             Wrote out.z80
         """
         exp_trace = """
-            F:0 C:00002 I:00000 $A000 LD A,$C5
-            F:0 C:00001 I:00000 $A002 OUT ($FE),A
+            F:0 C:00001 I:00000 $A000 LD A,$C5
+            F:0 C:00000 I:00000 $A002 OUT ($FE),A
         """
         self._test_rzx(rzx, exp_output, '--quiet', exp_trace, outfile='out.z80')
         self.assertEqual([(0, 0xC5)], TestScreen.instance.border)
@@ -1865,11 +1865,11 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00005 I:00000 $D000 DEFB $DD
-            F:0 C:00004 I:00000 $D001 DEFB $DD
-            F:0 C:00003 I:00000 $D002 DEFB $FD
-            F:0 C:00002 I:00000 $D003 DEFB $FD
-            F:0 C:00001 I:00000 $D004 NOP
+            F:0 C:00004 I:00000 $D000 DEFB $DD
+            F:0 C:00003 I:00000 $D001 DEFB $DD
+            F:0 C:00002 I:00000 $D002 DEFB $FD
+            F:0 C:00001 I:00000 $D003 DEFB $FD
+            F:0 C:00000 I:00000 $D004 NOP
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -1899,10 +1899,10 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = 'Frame 0: ATTR(0,0)=6; BORDER=4\n'
         exp_trace = """
-            F:0 C:00004 I:00000 $E000 LD A,$04
-            F:0 C:00003 I:00000 $E002 OUT ($FE),A
-            F:0 C:00002 I:00000 $E004 LD HL,$5800
-            F:0 C:00001 I:00000 $E007 LD (HL),$06
+            F:0 C:00003 I:00000 $E000 LD A,$04
+            F:0 C:00002 I:00000 $E002 OUT ($FE),A
+            F:0 C:00001 I:00000 $E004 LD HL,$5800
+            F:0 C:00000 I:00000 $E007 LD (HL),$06
         """
         self._test_rzx(rzx, exp_output, '--quiet', exp_trace)
 
@@ -1992,7 +1992,7 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = ''
         exp_trace = """
             Frm Count   Input   Addr  Instruction
-            F:0 C:00001 I:00000 $F000 LD A,$05
+            F:0 C:00000 I:00000 $F000 LD A,$05
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -2011,7 +2011,7 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = ''
         exp_trace = """
             Fr. Count   Input   Addr  Disassembly
-            F:0 C:00001 I:00000 $B000 LD A,$05
+            F:0 C:00000 I:00000 $B000 LD A,$05
         """
         self._test_rzx(rzx, exp_output, ('-I', f'TraceHeader={th}', '--quiet', '--no-screen'), exp_trace)
 
@@ -2035,7 +2035,7 @@ class RzxplayTest(SkoolKitTestCase):
         exp_trace = """
             Frm Count   Input   Addr  Instruction
             --- -----   -----   ----  -----------
-            F:0 C:00001 I:00000 $A000 LD A,$15
+            F:0 C:00000 I:00000 $A000 LD A,$15
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -2060,10 +2060,10 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            $F000 LD BC,$7FFE    (Frame=0 FC=4 RR=1)
-            $F003 IN A,(C)       (Frame=0 FC=3 RR=1)
-            $F005 RRA            (Frame=0 FC=1 RR=0)
-            $F006 JP NC,$0000    (Frame=1 FC=1 RR=0)
+            $F000 LD BC,$7FFE    (Frame=0 FC=3 RR=1)
+            $F003 IN A,(C)       (Frame=0 FC=1 RR=0)
+            $F005 RRA            (Frame=0 FC=0 RR=0)
+            $F006 JP NC,$0000    (Frame=1 FC=0 RR=0)
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -2084,12 +2084,149 @@ class RzxplayTest(SkoolKitTestCase):
         tl = '{pc:04X} {i:<12} (Frame:{fr} RR:{rr} FC:{fc})'
         exp_output = ''
         exp_trace = """
-            B000 LD BC,$7FFE  (Frame:0 RR:1 FC:4)
-            B003 IN A,(C)     (Frame:0 RR:1 FC:3)
-            B005 RRA          (Frame:0 RR:0 FC:1)
-            B006 JP NC,$0000  (Frame:1 RR:0 FC:1)
+            B000 LD BC,$7FFE  (Frame:0 RR:1 FC:3)
+            B003 IN A,(C)     (Frame:0 RR:0 FC:1)
+            B005 RRA          (Frame:0 RR:0 FC:0)
+            B006 JP NC,$0000  (Frame:1 RR:0 FC:0)
         """
         self._test_rzx(rzx, exp_output, ('-I', f'TraceLine={tl}', '--quiet', '--no-screen'), exp_trace)
+
+    def test_config_TraceLine_with_register_values(self):
+        pc = 0x8000
+        frames = [(21, 0, ())]
+        code = (
+            0x3E, 0x0A,             # $8000 LD A,$0A
+            0xFE, 0x0B,             # $8002 CP $0B
+            0x08,                   # $8004 EX AF,AF'
+            0x3E, 0x0B,             # $8005 LD A,$0B
+            0xFE, 0x0A,             # $8007 CP $0A
+            0x01, 0xCB, 0xCB,       # $8009 LD BC,$CBCB
+            0x11, 0xED, 0xED,       # $800C LD DE,$EDED
+            0x21, 0xFF, 0xFF,       # $800F LD HL,$FFFF
+            0xD9,                   # $8012 EXX
+            0x01, 0x21, 0x21,       # $8013 LD BC,$2121
+            0x11, 0x54, 0x54,       # $8016 LD DE,$5454
+            0x21, 0x98, 0x98,       # $8019 LD HL,$9898
+            0x31, 0x34, 0x12,       # $801C LD SP,$1234
+            0xDD, 0x21, 0xCD, 0xAB, # $801F LD IX,$ABCD
+            0xFD, 0x21, 0x21, 0x43, # $8023 LD IY,$4321
+            0xED, 0x4F,             # $8027 LD R,A
+            0xED, 0x47,             # $8029 LD I,A
+        )
+        rzx = self._get_rzx(pc, frames, code)
+        trace_line = "${pc:04X} {i:<13} AFBCDEHL={r[a]:02X}{r[f]:02X}{r[b]:02X}{r[c]:02X}{r[d]:02X}{r[e]:02X}{r[h]:02X}{r[l]:02X}"
+        trace_line += " AFBCDEHL'={r[^a]:02X}{r[^f]:02X}{r[^b]:02X}{r[^c]:02X}{r[^d]:02X}{r[^e]:02X}{r[^h]:02X}{r[^l]:02X}"
+        trace_line += " IX={r[ixh]:02X}{r[ixl]:02X} IY={r[iyh]:02X}{r[iyl]:02X} SP={r[sp]:04X} IR={r[i]:02X}{r[r]:02X}"
+        exp_output = ''
+        exp_trace = """
+            $8000 LD A,$0A      AFBCDEHL=0A00000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=0000 SP=0000 IR=0001
+            $8002 CP $0B        AFBCDEHL=0A9B000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=0000 SP=0000 IR=0002
+            $8004 EX AF,AF'     AFBCDEHL=0000000000000000 AFBCDEHL'=0A9B000000000000 IX=0000 IY=0000 SP=0000 IR=0003
+            $8005 LD A,$0B      AFBCDEHL=0B00000000000000 AFBCDEHL'=0A9B000000000000 IX=0000 IY=0000 SP=0000 IR=0004
+            $8007 CP $0A        AFBCDEHL=0B0A000000000000 AFBCDEHL'=0A9B000000000000 IX=0000 IY=0000 SP=0000 IR=0005
+            $8009 LD BC,$CBCB   AFBCDEHL=0B0ACBCB00000000 AFBCDEHL'=0A9B000000000000 IX=0000 IY=0000 SP=0000 IR=0006
+            $800C LD DE,$EDED   AFBCDEHL=0B0ACBCBEDED0000 AFBCDEHL'=0A9B000000000000 IX=0000 IY=0000 SP=0000 IR=0007
+            $800F LD HL,$FFFF   AFBCDEHL=0B0ACBCBEDEDFFFF AFBCDEHL'=0A9B000000000000 IX=0000 IY=0000 SP=0000 IR=0008
+            $8012 EXX           AFBCDEHL=0B0A000000000000 AFBCDEHL'=0A9BCBCBEDEDFFFF IX=0000 IY=0000 SP=0000 IR=0009
+            $8013 LD BC,$2121   AFBCDEHL=0B0A212100000000 AFBCDEHL'=0A9BCBCBEDEDFFFF IX=0000 IY=0000 SP=0000 IR=000A
+            $8016 LD DE,$5454   AFBCDEHL=0B0A212154540000 AFBCDEHL'=0A9BCBCBEDEDFFFF IX=0000 IY=0000 SP=0000 IR=000B
+            $8019 LD HL,$9898   AFBCDEHL=0B0A212154549898 AFBCDEHL'=0A9BCBCBEDEDFFFF IX=0000 IY=0000 SP=0000 IR=000C
+            $801C LD SP,$1234   AFBCDEHL=0B0A212154549898 AFBCDEHL'=0A9BCBCBEDEDFFFF IX=0000 IY=0000 SP=1234 IR=000D
+            $801F LD IX,$ABCD   AFBCDEHL=0B0A212154549898 AFBCDEHL'=0A9BCBCBEDEDFFFF IX=ABCD IY=0000 SP=1234 IR=000F
+            $8023 LD IY,$4321   AFBCDEHL=0B0A212154549898 AFBCDEHL'=0A9BCBCBEDEDFFFF IX=ABCD IY=4321 SP=1234 IR=0011
+            $8027 LD R,A        AFBCDEHL=0B0A212154549898 AFBCDEHL'=0A9BCBCBEDEDFFFF IX=ABCD IY=4321 SP=1234 IR=000B
+            $8029 LD I,A        AFBCDEHL=0B0A212154549898 AFBCDEHL'=0A9BCBCBEDEDFFFF IX=ABCD IY=4321 SP=1234 IR=0B0D
+        """
+        self._test_rzx(rzx, exp_output, ('-I', f'TraceLine={trace_line}', '--quiet', '--no-screen'), exp_trace)
+
+    def test_config_TraceLine_with_register_pairs(self):
+        pc = 0x8000
+        frames = [(11, 0, ())]
+        code = (
+            0x01, 0xCB, 0xCB,       # $8000 LD BC,$CBCB
+            0x11, 0xED, 0xED,       # $8003 LD DE,$EDED
+            0x21, 0xFF, 0xFF,       # $8006 LD HL,$FFFF
+            0xD9,                   # $8009 EXX
+            0x01, 0x21, 0x21,       # $800A LD BC,$2121
+            0x11, 0x54, 0x54,       # $800D LD DE,$5454
+            0x21, 0x98, 0x98,       # $8010 LD HL,$9898
+            0xDD, 0x21, 0xCD, 0xAB, # $8013 LD IX,$ABCD
+            0xFD, 0x21, 0x21, 0x43, # $8017 LD IY,$4321
+        )
+        rzx = self._get_rzx(pc, frames, code)
+        trace_line = "${pc:04X} {i:<13} BCDEHL={r[bc]:04X}{r[de]:04X}{r[hl]:04X}"
+        trace_line += " BCDEHL'={r[^bc]:04X}{r[^de]:04X}{r[^hl]:04X}"
+        trace_line += " IX={r[ix]:04X} IY={r[iy]:04X}"
+        exp_output = ''
+        exp_trace = """
+            $8000 LD BC,$CBCB   BCDEHL=CBCB00000000 BCDEHL'=000000000000 IX=0000 IY=0000
+            $8003 LD DE,$EDED   BCDEHL=CBCBEDED0000 BCDEHL'=000000000000 IX=0000 IY=0000
+            $8006 LD HL,$FFFF   BCDEHL=CBCBEDEDFFFF BCDEHL'=000000000000 IX=0000 IY=0000
+            $8009 EXX           BCDEHL=000000000000 BCDEHL'=CBCBEDEDFFFF IX=0000 IY=0000
+            $800A LD BC,$2121   BCDEHL=212100000000 BCDEHL'=CBCBEDEDFFFF IX=0000 IY=0000
+            $800D LD DE,$5454   BCDEHL=212154540000 BCDEHL'=CBCBEDEDFFFF IX=0000 IY=0000
+            $8010 LD HL,$9898   BCDEHL=212154549898 BCDEHL'=CBCBEDEDFFFF IX=0000 IY=0000
+            $8013 LD IX,$ABCD   BCDEHL=212154549898 BCDEHL'=CBCBEDEDFFFF IX=ABCD IY=0000
+            $8017 LD IY,$4321   BCDEHL=212154549898 BCDEHL'=CBCBEDEDFFFF IX=ABCD IY=4321
+        """
+        self._test_rzx(rzx, exp_output, ('-I', f'TraceLine={trace_line}', '--quiet', '--no-screen'), exp_trace)
+
+    def test_config_TraceLine_with_memptr(self):
+        pc = 0xC000
+        frames = [(6, 0, ())]
+        code = (
+            0x3E, 0xFE,       # $C000 LD A,$FE
+            0x32, 0x00, 0x80, # $C002 LD ($8000),A
+            0x32, 0x01, 0x80, # $C005 LD ($8001),A
+            0x2A, 0x00, 0x80, # $C008 LD HL,($8000)
+            0xED, 0x6F,       # $C00B RLD
+        )
+        rzx = self._get_rzx(pc, frames, code)
+        trace_line = "${pc:04X} {i:<14} MEMPTR={r[memptr]:04X}"
+        exp_output = ''
+        exp_trace = """
+            $C000 LD A,$FE       MEMPTR=0000
+            $C002 LD ($8000),A   MEMPTR=FE01
+            $C005 LD ($8001),A   MEMPTR=FE02
+            $C008 LD HL,($8000)  MEMPTR=8001
+            $C00B RLD            MEMPTR=FEFF
+        """
+        self._test_rzx(rzx, exp_output, ('-I', f'TraceLine={trace_line}', '-c', '--quiet', '--no-screen'), exp_trace)
+
+    def test_config_TraceLine_with_timestamp(self):
+        pc = 0x8000
+        frames = [(4, 0, ())]
+        code = (
+            0x06, 0x02, # $8000 LD B,$02
+            0x10, 0xFE, # $8002 DJNZ $8002
+            0x18, 0xFA, # $8004 JR $8000
+        )
+        rzx = self._get_rzx(pc, frames, code, tstates=100)
+        trace_line = "{t} ${pc:04X} {i}"
+        exp_output = ''
+        exp_trace = """
+            100 $8000 LD B,$02
+            107 $8002 DJNZ $8002
+            120 $8002 DJNZ $8002
+            128 $8004 JR $8000
+        """
+        self._test_rzx(rzx, exp_output, ('-I', f'TraceLine={trace_line}', '--quiet', '--no-screen'), exp_trace)
+
+    def test_config_TraceLine_with_memory_contents(self):
+        pc = 0x8000
+        frames = [(2, 0, ())]
+        code = (
+            0x21, 0xCD, 0xAB, # $8000 LD HL,$ABCD
+            0x22, 0x00, 0xC0, # $8003 LD ($C000),HL
+        )
+        rzx = self._get_rzx(pc, frames, code)
+        trace_line = '${pc:04X} {i:<14} {{m[$c000]}}=({m[49152]},0x{m[0xc001]:02X},${m[$C002]:02X})'
+        exp_output = ''
+        exp_trace = """
+            $8000 LD HL,$ABCD    {m[$c000]}=(0,0x00,$00)
+            $8003 LD ($C000),HL  {m[$c000]}=(205,0xAB,$00)
+        """
+        self._test_rzx(rzx, exp_output, ('-I', f'TraceLine={trace_line}', '--quiet', '--no-screen'), exp_trace)
 
     def test_config_TraceOperand_read_from_file(self):
         ini = """
@@ -2110,8 +2247,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00002 I:00000 $F000 LD BC,0xFFE
-            F:0 C:00001 I:00000 $F003 LD A,0xA
+            F:0 C:00001 I:00000 $F000 LD BC,0xFFE
+            F:0 C:00000 I:00000 $F003 LD A,0xA
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
@@ -2129,8 +2266,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00002 I:00000 $B000 LD BC,0xffe
-            F:0 C:00001 I:00000 $B003 LD A,0xa
+            F:0 C:00001 I:00000 $B000 LD BC,0xffe
+            F:0 C:00000 I:00000 $B003 LD A,0xa
         """
         self._test_rzx(rzx, exp_output, '-I TraceOperand=0x,x,x --quiet --no-screen', exp_trace)
 
@@ -2148,8 +2285,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00002 I:00000 $D000 LD BC,#4094
-            F:0 C:00001 I:00000 $D003 LD A,#10
+            F:0 C:00001 I:00000 $D000 LD BC,#4094
+            F:0 C:00000 I:00000 $D003 LD A,#10
         """
         self._test_rzx(rzx, exp_output, '-I TraceOperand=# --quiet --no-screen', exp_trace)
 
@@ -2167,8 +2304,8 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00002 I:00000 $E000 LD BC,#4094
-            F:0 C:00001 I:00000 $E003 LD A,#0a
+            F:0 C:00001 I:00000 $E000 LD BC,#4094
+            F:0 C:00000 I:00000 $E003 LD A,#0a
         """
         self._test_rzx(rzx, exp_output, '-I TraceOperand=#,02x --quiet --no-screen', exp_trace)
 
@@ -2186,7 +2323,7 @@ class RzxplayTest(SkoolKitTestCase):
         rzx.add_snapshot(z80data, 'z80', frames)
         exp_output = ''
         exp_trace = """
-            F:0 C:00002 I:00000 $F000 LD BC,$0ffe
-            F:0 C:00001 I:00000 $F003 LD A,$0a
+            F:0 C:00001 I:00000 $F000 LD BC,$0ffe
+            F:0 C:00000 I:00000 $F003 LD A,$0a
         """
         self._test_rzx(rzx, exp_output, '-I TraceOperand=$,02x,04x,??? --quiet --no-screen', exp_trace)

@@ -30,7 +30,7 @@ from skoolkit.pagingtracer import Memory
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import from_snapshot, get_state
 from skoolkit.snapshot import Snapshot, write_snapshot
-from skoolkit.traceutils import disassemble
+from skoolkit.traceutils import Registers, disassemble, get_trace_line
 
 class RZXBlock:
     def __init__(self, data, obj):
@@ -112,6 +112,7 @@ class RZXContext:
         self.tracefile = None
         self.trace_line = ''
         self.operand_fmt = None
+        self.registers = None
         self.snapshot = None
         self.simulator = None
         self.total_frames = 0
@@ -245,15 +246,19 @@ def check_supported(snapshot, options):
         if unsupported_blocks:
             warn('Unsupported block(s) ({}) in SZX snapshot'.format(', '.join(sorted(unsupported_blocks))))
 
-def trace_exec(tracefile, context, fetch_counter, pc):
+def trace_exec(tracefile, context, fetch_counter, pc, timestamp):
     simulator = context.simulator
+    memory = simulator.memory
     tracefile.write(context.trace_line.format(
         fr=context.frame_count,
         fw=context.fnwidth,
         fc=fetch_counter,
         rr=simulator.tracer.end - simulator.tracer.index,
         pc=pc,
-        i=disassemble(simulator.memory, pc, *context.operand_fmt)[0]
+        i=disassemble(memory, pc, *context.operand_fmt)[0],
+        r=context.registers,
+        t=timestamp,
+        m=memory
     ))
 
 def process_block(block, options, flags, context):
@@ -286,6 +291,7 @@ def process_block(block, options, flags, context):
             simulator_cls = CSimulator or Simulator
         simulator = from_snapshot(simulator_cls, context.snapshot, config=config)
         context.simulator = simulator
+        context.registers = Registers(simulator.registers)
         tracer = RZXTracer(context, block)
         simulator.set_tracer(tracer)
     opcodes = simulator.opcodes if hasattr(simulator, 'opcodes') else None
@@ -320,9 +326,8 @@ def process_block(block, options, flags, context):
         else: # pragma: C no cover
             while fetch_counter > 0:
                 pc = registers[24]
+                t0 = registers[25]
                 opcode = memory[pc]
-                if tracefile:
-                    trace_exec(tracefile, context, fetch_counter, pc)
                 if exec_map is not None:
                     exec_map.add(pc)
                 if opcode in (0xDD, 0xFD):
@@ -332,6 +337,8 @@ def process_block(block, options, flags, context):
                 else:
                     opcodes[opcode]()
                     fetch_counter -= 2 if opcode in (0xCB, 0xED) else 1
+                if tracefile:
+                    trace_exec(tracefile, context, fetch_counter, pc, t0)
         if draw:
             if is128k:
                 scr = memory.memory[1][:6912]
@@ -394,7 +401,7 @@ def run(infile, options, config):
         trace_header = config['TraceHeader'].replace(r'\n', '\n')
         if trace_header:
             context.tracefile.write(f'{trace_header}\n')
-        context.trace_line = config['TraceLine'] + '\n'
+        context.trace_line = get_trace_line(config['TraceLine'] + '\n')
         op_fmt = config['TraceOperand']
         context.operand_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
     for block in rzx_blocks:

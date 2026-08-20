@@ -5369,6 +5369,7 @@ static PyObject* CSimulator_exec_frame(CSimulatorObject* self, PyObject* args, P
 
     while (1) {
         pc = REG(PC);
+        unsigned long long t0 = TIME;
         byte opcode = PEEK(pc);
         byte opcode2 = PEEK(ADDR(pc + 1));
         OpcodeFunction* opcode_func = &opcodes[opcode];
@@ -5413,16 +5414,6 @@ static PyObject* CSimulator_exec_frame(CSimulatorObject* self, PyObject* args, P
             }
         }
 
-        if (trace != Py_None) {
-            PyObject* m_args = Py_BuildValue("(II)", fetch_count, pc);
-            PyObject* rv = PyObject_Call(trace, m_args, NULL);
-            Py_XDECREF(m_args);
-            if (rv == NULL) {
-                return NULL;
-            }
-            Py_DECREF(rv);
-        }
-
         opcode_func->func(self, opcode_func->lookup, opcode_func->args);
         if (PyErr_Occurred()) {
             return NULL;
@@ -5441,6 +5432,16 @@ static PyObject* CSimulator_exec_frame(CSimulatorObject* self, PyObject* args, P
             fetch_count -= r_inc;
         } else {
             fetch_count -= 2 - ((REG(R) ^ r0) & 1);
+        }
+
+        if (trace != Py_None) {
+            PyObject* m_args = Py_BuildValue("(IIK)", fetch_count, pc, t0);
+            PyObject* rv = PyObject_Call(trace, m_args, NULL);
+            Py_XDECREF(m_args);
+            if (rv == NULL) {
+                return NULL;
+            }
+            Py_DECREF(rv);
         }
 
         if (fetch_count <= 0) {

@@ -337,8 +337,23 @@ replacement fields:
 * ``fr`` - frame number (0-indexed)
 * ``fw`` - maximum width required for the frame number field
 * ``i`` - the current instruction
+* ``m[address]`` - the contents of a memory address
 * ``pc`` - the address of the current instruction (program counter)
+* ``r[X]`` - the 'X' register (see below)
 * ``rr`` - the number of input readings remaining in the frame
+* ``t`` - the current timestamp (in T-states)
+
+When using the ``m`` (memory) replacement field, ``address`` must be either a
+decimal number, or a hexadecimal number prefixed by '$' or '0x'.
+
+The register name ``X`` in ``r[X]`` must be one of the following::
+
+  a b c d e f h l bc de hl
+  ^a ^b ^c ^d ^e ^f ^h ^l ^bc ^de ^hl
+  ix ixh ixl iy iyh iyl
+  i r sp memptr
+
+The names that begin with ``^`` denote the shadow registers.
 
 Wherever ``\n`` appears in the ``TraceHeader`` parameter value, it is replaced
 by a newline character.
