@@ -1,35 +1,12 @@
 #!/usr/bin/env bash
 set -e # Abort on errors
 
-_wait() {
-  message=$1
-  pid=$2
-  suffix=$3
+TOOLS=$(dirname $(realpath $0))
+. $TOOLS/z80testrc
 
-  echo -n "${message}: "
-  if wait $pid; then
-    echo "OK $suffix"
-  else
-    echo -e "\e[0;31mFAILED $suffix\e[0m"
-  fi
-}
-
-if [[ -z $SKOOLKIT_HOME ]]; then
-  echo "ERROR: SKOOLKIT_HOME is not set"
-  exit 1
-fi
-if [[ ! -d $SKOOLKIT_HOME ]]; then
-  echo "ERROR: $SKOOLKIT_HOME: directory not found"
-  exit 1
-fi
-
-TEST_SIMULATOR="$SKOOLKIT_HOME/tools/z80-test-simulator.py"
-
-if [[ -z $SPECTRUM_SIM_TESTS ]]; then
-  echo "ERROR: SPECTRUM_SIM_TESTS is not set"
-  exit 1
-fi
 mkdir -p "$SPECTRUM_SIM_TESTS"
+
+TEST_SIMULATOR="$TOOLS/z80-test-simulator.py"
 
 make -C $SKOOLKIT_HOME cmods
 
@@ -52,7 +29,7 @@ $TEST_SIMULATOR --sim $DOC_TESTS_TAP &> $simlog & PIDsim=$!
 $TEST_SIMULATOR --cmio $DOC_TESTS_TAP &> $cmiolog & PIDcmio=$!
 
 echo
-_wait "CSimulator tests" $PIDcsim "(see $csimlog)"
-_wait "CCMIOSimulator tests" $PIDccmio "(see $ccmiolog)"
-_wait "Simulator tests" $PIDsim "(see $simlog)"
-_wait "CMIOSimulator tests" $PIDcmio "(see $cmiolog)"
+wait_log "CSimulator tests" $PIDcsim "(see $csimlog)"
+wait_log "CCMIOSimulator tests" $PIDccmio "(see $ccmiolog)"
+wait_log "Simulator tests" $PIDsim "(see $simlog)"
+wait_log "CMIOSimulator tests" $PIDcmio "(see $cmiolog)"
