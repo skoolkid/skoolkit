@@ -20,7 +20,6 @@ from skoolkit.simutils import PC, T
 class Tracer:
     def __init__(self):
         self.msg = ''
-        self.press_enter = 60
         self.passed = 0
         self.failed = 0
 
@@ -46,9 +45,9 @@ class Tracer:
                         break
 
     def read_port(self, registers, port):
-        if self.press_enter > 0 and port == 0xBFFE:
-            self.press_enter -= 1
-            return 0xFE # Press ENTER
+        if port == 0xBFFE:
+            # Press ENTER for next test on failure
+            return 0xFE
         return 0xFF
 
     def print_cb(self, a):
