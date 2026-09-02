@@ -1083,6 +1083,23 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
+    def test_option_tape_start_with_two_tapes_starting_after_first_tape(self):
+        tapfile1 = self._write_tap([create_tap_data_block([1])])
+        tap2_blocks = (
+            create_tap_data_block([2]),
+            create_tap_data_block([3]),
+            create_tap_data_block([4])
+        )
+        tapfile2 = self._write_tap(tap2_blocks)
+        output, error = self.run_tap2sna(f'--tape-start 3 {tapfile1} {tapfile2} out.z80')
+        self.assertEqual(error, '')
+        blocks = load_tracer.init_args['blocks']
+        self.assertEqual(len(blocks), 2)
+        self.assertEqual(bytes(tap2_blocks[1][2:]), blocks[0].data)
+        self.assertEqual(bytes(tap2_blocks[2][2:]), blocks[1].data)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_stop_with_pzx(self):
         pzx = PZX()
         pzx.add_puls()
@@ -1151,6 +1168,23 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(blocks), 2)
         self.assertEqual(t1_bytes[2:], blocks[0].data)
         self.assertEqual(t2_bytes[2:2 + len(t2_data[0]) + 2], blocks[1].data)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
+    def test_option_tape_stop_with_two_tapes_stopping_before_second_tape(self):
+        tap1_blocks = (
+            create_tap_data_block([1]),
+            create_tap_data_block([2]),
+            create_tap_data_block([3])
+        )
+        tapfile1 = self._write_tap(tap1_blocks)
+        tapfile2 = self._write_tap([create_tap_data_block([4])])
+        output, error = self.run_tap2sna(f'--tape-stop 3 {tapfile1} {tapfile2} out.z80')
+        self.assertEqual(error, '')
+        blocks = load_tracer.init_args['blocks']
+        self.assertEqual(len(blocks), 2)
+        self.assertEqual(bytes(tap1_blocks[0][2:]), blocks[0].data)
+        self.assertEqual(bytes(tap1_blocks[1][2:]), blocks[1].data)
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_option_tape_sum(self):

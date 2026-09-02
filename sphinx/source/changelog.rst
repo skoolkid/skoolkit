@@ -25,6 +25,8 @@ Changelog
   more blocks on a tape)
 * Fixed how the ``--basic`` option of :ref:`tapinfo.py` handles a block that
   has no data
+* Fixed how the ``--tape-stop`` option of :ref:`tap2sna.py` works with two
+  input tapes
 * Fixed how two base prefixes are handled when applied to an instruction with
   one operand
 * Fixed the parsing of a 48K SNA snapshot that has SP set to 0xFFFF

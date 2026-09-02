@@ -787,6 +787,8 @@ def _get_tape_blocks(tapes, sim, start, stop, skip, is48):
                 block.number += n
         n += last_bn
         blocks.extend(tape_blocks)
+        if n >= stop > 0:
+            break
     return blocks
 
 def _get_tapes(urls, user_agent, members):
