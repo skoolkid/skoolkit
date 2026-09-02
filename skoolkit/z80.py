@@ -1,4 +1,4 @@
-# Copyright 2015, 2017-2019, 2021-2024 Richard Dymond (rjdymond@gmail.com)
+# © 2015, 2017-2019, 2021-2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -1510,5 +1510,5 @@ class Assembler:
         """
         try:
             return self._assemble(operation, address) or ()
-        except:
+        except Exception:
             return ()
