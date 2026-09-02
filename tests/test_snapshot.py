@@ -670,10 +670,9 @@ class SZXTest(SnapshotTest):
         szx.append(page)
         szx.extend(ram)
         tmp_szx = self.write_bin_file(szx, suffix='.szx')
-        try:
+        with self.assertRaises(SnapshotError) as cm:
             get_snapshot(tmp_szx)
-        except SnapshotError as e:
-            self.assertTrue(e.args[0].startswith("Error while decompressing page {0}:".format(page)))
+        self.assertTrue(cm.exception.args[0].startswith(f"Error while decompressing page {page}:"))
 
     def test_szx_48k_bad_page_size(self):
         szx = self._get_szx_header()
@@ -681,10 +680,9 @@ class SZXTest(SnapshotTest):
         page = 5
         szx.extend(self._get_zxstrampage(page, False, ram))
         tmp_szx = self.write_bin_file(szx, suffix='.szx')
-        try:
+        with self.assertRaises(SnapshotError) as cm:
             get_snapshot(tmp_szx)
-        except SnapshotError as e:
-            self.assertEqual(e.args[0], "Page {0} is {1} bytes (should be 16384)".format(5, len(ram)))
+        self.assertEqual(cm.exception.args[0], f"Page {page} is {len(ram)} bytes (should be 16384)")
 
     def test_szx_128k(self):
         exp_ram = [(n + 73) & 255 for n in range(49152)]
@@ -693,10 +691,9 @@ class SZXTest(SnapshotTest):
     def test_szx_128k_no_specregs(self):
         szx = self._get_szx_header(2, specregs=False)
         tmp_szx = self.write_bin_file(szx, suffix='.szx')
-        try:
+        with self.assertRaises(SnapshotError) as cm:
             get_snapshot(tmp_szx)
-        except SnapshotError as e:
-            self.assertEqual(e.args[0], "SPECREGS (SPCR) block not found")
+        self.assertEqual(cm.exception.args[0], "SPECREGS (SPCR) block not found")
 
     def test_szx_128k_page_1(self):
         exp_ram = [(n + 173) & 255 for n in range(49152)]
