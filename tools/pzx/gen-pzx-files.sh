@@ -67,4 +67,7 @@ find $T2SFILES_HOME/t2s -name '*.t2s' | while read t2s; do
   fi
 done
 
-[[ -f $LOG ]] && echo "There were errors; see $LOG"
+if [[ -f $LOG ]]; then
+  echo "There were errors; see $LOG"
+  exit 1
+fi

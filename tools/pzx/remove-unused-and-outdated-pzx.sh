@@ -19,3 +19,5 @@ find pzx -name '*.pzx' | while read p; do
     rm -fv $p $z
   fi
 done
+
+exit 0
