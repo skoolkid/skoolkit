@@ -1,4 +1,4 @@
-# Copyright 2013-2017, 2019-2026 Richard Dymond (rjdymond@gmail.com)
+# © 2013-2017, 2019-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -74,8 +74,8 @@ class Registers:
 
 ###############################################################################
 
-# https://worldofspectrum.net/features/faq/reference/z80format.htm
-# https://worldofspectrum.net/features/faq/reference/128kreference.htm
+# https://worldofspectrum.net/faq/reference/z80format.htm
+# https://worldofspectrum.net/faq/reference/128kreference.htm
 
 BLOCK_ADDRESSES_48K = {
     4: '32768-49151 8000-BFFF',
@@ -286,7 +286,7 @@ def _analyse_szx(header, reg, blocks):
 
 ###############################################################################
 
-# https://worldofspectrum.net/features/faq/reference/formats.htm#SNA
+# https://worldofspectrum.net/faq/reference/formats.htm#SNA
 
 def _print_ram_banks(sna):
     bank = sna[49154] & 7

@@ -464,7 +464,7 @@ def _format_text(prefix, data, start, length, dump=False):
     return lines
 
 def _get_pzx_block(data, i, block_num, prev_rom_pilot):
-    # http://zxds.raxoft.cz/docs/pzx.txt
+    # https://github.com/raxoft/pzxtools/blob/master/docs/pzx_format.txt
     block_id = ''.join(chr(b) for b in data[i:i + 4])
     block_len = get_dword(data, i + 4)
     missing = i + 8 + block_len - len(data)
@@ -591,7 +591,7 @@ def _get_pzx_block(data, i, block_num, prev_rom_pilot):
     return i + 8 + block_len, block, rom_pilot
 
 def _get_tzx_block(data, i, block_num, get_info, get_timings):
-    # https://worldofspectrum.net/features/TZXformat.html
+    # https://worldofspectrum.net/TZXformat.html
     block_id = data[i]
     block_data = None
     tape_data = None
