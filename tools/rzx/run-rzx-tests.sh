@@ -1,23 +1,10 @@
 #!/usr/bin/env bash
 set -e # Abort on errors
 
-if [[ -z $SKOOLKIT_HOME ]]; then
-  echo "ERROR: SKOOLKIT_HOME is not set"
-  exit 1
-fi
-if [[ ! -d $SKOOLKIT_HOME ]]; then
-  echo "ERROR: $SKOOLKIT_HOME: directory not found"
-  exit 1
-fi
+TOOLS=$(dirname $(dirname $(realpath $0)))
+. $TOOLS/z80testrc
 
-if [[ -z $SPECTRUM_RZX_TESTS ]]; then
-  echo "ERROR: SPECTRUM_RZX_TESTS is not set"
-  exit 1
-fi
-if [[ ! -d $SPECTRUM_RZX_TESTS ]]; then
-  echo "ERROR: $SPECTRUM_RZX_TESTS: directory not found"
-  exit 1
-fi
+require_dir SKOOLKIT_HOME SPECTRUM_RZX_TESTS
 
 RZX_WORK=$SKOOLKIT_HOME/tools/rzx/rzx-work.txt
 GEN_RZX_TESTS=$SKOOLKIT_HOME/tools/rzx/gen-rzx-tests.py
@@ -60,4 +47,5 @@ fi
 
 if ! $RZX_TESTS 2>&1 | tee $RZX_TESTS_LOG; then
   echo -e "\n\e[0;31mFAILED (see $RZX_TESTS_LOG)\e[0m"
+  exit 1
 fi

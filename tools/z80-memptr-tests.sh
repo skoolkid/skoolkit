@@ -4,6 +4,9 @@ set -e # Abort on errors
 TOOLS=$(dirname $(realpath $0))
 . $TOOLS/z80testrc
 
+require_dir SKOOLKIT_HOME
+require_env SPECTRUM_SIM_TESTS
+
 mkdir -p "$SPECTRUM_SIM_TESTS"
 
 MEMPTR_TESTS="$TOOLS/z80-memptr-tests.py"
@@ -27,7 +30,9 @@ $MEMPTR_TESTS --cmio $MEMPTR_TESTS_TZX &> $cmio48log & PIDcmio48=$!
 $MEMPTR_TESTS --cmio --128 $MEMPTR_TESTS_TZX &> $cmio128log & PIDcmio128=$!
 
 echo
-wait_log "CCMIOSimulator 48K tests" $PIDccmio48 "(see $ccmio48log)"
-wait_log "CCMIOSimulator 128K tests" $PIDccmio128 "(see $ccmio128log)"
-wait_log "CMIOSimulator 48K tests" $PIDcmio48 "(see $cmio48log)"
-wait_log "CMIOSimulator 128K tests" $PIDcmio128 "(see $cmio128log)"
+wait_log "CCMIOSimulator 48K tests" $PIDccmio48 "(see $ccmio48log)" || rc=1
+wait_log "CCMIOSimulator 128K tests" $PIDccmio128 "(see $ccmio128log)" || rc=1
+wait_log "CMIOSimulator 48K tests" $PIDcmio48 "(see $cmio48log)" || rc=1
+wait_log "CMIOSimulator 128K tests" $PIDcmio128 "(see $cmio128log)" || rc=1
+
+exit ${rc:-0}

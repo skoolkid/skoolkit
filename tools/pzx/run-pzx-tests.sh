@@ -1,17 +1,10 @@
 #!/usr/bin/env bash
 set -e # Abort on errors
 
-for v in SKOOLKIT_HOME SPECTRUM_PZX_TESTS; do
-  VDIR=${!v}
-  if [[ -z $VDIR ]]; then
-    echo "ERROR: $v is not set"
-    exit 1
-  fi
-  if [[ ! -d $VDIR ]]; then
-    echo "ERROR: $VDIR: directory not found"
-    exit 1
-  fi
-done
+TOOLS=$(dirname $(dirname $(realpath $0)))
+. $TOOLS/z80testrc
+
+require_dir SKOOLKIT_HOME SPECTRUM_PZX_TESTS
 
 PZX_TOOLS=$SKOOLKIT_HOME/tools/pzx
 
@@ -64,4 +57,5 @@ $PZX_TOOLS/gen-pzx-test.py $GPT_OPTS -qj $PROCS pzx
 
 if ! $PZX_TESTS 2>&1 | tee $PZX_TESTS_LOG; then
   echo -e "\n\e[0;31mFAILED (see $PZX_TESTS_LOG)\e[0m"
+  exit 1
 fi

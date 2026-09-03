@@ -4,6 +4,9 @@ set -e # Abort on errors
 TOOLS=$(dirname $(realpath $0))
 . $TOOLS/z80testrc
 
+require_dir SKOOLKIT_HOME
+require_env SPECTRUM_SIM_TESTS
+
 mkdir -p "$SPECTRUM_SIM_TESTS"
 
 TIMING_TESTS="$TOOLS/z80-timing-tests.py"
@@ -23,5 +26,7 @@ $TIMING_TESTS --ccmio $TIMING_TESTS_TAP &> $ccmiolog & PIDccmio=$!
 $TIMING_TESTS --cmio $TIMING_TESTS_TAP &> $cmiolog & PIDcmio=$!
 
 echo
-wait_log "CCMIOSimulator tests" $PIDccmio "(see $ccmiolog)"
-wait_log "CMIOSimulator tests" $PIDcmio "(see $cmiolog)"
+wait_log "CCMIOSimulator tests" $PIDccmio "(see $ccmiolog)" || rc=1
+wait_log "CMIOSimulator tests" $PIDcmio "(see $cmiolog)" || rc=1
+
+exit ${rc:-0}

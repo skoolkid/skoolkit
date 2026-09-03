@@ -1,3 +1,23 @@
+require_env() {
+  for v in $*; do
+    if [[ -z ${!v} ]]; then
+      echo "ERROR: $v is not set"
+      exit 1
+    fi
+  done
+}
+
+require_dir() {
+  require_env $*
+  for v in $*; do
+    VDIR=${!v}
+    if [[ ! -d $VDIR ]]; then
+      echo "ERROR: $VDIR: directory not found"
+      exit 1
+    fi
+  done
+}
+
 wait_log() {
   message=$1
   pid=$2
@@ -6,21 +26,8 @@ wait_log() {
   echo -n "${message}: "
   if wait $pid; then
     echo "OK $suffix"
-  else
-    echo -e "\e[0;31mFAILED $suffix\e[0m"
+    return 0
   fi
+  echo -e "\e[0;31mFAILED $suffix\e[0m"
+  return 1
 }
-
-if [[ -z $SKOOLKIT_HOME ]]; then
-  echo "ERROR: SKOOLKIT_HOME is not set"
-  exit 1
-fi
-if [[ ! -d $SKOOLKIT_HOME ]]; then
-  echo "ERROR: $SKOOLKIT_HOME: directory not found"
-  exit 1
-fi
-
-if [[ -z $SPECTRUM_SIM_TESTS ]]; then
-  echo "ERROR: SPECTRUM_SIM_TESTS is not set"
-  exit 1
-fi

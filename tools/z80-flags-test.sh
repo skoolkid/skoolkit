@@ -4,6 +4,9 @@ set -e # Abort on errors
 TOOLS=$(dirname $(realpath $0))
 . $TOOLS/z80testrc
 
+require_dir SKOOLKIT_HOME
+require_env SPECTRUM_SIM_TESTS
+
 mkdir -p "$SPECTRUM_SIM_TESTS"
 
 FLAGS_TEST="$TOOLS/z80-flags-test.py"
@@ -27,7 +30,9 @@ $FLAGS_TEST --sim $FLAGS_TEST_TAP &> $simlog & PIDsim=$!
 $FLAGS_TEST --cmio $FLAGS_TEST_TAP &> $cmiolog & PIDcmio=$!
 
 echo
-wait_log "CSimulator tests" $PIDcsim "(see $csimlog)"
-wait_log "CCMIOSimulator tests" $PIDccmio "(see $ccmiolog)"
-wait_log "Simulator tests" $PIDsim "(see $simlog)"
-wait_log "CMIOSimulator tests" $PIDcmio "(see $cmiolog)"
+wait_log "CSimulator tests" $PIDcsim "(see $csimlog)" || rc=1
+wait_log "CCMIOSimulator tests" $PIDccmio "(see $ccmiolog)" || rc=1
+wait_log "Simulator tests" $PIDsim "(see $simlog)" || rc=1
+wait_log "CMIOSimulator tests" $PIDcmio "(see $cmiolog)" || rc=1
+
+exit ${rc:-0}
