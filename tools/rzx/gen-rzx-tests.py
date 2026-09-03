@@ -204,14 +204,15 @@ def run(infile, gen_options):
             'reg': repr(snapshots[snapshot])
         })
 
-    if gap:
+    if gen_options.verbose:
+        if gap:
+            print()
+        if new_count:
+            write_snapshots_json(snapshots_json_fname, snapshots)
+            print(f'Added {new_count} snapshot(s) to {snapshots_json_fname}')
+        else:
+            print(f'{snapshots_json_fname} is up-to-date')
         print()
-    if new_count:
-        write_snapshots_json(snapshots_json_fname, snapshots)
-        print(f'Added {new_count} snapshot(s) to {snapshots_json_fname}')
-    else:
-        print(f'{snapshots_json_fname} is up-to-date')
-    print()
 
     test_fname = get_test_fname(gen_options.c, num_frames)
     with open(test_fname, 'w') as f:
@@ -222,12 +223,12 @@ def run(infile, gen_options):
     os.chmod(test_fname, 0o755)
     print(f'Wrote {test_fname} ({len(tests)} tests)')
 
-    total_time = time.time() - total_time_start
-    print(f'Snapshot read time: {snapshot_r_time:.2f}s')
-    print(f'Snapshot write time: {snapshot_w_time:.2f}s')
-    print(f'Total time: {total_time:.2f}s')
-
-    print(f'\nNow run ./{test_fname}')
+    if gen_options.verbose:
+        total_time = time.time() - total_time_start
+        print(f'Snapshot read time: {snapshot_r_time:.2f}s')
+        print(f'Snapshot write time: {snapshot_w_time:.2f}s')
+        print(f'Total time: {total_time:.2f}s')
+        print(f'\nNow run ./{test_fname}')
 
 DESCRIPTION = f"""
 Generate tests for all the RZX files named in FILE, along with a script to run
@@ -270,6 +271,8 @@ group.add_argument('-c', action='store_true',
                    help="Generate tests for rzxplay.py using CSimulator.")
 group.add_argument('-j', dest='processes', metavar='PROCS', type=int, default=0,
                    help="Run tests using this many processes.")
+group.add_argument('-q', dest='verbose', action='store_false',
+                   help="Produce less output.")
 namespace, unknown_args = parser.parse_known_args()
 if unknown_args or not namespace.rzx_list:
     parser.exit(2, parser.format_help())

@@ -48,12 +48,12 @@ done
 make -C $SKOOLKIT_HOME cmods
 cd $SPECTRUM_RZX_TESTS
 if [[ $CSIM -eq 1 ]]; then
-  $GEN_RZX_TESTS -cj $PROCS $RZX_WORK
+  $GEN_RZX_TESTS -qcj $PROCS $RZX_WORK
   RZX_TESTS="./test_rzxplay-c.py"
   RZX_TESTS_LOG=$SPECTRUM_RZX_TESTS/test_c.log
 else
   NFRAMES=500
-  $GEN_RZX_TESTS -j $PROCS $RZX_WORK $NFRAMES
+  $GEN_RZX_TESTS -qj $PROCS $RZX_WORK $NFRAMES
   RZX_TESTS="pypy3 test_rzxplay-$NFRAMES.py"
   RZX_TESTS_LOG=$SPECTRUM_RZX_TESTS/test_p.log
 fi
