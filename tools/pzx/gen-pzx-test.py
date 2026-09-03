@@ -288,14 +288,15 @@ def run(pzx_dir, gen_options):
                 'options': repr(tuple(options))
             })
 
-    if gap:
+    if gen_options.verbose:
+        if gap:
+            print()
+        if new_count:
+            write_json(snapshots, SNAPSHOTS_JSON)
+            print(f'Added {new_count} snapshot(s) to {SNAPSHOTS_JSON}')
+        else:
+            print(f'{SNAPSHOTS_JSON} is up-to-date')
         print()
-    if new_count:
-        write_json(snapshots, SNAPSHOTS_JSON)
-        print(f'Added {new_count} snapshot(s) to {SNAPSHOTS_JSON}')
-    else:
-        print(f'{SNAPSHOTS_JSON} is up-to-date')
-    print()
 
     if pzx_errors_updates:
         write_json(pzx_errors, PZX_ERRORS_JSON)
@@ -310,13 +311,13 @@ def run(pzx_dir, gen_options):
     os.chmod(test_fname, 0o755)
     print(f'Wrote {test_fname} ({len(tests)} tests)')
 
-    total_time = time.time() - total_time_start
-    print(f'\nt2s read time: {t2s_r_time:.2f}s')
-    print(f'Snapshot read time: {snapshot_r_time:.2f}s')
-    print(f'Snapshot write time: {snapshot_w_time:.2f}s')
-    print(f'Total time: {total_time:.2f}s')
-
-    print(f'\nNow run ./{test_fname}')
+    if gen_options.verbose:
+        total_time = time.time() - total_time_start
+        print(f'\nt2s read time: {t2s_r_time:.2f}s')
+        print(f'Snapshot read time: {snapshot_r_time:.2f}s')
+        print(f'Snapshot write time: {snapshot_w_time:.2f}s')
+        print(f'Total time: {total_time:.2f}s')
+        print(f'\nNow run ./{test_fname}')
 
 DESCRIPTION = """
 Generate tests for the testable PZX files in PZX_DIR and its subdirectories,
@@ -348,6 +349,8 @@ group.add_argument('-i', dest='ignore', action='store_true',
                    help="Do not treat a missing PZX file as an error.")
 group.add_argument('-j', dest='processes', metavar='PROCS', type=int, default=0,
                    help="Run tests using this many processes.")
+group.add_argument('-q', dest='verbose', action='store_false',
+                   help="Produce less output.")
 namespace, unknown_args = parser.parse_known_args()
 if unknown_args or not namespace.pzx_dir:
     parser.exit(2, parser.format_help())

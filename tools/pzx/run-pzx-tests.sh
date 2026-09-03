@@ -60,7 +60,7 @@ else
   PZX_TESTS_LOG=$SPECTRUM_PZX_TESTS/test_p.log
 fi
 
-$PZX_TOOLS/gen-pzx-test.py $GPT_OPTS -j $PROCS pzx
+$PZX_TOOLS/gen-pzx-test.py $GPT_OPTS -qj $PROCS pzx
 
 if ! $PZX_TESTS 2>&1 | tee $PZX_TESTS_LOG; then
   echo -e "\n\e[0;31mFAILED (see $PZX_TESTS_LOG)\e[0m"
