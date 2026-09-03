@@ -97,7 +97,7 @@ _exec() {
 
   echo -n "${message}: "
   if ! $command &> $logfile; then
-    echo "FAILED (see $logfile)"
+    echo -e "\e[0;31mFAILED (see $logfile)\e[0m"
     return 1
   fi
   echo "OK"
@@ -235,13 +235,15 @@ test_disassemblies() {
   csclog=$CONTACTSAMCRUISE_HOME/build/tests.log
   targets="test310 test311 test312 test313 test314"
 
-  _exec "Hungry Horace tests" "make -C $HUNGRYHORACE_HOME $targets" $hhlog
-  _exec "Manic Miner tests" "make -C $MANICMINER_HOME $targets" $mmlog
-  _exec "Jet Set Willy tests" "make -C $JETSETWILLY_HOME $targets" $jswlog
-  _exec "Spectrum ROM tests" "make -C $ROM_DISASSEMBLY_HOME $targets" $romlog
-  _exec "Skool Daze tests" "make -C $SKOOLDAZE_HOME $targets" $sdlog
-  _exec "Back to Skool tests" "make -C $BACKTOSKOOL_HOME $targets" $btslog
-  _exec "Contact Sam Cruise tests" "make -C $CONTACTSAMCRUISE_HOME $targets" $csclog
+  _exec "Hungry Horace tests" "make -C $HUNGRYHORACE_HOME $targets" $hhlog || rc=1
+  _exec "Manic Miner tests" "make -C $MANICMINER_HOME $targets" $mmlog || rc=1
+  _exec "Jet Set Willy tests" "make -C $JETSETWILLY_HOME $targets" $jswlog || rc=1
+  _exec "Spectrum ROM tests" "make -C $ROM_DISASSEMBLY_HOME $targets" $romlog || rc=1
+  _exec "Skool Daze tests" "make -C $SKOOLDAZE_HOME $targets" $sdlog || rc=1
+  _exec "Back to Skool tests" "make -C $BACKTOSKOOL_HOME $targets" $btslog || rc=1
+  _exec "Contact Sam Cruise tests" "make -C $CONTACTSAMCRUISE_HOME $targets" $csclog || rc=1
+
+  return ${rc:-0}
 }
 
 ###############################################################################

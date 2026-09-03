@@ -75,5 +75,12 @@ test_skool2html() {
 cwd=$(pwd)
 for t in test_{bin2{sna,tap},skool2{asm,bin,ctl,html},sna2{ctl,skool{,_ctl}},snapinfo_ctl}; do
   cd $cwd
-  $t && echo "OK" || echo "FAILED"
+  if $t; then
+    echo "OK"
+  else
+    echo -e "\e[0;31mFAILED\e[0m"
+    rc=1
+  fi
 done
+
+exit ${rc:-0}
