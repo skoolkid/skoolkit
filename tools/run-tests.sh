@@ -19,6 +19,7 @@ add_suite() {
   SUITES_IN_ORDER+=("$suite")
 }
 
+add_suite cover "tools/check-coverage.sh" "coverage tests"
 add_suite unit "$(echo make test{,-c}-3{10,11,12,13,14}-all)" "all unit tests"
 add_suite slow "make test-slow test-c-slow" "slow tests"
 add_suite capi "make test-c-api" "CSimulator API tests"
