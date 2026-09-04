@@ -1,4 +1,4 @@
-# Copyright 2015-2021, 2023, 2024 Richard Dymond (rjdymond@gmail.com)
+# © 2015-2021, 2023, 2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -293,11 +293,11 @@ def run(skoolfile, binfile, options, config):
 def main(args):
     config = get_config('skool2bin')
     parser = argparse.ArgumentParser(
-        usage='skool2bin.py [options] file.skool [file.bin]',
+        usage='skool2bin.py [options] SKOOLFILE [OUTFILE]',
         description="Convert a skool file into a binary (raw memory) file. "
-                    "'file.skool' may be a regular file, or '-' for standard input. "
-                    "If 'file.bin' is not given, it defaults to the name of the input file with '.skool' replaced by '.bin'. "
-                    "'file.bin' may be a regular file, or '-' for standard output.",
+                    "'SKOOLFILE' may be a regular file, or '-' for standard input. "
+                    "If 'OUTFILE' is not given, it defaults to the name of the input file with '.skool' replaced by '.bin'. "
+                    "'OUTFILE' may be a regular file, or '-' for standard output.",
         add_help=False
     )
     parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')

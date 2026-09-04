@@ -6,13 +6,13 @@ bin2sna.py
 
 SYNOPSIS
 ========
-``bin2sna.py`` [options] file.bin [OUTFILE]
+``bin2sna.py`` [options] FILE [OUTFILE]
 
 DESCRIPTION
 ===========
 ``bin2sna.py`` converts a binary (raw memory) file into an SZX or Z80 snapshot.
-'file.bin' may be a regular file, or '-' for standard input. If 'OUTFILE' is
-not given, it defaults to the name of the input file with '.bin' replaced by
+'FILE' may be a regular file, or '-' for standard input. If 'OUTFILE' is not
+given, it defaults to the name of the input file with '.bin' replaced by
 '.z80', or 'program.z80' if reading from standard input.
 
 If the input file is 128K in length, it is assumed to hold the contents of RAM
@@ -34,8 +34,8 @@ OPTIONS
 
 -o, --org `ORG`
   Set the origin address. The default origin address is 65536 minus the length
-  of file.bin. `ORG` must be a decimal number, or a hexadecimal number prefixed
-  by '0x'.
+  of FILE. `ORG` must be a decimal number, or a hexadecimal number prefixed by
+  '0x'.
 
 --page `N`
   Specify the RAM bank (N=0-7) mapped to 49152 (0xC000) in the main input file.

@@ -6,7 +6,7 @@ snapmod.py
 
 SYNOPSIS
 ========
-``snapmod.py`` [options] infile [outfile]
+``snapmod.py`` [options] INFILE [OUTFILE]
 
 DESCRIPTION
 ===========

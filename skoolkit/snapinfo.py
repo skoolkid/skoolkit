@@ -481,7 +481,7 @@ def run(infile, options, config):
 def main(args):
     config = get_config('snapinfo')
     parser = argparse.ArgumentParser(
-        usage='snapinfo.py [options] file',
+        usage='snapinfo.py [options] FILE',
         description="Analyse a binary (raw memory) file or a SNA, SZX or Z80 snapshot.",
         add_help=False
     )

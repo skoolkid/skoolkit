@@ -6,14 +6,14 @@ skool2bin.py
 
 SYNOPSIS
 ========
-``skool2bin.py`` [options] file.skool [file.bin]
+``skool2bin.py`` [options] SKOOLFILE [OUTFILE]
 
 DESCRIPTION
 ===========
 ``skool2bin.py`` converts a skool file into a binary (raw memory) file.
-'file.skool' may be a regular file, or '-' for standard input. If 'file.bin' is
+'SKOOLFILE' may be a regular file, or '-' for standard input. If 'OUTFILE' is
 not given, it defaults to the name of the input file with '.skool' replaced by
-'.bin'. 'file.bin' may be a regular file, or '-' for standard output.
+'.bin'. 'OUTFILE' may be a regular file, or '-' for standard output.
 
 OPTIONS
 =======

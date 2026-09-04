@@ -76,9 +76,9 @@ def run(infile, outfile, options):
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='bin2sna.py [options] file.bin [OUTFILE]',
+        usage='bin2sna.py [options] FILE [OUTFILE]',
         description="Convert a binary (raw memory) file into an SZX or Z80 snapshot. "
-                    "'file.bin' may be a regular file, or '-' for standard input. "
+                    "'FILE' may be a regular file, or '-' for standard input. "
                     "If 'OUTFILE' is not given, it defaults to the name of the input file with '.bin' replaced by '.z80', "
                     "or 'program.z80' if reading from standard input.",
         add_help=False
@@ -91,7 +91,7 @@ def main(args):
     group.add_argument('-b', '--border', dest='border', metavar='BORDER', type=int, default=7,
                        help="Set the border colour (default: 7).")
     group.add_argument('-o', '--org', dest='org', metavar='ORG', type=integer,
-                       help="Set the origin address (default: 65536 minus the length of file.bin).")
+                       help="Set the origin address (default: 65536 minus the length of FILE).")
     group.add_argument('--page', metavar='N', type=int, choices=range(8),
                        help="Specify the RAM bank (N=0-7) mapped to 49152 (0xC000) in the main input file. This option creates a 128K snapshot.")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,

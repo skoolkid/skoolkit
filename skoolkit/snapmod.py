@@ -1,4 +1,4 @@
-# Copyright 2015-2017, 2023, 2025 Richard Dymond (rjdymond@gmail.com)
+# © 2015-2017, 2023, 2025, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -29,7 +29,7 @@ def run(infile, options, outfile):
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='snapmod.py [options] infile [outfile]',
+        usage='snapmod.py [options] INFILE [OUTFILE]',
         description="Modify an SZX or Z80 snapshot.",
         add_help=False
     )
