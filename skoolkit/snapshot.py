@@ -802,14 +802,15 @@ Recognised register names are:
   {}
 """.format(', '.join(options), '\n  '.join(textwrap.wrap(reg_names, 70))).strip())
 
-def print_state_help(short_option=None, show_defaults=True, omit=()):
+def print_state_help(short_option=None, show_defaults=True, omit=(), def_border=0):
     options = ['--state name=value']
     if short_option:
         options.insert(0, '-{} name=value'.format(short_option))
     opts = ', '.join(options)
     if show_defaults:
         infix = 'and their default values '
-        border = issue2 = ' (default=0)'
+        border = f' (default={def_border})'
+        issue2 = ' (default=0)'
         iff = im = ' (default=1)'
         tstates = ' (default=34943)'
     else:

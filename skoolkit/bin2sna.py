@@ -113,7 +113,7 @@ def main(args):
         print_reg_help('r')
         return
     if 'help' in namespace.state:
-        print_state_help('S')
+        print_state_help('S', def_border=7)
         return
     infile = namespace.infile
     if unknown_args or infile is None:
