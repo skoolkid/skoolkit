@@ -197,7 +197,7 @@ class Bin2SnaTest(SkoolKitTestCase):
         ):
             output, error = self.run_bin2sna(f'--page 0 {option} infile.bin out.z80', catch_exit=2)
             self.assertEqual(output, '')
-            self.assertTrue(error.startswith('usage: bin2sna.py [options] file.bin [OUTFILE]\n'))
+            self.assertTrue(error.startswith('usage: bin2sna.py [options] FILE [OUTFILE]\n'))
             line = error.rstrip().split('\n')[-1]
             self.assertTrue(line.endswith('error: argument --bank: ' + exp_error), line)
 
@@ -273,7 +273,7 @@ class Bin2SnaTest(SkoolKitTestCase):
         ):
             output, error = self.run_bin2sna(f'{option} in.bin', catch_exit=2)
             self.assertEqual(output, '')
-            self.assertTrue(error.startswith('usage: bin2sna.py [options] file.bin [OUTFILE]\n'))
+            self.assertTrue(error.startswith('usage: bin2sna.py [options] FILE [OUTFILE]\n'))
             line = error.rstrip().split('\n')[-1]
             self.assertTrue(re.search('error: argument --page: ' + exp_error, line), line)
 
