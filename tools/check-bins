@@ -2,6 +2,9 @@
 
 . $(dirname $0)/ddiffs-functions
 
+ERR_ON="\e[0;31m"
+ERR_OFF="\e[0m"
+
 check() {
   skoolfile=$1
   opts=$2
@@ -18,7 +21,7 @@ check() {
   if ../skool2bin.py $opts $skoolfile $binfile &> /dev/null; then
     echo "done"
   else
-    echo "FAILED"
+    echo -e "${ERR_ON}FAILED${ERR_OFF}"
     rm -f $binfile
     return 2
   fi
@@ -27,7 +30,7 @@ check() {
   if cmp -s $binfile $pasmobin; then
     echo "same"
   else
-    echo "DIFFERENT"
+    echo -e "${ERR_ON}DIFFERENT${ERR_OFF}"
     return 3
   fi
 }
@@ -88,19 +91,19 @@ echo "------------------------------------ SUMMARY -----------------------------
 code=0
 if [[ -n $skips ]]; then
   let code+=1
-  echo -e "Skipped comparisons:$skips"
+  echo -e "${ERR_ON}Skipped comparisons:$skips${ERR_OFF}"
 else
   echo "Skipped: None"
 fi
 if [[ -n $fails ]]; then
   let code+=2
-  echo -e "Failed to convert using options:$fails"
+  echo -e "${ERR_ON}Failed to convert using options:$fails${ERR_OFF}"
 else
   echo "Failed to convert: None"
 fi
 if [[ -n $diffs ]]; then
   let code+=4
-  echo -e "Differences:$diffs"
+  echo -e "${ERR_ON}Differences:$diffs${ERR_OFF}"
 else
   echo "Differences: None"
 fi

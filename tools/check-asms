@@ -5,6 +5,9 @@
 
 . $(dirname $0)/ddiffs-functions
 
+ERR_ON="\e[0;31m"
+ERR_OFF="\e[0m"
+
 check() {
   baseasm=$1.asm
   if [ ! -f $baseasm ]; then
@@ -24,7 +27,7 @@ check() {
     if pasmo $asmfile $binfile &> /dev/null; then
       echo "done"
     else
-      echo "FAILED"
+      echo -e "${ERR_ON}FAILED${ERR_OFF}"
       fails="$fails $asmfile"
       rm -f $binfile
     fi
@@ -47,7 +50,7 @@ check() {
     if cmp -s $base $binfile; then
       echo "same"
     else
-      echo "DIFFERENT"
+      echo -e "${ERR_ON}DIFFERENT${ERR_OFF}"
       diffs="$diffs $binfile"
     fi
   done
@@ -90,16 +93,17 @@ echo "------------------------------------ SUMMARY -----------------------------
 code=0
 if [ -n "$allfails" ]; then
   let code+=1
-  echo "Failed to assemble:"
+  echo -e "${ERR_ON}Failed to assemble:"
   for f in $allfails; do
     echo "  $f"
   done
+  echo -e "${ERR_OFF}"
 else
   echo "Failed to assemble: None"
 fi
 if [ -n "$alldiffs" ]; then
   let code+=2
-  echo -e "Differences:$alldiffs"
+  echo -e "${ERR_ON}Differences:$alldiffs${ERR_OFF}"
 else
   echo "Differences: None"
 fi

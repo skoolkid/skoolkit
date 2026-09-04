@@ -4,6 +4,8 @@ set -e # Abort on errors
 SKTMPDIR=$HOME/tmp
 SKOOLKIT_KEY=2CC665CAA1AF3D05913D8FE8C4E10ED0938CD04A
 COMMANDS=$(echo {bin2{sna,tap},rzx{info,play},skool2{asm,bin,ctl,html},sna2{ctl,img,skool},snap{info,mod},tap{2sna,info},trace}.py)
+ERR_ON="\e[0;31m"
+ERR_OFF="\e[0m"
 
 ###############################################################################
 # Check required environment variables
@@ -97,7 +99,7 @@ _exec() {
 
   echo -n "${message}: "
   if ! $command &> $logfile; then
-    echo -e "\e[0;31mFAILED (see $logfile)\e[0m"
+    echo -e "${ERR_ON}FAILED (see $logfile)${ERR_OFF}"
     return 1
   fi
   echo "OK"
@@ -113,7 +115,8 @@ _wait() {
   if wait $pid; then
     [[ "$oksuffix" = _ ]] && echo "OK" || echo "OK $oksuffix"
   else
-    echo "FAILED $failsuffix"
+    echo -e "${ERR_ON}FAILED $failsuffix${ERR_OFF}"
+    return 1
   fi
 }
 
@@ -142,13 +145,13 @@ _check_commands() {
     echo -n "Running $cmdname: "
     cmd=$path/$cmdname
     if [[ ! -f $cmd ]]; then
-      echo "FAILED ($cmd not found)"
+      echo -e "${ERR_ON}FAILED ($cmd not found)${ERR_OFF}"
       return 1
     fi
     logfile=$logdir/$cmdname.log
     $cmd &> $logfile || :
     if ! grep -q ^usage: $logfile; then
-      echo "FAILED (see $logfile)"
+      echo -e "${ERR_ON}FAILED (see $logfile)${ERR_OFF}"
       return 1
     fi
     echo "OK"
@@ -160,7 +163,7 @@ _check_man_pages() {
   for cmdname in $COMMANDS; do
     manpage=/usr/share/man/man1/$cmdname.1.gz
     if [[ ! -f $manpage ]]; then
-      echo "FAILED ($manpage not found)"
+      echo -e "${ERR_ON}FAILED ($manpage not found)${ERR_OFF}"
       return 1
     fi
   done
@@ -176,14 +179,14 @@ _check_files() {
 
   echo -n "Checking $filetype: "
   if [[ ! -d $expdir ]]; then
-    echo "FAILED ($expdir does not exist)"
+    echo -e "${ERR_ON}FAILED ($expdir does not exist)${ERR_OFF}"
     return 1
   fi
   rcount=0
   for f in $expfiles; do
     resource=$expdir/$f
     if [[ ! -f $resource ]]; then
-      echo "FAILED ($f not found in $expdir)"
+      echo -e "${ERR_ON}FAILED ($f not found in $expdir)${ERR_OFF}"
       return 1
     fi
     let rcount+=1
@@ -192,7 +195,7 @@ _check_files() {
   ls -1 $expdir > $rlist
   numresources=$(cat $rlist | wc -l)
   if [[ $numresources -ne $rcount ]]; then
-    echo "FAILED (unexpected files found; see $rlist)"
+    echo -e "${ERR_ON}FAILED (unexpected files found; see $rlist)${ERR_OFF}"
     return 1
   fi
   echo "OK"
@@ -277,13 +280,15 @@ disassembly_diffs() {
   (cd $btsdiffsdir; $DISASSEMBLY_DIFF bts &> $diffslog) & PIDbts=$!
   (cd $cscdiffsdir; $DISASSEMBLY_DIFF csc &> $diffslog) & PIDcsc=$!
 
-  _wait "Hungry Horace disassembly-diff" $PIDhh "(see $hhdiffsdir/$diffslog)"
-  _wait "Manic Miner disassembly-diff" $PIDmm "(see $mmdiffsdir/$diffslog)"
-  _wait "Jet Set Willy disassembly-diff" $PIDjsw "(see $jswdiffsdir/$diffslog)"
-  _wait "Spectrum ROM disassembly-diff" $PIDrom "(see $romdiffsdir/$diffslog)"
-  _wait "Skool Daze disassembly-diff" $PIDsd "(see $sddiffsdir/$diffslog)"
-  _wait "Back to Skool disassembly-diff" $PIDbts "(see $btsdiffsdir/$diffslog)"
-  _wait "Contact Sam Cruise disassembly-diff" $PIDcsc "(see $cscdiffsdir/$diffslog)"
+  _wait "Hungry Horace disassembly-diff" $PIDhh "(see $hhdiffsdir/$diffslog)" || rc=1
+  _wait "Manic Miner disassembly-diff" $PIDmm "(see $mmdiffsdir/$diffslog)" || rc=1
+  _wait "Jet Set Willy disassembly-diff" $PIDjsw "(see $jswdiffsdir/$diffslog)" || rc=1
+  _wait "Spectrum ROM disassembly-diff" $PIDrom "(see $romdiffsdir/$diffslog)" || rc=1
+  _wait "Skool Daze disassembly-diff" $PIDsd "(see $sddiffsdir/$diffslog)" || rc=1
+  _wait "Back to Skool disassembly-diff" $PIDbts "(see $btsdiffsdir/$diffslog)" || rc=1
+  _wait "Contact Sam Cruise disassembly-diff" $PIDcsc "(see $cscdiffsdir/$diffslog)" || rc=1
+
+  return ${rc:-0}
 }
 
 ###############################################################################
@@ -312,13 +317,15 @@ check_asms() {
   (cd $btsasmdir; $CHECK_ASMS bts &> $asmlog) & PIDbts=$!
   (cd $cscasmdir; $CHECK_ASMS csc &> $asmlog) & PIDcsc=$!
 
-  _wait "Hungry Horace check-asms" $PIDhh "(see $hhasmdir/$asmlog)" _
-  _wait "Manic Miner check-asms" $PIDmm "(see $mmasmdir/$asmlog)" _
-  _wait "Jet Set Willy check-asms" $PIDjsw "(see $jswasmdir/$asmlog)" _
-  _wait "Spectrum ROM check-asms" $PIDrom "(see $romasmdir/$asmlog)" _
-  _wait "Skool Daze check-asms" $PIDsd "(see $sdasmdir/$asmlog)" _
-  _wait "Back to Skool check-asms" $PIDbts "(see $btsasmdir/$asmlog)" _
-  _wait "Contact Sam Cruise check-asms" $PIDcsc "(see $cscasmdir/$asmlog)" _
+  _wait "Hungry Horace check-asms" $PIDhh "(see $hhasmdir/$asmlog)" _ || rc=1
+  _wait "Manic Miner check-asms" $PIDmm "(see $mmasmdir/$asmlog)" _ || rc=1
+  _wait "Jet Set Willy check-asms" $PIDjsw "(see $jswasmdir/$asmlog)" _ || rc=1
+  _wait "Spectrum ROM check-asms" $PIDrom "(see $romasmdir/$asmlog)" _ || rc=1
+  _wait "Skool Daze check-asms" $PIDsd "(see $sdasmdir/$asmlog)" _ || rc=1
+  _wait "Back to Skool check-asms" $PIDbts "(see $btsasmdir/$asmlog)" _ || rc=1
+  _wait "Contact Sam Cruise check-asms" $PIDcsc "(see $cscasmdir/$asmlog)" _ || rc=1
+
+  return ${rc:-0}
 }
 
 ###############################################################################
@@ -347,13 +354,15 @@ check_bins() {
   (cd $btsasmdir; $CHECK_BINS bts &> $binlog) & PIDbts=$!
   (cd $cscasmdir; $CHECK_BINS csc &> $binlog) & PIDcsc=$!
 
-  _wait "Hungry Horace check-bins" $PIDhh "(see $hhasmdir/$binlog)" _
-  _wait "Manic Miner check-bins" $PIDmm "(see $mmasmdir/$binlog)" _
-  _wait "Jet Set Willy check-bins" $PIDjsw "(see $jswasmdir/$binlog)" _
-  _wait "Spectrum ROM check-bins" $PIDrom "(see $romasmdir/$binlog)" _
-  _wait "Skool Daze check-bins" $PIDsd "(see $sdasmdir/$binlog)" _
-  _wait "Back to Skool check-bins" $PIDbts "(see $btsasmdir/$binlog)" _
-  _wait "Contact Sam Cruise check-bins" $PIDcsc "(see $cscasmdir/$binlog)" _
+  _wait "Hungry Horace check-bins" $PIDhh "(see $hhasmdir/$binlog)" _ || rc=1
+  _wait "Manic Miner check-bins" $PIDmm "(see $mmasmdir/$binlog)" _ || rc=1
+  _wait "Jet Set Willy check-bins" $PIDjsw "(see $jswasmdir/$binlog)" _ || rc=1
+  _wait "Spectrum ROM check-bins" $PIDrom "(see $romasmdir/$binlog)" _ || rc=1
+  _wait "Skool Daze check-bins" $PIDsd "(see $sdasmdir/$binlog)" _ || rc=1
+  _wait "Back to Skool check-bins" $PIDbts "(see $btsasmdir/$binlog)" _ || rc=1
+  _wait "Contact Sam Cruise check-bins" $PIDcsc "(see $cscasmdir/$binlog)" _ || rc=1
+
+  return ${rc:-0}
 }
 
 ###############################################################################

@@ -39,6 +39,11 @@ add_suite hht2s "tools/check-hh-t2s.sh" "Hungry Horace t2s file test"
 add_suite dtests "tools/skrelease dtests" "disassemblies tests"
 add_suite api "tools/test-api" "SkoolKit API tests"
 add_suite pipes "tools/test-pipes" "SkoolKit command stdin tests"
+add_suite ddiffs "tools/skrelease ddiffs" "disassembly-diff"
+add_suite asmchk "tools/skrelease asmchk" "check-asms"
+add_suite binchk "tools/skrelease binchk" "check-bins"
+add_suite pipin1 "tools/skrelease pipin1" "'pip install .' from release tarball"
+add_suite pipin2 "tools/skrelease pipin2" "'pip install .' from source tarball"
 
 NOSE2_SUITES=(
   [rzxc]=1

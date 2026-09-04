@@ -279,8 +279,11 @@ for diff_type in $DIFF_TYPES; do
   echo -en "\e[0;31m"
   if ls $diff_dir/X-*.diff &> /dev/null; then
     ls -Ul $(ls $diff_dir/X-*.diff | sort -k 1,1 -t .)
+    rc=1
   else
     echo -e "\e[0;32mNo $diff_type diffs found in $diff_dir"
   fi
   echo -en "\e[0m"
 done
+
+exit ${rc:-0}
