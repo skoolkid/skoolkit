@@ -221,8 +221,8 @@ The register name ``X`` in ``r[X]`` must be one of the following::
 
 The names that begin with ``^`` denote the shadow registers.
 
-Wherever ``\n`` appears in a ``TraceLine*`` parameter value, it is replaced by
-a newline character.
+Wherever ``\n`` appears in a ``TraceHeader*`` or ``TraceLine*`` parameter
+value, it is replaced by a newline character.
 
 Configuration parameters must appear in a ``[trace]`` section. For example,
 to make ``trace.py`` write a timestamp for each instruction when ``-v`` is

@@ -526,8 +526,8 @@ configuration parameters are:
     ``szx``.
   :Screen: Display screen contents while running (``1``), or don't (``0``, the
     default).
-  :ScreenFps: Screen refresh rate in frames per second (default:``50``). If set
-    to 0, ``tap2sna.py`` runs at maximum speed.
+  :ScreenFps: Screen refresh rate in frames per second (default: ``50``). If
+    set to 0, ``tap2sna.py`` runs at maximum speed.
   :ScreenScale: Screen scale factor (default: ``2``).
   :TraceHeader: The trace log file header (default: None).
   :TraceLine: The format of each line in the trace log file for a simulated
