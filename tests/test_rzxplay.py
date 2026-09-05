@@ -1208,6 +1208,19 @@ class RzxplayTest(SkoolKitTestCase):
             self.run_rzxplay(f'--quiet --no-screen {rzxfile}')
         self.assertEqual(cm.exception.args[0], 'Port readings exhausted for frame 1')
 
+    def test_fewer_port_readings_than_declared(self):
+        pc = 0x8000
+        code = (
+            0xDB, 0xFE, # IN A,($FE)
+            0xDB, 0xFE, # IN A,($FE)
+        )
+        frames = [(2, 2, [191])]
+        rzx = self._get_rzx(pc, frames, code)
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--quiet --no-screen {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'Port readings exhausted for frame 0')
+
     def test_malformed_sna(self):
         sna = [0] * 28
         rzx = RZX()

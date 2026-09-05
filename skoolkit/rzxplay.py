@@ -223,7 +223,7 @@ def parse_rzx(rzxfile):
                 else:
                     start = j + 4
                     end = j = start + in_counter
-                frames.append(Frame(fetch_counter, start, end))
+                frames.append(Frame(fetch_counter, start, min(end, len(frames_data))))
         i += block_len
     return contents
 
