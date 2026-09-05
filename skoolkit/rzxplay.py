@@ -426,11 +426,14 @@ def run(infile, options, config):
         context.tracefile.close()
     if options.dump:
         ext = options.dump.lower().rpartition('.')[2]
-        if ext in ('szx', 'z80'):
-            ram, registers, state, machine = get_state(context.simulator)
-            write_snapshot(options.dump, ram, registers, state, machine)
-        elif ext == 'rzx':
-            write_rzx(options.dump, context, rzx_blocks)
+        if ext in ('rzx', 'szx', 'z80'):
+            if not context.simulator:
+                raise SkoolKitError('Missing input recording: nothing to write')
+            if ext == 'rzx':
+                write_rzx(options.dump, context, rzx_blocks)
+            else:
+                ram, registers, state, machine = get_state(context.simulator)
+                write_snapshot(options.dump, ram, registers, state, machine)
         else:
             raise SkoolKitError(f'Unknown file type: {ext}')
         print(f'Wrote {options.dump}')

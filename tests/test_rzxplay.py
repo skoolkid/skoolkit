@@ -834,6 +834,15 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertEqual(s_machine, '+2')
         self.assertEqual(code, s_memory[pc:end])
 
+    def test_write_snapshot_when_no_input_recording_present(self):
+        pc = 0xF000
+        frames = ()
+        rzx = self._get_rzx(pc, frames)
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--quiet --no-screen {rzxfile} out.z80')
+        self.assertEqual(cm.exception.args[0], 'Missing input recording: nothing to write')
+
     def test_write_rzx_file(self):
         pc = 0xF000
         code = (
@@ -1105,6 +1114,15 @@ class RzxplayTest(SkoolKitTestCase):
             block_len = sdata[i + 4] + 256 * sdata[i + 5] + 65536 * sdata[i + 6] + 16777216 * sdata[i + 7]
             i += 8 + block_len
         self.assertTrue(found_covx)
+
+    def test_write_rzx_file_when_no_input_recording_present(self):
+        pc = 0x8000
+        frames = ()
+        rzx = self._get_rzx(pc, frames)
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--quiet --no-screen {rzxfile} out.rzx')
+        self.assertEqual(cm.exception.args[0], 'Missing input recording: nothing to write')
 
     def test_write_unsupported_file_type(self):
         pc = 0x6000
