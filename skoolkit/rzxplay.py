@@ -386,7 +386,7 @@ def run(infile, options, config):
     if rzx_blocks and isinstance(rzx_blocks[0].obj, InputRecording):
         raise SkoolKitError('Missing snapshot')
 
-    if options.screen and rzx_blocks:
+    if options.screen and rzx_blocks and rzx_blocks[0].obj:
         is128k = rzx_blocks[0].obj.machine != '48K'
         screen = get_screen(options.scale, options.fps, os.path.basename(infile), is128k)
     else:

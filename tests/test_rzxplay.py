@@ -1344,6 +1344,19 @@ class RzxplayTest(SkoolKitTestCase):
             self.run_rzxplay(f'--quiet --no-screen {rzxfile}')
         self.assertEqual(cm.exception.args[0], 'Unsupported snapshot type')
 
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', new_callable=MockPygame)
+    @patch.object(rzxplay, 'get_screen', mock_get_screen)
+    def test_unsupported_snapshot_with_screen(self, mock_pygame):
+        rzx = RZX()
+        sdata = [0xFF] * 10
+        rzx.add_snapshot(sdata, 'slt')
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--quiet {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'Unsupported snapshot type')
+        self.assertFalse(mock_pygame.init_called)
+
     def test_invalid_option(self):
         output, error = self.run_rzxplay('-x test.rzx', catch_exit=2)
         self.assertEqual(output, '')
