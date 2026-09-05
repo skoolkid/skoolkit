@@ -488,6 +488,16 @@ class RzxinfoTest(SkoolKitTestCase):
         with open(exp_fname, 'rb') as f:
             self.assertEqual(sum(f.read()), 0)
 
+    def test_unexpected_eof_while_extracting(self):
+        rzx = self._get_header()
+        rzx.append(0x30) # Snapshot block ID
+        rzxfile = self.write_bin_file(rzx, suffix='.rzx')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxinfo(f'--extract {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'Unexpected end of file')
+        self.assertEqual(self.out.getvalue(), '')
+        self.assertEqual(self.err.getvalue(), '')
+
     def test_option_frames(self):
         sna = [0] * 49179
         rzx = RZX()

@@ -159,13 +159,13 @@ def run(infile, options):
     data = read_bin_file(infile)
     if data[:4] != b'RZX!' or len(data) < 10:
         raise SkoolKitError('Not an RZX file')
-    if options.extract:
-        _extract_snapshots(data, os.path.basename(infile))
-    else:
-        try:
+    try:
+        if options.extract:
+            _extract_snapshots(data, os.path.basename(infile))
+        else:
             _show_blocks(data, options)
-        except IndexError:
-            raise SkoolKitError('Unexpected end of file')
+    except IndexError:
+        raise SkoolKitError('Unexpected end of file')
 
 def main(args):
     parser = argparse.ArgumentParser(
