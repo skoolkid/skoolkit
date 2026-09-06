@@ -1133,6 +1133,28 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
+    def test_option_analyse_with_tzx_block_0x15_with_no_samples(self):
+        tzxfile = self._write_tzx((
+            create_tzx_header_block('empty0x15', 24576, 1),
+            (
+                0x15,    # Block ID
+                80, 0,   # T-states per sample
+                100, 0,  # Pause
+                8,       # Used bits in last byte
+                0, 0, 0  # Length of samples data
+            )
+        ))
+        exp_output = """
+            T-states    EAR  Description
+                     0    0  Tone (8063 x 2168 T-states)
+              17480584    1  Pulse (667 T-states)
+              17481251    0  Pulse (735 T-states)
+              17481986    1  Data (19 bytes; 855,855/1710,1710 T-states)
+        """
+        output, error = self.run_tapinfo(f'--analyse {tzxfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
     def test_option_analyse_with_unsupported_tzx_block(self):
         block = [0x19] # Generalized Data Block
         block.extend((20, 0, 0, 0)) # Block length

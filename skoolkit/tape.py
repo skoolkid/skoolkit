@@ -709,7 +709,7 @@ def _get_tzx_block(data, i, block_num, get_info, get_timings):
                 f'Used bits in last byte: {used_bits}',
                 f'Length: {num_bytes}'
             ))
-        if get_timings:
+        if get_timings and num_bytes:
             j = 0
             pulses = []
             prev_bit = data[i + 8] & 0x80
