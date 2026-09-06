@@ -248,6 +248,17 @@ class Z80Test(SnapshotTest):
         exp_ram = [(n + 127) & 255 for n in range(49152)]
         self._test_z80(exp_ram, 2, False, machine_id=3)
 
+    def test_z80v2_unknown_machine_id_with_three_ram_pages_and_non_zero_port_0x7ffd(self):
+        z80 = [0] * 55
+        z80[30] = 23 # v2
+        z80[34] = 5 # Machine ID
+        z80[35] = 4 # Port 0x7FFD
+        emptyz = [0xED, 0xED, 255, 0] * 64 + [0xED, 0xED, 64, 0]
+        for bank in (5, 1, 2):
+            z80.extend(self._make_z80_ram_page(bank + 3, emptyz))
+        ram = Snapshot.get(z80, 'z80').ram()
+        self.assertEqual(len(ram), 49152)
+
     def test_z80v2_bad_ram_page_size(self):
         header = [0] * 55
         header[30] = 23
@@ -303,6 +314,17 @@ class Z80Test(SnapshotTest):
         exp_ram = [0] * 49152
         exp_ram[16383] = 237
         self._test_z80(exp_ram, 3, True)
+
+    def test_z80v3_unknown_machine_id_with_three_ram_pages_and_non_zero_port_0x7ffd(self):
+        z80 = [0] * 86
+        z80[30] = 54 # v3
+        z80[34] = 10 # Machine ID
+        z80[35] = 7 # Port 0x7FFD
+        emptyz = [0xED, 0xED, 255, 0] * 64 + [0xED, 0xED, 64, 0]
+        for bank in (5, 1, 2):
+            z80.extend(self._make_z80_ram_page(bank + 3, emptyz))
+        ram = Snapshot.get(z80, 'z80').ram()
+        self.assertEqual(len(ram), 49152)
 
     def test_bad_z80(self):
         header = [0] * 30
@@ -658,6 +680,10 @@ class SZXTest(SnapshotTest):
     def test_szx_48k_uncompressed(self):
         exp_ram = [(n + 73) & 255 for n in range(49152)]
         self._test_szx(exp_ram, False)
+
+    def test_szx_48k_with_non_zero_port_0x7ffd(self):
+        exp_ram = [(n + 23) & 255 for n in range(49152)]
+        self._test_szx(exp_ram, False, ch7ffd=3)
 
     def test_szx_48k_bad_zlib_block(self):
         szx = self._get_szx_header()

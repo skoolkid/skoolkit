@@ -343,7 +343,11 @@ class SZX(Snapshot):
         missing = sorted(str(b) for b in exp_banks.get(machine_id, set(range(8))) - set(banks))
         if missing:
             raise SnapshotError('RAMP block(s) missing for RAM bank(s) {}'.format(', '.join(missing)))
-        self.memory = Memory(banks=banks, page=self.out7ffd % 8)
+        if len(banks) >= 8:
+            page = self.out7ffd % 8
+        else:
+            page = 0
+        self.memory = Memory(banks=banks, page=page)
 
     def _add_zxstspecregs(self, state):
         spcr = self.blocks.setdefault(b'SPCR', bytearray([0] * 8))
@@ -534,8 +538,6 @@ class Z80(Snapshot):
                     self.machine = '+2'
                 else:
                     self.machine = '128K'
-            if (i == 55 and 2 < machine_id[0] < 14) or (i > 55 and 3 < machine_id[0] < 14):
-                page = data[35] % 8 # 128K
             while i + 2 < len(data):
                 length = data[i] + 256 * data[i + 1]
                 bank = data[i + 2] - 3
@@ -547,6 +549,8 @@ class Z80(Snapshot):
                 if len(banks[bank]) != 16384:
                     raise SnapshotError(f'Page {bank} is {len(banks[bank])} bytes (should be 16384)')
                 i += 3 + length
+            if len(banks) >= 8:
+                page = self.out7ffd % 8
         missing = sorted(str(b) for b in exp_banks - set(banks))
         if missing:
             raise SnapshotError('Missing RAM bank(s) {}'.format(', '.join(missing)))
