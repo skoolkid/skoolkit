@@ -703,6 +703,8 @@ def _load(snapshot, counters, blocks, param_str):
         block = blocks[block_num - 1]
     except IndexError:
         raise TapeError("Block {} not found".format(block_num))
+    if block is None:
+        raise TapeError(f'Block {block_num} has no data')
     if length is None and load_last:
         length = len(block) - index
     length = _load_block(snapshot, block, start, length, step, offset, inc, index)

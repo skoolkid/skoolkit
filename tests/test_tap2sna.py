@@ -1422,6 +1422,25 @@ class Tap2SnaTest(SkoolKitTestCase):
         self._load_tape(start, data, load_options=f'--ram load=1,0x{start:04x},0x{len(data):04x},0x{step:04x},0x{offset:04x},0x{inc:04x}')
         self.assertEqual(data, snapshot[30003:30008:2])
 
+    def test_ram_load_pzx_block_with_no_data(self):
+        pzx = PZX()
+        pzx.add_puls()
+        pzx.add_data(create_data_block([0]))
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'--ram load=2,24576 {pzxfile}')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {pzxfile}: Block 2 has no data')
+
+    def test_ram_load_tzx_block_with_no_data(self):
+        tzxfile = self._write_tzx((
+            create_tzx_header_block(),
+            create_tzx_data_block([0]),
+            (0x20, 0, 0) # 0x20 Pause 0ms
+        ))
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'--ram load=3,24576 {tzxfile}')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: Block 3 has no data')
+
     def test_ram_load_bad_address(self):
         self._test_bad_spec('--ram load=1,abcde', 'Invalid integer in load spec: 1,abcde')
 
