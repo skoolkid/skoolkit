@@ -906,7 +906,10 @@ def poke(snapshot, param_str):
     addr1, addr2, step = values + [values[0], 1][len(values) - 1:]
     if page is None:
         for a in range(addr1, addr2 + 1, step):
-            snapshot[a] = poke_f(snapshot[a])
+            try:
+                snapshot[a] = poke_f(snapshot[a])
+            except TypeError:
+                pass # Ignore 16K SZX read/write above 32K
     elif hasattr(snapshot, 'banks'):
         bank = snapshot.banks[page % 8]
         if bank:

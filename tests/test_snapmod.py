@@ -491,6 +491,12 @@ class SnapmodTest(SkoolKitTestCase):
         exp_ram_diffs = {5: [255] + [0] * 16383}
         self._test_szx(option, exp_block_diffs, exp_ram_diffs, 16)
 
+    def test_option_p_szx_16k_above_32k(self):
+        option = '-p 32768,1 -p 49152,2'
+        exp_block_diffs = None
+        exp_ram_diffs = {}
+        self._test_szx(option, exp_block_diffs, exp_ram_diffs, 16)
+
     def test_option_p_szx_48k(self):
         pokes = ((5, 0x4000, 0xFF), (2, 0x8100, 0xF0), (0, 0xC200, 0x0F))
         exp_block_diffs = None
