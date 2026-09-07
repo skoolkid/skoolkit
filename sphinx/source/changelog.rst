@@ -35,6 +35,7 @@ Changelog
 * Fixed the parsing of a Z80 snapshot with an invalid header length, missing
   RAM pages, or a compressed RAM block that ends with two 0xED bytes
 * Fixed the parsing of PZX, TZX and RZX files with blocks that are missing data
+  or otherwise malformed
 
 10.1 (2026-08-14)
 -----------------

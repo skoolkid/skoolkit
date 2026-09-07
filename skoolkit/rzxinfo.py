@@ -38,6 +38,8 @@ def _show_blocks(data, options):
     while i < len(data):
         block_id = data[i]
         block_len = get_dword(data, i + 1)
+        if block_len < 5:
+            raise SkoolKitError(f'Block with ID 0x{block_id:02X} has length {block_len}')
         if block_id == 0x10:
             print('Creator information:')
             creator_id = _get_str(data, i + 5, 20)
@@ -136,6 +138,8 @@ def _extract_snapshots(data, prefix):
     while i < len(data):
         block_id = data[i]
         block_len = get_dword(data, i + 1)
+        if block_len < 5:
+            raise SkoolKitError(f'Block with ID 0x{block_id:02X} has length {block_len}')
         if block_id == 0x30:
             flags = data[i + 5]
             if flags & 1 == 0:

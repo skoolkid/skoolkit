@@ -448,6 +448,22 @@ class RzxinfoTest(SkoolKitTestCase):
         self.assertEqual(self.err.getvalue(), '')
         self.assertEqual(cm.exception.args[0], 'Block is missing 67 byte(s)')
 
+    def test_declared_block_length_too_small(self):
+        rzx = self._get_header()
+        rzx.extend((
+            0x10,      # Block ID (Creator information)
+            3, 0, 0, 0 # Block length (3)
+        ))
+        exp_output = """
+            Version: 0.13
+            Signed: No
+        """
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxinfo(self.write_bin_file(rzx, suffix='.rzx'))
+        self.assertEqual(dedent(exp_output).lstrip(), self.out.getvalue())
+        self.assertEqual(self.err.getvalue(), '')
+        self.assertEqual(cm.exception.args[0], 'Block with ID 0x10 has length 3')
+
     def test_nonexistent_rzx_file(self):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_rzxinfo('nonexistent.rzx')
@@ -495,6 +511,19 @@ class RzxinfoTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_rzxinfo(f'--extract {rzxfile}')
         self.assertEqual(cm.exception.args[0], 'Unexpected end of file')
+        self.assertEqual(self.out.getvalue(), '')
+        self.assertEqual(self.err.getvalue(), '')
+
+    def test_declared_block_length_too_small_while_extracting(self):
+        rzx = self._get_header()
+        rzx.extend((
+            0x10,      # Block ID
+            4, 0, 0, 0 # Block length (4)
+        ))
+        rzxfile = self.write_bin_file(rzx, suffix='.rzx')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxinfo(f'--extract {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'Block with ID 0x10 has length 4')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 

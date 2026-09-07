@@ -1334,6 +1334,18 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertEqual(self.err.getvalue(), '')
         self.assertEqual(cm.exception.args[0], 'Unexpected end of file')
 
+    def test_declared_block_length_too_small(self):
+        rzx = self._get_header()
+        rzx.extend((
+            0x10,      # Block ID (Creator information)
+            3, 0, 0, 0 # Block length (3)
+        ))
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(self.write_bin_file(rzx, suffix='.rzx'))
+        self.assertEqual(self.out.getvalue(), '')
+        self.assertEqual(self.err.getvalue(), '')
+        self.assertEqual(cm.exception.args[0], 'Block with ID 0x10 has length 3')
+
     def test_nonexistent_rzx_file(self):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_rzxplay(f'--quiet --no-screen nonexistent.rzx')
