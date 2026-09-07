@@ -333,6 +333,9 @@ class SZX(Snapshot):
                             raise SnapshotError(f'AY block length ({block_len}) is too small')
                         self.outfffd = block[1]
                         self.ay = tuple(block[2:18])
+                    elif block_id == b'KEYB':
+                        if block_len < 5:
+                            raise SnapshotError(f'KEYB block length ({block_len}) is too small')
             i += 8 + block_len
         if self.header[6] > 1 and b'SPCR' not in self.blocks:
             raise SnapshotError("SPECREGS (SPCR) block not found")

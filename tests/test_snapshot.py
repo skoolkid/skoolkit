@@ -775,6 +775,17 @@ class SZXTest(SnapshotTest):
             Snapshot.get(szx, 'szx')
         self.assertEqual(cm.exception.args[0], "AY block length (17) is too small")
 
+    def test_szx_short_KEYB(self):
+        szx = self._get_szx_header(specregs=False)
+        szx.extend((
+            75, 69, 89, 66, # KEYB
+            4, 0, 0, 0,     # Length: 4
+            0, 0, 0, 0
+        ))
+        with self.assertRaises(SnapshotError) as cm:
+            Snapshot.get(szx, 'szx')
+        self.assertEqual(cm.exception.args[0], "KEYB block length (4) is too small")
+
     def test_szx_empty(self):
         szx = ()
         with self.assertRaises(SnapshotError) as cm:
