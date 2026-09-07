@@ -709,6 +709,49 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
+    def test_z80_with_extraneous_ram_page(self):
+        z80 = self.write_z80([0] * 49152, ret_data=True)
+        emptyz = [0xED, 0xED, 255, 0] * 64 + [0xED, 0xED, 64, 0]
+        dlen = len(emptyz)
+        z80.extend((
+            dlen % 256, dlen // 256,
+            7, # Page 7 (bank 4)
+            *emptyz
+        ))
+        z80file = self.write_bin_file(z80, suffix='.z80')
+        exp_output = """
+            Version: 3
+            Machine: 48K Spectrum
+            Interrupts: disabled
+            Interrupt mode: 0
+            Issue 2 emulation: disabled
+            T-states: 34943
+            Border: 0
+            Registers:
+              PC      0 0000    SP      0 0000
+              IX      0 0000    IY      0 0000
+              I       0   00    R       0   00
+              B       0   00    B'      0   00
+              C       0   00    C'      0   00
+              BC      0 0000    BC'     0 0000
+              D       0   00    D'      0   00
+              E       0   00    E'      0   00
+              DE      0 0000    DE'     0 0000
+              H       0   00    H'      0   00
+              L       0   00    L'      0   00
+              HL      0 0000    HL'     0 0000
+              A       0   00    A'      0   00
+                SZ5H3PNC           SZ5H3PNC
+              F 00000000        F' 00000000
+            RAM block 4 (32768-49151 8000-BFFF): 16384 bytes (uncompressed)
+            RAM block 5 (49152-65535 C000-FFFF): 16384 bytes (uncompressed)
+            RAM block 8 (16384-32767 4000-7FFF): 16384 bytes (uncompressed)
+            RAM block 7: 260 bytes (compressed)
+        """
+        output, error = self.run_snapinfo(z80file)
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
     def test_szx_16k_uncompressed(self):
         registers = list(range(32, 58)) # Registers
         registers.extend((0, 0)) # IFF1, IFF2

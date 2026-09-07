@@ -177,7 +177,7 @@ def _analyse_z80(header, reg, ram_blocks):
             block_len = get_word(ram_blocks, i)
             page_num = ram_blocks[i + 2]
             addr_range = block_dict.get(page_num)
-            if addr_range is None and page_num - 3 == bank:
+            if addr_range is None and is128 and page_num - 3 == bank:
                 addr_range = '49152-65535 C000-FFFF'
             if addr_range:
                 addr_range = ' ({})'.format(addr_range)
