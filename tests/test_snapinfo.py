@@ -1759,6 +1759,15 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         self._test_sna(ram, exp_output, '--peek {}-{}'.format(address1, address2))
 
+    def test_option_peek_with_address_range_beyond_64k(self):
+        ram = [0] * 49152
+        ram[-2:] = (101, 102)
+        exp_output = """
+            65534 FFFE: 101  65  01100101  e
+            65535 FFFF: 102  66  01100110  f
+        """
+        self._test_sna(ram, exp_output, '--peek 65534-65537')
+
     def test_option_p_with_address_range_and_step(self):
         ram = [0] * 49152
         address1 = 25663
@@ -2393,6 +2402,15 @@ class SnapinfoTest(SkoolKitTestCase):
             57122 DF22:    23  0017
         """
         self._test_sna(ram, exp_output, '--word {}-{}'.format(address1, address2))
+
+    def test_option_word_with_address_range_beyond_64k(self):
+        ram = [0] * 49152
+        ram[-5:] = (5, 4, 3, 2, 1)
+        exp_output = """
+            65531 FFFB:  1029  0405
+            65533 FFFD:   515  0203
+        """
+        self._test_sna(ram, exp_output, '--word 65531-65539')
 
     def test_option_w_with_address_range_and_step(self):
         ram = [0] * 49152

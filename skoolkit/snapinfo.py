@@ -428,14 +428,14 @@ def _find_text(snapshot, text, base_addr):
 
 def _peek(snapshot, specs, fmt):
     for addr1, addr2, step in _get_address_ranges(specs):
-        for a in range(addr1, addr2 + 1, step):
+        for a in range(addr1, min(addr2 + 1, 65536), step):
             value = snapshot[a]
             char = get_char(value, '', 'UDG-{}', True)
             print(fmt.format(address=a, value=value, char=char))
 
 def _word(snapshot, specs, fmt):
     for addr1, addr2, step in _get_address_ranges(specs, 2):
-        for a in range(addr1, addr2 + 1, step):
+        for a in range(addr1, min(addr2 + 1, 65535), step):
             value = snapshot[a] + 256 * snapshot[a + 1]
             print(fmt.format(address=a, value=value))
 
