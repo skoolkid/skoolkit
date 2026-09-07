@@ -16,6 +16,7 @@
 
 import argparse
 import os
+import re
 import zlib
 
 from skoolkit import VERSION, SkoolKitError, get_dword, get_word, read_bin_file
@@ -143,7 +144,7 @@ def _extract_snapshots(data, prefix):
         if block_id == 0x30:
             flags = data[i + 5]
             if flags & 1 == 0:
-                ext = _get_str(data, i + 9, 4).lower()
+                ext = re.sub('[^a-z0-9]', '', _get_str(data, i + 9, 4).lower())
                 sdata = data[i + 17:i + block_len]
                 if flags & 2:
                     try:

@@ -504,6 +504,17 @@ class RzxinfoTest(SkoolKitTestCase):
         with open(exp_fname, 'rb') as f:
             self.assertEqual(sum(f.read()), 0)
 
+    def test_option_extract_sanitises_filename_extension(self):
+        for ext, exp_ext in (('A/b', 'ab'), (r'B\2', 'b2'), (':!Q', 'q')):
+            rzx = RZX()
+            rzx.add_snapshot([0], ext)
+            rzxfile = self.write_rzx_file(rzx)
+            output, error = self.run_rzxinfo(f'--extract {rzxfile}')
+            self.assertEqual(error, '')
+            exp_fname = f'{rzxfile}.001.{exp_ext}'
+            self.assertEqual(output, f'Extracted {exp_fname}\n')
+            self.assertTrue(os.path.isfile(exp_fname))
+
     def test_unexpected_eof_while_extracting(self):
         rzx = self._get_header()
         rzx.append(0x30) # Snapshot block ID
