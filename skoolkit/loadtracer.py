@@ -401,7 +401,7 @@ class LoadTracer(PagingTracer):
 
     def fast_load(self, simulator):
         registers = simulator.registers
-        while self.block_data_index <= self.state[1] < self.max_index:
+        while self.state[2] == 0 and self.block_data_index <= self.state[1] < self.max_index:
             self.next_block(registers[T])
         if self.block_index < len(self.blocks):
             data_block = self.blocks[self.block_index]

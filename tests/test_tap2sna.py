@@ -3127,6 +3127,28 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(exp_out_lines, output.strip().split('\n'))
 
+    def test_sim_load_pzx_data_block_with_no_pilot_tone(self):
+        pzx = PZX()
+        pzx.add_data([0], polarity=0)
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(pzxfile)
+        self.assertEqual(cm.exception.args[0], f'Error while converting {pzxfile}: Failed to fast load block: unexpected end of tape')
+
+    def test_sim_load_tzx_data_block_with_no_pilot_tone(self):
+        tzxfile = self._write_tzx([(
+            0x14,    # Block ID (Pure Data)
+            87, 3,   # Length of 0-bit pulse (855)
+            174, 6,  # Length of 1-bit pulse (1710)
+            8,       # Used bits in last byte
+            0, 0,    # Pause after this block
+            1, 0, 0, # Length of data that follows (1)
+            0
+        )])
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(tzxfile)
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: Failed to fast load block: unexpected end of tape')
+
     def test_sim_load_pzx_with_no_data(self):
         pzx = PZX()
         pzx.add_paus()
