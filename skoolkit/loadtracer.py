@@ -56,6 +56,8 @@ class LoadTracer(PagingTracer):
         self.simulator = simulator
         self.frame_duration = simulator.frame_duration
         self.edges, self.blocks = get_edges(blocks, config['first_edge'], config['polarity'])
+        if not self.blocks:
+            raise SkoolKitError('Tape contains no data')
         self.keys = None
         self.pause = config['pause']
         self.in_min_addr = config['in_min_addr']

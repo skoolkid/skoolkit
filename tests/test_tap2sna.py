@@ -3127,6 +3127,23 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(exp_out_lines, output.strip().split('\n'))
 
+    def test_sim_load_pzx_with_no_data(self):
+        pzx = PZX()
+        pzx.add_paus()
+        pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(pzxfile)
+        self.assertEqual(cm.exception.args[0], f'Error while converting {pzxfile}: Tape contains no data')
+
+    def test_sim_load_tzx_with_no_data(self):
+        tzxfile = self._write_tzx([(
+            0x20,  # Block ID (Pause)
+            232, 3 # 1000ms
+        )])
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(tzxfile)
+        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: Tape contains no data')
+
     def test_sim_load_config_help_invalid_parameter(self):
         for option in ('-c', '--sim-load-config'):
             output, error = self.run_tap2sna(f'{option} help-foo')
