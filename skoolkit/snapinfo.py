@@ -173,7 +173,7 @@ def _analyse_z80(header, reg, ram_blocks):
         print('48K RAM block (16384-65535 4000-FFFF): {} bytes ({}compressed)'.format(block_len, prefix))
     else:
         i = 0
-        while i < len(ram_blocks):
+        while i + 2 < len(ram_blocks):
             block_len = get_word(ram_blocks, i)
             page_num = ram_blocks[i + 2]
             addr_range = block_dict.get(page_num)
