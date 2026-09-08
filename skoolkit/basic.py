@@ -275,29 +275,32 @@ class VariableLister:
             self.text.lspace = True
             varname = chr((snapshot[i] & 31) + 96)
             variable_type = snapshot[i] & 224
-            if variable_type == 64:
-                # String (010xxxxx)
-                i, line = self._get_string_var(varname, i)
-            elif variable_type == 128:
-                # Array of numbers (100xxxxx)
-                i, line = self._get_num_array_var(varname, i)
-            elif variable_type == 160:
-                # Number whose name is longer than one letter (101xxxxx)
-                i, line = self._get_long_num_var(varname, i)
-            elif variable_type == 192:
-                # Array of characters (110xxxxx)
-                i, line = self._get_char_array_var(varname, i)
-            elif variable_type == 224:
-                # Control variable of a FOR-NEXT loop (111xxxxx)
-                i, line = self._get_control_var(varname, i)
-            elif variable_type == 96:
-                # Number whose name is one letter (011xxxxx)
-                i, line = self._get_short_num_var(varname, i)
-            else:
-                # Basic line (00xxxxxx)
-                i += get_word(snapshot, i + 2) + 4
-                continue
-            lines.append(line)
+            try:
+                if variable_type == 64:
+                    # String (010xxxxx)
+                    i, line = self._get_string_var(varname, i)
+                elif variable_type == 128:
+                    # Array of numbers (100xxxxx)
+                    i, line = self._get_num_array_var(varname, i)
+                elif variable_type == 160:
+                    # Number whose name is longer than one letter (101xxxxx)
+                    i, line = self._get_long_num_var(varname, i)
+                elif variable_type == 192:
+                    # Array of characters (110xxxxx)
+                    i, line = self._get_char_array_var(varname, i)
+                elif variable_type == 224:
+                    # Control variable of a FOR-NEXT loop (111xxxxx)
+                    i, line = self._get_control_var(varname, i)
+                elif variable_type == 96:
+                    # Number whose name is one letter (011xxxxx)
+                    i, line = self._get_short_num_var(varname, i)
+                else:
+                    # Basic line (00xxxxxx)
+                    i += get_word(snapshot, i + 2) + 4
+                    continue
+                lines.append(line)
+            except IndexError:
+                break # Stop at the 64K boundary
         return '\n'.join(lines)
 
     def _get_string_var(self, name, i):

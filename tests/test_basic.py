@@ -688,3 +688,65 @@ class VariableListerTest(SkoolKitTestCase):
             'j=36'
         ]
         self._test_variables(variables, exp_output)
+
+    def test_string_variable_across_64k_boundary(self):
+        variables = [
+            65, # String variable "a$"
+            1   # LSB of length
+        ]
+        exp_output = ['']
+        self._test_variables(variables, exp_output, 65536 - len(variables))
+
+    def test_number_array_across_64k_boundary(self):
+        variables = [
+            147,   # Number array variable "s"
+            28, 0, # Length
+            1,     # 1 dimension
+            5      # Dimension 1, LSB of length
+        ]
+        exp_output = ['']
+        self._test_variables(variables, exp_output, 65536 - len(variables))
+
+    def test_number_long_name_across_64k_boundary(self):
+        variables = [
+            174, 117 # Number variable "nu..." (no end marker)
+        ]
+        exp_output = ['']
+        self._test_variables(variables, exp_output, 65536 - len(variables))
+
+    def test_char_array_across_64k_boundary(self):
+        variables = [
+            196,  # Character array variable "d$"
+            7, 0, # Length
+            1,    # 1 dimension
+            4     # Dimension 1, LSB of length
+        ]
+        exp_output = ['']
+        self._test_variables(variables, exp_output, 65536 - len(variables))
+
+    def test_control_var_across_64k_boundary(self):
+        variables = [
+            240,           # FOR control variable "p"
+            0, 0, 2, 0, 0, # 2
+            0, 0, 8, 0, 0, # limit=8
+            0, 0, 3, 0, 0, # step=3
+            10, 0          # line=10, no statement number
+        ]
+        exp_output = ['']
+        self._test_variables(variables, exp_output, 65536 - len(variables))
+
+    def test_number_short_name_across_64k_boundary(self):
+        variables = [
+            112,          # Number variable "p"
+            129, 64, 0, 0 # Truncated floating point number
+        ]
+        exp_output = ['']
+        self._test_variables(variables, exp_output, 65536 - len(variables))
+
+    def test_basic_line_across_64k_boundary(self):
+        variables = [
+            0, 10, # Line 10
+            12     # LSB of length
+        ]
+        exp_output = ['']
+        self._test_variables(variables, exp_output, 65536 - len(variables))
