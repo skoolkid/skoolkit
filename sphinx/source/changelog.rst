@@ -30,10 +30,10 @@ Changelog
 * Fixed how two base prefixes are handled when applied to an instruction with
   one operand
 * Fixed the parsing of a 48K SNA snapshot that has SP set to 0xFFFF
-* Fixed the parsing of an SZX snapshot with missing RAMP blocks or a RAMP,
-  SPCR, Z80R, AY or KEYB block that is too short
-* Fixed the parsing of a Z80 snapshot with an invalid header length, missing
-  RAM pages, or a compressed RAM block that ends with two 0xED bytes
+* Fixed the parsing of an SZX snapshot with missing or extraneous RAMP blocks,
+  or a RAMP, SPCR, Z80R, AY or KEYB block that is too short
+* Fixed the parsing of a Z80 snapshot with an invalid header length, missing or
+  extraneous RAM pages, or a compressed RAM block that ends with two 0xED bytes
 * Fixed the parsing of PZX, TZX and RZX files with blocks that are missing data
   or otherwise malformed
 

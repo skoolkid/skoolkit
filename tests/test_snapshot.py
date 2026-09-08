@@ -244,6 +244,19 @@ class Z80Test(SnapshotTest):
         exp_ram += [107] * (49152 - len(exp_ram))
         self._test_z80(exp_ram, 2, True)
 
+    def test_z80v2_48k_with_extraneous_ram_pages(self):
+        z80 = [0] * 55
+        z80[30] = 23 # v2
+        emptyz = [0xED, 0xED, 255, 0] * 64 + [0xED, 0xED, 64, 0]
+        for page in (8, 4, 5):
+            z80.extend(self._make_z80_ram_page(page, emptyz))
+        onesz = [0xED, 0xED, 255, 1] * 64 + [0xED, 0xED, 64, 1]
+        for page in (0, 1, 2, 6, 7): # 8 pages total, page 3 missing
+            z80.extend(self._make_z80_ram_page(page, onesz)) # Ignored
+        ram = Snapshot.get(z80, 'z80').ram()
+        self.assertEqual(len(ram), 49152)
+        self.assertEqual(sum(ram), 0)
+
     def test_z80v2_128k(self):
         exp_ram = [(n + 127) & 255 for n in range(49152)]
         self._test_z80(exp_ram, 2, False, machine_id=3)
@@ -672,6 +685,14 @@ class SZXTest(SnapshotTest):
     def test_szx_16k(self):
         exp_ram = [(n + 13) & 255 for n in range(16384)]
         self._test_szx(exp_ram, True, machine_id=0)
+
+    def test_szx_16k_with_extraneous_ram_bank(self):
+        szx = self._get_szx_header(machine_id=0, specregs=False)
+        szx.extend(self._get_zxstrampage(5, False, [0] * 0x4000))
+        szx.extend(self._get_zxstrampage(2, False, [2] * 0x4000)) # Ignored
+        ram = Snapshot.get(szx, 'szx').ram()
+        self.assertEqual(len(ram), 49152)
+        self.assertEqual(sum(ram), 0)
 
     def test_szx_48k_compressed(self):
         exp_ram = [(n + 59) & 255 for n in range(49152)]

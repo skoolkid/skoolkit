@@ -343,9 +343,11 @@ class SZX(Snapshot):
             0: {5},      # 16K
             1: {5, 2, 0} # 48K
         }
-        missing = sorted(str(b) for b in exp_banks.get(machine_id, set(range(8))) - set(banks))
+        req_banks = exp_banks.get(machine_id, set(range(8)))
+        missing = ', '.join(sorted(str(b) for b in req_banks - set(banks)))
         if missing:
-            raise SnapshotError('RAMP block(s) missing for RAM bank(s) {}'.format(', '.join(missing)))
+            raise SnapshotError(f'RAMP block(s) missing for RAM bank(s) {missing}')
+        banks = {b: banks[b] for b in req_banks}
         if len(banks) >= 8:
             page = self.out7ffd % 8
         else:
@@ -552,11 +554,11 @@ class Z80(Snapshot):
                 if len(banks[bank]) != 16384:
                     raise SnapshotError(f'Page {bank} is {len(banks[bank])} bytes (should be 16384)')
                 i += 3 + length
-            if len(banks) >= 8:
+            if len(exp_banks) >= 8:
                 page = self.out7ffd % 8
-        missing = sorted(str(b) for b in exp_banks - set(banks))
+        missing = ', '.join(sorted(str(b) for b in exp_banks - set(banks)))
         if missing:
-            raise SnapshotError('Missing RAM bank(s) {}'.format(', '.join(missing)))
+            raise SnapshotError(f'Missing RAM bank(s) {missing}')
         self.a = self.header[0]
         self.f = self.header[1]
         self.bc = get_word(self.header, 2)
