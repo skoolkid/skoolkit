@@ -17,7 +17,7 @@
 
 import re
 
-from skoolkit import get_word
+from skoolkit import SkoolKitError, get_word
 
 RE_NUMBER = re.compile('[0-9.]+([eE][-+]?[0-9]+)?')
 
@@ -301,6 +301,9 @@ class VariableLister:
                 lines.append(line)
             except IndexError:
                 break # Stop at the 64K boundary
+            except SkoolKitError as e:
+                lines.append(f'ERROR: {e.args[0]}')
+                break
         return '\n'.join(lines)
 
     def _get_string_var(self, name, i):
@@ -314,6 +317,8 @@ class VariableLister:
         v_end = i + 3 + get_word(self.snapshot, i + 1)
         dims = [get_word(self.snapshot, c) for c in range(i + 4, v_start, 2)]
         dims_str = ','.join([str(d) for d in dims])
+        if any(d == 0 for d in dims):
+            raise SkoolKitError(f'{name}({dims_str}) has a dimension of length 0')
         values = _unflatten([_get_number(self.snapshot, c) for c in range(v_start, v_end, 5)], dims)
         line = '{}({})={}'.format(name, dims_str, values)
         return v_end, line
@@ -331,6 +336,8 @@ class VariableLister:
         v_end = i + 3 + get_word(self.snapshot, i + 1)
         dims = [get_word(self.snapshot, c) for c in range(i + 4, v_start, 2)]
         dims_str = ','.join([str(d) for d in dims])
+        if any(d == 0 for d in dims):
+            raise SkoolKitError(f'{name}$({dims_str}) has a dimension of length 0')
         str_len = dims[-1]
         strings = [self.text.get_text(self.snapshot[j:j + str_len]) for j in range(v_start, v_end, str_len)]
         if len(dims) > 1:

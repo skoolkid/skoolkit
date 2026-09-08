@@ -750,3 +750,81 @@ class VariableListerTest(SkoolKitTestCase):
         ]
         exp_output = ['']
         self._test_variables(variables, exp_output, 65536 - len(variables))
+
+    def test_char_array_with_dimension_of_length_0(self):
+        variables = [
+            196,             # Character array variable "d$"
+            7, 0,            # Length
+            1,               # 1 dimension
+            4, 0,            # Dimension 1, length 4
+            97, 98, 99, 100, # "abcd"
+            199,             # Character array variable "g$"
+            5, 0,            # Length
+            1,               # 1 dimension
+            0, 0,            # Dimension 1, length 0
+            128              # End of variables area
+        ]
+        exp_output = [
+            "d$(4)='abcd'",
+            "ERROR: g$(0) has a dimension of length 0"
+        ]
+        self._test_variables(variables, exp_output)
+
+    def test_2d_char_array_with_second_dimension_of_length_0(self):
+        variables = [
+            196,             # Character array variable "d$"
+            7, 0,            # Length
+            1,               # 1 dimension
+            4, 0,            # Dimension 1, length 4
+            97, 98, 99, 100, # "abcd"
+            200,             # Character array variable "h$"
+            5, 0,            # Length
+            2,               # 2 dimensions
+            2, 0,            # Dimension 1, length 2
+            0, 0,            # Dimension 2, length 0
+            128              # End of variables area
+        ]
+        exp_output = [
+            "d$(4)='abcd'",
+            "ERROR: h$(2,0) has a dimension of length 0"
+        ]
+        self._test_variables(variables, exp_output)
+
+    def test_3d_char_array_with_second_dimension_of_length_0(self):
+        variables = [
+            196,             # Character array variable "d$"
+            7, 0,            # Length
+            1,               # 1 dimension
+            4, 0,            # Dimension 1, length 4
+            97, 98, 99, 100, # "abcd"
+            201,             # Character array variable "i$"
+            7, 0,            # Length
+            3,               # 3 dimensions
+            2, 0,            # Dimension 1, length 2
+            0, 0,            # Dimension 2, length 0
+            2, 0,            # Dimension 3, length 2
+            128              # End of variables area
+        ]
+        exp_output = [
+            "d$(4)='abcd'",
+            "ERROR: i$(2,0,2) has a dimension of length 0"
+        ]
+        self._test_variables(variables, exp_output)
+
+    def test_3d_number_array_with_second_dimension_of_length_0(self):
+        variables = [
+            112,            # Number variable "p"
+            0, 0, 12, 0, 0, # 12
+            145,            # Number array variable "q"
+            7, 0,           # Length
+            3,              # 3 dimensions
+            2, 0,           # Dimension 1, length 2
+            0, 0,           # Dimension 2, length 0
+            2, 0,           # Dimension 3, length 2
+            128             # End of variables area
+        ]
+        exp_output = [
+            "p=12",
+            "ERROR: q(2,0,2) has a dimension of length 0"
+        ]
+        self._test_variables(variables, exp_output)
