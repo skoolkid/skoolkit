@@ -45,6 +45,17 @@ class BasicListerTest(SkoolKitTestCase):
         exp_output = ['  10 PRINT 1{0x0E}{0x01}{0x00}{0x0D}{0x80}']
         self._test_basic(basic, exp_output)
 
+    def test_line_containing_floating_point_number_and_nothing_else(self):
+        snapshot = [0] * 23755
+        snapshot.extend((
+            0, 10, 7, 0,       # Line 10, length
+            14, 0, 0, 1, 0, 0, # 1 in floating point form
+            13                 # ENTER (no end of BASIC area marker)
+        ))
+        exp_output = ['  10 ']
+        basic = BasicLister().list_basic(snapshot)
+        self.assertEqual(exp_output, basic.split('\n'))
+
     def test_incorrect_line_length(self):
         basic = [
             0, 10, 5, 0,     # Line 10, length (5 instead of 8)

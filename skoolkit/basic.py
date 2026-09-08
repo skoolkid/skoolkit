@@ -1,4 +1,4 @@
-# Copyright 2016-2017, 2020, 2023, 2024 Richard Dymond (rjdymond@gmail.com),
+# © 2016-2017, 2020, 2023, 2024, 2026 Richard Dymond (rjdymond@gmail.com),
 # Philip M. Anderson (weyoun47@gmail.com)
 #
 # This file is part of SkoolKit.
@@ -196,13 +196,14 @@ class BasicLister:
             lines.append('{:>4} {}'.format(line_no, line))
         return '\n'.join(lines)
 
-    def _get_basic_line(self, i):
+    def _get_basic_line(self, start):
         line = ''
+        i = start
         while i < len(self.snapshot) and self.snapshot[i] != 13:
             code = self.snapshot[i]
             if code == 14:
                 if i + 5 < len(self.snapshot):
-                    line += self._get_fp_num(line, i)
+                    line += self._get_fp_num(line, i, start)
                     i += 6
                 else:
                     while i < len(self.snapshot):
@@ -219,8 +220,8 @@ class BasicLister:
                 i += 1
         return i + 1, line
 
-    def _get_fp_num(self, line, i):
-        num_str = self._get_num_str(i - 1)
+    def _get_fp_num(self, line, i, start):
+        num_str = self._get_num_str(i - 1, start)
         if num_str:
             num = _get_number(self.snapshot, i + 1)
             re_bin = re.search('BIN +([01]+)$', line)
@@ -239,8 +240,8 @@ class BasicLister:
                 return f'{{{num}}}'
         return ''
 
-    def _get_num_str(self, j):
-        while self.snapshot[j] < 33:
+    def _get_num_str(self, j, start):
+        while j > start and self.snapshot[j] < 33:
             j -= 1
         num_str = chr(self.snapshot[j])
         while RE_NUMBER.match(num_str):
