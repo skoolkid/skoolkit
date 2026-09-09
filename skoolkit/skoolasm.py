@@ -51,7 +51,10 @@ class AsmWriter:
             for instruction in entry.instructions:
                 label = instruction.asm_label
                 if label:
-                    self.labels[instruction.address] = label
+                    if instruction.address is None:
+                        self.warn('Cannot apply label to instruction with no address')
+                    else:
+                        self.labels[instruction.address] = label
 
         # Determine the base and end addresses
         self.base_address = 16384
@@ -61,7 +64,10 @@ class AsmWriter:
         elif self.parser.memory_map:
             self.base_address = self.parser.memory_map[0].instructions[0].address
         if self.parser.memory_map:
-            self.end_address = self.parser.memory_map[-1].instructions[-1].address
+            for instruction in reversed(self.parser.memory_map[-1].instructions):
+                if instruction.address is not None:
+                    self.end_address = instruction.address
+                    break
 
         self.lower = self.case == CASE_LOWER
 

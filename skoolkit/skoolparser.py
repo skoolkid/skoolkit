@@ -1,4 +1,4 @@
-# Copyright 2008-2024 Richard Dymond (rjdymond@gmail.com)
+# © 2008-2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -625,8 +625,9 @@ class Mode:
                 address = self.process_instruction(instruction, label, overwrite, removed)
 
         address = instruction.address
-        while self.data:
-            address = parse_asm_data_directive(snapshot, address, self.data.pop(0))
+        if address is not None:
+            while self.data:
+                address = parse_asm_data_directive(snapshot, address, self.data.pop(0))
 
         self.reset()
 

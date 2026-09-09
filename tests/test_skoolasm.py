@@ -1294,6 +1294,17 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         exp_warnings = 'WARNING: Table in entry at 50000 is 91 characters wide'
         self._test_warnings(skool, exp_warnings)
 
+    def test_warn_entry_point_with_no_address(self):
+        skool = """
+            @start
+            @label=START
+            ; Routine
+            c32768 XOR A
+            *      RET
+        """
+        exp_warnings = 'WARNING: Cannot apply label to instruction with no address'
+        self._test_warnings(skool, exp_warnings)
+
     def test_suppress_warnings(self):
         skool = """
             @start
@@ -2807,6 +2818,24 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer.snapshot[0] = 2
         writer.pop_snapshot()
         self.assertEqual(snapshot[0], 1)
+
+    def test_last_instruction_line_with_no_address(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #R32768 (expanding this macro requires a valid end address)
+            c32768 XOR A ; This becomes the end address because...
+            C      RET   ; ...this instruction doesn't have one
+        """
+        exp_asm = """
+            ; Routine
+            ;
+            ; 32768 (expanding this macro requires a valid end address)
+              XOR A                   ; This becomes the end address because...
+              RET                     ; ...this instruction doesn't have one
+        """
+        self._test_asm(skool, exp_asm)
 
     def test_custom_comment_template(self):
         templates = {'comment': ';; {text}'}

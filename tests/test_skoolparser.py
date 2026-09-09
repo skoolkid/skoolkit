@@ -2035,6 +2035,16 @@ class SkoolParserTest(SkoolKitTestCase):
         snapshot = self._get_parser(skool, html=True).snapshot
         self.assertEqual([1, 2, 0, 0, 5, 6], snapshot[40000:40006])
 
+    def test_defb_directive_for_addressless_instruction_line_is_ignored(self):
+        skool = """
+            ; Bytes
+            b65534 DEFB 0
+            @defb=1
+            B      DEFB 0
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual(sum(snapshot), 0)
+
     def test_defs_directives(self):
         skool = """
             @defs=23296:6,$10
@@ -2081,6 +2091,16 @@ class SkoolParserTest(SkoolKitTestCase):
         snapshot = self._get_parser(skool, html=True).snapshot
         self.assertEqual([1, 1, 0, 0, 2, 2], snapshot[50000:50006])
 
+    def test_defs_directive_for_addressless_instruction_line_is_ignored(self):
+        skool = """
+            ; Space
+            s65534 DEFS 1
+            @defs=1,1
+            S      DEFS 1
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual(sum(snapshot), 0)
+
     def test_defw_directives(self):
         skool = """
             @defw=23296:32769,$8002,%100000000,"0"
@@ -2126,6 +2146,16 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         snapshot = self._get_parser(skool, html=True).snapshot
         self.assertEqual([1, 0, 0, 0, 2, 0], snapshot[60000:60006])
+
+    def test_defw_directive_for_addressless_instruction_line_is_ignored(self):
+        skool = """
+            ; Words
+            w65532 DEFW 0
+            @defw=257
+            W      DEFW 0
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual(sum(snapshot), 0)
 
     def test_mixture_of_addressless_data_definition_directives(self):
         skool = """
