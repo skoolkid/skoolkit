@@ -1,4 +1,4 @@
-# Copyright 2008-2024, 2026 Richard Dymond (rjdymond@gmail.com)
+# © 2008-2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -524,8 +524,14 @@ class TableWriter:
         for row in self.table.rows:
             cell_matrix.append([None] * self.table.num_cols)
         for cell in self.table.cells:
-            for x in range(cell.col_index, cell.col_index + cell.colspan):
-                for y in range(cell.row_index, cell.row_index + cell.rowspan):
+            max_col = cell.col_index + cell.colspan
+            if max_col > self.table.num_cols:
+                raise SkoolParsingError(f'colspan ({cell.colspan}) of cell at column {cell.col_index + 1} in row {cell.row_index + 1} is too large')
+            for x in range(cell.col_index, max_col):
+                max_row = cell.row_index + cell.rowspan
+                if max_row > len(self.table.rows):
+                    raise SkoolParsingError(f'rowspan ({cell.rowspan}) of cell at column {cell.col_index + 1} in row {cell.row_index + 1} is too large')
+                for y in range(cell.row_index, max_row):
                     cell_matrix[y][x] = cell
         return cell_matrix
 

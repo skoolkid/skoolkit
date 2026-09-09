@@ -6017,7 +6017,16 @@ class TableParserTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], error)
 
     def test_invalid_colspan_indicator(self):
-        self.assert_error('#TABLE { =cX Hi } TABLE#', "Invalid colspan indicator: 'cX'")
+        self.assert_error('#TABLE { =cX Hi } TABLE#', "Invalid colspan indicator 'cX' in '=cX'")
+        self.assert_error('#TABLE { =h,c0 Ho } TABLE#', "Invalid colspan value '0' in '=h,c0'")
+        self.assert_error('#TABLE { =t,c-1 Hey } TABLE#', "Invalid colspan value '-1' in '=t,c-1'")
 
     def test_invalid_rowspan_indicator(self):
-        self.assert_error('#TABLE { =rY Hi } TABLE#', "Invalid rowspan indicator: 'rY'")
+        self.assert_error('#TABLE { =rY Hi } TABLE#', "Invalid rowspan indicator 'rY' in '=rY'")
+        self.assert_error('#TABLE { =h,r0 Ho } TABLE#', "Invalid rowspan value '0' in '=h,r0'")
+        self.assert_error('#TABLE { =c2,r-1 Hey } TABLE#', "Invalid rowspan value '-1' in '=c2,r-1'")
+
+    def test_invalid_cell_indicator(self):
+        self.assert_error('#TABLE { = Hi } TABLE#', "Invalid cell indicator '' in '='")
+        self.assert_error('#TABLE { =c1,,r1 Ho } TABLE#', "Invalid cell indicator '' in '=c1,,r1'")
+        self.assert_error('#TABLE { =c2,d5 Hey } TABLE#', "Invalid cell indicator 'd5' in '=c2,d5'")

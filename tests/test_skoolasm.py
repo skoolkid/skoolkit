@@ -3234,7 +3234,7 @@ class TableMacroTest(SkoolKitTestCase):
         """
         self._test_table(src, exp_output)
 
-    def test_transparent_cells__with_rowspan_2_in_bottom_corners(self):
+    def test_transparent_cells_with_rowspan_2_in_bottom_corners(self):
         # Transparent cells with rowspan > 1 in the bottom corners
         src = """
             { =h H1 | =h H2 | =h H3 }
@@ -4005,6 +4005,33 @@ class TableMacroTest(SkoolKitTestCase):
             Cannot find closing ' }' in table row:
             { Yo} TABLE#
         """
+        self._assert_error(skool, error)
+
+    def test_cell_with_colspan_2_in_table_with_only_one_column(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #TABLE
+            ; { =c2 A }
+            ; { B }
+            ; TABLE#
+            c32768 RET
+        """
+        error = "colspan (2) of cell at column 1 in row 1 is too large"
+        self._assert_error(skool, error)
+
+    def test_cell_with_rowspan_2_in_table_with_only_one_row(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #TABLE
+            ; { =r2 A | B }
+            ; TABLE#
+            c32768 RET
+        """
+        error = "rowspan (2) of cell at column 1 in row 1 is too large"
         self._assert_error(skool, error)
 
 class ListMacroTest(SkoolKitTestCase):

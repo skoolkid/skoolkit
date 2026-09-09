@@ -1,4 +1,4 @@
-# Copyright 2008-2025 Richard Dymond (rjdymond@gmail.com)
+# © 2008-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -168,20 +168,26 @@ class TableParser:
                     if end < 0:
                         end = len(cell)
                     for span in cell[1:end].split(','):
-                        if span[0] == 'c':
+                        if span.startswith('c'):
                             try:
                                 colspan = int(span[1:])
                             except ValueError:
-                                raise SkoolParsingError("Invalid colspan indicator: '{}'".format(span))
-                        elif span[0] == 'r':
+                                raise SkoolParsingError(f"Invalid colspan indicator '{span}' in '{cell[:end]}'")
+                            if colspan < 1:
+                                raise SkoolParsingError(f"Invalid colspan value '{colspan}' in '{cell[:end]}'")
+                        elif span.startswith('r'):
                             try:
                                 rowspan = int(span[1:])
                             except ValueError:
-                                raise SkoolParsingError("Invalid rowspan indicator: '{}'".format(span))
-                        elif span[0] == 'h':
+                                raise SkoolParsingError(f"Invalid rowspan indicator '{span}' in '{cell[:end]}'")
+                            if rowspan < 1:
+                                raise SkoolParsingError(f"Invalid rowspan value '{rowspan}' in '{cell[:end]}'")
+                        elif span.startswith('h'):
                             header = True
-                        elif span[0] == 't':
+                        elif span.startswith('t'):
                             transparent = True
+                        else:
+                            raise SkoolParsingError(f"Invalid cell indicator '{span}' in '{cell[:end]}'")
                     cell = cell[end:].lstrip()
                 row.append(Cell(cell, transparent, colspan, rowspan, header, cell_class))
                 prev_spans[col_index] = (rowspan, colspan)
