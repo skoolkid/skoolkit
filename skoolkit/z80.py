@@ -1005,7 +1005,7 @@ def eval_int(text):
         s = _convert_nums(_convert_chars(text))
         if set(s) <= OPERAND_AE_CHARS:
             return int(eval(s.replace('/', '//')))
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, SyntaxError, ZeroDivisionError):
         pass
     raise ValueError
 

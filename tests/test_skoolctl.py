@@ -807,8 +807,14 @@ class CtlWriterTest(SkoolKitTestCase):
         self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=1)
 
     def test_s_directive_invalid_size(self):
-        with self.assertRaisesRegex(SkoolParsingError, "^Invalid integer 'x': DEFS x,1$"):
-            CtlWriter(StringIO('s30000 DEFS x,1'))
+        for inv_int, defs_args in (
+                ('x', 'x,1'),
+                ('+', '+,2'),
+                ('1/0', '1/0,3')
+        ):
+            with self.assertRaises(SkoolParsingError) as cm:
+                CtlWriter(StringIO(f's30000 DEFS {defs_args}'))
+            self.assertEqual(cm.exception.args[0], f"Invalid integer '{inv_int}': DEFS {defs_args}")
 
     def test_s_directive_invalid_value_ignored(self):
         skool = 's30000 DEFS 10,y$'

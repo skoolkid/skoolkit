@@ -3248,7 +3248,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             c30000 LD BC,30004
-             30003 DEFB 0,,1   ; Cannot calculate end address from faulty DEFB
+             30003 LD IZ,0     ; Cannot calculate end address from this
         """
         self._get_parser(skool, asm_mode=2, warnings=True)
         warnings = self.err.getvalue()
