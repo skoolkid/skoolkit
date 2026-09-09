@@ -434,6 +434,19 @@ class Bin2TapTest(SkoolKitTestCase):
         blocks = self._run('{} {}'.format(binfile, tapfile), tapfile)
         self._check_tape(blocks, bin_data, binfile, name=tapfile[:-4])
 
+    def test_input_filename_with_unicode_code_point_greater_than_255(self):
+        bin_data = [0]
+        binfile = self.write_bin_file(bin_data, chr(256) + 'data.bin')
+        blocks = self._run(binfile)
+        self._check_tape(blocks, bin_data, binfile, name='?data')
+
+    def test_output_filename_with_unicode_code_point_greater_than_255(self):
+        bin_data = [0]
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
+        tapfile = chr(256) + 'data.tap'
+        blocks = self._run(f'{binfile} {tapfile}')
+        self._check_tape(blocks, bin_data, binfile, name='?data')
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_bin2tap(option, catch_exit=0)

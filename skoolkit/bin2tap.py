@@ -143,7 +143,7 @@ def _get_bank_loader(title, address, start_addr, banks, out7ffd):
     return (_get_header(title, len(data), address), _make_block(data))
 
 def run(ram, clear, org, start, stack, tape_file, scr, banks, out7ffd, loader_addr):
-    title = os.path.basename(tape_file)
+    title = ''.join(c if ord(c) < 256 else '?' for c in os.path.basename(tape_file))
     if title.lower().endswith(('.tap', '.pzx')):
         title = title[:-4]
     if banks is None:
