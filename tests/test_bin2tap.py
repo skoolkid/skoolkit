@@ -615,6 +615,16 @@ class Bin2TapTest(SkoolKitTestCase):
         blocks = self._run(f'-b {begin} -c {clear} --7ffd {out7ffd} {binfile}')
         self._check_tape_with_ram_banks(blocks, data, banks, out7ffd, binfile, clear, begin)
 
+    def test_option_7ffd_with_48k_snapshot(self):
+        data = (1, 2, 3)
+        begin = 65536 - len(data)
+        clear = begin - 1
+        ram = [0] * 49152
+        ram[begin - 16384:begin - 16384 + len(data)] = data
+        snafile = self.write_bin_file([0] * 27 + ram, suffix='.sna')
+        blocks = self._run(f'-b {begin} -c {clear} --7ffd 1 {snafile}')
+        self._check_tape_with_clear_command(blocks, data, snafile, clear, begin)
+
     def test_option_banks(self):
         data = [128, 129, 130]
         begin = 49152 - len(data)

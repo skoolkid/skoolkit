@@ -1,4 +1,4 @@
-# Copyright 2010-2013, 2015-2017, 2019-2020, 2023, 2024
+# © 2010-2013, 2015-2017, 2019-2020, 2023, 2024, 2026
 # Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
@@ -232,13 +232,12 @@ def main(args):
     if snapshot_reader.can_read(infile):
         org = 0
         begin = namespace.begin or 16384
+        end = namespace.end or 65536
         if has_128k_options:
             snapshot = snapshot_reader.get_snapshot(infile, -1)
             if len(snapshot) == 0x20000:
                 banks = {b: snapshot[b * 0x4000:(b + 1) * 0x4000] for b in (0, 1, 3, 4, 6, 7)}
                 end = namespace.end or 49152
-        else:
-            end = namespace.end or 65536
         ram = snapshot_reader.get_snapshot(infile)[begin:end]
     else:
         snapshot = read_bin_file(infile, 0x20000)
