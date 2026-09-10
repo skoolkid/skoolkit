@@ -86,12 +86,13 @@ EOU1
   or 'all' for all test suites.
 
 Options:
-  -j PROCS  Run nose2 test suites using this many processes.
+  -j PROCS  Run nose2 test suites using this many processes (default: $CORES).
 EOU2
   exit 1
 }
 
-PROCS=1
+CORES=$(lscpu -p=SOCKET,CORE | grep -v '^#' | sort -u | wc -l)
+PROCS=$CORES
 while getopts ":j:" opt; do
   case $opt in
     j) PROCS=$OPTARG ;;
