@@ -235,7 +235,7 @@ class SkoolParser:
                 address = instruction.address
                 addr_str = instruction.addr_str
                 ctl = instruction.ctl
-                if ctl in DIRECTIVES:
+                if ctl in DIRECTIVES and not map_entry:
                     if address is None:
                         raise SkoolParsingError("Invalid address: '{}'".format(addr_str))
                     start_comment, desc, details, registers = parse_entry_header(self.comments, self.ignores, self.mode)

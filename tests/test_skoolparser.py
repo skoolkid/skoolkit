@@ -1314,6 +1314,18 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(entries[0].size, 3)
         self.assertEqual(entries[1].size, 1)
 
+    def test_two_block_ctls_in_one_entry(self):
+        skool = """
+            c32768 XOR A
+            c32769 RET
+        """
+        entries = self._get_parser(skool, html=True).memory_map
+        self.assertEqual(len(entries), 1)
+        instructions = entries[0].instructions
+        self.assertEqual(len(instructions), 2)
+        self.assertEqual(instructions[0].operation, 'XOR A')
+        self.assertEqual(instructions[1].operation, 'RET')
+
     def test_html_escape(self):
         skool = 'c24576 NOP ; Return if X<=Y & Y>=Z'
         parser = self._get_parser(skool, html=True)
