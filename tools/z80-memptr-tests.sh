@@ -13,10 +13,10 @@ MEMPTR_TESTS="$TOOLS/z80-memptr-tests.py"
 
 make -C $SKOOLKIT_HOME cmods
 
-MEMPTR_TESTS_TZX="${SPECTRUM_SIM_TESTS}/cpd-test1250429.tzx"
+MEMPTR_TESTS_TZX="${SPECTRUM_SIM_TESTS}/cpd-test-v0.777b.tzx"
 if [[ ! -f $MEMPTR_TESTS_TZX ]]; then
-  # Or https://zxe.io/depot/software/ZX%20Spectrum/CPD-Test%20v0.7b%20%282025-04-29%29%28Sapach%2C%20Michael%29%28TAP%29%5B%21%5D.zip
-  wget -O "$MEMPTR_TESTS_TZX" https://skoolkit.ca/tapes/cpd-test1250429.tzx
+  # Or https://zxe.io/depot/software/ZX%20Spectrum/CPD-Test%20v0.777b%20%282025-05-07%29%28Sapach%2C%20Michael%29%5B%21%5D.zip
+  wget -O "$MEMPTR_TESTS_TZX" https://skoolkit.ca/tapes/cpd-test-v0.777b.tzx
 fi
 
 ccmio48log="$SPECTRUM_SIM_TESTS/z80-memptr-tests-ccmio-48.log"
