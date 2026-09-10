@@ -270,7 +270,7 @@ Recognised parameters are:
   page (default: '')
 * ``Created`` - the message indicating the software used to create the
   disassembly that appears in the footer of every page (default: 'Created using
-  SkoolKit #VERSION.')
+  <a href="\https://skoolkit.ca">SkoolKit</a> #VERSION.')
 * ``DisassemblyTableNumCols`` - the number of columns in the disassembly table
   on disassembly pages (default: 5); this value is used by the :ref:`t_asm` and
   :ref:`t_asm_single_page` templates
