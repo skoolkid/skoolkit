@@ -655,6 +655,8 @@ def _get_load_params(param_str):
             params.append(get_int_param(n, True))
         else:
             params.append(None)
+    if len(params) < 2:
+        raise SkoolKitError(f'Missing start address in load spec: {param_str}')
     params += [None] * (6 - len(params))
     return params[:6]
 
@@ -697,7 +699,10 @@ def _load(snapshot, counters, blocks, param_str):
     if block_num.endswith('+'):
         block_num = block_num[:-1]
         load_last = True
-    block_num = get_int_param(block_num)
+    try:
+        block_num = get_int_param(block_num)
+    except ValueError:
+        raise SkoolKitError(f'Invalid block number in load spec: {param_str}')
     index = counters.setdefault(block_num, default_index)
     try:
         block = blocks[block_num - 1]

@@ -859,7 +859,8 @@ def patch(snapshot, spec):
         raise SkoolKitError(f'Invalid address in patch spec: {spec}')
     data = read_bin_file(fname, 0xC000)
     if page is None:
-        snapshot[address:address + len(data)] = data
+        size = min(65536 - address, len(data))
+        snapshot[address:address + size] = data[:size]
     elif hasattr(snapshot, 'banks'):
         dest = address % 0x4000
         size = min(0x4000 - dest, len(data))
@@ -909,12 +910,16 @@ def poke(snapshot, param_str):
     except ValueError:
         raise SkoolKitError('Invalid address range in poke spec: {}'.format(param_str))
     addr1, addr2, step = values + [values[0], 1][len(values) - 1:]
+    if step == 0:
+        raise SkoolKitError(f'Invalid step in poke spec: {param_str}')
     if page is None:
         for a in range(addr1, addr2 + 1, step):
             try:
                 snapshot[a] = poke_f(snapshot[a])
             except TypeError:
                 pass # Ignore 16K SZX read/write above 32K
+            except IndexError:
+                pass # Ignore any other out-of-bounds read/write
     elif hasattr(snapshot, 'banks'):
         bank = snapshot.banks[page % 8]
         if bank:

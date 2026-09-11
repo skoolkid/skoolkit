@@ -211,10 +211,12 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(output, 'Writing out.z80\n')
         self.assertEqual(error, '')
 
-    def _test_bad_spec(self, option, exp_error):
+    def _test_bad_spec(self, options, exp_error):
         tapfile = self._write_tap([create_tap_data_block([1])])
+        if '--ram load=' not in options:
+            options = '--ram load=1,16384 ' + options
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'--ram load=1,16384 {option} {tapfile} test.z80')
+            self.run_tap2sna(f'{options} {tapfile} test.z80')
         self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile}: {exp_error}')
 
     @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
@@ -1464,7 +1466,9 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.run_tap2sna(f'--ram load=3,24576 {tzxfile}')
         self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: Block 3 has no data')
 
-    def test_ram_load_bad_address(self):
+    def test_ram_load_bad_spec(self):
+        self._test_bad_spec('--ram load=1', 'Missing start address in load spec: 1')
+        self._test_bad_spec('--ram load=x,16384', 'Invalid block number in load spec: x,16384')
         self._test_bad_spec('--ram load=1,abcde', 'Invalid integer in load spec: 1,abcde')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
@@ -1476,6 +1480,17 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_data = patch + data[len(patch):]
         self._load_tape(start, data, f'--ram patch={start},{patchfile}')
         self.assertEqual(exp_data, snapshot[start:start + len(data)])
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_ram_patch_too_large(self):
+        data = [4, 5, 6]
+        patch = [253, 254, 255]
+        start = 65537 - len(patch)
+        patchfile = self.write_bin_file(patch)
+        exp_data = patch + data[len(patch):]
+        self._load_tape(65536 - len(data), data, f'--ram patch={start},{patchfile}')
+        self.assertEqual(len(snapshot), 65536)
+        self.assertEqual(patch[:2], snapshot[start:])
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_ram_patch_with_page_number(self):
@@ -1554,6 +1569,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual([253, 9, 253], snapshot[16384:16387])
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_ram_poke_address_above_65535(self):
+        self._load_tape(16384, [0], '--ram poke=65536,1')
+        self.assertEqual(sum(snapshot), 0)
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_ram_poke_hex_address(self):
         address, value = 16385, 253
         self._load_tape(16384, [1], f'--ram poke=${address:X},{value}')
@@ -1603,6 +1623,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self._test_bad_spec('--ram poke=x,1', 'Invalid address range in poke spec: x,1')
         self._test_bad_spec('--ram poke=1-y,1', 'Invalid address range in poke spec: 1-y,1')
         self._test_bad_spec('--ram poke=1-3-z,1', 'Invalid address range in poke spec: 1-3-z,1')
+        self._test_bad_spec('--ram poke=0-8-0,1', 'Invalid step in poke spec: 0-8-0,1')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_ram_move(self):
