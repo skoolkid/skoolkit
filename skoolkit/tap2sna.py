@@ -816,7 +816,10 @@ def _get_tapes(urls, user_agent, members):
             f = open_file(urlstring, 'rb')
 
         if urlstring.lower().endswith('.zip'):
-            z = zipfile.ZipFile(f)
+            try:
+                z = zipfile.ZipFile(f)
+            except zipfile.BadZipFile as e:
+                raise SkoolKitError(e.args[0])
             if not members:
                 for name in z.namelist():
                     if name.lower().endswith(SUPPORTED_TAPES):
@@ -831,6 +834,8 @@ def _get_tapes(urls, user_agent, members):
                     tape = z.open(member)
                 except KeyError:
                     raise TapeError(f'No file named "{member}" in the archive')
+                except RuntimeError as e:
+                    raise SkoolKitError(e.args[0])
                 tapes.append((member, tape.read()))
         else:
             tapes.append((os.path.basename(urlstring), f.read()))

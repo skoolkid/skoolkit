@@ -22,6 +22,15 @@ if CSimulator is None:
     # not become part of the test run time
     from skoolkit import simtables
 
+# Zip archive with single (0-byte) member 'x.tap' encrypted with password 'p'
+ENCRYPTED_ZIP = (
+"504B03040A0009000000617D2B5D000000000C0000000000000005001C00782E746170555409"
+"0003B64BA46AB64BA46A75780B000104E803000004E80300007A04A6CEFE4000B8C85DFB4250"
+"4B0708000000000C00000000000000504B01021E030A0009000000617D2B5D000000000C0000"
+"0000000000050018000000000000000000B48100000000782E7461705554050003B64BA46A75"
+"780B000104E803000004E8030000504B050600000000010001004B0000005B0000000000"
+)
+
 class MockSimulator:
     def __init__(self, memory, registers, state, config):
         global simulator
@@ -910,6 +919,14 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], f'Error while converting tape.zip: No file named "code.tap" in the archive')
         self.assertEqual(self.err.getvalue(), '')
 
+    def test_encrypted_zip_archive(self):
+        zipfile = 'enc.zip'
+        with open(zipfile, 'wb') as archive:
+            archive.write(bytes(int(ENCRYPTED_ZIP[i:i + 2], 16) for i in range(0, len(ENCRYPTED_ZIP), 2)))
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'--tape-name x.tap {zipfile} out.z80')
+        self.assertEqual(cm.exception.args[0], f"Error while converting {zipfile}: File 'x.tap' is encrypted, password required for extraction")
+
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_option_tape_name_twice(self):
@@ -1308,6 +1325,12 @@ class Tap2SnaTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{archive_fname} out.z80')
         self.assertEqual(cm.exception.args[0], f'Error while converting {archive_fname}: No PZX, TAP or TZX file found')
+
+    def test_bad_zip_archive(self):
+        badzip = self.write_bin_file((1, 2, 3), suffix='.zip')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'{badzip} out.z80')
+        self.assertEqual(cm.exception.args[0], f'Error while converting {badzip}: File is not a zip file')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_ram_call(self):
