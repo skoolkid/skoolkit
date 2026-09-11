@@ -4122,6 +4122,17 @@ class Tap2SnaTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, '^Error while converting test.zip: HTTP Error 403: Forbidden$'):
             self.run_tap2sna('http://example.com/test.zip test.z80')
 
+    @patch.object(tap2sna, 'urlopen', Mock(side_effect=urllib.error.URLError('[Errno -2] Name or service not known')))
+    def test_url_error_on_remote_download(self):
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna('http://nonexistent.invalid/test.tzx out.z80')
+        self.assertEqual(cm.exception.args[0], 'Error while converting test.tzx: [Errno -2] Name or service not known')
+
+    def test_malformed_url(self):
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna('http://[::1/test.tap out.z80')
+        self.assertEqual(cm.exception.args[0], 'Error while converting test.tap: Invalid IPv6 URL')
+
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_dec_a(self):
         # A code start address of 0xFF50 ensures that the return address on the

@@ -20,7 +20,7 @@ import argparse
 import hashlib
 import tempfile
 import zipfile
-from urllib.error import HTTPError
+from urllib.error import URLError
 from urllib.request import Request, urlopen
 from urllib.parse import urlparse
 
@@ -797,7 +797,10 @@ def _get_tape_blocks(tapes, sim, start, stop, skip, is48):
 def _get_tapes(urls, user_agent, members):
     tapes = []
     for urlstring in urls:
-        url = urlparse(urlstring)
+        try:
+            url = urlparse(urlstring)
+        except ValueError as e:
+            raise SkoolKitError(e.args[0])
         if url.scheme:
             write_line(f'Downloading {urlstring}')
             r = Request(urlstring, headers={'User-Agent': user_agent})
@@ -1100,6 +1103,6 @@ def main(args):
                 break
     try:
         make_snapshot(urls, namespace, outfile, config)
-    except (HTTPError, SkoolKitError, TapeError) as e:
+    except (URLError, SkoolKitError, TapeError) as e:
         inputs = ' and '.join(os.path.basename(u) for u in urls)
         raise SkoolKitError("Error while converting {}: {}".format(inputs, e.args[0] if e.args else e))
