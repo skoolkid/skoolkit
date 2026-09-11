@@ -5329,49 +5329,8 @@ static PyObject* CSimulator_exec_frame(CSimulatorObject* self, PyObject* args, P
     while (1) {
         pc = REG(PC);
         unsigned long long t0 = TIME;
-        byte opcode = PEEK(pc);
-        byte opcode2 = PEEK(ADDR(pc + 1));
-        OpcodeFunction* opcode_func = &opcodes[opcode];
-        unsigned r0;
-        unsigned r_inc = 1;
-        if (!opcode_func->func) {
-            switch (opcode) {
-                case 0xCB: {
-                    r_inc = 2;
-                    opcode_func = &after_CB[opcode2];
-                    break;
-                }
-                case 0xED: {
-                    r_inc = 2;
-                    opcode_func = &after_ED[opcode2];
-                    break;
-                }
-                case 0xDD: {
-                    r0 = REG(R);
-                    if (opcode2 == 0xCB) {
-                        r_inc = 2;
-                        opcode_func = &after_DDCB[PEEK(ADDR(REG(PC) + 3))];
-                    } else {
-                        r_inc = 0;
-                        opcode_func = &after_DD[opcode2];
-                    }
-                    break;
-                }
-                case 0xFD: {
-                    r0 = REG(R);
-                    if (opcode2 == 0xCB) {
-                        r_inc = 2;
-                        opcode_func = &after_FDCB[PEEK(ADDR(REG(PC) + 3))];
-                    } else {
-                        r_inc = 0;
-                        opcode_func = &after_FD[opcode2];
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
+        unsigned r0 = REG(R);
+        GET_OPCODE_FUNC(&opcodes);
 
         opcode_func->func(self, opcode_func->lookup, opcode_func->args);
         if (PyErr_Occurred()) {
@@ -5387,11 +5346,7 @@ static PyObject* CSimulator_exec_frame(CSimulatorObject* self, PyObject* args, P
             }
         }
 
-        if (r_inc) {
-            fetch_count -= r_inc;
-        } else {
-            fetch_count -= 2 - ((REG(R) ^ r0) & 1);
-        }
+        fetch_count -= opcode == 0xED ? 2 : 2 - ((REG(R) ^ r0) & 1);
 
         if (trace != Py_None) {
             PyObject* m_args = Py_BuildValue("(IIK)", fetch_count, pc, t0);
