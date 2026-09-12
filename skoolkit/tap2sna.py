@@ -352,7 +352,8 @@ Configure various properties of a simulated LOAD.
 
 --sim-load-config trace=FILE
 
-  Log to FILE all instructions executed during the simulated LOAD.
+  Log to FILE all instructions executed during the simulated LOAD. FILE may be
+  a regular file, or '-' for standard output.
 """.strip()
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
@@ -638,7 +639,7 @@ def sim_load(blocks, options, config):
             dec_a_stats = f'{tracer.dec_a_jr_hits}/{tracer.dec_a_jp_hits}/{tracer.dec_a_misses}'
             write_line(f'Accelerators: {accelerators}; misses: {tracer.tsl_misses}; dec-a: {dec_a_stats}')
 
-    if tracefile:
+    if tracefile and options.trace != '-':
         tracefile.close()
 
     ram, registers, state = get_state(simulator, False)[:3]

@@ -72,8 +72,24 @@ test_skool2html() {
   grep -q '<td class="instruction">SCF</td>' program/asm/32768.html
 }
 
+test_tap2sna_trace() {
+  echo -n "Testing tap2sna.py -c trace=..."
+  tap2sna=$(pwd)/tap2sna.py
+  cd $(mktemp -d)
+  tapfile="rem.tap"
+  echo -en '\x13\x00\x00\x00simloadbas\x06\x00\n\x00\x06\x00\x0b\x08\x00\xff\x00\n\x02\x00\xea\r\x10' > $tapfile
+  outfile="trace.log"
+  z80file="out.z80"
+  $tap2sna -c trace=- --start 1343 -c finish-tape=1 $tapfile $z80file > $outfile
+  [[ $(wc -l < $outfile) -eq 7286 ]] || return 1
+  sed -n 1p $outfile | grep -q "\$0605 POP AF" || return 1
+  sed -n 7284p $outfile | grep -q "\$05E2 RET" || return 1
+  sed -n 7285p $outfile | grep -q "Simulation stopped (PC at start address): PC=1343" || return 1
+  sed -n 7286p $outfile | grep -q "Writing $z80file"
+}
+
 cwd=$(pwd)
-for t in test_{bin2{sna,tap},skool2{asm,bin,ctl,html},sna2{ctl,skool{,_ctl}},snapinfo_ctl}; do
+for t in test_{bin2{sna,tap},skool2{asm,bin,ctl,html},sna2{ctl,skool{,_ctl}},snapinfo_ctl,tap2sna_trace}; do
   cd $cwd
   if $t; then
     echo "OK"

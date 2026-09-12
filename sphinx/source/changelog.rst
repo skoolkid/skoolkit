@@ -19,6 +19,7 @@ Changelog
   contents)
 * Added the ``TraceHeader`` configuration parameter for
   :ref:`tap2sna.py <tap2sna-conf>` (to specify the header for a trace log file)
+* Added support to :ref:`tap2sna.py` for writing a trace log to standard output
 * Added the ``--analyse`` option to :ref:`tapinfo.py` (for showing an analysis
   of the tape's tones, pulse sequences and data blocks)
 * Added the ``--tape-skip`` option to :ref:`tapinfo.py` (for skipping one or

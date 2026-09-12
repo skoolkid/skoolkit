@@ -1824,7 +1824,7 @@ parameters are:
 * ``timeout`` - the number of seconds of Z80 CPU time after which to abort the
   simulated LOAD if it's still in progress (default: 900)
 * ``trace`` - the file to which to log all instructions executed during the
-  simulated LOAD (default: none)
+  simulated LOAD (default: none); use ``-`` to log to standard output
 
 The ``in-flags`` parameter is the sum of the following values, chosen according
 to the desired behaviour:
@@ -2042,7 +2042,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 10.2    | Added the ``Screen`` and ``TraceHeader`` configuration parameters |
+| 10.2    | Added the ``Screen`` and ``TraceHeader`` configuration            |
+|         | parameters; added support for tracing to standard output          |
 +---------+-------------------------------------------------------------------+
 | 10.1    | Added the ``--screen`` option; added the ``ScreenFps`` and        |
 |         | ``ScreenScale`` configuration parameters                          |

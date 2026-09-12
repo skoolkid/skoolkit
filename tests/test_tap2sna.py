@@ -3009,6 +3009,26 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[0], '$0605 POP AF')
         self.assertEqual(trace_lines[8100], '$34BB RET')
 
+    @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
+    def test_sim_load_with_trace_to_stdout(self):
+        basic_data = [
+            0, 10, # Line 10
+            2, 0,  # Line length
+            234,   # REM
+            13     # ENTER
+        ]
+        tapfile = self._write_tap((
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data)
+        ))
+        output, error = self.run_tap2sna(f'-c trace=- --start 1343 -c finish-tape=1 {tapfile} out.z80')
+        out_lines = output.strip().split('\n')
+        self.assertEqual(len(out_lines), 7286)
+        self.assertEqual(out_lines[0], '$0605 POP AF')
+        self.assertEqual(out_lines[7283], '$05E2 RET')
+        self.assertEqual(out_lines[7284], 'Simulation stopped (PC at start address): PC=1343')
+        self.assertEqual(out_lines[7285], 'Writing out.z80')
+
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_sim_load_with_trace_and_self_modifying_code(self):
         code = [

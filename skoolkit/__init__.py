@@ -157,7 +157,9 @@ def find_file(fname, search_dirs=('',)):
 def open_file(fname, mode='r'):
     if fname == '-':
         if 'w' in mode:
-            return sys.stdout.buffer
+            if 'b' in mode:
+                return sys.stdout.buffer
+            return sys.stdout
         return sys.stdin
     try:
         if 'b' in mode:

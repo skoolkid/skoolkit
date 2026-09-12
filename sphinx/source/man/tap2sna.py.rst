@@ -164,7 +164,7 @@ parameters are:
 * ``timeout`` - the number of seconds of Z80 CPU time after which to abort the
   simulated LOAD if it's still in progress (default: 900)
 * ``trace`` - the file to which to log all instructions executed during the
-  simulated LOAD (default: none)
+  simulated LOAD (default: none); use ``-`` to log to standard output
 
 The ``in-flags`` parameter is the sum of the following values, chosen according
 to the desired behaviour:
