@@ -23,10 +23,10 @@ import time
 import argparse
 from io import StringIO
 
-from skoolkit import (defaults, SkoolKitError, find_file, get_object, normpath,
-                      open_file, show_package_dir, variable, write, write_line,
-                      BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, PACKAGE_DIR,
-                      VERSION)
+from skoolkit import (defaults, SkoolKitError, find_file, get_object, makedirs,
+                      normpath, open_file, show_package_dir, variable, write,
+                      write_line, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER,
+                      PACKAGE_DIR, VERSION)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.refparser import RefParser
 from skoolkit.skoolhtml import FileInfo
@@ -112,8 +112,7 @@ def copy_resource(fname, root_dir, dest_dir):
         dest_d = dirname(dest_f)
         if isfile(dest_d):
             raise SkoolKitError("Cannot copy {0} to {1}: {1} is not a directory".format(fname_n, normpath(dest_dir)))
-        if not isdir(dest_d):
-            os.makedirs(dest_d)
+        makedirs(dest_d)
         notify('Copying {} to {}'.format(fname_n, normpath(dest_dir, base_f)))
         shutil.copy2(fname, dest_f)
 
@@ -237,8 +236,7 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
 
     # Create the disassembly subdirectory if necessary
     odir = html_writer.file_info.odir
-    if not isdir(odir):
-        os.makedirs(odir)
+    makedirs(odir)
     notify('Output directory: ' + odir)
 
     # Copy CSS, JavaScript and font files if necessary

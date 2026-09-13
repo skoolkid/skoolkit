@@ -184,6 +184,14 @@ def read_bin_file(fname, size=-1, allow_pipe=False):
             raise SkoolKitError('{0}: file not found'.format(fname))
         raise
 
+def makedirs(path):
+    try:
+        os.makedirs(path, exist_ok=True)
+    except FileExistsError:
+        raise SkoolKitError(f"Failed to create directory '{path}': file already exists")
+    except PermissionError as e:
+        raise SkoolKitError(f"Failed to create directory '{path}': permission denied [Errno {e.args[0]}]")
+
 def format_template(template__, name__, **fields):
     try:
         return template__.format(**fields)

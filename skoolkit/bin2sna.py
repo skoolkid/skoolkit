@@ -17,7 +17,7 @@
 import os
 import argparse
 
-from skoolkit import SkoolKitError, integer, read_bin_file, VERSION
+from skoolkit import SkoolKitError, integer, makedirs, read_bin_file, VERSION
 from skoolkit.snapshot import Memory, poke, print_reg_help, print_state_help, write_snapshot
 
 def bank(arg):
@@ -69,8 +69,8 @@ def run(infile, outfile, options):
     for spec in options.pokes:
         poke(memory, spec)
     parent_dir = os.path.dirname(outfile)
-    if parent_dir and not os.path.isdir(parent_dir):
-        os.makedirs(parent_dir)
+    if parent_dir:
+        makedirs(parent_dir)
     registers = [f'sp={stack}', f'pc={start}'] + options.reg
     write_snapshot(outfile, memory.contents(), registers, state + options.state)
 

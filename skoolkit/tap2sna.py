@@ -25,9 +25,9 @@ from urllib.request import Request, urlopen
 from urllib.parse import urlparse
 
 from skoolkit import (SkoolKitError, CSimulator, CCMIOSimulator, get_int_param,
-                      get_object, get_word, integer, integer_range, open_file,
-                      parse_int, read_bin_file, warn, write_line, ROM48,
-                      VERSION)
+                      get_object, get_word, integer, integer_range, makedirs,
+                      open_file, parse_int, read_bin_file, warn, write_line,
+                      ROM48, VERSION)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.components import get_screen
 from skoolkit.config import get_config, show_config, update_options
@@ -385,8 +385,8 @@ class TapeError(Exception):
 
 def _write_snapshot(ram, options, fname):
     parent_dir = os.path.dirname(fname)
-    if parent_dir and not os.path.isdir(parent_dir):
-        os.makedirs(parent_dir)
+    if parent_dir:
+        makedirs(parent_dir)
     write_line('Writing {0}'.format(fname))
     write_snapshot(fname, ram, options.reg, options.state)
 

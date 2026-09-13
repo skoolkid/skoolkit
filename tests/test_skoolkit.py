@@ -3,7 +3,7 @@ import os
 from importlib import invalidate_caches
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import error, get_object, open_file, read_bin_file
+from skoolkit import SkoolKitError, error, get_object, makedirs, open_file, read_bin_file
 
 ERRNO = 13 if sys.platform == 'win32' else 21
 
@@ -14,6 +14,22 @@ class SkoolKitTest(SkoolKitTestCase):
             error(message)
         self.assertEqual(cm.exception.args[0], 1)
         self.assertEqual(self.err.getvalue(), 'ERROR: {0}\n'.format(message))
+
+    def test_makedirs_file_exists(self):
+        fname = 'this-is-a-regular-file.txt'
+        with open(fname, 'w') as f:
+            f.write('Hello')
+        with self.assertRaises(SkoolKitError) as cm:
+            makedirs(fname)
+        self.assertEqual(cm.exception.args[0], f"Failed to create directory '{fname}': file already exists")
+
+    def test_makedirs_permission_denied(self):
+        parent_dir = 'not-allowed'
+        os.makedirs(parent_dir, 0o444)
+        subdir = os.path.join(parent_dir, 'nope')
+        with self.assertRaises(SkoolKitError) as cm:
+            makedirs(subdir)
+        self.assertEqual(cm.exception.args[0], f"Failed to create directory '{subdir}': permission denied [Errno 13]")
 
     def test_open_file(self):
         tempdir = self.make_directory()

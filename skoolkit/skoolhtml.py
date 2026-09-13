@@ -27,7 +27,7 @@ import re
 from io import StringIO
 
 from skoolkit import (skoolmacro, SkoolKitError, SkoolParsingError, evaluate,
-                      format_template, open_file, parse_int, warn)
+                      format_template, makedirs, open_file, parse_int, warn)
 from skoolkit.audio import BeeperOptions
 from skoolkit.ay import AYOptions
 from skoolkit.components import (get_audio_writer, get_ay_audio_writer,
@@ -1223,8 +1223,7 @@ class FileInfo:
         path = self.odir
         for name in names:
             path = join(path, name)
-        if not isdir(os.path.dirname(path)):
-            os.makedirs(os.path.dirname(path))
+        makedirs(os.path.dirname(path))
         return open_file(path, mode, False)
 
     def add_image(self, image_path):
