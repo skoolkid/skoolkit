@@ -30,7 +30,7 @@ def bank(arg):
         raise argparse.ArgumentTypeError(f"invalid integer '{bank}' in '{arg}'")
 
 def run(infile, outfile, options):
-    ram = list(read_bin_file(infile, 0x20001))
+    ram = list(read_bin_file(infile, 0x20001, True))
     if len(ram) > 0x20000:
         raise SkoolKitError(f'{infile} is larger than 128K')
     if len(ram) == 0x20000:

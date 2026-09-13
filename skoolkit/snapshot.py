@@ -762,7 +762,7 @@ def get_snapshot(fname, page=None):
         return [0] * 16384 + list(ram)
     return list(ram)
 
-def make_snapshot(fname, org, start=None, end=65536, page=None):
+def make_snapshot(fname, org, start=None, end=65536, page=None, allow_pipe=False):
     snapshot_reader = get_snapshot_reader()
     if snapshot_reader.can_read(fname):
         if start is None:
@@ -770,7 +770,7 @@ def make_snapshot(fname, org, start=None, end=65536, page=None):
         return snapshot_reader.get_snapshot(fname, page), start, end
     if start is None:
         start = 0
-    ram = read_bin_file(fname, 65536)
+    ram = read_bin_file(fname, 65536, allow_pipe)
     if org is None:
         org = 65536 - len(ram)
     mem = [0] * 65536

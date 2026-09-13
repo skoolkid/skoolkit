@@ -41,7 +41,7 @@ def run(snafile, options, config):
         else:
             info("Dictionary file '{}' not found".format(dict_fname))
     ctl_config = Config(options.handle_rst, config['TextChars'], config['TextMinLengthCode'], config['TextMinLengthData'], words)
-    snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page)
+    snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page, True)
     if options.start is None:
         options.start = 0
     ctls = get_component('ControlFileGenerator').generate_ctls(snapshot, start, end, options.code_map, ctl_config)

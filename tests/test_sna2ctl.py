@@ -142,7 +142,7 @@ c 65498
 i 65499
 """
 
-def mock_make_snapshot(fname, org, start, end, page):
+def mock_make_snapshot(fname, org, start, end, page, allow_pipe):
     global make_snapshot_args
     make_snapshot_args = fname, org, start, end, page
     return [0] * 65536, 16384 if start is None else start, end

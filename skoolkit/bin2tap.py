@@ -240,7 +240,7 @@ def main(args):
                 end = namespace.end or 49152
         ram = snapshot_reader.get_snapshot(infile)[begin:end]
     else:
-        snapshot = read_bin_file(infile, 0x20000)
+        snapshot = read_bin_file(infile, 0x20000, True)
         if len(snapshot) == 0x20000 and has_128k_options:
             banks = {b: snapshot[b * 0x4000:(b + 1) * 0x4000] for b in range(8)}
             ram = list(banks.pop(5) + banks.pop(2)) + [0] * 16384

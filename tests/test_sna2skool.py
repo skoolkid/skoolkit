@@ -5,7 +5,7 @@ from unittest.mock import patch, Mock
 from skoolkittest import SkoolKitTestCase, mock_find_file
 from skoolkit import components, config, sna2skool, snapshot, SkoolKitError, VERSION
 
-def mock_make_snapshot(fname, org, start, end, page):
+def mock_make_snapshot(fname, org, start, end, page, allow_pipe):
     return [0] * 65536, 16384 if start is None else start, end
 
 class MockCtlParser:

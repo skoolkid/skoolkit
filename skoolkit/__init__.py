@@ -173,8 +173,8 @@ def open_file(fname, mode, allow_pipe=False):
         # Assume this is already a file-like object
         return fname
 
-def read_bin_file(fname, size=-1):
-    if fname == '-':
+def read_bin_file(fname, size=-1, allow_pipe=False):
+    if fname == '-' and allow_pipe:
         return sys.stdin.buffer.read(size)
     try:
         with open(fname, 'rb') as f:

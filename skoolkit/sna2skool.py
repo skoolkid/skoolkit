@@ -1,5 +1,4 @@
-# Copyright 2009-2015, 2017-2022, 2024, 2025
-# Richard Dymond (rjdymond@gmail.com)
+# © 2009-2015, 2017-2022, 2024-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -56,7 +55,7 @@ def get_ctl_parser(ctls, infile, start, end, def_start, def_end, defb=None, conf
     return ctl_parser
 
 def run(infile, options, config):
-    snapshot, start, end = make_snapshot(infile, options.org, options.start, options.end, options.page)
+    snapshot, start, end = make_snapshot(infile, options.org, options.start, options.end, options.page, True)
     if options.start is None:
         options.start = 0
     ctl_parser = get_ctl_parser(options.ctls, infile, options.start, options.end, start, end, options.defb, config)
