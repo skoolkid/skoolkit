@@ -81,7 +81,7 @@ def read_map(fname, snapshot, start, end):
     else:
         sys.stderr.write('Reading {0}: '.format(fname))
         sys.stderr.flush()
-        with open_file(fname) as f:
+        with open_file(fname, 'r') as f:
             addresses = _get_addresses(f, fname, size, start, end)
     sys.stderr.write('\n')
 

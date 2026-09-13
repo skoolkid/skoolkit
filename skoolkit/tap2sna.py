@@ -505,7 +505,7 @@ def sim_load(blocks, options, config):
         kb_delay = 4
 
     if options.trace:
-        tracefile = open_file(options.trace, 'w')
+        tracefile = open_file(options.trace, 'w', True)
         th = config['TraceHeader'].replace(r'\n', '\n')
         if th:
             tracefile.write(f'{th}\n')

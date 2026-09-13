@@ -131,7 +131,7 @@ class SkoolParser:
         self.equs = []
         self._labels = {}
 
-        with open_file(skoolfile) as f:
+        with open_file(skoolfile, 'r', True) as f:
             self._parse_skool(f, asm_mode, min_address, max_address)
 
     def clone(self, skoolfile):

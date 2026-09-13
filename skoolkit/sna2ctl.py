@@ -1,4 +1,4 @@
-# Copyright 2018, 2019, 2021, 2024, 2025 Richard Dymond (rjdymond@gmail.com)
+# © 2018, 2019, 2021, 2024-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -33,7 +33,7 @@ def run(snafile, options, config):
     if dict_fname:
         if find_file(dict_fname):
             info("Using dictionary file: {}".format(dict_fname))
-            with open_file(config['Dictionary']) as f:
+            with open_file(config['Dictionary'], 'r') as f:
                 for line in f:
                     word = line.strip().lower()
                     if word:

@@ -154,8 +154,8 @@ def find_file(fname, search_dirs=('',)):
         if os.path.isfile(f):
             return f
 
-def open_file(fname, mode='r'):
-    if fname == '-':
+def open_file(fname, mode, allow_pipe=False):
+    if fname == '-' and allow_pipe:
         if 'w' in mode:
             if 'b' in mode:
                 return sys.stdout.buffer

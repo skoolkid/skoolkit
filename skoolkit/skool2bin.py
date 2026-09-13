@@ -105,21 +105,20 @@ class BinWriter:
             self.data = None
 
     def _parse_skool(self, skoolfile):
-        f = open_file(skoolfile)
         address = None
-        for non_entry, block in read_skool(f, 2, self.asm_mode, self.fix_mode):
-            if non_entry:
-                continue
-            removed = set()
-            for line in block:
-                if line.startswith('@'):
-                    address = self._parse_asm_directive(address, line[1:], removed)
-                elif not line.lstrip().startswith(';') and line[0] in VALID_CTLS:
-                    address = self._parse_instruction(address, line, removed)
-            self.entries.append(Entry(self.entry_ctl, self.instructions))
-            self.entry_ctl = None
-            self.instructions = []
-        f.close()
+        with open_file(skoolfile, 'r', True) as f:
+            for non_entry, block in read_skool(f, 2, self.asm_mode, self.fix_mode):
+                if non_entry:
+                    continue
+                removed = set()
+                for line in block:
+                    if line.startswith('@'):
+                        address = self._parse_asm_directive(address, line[1:], removed)
+                    elif not line.lstrip().startswith(';') and line[0] in VALID_CTLS:
+                        address = self._parse_instruction(address, line, removed)
+                self.entries.append(Entry(self.entry_ctl, self.instructions))
+                self.entry_ctl = None
+                self.instructions = []
 
     def _parse_instruction(self, address, line, removed):
         if self.entry_ctl is None:
@@ -256,7 +255,7 @@ class BinWriter:
 
     def write(self, binfile):
         if len(self.snapshot) == 0x20000:
-            with open_file(binfile, 'wb') as f:
+            with open_file(binfile, 'wb', True) as f:
                 for bank in self.snapshot.banks:
                     f.write(bytes(bank))
             info(f'Wrote {binfile}: size=128K')
@@ -278,7 +277,7 @@ class BinWriter:
         if self.pad_right > end_address:
             data += [0] * (self.pad_right - end_address)
             end_address = self.pad_right
-        with open_file(binfile, 'wb') as f:
+        with open_file(binfile, 'wb', True) as f:
             f.write(bytearray(data))
         if binfile == '-':
             binfile = 'stdout'

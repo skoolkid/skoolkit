@@ -1,4 +1,4 @@
-# Copyright 2009-2024 Richard Dymond (rjdymond@gmail.com)
+# © 2009-2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -192,7 +192,7 @@ class CtlParser:
         self._ctls[max_address] = 'i'
 
     def _parse_ctl_file(self, ctlfile, ctl_lines, min_address, max_address):
-        with open_file(ctlfile) as f:
+        with open_file(ctlfile, 'r', True) as f:
             for line in f:
                 s_line = line.rstrip()
                 if s_line:

@@ -8,6 +8,13 @@ c32768 SCF
 EOF
 }
 
+skool128() {
+  cat <<EOF
+@bank=0
+b65535 DEFB 0
+EOF
+}
+
 test_bin2sna() {
   echo -n "Testing bin2sna.py..."
   bin2sna=$(pwd)/bin2sna.py
@@ -59,6 +66,13 @@ test_skool2bin() {
   cmp <(skool | ./skool2bin.py - - 2>/dev/null) <(echo -n "7")
 }
 
+test_skool2bin_128k() {
+  echo -n "Testing skool2bin.py (128K)..."
+  outfile=$(mktemp)
+  skool128 | ./skool2bin.py --banks - - 2>/dev/null > $outfile || return 1
+  [[ $(stat -c %s $outfile) -eq 131072 ]] || return 1
+}
+
 test_skool2ctl() {
   echo -n "Testing skool2ctl.py..."
   diff -u <(skool | ./skool2ctl.py - 2>/dev/null) <(echo -e "@ 32768 start\nc 32768 Routine\ni 32769")
@@ -89,7 +103,7 @@ test_tap2sna_trace() {
 }
 
 cwd=$(pwd)
-for t in test_{bin2{sna,tap},skool2{asm,bin,ctl,html},sna2{ctl,skool{,_ctl}},snapinfo_ctl,tap2sna_trace}; do
+for t in test_{bin2{sna,tap},skool2{asm,bin{,_128k},ctl,html},sna2{ctl,skool{,_ctl}},snapinfo_ctl,tap2sna_trace}; do
   cd $cwd
   if $t; then
     echo "OK"

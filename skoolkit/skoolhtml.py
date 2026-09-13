@@ -26,12 +26,15 @@ from collections import defaultdict
 import re
 from io import StringIO
 
-from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, evaluate, format_template, parse_int, warn
+from skoolkit import (skoolmacro, SkoolKitError, SkoolParsingError, evaluate,
+                      format_template, open_file, parse_int, warn)
 from skoolkit.audio import BeeperOptions
 from skoolkit.ay import AYOptions
-from skoolkit.components import get_audio_writer, get_ay_audio_writer, get_component, get_image_writer
+from skoolkit.components import (get_audio_writer, get_ay_audio_writer,
+                                 get_component, get_image_writer)
 from skoolkit.defaults import REF_FILE
-from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
+from skoolkit.graphics import (Frame, adjust_udgs, build_udg, font_udgs,
+                               scr_udgs)
 from skoolkit.refparser import RefParser
 from skoolkit.skoolutils import TableParser, ListParser
 
@@ -1222,7 +1225,7 @@ class FileInfo:
             path = join(path, name)
         if not isdir(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
-        return open(path, mode, encoding=None if 'b' in mode else 'utf8')
+        return open_file(path, mode, False)
 
     def add_image(self, image_path):
         self.images.add(image_path)

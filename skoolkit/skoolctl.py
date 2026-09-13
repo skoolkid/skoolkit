@@ -1,4 +1,4 @@
-# Copyright 2010-2024 Richard Dymond (rjdymond@gmail.com)
+# © 2010-2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -546,7 +546,7 @@ class SkoolParser:
         self.assembler = assembler
         self.composer = get_component('ControlDirectiveComposer', preserve_base)
 
-        with open_file(skoolfile) as f:
+        with open_file(skoolfile, 'r', True) as f:
             self._parse_skool(f, min_address, max_address)
 
     def _parse_skool(self, skoolfile, min_address, max_address):

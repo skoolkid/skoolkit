@@ -18,7 +18,7 @@ class SkoolKitTest(SkoolKitTestCase):
     def test_open_file(self):
         tempdir = self.make_directory()
         with self.assertRaises(IOError) as cm:
-            open_file(tempdir)
+            open_file(tempdir, 'r')
         self.assertEqual(cm.exception.errno, ERRNO)
 
     def test_read_bin_file(self):

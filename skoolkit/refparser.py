@@ -1,4 +1,4 @@
-# Copyright 2009-2019, 2021 Richard Dymond (rjdymond@gmail.com)
+# © 2009-2019, 2021, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -42,19 +42,18 @@ class RefParser:
         """
         section_name = None
         section_lines = []
-        infile = open_file(reffile)
-        esc_comment = comment * 2
-        for line in infile:
-            s_line = line.rstrip()
-            if s_line.startswith(('[[', esc_comment)):
-                section_lines.append(s_line[1:])
-            elif s_line.startswith('[') and s_line.endswith(']'):
-                self._add_section(section_name, section_lines)
-                section_name = s_line[1:-1]
-                section_lines = []
-            elif not s_line.startswith(comment):
-                section_lines.append(s_line)
-        infile.close()
+        with open_file(reffile, 'r') as infile:
+            esc_comment = comment * 2
+            for line in infile:
+                s_line = line.rstrip()
+                if s_line.startswith(('[[', esc_comment)):
+                    section_lines.append(s_line[1:])
+                elif s_line.startswith('[') and s_line.endswith(']'):
+                    self._add_section(section_name, section_lines)
+                    section_name = s_line[1:-1]
+                    section_lines = []
+                elif not s_line.startswith(comment):
+                    section_lines.append(s_line)
         self._add_section(section_name, section_lines)
 
     def add_line(self, section_name, line):
