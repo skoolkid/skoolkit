@@ -1,5 +1,6 @@
 import sys
 import os
+import unittest
 from importlib import invalidate_caches
 
 from skoolkittest import SkoolKitTestCase
@@ -23,6 +24,7 @@ class SkoolKitTest(SkoolKitTestCase):
             makedirs(fname)
         self.assertEqual(cm.exception.args[0], f"Failed to create directory '{fname}': file already exists")
 
+    @unittest.skipIf(sys.platform.startswith('win'), "chmod doesn't work on directories in Windows")
     def test_makedirs_permission_denied(self):
         parent_dir = 'not-allowed'
         os.makedirs(parent_dir, 0o444)
