@@ -21,8 +21,8 @@ import re
 import zlib
 
 from skoolkit import (VERSION, SkoolKitError, CSimulator, CCMIOSimulator,
-                      as_dword, get_dword, get_word, parse_int, read_bin_file,
-                      warn, write)
+                      as_dword, get_dword, get_word, open_file, parse_int,
+                      read_bin_file, warn, write)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.components import get_screen
 from skoolkit.config import get_config, show_config, update_options
@@ -176,7 +176,7 @@ def write_rzx(fname, context, rzx_blocks):
     for rzx_block in rzx_blocks:
         rzx_data.extend(rzx_block.data)
 
-    with open(fname, 'wb') as f:
+    with open_file(fname, 'wb') as f:
         f.write(rzx_data)
 
 def parse_rzx(rzxfile):
@@ -397,12 +397,12 @@ def run(infile, options, config):
     if options.map:
         context.exec_map = set()
         if os.path.isfile(options.map):
-            with open(options.map) as f:
+            with open_file(options.map, 'r') as f:
                 for line in f:
                     if re.match(r'\$[0-9A-F]{4}', line):
                         context.exec_map.add(int(line[1:5], 16))
     if options.trace:
-        context.tracefile = open(options.trace, 'w')
+        context.tracefile = open_file(options.trace, 'w')
         trace_header = config['TraceHeader'].replace(r'\n', '\n')
         if trace_header:
             context.tracefile.write(f'{trace_header}\n')
@@ -421,7 +421,7 @@ def run(infile, options, config):
         if context.stop:
             break
     if options.map:
-        with open(options.map, 'w') as f:
+        with open_file(options.map, 'w') as f:
             for addr in sorted(context.exec_map):
                 f.write(f'${addr:04X}\n')
     if context.tracefile:

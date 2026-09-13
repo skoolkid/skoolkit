@@ -1,4 +1,4 @@
-# Copyright 2008-2022, 2024 Richard Dymond (rjdymond@gmail.com)
+# © 2008-2022, 2024, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -23,10 +23,10 @@ import time
 import argparse
 from io import StringIO
 
-from skoolkit import (defaults, SkoolKitError, find_file, show_package_dir,
-                      variable, write, write_line, get_object, normpath,
-                      PACKAGE_DIR, VERSION, BASE_10, BASE_16, CASE_UPPER,
-                      CASE_LOWER)
+from skoolkit import (defaults, SkoolKitError, find_file, get_object, normpath,
+                      open_file, show_package_dir, variable, write, write_line,
+                      BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, PACKAGE_DIR,
+                      VERSION)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.refparser import RefParser
 from skoolkit.skoolhtml import FileInfo
@@ -144,10 +144,10 @@ def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, th
         dest_css = normpath(root_dir, dest_dir, single_css)
         if isdir(dest_css):
             raise SkoolKitError("Cannot write CSS file '{}': {} already exists and is a directory".format(normpath(single_css), dest_css))
-        with open(dest_css, 'w') as css:
+        with open_file(dest_css, 'w') as css:
             for f in files:
                 notify('Appending {} to {}'.format(normpath(f), dest_css))
-                with open(f) as src:
+                with open_file(f, 'r') as src:
                     for line in src:
                         css.write(line)
                 css.write('\n')

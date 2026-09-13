@@ -14,7 +14,8 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from skoolkit import SkoolKitError, as_dword, get_word, get_word3, get_dword, read_bin_file
+from skoolkit import (SkoolKitError, as_dword, get_word, get_word3, get_dword,
+                      open_file, read_bin_file)
 from skoolkit.basic import get_char
 
 TZX_MIN_BLOCK_LENGTHS = {
@@ -994,14 +995,14 @@ def parse_tzx(tzx, start=1, stop=0, skip=(), info=True, timings=False):
     return Tape(blocks, version)
 
 def write_tap(fname, blocks):
-    with open(fname, 'wb') as f:
+    with open_file(fname, 'wb') as f:
         for data in blocks:
             length = len(data)
             f.write(bytes((length % 256, length // 256)))
             f.write(bytes(data))
 
 def write_pzx(fname, blocks):
-    with open(fname, 'wb') as f:
+    with open_file(fname, 'wb') as f:
         f.write(b'PZXT\x02\x00\x00\x00\x01\x00')
         for i, data in enumerate(blocks):
             if i:

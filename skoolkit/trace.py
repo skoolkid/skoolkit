@@ -19,7 +19,8 @@ import textwrap
 import time
 
 from skoolkit import (ROM48, VERSION, SkoolKitError, CSimulator,
-                      CCMIOSimulator, get_int_param, integer, read_bin_file)
+                      CCMIOSimulator, get_int_param, integer, open_file,
+                      read_bin_file)
 from skoolkit.audio import BeeperOptions
 from skoolkit.ay import AY_MODES, AYOptions
 from skoolkit.cmiosimulator import CMIOSimulator
@@ -358,7 +359,7 @@ def run(snafile, options, config):
         lines = textwrap.wrap(simplify(delays, options.depth), 78)
         print('Delays:\n {}'.format('\n '.join(lines)))
     if options.map:
-        with open(options.map, 'w') as f:
+        with open_file(options.map, 'w') as f:
             for addr in sorted(exec_map):
                 f.write(f'${addr:04X}\n')
         print(f'Wrote {options.map}')
@@ -369,7 +370,7 @@ def run(snafile, options, config):
                 mode = AY_MODE_NAMES.index(options.ay_mode)
                 ay_options = AYOptions(options.volume, options.ay_res, options.beeper, mode)
                 tracer.audio_log.append((simulator.registers[T], 15, 0))
-                with open(fname, 'wb') as f:
+                with open_file(fname, 'wb') as f:
                     ay_audio_writer.write_audio(f, tracer.audio_log, ay_options)
             else:
                 raise SkoolKitError('No AY activity detected')
@@ -377,7 +378,7 @@ def run(snafile, options, config):
             delays = tracer.get_delays()
             if delays:
                 options = BeeperOptions(options.volume, False, False, 0, is128k)
-                with open(fname, 'wb') as f:
+                with open_file(fname, 'wb') as f:
                     audio_writer.write_audio(f, delays, options)
             else:
                 raise SkoolKitError('No audio detected')
@@ -387,7 +388,7 @@ def run(snafile, options, config):
             else:
                 scr = scr_udgs(simulator.memory, 0, 0, 32, 24)
             frame = Frame(scr, config['PNGScale'])
-            with open(fname, 'wb') as f:
+            with open_file(fname, 'wb') as f:
                 image_writer.write_image([frame], f)
         else:
             ram, registers, state, machine = get_state(simulator)

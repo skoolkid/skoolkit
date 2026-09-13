@@ -17,7 +17,8 @@
 import textwrap
 import zlib
 
-from skoolkit import SkoolKitError, get_dword, get_word, get_int_param, parse_int, read_bin_file
+from skoolkit import (SkoolKitError, get_dword, get_word, get_int_param,
+                      open_file, parse_int, read_bin_file)
 from skoolkit.components import get_snapshot_reader, get_value
 from skoolkit.simutils import FRAME_DURATIONS
 
@@ -466,7 +467,7 @@ class SZX(Snapshot):
         return szx
 
     def write(self, szxfile):
-        with open(szxfile, 'wb') as f:
+        with open_file(szxfile, 'wb') as f:
             f.write(self.data())
 
 class Z80(Snapshot):
@@ -730,7 +731,7 @@ class Z80(Snapshot):
         return z80
 
     def write(self, z80file):
-        with open(z80file, 'wb') as f:
+        with open_file(z80file, 'wb') as f:
             f.write(self.data())
 
 # Component API

@@ -19,7 +19,8 @@ import os
 import re
 import zlib
 
-from skoolkit import VERSION, SkoolKitError, get_dword, get_word, read_bin_file
+from skoolkit import (VERSION, SkoolKitError, get_dword, get_word, open_file,
+                      read_bin_file)
 from skoolkit.snapinfo import get_szx_machine_type, get_z80_machine_type
 from skoolkit.snapshot import Snapshot
 
@@ -153,7 +154,7 @@ def _extract_snapshots(data, prefix):
                         raise SkoolKitError(f'Failed to decompress snapshot: {e.args[0]}')
                 s_count += 1
                 sfname = f'{prefix}.{s_count:03}.{ext}'
-                with open(sfname, 'wb') as f:
+                with open_file(sfname, 'wb') as f:
                     f.write(sdata)
                 print(f'Extracted {sfname}')
         i += block_len
