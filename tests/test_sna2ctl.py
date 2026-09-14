@@ -295,21 +295,32 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: sna2ctl.py'))
 
-    def test_nonexistent_input_file(self):
-        nonexistent_bin = '{}/nonexistent.bin'.format(self.make_directory())
-        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(nonexistent_bin)):
-            self.run_sna2ctl(nonexistent_bin)
+    def test_input_file_not_found(self):
+        self.input_file_not_found(self.run_sna2ctl, 'nonexistent.bin')
+
+    def test_input_file_is_a_directory(self):
+        self.input_file_is_a_directory(self.run_sna2ctl, 'dir.bin')
+
+    def test_input_file_permission_denied(self):
+        self.input_file_permission_denied(self.run_sna2ctl, 'nope.bin')
 
     def test_nonexistent_map(self):
         binfile = self.write_bin_file(suffix='.bin')
+        fname = 'nonexistent.map'
+        self.input_file_not_found(self.run_sna2ctl, ('-m', fname, binfile), fname=fname)
 
-        nonexistent_map = '{}/nonexistent.map'.format(self.make_directory())
-        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(nonexistent_map)):
-            self.run_sna2ctl('-m {} {}'.format(nonexistent_map, binfile))
+    def test_map_file_permission_denied(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        fname = 'nope.map'
+        self.input_file_permission_denied(self.run_sna2ctl, ('-m', fname, binfile), fname=fname)
 
-        nonexistent_map = self.make_directory()
-        with self.assertRaisesRegex(SkoolKitError, '{} is a directory'.format(nonexistent_map)):
-            self.run_sna2ctl('-m {} {}'.format(nonexistent_map, binfile))
+    def test_map_file_is_a_directory(self):
+        binfile = self.write_bin_file(suffix='.bin')
+        mapdir = 'dir.map'
+        os.mkdir(mapdir)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_sna2ctl(f'-m {mapdir} {binfile}')
+        self.assertEqual(cm.exception.args[0], f'{mapdir} is a directory')
 
     def _test_generation(self, data, exp_ctl, code_map=None, options='', exp_err=''):
         if isinstance(data, str):

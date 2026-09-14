@@ -345,6 +345,25 @@ class Bin2TapTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: bin2tap.py'))
 
+    def test_input_file_not_found(self):
+        self.input_file_not_found(self.run_bin2tap, 'nonexistent.bin')
+
+    def test_input_file_is_a_directory(self):
+        self.input_file_is_a_directory(self.run_bin2tap, 'dir.bin')
+
+    def test_input_file_permission_denied(self):
+        self.input_file_permission_denied(self.run_bin2tap, 'nope.bin')
+
+    def test_output_file_is_a_directory(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        dname = 'dir.z80'
+        self.output_file_is_a_directory(self.run_bin2tap, (binfile, dname), dname=dname)
+
+    def test_output_file_permission_denied(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        path = os.path.join('nope', 'not-allowed.tap')
+        self.output_file_permission_denied(self.run_bin2tap, (binfile, path), path=path)
+
     def test_invalid_option_value(self):
         binfile = self.write_bin_file(suffix='.bin')
         for option in ('-o ABC', '-s =', '-p q'):
@@ -904,6 +923,21 @@ class Bin2TapTest(SkoolKitTestCase):
         clear = 32768
         blocks = self._run('-S {} -c {} {}'.format(scrfile, clear, binfile))
         self._check_tape_with_clear_command(blocks, data, binfile, clear, scr=scr)
+
+    def test_option_S_file_not_found(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        fname = 'nonexistent.scr'
+        self.input_file_not_found(self.run_bin2tap, ('-S', fname, binfile), fname=fname)
+
+    def test_option_S_file_is_a_directory(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        dname = 'dir.scr'
+        self.input_file_is_a_directory(self.run_bin2tap, ('-S', dname, binfile), dname=dname)
+
+    def test_option_S_permission_denied(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        fname = 'not-allowed.scr'
+        self.input_file_permission_denied(self.run_bin2tap, ('-S', fname, binfile), fname=fname)
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_snapshot_reader(self):

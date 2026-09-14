@@ -44,6 +44,15 @@ class Skool2CtlTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: skool2ctl.py'))
 
+    def test_input_file_not_found(self):
+        self.input_file_not_found(self.run_skool2ctl, 'nonexistent.skool')
+
+    def test_input_file_is_a_directory(self):
+        self.input_file_is_a_directory(self.run_skool2ctl, 'dir.skool')
+
+    def test_input_file_permission_denied(self):
+        self.input_file_permission_denied(self.run_skool2ctl, 'nope.skool')
+
     def test_invalid_arguments(self):
         for args in ('-h', '-x test.skool'):
             output, error = self.run_skool2ctl(args, catch_exit=2)

@@ -149,15 +149,24 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: sna2skool.py'))
 
-    def test_nonexistent_input_file(self):
-        nonexistent_bin = '{}/nonexistent.bin'.format(self.make_directory())
-        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(nonexistent_bin)):
-            self.run_sna2skool(nonexistent_bin)
+    def test_input_file_not_found(self):
+        self.input_file_not_found(self.run_sna2skool, 'nonexistent.bin')
+
+    def test_input_file_is_a_directory(self):
+        self.input_file_is_a_directory(self.run_sna2skool, 'dir.skool')
+
+    def test_input_file_permission_denied(self):
+        self.input_file_permission_denied(self.run_sna2skool, 'nope.skool')
 
     def test_nonexistent_control_file(self):
-        nonexistent_ctl = '{}/nonexistent.ctl'.format(self.make_directory())
-        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(nonexistent_ctl)):
-            self.run_sna2skool('-c {} {}'.format(nonexistent_ctl, self.write_bin_file(suffix='.bin')))
+        binfile = self.write_bin_file([0], suffix='.bin')
+        fname = 'nonexistent.ctl'
+        self.input_file_not_found(self.run_sna2skool, ('-c', fname, binfile), fname=fname)
+
+    def test_control_file_permission_denied(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        fname = 'nope.ctl'
+        self.input_file_permission_denied(self.run_sna2skool, ('-c', fname, binfile), fname=fname)
 
     def test_option_V(self):
         for option in ('-V', '--version'):

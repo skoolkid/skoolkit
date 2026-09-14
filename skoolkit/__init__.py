@@ -165,10 +165,12 @@ def open_file(fname, mode, allow_pipe=False):
         if 'b' in mode:
             return open(fname, mode)
         return open(fname, mode, encoding='utf-8')
-    except IOError as e:
-        if e.errno == 2:
-            raise SkoolKitError('{0}: file not found'.format(fname))
-        raise
+    except FileNotFoundError:
+        raise SkoolKitError(f'{fname}: file not found')
+    except IsADirectoryError:
+        raise SkoolKitError(f"Is a directory: '{fname}'")
+    except PermissionError:
+        raise SkoolKitError(f"Cannot open '{fname}': permission denied")
     except TypeError:
         # Assume this is already a file-like object
         return fname
@@ -179,10 +181,12 @@ def read_bin_file(fname, size=-1, allow_pipe=False):
     try:
         with open(fname, 'rb') as f:
             return f.read(size)
-    except IOError as e:
-        if e.errno == 2:
-            raise SkoolKitError('{0}: file not found'.format(fname))
-        raise
+    except FileNotFoundError:
+        raise SkoolKitError(f'{fname}: file not found')
+    except IsADirectoryError:
+        raise SkoolKitError(f"Is a directory: '{fname}'")
+    except PermissionError:
+        raise SkoolKitError(f"Cannot open '{fname}': permission denied")
 
 def makedirs(path):
     try:

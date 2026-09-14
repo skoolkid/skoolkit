@@ -1,12 +1,9 @@
-import sys
 import os
 import unittest
 from importlib import invalidate_caches
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, error, get_object, makedirs, open_file, read_bin_file
-
-ERRNO = 13 if sys.platform == 'win32' else 21
 
 class SkoolKitTest(SkoolKitTestCase):
     def test_error(self):
@@ -24,26 +21,34 @@ class SkoolKitTest(SkoolKitTestCase):
             makedirs(fname)
         self.assertEqual(cm.exception.args[0], f"Failed to create directory '{fname}': file already exists")
 
-    @unittest.skipIf(sys.platform.startswith('win'), "chmod doesn't work on directories in Windows")
     def test_makedirs_permission_denied(self):
-        parent_dir = 'not-allowed'
-        os.makedirs(parent_dir, 0o444)
-        subdir = os.path.join(parent_dir, 'nope')
-        with self.assertRaises(SkoolKitError) as cm:
-            makedirs(subdir)
-        self.assertEqual(cm.exception.args[0], f"Failed to create directory '{subdir}': permission denied [Errno 13]")
+        path = os.path.join('not-allowed', 'nope')
+        self.output_directory_permission_denied(makedirs, path, path=path)
 
-    def test_open_file(self):
-        tempdir = self.make_directory()
-        with self.assertRaises(IOError) as cm:
-            open_file(tempdir, 'r')
-        self.assertEqual(cm.exception.errno, ERRNO)
+    def test_open_file_file_not_found(self):
+        fname = 'non-existent'
+        self.input_file_not_found(open_file, fname, 'r', fname=fname)
 
-    def test_read_bin_file(self):
-        tempdir = self.make_directory()
-        with self.assertRaises(IOError) as cm:
-            read_bin_file(tempdir)
-        self.assertEqual(cm.exception.errno, ERRNO)
+    def test_open_file_is_a_directory(self):
+        dname = 'somedir'
+        self.input_file_is_a_directory(open_file, dname, 'r', dname=dname)
+
+    def test_open_file_for_reading_permission_denied(self):
+        fname = 'not-allowed'
+        self.input_file_permission_denied(open_file, fname, 'r', fname=fname)
+
+    def test_open_file_for_writing_permission_denied(self):
+        path = os.path.join('not-allowed', 'nope')
+        self.output_file_permission_denied(open_file, path, 'w', path=path)
+
+    def test_read_bin_file_file_not_found(self):
+        self.input_file_not_found(read_bin_file, 'non-existent')
+
+    def test_read_bin_file_is_a_directory(self):
+        self.input_file_is_a_directory(read_bin_file, 'somedir')
+
+    def test_read_bin_file_permission_denied(self):
+        self.input_file_permission_denied(read_bin_file, 'not-allowed')
 
     def test_get_object_with_class_name(self):
         class_name = 'CustomWriter'

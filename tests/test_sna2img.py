@@ -1,3 +1,4 @@
+import os
 import textwrap
 from unittest.mock import patch
 
@@ -92,10 +93,23 @@ class Sna2ImgTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], exp_error)
 
     def _test_nonexistent_input_file(self, fname):
-        infile = '{}/{}'.format(self.make_directory(), fname)
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_sna2img(infile)
-        self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
+        self.input_file_not_found(self.run_sna2img, fname)
+
+    def test_input_file_is_a_directory(self):
+        self.input_file_is_a_directory(self.run_sna2img, 'dir.z80')
+
+    def test_input_file_permission_denied(self):
+        self.input_file_permission_denied(self.run_sna2img, 'nope.z80')
+
+    def test_output_file_is_a_directory(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        dname = 'dir.png'
+        self.output_file_is_a_directory(self.run_sna2img, (binfile, dname), dname=dname)
+
+    def test_output_file_permission_denied(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        path = os.path.join('nope', 'not-allowed.png')
+        self.output_file_permission_denied(self.run_sna2img, (binfile, path), path=path)
 
     def test_no_arguments(self):
         output, error = self.run_sna2img(catch_exit=2)

@@ -1,3 +1,4 @@
+import os
 import re
 import textwrap
 from unittest.mock import patch
@@ -82,6 +83,31 @@ class Bin2SnaTest(SkoolKitTestCase):
         output, error = self.run_bin2sna(catch_exit=2)
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: bin2sna.py'))
+
+    def test_input_file_not_found(self):
+        self.input_file_not_found(self.run_bin2sna, 'nonexistent.bin')
+
+    def test_input_file_is_a_directory(self):
+        self.input_file_is_a_directory(self.run_bin2sna, 'dir.bin')
+
+    def test_input_file_permission_denied(self):
+        self.input_file_permission_denied(self.run_bin2sna, 'nope.bin')
+
+    def test_output_file_is_a_directory(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        dname = 'dir.z80'
+        self.output_file_is_a_directory(self.run_bin2sna, (binfile, dname), dname=dname)
+
+    def test_output_file_permission_denied(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        path = os.path.join('nope', 'not-allowed.z80')
+        self.output_file_permission_denied(self.run_bin2sna, (binfile, path), path=path)
+
+    def test_output_directory_permission_denied(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        path = os.path.join('nope', 'subdir')
+        outfile = os.path.join(path, 'not-allowed.z80')
+        self.output_directory_permission_denied(self.run_bin2sna, (binfile, outfile), path=path)
 
     def test_invalid_option(self):
         output, error = self.run_bin2sna('-x test_invalid_option.bin', catch_exit=2)
@@ -189,6 +215,24 @@ class Bin2SnaTest(SkoolKitTestCase):
         args = f'-o {org} --page {page} {bank_options} {binfile}'
         exp_state = [f'7ffd={page}']
         self._check_write_snapshot(args, exp_ram, exp_state)
+
+    def test_option_bank_nonexistent_file(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        fname = 'nonexistent.bin'
+        args = ('--bank', f'0,{fname}', '--page', '1', binfile)
+        self.input_file_not_found(self.run_bin2sna, args, fname=fname)
+
+    def test_option_bank_file_is_a_directory(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        dname = 'bank0.bin'
+        args = ('--bank', f'0,{dname}', '--page', '1', binfile)
+        self.input_file_is_a_directory(self.run_bin2sna, args, dname=dname)
+
+    def test_option_bank_file_permission_denied(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        fname = 'bank0.bin'
+        args = ('--bank', f'0,{fname}', '--page', '1', binfile)
+        self.input_file_permission_denied(self.run_bin2sna, args, fname=fname)
 
     def test_option_bank_invalid(self):
         for option, exp_error in (

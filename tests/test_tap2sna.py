@@ -31,6 +31,8 @@ ENCRYPTED_ZIP = (
 "780B000104E803000004E8030000504B050600000000010001004B0000005B0000000000"
 )
 
+ERROR_PREFIX = 'Error while converting {}: '
+
 class MockSimulator:
     def __init__(self, memory, registers, state, config):
         global simulator
@@ -217,7 +219,8 @@ class Tap2SnaTest(SkoolKitTestCase):
             options = '--ram load=1,16384 ' + options
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{options} {tapfile} test.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile}: {exp_error}')
+        prefix = ERROR_PREFIX.format(tapfile)
+        self.assertEqual(cm.exception.args[0], prefix + exp_error)
 
     @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     def test_default_option_values(self):
@@ -300,7 +303,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         tapfile = self._write_tap(blocks)
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'-c foo=bar {tapfile} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile}: Invalid sim-load configuration parameter: foo')
+        prefix = ERROR_PREFIX.format(tapfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'Invalid sim-load configuration parameter: foo')
         self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
@@ -918,7 +922,8 @@ class Tap2SnaTest(SkoolKitTestCase):
             archive.writestr('data.tap', bytearray(tap_data))
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'--tape-name code.tap {zipfile} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting tape.zip: No file named "code.tap" in the archive')
+        prefix = ERROR_PREFIX.format(zipfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'No file named "code.tap" in the archive')
         self.assertEqual(self.err.getvalue(), '')
 
     def test_encrypted_zip_archive(self):
@@ -927,7 +932,8 @@ class Tap2SnaTest(SkoolKitTestCase):
             archive.write(bytes(int(ENCRYPTED_ZIP[i:i + 2], 16) for i in range(0, len(ENCRYPTED_ZIP), 2)))
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'--tape-name x.tap {zipfile} out.z80')
-        self.assertEqual(cm.exception.args[0], f"Error while converting {zipfile}: File 'x.tap' is encrypted, password required for extraction")
+        prefix = ERROR_PREFIX.format(zipfile)
+        self.assertEqual(cm.exception.args[0], prefix + "File 'x.tap' is encrypted, password required for extraction")
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
@@ -1261,7 +1267,8 @@ class Tap2SnaTest(SkoolKitTestCase):
             archive.writestr(tapname, bytearray(tap_data))
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'--tape-sum {wrongsum} {zipfile} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting tape.zip: Checksum mismatch ({tapname}): Expected {wrongsum}, actually {md5sum}')
+        prefix = ERROR_PREFIX.format(zipfile)
+        self.assertEqual(cm.exception.args[0], f'{prefix}Checksum mismatch ({tapname}): Expected {wrongsum}, actually {md5sum}')
         self.assertEqual(self.err.getvalue(), '')
 
     def test_option_tape_sum_twice_with_one_incorrect_value(self):
@@ -1278,7 +1285,8 @@ class Tap2SnaTest(SkoolKitTestCase):
             archive.writestr(t2_f, t2_data)
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'--tape-name {t1_f} --tape-name {t2_f} --tape-sum {t1_md5} --tape-sum {wrongsum} {zipfile} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {zipfile}: Checksum mismatch ({t2_f}): Expected {wrongsum}, actually {t2_md5}')
+        prefix = ERROR_PREFIX.format(zipfile)
+        self.assertEqual(cm.exception.args[0], f'{prefix}Checksum mismatch ({t2_f}): Expected {wrongsum}, actually {t2_md5}')
         self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
@@ -1301,23 +1309,56 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(output, f'SkoolKit {VERSION}\n')
 
     def test_nonexistent_tap_file(self):
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'non-existent.tap test.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting non-existent.tap: non-existent.tap: file not found')
+        fname = 'nonexistent.tap'
+        prefix = ERROR_PREFIX.format(fname)
+        self.input_file_not_found(self.run_tap2sna, fname, prefix=prefix)
 
     def test_nonexistent_tap_file_two_of_two(self):
         tapfile1 = self._write_tap([create_tap_data_block([1])])
         tapfile2 = 'non-existent.tap'
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'--ram load=1,16384 {tapfile1} {tapfile2} test.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile1} and {tapfile2}: non-existent.tap: file not found')
+        args = ('--ram', 'load=1,16384', tapfile1, tapfile2, 'test.z80')
+        prefix = ERROR_PREFIX.format(f'{tapfile1} and {tapfile2}')
+        self.input_file_not_found(self.run_tap2sna, args, fname=tapfile2, prefix=prefix)
+
+    def test_input_file_is_a_directory(self):
+        dname = 'dir.tap'
+        prefix = ERROR_PREFIX.format(dname)
+        self.input_file_is_a_directory(self.run_tap2sna, dname, prefix=prefix)
+
+    def test_input_file_permission_denied(self):
+        fname = 'nope.tap'
+        prefix = ERROR_PREFIX.format(fname)
+        self.input_file_permission_denied(self.run_tap2sna, fname, prefix=prefix)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    def test_output_file_is_a_directory(self):
+        tapfile = self._write_tap([create_tap_data_block([1])])
+        dname = 'dir.z80'
+        prefix = ERROR_PREFIX.format(tapfile)
+        self.output_file_is_a_directory(self.run_tap2sna, (tapfile, dname), dname=dname, prefix=prefix)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    def test_output_file_permission_denied(self):
+        tapfile = self._write_tap([create_tap_data_block([1])])
+        path = os.path.join('nope', 'not-allowed.z80')
+        prefix = ERROR_PREFIX.format(tapfile)
+        self.output_file_permission_denied(self.run_tap2sna, (tapfile, path), path=path, prefix=prefix)
+
+    @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
+    def test_output_directory_permission_denied(self):
+        tapfile = self._write_tap([create_tap_data_block([1])])
+        path = os.path.join('nope', 'subdir')
+        outfile = os.path.join(path, 'out.z80')
+        prefix = ERROR_PREFIX.format(tapfile)
+        self.output_directory_permission_denied(self.run_tap2sna, (tapfile, outfile), path=path, prefix=prefix)
 
     def test_load_nonexistent_block(self):
         tapfile = self._write_tap([create_tap_data_block([1])])
         block_num = 2
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'--ram load={block_num},16384 {tapfile} test.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile}: Block {block_num} not found')
+        prefix = ERROR_PREFIX.format(tapfile)
+        self.assertEqual(cm.exception.args[0], f'{prefix}Block {block_num} not found')
 
     def test_zip_archive_with_no_tape_file(self):
         archive_fname = self.write_bin_file(suffix='.zip')
@@ -1326,13 +1367,15 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80_fname = 'test.z80'
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{archive_fname} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {archive_fname}: No PZX, TAP or TZX file found')
+        prefix = ERROR_PREFIX.format(archive_fname)
+        self.assertEqual(cm.exception.args[0], prefix + 'No PZX, TAP or TZX file found')
 
     def test_bad_zip_archive(self):
         badzip = self.write_bin_file((1, 2, 3), suffix='.zip')
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{badzip} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {badzip}: File is not a zip file')
+        prefix = ERROR_PREFIX.format(badzip)
+        self.assertEqual(cm.exception.args[0], prefix + 'File is not a zip file')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_ram_call(self):
@@ -1454,7 +1497,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'--ram load=2,24576 {pzxfile}')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {pzxfile}: Block 2 has no data')
+        prefix = ERROR_PREFIX.format(pzxfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'Block 2 has no data')
 
     def test_ram_load_tzx_block_with_no_data(self):
         tzxfile = self._write_tzx((
@@ -1464,7 +1508,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         ))
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'--ram load=3,24576 {tzxfile}')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: Block 3 has no data')
+        prefix = ERROR_PREFIX.format(tzxfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'Block 3 has no data')
 
     def test_ram_load_bad_spec(self):
         self._test_bad_spec('--ram load=1', 'Missing start address in load spec: 1')
@@ -1522,6 +1567,20 @@ class Tap2SnaTest(SkoolKitTestCase):
         for p, a, d in patches:
             addr = a % 0x4000
             self.assertEqual(d, list(s_banks[p][addr:addr + len(d)]))
+
+    def test_ram_patch_file_not_found(self):
+        tapfile = self._write_tap([create_tap_data_block([1])])
+        fname = 'nonexistent.bin'
+        args = ('--ram', 'load=1,32768', '--ram', f'patch=32768,{fname}', tapfile)
+        prefix = ERROR_PREFIX.format(tapfile)
+        self.input_file_not_found(self.run_tap2sna, args, fname=fname, prefix=prefix)
+
+    def test_ram_patch_file_is_a_directory(self):
+        tapfile = self._write_tap([create_tap_data_block([1])])
+        dname = 'dir.bin'
+        args = ('--ram', 'load=1,32768', '--ram', f'patch=32768,{dname}', tapfile)
+        prefix = ERROR_PREFIX.format(tapfile)
+        self.input_file_is_a_directory(self.run_tap2sna, args, dname=dname, prefix=prefix)
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_ram_poke_single_address(self):
@@ -1724,7 +1783,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         tzxfile = self.write_bin_file([1, 2, 3], suffix='.tzx')
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{tzxfile} test.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: Not a TZX file')
+        prefix = ERROR_PREFIX.format(tzxfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'Not a TZX file')
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
@@ -1977,7 +2037,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         tzxfile = self._write_tzx([block])
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{tzxfile} test.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: Unknown TZX block ID: 0x{block_id:X}')
+        prefix = ERROR_PREFIX.format(tzxfile)
+        self.assertEqual(cm.exception.args[0], f'{prefix}Unknown TZX block ID: 0x{block_id:X}')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_default_register_values(self):
@@ -2774,7 +2835,8 @@ class Tap2SnaTest(SkoolKitTestCase):
             'Tape finished'
         ]
         self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tapfile}: Failed to fast load block: unexpected end of tape')
+        prefix = ERROR_PREFIX.format(tapfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'Failed to fast load block: unexpected end of tape')
         self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
@@ -2875,7 +2937,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         tzxfile = self._write_tzx([block])
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{tzxfile} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: TZX C64 ROM type data (0x16) not supported')
+        prefix = ERROR_PREFIX.format(tzxfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'TZX C64 ROM type data (0x16) not supported')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 
@@ -2889,7 +2952,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         tzxfile = self._write_tzx([block])
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{tzxfile} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: TZX C64 turbo tape data (0x17) not supported')
+        prefix = ERROR_PREFIX.format(tzxfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'TZX C64 turbo tape data (0x17) not supported')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 
@@ -2907,7 +2971,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         tzxfile = self._write_tzx([block])
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{tzxfile} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: TZX CSW Recording (0x18) not supported')
+        prefix = ERROR_PREFIX.format(tzxfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'TZX CSW Recording (0x18) not supported')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 
@@ -2947,7 +3012,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         tzxfile = self._write_tzx([block])
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{tzxfile} out.z80')
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: TZX Generalized Data Block (0x19) not supported')
+        prefix = ERROR_PREFIX.format(tzxfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'TZX Generalized Data Block (0x19) not supported')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
 
@@ -3197,7 +3263,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(pzxfile)
-        self.assertEqual(cm.exception.args[0], f'Error while converting {pzxfile}: Failed to fast load block: unexpected end of tape')
+        prefix = ERROR_PREFIX.format(pzxfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'Failed to fast load block: unexpected end of tape')
 
     def test_sim_load_tzx_data_block_with_no_pilot_tone(self):
         tzxfile = self._write_tzx([(
@@ -3211,7 +3278,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         )])
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(tzxfile)
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: Failed to fast load block: unexpected end of tape')
+        prefix = ERROR_PREFIX.format(tzxfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'Failed to fast load block: unexpected end of tape')
 
     def test_sim_load_pzx_with_no_data(self):
         pzx = PZX()
@@ -3219,7 +3287,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(pzxfile)
-        self.assertEqual(cm.exception.args[0], f'Error while converting {pzxfile}: Tape contains no data')
+        prefix = ERROR_PREFIX.format(pzxfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'Tape contains no data')
 
     def test_sim_load_tzx_with_no_data(self):
         tzxfile = self._write_tzx([(
@@ -3228,7 +3297,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         )])
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(tzxfile)
-        self.assertEqual(cm.exception.args[0], f'Error while converting {tzxfile}: Tape contains no data')
+        prefix = ERROR_PREFIX.format(tzxfile)
+        self.assertEqual(cm.exception.args[0], prefix + 'Tape contains no data')
 
     def test_sim_load_config_help_invalid_parameter(self):
         for option in ('-c', '--sim-load-config'):
@@ -3557,13 +3627,15 @@ class Tap2SnaTest(SkoolKitTestCase):
         tapfile = self._write_tap([])
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(tapfile)
-        self.assertEqual(cm.exception.args[0], f"Error while converting {tapfile}: Tape is empty")
+        prefix = ERROR_PREFIX.format(tapfile)
+        self.assertEqual(cm.exception.args[0], prefix + "Tape is empty")
 
     def test_load_parameter_with_invalid_pc(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'-c load=PC=? {tapfile}')
-        self.assertEqual(cm.exception.args[0], f"Error while converting {tapfile}: Invalid integer in 'load' parameter: PC=?")
+        prefix = ERROR_PREFIX.format(tapfile)
+        self.assertEqual(cm.exception.args[0], prefix + "Invalid integer in 'load' parameter: PC=?")
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
@@ -4183,19 +4255,22 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'urlopen', Mock(side_effect=urllib.error.HTTPError('', 403, 'Forbidden', None, None)))
     def test_http_error_on_remote_download(self):
-        with self.assertRaisesRegex(SkoolKitError, '^Error while converting test.zip: HTTP Error 403: Forbidden$'):
+        prefix = ERROR_PREFIX.format('test.zip')
+        with self.assertRaisesRegex(SkoolKitError, f'^{prefix}HTTP Error 403: Forbidden$'):
             self.run_tap2sna('http://example.com/test.zip test.z80')
 
     @patch.object(tap2sna, 'urlopen', Mock(side_effect=urllib.error.URLError('[Errno -2] Name or service not known')))
     def test_url_error_on_remote_download(self):
+        prefix = ERROR_PREFIX.format('test.tzx')
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna('http://nonexistent.invalid/test.tzx out.z80')
-        self.assertEqual(cm.exception.args[0], 'Error while converting test.tzx: [Errno -2] Name or service not known')
+        self.assertEqual(cm.exception.args[0], f'{prefix}[Errno -2] Name or service not known')
 
     def test_malformed_url(self):
+        prefix = ERROR_PREFIX.format('test.tap')
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna('http://[::1/test.tap out.z80')
-        self.assertEqual(cm.exception.args[0], 'Error while converting test.tap: Invalid IPv6 URL')
+        self.assertEqual(cm.exception.args[0], f'{prefix}Invalid IPv6 URL')
 
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_dec_a(self):

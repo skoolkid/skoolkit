@@ -12,9 +12,12 @@ from unittest.mock import Mock
 
 SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
-from skoolkit import (bin2sna, bin2tap, rzxinfo, rzxplay, sna2img, skool2asm,
-                      skool2bin, skool2ctl, skool2html, sna2ctl, sna2skool,
-                      snapinfo, snapmod, tap2sna, tapinfo, trace, find_file)
+from skoolkit import (SkoolKitError, bin2sna, bin2tap, rzxinfo, rzxplay,
+                      sna2img, skool2asm, skool2bin, skool2ctl, skool2html,
+                      sna2ctl, sna2skool, snapinfo, snapmod, tap2sna, tapinfo,
+                      trace, find_file)
+
+WINDOWS = sys.platform.startswith('win')
 
 Z80_REGISTERS = {
     'a': 0, 'f': 1, 'bc': 2, 'c': 2, 'b': 3, 'hl': 4, 'l': 4, 'h': 5,
@@ -557,6 +560,52 @@ class SkoolKitTestCase(TestCase):
         sys.stdin = self.stdin
         sys.stdout = self.stdout
         sys.stderr = self.stderr
+
+    def input_file_not_found(self, func, *args, fname=None, prefix=''):
+        fname = fname or args[-1]
+        with self.assertRaises(SkoolKitError) as cm:
+            func(*args)
+        self.assertEqual(cm.exception.args[0], f"{prefix}{fname}: file not found")
+
+    def input_file_is_a_directory(self, func, *args, dname=None, prefix=''):
+        dname = dname or args[-1]
+        os.mkdir(dname)
+        exp_msg = f"Cannot open '{dname}': permission denied" if WINDOWS else f"Is a directory: '{dname}'"
+        with self.assertRaises(SkoolKitError) as cm:
+            func(*args)
+        self.assertEqual(cm.exception.args[0], f'{prefix}{exp_msg}')
+
+    def input_file_permission_denied(self, func, *args, fname=None, prefix=''):
+        if WINDOWS:
+            self.skipTest("chmod doesn't work on files in Windows")
+        fname = fname or args[-1]
+        with open(fname, 'w') as f:
+            pass
+        os.chmod(fname, 0o333) # -wx-wx-wx
+        with self.assertRaises(SkoolKitError) as cm:
+            func(*args)
+        self.assertEqual(cm.exception.args[0], f"{prefix}Cannot open '{fname}': permission denied")
+
+    def output_file_is_a_directory(self, func, *args, dname=None, prefix=''):
+        self.input_file_is_a_directory(func, *args, dname=dname, prefix=prefix)
+
+    def output_file_permission_denied(self, func, *args, path, prefix=''):
+        if WINDOWS:
+            self.skipTest("chmod doesn't work on directories in Windows")
+        parent_dir = os.path.dirname(path)
+        os.makedirs(parent_dir, 0o444) # r--r--r--
+        with self.assertRaises(SkoolKitError) as cm:
+            func(*args)
+        self.assertEqual(cm.exception.args[0], f"{prefix}Cannot open '{path}': permission denied")
+
+    def output_directory_permission_denied(self, func, *args, path, prefix=''):
+        if WINDOWS:
+            self.skipTest("chmod doesn't work on directories in Windows")
+        parent_dir = os.path.dirname(path)
+        os.makedirs(parent_dir, 0o444) # r--r--r--
+        with self.assertRaises(SkoolKitError) as cm:
+            func(*args)
+        self.assertEqual(cm.exception.args[0], f"{prefix}Failed to create directory '{path}': permission denied [Errno 13]")
 
     def clear_streams(self):
         self.out.clear()

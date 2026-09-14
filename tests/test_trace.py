@@ -212,6 +212,27 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(config['TraceOperand'], '$,02X,04X')
         self.assertEqual(config['TraceOperandDecimal'], ',,')
 
+    def test_nonexistent_input_file(self):
+        self.input_file_not_found(self.run_trace, 'nonexistent.z80')
+
+    def test_input_file_is_a_directory(self):
+        self.input_file_is_a_directory(self.run_trace, 'dir.z80')
+
+    def test_input_file_permission_denied(self):
+        self.input_file_permission_denied(self.run_trace, 'nope.z80')
+
+    def test_output_file_is_a_directory(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        dname = 'dir.z80'
+        args = ('-no', '30000', '-S', '30001', binfile, dname)
+        self.output_file_is_a_directory(self.run_trace, args, dname=dname)
+
+    def test_output_file_permission_denied(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        path = os.path.join('nope', 'not-allowed.z80')
+        args = ('-no', '40000', '-S', '40001', binfile, path)
+        self.output_file_permission_denied(self.run_trace, args, path=path)
+
     @patch.object(trace, 'run', mock_run)
     def test_config_read_from_file(self):
         ini = """
@@ -1650,6 +1671,18 @@ class TraceTest(SkoolKitTestCase):
             map_contents = f.read()
         self.assertEqual(dedent(exp_map).lstrip(), map_contents)
 
+    def test_option_map_file_is_a_directory(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        dname = 'dir.map'
+        args = ('--map', dname, '-no', '30000', '-S', '30001', binfile)
+        self.output_file_is_a_directory(self.run_trace, args, dname=dname)
+
+    def test_option_map_file_permission_denied(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        path = os.path.join('nope', 'not-allowed.map')
+        args = ('--map', path, '-no', '30000', '-S', '30001', binfile)
+        self.output_file_permission_denied(self.run_trace, args, path=path)
+
     def test_option_max_operations(self):
         data = [
             0xAF, # XOR A
@@ -2008,6 +2041,18 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $0001
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_rom_file_is_a_directory(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        dname = 'dir.rom'
+        args = ('--rom', dname, '-no', '30000', '-S', '30001', binfile)
+        self.output_file_is_a_directory(self.run_trace, args, dname=dname)
+
+    def test_option_rom_file_permission_denied(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        path = os.path.join('nope', 'not-allowed.rom')
+        args = ('--rom', path, '-no', '30000', '-S', '30001', binfile)
+        self.output_file_permission_denied(self.run_trace, args, path=path)
 
     @patch.object(trace, 'get_screen', mock_get_screen)
     def test_option_screen(self):

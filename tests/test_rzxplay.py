@@ -1346,10 +1346,32 @@ class RzxplayTest(SkoolKitTestCase):
         self.assertEqual(self.err.getvalue(), '')
         self.assertEqual(cm.exception.args[0], 'Block with ID 0x10 has length 3')
 
-    def test_nonexistent_rzx_file(self):
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_rzxplay(f'--quiet --no-screen nonexistent.rzx')
-        self.assertEqual(cm.exception.args[0], 'nonexistent.rzx: file not found')
+    def test_input_file_not_found(self):
+        fname = 'nonexistent.rzx'
+        args = ('--quiet', '--no-screen', fname)
+        self.input_file_not_found(self.run_rzxplay, args, fname=fname)
+
+    def test_input_file_is_a_directory(self):
+        dname = 'dir.rzx'
+        args = ('--quiet', '--no-screen', dname)
+        self.input_file_is_a_directory(self.run_rzxplay, args, dname=dname)
+
+    def test_input_file_permission_denied(self):
+        fname = 'nope.rzx'
+        args = ('--quiet', '--no-screen', fname)
+        self.input_file_permission_denied(self.run_rzxplay, args, fname=fname)
+
+    def test_output_file_is_a_directory(self):
+        rzxfile = self.write_rzx_file(self._get_rzx(0x8000))
+        dname = 'dir.z80'
+        args = ('--quiet', '--no-screen', rzxfile, dname)
+        self.output_file_is_a_directory(self.run_rzxplay, args, dname=dname)
+
+    def test_output_file_permission_denied(self):
+        rzxfile = self.write_rzx_file(self._get_rzx(0x8000))
+        path = os.path.join('nope', 'not-allowed.z80')
+        args = ('--quiet', '--no-screen', rzxfile, path)
+        self.output_file_permission_denied(self.run_rzxplay, args, path=path)
 
     def test_external_snapshot(self):
         rzx = RZX()
@@ -1530,6 +1552,24 @@ class RzxplayTest(SkoolKitTestCase):
             map_contents = f.read()
         self.assertEqual(dedent(exp_map).lstrip(), map_contents)
 
+    def test_option_map_file_is_a_directory(self):
+        rzxfile = self.write_rzx_file(self._get_rzx(0x8000))
+        dname = 'dir.map'
+        args = ('--quiet', '--no-screen', '--map', dname, rzxfile)
+        self.output_file_is_a_directory(self.run_rzxplay, args, dname=dname)
+
+    def test_option_map_existing_file_permission_denied(self):
+        rzxfile = self.write_rzx_file(self._get_rzx(0x8000))
+        fname = 'nope.map'
+        args = ('--quiet', '--no-screen', '--map', fname, rzxfile)
+        self.input_file_permission_denied(self.run_rzxplay, args, fname=fname)
+
+    def test_option_map_new_file_permission_denied(self):
+        rzxfile = self.write_rzx_file(self._get_rzx(0x8000))
+        path = os.path.join('nope', 'not-allowed.map')
+        args = ('--quiet', '--no-screen', '--map', path, rzxfile)
+        self.output_file_permission_denied(self.run_rzxplay, args, path=path)
+
     @patch.object(rzxplay, 'Simulator', MockSimulator)
     def test_option_python(self):
         global simulator
@@ -1694,6 +1734,18 @@ class RzxplayTest(SkoolKitTestCase):
             F:9 C:00000 I:00000 $F012 LD B,$09
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
+
+    def test_option_trace_file_is_a_directory(self):
+        rzxfile = self.write_rzx_file(self._get_rzx(0x8000))
+        dname = 'dir.map'
+        args = ('--quiet', '--no-screen', '--trace', dname, rzxfile)
+        self.output_file_is_a_directory(self.run_rzxplay, args, dname=dname)
+
+    def test_option_trace_file_permission_denied(self):
+        rzxfile = self.write_rzx_file(self._get_rzx(0x8000))
+        path = os.path.join('nope', 'not-allowed.log')
+        args = ('--quiet', '--no-screen', '--trace', path, rzxfile)
+        self.output_file_permission_denied(self.run_rzxplay, args, path=path)
 
     def test_option_V(self):
         for option in ('-V', '--version'):

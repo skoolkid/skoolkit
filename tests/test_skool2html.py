@@ -296,10 +296,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
-    def test_nonexistent_skool_file(self):
-        skoolfile = '{}/xyz.skool'.format(self.make_directory())
-        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(skoolfile)):
-            self.run_skool2html('-d {0} {1}'.format(self.odir, skoolfile))
+    def test_skool_file_not_found(self):
+        self.input_file_not_found(self.run_skool2html, 'nonexistent.skool')
 
     def test_nonexistent_secondary_skool_file(self):
         other_skoolfile = '{}/save.skool'.format(self.make_directory())
@@ -308,6 +306,9 @@ class Skool2HtmlTest(SkoolKitTestCase):
         skoolfile = self.write_text_file(path='{}.skool'.format(reffile[:-4]))
         with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(other_skoolfile)):
             self.run_skool2html('-w o -d {} {}'.format(self.odir, skoolfile))
+
+    def test_skool_file_permission_denied(self):
+        self.input_file_permission_denied(self.run_skool2html, 'nope.skool')
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
@@ -455,9 +456,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_nonexistent_ref_file_on_command_line(self):
         skoolfile = self.write_text_file(suffix='.skool')
-        reffile = '{}/nonexistent.ref'.format(self.make_directory())
-        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(reffile)):
-            self.run_skool2html('-d {} {} {}'.format(self.odir, skoolfile, reffile))
+        fname = 'nonexistent.ref'
+        self.input_file_not_found(self.run_skool2html, (skoolfile, fname), fname=fname)
+
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_ref_file_on_command_line_permission_denied(self):
+        skoolfile = self.write_text_file(suffix='.skool')
+        fname = 'nope.ref'
+        self.input_file_permission_denied(self.run_skool2html, (skoolfile, fname), fname=fname)
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
@@ -940,6 +946,17 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_resource_destination_directory_permission_denied(self):
+        resource = self.write_bin_file(suffix='.jpg')
+        dest_dir = os.path.join('nope', 'subdir')
+        reffile = self.write_text_file(f"[Resources]\n{resource}={dest_dir}", suffix='.ref')
+        name = reffile[:-4]
+        skoolfile = self.write_text_file(path=f'{name}.skool')
+        path = os.path.join(name, dest_dir)
+        self.output_directory_permission_denied(self.run_skool2html, skoolfile, path=path)
+
+    @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_single_page_disassembly(self):
         reffile = self.write_text_file("[Game]\nAsmSinglePage=1", suffix='.ref')
         prefix = reffile[:-4]
@@ -979,6 +996,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
         output, error = self.run_skool2html('-d {} {}'.format(self.odir, skoolfile))
         self.assertEqual(error, '')
         self.assertIn('\nParsing {}/start.skool\n'.format(subdir), output)
+
+    @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_option_d_permission_denied(self):
+        skoolfile = self.write_text_file(suffix='.skool')
+        odir = os.path.join('nope', 'subdir')
+        path = os.path.join(odir, skoolfile[:-6])
+        self.output_directory_permission_denied(self.run_skool2html, ('-d', odir, skoolfile), path=path)
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)

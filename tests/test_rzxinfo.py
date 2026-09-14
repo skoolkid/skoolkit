@@ -464,10 +464,14 @@ class RzxinfoTest(SkoolKitTestCase):
         self.assertEqual(self.err.getvalue(), '')
         self.assertEqual(cm.exception.args[0], 'Block with ID 0x10 has length 3')
 
-    def test_nonexistent_rzx_file(self):
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_rzxinfo('nonexistent.rzx')
-        self.assertEqual(cm.exception.args[0], 'nonexistent.rzx: file not found')
+    def test_input_file_not_found(self):
+        self.input_file_not_found(self.run_rzxinfo, 'nonexistent.rzx')
+
+    def test_input_file_is_a_directory(self):
+        self.input_file_is_a_directory(self.run_rzxinfo, 'dir.rzx')
+
+    def test_input_file_permission_denied(self):
+        self.input_file_permission_denied(self.run_rzxinfo, 'nope.rzx')
 
     def test_option_extract(self):
         sna = [0] * 49179

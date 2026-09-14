@@ -1,3 +1,4 @@
+import os
 import textwrap
 from unittest.mock import patch
 
@@ -158,11 +159,24 @@ class SnapmodTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, 'Unrecognised input snapshot type$'):
             self.run_snapmod('unknown.snap')
 
-    def test_nonexistent_input_file(self):
-        infile = 'non-existent.z80'
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_snapmod('-r hl=0 {}'.format(infile))
-        self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
+    def test_input_file_not_found(self):
+        self.input_file_not_found(self.run_snapmod, 'nonexistent.z80')
+
+    def test_input_file_is_a_directory(self):
+        self.input_file_is_a_directory(self.run_snapmod, 'dir.z80')
+
+    def test_input_file_permission_denied(self):
+        self.input_file_permission_denied(self.run_snapmod, 'nope.z80')
+
+    def test_output_file_is_a_directory(self):
+        infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)
+        dname = 'dir.z80'
+        self.output_file_is_a_directory(self.run_snapmod, (infile, dname), dname=dname)
+
+    def test_output_file_permission_denied(self):
+        infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)
+        path = os.path.join('nope', 'not-allowed.z80')
+        self.output_file_permission_denied(self.run_snapmod, (infile, path), path=path)
 
     def test_invalid_szx(self):
         infile = self.write_bin_file([0], suffix='.szx')
@@ -390,12 +404,23 @@ class SnapmodTest(SkoolKitTestCase):
             options.append(f'--patch {addr},{pfile}')
         self._test_z80(' '.join(options), header, exp_header, ram, exp_ram, 3, False)
 
-    def test_option_patch_nonexistent_patch_file(self):
+    def test_option_patch_file_not_found(self):
         infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)
-        pfile = 'non-existent.bin'
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_snapmod(f'--patch 32768,{pfile} {infile}')
-        self.assertEqual(cm.exception.args[0], f'{pfile}: file not found')
+        fname = 'non-existent.bin'
+        args = ('--patch', f'32768,{fname}', infile)
+        self.input_file_not_found(self.run_snapmod, args, fname=fname)
+
+    def test_option_patch_file_is_a_directory(self):
+        infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)
+        dname = 'dir.bin'
+        args = ('--patch', f'32768,{dname}', infile)
+        self.input_file_is_a_directory(self.run_snapmod, args, dname=dname)
+
+    def test_option_patch_file_permission_denied(self):
+        infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)
+        fname = 'nope.bin'
+        args = ('--patch', f'32768,{fname}', infile)
+        self.input_file_permission_denied(self.run_snapmod, args, fname=fname)
 
     def test_option_patch_invalid_values(self):
         infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)

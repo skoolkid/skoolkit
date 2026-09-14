@@ -66,6 +66,15 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: tapinfo.py'))
 
+    def test_input_file_not_found(self):
+        self.input_file_not_found(self.run_tapinfo, 'nonexistent.tap')
+
+    def test_input_file_is_a_directory(self):
+        self.input_file_is_a_directory(self.run_tapinfo, 'dir.tap')
+
+    def test_input_file_permission_denied(self):
+        self.input_file_permission_denied(self.run_tapinfo, 'nope.tap')
+
     def test_invalid_option(self):
         output, error = self.run_tapinfo('-x test.tap', catch_exit=2)
         self.assertEqual(output, '')

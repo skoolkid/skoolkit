@@ -1,3 +1,4 @@
+import os
 from textwrap import dedent
 from unittest.mock import patch
 
@@ -461,11 +462,24 @@ class BinWriterTest(BinWriterTestCase):
         patch.object(config, 'find_file', mock_find_file).start()
         self.addCleanup(patch.stopall)
 
-    def test_nonexistent_skool_file(self):
-        skoolfile = '{}/nonexistent.skool'.format(self.make_directory())
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_skool2bin(skoolfile)
-        self.assertEqual(cm.exception.args[0], '{}: file not found'.format(skoolfile))
+    def test_input_file_not_found(self):
+        self.input_file_not_found(self.run_skool2bin, 'nonexistent.skool')
+
+    def test_input_file_is_a_directory(self):
+        self.input_file_is_a_directory(self.run_skool2bin, 'dir.skool')
+
+    def test_input_file_permission_denied(self):
+        self.input_file_permission_denied(self.run_skool2bin, 'nope.skool')
+
+    def test_output_file_is_a_directory(self):
+        skoolfile = self.write_text_file('@start', suffix='.skool')
+        dname = 'dir.bin'
+        self.output_file_is_a_directory(self.run_skool2bin, (skoolfile, dname), dname=dname)
+
+    def test_output_file_permission_denied(self):
+        skoolfile = self.write_text_file('@start', suffix='.skool')
+        path = os.path.join('nope', 'not-allowed.bin')
+        self.output_file_permission_denied(self.run_skool2bin, (skoolfile, path), path=path)
 
     def test_first_instruction_address_invalid(self):
         skoolfile = self.write_text_file('c4000d RET', suffix='.skool')

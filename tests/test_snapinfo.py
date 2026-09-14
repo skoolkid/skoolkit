@@ -111,11 +111,14 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: snapinfo.py'))
 
-    def test_nonexistent_input_file(self):
-        infile = '{}/non-existent.z80'.format(self.make_directory())
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_snapinfo(infile)
-        self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
+    def test_input_file_not_found(self):
+        self.input_file_not_found(self.run_snapinfo, 'nonexistent.z80')
+
+    def test_input_file_is_a_directory(self):
+        self.input_file_is_a_directory(self.run_snapinfo, 'dir.z80')
+
+    def test_input_file_permission_denied(self):
+        self.input_file_permission_denied(self.run_snapinfo, 'nope.z80')
 
     def test_sna_48k(self):
         header = list(range(23))
