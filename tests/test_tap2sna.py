@@ -213,9 +213,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(output, 'Writing out.z80\n')
         self.assertEqual(error, '')
 
-    def _test_bad_spec(self, options, exp_error):
+    def _test_bad_spec(self, options, exp_error, ram_load=True):
         tapfile = self._write_tap([create_tap_data_block([1])])
-        if '--ram load=' not in options:
+        if ram_load and '--ram load=' not in options:
             options = '--ram load=1,16384 ' + options
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{options} {tapfile} test.z80')
@@ -4047,6 +4047,17 @@ class Tap2SnaTest(SkoolKitTestCase):
             trace_lines = f.read().rstrip()
         self.assertEqual(dedent(exp_trace).strip(), trace_lines)
 
+    def test_config_TraceLine_bad_values(self):
+        for trace_line, exp_error in ((
+                ('{q}', "Unknown field 'q' in trace line format '{q}'"),
+                ('{q', "Invalid trace line format '{q': expected '}' before end of string"),
+                ('q}', "Invalid trace line format 'q}': Single '}' encountered in format string"),
+                ('{m[65536]}', "Invalid trace line format '{m[65536]}': list index out of range"),
+                ('{m[$10000]}', "Invalid trace line format '{m[$10000]}': list index out of range"),
+                ('{m[0x10000]}', "Invalid trace line format '{m[0x10000]}': list index out of range"),
+        )):
+            self._test_bad_spec(f'-I TraceLine={trace_line} -c trace=trace.log', exp_error, False)
+
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_config_TraceOperand(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
@@ -4103,6 +4114,22 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(trace_lines), 3)
         self.assertEqual(trace_lines[1], '$0606 LD A,(0x5c74)')
         self.assertEqual(trace_lines[2], '$0609 SUB 0xe0')
+
+    def test_config_TraceOperand_with_invalid_byte_format(self):
+        tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
+        args = f'-I TraceOperand=$,q,04X -c trace=trace.log --start 1343 {tapfile} out.z80'
+        with self.assertRaises(SkoolKitError) as cm:
+            output, error = self.run_tap2sna(args)
+        prefix = ERROR_PREFIX.format(tapfile)
+        self.assertEqual(cm.exception.args[0], prefix + "Invalid byte format specifier: Unknown format code 'q' for object of type 'int'")
+
+    def test_config_TraceOperand_with_invalid_word_format(self):
+        tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
+        args = f'-I TraceOperand=$,02X,y -c trace=trace.log --start 1343 {tapfile} out.z80'
+        with self.assertRaises(SkoolKitError) as cm:
+            output, error = self.run_tap2sna(args)
+        prefix = ERROR_PREFIX.format(tapfile)
+        self.assertEqual(cm.exception.args[0], prefix + "Invalid word format specifier: Unknown format code 'y' for object of type 'int'")
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     @patch.object(tap2sna, 'urlopen')

@@ -2182,6 +2182,23 @@ class RzxplayTest(SkoolKitTestCase):
         """
         self._test_rzx(rzx, exp_output, ('-I', f'TraceLine={trace_line}', '--quiet', '--no-screen'), exp_trace)
 
+    def test_config_TraceLine_bad_values(self):
+        pc = 0x8000
+        frames = [(1, 0, ())]
+        code = (0x06, 0x00) # $8000 LD B,$00
+        rzxfile = self.write_rzx_file(self._get_rzx(pc, frames, code))
+        for trace_line, exp_error in ((
+                ('{q}', "Unknown field 'q' in trace line format '{q}'"),
+                ('{q', "Invalid trace line format '{q': expected '}' before end of string"),
+                ('q}', "Invalid trace line format 'q}': Single '}' encountered in format string"),
+                ('{m[65536]}', "Invalid trace line format '{m[65536]}': list index out of range"),
+                ('{m[$10000]}', "Invalid trace line format '{m[$10000]}': list index out of range"),
+                ('{m[0x10000]}', "Invalid trace line format '{m[0x10000]}': list index out of range"),
+        )):
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_rzxplay(f'-I TraceLine={trace_line} --trace trace.log --quiet --no-screen {rzxfile}')
+            self.assertEqual(cm.exception.args[0], exp_error)
+
     def test_config_TraceOperand_read_from_file(self):
         ini = """
             [rzxplay]
@@ -2261,3 +2278,21 @@ class RzxplayTest(SkoolKitTestCase):
             F:0 C:00000 I:00000 $F003 LD A,$0a
         """
         self._test_rzx(rzx, exp_output, '-I TraceOperand=$,02x,04x,??? --quiet --no-screen', exp_trace)
+
+    def test_config_TraceOperand_with_invalid_byte_format(self):
+        pc = 0xF000
+        code = (0x3E, 0x0A) # $F000 LD A,$0A
+        frames = [(1, 0, [])]
+        rzxfile = self.write_rzx_file(self._get_rzx(pc, frames, code))
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'-I TraceOperand=$,q,04x --trace trace.log --quiet --no-screen {rzxfile}')
+        self.assertEqual(cm.exception.args[0], "Invalid byte format specifier: Unknown format code 'q' for object of type 'int'")
+
+    def test_config_TraceOperand_with_invalid_word_format(self):
+        pc = 0xF000
+        code = (0x01, 0x00, 0x0A) # $F000 LD BC,$0A00
+        frames = [(1, 0, [])]
+        rzxfile = self.write_rzx_file(self._get_rzx(pc, frames, code))
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'-I TraceOperand=$,02X,? --trace trace.log --quiet --no-screen {rzxfile}')
+        self.assertEqual(cm.exception.args[0], "Invalid word format specifier: Unknown format code '?' for object of type 'int'")

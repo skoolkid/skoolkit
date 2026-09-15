@@ -34,7 +34,8 @@ from skoolkit.simutils import (CLOCK_SPEEDS, PC, T, from_memory, from_snapshot,
                                get_state)
 from skoolkit.snapshot import (Snapshot, make_snapshot, poke, print_reg_help,
                                print_state_help, write_snapshot)
-from skoolkit.traceutils import Registers, disassemble, get_trace_line
+from skoolkit.traceutils import (Registers, disassemble, get_operand_formats,
+                                 get_trace_line)
 
 AY_MODE_NAMES = tuple(m[0] for m in AY_MODES)
 
@@ -321,13 +322,9 @@ def run(snafile, options, config):
         trace_header = None
         trace_line = None
     trace_operand = config['TraceOperand' + ('', 'Decimal')[options.decimal]]
-    prefix, byte_fmt, word_fmt = (trace_operand + ',' * (2 - trace_operand.count(','))).split(',')[:3]
+    prefix, byte_fmt, word_fmt = get_operand_formats(trace_operand)
     if trace_line:
-        orig_trace_line, trace_line = trace_line, get_trace_line(trace_line)
-        try:
-            trace_line.format(pc=0, i='.', r=Registers(simulator.registers), t=0, m=simulator.memory)
-        except Exception as e:
-            raise SkoolKitError(f"Invalid format string: '{orig_trace_line}'")
+        trace_line = get_trace_line(trace_line)
     draw = None
     if options.screen:
         screen = get_screen(config['ScreenScale'], config['ScreenFps'], 'trace.py', len(memory) == 0x20000)

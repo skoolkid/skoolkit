@@ -30,7 +30,8 @@ from skoolkit.pagingtracer import Memory
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import from_snapshot, get_state
 from skoolkit.snapshot import Snapshot, write_snapshot
-from skoolkit.traceutils import Registers, disassemble, get_trace_line
+from skoolkit.traceutils import (Registers, disassemble, get_operand_formats,
+                                 get_trace_line)
 
 class RZXBlock:
     def __init__(self, data, obj):
@@ -406,9 +407,8 @@ def run(infile, options, config):
         trace_header = config['TraceHeader'].replace(r'\n', '\n')
         if trace_header:
             context.tracefile.write(f'{trace_header}\n')
-        context.trace_line = get_trace_line(config['TraceLine'] + '\n')
-        op_fmt = config['TraceOperand']
-        context.operand_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
+        context.trace_line = get_trace_line(config['TraceLine']) + '\n'
+        context.operand_fmt = get_operand_formats(config['TraceOperand'])
     for block in rzx_blocks:
         if isinstance(block.obj, InputRecording):
             context.total_frames += len(block.obj.frames)
