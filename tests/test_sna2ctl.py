@@ -643,6 +643,20 @@ class Sna2CtlTest(SkoolKitTestCase):
         exp_err = "Dictionary file 'non-existent.txt' not found\n"
         self._test_generation(data, exp_ctl, options='--ini Dictionary=non-existent.txt', exp_err=exp_err)
 
+    def test_config_Dictionary_file_is_a_directory(self):
+        data = [72, 101, 108, 108, 111] # 65531 DEFM "Hello"
+        exp_ctl = "t 65531"
+        dname = 'dict.dir'
+        os.mkdir(dname)
+        exp_err = f"Dictionary file '{dname}' not found\n"
+        self._test_generation(data, exp_ctl, options=f'--ini Dictionary={dname}', exp_err=exp_err)
+
+    def test_config_Dictionary_permission_denied(self):
+        infile = self.write_bin_file(suffix='.bin')
+        fname = 'nope.txt'
+        args = ('-I', f'Dictionary={fname}', infile)
+        self.input_file_permission_denied(self.run_sna2ctl, args, fname=fname)
+
     def test_jr_across_64k_boundary(self):
         data = [24]
         exp_ctl = "b 65535"

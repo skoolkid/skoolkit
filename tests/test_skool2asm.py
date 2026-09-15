@@ -693,10 +693,20 @@ class Skool2AsmTest(SkoolKitTestCase):
         mock_skool_parser.asm_mode = None
         mock_asm_writer.wrote = False
 
-    def test_Templates_config_parameter_with_nonexistent_file(self):
-        t_file = '{}/nonexistent.ini'.format(self.make_directory())
-        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(t_file)):
-            self.run_skool2asm('-I Templates={} test-t.skool'.format(t_file))
+    def test_config_Templates_file_not_found(self):
+        fname = 'nonexistent.ini'
+        args = ('-I', f'Templates={fname}', 'test-t.skool')
+        self.input_file_not_found(self.run_skool2asm, args, fname=fname)
+
+    def test_config_Templates_file_is_a_directory(self):
+        dname = 'dir.ini'
+        args = ('-I', f'Templates={dname}', 'test-t.skool')
+        self.input_file_is_a_directory(self.run_skool2asm, args, dname=dname)
+
+    def test_config_Templates_permission_denied(self):
+        fname = 'nope.ini'
+        args = ('-I', f'Templates={fname}', 'test-t.skool')
+        self.input_file_permission_denied(self.run_skool2asm, args, fname=fname)
 
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_tab_property(self):

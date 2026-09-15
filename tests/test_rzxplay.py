@@ -1673,6 +1673,24 @@ class RzxplayTest(SkoolKitTestCase):
             self.run_rzxplay(f'--snapshot {sltfile} --quiet --no-screen {rzxfile}')
         self.assertEqual(cm.exception.args[0], 'Unsupported snapshot type')
 
+    def test_option_snapshot_file_not_found(self):
+        rzxfile = self.write_rzx_file(RZX())
+        fname = 'nonexistent.z80'
+        args = ('--snapshot', fname, '--quiet', '--no-screen', rzxfile)
+        self.input_file_not_found(self.run_rzxplay, args, fname=fname)
+
+    def test_option_snapshot_file_is_a_directory(self):
+        rzxfile = self.write_rzx_file(RZX())
+        dname = 'dir.z80'
+        args = ('--snapshot', dname, '--quiet', '--no-screen', rzxfile)
+        self.input_file_is_a_directory(self.run_rzxplay, args, dname=dname)
+
+    def test_option_snapshot_permission_denied(self):
+        rzxfile = self.write_rzx_file(RZX())
+        fname = 'nope.z80'
+        args = ('--snapshot', fname, '--quiet', '--no-screen', rzxfile)
+        self.input_file_permission_denied(self.run_rzxplay, args, fname=fname)
+
     def test_option_stop(self):
         pc = 0xF000
         code = (

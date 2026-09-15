@@ -3183,6 +3183,20 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[7279], '17865775 $0802 CALL $0556') # LoadTracer.stop_tape()
         self.assertEqual(trace_lines[7280], '17865792 $05E2 RET')        # does not
 
+    def test_sim_load_with_trace_log_file_is_a_directory(self):
+        tapfile = self._write_tap([create_tap_data_block([1])])
+        dname = 'dir.log'
+        prefix = ERROR_PREFIX.format(tapfile)
+        args = ('-c', f'trace={dname}', tapfile, 'out.z80')
+        self.output_file_is_a_directory(self.run_tap2sna, args, dname=dname, prefix=prefix)
+
+    def test_sim_load_with_trace_log_file_permission_denied(self):
+        tapfile = self._write_tap([create_tap_data_block([1])])
+        path = os.path.join('nope', 'not-allowed.log')
+        prefix = ERROR_PREFIX.format(tapfile)
+        args = ('-c', f'trace={path}', tapfile, 'out.z80')
+        self.output_file_permission_denied(self.run_tap2sna, args, path=path, prefix=prefix)
+
     def test_sim_load_config_help(self):
         for option in ('-c', '--sim-load-config'):
             output, error = self.run_tap2sna(f'{option} help')
