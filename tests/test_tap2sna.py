@@ -1674,6 +1674,13 @@ class Tap2SnaTest(SkoolKitTestCase):
         for p, a, v in pokes:
             self.assertEqual(s_banks[p][a % 0x4000], v)
 
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_ram_poke_with_values_out_of_range(self):
+        data = [0, 255, 0]
+        pokes = '--ram poke=30000,257 --ram poke=30001,+1 --ram poke=30002,^258'
+        self._load_tape(30000, data, pokes)
+        self.assertEqual([1, 0, 2], snapshot[30000:30003])
+
     def test_ram_poke_bad_value(self):
         self._test_bad_spec('--ram poke=1', 'Value missing in poke spec: 1')
         self._test_bad_spec('--ram poke=q', 'Value missing in poke spec: q')

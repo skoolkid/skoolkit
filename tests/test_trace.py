@@ -1882,6 +1882,26 @@ class TraceTest(SkoolKitTestCase):
         ]
         self.assertEqual(exp_output, output.rstrip().split('\n')[3::5])
 
+    def test_option_poke_with_values_out_of_range(self):
+        data = (
+            0x06, 0x00, # $8000 LD B,$00
+            0x0E, 0xFF, # $8002 LD C,$FF
+            0x16, 0x00, # $8004 LD D,$00
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 32768
+        stop = 32768 + len(data)
+        pokes = '--poke 0x8001,257 --poke 0x8003,+1 --poke 0x8005,^258'
+        exp_output = """
+            $8000 LD B,$01
+            $8002 LD C,$00
+            $8004 LD D,$02
+            Stopped at $8006
+        """
+        output, error = self.run_trace(f'-vno {start} -S {stop} {pokes} {binfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     @patch.object(trace, 'Simulator', partial(MockSimulator, pc=0x1234))
     def test_option_python(self):
         global simulator

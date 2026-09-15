@@ -897,13 +897,13 @@ def poke(snapshot, param_str):
     try:
         if val.startswith('^'):
             value = get_int_param(val[1:], True)
-            poke_f = lambda b: b ^ value
+            poke_f = lambda b: (b ^ value) & 255
         elif val.startswith('+'):
             value = get_int_param(val[1:], True)
             poke_f = lambda b: (b + value) & 255
         else:
             value = get_int_param(val, True)
-            poke_f = lambda b: value
+            poke_f = lambda b: value & 255
     except ValueError:
         raise SkoolKitError('Invalid value in poke spec: {}'.format(param_str))
     try:

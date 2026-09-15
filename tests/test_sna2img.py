@@ -644,6 +644,16 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs[0][1] = Udg(0, [170, 0, 0, 0, 0, 0, 0, 0])
         self._test_sna2img(mock_open_file, '-p 16384,255 --poke 16385,170', scr, exp_udgs)
 
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
+    @patch.object(sna2img, 'open_file')
+    def test_option_p_with_values_out_of_range(self, mock_open_file):
+        scr = [0] * 6912
+        scr[256] = 255 # 16640,255
+        exp_udgs = [[Udg(0, [0] * 8)] * 32 for i in range(24)]
+        exp_udgs[0][0] = Udg(0, [1, 0, 2, 0, 0, 0, 0, 0])
+        pokes = '-p 16384,257 -p 16640,+1 -p 16896,^258'
+        self._test_sna2img(mock_open_file, pokes, scr, exp_udgs)
+
     def test_option_p_invalid_values(self):
         self._test_bad_spec('-p 1', 'Value missing in poke spec: 1')
         self._test_bad_spec('-p q', 'Value missing in poke spec: q')

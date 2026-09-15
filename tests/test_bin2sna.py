@@ -39,8 +39,8 @@ class Bin2SnaTest(SkoolKitTestCase):
         if exp_fname:
             self.assertEqual(fname, exp_fname)
 
-    def _test_poke(self, option, address, exp_values):
-        binfile = self.write_bin_file([0], suffix='.bin')
+    def _test_poke(self, option, address, exp_values, data=None):
+        binfile = self.write_bin_file(data or [0], suffix='.bin')
         args = f'{option} {binfile}'
         exp_ram = [0] * 49152
         exp_ram[address - 16384:address - 16384 + len(exp_values)] = exp_values
@@ -375,6 +375,9 @@ class Bin2SnaTest(SkoolKitTestCase):
 
     def test_option_P_multiple(self):
         self._test_poke('-P 20000,5 --poke 20001,6', 20000, [5, 6])
+
+    def test_option_P_with_values_out_of_range(self):
+        self._test_poke('-P 65533,257 -P 65534,+1 -P 65535,^258', 65533, [1, 0, 2], [0, 255, 0])
 
     def test_option_P_128k(self):
         exp_ram = [[0] * 0x4000 for i in range(8)]
