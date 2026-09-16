@@ -53,6 +53,13 @@ class SkoolKitTest(SkoolKitTestCase):
         path = os.path.join('not-allowed', 'nope')
         self.output_file_permission_denied(open_file, path, 'w', path=path)
 
+    def test_open_file_name_too_long(self):
+        fname = 'a' * 300
+        err_prefix = f"Failed to open '{fname}': "
+        with self.assertRaises(SkoolKitError) as cm:
+            open_file(fname, 'w')
+        self.assertEqual(cm.exception.args[0][:len(err_prefix)], err_prefix)
+
     def test_read_bin_file_file_not_found(self):
         self.input_file_not_found(read_bin_file, 'non-existent')
 
