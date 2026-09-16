@@ -195,6 +195,8 @@ def makedirs(path):
         raise SkoolKitError(f"Failed to create directory '{path}': file already exists")
     except PermissionError as e:
         raise SkoolKitError(f"Failed to create directory '{path}': permission denied [Errno {e.args[0]}]")
+    except OSError as e:
+        raise SkoolKitError(f"Failed to create directory '{path}': {e}")
 
 def format_template(template__, name__, **fields):
     try:

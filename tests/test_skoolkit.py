@@ -27,6 +27,16 @@ class SkoolKitTest(SkoolKitTestCase):
         path = os.path.join('not-allowed', 'nope')
         self.output_directory_permission_denied(makedirs, path, path=path)
 
+    def test_makedirs_parent_directory_is_a_regular_file(self):
+        fname = 'regular-file'
+        with open(fname, 'w') as f:
+            f.write('Hi')
+        dname = os.path.join(fname, 'subdir')
+        err_prefix = f"Failed to create directory '{dname}': "
+        with self.assertRaises(SkoolKitError) as cm:
+            makedirs(dname)
+        self.assertEqual(cm.exception.args[0][:len(err_prefix)], err_prefix)
+
     def test_open_file_file_not_found(self):
         fname = 'non-existent'
         self.input_file_not_found(open_file, fname, 'r', fname=fname)
