@@ -189,6 +189,8 @@ def read_bin_file(fname, size=-1, allow_pipe=False):
         raise SkoolKitError(f"Is a directory: '{fname}'")
     except PermissionError:
         raise SkoolKitError(f"Cannot open '{fname}': permission denied")
+    except OSError as e:
+        raise SkoolKitError(f"Failed to open '{fname}': {e}")
 
 def makedirs(path):
     try:

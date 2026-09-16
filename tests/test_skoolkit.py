@@ -69,6 +69,13 @@ class SkoolKitTest(SkoolKitTestCase):
     def test_read_bin_file_permission_denied(self):
         self.input_file_permission_denied(read_bin_file, 'not-allowed')
 
+    def test_read_bin_file_name_too_long(self):
+        fname = 'a' * 300
+        err_prefix = f"Failed to open '{fname}': "
+        with self.assertRaises(SkoolKitError) as cm:
+            read_bin_file(fname)
+        self.assertEqual(cm.exception.args[0][:len(err_prefix)], err_prefix)
+
     def test_get_object_with_class_name(self):
         class_name = 'CustomWriter'
         mod = 'class {}:\n    pass'.format(class_name)
