@@ -18,7 +18,7 @@ import argparse
 import glob
 import os.path
 
-from skoolkit import info, integer, VERSION
+from skoolkit import address, info, VERSION
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.ctlparser import CtlParser
 from skoolkit.snapshot import make_snapshot
@@ -81,15 +81,15 @@ def main(args):
                        help="Generate instruction comments.")
     group.add_argument('-d', '--defb', dest='defb', metavar='SIZE', type=int,
                        help='Disassemble as DEFB statements of this size.')
-    group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=65536,
-                       help='Stop disassembling at this address (default: 65536).')
+    group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=address, default=65536,
+                       help='Stop disassembling at this address.')
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=16, default=config['Base'],
                        help='Write hexadecimal addresses and operands in the disassembly.')
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
     group.add_argument('-l', '--lower', dest='case', action='store_const', const=1, default=config['Case'],
                        help='Write the disassembly in lower case.')
-    group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=integer,
+    group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=address,
                        help='Specify the origin address of a binary (.bin) file (default: 65536 - length).')
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535.')
@@ -97,7 +97,7 @@ def main(args):
                        help="Handle RST instruction arguments.")
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
-    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=integer,
+    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=address,
                        help='Start disassembling at this address.')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')

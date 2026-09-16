@@ -17,7 +17,7 @@
 import os
 import argparse
 
-from skoolkit import SkoolKitError, integer, makedirs, read_bin_file, VERSION
+from skoolkit import SkoolKitError, address, makedirs, read_bin_file, VERSION
 from skoolkit.snapshot import Memory, poke, print_reg_help, print_state_help, write_snapshot
 
 def bank(arg):
@@ -90,11 +90,11 @@ def main(args):
                        help="Load RAM bank N (0-7) from the named file. This option may be used multiple times.")
     group.add_argument('-b', '--border', dest='border', metavar='BORDER', type=int, default=7,
                        help="Set the border colour (default: 7).")
-    group.add_argument('-o', '--org', dest='org', metavar='ORG', type=integer,
+    group.add_argument('-o', '--org', dest='org', metavar='ORG', type=address,
                        help="Set the origin address (default: 65536 minus the length of FILE).")
     group.add_argument('--page', metavar='N', type=int, choices=range(8),
                        help="Specify the RAM bank (N=0-7) mapped to 49152 (0xC000) in the main input file. This option creates a 128K snapshot.")
-    group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
+    group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=address,
                        help="Set the stack pointer (default: ORG).")
     group.add_argument('-P', '--poke', dest='pokes', metavar='[p:]a[-b[-c]],[^+]v', action='append', default=[],
                        help="POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}. "
@@ -102,7 +102,7 @@ def main(args):
                             "This option may be used multiple times.")
     group.add_argument('-r', '--reg', dest='reg', metavar='name=value', action='append', default=[],
                        help="Set the value of a register. Do '--reg help' for more information. This option may be used multiple times.")
-    group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
+    group.add_argument('-s', '--start', dest='start', metavar='START', type=address,
                        help="Set the address at which to start execution (default: ORG).")
     group.add_argument('-S', '--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. This option may be used multiple times.")

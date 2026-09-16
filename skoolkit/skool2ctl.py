@@ -1,4 +1,4 @@
-# Copyright 2010-2015, 2017-2019 Richard Dymond (rjdymond@gmail.com)
+# © 2010-2015, 2017-2019, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -16,7 +16,7 @@
 
 import argparse
 
-from skoolkit import integer, VERSION
+from skoolkit import address, VERSION
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.skoolctl import (CtlWriter, ASM_DIRECTIVES, BLOCKS, BLOCK_TITLES, BLOCK_DESC,
                                REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS, NON_ENTRY_BLOCKS)
@@ -41,7 +41,7 @@ def main(args):
     group.add_argument('-b', '--preserve-base', action='store_const', dest='preserve_base', const=1, default=config['PreserveBase'],
                        help="Preserve the base of decimal and hexadecimal values in\n"
                             "instruction operands and DEFB/DEFM/DEFS/DEFW statements.")
-    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=integer, default=65536,
+    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=address, default=65536,
                        help="Stop converting at this address.")
     group.add_argument('-h', '--hex', action='store_const', dest='write_hex', const=2, default=config['Hex'],
                        help='Write addresses in upper case hexadecimal format.')
@@ -53,7 +53,7 @@ def main(args):
                        help='Write addresses in lower case hexadecimal format.')
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
-    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer, default=0,
+    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=address, default=0,
                        help="Start converting at this address.")
     group.add_argument('-V', '--version', action='version',
                        version='SkoolKit {}'.format(VERSION),

@@ -16,7 +16,8 @@
 
 import argparse
 
-from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, integer, VERSION
+from skoolkit import (SkoolKitError, address, get_dword, get_int_param,
+                      get_word, VERSION)
 from skoolkit.basic import BasicLister, VariableLister, get_char
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.opcodes import END, decode
@@ -498,7 +499,7 @@ def main(args):
                        help='Generate a call graph in DOT format.')
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
-    group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=integer,
+    group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=address,
                        help='Specify the origin address of a binary (raw memory) file (default: 65536 - length).')
     group.add_argument('-p', '--peek', metavar='A[-B[-C]]', action='append',
                        help='Show the contents of addresses A TO B STEP C. This option may be used multiple times.')

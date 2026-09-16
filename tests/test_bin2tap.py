@@ -391,8 +391,6 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_snapshot_with_invalid_begin_and_end_addresses(self):
         snafile = self.write_bin_file([0] * 49179, suffix='.sna')
-        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=0, BEGIN=65536, END=65536\)$'):
-            self.run_bin2tap('-b 65536 {}'.format(snafile))
         with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=0, BEGIN=16384, END=16384\)$'):
             self.run_bin2tap('-e 16384 {}'.format(snafile))
         with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=0, BEGIN=32768, END=24576\)$'):

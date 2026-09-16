@@ -18,7 +18,8 @@
 import os.path
 import argparse
 
-from skoolkit import SkoolKitError, integer, parse_int, read_bin_file, VERSION
+from skoolkit import (SkoolKitError, address, byteval, parse_int,
+                      read_bin_file, VERSION)
 from skoolkit.components import get_snapshot_reader
 from skoolkit.tape import write_pzx, write_tap
 
@@ -194,23 +195,23 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('--7ffd', metavar='N', dest='out7ffd', type=integer,
+    group.add_argument('--7ffd', metavar='N', dest='out7ffd', type=byteval,
                        help="Add 128K RAM banks to the tape file and write N to port 0x7ffd after they've loaded.")
     group.add_argument('--banks', metavar='N[,N...]',
                        help="Add only these 128K RAM banks to the tape file (default: 0,1,3,4,6,7).")
-    group.add_argument('-b', '--begin', dest='begin', metavar='BEGIN', type=integer,
+    group.add_argument('-b', '--begin', dest='begin', metavar='BEGIN', type=address,
                        help="Begin conversion at this address (default: ORG for a binary file, 16384 for a snapshot).")
-    group.add_argument('-c', '--clear', dest='clear', metavar='N', type=integer,
+    group.add_argument('-c', '--clear', dest='clear', metavar='N', type=address,
                        help="Use a 'CLEAR N' command in the BASIC loader and leave the stack pointer alone.")
-    group.add_argument('-e', '--end', dest='end', metavar='END', type=integer,
+    group.add_argument('-e', '--end', dest='end', metavar='END', type=address,
                        help="End conversion at this address.")
-    group.add_argument('--loader', metavar='ADDR', type=integer,
+    group.add_argument('--loader', metavar='ADDR', type=address,
                        help="Place the 128K RAM bank loader at this address (default: CLEAR address + 1).")
-    group.add_argument('-o', '--org', dest='org', metavar='ORG', type=integer,
+    group.add_argument('-o', '--org', dest='org', metavar='ORG', type=address,
                        help="Set the origin address for a binary file (default: 65536 minus the length of FILE).")
-    group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
+    group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=address,
                        help="Set the stack pointer (default: BEGIN).")
-    group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
+    group.add_argument('-s', '--start', dest='start', metavar='START', type=address,
                        help="Set the start address to JP to (default: BEGIN).")
     group.add_argument('-S', '--screen', dest='screen', metavar='FILE',
                        help="Add a loading screen to the tape file. FILE may be a snapshot or a 6912-byte SCR file.")

@@ -219,14 +219,24 @@ def as_dword(num):
 def get_dword(data, index):
     return get_word3(data, index) + 16777216 * data[index + 3]
 
-def integer(arg):
+def _integer(arg, desc, max_val):
     try:
         s_arg = arg.strip()
         if s_arg.startswith('0x'):
-            return int(s_arg[2:], 16)
-        return int(s_arg)
+            v = int(s_arg[2:], 16)
+        else:
+            v = int(s_arg)
     except ValueError:
-        raise argparse.ArgumentTypeError("invalid integer: '{}'".format(arg))
+        raise argparse.ArgumentTypeError(f"invalid integer: '{arg}'")
+    if v < 0 or v > max_val:
+        raise argparse.ArgumentTypeError(f"{desc} out of range: '{arg}'")
+    return v
+
+def byteval(arg):
+    return _integer(arg, 'byte value', 255)
+
+def address(arg):
+    return _integer(arg, 'address', 65535)
 
 def integer_range(arg):
     a, sep, b = arg.partition('-')

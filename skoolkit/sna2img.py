@@ -18,7 +18,7 @@ import os
 import argparse
 import re
 
-from skoolkit import SkoolKitError, integer, open_file, skoolmacro, VERSION
+from skoolkit import SkoolKitError, address, open_file, skoolmacro, VERSION
 from skoolkit.components import get_image_writer, get_snapshot_reader
 from skoolkit.image import PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import make_snapshot, move, poke
@@ -148,7 +148,7 @@ def main(args):
                        help="Do not animate flashing cells.")
     group.add_argument('-o', '--origin', metavar='X,Y', type=_coords, default='0,0',
                        help="Top-left crop at (X,Y).")
-    group.add_argument('-O', '--org', dest='org', metavar='ORG', type=integer,
+    group.add_argument('-O', '--org', dest='org', metavar='ORG', type=address,
                        help="Set the origin address of a binary file (default: 65536 minus the length of the file).")
     group.add_argument('-p', '--poke', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append', default=[],
                        help="POKE N,v for N in {a, a+c, a+2c..., b}. "

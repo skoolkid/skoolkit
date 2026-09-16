@@ -24,10 +24,10 @@ from urllib.error import URLError
 from urllib.request import Request, urlopen
 from urllib.parse import urlparse
 
-from skoolkit import (SkoolKitError, CSimulator, CCMIOSimulator, get_int_param,
-                      get_object, get_word, integer, integer_range, makedirs,
-                      open_file, parse_int, read_bin_file, warn, write_line,
-                      ROM48, VERSION)
+from skoolkit import (SkoolKitError, CSimulator, CCMIOSimulator, address,
+                      get_int_param, get_object, get_word, integer_range,
+                      makedirs, open_file, parse_int, read_bin_file, warn,
+                      write_line, ROM48, VERSION)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.components import get_screen
 from skoolkit.config import get_config, show_config, update_options
@@ -1037,7 +1037,7 @@ def main(args):
                        help="Pause the tape at block number N and press KEYS before resuming. "
                             "KEYS must be a space-separated list of key identifiers. "
                             "This option may be used multiple times.")
-    group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
+    group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=address,
                        help="Set the stack pointer.")
     group.add_argument('--ram', dest='ram_ops', metavar='OPERATION', action='append', default=[],
                        help="Perform a load operation or otherwise modify the memory snapshot being built. "
@@ -1049,7 +1049,7 @@ def main(args):
                        help="Display screen contents while running.")
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
-    group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
+    group.add_argument('-s', '--start', dest='start', metavar='START', type=address,
                        help="Set the start address to JP to.")
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "

@@ -30,8 +30,8 @@ OPTIONS
   Disassemble as DEFB statements of this size (instead of as code).
 
 -e, --end `ADDR`
-  Stop disassembling at this address; the default end address is 65536. `ADDR`
-  must be a decimal number, or a hexadecimal number prefixed by '0x'.
+  Stop disassembling at this address. `ADDR` must be a decimal number, or a
+  hexadecimal number prefixed by '0x'.
 
 -H, --hex
   Write hexadecimal addresses and operands in the disassembly.

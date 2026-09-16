@@ -991,7 +991,7 @@ skool file split into blocks of code and data.
 
   Options:
     -C, --comments    Generate instruction comments.
-    -e, --end ADDR    Stop at this address (default=65536).
+    -e, --end ADDR    Stop at this address.
     -h, --hex         Write upper case hexadecimal addresses.
     -I, --ini p=v     Set the value of the configuration parameter 'p' to 'v'.
                       This option may be used multiple times.
@@ -1170,7 +1170,7 @@ list::
                         used multiple times.
     -C, --comments      Generate instruction comments.
     -d, --defb SIZE     Disassemble as DEFB statements of this size.
-    -e, --end ADDR      Stop disassembling at this address (default: 65536).
+    -e, --end ADDR      Stop disassembling at this address.
     -H, --hex           Write hexadecimal addresses and operands in the
                         disassembly.
     -I, --ini p=v       Set the value of the configuration parameter 'p' to 'v'.

@@ -1,9 +1,11 @@
+from argparse import ArgumentTypeError
 import os
 import unittest
 from importlib import invalidate_caches
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolKitError, error, get_object, makedirs, open_file, read_bin_file
+from skoolkit import (SkoolKitError, address, byteval, error, get_object,
+                      makedirs, open_file, read_bin_file)
 
 class SkoolKitTest(SkoolKitTestCase):
     def test_error(self):
@@ -79,3 +81,15 @@ class SkoolKitTest(SkoolKitTestCase):
         module_name = os.path.basename(module)[:-3]
         writer_class = get_object(':{}.{}'.format(module_name, class_name), default_path)
         self.assertEqual(writer_class.__name__, class_name)
+
+    def test_address_value_out_of_range(self):
+        for arg in ('-1', '65536'):
+            with self.assertRaises(ArgumentTypeError) as cm:
+                address(arg)
+            self.assertEqual(cm.exception.args[0], f"address out of range: '{arg}'")
+
+    def test_byteval_value_out_of_range(self):
+        for arg in ('-1', '256'):
+            with self.assertRaises(ArgumentTypeError) as cm:
+                byteval(arg)
+            self.assertEqual(cm.exception.args[0], f"byte value out of range: '{arg}'")

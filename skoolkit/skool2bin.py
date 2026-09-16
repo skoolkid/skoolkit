@@ -18,7 +18,8 @@ import argparse
 from collections import defaultdict, namedtuple
 from os.path import basename
 
-from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, parse_int, warn, VERSION
+from skoolkit import (SkoolParsingError, address, get_int_param, info,
+                      open_file, parse_int, warn, VERSION)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
@@ -308,7 +309,7 @@ def main(args):
                        help="Apply @ofix and @bfix directives.")
     group.add_argument('-d', '--data', action='store_const', const=1, default=config['Data'],
                        help="Process @defb, @defs and @defw directives.")
-    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=integer, default=65537,
+    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=address, default=65537,
                        help='Stop converting at this address.')
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
@@ -324,7 +325,7 @@ def main(args):
                        help="Show configuration parameter values.")
     group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=0,
                        help="Apply @isub and @ssub directives.")
-    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer, default=-1,
+    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=address, default=-1,
                        help='Start converting at this address.')
     group.add_argument('-v', '--verbose', action='store_const', const=1, default=config['Verbose'],
                        help='Show info on each converted instruction.')

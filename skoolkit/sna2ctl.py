@@ -17,13 +17,11 @@
 import argparse
 from collections import namedtuple
 
-from skoolkit import find_file, info, integer, open_file, VERSION
+from skoolkit import address, find_file, info, open_file, VERSION
 from skoolkit.components import get_component
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.snactl import write_ctl
 from skoolkit.snapshot import make_snapshot
-
-END = 65536
 
 Config = namedtuple('Config', 'handle_rst text_chars text_min_length_code text_min_length_data words')
 
@@ -59,8 +57,8 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-C', '--comments', action='store_const', const=1, default=config['Comments'],
                        help="Generate instruction comments.")
-    group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=END,
-                       help='Stop at this address (default={}).'.format(END))
+    group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=address, default=65536,
+                       help='Stop at this address.')
     group.add_argument('-h', '--hex', dest='ctl_hex', action='store_const', const=2, default=config['Hex'],
                        help='Write upper case hexadecimal addresses.')
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
@@ -69,7 +67,7 @@ def main(args):
                        help='Write lower case hexadecimal addresses.')
     group.add_argument('-m', '--map', dest='code_map', metavar='FILE',
                        help='Use FILE as a code execution map.')
-    group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=integer,
+    group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=address,
                        help='Specify the origin address of a binary file (default: 65536 - length).')
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535.')
@@ -77,7 +75,7 @@ def main(args):
                        help="Handle RST instruction arguments.")
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
-    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=integer,
+    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=address,
                        help='Start at this address.')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
