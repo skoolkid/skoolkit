@@ -121,6 +121,10 @@ class RZXContext:
         self.stop = False
 
 def write_rzx(fname, context, rzx_blocks):
+    snapshot = context.snapshot
+    if snapshot.type == 'SNA':
+        raise SkoolKitError('Cannot write RZX file containing SNA snapshot')
+
     creator_b = (83, 107, 111, 111, 108, 75, 105, 116, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
     major, minor = re.match('([0-9]+).([0-9]+)', VERSION).groups()
     rzx_data = bytearray((
@@ -135,7 +139,6 @@ def write_rzx(fname, context, rzx_blocks):
     ))
 
     ram, registers, state = get_state(context.simulator)[:3]
-    snapshot = context.snapshot
     snapshot.set_ram(ram)
     snapshot.set_registers_and_state(registers, state)
     snapshot_data = snapshot.data()

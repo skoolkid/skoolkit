@@ -1115,6 +1115,21 @@ class RzxplayTest(SkoolKitTestCase):
             i += 8 + block_len
         self.assertTrue(found_covx)
 
+    def test_write_rzx_file_containing_sna_snapshot(self):
+        pc = 0xD000
+        sp = 0x8000
+        header = [0] * 27
+        header[23:25] = (sp % 256, sp // 256)
+        ram = [0] * 0xC000
+        ram[sp - 0x4000:sp - 0x4000 + 2] = (pc % 256, pc // 256)
+        frames = [(1, 0, []), (1, 0, [])]
+        rzx = RZX()
+        rzx.add_snapshot(header + ram, 'sna', frames)
+        rzxfile = self.write_rzx_file(rzx)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--stop 1 --quiet --no-screen {rzxfile} out.rzx')
+        self.assertEqual(cm.exception.args[0], 'Cannot write RZX file containing SNA snapshot')
+
     def test_write_rzx_file_when_no_input_recording_present(self):
         pc = 0x8000
         frames = ()
