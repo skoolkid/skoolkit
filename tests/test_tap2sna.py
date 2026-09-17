@@ -10,9 +10,10 @@ from skoolkittest import (SkoolKitTestCase, PZX, create_header_block,
                           create_data_block, create_tap_header_block,
                           create_tap_data_block, create_tzx_header_block,
                           create_tzx_data_block, create_tzx_turbo_data_block,
-                          create_tzx_pure_data_block, mock_find_file)
-from skoolkit import (components, config, tap2sna, VERSION, SkoolKitError,
-                      CSimulator, CCMIOSimulator)
+                          create_tzx_pure_data_block, mock_find_file,
+                          MockPygameIO, MockPygame)
+from skoolkit import (components, config, screen, tap2sna, VERSION,
+                      SkoolKitError, CSimulator, CCMIOSimulator)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.loadtracer import LoadTracer
 from skoolkit.simulator import Simulator
@@ -3806,6 +3807,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'tap2sna.py')
         self.assertFalse(screen.is128k)
 
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', MockPygame)
     def test_config_ScreenScale_invalid(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
         prefix = ERROR_PREFIX.format(tapfile)

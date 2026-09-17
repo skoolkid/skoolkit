@@ -1632,6 +1632,8 @@ class RzxplayTest(SkoolKitTestCase):
         mock_pygame.display.set_caption.assert_called_with(rzxfile)
         self.assertEqual(mock_pygame.display.get_surface().get_pixel(7, 0), BLUE)
 
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', MockPygame)
     def test_option_scale_invalid(self):
         pc = 0x8000
         rzxfile = self.write_rzx_file(self._get_rzx(pc))
@@ -1996,6 +1998,8 @@ class RzxplayTest(SkoolKitTestCase):
         self._test_rzx(rzx, exp_output, '-I ScreenScale=4 --quiet')
         mock_pygame.display.set_mode.assert_called_with((1280, 960))
 
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', MockPygame)
     def test_config_ScreenScale_invalid(self):
         pc = 0x8000
         rzxfile = self.write_rzx_file(self._get_rzx(pc))

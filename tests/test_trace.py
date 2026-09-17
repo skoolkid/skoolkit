@@ -2938,6 +2938,8 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.frame, 1)
         self.assertEqual([(0, 0), (69894, 1)], screen.border)
 
+    @patch.object(screen, 'pygame_io', MockPygameIO())
+    @patch.object(screen, 'pygame', MockPygame)
     def test_config_ScreenScale_invalid(self):
         binfile = self.write_bin_file((0, 0), suffix='.bin')
         for scale in (-1, 0):
