@@ -1,7 +1,7 @@
 from textwrap import dedent
 from unittest.mock import patch
 
-from skoolkittest import SkoolKitTestCase, mock_find_file
+from skoolkittest import SkoolKitError, SkoolKitTestCase, mock_find_file
 from skoolkit import config, skool2ctl, VERSION
 
 ELEMENTS = 'abtdrmscn'
@@ -52,6 +52,12 @@ class Skool2CtlTest(SkoolKitTestCase):
 
     def test_input_file_permission_denied(self):
         self.input_file_permission_denied(self.run_skool2ctl, 'nope.skool')
+
+    def test_skool_file_not_utf8(self):
+        skoolfile = self.write_bin_file([0x80], suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2ctl(skoolfile)
+        self.assertEqual(cm.exception.args[0], f'{skoolfile}: invalid UTF-8')
 
     def test_invalid_arguments(self):
         for args in ('-h', '-x test.skool'):

@@ -657,6 +657,13 @@ class Sna2CtlTest(SkoolKitTestCase):
         args = ('-I', f'Dictionary={fname}', infile)
         self.input_file_permission_denied(self.run_sna2ctl, args, fname=fname)
 
+    def test_config_Dictionary_file_not_utf8(self):
+        infile = self.write_bin_file(suffix='.bin')
+        dictfile = self.write_bin_file([0x80], suffix='.txt')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_sna2ctl(f'-I Dictionary={dictfile} {infile}')
+        self.assertEqual(cm.exception.args[0], f'{dictfile}: invalid UTF-8')
+
     def test_jr_across_64k_boundary(self):
         data = [24]
         exp_ctl = "b 65535"
@@ -1260,6 +1267,13 @@ class Sna2CtlTest(SkoolKitTestCase):
             code_map_file = self.write_text_file(code_map, suffix='.log')
             with self.assertRaisesRegex(SkoolKitError, '{}: Unrecognised format'.format(code_map_file)):
                 self.run_sna2ctl('-m {} test-unrecognised-map.bin'.format(code_map_file))
+
+    def test_option_m_file_not_utf8(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        mapfile = self.write_bin_file([0x80], suffix='.map')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_sna2ctl(f'-m {mapfile} {binfile}')
+        self.assertEqual(cm.exception.args[0], f'{mapfile}: invalid UTF-8')
 
     @patch.object(snapshot, 'read_bin_file', Mock(return_value=[201]))
     def test_option_o(self):

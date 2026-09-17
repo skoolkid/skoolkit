@@ -220,6 +220,12 @@ class Skool2AsmTest(SkoolKitTestCase):
     def test_input_file_permission_denied(self):
         self.input_file_permission_denied(self.run_skool2asm, 'nope.skool')
 
+    def test_skool_file_not_utf8(self):
+        skoolfile = self.write_bin_file([0x80], suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2asm(skoolfile)
+        self.assertEqual(cm.exception.args[0], f'{skoolfile}: invalid UTF-8')
+
     def test_invalid_option(self):
         output, error = self.run_skool2asm('-x', catch_exit=2)
         self.assertEqual(output, '')
@@ -707,6 +713,12 @@ class Skool2AsmTest(SkoolKitTestCase):
         fname = 'nope.ini'
         args = ('-I', f'Templates={fname}', 'test-t.skool')
         self.input_file_permission_denied(self.run_skool2asm, args, fname=fname)
+
+    def test_config_Templates_file_not_utf8(self):
+        tfile = self.write_bin_file([0x80], suffix='.txt')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2asm(f'-I Templates={tfile} test-t.skool')
+        self.assertEqual(cm.exception.args[0], f'{tfile}: invalid UTF-8')
 
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_tab_property(self):

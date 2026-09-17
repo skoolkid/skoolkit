@@ -147,8 +147,11 @@ def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, th
             for f in files:
                 notify('Appending {} to {}'.format(normpath(f), dest_css))
                 with open_file(f, 'r') as src:
-                    for line in src:
-                        css.write(line)
+                    try:
+                        for line in src:
+                            css.write(line)
+                    except UnicodeDecodeError:
+                        raise SkoolKitError(f'{f}: invalid UTF-8')
                 css.write('\n')
         return single_css
 

@@ -17,7 +17,7 @@
 import bisect
 from collections import defaultdict
 
-from skoolkit import warn, get_int_param, open_file
+from skoolkit import SkoolKitError, warn, get_int_param, open_file
 from skoolkit.skoolctl import (extract_entry_asm_directives, AD_IGNOREUA, AD_ORG, AD_START,
                                TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 from skoolkit.skoolutils import parse_asm_data_directive
@@ -106,7 +106,10 @@ class CtlParser:
     def parse_ctls(self, ctlfiles, min_address=0, max_address=65536):
         ctl_lines = []
         for ctlfile in ctlfiles:
-            self._parse_ctl_file(ctlfile, ctl_lines, min_address, max_address)
+            try:
+                self._parse_ctl_file(ctlfile, ctl_lines, min_address, max_address)
+            except UnicodeDecodeError:
+                raise SkoolKitError(f'{ctlfile}: invalid UTF-8')
 
         entry_addresses = sorted(self._ctls)
 

@@ -18,7 +18,8 @@ import os
 import argparse
 import re
 
-from skoolkit import SkoolKitError, address, open_file, skoolmacro, VERSION
+from skoolkit import (SkoolKitError, SkoolParsingError, address, open_file,
+                      skoolmacro, VERSION)
 from skoolkit.components import get_image_writer, get_snapshot_reader
 from skoolkit.image import PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import make_snapshot, move, poke
@@ -86,10 +87,8 @@ def run(infile, outfile, options):
     else:
         try:
             snapshot = BinWriter(infile, fix_mode=options.fix_mode).snapshot
-        except SkoolKitError:
-            raise
-        except:
-            raise SkoolKitError('Unable to parse {} as a skool file'.format(infile))
+        except SkoolParsingError:
+            raise SkoolKitError(f'Unable to parse {infile} as a skool file')
 
     for spec in options.moves:
         move(snapshot, spec)

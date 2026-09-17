@@ -1570,6 +1570,14 @@ class RzxplayTest(SkoolKitTestCase):
         args = ('--quiet', '--no-screen', '--map', path, rzxfile)
         self.output_file_permission_denied(self.run_rzxplay, args, path=path)
 
+    def test_option_map_with_existing_file_not_utf8(self):
+        pc = 0x8000
+        rzxfile = self.write_rzx_file(self._get_rzx(pc))
+        mapfile = self.write_bin_file([0x80], suffix='.map')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--quiet --no-screen --map {mapfile} {rzxfile}')
+        self.assertEqual(cm.exception.args[0], f'{mapfile}: invalid UTF-8')
+
     @patch.object(rzxplay, 'Simulator', MockSimulator)
     def test_option_python(self):
         global simulator

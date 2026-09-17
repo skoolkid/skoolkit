@@ -17,7 +17,7 @@
 from collections import OrderedDict
 import re
 
-from skoolkit import open_file
+from skoolkit import SkoolKitError, open_file
 
 class RefParser:
     """Parses ref files."""
@@ -44,16 +44,19 @@ class RefParser:
         section_lines = []
         with open_file(reffile, 'r') as infile:
             esc_comment = comment * 2
-            for line in infile:
-                s_line = line.rstrip()
-                if s_line.startswith(('[[', esc_comment)):
-                    section_lines.append(s_line[1:])
-                elif s_line.startswith('[') and s_line.endswith(']'):
-                    self._add_section(section_name, section_lines)
-                    section_name = s_line[1:-1]
-                    section_lines = []
-                elif not s_line.startswith(comment):
-                    section_lines.append(s_line)
+            try:
+                for line in infile:
+                    s_line = line.rstrip()
+                    if s_line.startswith(('[[', esc_comment)):
+                        section_lines.append(s_line[1:])
+                    elif s_line.startswith('[') and s_line.endswith(']'):
+                        self._add_section(section_name, section_lines)
+                        section_name = s_line[1:-1]
+                        section_lines = []
+                    elif not s_line.startswith(comment):
+                        section_lines.append(s_line)
+            except UnicodeDecodeError:
+                raise SkoolKitError(f'{reffile}: invalid UTF-8')
         self._add_section(section_name, section_lines)
 
     def add_line(self, section_name, line):

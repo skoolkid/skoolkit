@@ -82,7 +82,10 @@ def read_map(fname, snapshot, start, end):
         sys.stderr.write('Reading {0}: '.format(fname))
         sys.stderr.flush()
         with open_file(fname, 'r') as f:
-            addresses = _get_addresses(f, fname, size, start, end)
+            try:
+                addresses = _get_addresses(f, fname, size, start, end)
+            except UnicodeDecodeError:
+                raise CodeMapError(f'{fname}: invalid UTF-8')
     sys.stderr.write('\n')
 
     code_blocks = []

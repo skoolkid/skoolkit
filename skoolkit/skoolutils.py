@@ -676,38 +676,41 @@ def read_skool(skoolfile, asm=1, sub_mode=0, fix_mode=0):
     include = True
     started = asm < 3
 
-    for line in skoolfile:
-        s_line = line.rstrip()
+    try:
+        for line in skoolfile:
+            s_line = line.rstrip()
 
-        if line.startswith('@'):
-            directive = s_line[1:]
-            if parse_asm_block_directive(directive, stack):
-                include = all(i == modes[p] for p, i in stack)
+            if line.startswith('@'):
+                directive = s_line[1:]
+                if parse_asm_block_directive(directive, stack):
+                    include = all(i == modes[p] for p, i in stack)
+                    all_lines.append(s_line)
+                    continue
+                if asm == 3 and include and directive.startswith(('start', 'end')):
+                    started = directive.startswith('start')
+                    all_lines.append(s_line)
+                    continue
+
+            if s_line:
                 all_lines.append(s_line)
+                if started and include:
+                    if s_line[0] in DIRECTIVES:
+                        entry = True
+                    lines.append(s_line)
                 continue
-            if asm == 3 and include and directive.startswith(('start', 'end')):
-                started = directive.startswith('start')
-                all_lines.append(s_line)
+
+            if asm > 1 and not include:
                 continue
 
-        if s_line:
-            all_lines.append(s_line)
-            if started and include:
-                if s_line[0] in DIRECTIVES:
-                    entry = True
-                lines.append(s_line)
-            continue
-
-        if asm > 1 and not include:
-            continue
-
-        if asm > 1 or entry:
-            yield not entry, lines
-        else:
-            yield True, all_lines
-        lines = []
-        all_lines = []
-        entry = False
+            if asm > 1 or entry:
+                yield not entry, lines
+            else:
+                yield True, all_lines
+            lines = []
+            all_lines = []
+            entry = False
+    except UnicodeDecodeError:
+        raise SkoolParsingError(f'{skoolfile.name}: invalid UTF-8')
 
     if asm > 1 or entry:
         yield not entry, lines

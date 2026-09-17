@@ -1210,6 +1210,13 @@ class SnapinfoTest(SkoolKitTestCase):
         ctl2f = self.write_text_file(dedent(ctl2).strip(), path=os.path.join(ctldir, 'foo.ctl'))
         self._test_sna(ram, exp_output, '-g -c {}'.format(ctldir), ctlfiles=(ctl1f, ctl2f))
 
+    def test_option_c_file_not_utf8(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        ctlfile = self.write_bin_file([0x80], suffix='.ctl')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_snapinfo(f'-gc {ctlfile} {binfile}')
+        self.assertEqual(cm.exception.args[0], f'{ctlfile}: invalid UTF-8')
+
     def test_option_f_with_single_byte(self):
         ram = [0] * 49152
         address = 53267

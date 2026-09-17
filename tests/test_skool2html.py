@@ -265,6 +265,12 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: skool2html.py'))
 
+    def test_skool_file_not_utf8(self):
+        skoolfile = self.write_bin_file([0x80], suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2html(skoolfile)
+        self.assertEqual(cm.exception.args[0], f'{skoolfile}: invalid UTF-8')
+
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     def test_no_ref(self):
         skool = """
@@ -464,6 +470,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
         skoolfile = self.write_text_file(suffix='.skool')
         fname = 'nope.ref'
         self.input_file_permission_denied(self.run_skool2html, (skoolfile, fname), fname=fname)
+
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_ref_file_not_utf8(self):
+        skoolfile = self.write_text_file(suffix='.skool')
+        reffile = self.write_bin_file([0x80], suffix='.ref')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2html(f'{skoolfile} {reffile}')
+        self.assertEqual(cm.exception.args[0], f'{reffile}: invalid UTF-8')
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
@@ -1109,6 +1123,16 @@ class Skool2HtmlTest(SkoolKitTestCase):
         for option in ('-j', '--join-css'):
             with self.assertRaisesRegex(SkoolKitError, error_msg):
                 self.run_skool2html('{} {} -d {} {}'.format(option, single_css, self.odir, skoolfile))
+
+    @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_option_j_css_file_not_utf8(self):
+        cssfile = self.write_bin_file([0x80], suffix='.css')
+        reffile = self.write_text_file(f'[Game]\nStyleSheet={cssfile}', suffix='.ref')
+        skoolfile = self.write_text_file(path=f'{reffile[:-4]}.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2html(f'-j game.css {skoolfile}')
+        self.assertEqual(cm.exception.args[0], f'{cssfile}: invalid UTF-8')
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)

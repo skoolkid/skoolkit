@@ -303,6 +303,13 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(ctlfiles, mock_ctl_parser.ctlfiles)
         self.assertTrue(mock_skool_writer.wrote_skool)
 
+    def test_option_c_file_not_utf8(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        ctlfile = self.write_bin_file([0x80], suffix='.ctl')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_sna2skool(f'-c {ctlfile} {binfile}')
+        self.assertEqual(cm.exception.args[0], f'{ctlfile}: invalid UTF-8')
+
     @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)

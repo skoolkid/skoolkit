@@ -17,7 +17,8 @@
 import argparse
 from collections import namedtuple
 
-from skoolkit import address, find_file, info, open_file, VERSION
+from skoolkit import (SkoolKitError, address, find_file, info, open_file,
+                      VERSION)
 from skoolkit.components import get_component
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.snactl import write_ctl
@@ -31,11 +32,14 @@ def run(snafile, options, config):
     if dict_fname:
         if find_file(dict_fname):
             info("Using dictionary file: {}".format(dict_fname))
-            with open_file(config['Dictionary'], 'r') as f:
-                for line in f:
-                    word = line.strip().lower()
-                    if word:
-                        words.add(word)
+            with open_file(dict_fname, 'r') as f:
+                try:
+                    for line in f:
+                        word = line.strip().lower()
+                        if word:
+                            words.add(word)
+                except UnicodeDecodeError:
+                    raise SkoolKitError(f'{dict_fname}: invalid UTF-8')
         else:
             info("Dictionary file '{}' not found".format(dict_fname))
     ctl_config = Config(options.handle_rst, config['TextChars'], config['TextMinLengthCode'], config['TextMinLengthData'], words)

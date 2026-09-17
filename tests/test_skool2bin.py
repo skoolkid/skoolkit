@@ -85,6 +85,12 @@ class Skool2BinTest(SkoolKitTestCase):
         self.assertEqual(len(error), 0)
         self.assertEqual(mock_bin_writer.binfile, 'program.bin')
 
+    def test_skool_file_not_utf8(self):
+        skoolfile = self.write_bin_file([0x80], suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2bin(skoolfile)
+        self.assertEqual(cm.exception.args[0], f'{skoolfile}: invalid UTF-8')
+
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_output_filename(self):
         skoolfile = 'test.skool'

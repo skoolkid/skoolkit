@@ -399,9 +399,12 @@ def run(infile, options, config):
         context.exec_map = set()
         if os.path.isfile(options.map):
             with open_file(options.map, 'r') as f:
-                for line in f:
-                    if re.match(r'\$[0-9A-F]{4}', line):
-                        context.exec_map.add(int(line[1:5], 16))
+                try:
+                    for line in f:
+                        if re.match(r'\$[0-9A-F]{4}', line):
+                            context.exec_map.add(int(line[1:5], 16))
+                except UnicodeDecodeError:
+                    raise SkoolKitError(f'{options.map}: invalid UTF-8')
     if options.trace:
         context.tracefile = open_file(options.trace, 'w')
         trace_header = config['TraceHeader'].replace(r'\n', '\n')
