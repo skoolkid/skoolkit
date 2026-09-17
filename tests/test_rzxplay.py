@@ -1617,6 +1617,14 @@ class RzxplayTest(SkoolKitTestCase):
         mock_pygame.display.set_caption.assert_called_with(rzxfile)
         self.assertEqual(mock_pygame.display.get_surface().get_pixel(7, 0), BLUE)
 
+    def test_option_scale_invalid(self):
+        pc = 0x8000
+        rzxfile = self.write_rzx_file(self._get_rzx(pc))
+        for scale in (-1, 0):
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_rzxplay(f'--scale {scale} {rzxfile}')
+            self.assertEqual(cm.exception.args[0], f'Invalid screen scale: {scale}')
+
     def test_option_show_config(self):
         output, error = self.run_rzxplay('--show-config', catch_exit=0)
         self.assertEqual(error, '')
@@ -1972,6 +1980,14 @@ class RzxplayTest(SkoolKitTestCase):
         exp_output = 'Using pygame\n'
         self._test_rzx(rzx, exp_output, '-I ScreenScale=4 --quiet')
         mock_pygame.display.set_mode.assert_called_with((1280, 960))
+
+    def test_config_ScreenScale_invalid(self):
+        pc = 0x8000
+        rzxfile = self.write_rzx_file(self._get_rzx(pc))
+        for scale in (-1, 0):
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_rzxplay(f'-I ScreenScale={scale} {rzxfile}')
+            self.assertEqual(cm.exception.args[0], f'Invalid screen scale: {scale}')
 
     def test_config_TraceHeader_read_from_file(self):
         ini = """

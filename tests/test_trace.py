@@ -2938,6 +2938,13 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(screen.frame, 1)
         self.assertEqual([(0, 0), (69894, 1)], screen.border)
 
+    def test_config_ScreenScale_invalid(self):
+        binfile = self.write_bin_file((0, 0), suffix='.bin')
+        for scale in (-1, 0):
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_trace(f'-I ScreenScale={scale} --screen -nS 65535 {binfile}')
+            self.assertEqual(cm.exception.args[0], f'Invalid screen scale: {scale}')
+
     def test_config_TraceHeader_read_from_file(self):
         ini = """
             [trace]

@@ -3806,6 +3806,14 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(screen.caption, 'tap2sna.py')
         self.assertFalse(screen.is128k)
 
+    def test_config_ScreenScale_invalid(self):
+        tapfile = self._write_tap([create_tap_data_block([0])])
+        prefix = ERROR_PREFIX.format(tapfile)
+        for scale in (-1, 0):
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_tap2sna(f'-I ScreenScale={scale} --screen {tapfile}')
+            self.assertEqual(cm.exception.args[0], f'{prefix}Invalid screen scale: {scale}')
+
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_config_TraceHeader_read_from_file(self):
         ini = """

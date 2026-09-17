@@ -17,6 +17,8 @@
 import contextlib
 import io
 
+from skoolkit import SkoolKitError
+
 with contextlib.redirect_stderr(io.StringIO()):
     with contextlib.redirect_stdout(io.StringIO()) as pygame_io:
         try:
@@ -42,6 +44,8 @@ class Screen:
             return super().__new__(cls)
 
     def __init__(self, scale, fps, caption, is128k):
+        if scale < 1:
+            raise SkoolKitError(f"Invalid screen scale: {scale}")
         self._init_colours_and_keys()
         pygame.init()
         pygame.display.set_mode((320 * scale, 240 * scale))
