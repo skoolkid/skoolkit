@@ -85,7 +85,10 @@ def _list_basic(cur_block_num, data, block_num, address):
     if block_num == cur_block_num:
         if not data:
             raise SkoolKitError(f'Block {block_num} has no data')
-        snapshot = [0] * address + list(data[1:-1])
+        snapshot = [0] * 65536
+        end = min(65536, address + len(data) - 2)
+        if end > address:
+            snapshot[address:end] = data[1:1 + end - address]
         print(BasicLister().list_basic(snapshot))
 
 def _get_basic_block(spec):
@@ -93,7 +96,10 @@ def _get_basic_block(spec):
         try:
             if ',' in spec:
                 params = spec.split(',', 1)
-                return get_int_param(params[0]), get_int_param(params[1], True)
+                address = get_int_param(params[1], True)
+                if 0 <= address < 65536:
+                    return get_int_param(params[0]), address
+                raise SkoolKitError(f'Invalid address: {spec}')
             return get_int_param(spec), 23755
         except ValueError:
             raise SkoolKitError('Invalid block specification: {}'.format(spec))

@@ -1179,21 +1179,27 @@ class TapinfoTest(SkoolKitTestCase):
         pzx = PZX()
         pzx.add_data(create_data_block(prog))
         pzxfile = self.write_bin_file(pzx.data, suffix='.pzx')
-        exp_snapshot = [0] * 23755 + prog
         output, error = self.run_tapinfo(f'-b 2 {pzxfile}')
         self.assertEqual(error, '')
         self.assertEqual(output, 'BASIC DONE!\n')
-        self.assertEqual(exp_snapshot, mock_basic_lister.snapshot)
+        snapshot = mock_basic_lister.snapshot
+        self.assertEqual(len(snapshot), 65536)
+        self.assertTrue(all(b == 0 for b in snapshot[:23755]))
+        self.assertEqual(prog, snapshot[23755:23755 + len(prog)])
+        self.assertTrue(all(b == 0 for b in snapshot[23755 + len(prog):]))
 
     @patch.object(tapinfo, 'BasicLister', MockBasicLister)
     def test_option_b_tap(self):
         prog = [10] * 10
         tapfile = self._write_tap([create_tap_data_block(prog)])
-        exp_snapshot = [0] * 23755 + prog
         output, error = self.run_tapinfo('-b 1 {}'.format(tapfile))
         self.assertEqual(error, '')
         self.assertEqual(output, 'BASIC DONE!\n')
-        self.assertEqual(exp_snapshot, mock_basic_lister.snapshot)
+        snapshot = mock_basic_lister.snapshot
+        self.assertEqual(len(snapshot), 65536)
+        self.assertTrue(all(b == 0 for b in snapshot[:23755]))
+        self.assertEqual(prog, snapshot[23755:23755 + len(prog)])
+        self.assertTrue(all(b == 0 for b in snapshot[23755 + len(prog):]))
 
     @patch.object(tapinfo, 'BasicLister', MockBasicLister)
     def test_option_basic_tzx_with_address(self):
@@ -1203,11 +1209,14 @@ class TapinfoTest(SkoolKitTestCase):
         data = prefix + prog
         blocks = [create_tzx_data_block(data)]
         tzxfile = self._write_tzx(blocks)
-        exp_snapshot = [0] * address + data
         output, error = self.run_tapinfo('--basic 1,{} {}'.format(address, tzxfile))
         self.assertEqual(error, '')
         self.assertEqual(output, 'BASIC DONE!\n')
-        self.assertEqual(exp_snapshot, mock_basic_lister.snapshot)
+        snapshot = mock_basic_lister.snapshot
+        self.assertEqual(len(snapshot), 65536)
+        self.assertTrue(all(b == 0 for b in snapshot[:address]))
+        self.assertEqual(data, snapshot[address:address + len(data)])
+        self.assertTrue(all(b == 0 for b in snapshot[address + len(data):]))
 
     @patch.object(tapinfo, 'BasicLister', MockBasicLister)
     def test_option_b_tap_with_hex_address(self):
@@ -1216,11 +1225,48 @@ class TapinfoTest(SkoolKitTestCase):
         prog = [9] * 9
         data = prefix + prog
         tapfile = self._write_tap([create_tap_data_block(data)])
-        exp_snapshot = [0] * address + data
         output, error = self.run_tapinfo('-b 1,0x{:04x} {}'.format(address, tapfile))
         self.assertEqual(error, '')
         self.assertEqual(output, 'BASIC DONE!\n')
-        self.assertEqual(exp_snapshot, mock_basic_lister.snapshot)
+        snapshot = mock_basic_lister.snapshot
+        self.assertEqual(len(snapshot), 65536)
+        self.assertTrue(all(b == 0 for b in snapshot[:address]))
+        self.assertEqual(data, snapshot[address:address + len(data)])
+        self.assertTrue(all(b == 0 for b in snapshot[address + len(data):]))
+
+    @patch.object(tapinfo, 'BasicLister', MockBasicLister)
+    def test_option_basic_with_data_overrun(self):
+        prog = list(range(10))
+        overrun = 4 # This many bytes of 'prog' will be lost
+        address = 65536 - len(prog) + overrun
+        tapfile = self._write_tap([create_tap_data_block(prog)])
+        output, error = self.run_tapinfo(f'--basic 1,{address} {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(output, 'BASIC DONE!\n')
+        snapshot = mock_basic_lister.snapshot
+        self.assertEqual(len(snapshot), 65536)
+        self.assertTrue(all(b == 0 for b in snapshot[:address]))
+        self.assertEqual(prog[:len(prog) - overrun], snapshot[address:])
+
+    @patch.object(tapinfo, 'BasicLister', MockBasicLister)
+    def test_option_b_with_block_containing_one_byte(self):
+        tapfile = self._write_tap([(1, 0, 255)])
+        output, error = self.run_tapinfo(f'-b 1,0 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(output, 'BASIC DONE!\n')
+        snapshot = mock_basic_lister.snapshot
+        self.assertEqual(len(snapshot), 65536)
+        self.assertTrue(all(b == 0 for b in snapshot))
+
+    @patch.object(tapinfo, 'BasicLister', MockBasicLister)
+    def test_option_b_with_block_containing_two_bytes(self):
+        tapfile = self._write_tap([(2, 0, 255, 255)])
+        output, error = self.run_tapinfo(f'-b 1,0 {tapfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(output, 'BASIC DONE!\n')
+        snapshot = mock_basic_lister.snapshot
+        self.assertEqual(len(snapshot), 65536)
+        self.assertTrue(all(b == 0 for b in snapshot))
 
     def test_option_b_with_pzx_block_without_data(self):
         pzx = PZX()
@@ -1230,6 +1276,12 @@ class TapinfoTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tapinfo(f'-b 2 {pzxfile}')
         self.assertEqual(cm.exception.args[0], 'Block 2 has no data')
+
+    def test_option_b_with_tap_block_without_data(self):
+        tapfile = self._write_tap([(0, 0)])
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tapinfo(f'-b 1 {tapfile}')
+        self.assertEqual(cm.exception.args[0], 'Block 1 has no data')
 
     def test_option_b_with_tzx_block_without_data(self):
         tzxfile = self._write_tzx((
@@ -1247,6 +1299,11 @@ class TapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('--basic', '1,z', exp_error)
         self._test_bad_spec('-b', '1,2,3', exp_error)
         self._test_bad_spec('--basic', '?,+', exp_error)
+
+    def test_option_b_with_invalid_address(self):
+        exp_error = 'Invalid address'
+        self._test_bad_spec('-b', '1,-1', exp_error)
+        self._test_bad_spec('--basic', '2,65536', exp_error)
 
     def test_option_data_with_pzx_file(self):
         pzx = PZX()
