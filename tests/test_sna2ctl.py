@@ -886,6 +886,21 @@ class Sna2CtlTest(SkoolKitTestCase):
         """
         self._test_generation(data, exp_ctl, options='-C')
 
+    def test_comment_generation_with_code_map_and_instruction_crossing_64k_boundary(self):
+        for opcodes in ((
+                [6],          # Opcode for LD B,n
+                [1, 0],       # Opcode for LD BC,nn and LSB of operand
+                [221, 33, 0], # Opcodes for LD IX,nn and LSB of operand
+        )):
+            data = [0] + opcodes
+            addr = 65536 - len(data)
+            exp_ctl = f"""
+                c {addr}
+                  {addr} Do nothing
+            """
+            code_map = (addr, addr + 1)
+            self._test_generation(data, exp_ctl, code_map, '-C')
+
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_comment_generator(self):
         custom_cg = """

@@ -428,7 +428,7 @@ def _generate_subctls(snapshot, ctls, subctls, rst_handler, cg):
         if ctl == 'c':
             subctls[start] = []
             for a, size, mc, op_id, op, rst_args in decode(snapshot, start, blocks[i + 1][0], rst_handler):
-                if cg:
+                if cg and not op.startswith('DEFB'):
                     comment = cg.get_comment(Instruction(a, snapshot[a:a + size]))
                     subctls[start].append((a, ' ', None, comment))
                 if rst_args:
