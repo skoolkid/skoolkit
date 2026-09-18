@@ -2303,6 +2303,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)([1)', "Cannot evaluate delays: '[1'", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)(1])', "Cannot evaluate delays: '1]'", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)([,])', "Cannot evaluate delays: '[,]'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO1,0,1,ay=1,ayres=0(ay.wav)', "Invalid AY resolution: 0", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(1,0,1,ay=1,ayres=-1)(ay.wav)', "Invalid AY resolution: -1", prefix)
 
     def test_macro_chr(self):
         writer = self._get_writer(skool='', variables=[('foo', 66)])

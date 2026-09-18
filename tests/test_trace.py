@@ -1418,6 +1418,24 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(ay_audio_writer.options.ay_res, 70908)
         self.assertFalse(ay_audio_writer.options.beeper)
 
+    def test_option_ay_res_bad_values(self):
+        data = (
+            0x11, 0x05, 0x02, # $C000 LD DE,$0205
+            0x01, 0xFD, 0xFF, # $C003 LD BC,$FFFD
+            0xED, 0x59,       # $C006 OUT (C),E
+            0x01, 0xFD, 0xBF, # $C008 LD BC,$BFFD
+            0xED, 0x51,       # $C00B OUT (C),D
+        )
+        ram = [0] * 49152
+        start = 0xC000
+        stop = start + len(data)
+        ram[start - 0x4000:stop - 0x4000] = data
+        infile = self.write_z80(ram, {'PC': start}, machine_id=4)
+        for value in (-1, 0):
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_trace(f'--ay-res {value} --ay -S {stop} {infile} out.wav')
+            self.assertEqual(cm.exception.args[0], f'Invalid AY resolution: {value}')
+
     def test_option_cmio(self):
         data = (
             0xAF,             # $6000 XOR A        ;  4T -> 10T [ 4T ->  10T]

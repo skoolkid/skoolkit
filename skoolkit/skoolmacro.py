@@ -679,6 +679,8 @@ def parse_audio(writer, text, index, need_audio=None):
             raise MacroParsingError(f'Missing start parameter: {text[index:end]}')
         if stop is None:
             raise MacroParsingError(f'Missing stop parameter: {text[index:end]}')
+        if ay and ayres < 1:
+            raise InvalidParameterError(f'Invalid AY resolution: {ayres}')
         if eval_delays:
             if cmio:
                 simulator_cls = CCMIOSimulator or CMIOSimulator

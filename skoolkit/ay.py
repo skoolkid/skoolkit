@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from skoolkit import SkoolKitError
 from skoolkit.audio import (CLOCK_SPEED, FRAME_DURATION, SAMPLE_RATE,
                             moving_average_filter, write_wav)
 from skoolkit.simutils import CLOCK_SPEEDS, FRAME_DURATIONS
@@ -161,6 +162,8 @@ class AY:
 class AYOptions:
     def __init__(self, volume, ay_res, beeper, mode):
         self.volume = max(min(volume, 100), 0)
+        if ay_res < 1:
+            raise SkoolKitError(f'Invalid AY resolution: {ay_res}')
         self.ay_res = ay_res
         self.beeper = beeper
         self.mode = mode % len(AY_MODES)
