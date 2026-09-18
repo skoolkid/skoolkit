@@ -374,9 +374,9 @@ def run(snafile, options, config):
         elif ext in bpr_audio_fmts:
             delays = tracer.get_delays()
             if delays:
-                options = BeeperOptions(options.volume, False, False, 0, is128k)
+                bpr_options = BeeperOptions(options.volume, False, False, 0, is128k)
                 with open_file(fname, 'wb') as f:
-                    audio_writer.write_audio(f, delays, options)
+                    audio_writer.write_audio(f, delays, bpr_options)
             else:
                 raise SkoolKitError('No audio detected')
         elif image_writer.image_fname(fname) == fname:
