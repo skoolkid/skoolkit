@@ -1,4 +1,4 @@
-# Copyright 2009-2025 Richard Dymond (rjdymond@gmail.com)
+# © 2009-2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -390,7 +390,7 @@ class SkoolWriter:
     def _set_instruction_comments(self, block, width, closing, show_text):
         for instruction in block.instructions:
             instruction.comment = [None]
-            if self.comment_gen and not instruction.operation.upper().startswith('DEF'):
+            if self.comment_gen and not instruction.operation.upper().startswith('DEF') and instruction.bytes:
                 gcomment = self.comment_gen.get_comment(instruction)
             else:
                 gcomment = None

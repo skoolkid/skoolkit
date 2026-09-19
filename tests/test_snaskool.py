@@ -1249,9 +1249,9 @@ class MockOptions:
         self.comments = comments
 
 class SkoolWriterTest(SkoolKitTestCase):
-    def _get_writer(self, snapshot, ctl, params=None, line_width=79, base=10, case=2, comments=False):
+    def _get_writer(self, snapshot, ctl, params=None, line_width=79, base=10, case=2, comments=False, max_address=65536):
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())])
+        ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())], max_address=max_address)
         options = MockOptions(line_width, base, case, comments)
         config = CONFIG.copy()
         config.update(params or {})
@@ -5395,6 +5395,20 @@ class SkoolWriterTest(SkoolKitTestCase):
             *00016 RET P         ; Return if the sign flag is not set (positive)
         """
         self._test_write_skool(snapshot, ctl, exp_skool, comments=True)
+
+    def test_comment_generation_with_end_address_beyond_final_i_block(self):
+        snapshot = [175]
+        ctl = """
+            c 00000
+            i 00001
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 XOR A         ; #REGa=0
+
+            i00001
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, comments=True, max_address=2)
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_comment_generator(self):
