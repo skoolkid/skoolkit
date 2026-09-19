@@ -18,8 +18,8 @@ import argparse
 from collections import defaultdict, namedtuple
 from os.path import basename
 
-from skoolkit import (SkoolParsingError, address, get_int_param, info,
-                      open_file, parse_int, warn, VERSION)
+from skoolkit import (SkoolKitError, SkoolParsingError, address, get_int_param,
+                      info, open_file, parse_int, warn, VERSION)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
@@ -285,6 +285,9 @@ class BinWriter:
         info("Wrote {}: start={}, end={}, size={}".format(binfile, base_address, end_address, len(data)))
 
 def run(skoolfile, binfile, options, config):
+    for p in ('PadLeft', 'PadRight'):
+        if not 0 <= config[p] <= 65536:
+            raise SkoolKitError(f"Invalid {p} value: '{config[p]}'")
     binwriter = BinWriter(skoolfile, options.asm_mode, options.fix_mode, options.banks, options.start,
                           options.end, options.data, options.verbose, options.warn,
                           config['PadLeft'], config['PadRight'])

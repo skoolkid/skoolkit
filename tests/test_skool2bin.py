@@ -164,6 +164,12 @@ class Skool2BinTest(SkoolKitTestCase):
         self.run_skool2bin(f'{skoolfile} {binfile}')
         self._check_values(skoolfile, binfile, pad_left=16384)
 
+    def test_config_PadLeft_bad_value(self):
+        for value in (-1, 65537):
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_skool2bin(f'-I PadLeft={value} in.skool')
+            self.assertEqual(cm.exception.args[0], f"Invalid PadLeft value: '{value}'")
+
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_config_PadRight_set_on_command_line(self):
         skoolfile = 'in.skool'
@@ -182,6 +188,12 @@ class Skool2BinTest(SkoolKitTestCase):
         binfile = 'out.bin'
         self.run_skool2bin(f'{skoolfile} {binfile}')
         self._check_values(skoolfile, binfile, pad_right=65536)
+
+    def test_config_PadRight_bad_value(self):
+        for value in (-1, 65537):
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_skool2bin(f'-I PadRight={value} in.skool')
+            self.assertEqual(cm.exception.args[0], f"Invalid PadRight value: '{value}'")
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_config_Verbose_set_on_command_line(self):
