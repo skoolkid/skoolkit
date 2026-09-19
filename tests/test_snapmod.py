@@ -404,6 +404,13 @@ class SnapmodTest(SkoolKitTestCase):
             options.append(f'--patch {addr},{pfile}')
         self._test_z80(' '.join(options), header, exp_header, ram, exp_ram, 3, False)
 
+    def test_option_patch_nonexistent_ram_bank(self):
+        z80file = self.write_z80([0] * 49152)
+        pfile = self.write_bin_file([0], suffix='.bin')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_snapmod(f'--patch 7:0,{pfile} {z80file}')
+        self.assertEqual(cm.exception.args[0], "RAM bank 7 does not exist")
+
     def test_option_patch_file_not_found(self):
         infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)
         fname = 'non-existent.bin'

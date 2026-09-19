@@ -863,9 +863,13 @@ def patch(snapshot, spec):
         size = min(65536 - address, len(data))
         snapshot[address:address + size] = data[:size]
     elif hasattr(snapshot, 'banks'):
+        page = page % 8
+        bank = snapshot.banks[page]
+        if bank is None:
+            raise SkoolKitError(f"RAM bank {page} does not exist")
         dest = address % 0x4000
         size = min(0x4000 - dest, len(data))
-        snapshot.banks[page % 8][dest:dest + size] = data[:size]
+        bank[dest:dest + size] = data[:size]
 
 def move(snapshot, param_str):
     try:
