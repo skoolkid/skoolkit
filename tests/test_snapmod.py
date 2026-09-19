@@ -111,7 +111,8 @@ class SnapmodTest(SkoolKitTestCase):
             ram = [0] * 49152
             ram[src - 16384:src - 16384 + size] = block
             exp_ram = ram[:]
-            exp_ram[dest - 16384:dest - 16384 + size] = block
+            overrun = max(0, dest + size - 65536)
+            exp_ram[dest - 16384:dest - 16384 + size - overrun] = block[:size - overrun]
         if is128:
             self._test_z80_128k(options, header, exp_header, ram, exp_ram, version, compress)
         else:
@@ -330,6 +331,9 @@ class SnapmodTest(SkoolKitTestCase):
     def test_option_m_hexadecimal_values(self):
         self._test_move('-m', 0x81AF, [203] * 3, 0x920D, 1, False, '$')
         self._test_move('-m', 0x91AF, [21] * 3, 0xA20D, 1, False, '0x')
+
+    def test_option_m_with_destination_range_crossing_64k_boundary(self):
+        self._test_move('-m', 50000, [10] * 10, 65530, 1, False)
 
     def test_option_m_invalid_values(self):
         infile = self.write_z80([0] * 49152, version=1, header=[1] * 30)

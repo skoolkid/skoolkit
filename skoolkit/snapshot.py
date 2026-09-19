@@ -115,7 +115,7 @@ class Memory:
         if isinstance(index, int):
             self.memory[index // 0x4000][index % 0x4000] = value
         else:
-            for a, b in zip(range(index.start, index.stop, index.step or 1), value):
+            for a, b in zip(range(index.start, min(index.stop, 0x10000), index.step or 1), value):
                 self.memory[a // 0x4000][a % 0x4000] = b
 
     def contents(self):
