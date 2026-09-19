@@ -2609,6 +2609,11 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         self._test_sna(ram, exp_output, '-g -I NodeId={label}', ctl)
 
+    def test_config_NodeId_bad_values(self):
+        self._test_bad_spec('-gI', 'NodeId={q}', "Unknown field 'q' in node ID format '{q}'", False)
+        self._test_bad_spec('-gI', 'NodeId={address:Z}', "Invalid node ID format '{address:Z}': Unknown format code 'Z' for object of type 'int'", False)
+        self._test_bad_spec('-gI', 'NodeId={address', "Invalid node ID format '{address': expected '}' before end of string", False)
+
     def test_config_NodeLabel(self):
         ram = [195, 3, 64, 201] + [0] * 49148
         ctl = """
@@ -2659,6 +2664,11 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         self._test_sna(ram, exp_output, '-g', ctl)
 
+    def test_config_NodeLabel_bad_values(self):
+        self._test_bad_spec('-gI', 'NodeLabel={q}', "Unknown field 'q' in node label format '{q}'", False)
+        self._test_bad_spec('-gI', 'NodeLabel={address:Z}', "Invalid node label format '{address:Z}': Unknown format code 'Z' for object of type 'int'", False)
+        self._test_bad_spec('-gI', 'NodeLabel={address', "Invalid node label format '{address': expected '}' before end of string", False)
+
     def test_config_Peek(self):
         ram = [0] * 49152
         ram[33616:33620] = [1, 65, 144, 165]
@@ -2670,6 +2680,11 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         self._test_sna(ram, exp_output, '-p 50000-50003 -I Peek=${address:04x}:{value:03d}({char})')
 
+    def test_config_Peek_bad_values(self):
+        self._test_bad_spec('-p 0 -I', 'Peek={q}', "Unknown field 'q' in peek format '{q}'", False)
+        self._test_bad_spec('-p 0 -I', 'Peek={address:Z}', "Invalid peek format '{address:Z}': Unknown format code 'Z' for object of type 'int'", False)
+        self._test_bad_spec('-p 0 -I', 'Peek={address', "Invalid peek format '{address': expected '}' before end of string", False)
+
     def test_config_Word(self):
         ram = [0] * 49152
         ram[43616:43620] = [1, 2, 254, 255]
@@ -2678,3 +2693,8 @@ class SnapinfoTest(SkoolKitTestCase):
             $EA62,$FFFE
         """
         self._test_sna(ram, exp_output, '-w 60000-60003 -I Word=${address:04X},${value:04X}')
+
+    def test_config_Word_bad_values(self):
+        self._test_bad_spec('-w 0 -I', 'Word={q}', "Unknown field 'q' in word format '{q}'", False)
+        self._test_bad_spec('-w 0 -I', 'Word={address:Z}', "Invalid word format '{address:Z}': Unknown format code 'Z' for object of type 'int'", False)
+        self._test_bad_spec('-w 0 -I', 'Word={address', "Invalid word format '{address': expected '}' before end of string", False)

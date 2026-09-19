@@ -16,7 +16,7 @@
 
 import re
 
-from skoolkit import SkoolKitError
+from skoolkit import SkoolKitError, check_format
 from skoolkit.simutils import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                SP, SP2, I, R, xA, xF, xB, xC, xD, xE, xH, xL,
                                MEMPTR)
@@ -71,13 +71,8 @@ def _m_repl(match):
 
 def get_trace_line(trace_line, extra_fields=None):
     fmt = re.sub(r'(\{+)m\[(0x|\$)([0-9a-fA-F]+)\]', _m_repl, trace_line)
-    try:
-        fmt.format(pc=0, i='.', r=Registers([0] * 30), t=0, m=[0] * 65536, fc=0, fr=0, fw=5, rr=1)
-    except KeyError as e:
-        raise SkoolKitError(f"Unknown field '{e.args[0]}' in trace line format '{trace_line}'")
-    except Exception as e:
-        raise SkoolKitError(f"Invalid trace line format '{trace_line}': {e.args[0]}")
-    return fmt
+    fields = {'pc': 0, 'i': '.', 'r': Registers([0] * 30), 't': 0, 'm': [0] * 65536, 'fc': 0, 'fr': 0, 'fw': 5, 'rr': 1}
+    return check_format(fmt, 'trace line', fields, trace_line)
 
 def get_operand_formats(spec):
     prefix, byte_fmt, word_fmt = (spec + ',' * (2 - spec.count(','))).split(',')[:3]

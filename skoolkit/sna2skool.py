@@ -18,11 +18,20 @@ import argparse
 import glob
 import os.path
 
-from skoolkit import address, info, VERSION
+from skoolkit import address, check_format, info, VERSION
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.ctlparser import CtlParser
 from skoolkit.snapshot import make_snapshot
 from skoolkit.snaskool import SkoolWriter
+
+def check_formats(config):
+    check_format(config['EntryPointRef'], 'entry point referrer comment', {'ref': '#R32768'})
+    check_format(config['EntryPointRefs'], 'entry point referrer comment', {'ref': '#R32770', 'refs': '#R32768, #R32769'})
+    check_format(config['Ref'], 'referrer comment', {'ref': '#R32768'})
+    check_format(config['RefFormat'], 'referrer', {'address': '0'})
+    check_format(config['Refs'], 'referrer comment', {'ref': '#R32770', 'refs': '#R32768, #R32769'})
+    for etype in 'bcgistuw':
+        check_format(config[f'Title-{etype}'], 'title', {'address': 0})
 
 def get_ctl_parser(ctls, infile, start, end, def_start, def_end, defb=None, config=None):
     if infile[-4:].lower() in ('.bin', '.sna', '.szx', '.z80'):
@@ -60,6 +69,7 @@ def run(infile, options, config):
         options.start = 0
     ctl_parser = get_ctl_parser(options.ctls, infile, options.start, options.end, start, end, options.defb, config)
     config['HandleRST'] = options.handle_rst
+    check_formats(config)
     writer = SkoolWriter(snapshot, ctl_parser, options, config)
     writer.write_skool()
 

@@ -23,14 +23,15 @@ import time
 import argparse
 from io import StringIO
 
-from skoolkit import (defaults, SkoolKitError, find_file, get_object, makedirs,
-                      normpath, open_file, show_package_dir, variable, write,
-                      write_line, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER,
-                      PACKAGE_DIR, VERSION)
+from skoolkit import (defaults, SkoolKitError, check_format, find_file,
+                      get_object, makedirs, normpath, open_file,
+                      show_package_dir, variable, write, write_line, BASE_10,
+                      BASE_16, CASE_LOWER, CASE_UPPER, PACKAGE_DIR, VERSION)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.refparser import RefParser
 from skoolkit.skoolhtml import FileInfo
 from skoolkit.skoolparser import SkoolParser
+from skoolkit.skoolutils import get_label_format
 
 SEARCH_DIRS = (
     '',
@@ -211,7 +212,7 @@ def run(infiles, options, config):
         get_object(ref_config['InitModule'], module_path)
     html_writer_class = get_object(ref_config['HtmlWriterClass'], module_path)
     game_dir = ref_config.get('GameDir', prefix)
-    label_fmt = (config['EntryLabel'], config['EntryPointLabel'])
+    label_fmt = get_label_format(config)
 
     # Parse the skool file and initialise the writer
     skool_parser = clock(SkoolParser, 'Parsing {}'.format(fname), skoolfile, case=options.case, base=options.base,

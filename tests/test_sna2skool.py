@@ -42,6 +42,12 @@ class Sna2SkoolTest(SkoolKitTestCase):
         patch.object(config, 'find_file', mock_find_file).start()
         self.addCleanup(patch.stopall)
 
+    def _test_bad_spec(self, options, exp_error):
+        infile = self.write_bin_file([0], suffix='.bin')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_sna2skool(f'{options} {infile}')
+        self.assertEqual(cm.exception.args[0], exp_error)
+
     @patch.object(sna2skool, 'run', mock_run)
     def test_default_option_values(self):
         sna = '{}/test.sna'.format(self.make_directory())
@@ -740,6 +746,16 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(options.comments, 1)
         self.assertEqual(config['Comments'], 1)
 
+    def test_config_EntryPointRef_bad_values(self):
+        self._test_bad_spec('-I EntryPointRef={q}', "Unknown field 'q' in entry point referrer comment format '{q}'")
+        self._test_bad_spec('-I EntryPointRef={ref:04X}', "Invalid entry point referrer comment format '{ref:04X}': Unknown format code 'X' for object of type 'str'")
+        self._test_bad_spec('-I EntryPointRef={ref', "Invalid entry point referrer comment format '{ref': expected '}' before end of string")
+
+    def test_config_EntryPointRef_bad_values(self):
+        self._test_bad_spec('-I EntryPointRefs={q}', "Unknown field 'q' in entry point referrer comment format '{q}'")
+        self._test_bad_spec('-I EntryPointRefs={refs:04X}', "Invalid entry point referrer comment format '{refs:04X}': Unknown format code 'X' for object of type 'str'")
+        self._test_bad_spec('-I EntryPointRefs={refs', "Invalid entry point referrer comment format '{refs': expected '}' before end of string")
+
     @patch.object(sna2skool, 'run', mock_run)
     def test_config_HandleRST_updates_option(self):
         self.run_sna2skool('-I HandleRST=1 test-Comments.skool')
@@ -755,3 +771,25 @@ class Sna2SkoolTest(SkoolKitTestCase):
         options, config = run_args[1:]
         self.assertEqual(options.handle_rst, 1)
         self.assertEqual(config['HandleRST'], 1)
+
+    def test_config_Ref_bad_values(self):
+        self._test_bad_spec('-I Ref={q}', "Unknown field 'q' in referrer comment format '{q}'")
+        self._test_bad_spec('-I Ref={ref:04X}', "Invalid referrer comment format '{ref:04X}': Unknown format code 'X' for object of type 'str'")
+        self._test_bad_spec('-I Ref={ref', "Invalid referrer comment format '{ref': expected '}' before end of string")
+
+    def test_config_RefFormat_bad_values(self):
+        self._test_bad_spec('-I RefFormat={q}', "Unknown field 'q' in referrer format '{q}'")
+        self._test_bad_spec('-I RefFormat={address:04X}', "Invalid referrer format '{address:04X}': Unknown format code 'X' for object of type 'str'")
+        self._test_bad_spec('-I RefFormat=L{address', "Invalid referrer format 'L{address': expected '}' before end of string")
+
+    def test_config_Refs_bad_values(self):
+        self._test_bad_spec('-I Refs={q}', "Unknown field 'q' in referrer comment format '{q}'")
+        self._test_bad_spec('-I Refs={refs:04X}', "Invalid referrer comment format '{refs:04X}': Unknown format code 'X' for object of type 'str'")
+        self._test_bad_spec('-I Refs={refs', "Invalid referrer comment format '{refs': expected '}' before end of string")
+
+    def test_config_Title_bad_values(self):
+        for etype in 'bcgistuw':
+            param = f'Title-{etype}'
+            self._test_bad_spec(f'-I {param}={{q}}', "Unknown field 'q' in title format '{q}'")
+            self._test_bad_spec(f'-I {param}={{address:Z}}', "Invalid title format '{address:Z}': Unknown format code 'Z' for object of type 'int'")
+            self._test_bad_spec(f'-I {param}={{address', "Invalid title format '{address': expected '}' before end of string")

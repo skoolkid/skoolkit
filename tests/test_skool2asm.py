@@ -57,6 +57,11 @@ class Skool2AsmTest(SkoolKitTestCase):
     def _write_skool_file(self, text, path=None, suffix='.skool'):
         return self.write_text_file(dedent(text).strip(), path, suffix)
 
+    def _test_bad_spec(self, options, exp_error):
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2asm(f'{options} bad-spec.skool')
+        self.assertEqual(cm.exception.args[0], exp_error)
+
     @patch.object(skool2asm, 'run', mock_run)
     def test_default_option_values(self):
         skoolfile = 'test.skool'
@@ -816,3 +821,18 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.run_skool2asm('--set instruction-width={} {}'.format(width, skoolfile))
         self.assertEqual(mock_asm_writer.properties['instruction-width'], width)
         self.assertTrue(mock_asm_writer.wrote)
+
+    def test_config_Address_bad_values(self):
+        self._test_bad_spec('-I Address={q}', "Unknown field 'q' in address format '{q}'")
+        self._test_bad_spec('-I Address={address:Z}', "Invalid address format '{address:Z}': Unknown format code 'Z' for object of type 'int'")
+        self._test_bad_spec('-I Address=L{address', "Invalid address format 'L{address': expected '}' before end of string")
+
+    def test_config_EntryLabel_bad_values(self):
+        self._test_bad_spec('-I EntryLabel={q}', "Unknown field 'q' in entry label format '{q}'")
+        self._test_bad_spec('-I EntryLabel={address:04X}', "Invalid entry label format '{address:04X}': Unknown format code 'X' for object of type 'str'")
+        self._test_bad_spec('-I EntryLabel=L{address', "Invalid entry label format 'L{address': expected '}' before end of string")
+
+    def test_config_EntryPointLabel_bad_values(self):
+        self._test_bad_spec('-I EntryPointLabel={q}', "Unknown field 'q' in entry point label format '{q}'")
+        self._test_bad_spec('-I EntryPointLabel={address:04X}', "Invalid entry point label format '{address:04X}': Unknown format code 'X' for object of type 'str'")
+        self._test_bad_spec('-I EntryPointLabel=L{address', "Invalid entry point label format 'L{address': expected '}' before end of string")

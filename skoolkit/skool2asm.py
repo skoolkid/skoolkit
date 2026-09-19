@@ -18,12 +18,14 @@ import argparse
 import os.path
 import time
 
-from skoolkit import (address, info, get_object, show_package_dir, variable,
-                      VERSION, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER)
+from skoolkit import (address, check_format, info, get_object,
+                      show_package_dir, variable, VERSION, BASE_10, BASE_16,
+                      CASE_LOWER, CASE_UPPER)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.refparser import RefParser
 from skoolkit.skoolasm import AsmWriter, TEMPLATES
 from skoolkit.skoolparser import SkoolParser
+from skoolkit.skoolutils import get_label_format
 
 def clock(quiet, prefix, operation, *args, **kwargs):
     go = time.time()
@@ -46,7 +48,8 @@ def run(skoolfile, options, config):
     else:
         fname = skoolfile
     asm_mode = options.asm_mode + 4 * int(options.force)
-    label_fmt = (config['EntryLabel'], config['EntryPointLabel'])
+    check_format(config['Address'], 'address', {'address': 0})
+    label_fmt = get_label_format(config)
     parser = clock(options.quiet, 'Parsed {}'.format(fname), SkoolParser, skoolfile,
                    options.case, options.base, asm_mode, options.warn, options.fix_mode, False,
                    options.create_labels, True, label_fmt, options.start, options.end, options.variables)

@@ -202,6 +202,15 @@ def makedirs(path):
     except OSError as e:
         raise SkoolKitError(f"Failed to create directory '{path}': {e}")
 
+def check_format(fmt, desc, fields, orig_fmt=None):
+    try:
+        fmt.format(**fields)
+    except KeyError as e:
+        raise SkoolKitError(f"Unknown field '{e.args[0]}' in {desc} format '{orig_fmt or fmt}'")
+    except Exception as e:
+        raise SkoolKitError(f"Invalid {desc} format '{orig_fmt or fmt}': {e.args[0]}")
+    return fmt
+
 def format_template(template__, name__, **fields):
     try:
         return template__.format(**fields)

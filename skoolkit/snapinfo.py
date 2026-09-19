@@ -16,8 +16,8 @@
 
 import argparse
 
-from skoolkit import (SkoolKitError, address, get_dword, get_int_param,
-                      get_word, VERSION)
+from skoolkit import (SkoolKitError, address, check_format, get_dword,
+                      get_int_param, get_word, VERSION)
 from skoolkit.basic import BasicLister, VariableLister, get_char
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.opcodes import END, decode
@@ -324,6 +324,9 @@ def _get_address_ranges(specs, step=1):
     return addr_ranges
 
 def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
+    node_fields = {'address': 0, 'label': 'START'}
+    node_id_fmt = check_format(config['NodeId'], 'node ID', node_fields)
+    node_label_fmt = check_format(config['NodeLabel'], 'node label', node_fields)
     disassembly = Disassembly(snapshot, get_ctl_parser(ctlfiles, prefix, start, end, start, end), self_refs=True)
     entries = {e.address: (e, set(), set(), set(), {}) for e in disassembly.entries if e.ctl == 'c'}
     for entry, children, parents, main_refs, props in entries.values():
@@ -349,7 +352,7 @@ def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
             ('Orphans', {e.address for e, c, p, m, n in entries.values() if c and not p}),
             ('First instruction not used', {e.address for e, c, p, m, n in entries.values() if p and not m})
     ):
-        node_ids = [config['NodeId'].format(**entries[addr][4]) for addr in sorted(addresses)]
+        node_ids = [node_id_fmt.format(**entries[addr][4]) for addr in sorted(addresses)]
         if not node_ids:
             node_ids.append('None')
         print('// {}: {}'.format(desc, ', '.join(node_ids)))
@@ -361,10 +364,10 @@ def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
     if config['EdgeAttributes']:
         print('edge [{}]'.format(config['EdgeAttributes']))
     for entry, children, parents, main_refs, props in entries.values():
-        node_id = config['NodeId'].format(**props)
-        print('{} [label={}]'.format(node_id, config['NodeLabel'].format(**props)))
+        node_id = node_id_fmt.format(**props)
+        print('{} [label={}]'.format(node_id, node_label_fmt.format(**props)))
         if children:
-            ref_ids = [config['NodeId'].format(address=a, label=entries[a][0].instructions[0].label or '') for a in children]
+            ref_ids = [node_id_fmt.format(address=a, label=entries[a][0].instructions[0].label or '') for a in children]
             print('{} -> {{{}}}'.format(node_id, ' '.join(ref_ids)))
     print('}')
 
@@ -427,14 +430,16 @@ def _find_text(snapshot, text, base_addr):
             if snapshot[a:a + size] == byte_values:
                 print("{0}-{1} {0:04X}-{1:04X}: {2}".format(a, a + size - 1, text))
 
-def _peek(snapshot, specs, fmt):
+def _peek(snapshot, specs, config):
+    fmt = check_format(config['Peek'], 'peek', {'address': 0, 'value': 0, 'char': '?'})
     for addr1, addr2, step in _get_address_ranges(specs):
         for a in range(addr1, min(addr2 + 1, 65536), step):
             value = snapshot[a]
             char = get_char(value, '', 'UDG-{}', True)
             print(fmt.format(address=a, value=value, char=char))
 
-def _word(snapshot, specs, fmt):
+def _word(snapshot, specs, config):
+    fmt = check_format(config['Word'], 'word', {'address': 0, 'value': 0})
     for addr1, addr2, step in _get_address_ranges(specs, 2):
         for a in range(addr1, min(addr2 + 1, 65535), step):
             value = snapshot[a] + 256 * snapshot[a + 1]
@@ -460,9 +465,9 @@ def run(infile, options, config):
         elif options.call_graph:
             _call_graph(snapshot, options.ctlfiles, infile, start, end, config)
         elif options.peek:
-            _peek(snapshot, options.peek, config['Peek'])
+            _peek(snapshot, options.peek, config)
         elif options.word:
-            _word(snapshot, options.word, config['Word'])
+            _word(snapshot, options.word, config)
         else:
             if options.basic:
                 print(BasicLister().list_basic(snapshot))

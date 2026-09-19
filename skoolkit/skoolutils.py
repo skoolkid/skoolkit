@@ -18,7 +18,8 @@ from collections import namedtuple
 import re
 
 from skoolkit import (CASE_LOWER, CASE_UPPER, ROM128, SkoolParsingError,
-                      get_int_param, parse_int, read_bin_file, wrap, z80)
+                      check_format, get_int_param, parse_int, read_bin_file,
+                      wrap, z80)
 from skoolkit.skoolmacro import ClosingBracketError, MacroParsingError, parse_brackets, parse_strings
 from skoolkit.textutils import partition_unquoted
 
@@ -382,6 +383,13 @@ class Register:
 
     def apply_replacements(self, repf):
         self.contents = repf(self.contents)
+
+def get_label_format(config):
+    el_fields = {'address': '32768', 'location': 32768}
+    entry_label = check_format(config['EntryLabel'], 'entry label', el_fields)
+    epl_fields = {'address': '32768', 'index': 0, 'location': 32768, 'main': 'START'}
+    entry_point_label = check_format(config['EntryPointLabel'], 'entry point label', epl_fields)
+    return (entry_label, entry_point_label)
 
 def get_address(operation):
     search = re.search(r'(\A|[\s,(+-])(\$[0-9A-Fa-f]+|%[01]+|\d+)', operation)

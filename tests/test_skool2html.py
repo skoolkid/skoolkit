@@ -78,6 +78,12 @@ class Skool2HtmlTest(SkoolKitTestCase):
     def _write_ref_file(self, text, path=None, suffix='.ref'):
         return self.write_text_file(dedent(text).strip(), path, suffix)
 
+    def _test_bad_spec(self, options, exp_error):
+        skoolfile = self.write_text_file(suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2html(f'{options} {skoolfile}')
+        self.assertEqual(cm.exception.args[0], exp_error)
+
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     def _test_option_w(self, write_option, file_ids, method_name, exp_arg_list=None):
         ref = """
@@ -1573,6 +1579,16 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: skool2html.py'))
         self.assertTrue(error.endswith("missing variable value: 'foo'\n"))
+
+    def test_config_EntryLabel_bad_values(self):
+        self._test_bad_spec('-I EntryLabel={q}', "Unknown field 'q' in entry label format '{q}'")
+        self._test_bad_spec('-I EntryLabel={address:04X}', "Invalid entry label format '{address:04X}': Unknown format code 'X' for object of type 'str'")
+        self._test_bad_spec('-I EntryLabel=L{address', "Invalid entry label format 'L{address': expected '}' before end of string")
+
+    def test_config_EntryPointLabel_bad_values(self):
+        self._test_bad_spec('-I EntryPointLabel={q}', "Unknown field 'q' in entry point label format '{q}'")
+        self._test_bad_spec('-I EntryPointLabel={address:04X}', "Invalid entry point label format '{address:04X}': Unknown format code 'X' for object of type 'str'")
+        self._test_bad_spec('-I EntryPointLabel=L{address', "Invalid entry point label format 'L{address': expected '}' before end of string")
 
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_Config_InitModule_parameter(self):
