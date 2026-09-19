@@ -82,7 +82,7 @@ def write_text(text):
     sys.stdout.write(text)
 
 def wrap(text, width):
-    WRAPPER.width = width
+    WRAPPER.width = max(width, 1)
     return WRAPPER.wrap(text)
 
 def get_int_param(num_str, accept0x=False):

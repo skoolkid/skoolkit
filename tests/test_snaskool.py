@@ -3351,6 +3351,23 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, params={'CommentWidthMin': 23})
 
+    def test_comment_width_min_zero_with_small_line_width(self):
+        # Comments should be wrapped to a minimum of one character per line
+        snapshot = [100] * 3
+        ctl = """
+            b 00000 Data
+              00000,3,1 a b c
+            i 00003
+        """
+        exp_skool = """
+            ; Data
+            b00000 DEFB 100      ; {a
+             00001 DEFB 100      ; b
+             00002 DEFB 100      ; c
+                                 ; }
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'CommentWidthMin': 0}, line_width=10)
+
     def test_defm_size(self):
         snapshot = [65] * 4
         ctl = """

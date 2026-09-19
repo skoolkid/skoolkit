@@ -1003,6 +1003,26 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             for line_no, exp_line in enumerate(exp_lines, 1):
                 self.assertEqual(asm[line_no], exp_line)
 
+    def test_property_comment_width_min_zero_with_small_line_width(self):
+        # Comments should be wrapped to a minimum of one character per line
+        skool = """
+            @start
+            @set-comment-width-min=0
+            @set-line-width=10
+            ; Data
+            c35000 DEFB 255 ; a b c
+        """
+        exp_asm = [
+            '; Data',
+            '  DEFB 255                ; a',
+            '                          ; b',
+            '                          ; c',
+            '',
+            ''
+        ]
+        asm = self._get_asm(skool).split('\n')
+        self.assertEqual(exp_asm, asm)
+
     def test_property_indent(self):
         skool = """
             @start
