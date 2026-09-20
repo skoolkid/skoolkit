@@ -1362,6 +1362,8 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('-f', '4,5,6-1-y', exp_error.format('1-y'), False)
         self._test_bad_spec('--find', '7,8,9-z-5', exp_error.format('z-5'), False)
         self._test_bad_spec('-f', '10,11,12-q-?', exp_error.format('q-?'), False)
+        self._test_bad_spec('-f', '10-0', exp_error.format('0'), False)
+        self._test_bad_spec('-f', '10-0-0', exp_error.format('0-0'), False)
 
     def test_option_g_with_no_ctl_file(self):
         ram = [0] * 49152
@@ -2005,6 +2007,7 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('-p', '32768-?', exp_error)
         self._test_bad_spec('--peek', '32768-32868-q', exp_error)
         self._test_bad_spec('-p', '32768-32868-2-3', exp_error)
+        self._test_bad_spec('-p', '32768-32769-0', 'Invalid step in address range')
 
     def test_option_P(self):
         ram = [0] * 49152
@@ -2387,6 +2390,8 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('-T', '5,6-1-y', exp_error.format('1-y'), False)
         self._test_bad_spec('--find-tile', '8,9-z-5', exp_error.format('z-5'), False)
         self._test_bad_spec('-T', '11,12-q-?', exp_error.format('q-?'), False)
+        self._test_bad_spec('-T', '3,4-0', exp_error.format('0'), False)
+        self._test_bad_spec('-T', '5,6-0-0', exp_error.format('0-0'), False)
 
     def test_option_V(self):
         for option in ('-V', '--version'):
@@ -2497,6 +2502,7 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('-w', '32768-?', exp_error)
         self._test_bad_spec('--word', '32768-32868-q', exp_error)
         self._test_bad_spec('-w', '32768-32868-2-3', exp_error)
+        self._test_bad_spec('-w', '32768-32769-0', 'Invalid step in address range')
 
     def test_config_EdgeAttributes(self):
         ram = [24, 0, 201] + [0] * 49149
