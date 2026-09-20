@@ -439,7 +439,7 @@ def _set_sim_load_config(options):
             elif name == 'finish-tape':
                 options.finish_tape = parse_int(value, options.finish_tape)
             elif name == 'first-edge':
-                options.first_edge = parse_int(value, options.first_edge)
+                options.first_edge = max(0, parse_int(value, options.first_edge))
             elif name == 'in-flags':
                 options.in_flags = parse_int(value, options.in_flags)
             elif name == 'load':

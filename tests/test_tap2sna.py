@@ -728,6 +728,27 @@ class Tap2SnaTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
+    def test_option_tape_analysis_with_negative_first_edge_reset_to_zero(self):
+        tapfile = self._write_tap((
+            create_tap_header_block(start=0),
+            create_tap_data_block([4, 5, 6]),
+        ))
+        output, error = self.run_tap2sna(f'--tape-analysis -c first-edge=-1 {tapfile}', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            T-states    EAR  Description
+                     0    0  Tone (8063 x 2168 T-states)
+              17480584    1  Pulse (667 T-states)
+              17481251    0  Pulse (735 T-states)
+              17481986    1  Data (19 bytes; 855,855/1710,1710 T-states)
+              17765846    1  Pause (3500000 T-states)
+              21265846    1  Tone (3223 x 2168 T-states)
+              28253310    0  Pulse (667 T-states)
+              28253977    1  Pulse (735 T-states)
+              28254712    0  Data (5 bytes; 855,855/1710,1710 T-states)
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
     def test_option_tape_analysis_with_polarity(self):
         blocks = [
             create_tap_header_block(start=0),
