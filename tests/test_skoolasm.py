@@ -3,7 +3,7 @@ from textwrap import dedent, wrap
 
 from skoolkittest import SkoolKitTestCase
 from macrotest import CommonSkoolMacroTest, nest_macros
-from skoolkit import SkoolParsingError, BASE_10, BASE_16
+from skoolkit import SkoolKitError, SkoolParsingError, BASE_10, BASE_16
 from skoolkit.config import COMMANDS
 from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER
@@ -86,6 +86,13 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
                 self.assertTrue(func(cm.exception.args[0], error_msg))
             else:
                 self.assertEqual(cm.exception.args[0], error_msg)
+
+    def _assert_formatting_error(self, skool, templates, error_msg):
+        self.clear_streams()
+        with self.assertRaises(SkoolKitError) as cm:
+            writer = self._get_writer(dedent(skool).strip(), templates=templates)
+            writer.write()
+        self.assertEqual(cm.exception.args[0], error_msg)
 
     def _test_unsupported_macro(self, writer, text, error_msg=None):
         search = re.search('#[A-Z]+', text)
@@ -3051,6 +3058,105 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
               RET
         """
         self._test_asm(skool, exp_asm, templates=templates)
+
+    def test_custom_comment_template_formatting_errors(self):
+        prefix = 'Failed to format comment template: '
+        skool = """
+            @start
+            ; Routine
+            c32768 RET
+        """
+        for template, error_msg in (
+                ('; {unknown}', "Unknown field 'unknown' in comment template"),
+                ('; {text:X}', f"{prefix}Unknown format code 'X' for object of type 'str'"),
+                ('; text}', f"{prefix}Single '}}' encountered in format string"),
+                ('; {text.a}', f"{prefix}'str' object has no attribute 'a'"),
+                ('; {0}', f"{prefix}Replacement index 0 out of range for positional args tuple"),
+        ):
+            self._assert_formatting_error(skool, {'comment': template}, error_msg)
+
+    def test_custom_equ_template_formatting_errors(self):
+        prefix = 'Failed to format equ template: '
+        skool = """
+            @start
+            @equ=ATTRS=22528
+            c32768 RET
+        """
+        for template, error_msg in (
+                ('; {unknown}', "Unknown field 'unknown' in equ template"),
+                ('; {value:X}', f"{prefix}Unknown format code 'X' for object of type 'str'"),
+                ('; {label', f"{prefix}expected '}}' before end of string"),
+                ('; {label.a}', f"{prefix}'str' object has no attribute 'a'"),
+                ('; {0}', f"{prefix}Replacement index 0 out of range for positional args tuple"),
+        ):
+            self._assert_formatting_error(skool, {'equ': template}, error_msg)
+
+    def test_custom_instruction_template_formatting_errors(self):
+        prefix = 'Failed to format instruction template: '
+        skool = """
+            @start
+            c32768 RET
+        """
+        for template, error_msg in (
+                ('; {unknown}', "Unknown field 'unknown' in instruction template"),
+                ('; {operation:X}', f"{prefix}Unknown format code 'X' for object of type 'str'"),
+                ('; {operation', f"{prefix}expected '}}' before end of string"),
+                ('; {operation.a}', f"{prefix}'str' object has no attribute 'a'"),
+                ('; {0}', f"{prefix}Replacement index 0 out of range for positional args tuple"),
+        ):
+            self._assert_formatting_error(skool, {'instruction': template}, error_msg)
+
+    def test_custom_label_template_formatting_errors(self):
+        prefix = 'Failed to format label template: '
+        skool = """
+            @start
+            @label=START
+            c32768 RET
+        """
+        for template, error_msg in (
+                ('; {unknown}', "Unknown field 'unknown' in label template"),
+                ('; {label:X}', f"{prefix}Unknown format code 'X' for object of type 'str'"),
+                ('; {label', f"{prefix}expected '}}' before end of string"),
+                ('; {label.a}', f"{prefix}'str' object has no attribute 'a'"),
+                ('; {0}', f"{prefix}Replacement index 0 out of range for positional args tuple"),
+        ):
+            self._assert_formatting_error(skool, {'label': template}, error_msg)
+
+    def test_custom_org_template_formatting_errors(self):
+        prefix = 'Failed to format org template: '
+        skool = """
+            @start
+            @org
+            c32768 RET
+        """
+        for template, error_msg in (
+                ('; {unknown}', "Unknown field 'unknown' in org template"),
+                ('; {address:X}', f"{prefix}Unknown format code 'X' for object of type 'str'"),
+                ('; {address', f"{prefix}expected '}}' before end of string"),
+                ('; {address.a}', f"{prefix}'str' object has no attribute 'a'"),
+                ('; {0}', f"{prefix}Replacement index 0 out of range for positional args tuple"),
+        ):
+            self._assert_formatting_error(skool, {'org': template}, error_msg)
+
+    def test_custom_register_template_formatting_errors(self):
+        prefix = 'Failed to format register template: '
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; Return having done nothing.
+            ;
+            ; A 0
+            c32768 RET
+        """
+        for template, error_msg in (
+                ('; {unknown}', "Unknown field 'unknown' in register template"),
+                ('; {reg:X}', f"{prefix}Unknown format code 'X' for object of type 'str'"),
+                ('; {reg', f"{prefix}expected '}}' before end of string"),
+                ('; {reg.a}', f"{prefix}'str' object has no attribute 'a'"),
+                ('; {0}', f"{prefix}Replacement index 0 out of range for positional args tuple"),
+        ):
+            self._assert_formatting_error(skool, {'register': template}, error_msg)
 
 class TableMacroTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):

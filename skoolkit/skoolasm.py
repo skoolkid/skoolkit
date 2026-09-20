@@ -150,7 +150,8 @@ class AsmWriter:
         text_f = '{text'
         if text_f in template:
             text_f = skoolmacro.parse_strings(template, template.index(text_f), 1)[1]
-        return self.line_width - len(template.replace(text_f, 'text').format(text='', **subs))
+        t_len = len(format_template(template.replace(text_f, 'text'), template_name, text='', **subs))
+        return self.line_width - t_len
 
     def warn(self, s):
         if self.show_warnings:

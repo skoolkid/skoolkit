@@ -214,10 +214,10 @@ def check_format(fmt, desc, fields, orig_fmt=None):
 def format_template(template__, name__, **fields):
     try:
         return template__.format(**fields)
-    except ValueError as e:
-        raise SkoolKitError('Failed to format {} template: {}'.format(name__, e.args[0]))
     except KeyError as e:
-        raise SkoolKitError("Unknown field '{}' in {} template".format(e.args[0], name__))
+        raise SkoolKitError(f"Unknown field '{e.args[0]}' in {name__} template")
+    except Exception as e:
+        raise SkoolKitError(f'Failed to format {name__} template: {e.args[0]}')
 
 def normpath(*paths):
     return posixpath.normpath(posixpath.join(*[p.replace('\\', '/') for p in paths]))
