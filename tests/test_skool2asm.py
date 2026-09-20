@@ -45,6 +45,10 @@ class MockAsmWriter:
     def write(self):
         self.wrote = True
 
+class BadAsmWriter:
+    def __init__(self, parser, properties, templates):
+        pass
+
 class Skool2AsmTest(SkoolKitTestCase):
     def setUp(self):
         global mock_skool_parser, mock_asm_writer
@@ -490,6 +494,18 @@ class Skool2AsmTest(SkoolKitTestCase):
         skoolfile = self._write_skool_file(skool)
         with self.assertRaisesRegex(SkoolKitError, "No object named 'NonexistentAsmWriter' in module 'test_skool2asm'"):
             self.run_skool2asm(skoolfile)
+
+    def test_writer_init_failure(self):
+        skool = """
+            @start
+            @writer=test_skool2asm.BadAsmWriter
+            ; Begin
+            c24576 RET
+        """
+        skoolfile = self._write_skool_file(skool)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2asm(skoolfile)
+        self.assertEqual(cm.exception.args[0], 'BadAsmWriter.__init__() takes 4 positional arguments but 5 were given')
 
     def test_writer(self):
         skool = """

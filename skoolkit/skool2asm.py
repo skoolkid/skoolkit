@@ -1,4 +1,4 @@
-# Copyright 2008-2021 Richard Dymond (rjdymond@gmail.com)
+# © 2008-2021, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -18,7 +18,7 @@ import argparse
 import os.path
 import time
 
-from skoolkit import (address, check_format, info, get_object,
+from skoolkit import (SkoolKitError, address, check_format, info, get_object,
                       show_package_dir, variable, VERSION, BASE_10, BASE_16,
                       CASE_LOWER, CASE_UPPER)
 from skoolkit.config import get_config, show_config, update_options
@@ -69,7 +69,10 @@ def run(skoolfile, options, config):
             properties[name] = value
     if not options.warn:
         properties['warnings'] = '0'
-    asm_writer = asm_writer_class(parser, properties, templates, config)
+    try:
+        asm_writer = asm_writer_class(parser, properties, templates, config)
+    except Exception as e:
+        raise SkoolKitError(str(e))
     clock(options.quiet, 'Wrote ASM to stdout', asm_writer.write)
 
 def main(args):

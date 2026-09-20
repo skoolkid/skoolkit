@@ -17,6 +17,10 @@ def mock_write_disassembly(*args):
     global write_disassembly_args
     write_disassembly_args = args
 
+class BadHtmlWriter:
+    def __init__(self, skool_parser, ref_parser):
+        pass
+
 class TestHtmlWriter(HtmlWriter):
     def init(self):
         global html_writer
@@ -1270,6 +1274,12 @@ class Skool2HtmlTest(SkoolKitTestCase):
             output, error = self.run_skool2html('{} {} {}'.format(option, writer_class, skoolfile))
             self.assertEqual(error, '')
             self.assertEqual(html_writer.__class__, TestHtmlWriter)
+
+    def test_option_W_init_failure(self):
+        skoolfile = self.write_text_file("c24576 RET", suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2html(f'-W test_skool2html.BadHtmlWriter {skoolfile}')
+        self.assertEqual(cm.exception.args[0], 'BadHtmlWriter.__init__() takes 3 positional arguments but 4 were given')
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)

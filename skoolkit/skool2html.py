@@ -223,7 +223,10 @@ def run(infiles, options, config):
     else:
         topdir = normpath(options.output_dir)
     file_info = FileInfo(topdir, game_dir, options.new_images, options.new_audio)
-    html_writer = html_writer_class(skool_parser, ref_parser, file_info)
+    try:
+        html_writer = html_writer_class(skool_parser, ref_parser, file_info)
+    except Exception as e:
+        raise SkoolKitError(str(e))
 
     # Check that the specified pages exist
     all_page_ids = html_writer.get_page_ids()
