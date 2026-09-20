@@ -65,10 +65,16 @@ def _int_pair(arg, sep, desc):
         raise argparse.ArgumentTypeError("invalid {}: '{}'".format(desc, arg))
 
 def _coords(arg):
-    return _int_pair(arg, ',', 'coordinates')
+    xy = _int_pair(arg, ',', 'coordinates')
+    if 0 <= xy[0] <= 31 and 0 <= xy[1] <= 23:
+        return xy
+    raise argparse.ArgumentTypeError(f"invalid coordinates: '{arg}'")
 
 def _dimensions(arg):
-    return _int_pair(arg, 'x', 'dimensions')
+    wh = _int_pair(arg, 'x', 'dimensions')
+    if wh[0] > 0 and wh[1] > 0:
+        return wh
+    raise argparse.ArgumentTypeError(f"invalid dimensions: '{arg}'")
 
 def _write_image(frame, img_file, animated):
     iw_config = {}

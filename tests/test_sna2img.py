@@ -538,8 +538,8 @@ class Sna2ImgTest(SkoolKitTestCase):
 
     def test_option_o_invalid_values(self):
         scrfile = self.write_bin_file(suffix='.scr')
-        for coords in ('x,1', '1,y', 'p,q', '1', '1,2,3'):
-            output, error = self.run_sna2img('-o {} {}'.format(coords, scrfile), catch_exit=2)
+        for coords in ('x,1', '1,y', 'p,q', '1', '1,2,3', '32,0', '0,24', '-1,0', '0,-1'):
+            output, error = self.run_sna2img(f'-o={coords} {scrfile}', catch_exit=2)
             self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: sna2img.py'))
             self.assertTrue(error.endswith("error: argument -o/--origin: invalid coordinates: '{}'\n".format(coords)))
@@ -740,8 +740,8 @@ class Sna2ImgTest(SkoolKitTestCase):
 
     def test_option_S_invalid_values(self):
         scrfile = self.write_bin_file(suffix='.scr')
-        for dimensions in ('Xx1', '1xY', 'pxq', '1', '1x2x3'):
-            output, error = self.run_sna2img('-S {} {}'.format(dimensions, scrfile), catch_exit=2)
+        for dimensions in ('Xx1', '1xY', 'pxq', '1', '1x2x3', '0x1', '1x0', '-1x1', '1x-1'):
+            output, error = self.run_sna2img(f'-S={dimensions} {scrfile}', catch_exit=2)
             self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: sna2img.py'))
             self.assertTrue(error.endswith("error: argument -S/--size: invalid dimensions: '{}'\n".format(dimensions)))
