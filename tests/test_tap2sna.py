@@ -1775,6 +1775,78 @@ class Tap2SnaTest(SkoolKitTestCase):
                 dest_page = src_page
             self.assertEqual(s_banks[src_page][s:s + length], s_banks[dest_page][d:d + length])
 
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_ram_move_48k_with_source_range_across_64k_boundary(self):
+        data = [1, 2, 3, 4, 5, 6]
+        tapfile = self._write_tap((
+            create_tap_header_block("simld_code", 65530, len(data)),
+            create_tap_data_block(data),
+        ))
+        output, error = self.run_tap2sna(f'--ram move=65530,10,32768 --start 1343 -c finish-tape=1 {tapfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(len(snapshot), 65536)
+        self.assertEqual([*data, 0, 0, 0, 0], snapshot[32768:32778])
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_ram_move_48k_with_destination_range_across_64k_boundary(self):
+        data = [1, 2, 3, 4, 5, 6]
+        tapfile = self._write_tap((
+            create_tap_header_block("simld_code", 32768, len(data)),
+            create_tap_data_block(data),
+        ))
+        output, error = self.run_tap2sna(f'--ram move=32768,10,65530 --start 1343 -c finish-tape=1 {tapfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(len(snapshot), 65536)
+        self.assertEqual(data, snapshot[65530:])
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_ram_move_128k_with_source_range_across_64k_boundary(self):
+        basic_data = [0, 10, 2, 0, 234, 13] # 10 REM
+        tapfile = self._write_tap((
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ))
+        output, error = self.run_tap2sna(f'--ram move=65530,10,32768 -c machine=128 --start 1343 -c finish-tape=1 {tapfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(len(snapshot), 65536)
+        self.assertEqual([66, 66, 66, 66, 60, 0, 0, 0, 0, 0], snapshot[32768:32778])
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_ram_move_128k_with_destination_range_across_64k_boundary(self):
+        basic_data = [0, 10, 2, 0, 234, 13] # 10 REM
+        tapfile = self._write_tap((
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ))
+        output, error = self.run_tap2sna(f'--ram move=23755,10,65530 -c machine=128 --start 1343 -c finish-tape=1 {tapfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(len(snapshot), 65536)
+        self.assertEqual(basic_data, snapshot[65530:])
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_ram_move_128k_with_source_range_across_bank_boundary(self):
+        basic_data = [0, 10, 2, 0, 234, 13] # 10 REM
+        tapfile = self._write_tap((
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ))
+        output, error = self.run_tap2sna(f'--ram move=0:16378,10,2:0 -c machine=128 --start 1343 -c finish-tape=1 {tapfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(len(s_banks[2]), 0x4000)
+        self.assertEqual([66, 66, 66, 66, 60, 0, 0, 0, 0, 0], list(s_banks[2][:10]))
+
+    @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
+    def test_ram_move_128k_with_destination_range_across_bank_boundary(self):
+        basic_data = [0, 10, 2, 0, 234, 13] # 10 REM
+        tapfile = self._write_tap((
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ))
+        output, error = self.run_tap2sna(f'--ram move=5:7371,10,0:16378 -c machine=128 --start 1343 -c finish-tape=1 {tapfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(len(s_banks[0]), 0x4000)
+        self.assertEqual(basic_data, list(s_banks[0][16378:]))
+
     def test_ram_move_bad_address(self):
         self._test_bad_spec('--ram move=1', 'Not enough arguments in move spec (expected 3): 1')
         self._test_bad_spec('--ram move=1,2', 'Not enough arguments in move spec (expected 3): 1,2')

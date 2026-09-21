@@ -883,6 +883,7 @@ def move(snapshot, param_str):
     except ValueError:
         raise SkoolKitError('Invalid integer in move spec: {}'.format(param_str))
     if src_page is None:
+        length = min(0x10000 - max(dest, src), length)
         snapshot[dest:dest + length] = snapshot[src:src + length]
     elif hasattr(snapshot, 'banks'):
         src_bank = snapshot.banks[src_page % 8]
@@ -890,6 +891,7 @@ def move(snapshot, param_str):
         if src_bank and dest_bank:
             s = src % 0x4000
             d = dest % 0x4000
+            length = min(0x4000 - max(d, s), length)
             dest_bank[d:d + length] = src_bank[s:s + length]
 
 def poke(snapshot, param_str):
