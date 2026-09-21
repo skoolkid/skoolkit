@@ -1,3 +1,4 @@
+import sys
 from textwrap import dedent
 
 from skoolkit import BASE_10, BASE_16, VERSION
@@ -588,6 +589,11 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#EVAL({vars[qux]},{vars[bar]},8)'), '00000000')
 
     def test_macro_eval_invalid(self):
+        max_digits = sys.get_int_max_str_digits()
+        try:
+            str(10 ** max_digits)
+        except ValueError as e:
+            max_digits_msg = str(e)
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('EVAL')
 
@@ -602,6 +608,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#EVAL5,3', 'Invalid base (3): 5,3', prefix)
         self._assert_error(writer, '#EVAL({nope})', "Unrecognised field 'nope': {nope}", prefix)
         self._assert_error(writer, '#EVAL({foo)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#EVAL(1,,-1)', "Width (-1) is negative: (1,,-1)", prefix)
+        self._assert_error(writer, f'#EVAL(10**{max_digits})', max_digits_msg, prefix)
 
     def test_macro_font_invalid(self):
         writer = self._get_writer()

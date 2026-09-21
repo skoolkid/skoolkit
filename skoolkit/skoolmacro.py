@@ -914,6 +914,8 @@ def parse_def(writer, text, index, *cwd):
 def parse_eval(fields, lower, text, index, *cwd):
     # #EVALexpr[,base,width]
     end, value, base, width = parse_ints(text, index, 3, (10, 1), fields=fields)
+    if width < 0:
+        raise MacroParsingError(f"Width ({width}) is negative: {text[index:end]}")
     if base == 2:
         fmt = '{:0{}b}'
     elif base == 10:
@@ -925,7 +927,10 @@ def parse_eval(fields, lower, text, index, *cwd):
             fmt = '{:0{}X}'
     else:
         raise MacroParsingError("Invalid base ({}): {}".format(base, text[index:end]))
-    return end, fmt.format(value, width)
+    try:
+        return end, fmt.format(value, width)
+    except ValueError as e:
+        raise MacroParsingError(str(e))
 
 def _get_text(text, index, pvals):
     if pvals[1] == 0:
