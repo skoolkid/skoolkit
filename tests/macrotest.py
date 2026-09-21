@@ -773,6 +773,11 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '0,0+1,2,2+1,4,4+1,6')
 
     def test_macro_for_invalid(self):
+        max_digits = sys.get_int_max_str_digits()
+        try:
+            str(10 ** max_digits)
+        except ValueError as e:
+            max_digits_msg = str(e)
         writer = self._get_writer()
         writer.fields['x'] = 'x'
         prefix = ERROR_PREFIX.format('FOR')
@@ -793,6 +798,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOR(1,{x})(n,n)', "Cannot parse integer 'x' in parameter string: '1,x'", prefix)
         self._assert_error(writer, '#FOR(1,{y})(n,n)', "Unrecognised field 'y': 1,{y}", prefix)
         self._assert_error(writer, '#FOR(1,{y)(n,n)', "Invalid format string: 1,{y", prefix)
+        self._assert_error(writer, '#FOR1,2,0(n,n)', "Step value is 0: 1,2,0(n,n)", prefix)
+        self._assert_error(writer, f'#FOR(10**{max_digits}-1,10**{max_digits})(n,n)', max_digits_msg, prefix)
 
     def test_macro_foreach(self):
         writer = self._get_writer()

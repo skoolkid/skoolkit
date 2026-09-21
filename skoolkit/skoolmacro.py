@@ -958,6 +958,8 @@ def parse_for(fields, text, index, *cwd):
         end, (var, s, sep, fsep) = parse_strings(text, end, 4, ('', None))
     except (NoParametersError, MissingParameterError) as e:
         raise MacroParsingError("No variable name: {}".format(text[index:e.args[1]]))
+    if step == 0:
+        raise MacroParsingError(f"Step value is 0: {text[index:end]}")
     if flags & 1:
         sep = ',' + sep
     if flags & 2:
@@ -965,11 +967,14 @@ def parse_for(fields, text, index, *cwd):
     if fields['mode']['html']:
         s = html.unescape(s)
     elements = []
-    for n in range(start, stop + step // abs(step), step):
-        if flags & 4:
-            elements.extend((s.replace(var, str(n)), sep.replace(var, str(n))))
-        else:
-            elements.extend((s.replace(var, str(n)), sep))
+    try:
+        for n in range(start, stop + step // abs(step), step):
+            if flags & 4:
+                elements.extend((s.replace(var, str(n)), sep.replace(var, str(n))))
+            else:
+                elements.extend((s.replace(var, str(n)), sep))
+    except ValueError as e:
+        raise MacroParsingError(str(e))
     if elements:
         elements.pop()
     if len(elements) > 2 and fsep is not None:
