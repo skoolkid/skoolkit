@@ -840,7 +840,7 @@ def _expand_def_macro(writer, inames, idefaults, snames, sdefaults, body, flags,
     params = dict(zip(inames, ints))
     if snames:
         if flags & 1:
-            sdefaults = [s.format_map(params) for s in sdefaults]
+            sdefaults = [_format_params(s, s, **params) for s in sdefaults]
         else:
             sdefaults = [t.safe_substitute(params) for t in sdefaults]
         if len(snames) != len(sdefaults) or (end < len(text) and text[end] == '('):
@@ -851,7 +851,7 @@ def _expand_def_macro(writer, inames, idefaults, snames, sdefaults, body, flags,
             strings = sdefaults
         params.update(dict(zip(snames, strings)))
     if flags & 1:
-        formatted = body.format_map(params)
+        formatted = _format_params(body, body, **params)
     else:
         formatted = body.safe_substitute(params)
     if flags & 2:

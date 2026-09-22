@@ -516,6 +516,19 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOO({foo)(a,b)', "Invalid format string '{foo': expected '}' before end of string", prefix)
         self._assert_error(writer, '#FOO(d=1)(a,b)', "Unknown keyword argument: 'd=1'", prefix)
 
+    def test_macro_def_invalid_macro_definitions(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('BAD')
+        self._assert_error(writer, '#DEF1(#BAD {nope}) #BAD', "Unrecognised field 'nope': {nope}", prefix)
+        self._assert_error(writer, '#DEF1(#BAD(a) {a.b}) #BAD0', "Invalid format string '{a.b}': 'int' object has no attribute 'b'", prefix)
+        self._assert_error(writer, '#DEF1(#BAD(a) {a[0]}) #BAD0', "Invalid format string '{a[0]}': 'int' object is not subscriptable", prefix)
+        self._assert_error(writer, '#DEF1(#BAD(a) {a:q}) #BAD0', "Invalid format string '{a:q}': Unknown format code 'q' for object of type 'int'", prefix)
+        self._assert_error(writer, '#DEF1(#BAD()(b) {b.c}) #BAD(x)', "Invalid format string '{b.c}': 'str' object has no attribute 'c'", prefix)
+        self._assert_error(writer, '#DEF1(#BAD()(b) {b:d}) #BAD(x)', "Invalid format string '{b:d}': Unknown format code 'd' for object of type 'str'", prefix)
+        self._assert_error(writer, '#DEF1(#BAD(a)(b={a.c}) {b}) #BAD0', "Invalid format string '{a.c}': 'int' object has no attribute 'c'", prefix)
+        self._assert_error(writer, '#DEF1(#BAD(a)(b={a[0]}) {b}) #BAD0', "Invalid format string '{a[0]}': 'int' object is not subscriptable", prefix)
+        self._assert_error(writer, '#DEF1(#BAD(a)(b={a:q}) {b}) #BAD0', "Invalid format string '{a:q}': Unknown format code 'q' for object of type 'int'", prefix)
+
     def test_macro_def_invalid_macros_with_defaults(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('BAR')
