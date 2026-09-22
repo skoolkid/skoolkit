@@ -1198,6 +1198,8 @@ def parse_let(writer, text, index, *cwd):
                         raise InvalidParameterError(f"Cannot parse integer value '{value}': {stmt}")
                     except KeyError as e:
                         raise InvalidParameterError(f"Unrecognised dictionary '{e.args[0]}': {stmt}")
+                    except TypeError as e:
+                        raise InvalidParameterError(f"Cannot assign value to '{dname}[{key}]': {e}")
                 else:
                     try:
                         args = parse_strings(value, 0)[1]
@@ -1205,6 +1207,8 @@ def parse_let(writer, text, index, *cwd):
                         raise NoParametersError(f"No values provided: '{name}={value}'")
                     writer.fields[dname] = _eval_map(args, value, dname.endswith('$'))
         else:
+            if name in ('cfg', 'mode', 'sim', 'vars'):
+                raise InvalidParameterError(f"Cannot assign value to protected field '{name}'")
             value = _format_params(writer.expand(value, *cwd), text[index:end], **writer.fields)
             try:
                 writer.fields[name] = eval_variable(name, value)

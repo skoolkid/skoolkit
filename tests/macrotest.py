@@ -1661,6 +1661,11 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#LET(g[0]=1)', "Unrecognised dictionary 'g': g[0]=1", prefix)
         self._assert_error(writer, '#LET(h={asm.x})', "Invalid format string '(h={asm.x})': 'int' object has no attribute 'x'", prefix)
         self._assert_error(writer, '#LET(h$={mode:d})', "Invalid format string '(h$={mode:d})': unsupported format string passed to dict.__format__", prefix)
+        self._assert_error(writer, '#LET(asm[0]=1)', "Cannot assign value to 'asm[0]': 'int' object does not support item assignment", prefix)
+        self._assert_error(writer, '#LET(cfg=0)', "Cannot assign value to protected field 'cfg'", prefix)
+        self._assert_error(writer, '#LET(mode=0)', "Cannot assign value to protected field 'mode'", prefix)
+        self._assert_error(writer, '#LET(sim=0)', "Cannot assign value to protected field 'sim'", prefix)
+        self._assert_error(writer, '#LET(vars=0)', "Cannot assign value to protected field 'vars'", prefix)
 
     def test_macro_link_invalid(self):
         writer = self._get_writer()
