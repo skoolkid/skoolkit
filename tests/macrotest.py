@@ -1967,6 +1967,16 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '')
         self.assertEqual(snapshot[0], 255)
 
+        # addr, byte > 255
+        output = writer.expand('#POKES0,256')
+        self.assertEqual(output, '')
+        self.assertEqual(snapshot[0], 0)
+
+        # addr, byte < 0
+        output = writer.expand('#POKES(0,-1)')
+        self.assertEqual(output, '')
+        self.assertEqual(snapshot[0], 255)
+
         # addr, byte, length
         output = writer.expand('#POKES0,254,10')
         self.assertEqual(output, '')
@@ -2021,6 +2031,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#POKES(0,x)', "Cannot parse integer 'x' in parameter string: '0,x'", prefix)
         self._assert_error(writer, '#POKES(0,{no})', "Unrecognised field 'no': 0,{no}", prefix)
         self._assert_error(writer, '#POKES(0,{foo)', "Invalid format string '0,{foo': expected '}' before end of string", prefix)
+        self._assert_error(writer, '#POKES(0,1,-1)', "Length (-1) not in the range 0-65536: '(0,1,-1)'", prefix)
+        self._assert_error(writer, '#POKES0,1,65537', "Length (65537) not in the range 0-65536: '0,1,65537'", prefix)
 
     def test_macro_pops(self):
         writer = self._get_writer(snapshot=[0, 0])

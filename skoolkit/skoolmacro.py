@@ -1323,7 +1323,11 @@ def parse_pokes(writer, text, index, *cwd):
     # #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
     end = index - 1
     while end < index or (end < len(text) and text[end] == ';'):
-        end, addr, byte, length, step = parse_ints(text, end + 1, 4, (1, 1), fields=writer.fields)
+        start = end + 1
+        end, addr, byte, length, step = parse_ints(text, start, 4, (1, 1), fields=writer.fields)
+        if not 0 <= length <= 65536:
+            raise InvalidParameterError(f"Length ({length}) not in the range 0-65536: '{text[start:end]}'")
+        byte &= 0xFF
         writer.snapshot[addr:addr + length * step:step] = [byte] * length
         writer.save_pokes(addr, byte, length, step)
     return end, ''
