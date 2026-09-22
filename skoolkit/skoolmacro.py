@@ -1431,6 +1431,10 @@ def parse_space(writer, text, index, *cwd):
 def parse_str(writer, text, index, *cwd):
     # #STRaddr[,flags,length][(end)]
     end, addr, flags, length = parse_ints(text, index, 3, (0, -1), fields=writer.fields)
+    if not 0 <= addr <= 65535:
+        raise InvalidParameterError(f"Invalid address: '{addr}'")
+    if length > 65536:
+        raise InvalidParameterError(f"Length is greater than 65536: '{length}'")
     s_data = []
     if length < 0:
         if flags & 8:

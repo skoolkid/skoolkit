@@ -2227,6 +2227,9 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#STR0,8(x)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
         self._assert_error(writer, '#STR0,8({nope})', "Unrecognised field 'nope': {nope}", prefix)
         self._assert_error(writer, '#STR0,8({bar)', "Invalid format string '{bar': expected '}' before end of string", prefix)
+        self._assert_error(writer, '#STR65536', "Invalid address: '65536'", prefix)
+        self._assert_error(writer, '#STR(-1)', "Invalid address: '-1'", prefix)
+        self._assert_error(writer, '#STR0,,65537', "Length is greater than 65536: '65537'", prefix)
 
     def test_macro_sim(self):
         skool = """
