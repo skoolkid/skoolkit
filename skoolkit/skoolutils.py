@@ -83,8 +83,8 @@ class Memory:
         banks = [bank[:] if bank else None for bank in self.banks]
         roms = (self.roms[0][:], self.roms[1][:])
         if all(banks):
-            bank = banks[self.banks.index(self.memory[3])]
-            rom = roms[self.roms.index(self.memory[0])]
+            bank = banks[self.o7ffd % 8]
+            rom = roms[(self.o7ffd >> 4) & 1]
         else:
             bank = banks[0]
             rom = self.memory[0][:]

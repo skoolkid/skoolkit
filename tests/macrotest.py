@@ -4,6 +4,7 @@ from textwrap import dedent
 from skoolkit import BASE_10, BASE_16, VERSION
 from skoolkit.skoolhtml import HtmlWriter
 from skoolkit.skoolparser import CASE_LOWER, CASE_UPPER
+from skoolkit.skoolutils import Memory
 
 ERROR_PREFIX = 'Error while parsing #{} macro'
 
@@ -2044,6 +2045,16 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '')
         self.assertEqual(writer.snapshot[addr], byte)
 
+    def test_macro_pops_128k_restores_paged_in_bank(self):
+        writer = self._get_writer(snapshot=Memory())
+        writer.expand('#BANK1') # Convert snapshot to 128K
+        writer.expand('#POKES49152,11') # 11 in first byte of bank 1
+        writer.expand('#BANK3') # Switch to bank 3
+        writer.expand('#POKES49152,33') # 33 in first byte of bank 3
+        writer.expand('#PUSHS #BANK1 #POPS') # Switch banks between PUSHS/POPS
+        self.assertEqual(writer.expand('#PEEK49152'), '33') # Expected in bank 3
+        self.assertEqual(writer.expand('#BANK1#PEEK49152'), '11')
+
     def test_macro_pops_empty_stack(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('POPS')
@@ -2069,6 +2080,16 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '')
         if hasattr(writer, 'get_snapshot_name'):
             self.assertEqual(writer.get_snapshot_name(), name)
+
+    def test_macro_pushs_128k_keeps_paged_in_bank(self):
+        writer = self._get_writer(snapshot=Memory())
+        writer.expand('#BANK7') # Convert snapshot to 128K
+        writer.expand('#PUSHS')
+        writer.expand('#POKES49152,7') # 7 in first byte of bank 7
+        writer.expand('#BANK7') # Should be a no-op
+        self.assertEqual(writer.expand('#PEEK49152'), '7')
+        writer.expand('#POPS')
+        self.assertEqual(writer.expand('#PEEK49152'), '0')
 
     def test_macro_r_invalid(self):
         writer = self._get_writer()

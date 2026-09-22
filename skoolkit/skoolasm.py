@@ -227,7 +227,7 @@ class AsmWriter:
         by :meth:`~skoolkit.skoolasm.AsmWriter.push_snapshot`."""
         if len(self._snapshots) < 2:
             raise SkoolKitError("Cannot pop snapshot when snapshot stack is empty")
-        self.snapshot[:] = self._snapshots.pop()[0][:]
+        self.snapshot = self._snapshots.pop()[0]
 
     def push_snapshot(self, name=''):
         """Save a copy of the current memory snapshot for later retrieval (by
@@ -235,7 +235,8 @@ class AsmWriter:
 
         :param name: An optional name for the snapshot.
         """
-        self._snapshots.append((self.snapshot.copy(), name))
+        self._snapshots.append((self.snapshot, name))
+        self.snapshot = self.snapshot.copy()
         self.pokes[name].clear()
 
     def save_pokes(self, addr, byte, length, step):

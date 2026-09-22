@@ -456,7 +456,7 @@ class HtmlWriter:
         by :meth:`~skoolkit.skoolhtml.HtmlWriter.push_snapshot`."""
         if len(self._snapshots) < 2:
             raise SkoolKitError("Cannot pop snapshot when snapshot stack is empty")
-        self.snapshot[:] = self._snapshots.pop()[0][:]
+        self.snapshot = self._snapshots.pop()[0]
 
     # API
     def push_snapshot(self, name=''):
@@ -465,7 +465,8 @@ class HtmlWriter:
 
         :param name: An optional name for the snapshot.
         """
-        self._snapshots.append((self.snapshot.copy(), name))
+        self._snapshots.append((self.snapshot, name))
+        self.snapshot = self.snapshot.copy()
         self.pokes[name].clear()
 
     def save_pokes(self, addr, byte, length, step):
