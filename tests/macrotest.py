@@ -1228,17 +1228,38 @@ class CommonSkoolMacroTest:
 
     def test_macro_foreach_with_poke_invalid(self):
         writer = self._get_writer(skool='b16384 DEFS 49152')
-        writer.expand('#LET(cfg[poke]=POKE {no})')
-        writer.expand('#LET(cfg[pokes]=POKE {nope})')
-        writer.expand('#LET(cfg[pokes-step]=POKE {nah})')
         writer.expand('#PUSHSsnap1 #POKES16384,255 #POPS')
         writer.expand('#PUSHSsnap2 #POKES16384,255,2 #POPS')
         writer.expand('#PUSHSsnap3 #POKES16384,255,2,2 #POPS')
         prefix = ERROR_PREFIX.format('FOREACH')
 
-        self._assert_error(writer, '#FOREACH(POKEsnap1)(p,p)', "Unrecognised field 'no': POKE {no}", prefix)
-        self._assert_error(writer, '#FOREACH(POKEsnap2)(p,p)', "Unrecognised field 'nope': POKE {nope}", prefix)
-        self._assert_error(writer, '#FOREACH(POKEsnap3)(p,p)', "Unrecognised field 'nah': POKE {nah}", prefix)
+        writer.expand('#LET(cfg[poke]=POKE {no})')
+        writer.expand('#LET(cfg[pokes]=POKE {nope})')
+        writer.expand('#LET(cfg[pokes-step]=POKE {nah})')
+        self._assert_error(writer, '#FOREACH(POKEsnap1)(p,p)', "Unknown field 'no' in poke template", prefix)
+        self._assert_error(writer, '#FOREACH(POKEsnap2)(p,p)', "Unknown field 'nope' in pokes template", prefix)
+        self._assert_error(writer, '#FOREACH(POKEsnap3)(p,p)', "Unknown field 'nah' in pokes-step template", prefix)
+
+        writer.expand('#LET(cfg[poke]=POKE {0})')
+        writer.expand('#LET(cfg[pokes]=POKE {0})')
+        writer.expand('#LET(cfg[pokes-step]=POKE {0})')
+        self._assert_error(writer, '#FOREACH(POKEsnap1)(p,p)', "Failed to format poke template: Replacement index 0 out of range for positional args tuple", prefix)
+        self._assert_error(writer, '#FOREACH(POKEsnap2)(p,p)', "Failed to format pokes template: Replacement index 0 out of range for positional args tuple", prefix)
+        self._assert_error(writer, '#FOREACH(POKEsnap3)(p,p)', "Failed to format pokes-step template: Replacement index 0 out of range for positional args tuple", prefix)
+
+        writer.expand('#LET(cfg[poke]=POKE {addr:q})')
+        writer.expand('#LET(cfg[pokes]=POKE {start:q})')
+        writer.expand('#LET(cfg[pokes-step]=POKE {end:q})')
+        self._assert_error(writer, '#FOREACH(POKEsnap1)(p,p)', "Failed to format poke template: Unknown format code 'q' for object of type 'int'", prefix)
+        self._assert_error(writer, '#FOREACH(POKEsnap2)(p,p)', "Failed to format pokes template: Unknown format code 'q' for object of type 'int'", prefix)
+        self._assert_error(writer, '#FOREACH(POKEsnap3)(p,p)', "Failed to format pokes-step template: Unknown format code 'q' for object of type 'int'", prefix)
+
+        writer.expand('#LET(cfg[poke]=POKE {addr.x})')
+        writer.expand('#LET(cfg[pokes]=POKE {start.x})')
+        writer.expand('#LET(cfg[pokes-step]=POKE {end.x})')
+        self._assert_error(writer, '#FOREACH(POKEsnap1)(p,p)', "Failed to format poke template: 'int' object has no attribute 'x'", prefix)
+        self._assert_error(writer, '#FOREACH(POKEsnap2)(p,p)', "Failed to format pokes template: 'int' object has no attribute 'x'", prefix)
+        self._assert_error(writer, '#FOREACH(POKEsnap3)(p,p)', "Failed to format pokes-step template: 'int' object has no attribute 'x'", prefix)
 
     def test_macro_foreach_invalid(self):
         writer = self._get_writer()

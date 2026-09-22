@@ -23,7 +23,8 @@ from string import Template
 
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
                       SkoolKitError, SkoolParsingError, CSimulator,
-                      CCMIOSimulator, eval_variable, evaluate, get_object)
+                      CCMIOSimulator, eval_variable, evaluate, format_template,
+                      get_object)
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.graphics import Udg
 from skoolkit.simulator import Simulator
@@ -1029,20 +1030,20 @@ def parse_foreach(writer, text, index, *cwd):
             for addr, byte, length, step in writer.pokes[name][slice(*indexes)]:
                 fvals = writer.fields.copy()
                 if length == 1:
-                    fmt = cfg['poke']
+                    tname = 'poke'
                     fvals.update({'addr': addr, 'byte': byte})
                 else:
                     addr2 = addr + (length - 1) * step
                     if step == 1:
-                        fmt = cfg['pokes']
+                        tname = 'pokes'
                         fvals.update({'start': addr, 'end': addr2, 'byte': byte})
                     else:
-                        fmt = cfg['pokes-step']
+                        tname = 'pokes-step'
                         fvals.update({'start': addr, 'end': addr2, 'step': step, 'byte': byte})
                 try:
-                    values.append(fmt.format(**fvals))
-                except KeyError as e:
-                    raise FormattingError(f"Unrecognised field '{e.args[0]}': {fmt}")
+                    values.append(format_template(cfg[tname], tname, **fvals))
+                except SkoolKitError as e:
+                    raise FormattingError(e.args[0])
     if not values:
         return end, ''
     if fsep is None:
