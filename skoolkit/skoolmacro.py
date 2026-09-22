@@ -350,8 +350,8 @@ def _format_params(params, full_params, *args, **kwargs):
         raise FormattingError("Field index out of range: {}".format(full_params))
     except KeyError as e:
         raise FormattingError("Unrecognised field '{}': {}".format(e.args[0], full_params))
-    except ValueError:
-        raise FormattingError('Invalid format string: {}'.format(full_params))
+    except Exception as e:
+        raise FormattingError(f"Invalid format string '{full_params}': {e}")
 
 def _split_unbracketed(text):
     if '(' not in text:

@@ -53,7 +53,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_audio_macro(writer, '#AUDIO1(', "No closing bracket: (", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO(1,2,3,4,5,6,7,8,9,10,11,12)(f)', "Too many parameters (expected 11): '1,2,3,4,5,6,7,8,9,10,11,12'", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO({x})(f)', "Unrecognised field 'x': {x}", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO({x)(f)', "Invalid format string: {x", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO({x)(f)', "Invalid format string '{x': expected '}' before end of string", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO1(f)', "Missing start parameter: 1(f)", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO1,2(f)', "Missing stop parameter: 1,2(f)", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO0(f)(', "No closing bracket: (", prefix)
@@ -93,7 +93,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#BANK(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#BANK(5$3)', "Cannot parse integer '5$3' in parameter string: '5$3'", prefix)
         self._assert_error(writer, '#BANK({no})', "Unrecognised field 'no': {no}", prefix)
-        self._assert_error(writer, '#BANK({foo)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#BANK({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
 
     def test_macro_call(self):
         writer = self._get_writer(skool='', variables=[('one', 1)])
@@ -194,7 +194,7 @@ class CommonSkoolMacroTest:
         self._check_invalid_call(writer, 'test_call(1)', f"Method call test_call(1) failed", str.startswith)
         self._check_invalid_call(writer, 'test_call(1,2,3,4)', f"Method call test_call(1,2,3,4) failed", str.startswith)
         self._check_invalid_call(writer, 'test_call({no})', "Unrecognised field 'no': {no}")
-        self._check_invalid_call(writer, 'test_call({no)', "Invalid format string: {no")
+        self._check_invalid_call(writer, 'test_call({no)', "Invalid format string '{no': expected '}' before end of string")
 
     def test_macro_chr_utf8(self):
         writer = self._get_writer()
@@ -220,7 +220,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#CHR(1,2,3)', "Too many parameters (expected 2): '1,2,3'", prefix)
         self._assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
         self._assert_error(writer, '#CHR({no})', "Unrecognised field 'no': {no}", prefix)
-        self._assert_error(writer, '#CHR({foo)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#CHR({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
 
     def test_macro_copy_invalid(self):
         writer = self._get_writer()
@@ -240,7 +240,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#COPY//f', "No terminating delimiter: //f", prefix)
         self._test_invalid_image_macro(writer, '#COPY//f/', "No terminating delimiter: //f/", prefix)
         self._test_invalid_image_macro(writer, '#COPY({x},1)(f)', "Unrecognised field 'x': {x},1", prefix)
-        self._test_invalid_image_macro(writer, '#COPY({x,1)(f)', "Invalid format string: {x,1", prefix)
+        self._test_invalid_image_macro(writer, '#COPY({x,1)(f)', "Invalid format string '{x,1': expected '}' before end of string", prefix)
         self._test_invalid_image_macro(writer, '#COPYa=1(f)', "Unknown keyword argument: 'a=1'", prefix)
         self._test_invalid_image_macro(writer, '#COPY{0,0,23,14,5}(f)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
         self._test_invalid_image_macro(writer, '#COPY{0,y}(f)', "Cannot parse integer 'y' in parameter string: '0,y'", prefix)
@@ -295,7 +295,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#D32770', 'Entry at 32770 has no description', prefix)
         self._assert_error(writer, '#D32771', 'Cannot determine description for non-existent entry at 32771', prefix)
         self._assert_error(writer, '#D({no})', "Unrecognised field 'no': {no}", prefix)
-        self._assert_error(writer, '#D({foo)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#D({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
 
     def test_macro_def(self):
         writer = self._get_writer()
@@ -513,7 +513,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOO1(a)', "Not enough parameters (expected 2): 'a'", prefix)
         self._assert_error(writer, '#FOO1(a,b,c)', "Too many parameters (expected 2): 'a,b,c'", prefix)
         self._assert_error(writer, '#FOO({foo})(a,b)', "Unrecognised field 'foo': {foo}", prefix)
-        self._assert_error(writer, '#FOO({foo)(a,b)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#FOO({foo)(a,b)', "Invalid format string '{foo': expected '}' before end of string", prefix)
         self._assert_error(writer, '#FOO(d=1)(a,b)', "Unknown keyword argument: 'd=1'", prefix)
 
     def test_macro_def_invalid_macros_with_defaults(self):
@@ -607,7 +607,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#EVAL(1,,x)', "Cannot parse integer 'x' in parameter string: '1,,x'", prefix)
         self._assert_error(writer, '#EVAL5,3', 'Invalid base (3): 5,3', prefix)
         self._assert_error(writer, '#EVAL({nope})', "Unrecognised field 'nope': {nope}", prefix)
-        self._assert_error(writer, '#EVAL({foo)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#EVAL({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
         self._assert_error(writer, '#EVAL(1,,-1)', "Width (-1) is negative: (1,,-1)", prefix)
         self._assert_error(writer, f'#EVAL(10**{max_digits})', max_digits_msg, prefix)
 
@@ -631,7 +631,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#FONT0,0[hi)', 'No closing bracket: [hi)', prefix)
         self._test_invalid_image_macro(writer, '#FONT({no})', "Unrecognised field 'no': {no}", prefix)
         self._test_invalid_image_macro(writer, '#FONT0,1{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
-        self._test_invalid_image_macro(writer, '#FONT({foo)', "Invalid format string: {foo", prefix)
+        self._test_invalid_image_macro(writer, '#FONT({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
 
     def test_macro_for(self):
         writer = self._get_writer()
@@ -797,7 +797,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOR(1,x)(n,n)', "Cannot parse integer 'x' in parameter string: '1,x'", prefix)
         self._assert_error(writer, '#FOR(1,{x})(n,n)', "Cannot parse integer 'x' in parameter string: '1,x'", prefix)
         self._assert_error(writer, '#FOR(1,{y})(n,n)', "Unrecognised field 'y': 1,{y}", prefix)
-        self._assert_error(writer, '#FOR(1,{y)(n,n)', "Invalid format string: 1,{y", prefix)
+        self._assert_error(writer, '#FOR(1,{y)(n,n)', "Invalid format string '1,{y': expected '}' before end of string", prefix)
         self._assert_error(writer, '#FOR1,2,0(n,n)', "Step value is 0: 1,2,0(n,n)", prefix)
         self._assert_error(writer, f'#FOR(10**{max_digits}-1,10**{max_digits})(n,n)', max_digits_msg, prefix)
 
@@ -1298,8 +1298,11 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FORMAT/{fix}', 'No terminating delimiter: /{fix}', prefix)
         self._assert_error(writer, '#FORMAT({unknown})(x)', "Unrecognised field 'unknown': {unknown}", prefix)
         self._assert_error(writer, '#FORMAT0({unknown})', "Unrecognised field 'unknown': ({unknown})", prefix)
-        self._assert_error(writer, '#FORMAT({bad)(x)', 'Invalid format string: {bad', prefix)
-        self._assert_error(writer, '#FORMAT0({bad)', 'Invalid format string: ({bad)', prefix)
+        self._assert_error(writer, '#LET(a$=1)#FORMAT0({a$[1]})', "Field index out of range: ({a$[1]})", prefix)
+        self._assert_error(writer, '#FORMAT({bad)(x)', "Invalid format string '{bad': expected '}' before end of string", prefix)
+        self._assert_error(writer, '#FORMAT0({bad)', "Invalid format string '({bad)': expected '}' before end of string", prefix)
+        self._assert_error(writer, '#FORMAT0({asm.x})', "Invalid format string '({asm.x})': 'int' object has no attribute 'x'", prefix)
+        self._assert_error(writer, '#FORMAT0({mode:d})', "Invalid format string '({mode:d})': unsupported format string passed to dict.__format__", prefix)
 
     def test_macro_frames_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
@@ -1312,7 +1315,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#FRAMES(foo(bar)', 'No closing bracket: (foo(bar)', prefix)
         self._test_invalid_image_macro(writer, '#FRAMES(foo,(d,x))(bar', "Cannot parse integer 'd' in parameter string: 'd,x'", prefix)
         self._test_invalid_image_macro(writer, '#FRAMES(foo,({no}))(bar', "Unrecognised field 'no': {no}", prefix)
-        self._test_invalid_image_macro(writer, '#FRAMES(foo,({bar))(bar', "Invalid format string: {bar", prefix)
+        self._test_invalid_image_macro(writer, '#FRAMES(foo,({bar))(bar', "Invalid format string '{bar': expected '}' before end of string", prefix)
 
         return writer, prefix
 
@@ -1422,7 +1425,7 @@ class CommonSkoolMacroTest:
 
         self._assert_error(writer, '#IF', "No valid expression found: '#IF'", prefix)
         self._assert_error(writer, '#IFx', "No valid expression found: '#IFx'", prefix)
-        self._assert_error(writer, '#IF({asm)(1,0)', "Invalid format string: {asm", prefix)
+        self._assert_error(writer, '#IF({asm)(1,0)', "Invalid format string '{asm': expected '}' before end of string", prefix)
         self._assert_error(writer, '#IF(0)', "No output strings: (0)", prefix)
         self._assert_error(writer, '#IF(0)(true,false,other)', "Too many output strings (expected 2): (0)(true,false,other)", prefix)
         self._assert_error(writer, '#IF1(true,false', "No closing bracket: (true,false", prefix)
@@ -1436,7 +1439,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#INCLUDE0', "No text parameter", prefix)
         self._assert_error(writer, '#INCLUDE(0)', "No text parameter", prefix)
         self._assert_error(writer, '#INCLUDE({no})(foo)', "Unrecognised field 'no': {no}", prefix)
-        self._assert_error(writer, '#INCLUDE({foo)(bar)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#INCLUDE({foo)(bar)', "Invalid format string '{foo': expected '}' before end of string", prefix)
 
     def test_macro_let_integers(self):
         writer = self._get_writer()
@@ -1641,7 +1644,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#LET(foo=)', "Cannot parse integer value '': foo=", prefix)
         self._assert_error(writer, '#LET(foo', 'No closing bracket: (foo', prefix)
         self._assert_error(writer, '#LET(foo={wrong})', "Unrecognised field 'wrong': (foo={wrong})", prefix)
-        self._assert_error(writer, '#LET(foo={bad)', 'Invalid format string: (foo={bad)', prefix)
+        self._assert_error(writer, '#LET(foo={bad)', "Invalid format string '(foo={bad)': expected '}' before end of string", prefix)
         self._assert_error(writer, '#LET(foo=#IF({fix}<1)(a+b))', "Cannot parse integer value 'a+b': foo=#IF({fix}<1)(a+b)", prefix)
         self._assert_error(writer, '#LET(foo=#IF())', "No valid expression found: '#IF()'", ERROR_PREFIX.format('IF'))
         self._assert_error(writer, '#LET(f[]=)', "No values provided: 'f[]='", prefix)
@@ -1651,11 +1654,13 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#LET(f[]=1,2:2)', "No terminating delimiter: 1,2:2", prefix)
         self._assert_error(writer, '#LET(g[q]=1)', "Cannot parse integer value 'q': g[q]=1", prefix)
         self._assert_error(writer, '#LET(g[{no}]=1)', "Unrecognised field 'no': (g[{no}]=1)", prefix)
-        self._assert_error(writer, '#LET(g[{bad]=1)', 'Invalid format string: (g[{bad]=1)', prefix)
+        self._assert_error(writer, '#LET(g[{bad]=1)', "Invalid format string '(g[{bad]=1)': expected '}' before end of string", prefix)
         self._assert_error(writer, '#LET(g[0]=q)', "Cannot parse integer value 'q': g[0]=q", prefix)
         self._assert_error(writer, '#LET(g[0]={no})', "Unrecognised field 'no': (g[0]={no})", prefix)
-        self._assert_error(writer, '#LET(g[0]={bad)', 'Invalid format string: (g[0]={bad)', prefix)
+        self._assert_error(writer, '#LET(g[0]={bad)', "Invalid format string '(g[0]={bad)': expected '}' before end of string", prefix)
         self._assert_error(writer, '#LET(g[0]=1)', "Unrecognised dictionary 'g': g[0]=1", prefix)
+        self._assert_error(writer, '#LET(h={asm.x})', "Invalid format string '(h={asm.x})': 'int' object has no attribute 'x'", prefix)
+        self._assert_error(writer, '#LET(h$={mode:d})', "Invalid format string '(h$={mode:d})': unsupported format string passed to dict.__format__", prefix)
 
     def test_macro_link_invalid(self):
         writer = self._get_writer()
@@ -1766,7 +1771,7 @@ class CommonSkoolMacroTest:
 
         self._assert_error(writer, '#MAP', "No valid expression found: '#MAP'", prefix)
         self._assert_error(writer, '#MAPq', "No valid expression found: '#MAPq'", prefix)
-        self._assert_error(writer, '#MAP({html)(0)', "Invalid format string: {html", prefix)
+        self._assert_error(writer, '#MAP({html)(0)', "Invalid format string '{html': expected '}' before end of string", prefix)
         self._assert_error(writer, '#MAP0', "No mappings provided: 0", prefix)
         self._assert_error(writer, '#MAP0 ()', "No mappings provided: 0", prefix)
         self._assert_error(writer, '#MAP0(1,2:3', "No closing bracket: (1,2:3", prefix)
@@ -1852,7 +1857,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#N(x,4)', "Cannot parse integer 'x' in parameter string: 'x,4'", prefix)
         self._assert_error(writer, '#N(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#N({no},1)', "Unrecognised field 'no': {no},1", prefix)
-        self._assert_error(writer, '#N({foo,1)', "Invalid format string: {foo,1", prefix)
+        self._assert_error(writer, '#N({foo,1)', "Invalid format string '{foo,1': expected '}' before end of string", prefix)
 
     def test_macro_over_invalid(self):
         writer = self._get_writer()
@@ -1876,7 +1881,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#OVER1,1//f', "No terminating delimiter: //f", prefix)
         self._test_invalid_image_macro(writer, '#OVER1,1//f/', "No terminating delimiter: //f/", prefix)
         self._test_invalid_image_macro(writer, '#OVER({x},1)(f)', "Unrecognised field 'x': {x},1", prefix)
-        self._test_invalid_image_macro(writer, '#OVER({x,1)(f)', "Invalid format string: {x,1", prefix)
+        self._test_invalid_image_macro(writer, '#OVER({x,1)(f)', "Invalid format string '{x,1': expected '}' before end of string", prefix)
         self._test_invalid_image_macro(writer, '#OVERa=1(f)', "Unknown keyword argument: 'a=1'", prefix)
 
         return writer, prefix
@@ -1916,7 +1921,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#PEEK(x)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
         self._assert_error(writer, '#PEEK({x})', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
         self._assert_error(writer, '#PEEK({y})', "Unrecognised field 'y': {y}", prefix)
-        self._assert_error(writer, '#PEEK({y)', "Invalid format string: {y", prefix)
+        self._assert_error(writer, '#PEEK({y)', "Invalid format string '{y': expected '}' before end of string", prefix)
 
     def test_macro_plot_invalid(self):
         writer = self._get_writer()
@@ -1931,7 +1936,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#PLOT(f)', "Cannot parse integer 'f' in parameter string: 'f'", prefix)
         self._test_invalid_image_macro(writer, '#PLOT1,1(f', "No closing bracket: (f", prefix)
         self._test_invalid_image_macro(writer, '#PLOT({x},1)(f)', "Unrecognised field 'x': {x},1", prefix)
-        self._test_invalid_image_macro(writer, '#PLOT({x,1)(f)', "Invalid format string: {x,1", prefix)
+        self._test_invalid_image_macro(writer, '#PLOT({x,1)(f)', "Invalid format string '{x,1': expected '}' before end of string", prefix)
 
         return writer, prefix
 
@@ -1997,7 +2002,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#POKES(0,,1)', "Missing required parameter in position 2/2: '0,,1'", prefix)
         self._assert_error(writer, '#POKES(0,x)', "Cannot parse integer 'x' in parameter string: '0,x'", prefix)
         self._assert_error(writer, '#POKES(0,{no})', "Unrecognised field 'no': 0,{no}", prefix)
-        self._assert_error(writer, '#POKES(0,{foo)', "Invalid format string: 0,{foo", prefix)
+        self._assert_error(writer, '#POKES(0,{foo)', "Invalid format string '0,{foo': expected '}' before end of string", prefix)
 
     def test_macro_pops(self):
         writer = self._get_writer(snapshot=[0, 0])
@@ -2045,7 +2050,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#R(baz)', "Cannot parse integer 'baz' in parameter string: 'baz'", prefix)
         self._assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
         self._assert_error(writer, '#R({no})', "Unrecognised field 'no': {no}", prefix)
-        self._assert_error(writer, '#R({foo)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#R({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
 
         return writer, prefix
 
@@ -2130,7 +2135,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#SCR(foo', 'No closing bracket: (foo', prefix)
         self._test_invalid_image_macro(writer, '#SCR({no})(scr)', "Unrecognised field 'no': {no}", prefix)
         self._test_invalid_image_macro(writer, '#SCR{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
-        self._test_invalid_image_macro(writer, '#SCR({foo)', "Invalid format string: {foo", prefix)
+        self._test_invalid_image_macro(writer, '#SCR({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
 
     def test_macro_space(self):
         writer = self._get_writer(skool='', variables=[('n', 2)])
@@ -2157,7 +2162,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#SPACE(5$3)', "Cannot parse integer '5$3' in parameter string: '5$3'", prefix)
         self._assert_error(writer, '#SPACE({no})', "Unrecognised field 'no': {no}", prefix)
-        self._assert_error(writer, '#SPACE({foo)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#SPACE({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
 
     def test_macro_str(self):
         snapshot = [0] * 65536
@@ -2212,11 +2217,11 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#STR(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#STR(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
         self._assert_error(writer, '#STR({no})', "Unrecognised field 'no': {no}", prefix)
-        self._assert_error(writer, '#STR({foo)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#STR({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
         self._assert_error(writer, '#STR0,8(1', "No closing bracket: (1", prefix)
         self._assert_error(writer, '#STR0,8(x)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
         self._assert_error(writer, '#STR0,8({nope})', "Unrecognised field 'nope': {nope}", prefix)
-        self._assert_error(writer, '#STR0,8({bar)', "Invalid format string: {bar", prefix)
+        self._assert_error(writer, '#STR0,8({bar)', "Invalid format string '{bar': expected '}' before end of string", prefix)
 
     def test_macro_sim(self):
         skool = """
@@ -2765,7 +2770,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#SIM(30000', "No closing bracket: (30000", prefix)
         self._assert_error(writer, '#SIM(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
         self._assert_error(writer, '#SIM({no})', "Unrecognised field 'no': {no}", prefix)
-        self._assert_error(writer, '#SIM({foo)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#SIM({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
 
     def test_macro_tstates(self):
         skool = """
@@ -2949,7 +2954,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#TSTATES(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#TSTATES(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
         self._assert_error(writer, '#TSTATES({no})', "Unrecognised field 'no': {no}", prefix)
-        self._assert_error(writer, '#TSTATES({foo)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#TSTATES({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
         self._assert_error(writer, '#TSTATES32768,,2(hi', "No closing bracket: (hi", prefix)
         self._assert_error(writer, '#TSTATES32768,,2/hi', "No terminating delimiter: /hi", prefix)
 
@@ -2977,7 +2982,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDG({no})', "Unrecognised field 'no': {no}", prefix)
         self._test_invalid_image_macro(writer, '#UDG0:({nay})', "Unrecognised field 'nay': {nay}", prefix)
         self._test_invalid_image_macro(writer, '#UDG0{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
-        self._test_invalid_image_macro(writer, '#UDG({foo)', "Invalid format string: {foo", prefix)
+        self._test_invalid_image_macro(writer, '#UDG({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
 
     def test_macro_udgarray_invalid(self):
         writer = self._get_writer(snapshot=[0] * 16)
@@ -3029,12 +3034,12 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY1(0)[({nix})](udg)', "Unrecognised field 'nix': {nix}", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1(0){{nyet}}(udg)', "Unrecognised field 'nyet': {nyet}", prefix)
 
-        self._test_invalid_image_macro(writer, '#UDGARRAY({foo);0(udg)', "Invalid format string: {foo", prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY1(({bar))(udg)', "Invalid format string: {bar", prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY1(0,({baz))(udg)', "Invalid format string: {baz", prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY1(0:({qux))(udg)', "Invalid format string: {qux", prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY1(0:0,({xyzzy))(udg)', "Invalid format string: {xyzzy", prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY1(0)[({bish)](udg)', "Invalid format string: {bish", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY({foo);0(udg)', "Invalid format string '{foo': expected '}' before end of string", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1(({bar))(udg)', "Invalid format string '{bar': expected '}' before end of string", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1(0,({baz))(udg)', "Invalid format string '{baz': expected '}' before end of string", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1(0:({qux))(udg)', "Invalid format string '{qux': expected '}' before end of string", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1(0:0,({xyzzy))(udg)', "Invalid format string '{xyzzy': expected '}' before end of string", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1(0)[({bish)](udg)', "Invalid format string '{bish': expected '}' before end of string", prefix)
 
     def test_macro_udgs_invalid(self):
         writer = self._get_writer()
@@ -3062,7 +3067,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGS1,1(foo)(f', 'No closing bracket: (f', prefix)
         self._test_invalid_image_macro(writer, '#UDGS({no},1)', "Unrecognised field 'no': {no},1", prefix)
         self._test_invalid_image_macro(writer, '#UDGS1,1{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
-        self._test_invalid_image_macro(writer, '#UDGS({foo,1)', "Invalid format string: {foo,1", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS({foo,1)', "Invalid format string '{foo,1': expected '}' before end of string", prefix)
 
         return writer, prefix
 
@@ -3117,4 +3122,4 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#WHILE(1,2)(body)', "Too many parameters (expected 1): '1,2'", prefix)
         self._assert_error(writer, '#WHILE(x)(body)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
         self._assert_error(writer, '#WHILE({no})(body)', "Unrecognised field 'no': {no}", prefix)
-        self._assert_error(writer, '#WHILE({foo)(body)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#WHILE({foo)(body)', "Invalid format string '{foo': expected '}' before end of string", prefix)

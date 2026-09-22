@@ -2297,7 +2297,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_audio_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_audio_invalid(self)
         self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)({d})', "Unrecognised field 'd': {d}", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)({d)', "Invalid format string: {d", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)({d)', "Invalid format string '{d': expected '}' before end of string", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)(10&6/2)', "Invalid character(s) [&/] in delays specification: '10&6/2'", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)([1]**2)', "Cannot evaluate delays: '[1]**2'", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)([1)', "Cannot evaluate delays: '[1'", prefix)
@@ -3831,7 +3831,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_error(writer, macro_t.format('q'), "Cannot parse integer 'q' in parameter string: 'q'", prefix)
         self._assert_error(writer, macro_t.format('{no}'), "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, macro_t.format('{2}'), "Field index out of range: {2}", prefix)
-        self._assert_error(writer, macro_t.format('{u'), "Invalid format string: {u", prefix)
+        self._assert_error(writer, macro_t.format('{u'), "Invalid format string '{u': expected '}' before end of string", prefix)
 
     def test_macro_over_invalid_byte(self):
         writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
@@ -3845,7 +3845,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_error(writer, macro_t.format('q'), "Cannot parse integer 'q' in parameter string: 'q'", prefix)
         self._assert_error(writer, macro_t.format('{no}'), "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, macro_t.format('{3}'), "Field index out of range: {3}", prefix)
-        self._assert_error(writer, macro_t.format('{u'), "Invalid format string: {u", prefix)
+        self._assert_error(writer, macro_t.format('{u'), "Invalid format string '{u': expected '}' before end of string", prefix)
 
     def test_macro_plot(self):
         snapshot = [1] * 8
@@ -5440,7 +5440,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer, prefix = CommonSkoolMacroTest.test_macro_udgs_invalid(self)
         self._assert_error(writer, '#UDGS1,1(fname)(nonexistent)', "'nonexistent': frame not found (x=0, y=0)", prefix)
         self._assert_error(writer, '#UDGS1,1(f)({nah})', "Unrecognised field 'nah': {nah}", prefix)
-        self._assert_error(writer, '#UDGS1,1(f)({bar)', "Invalid format string: {bar", prefix)
+        self._assert_error(writer, '#UDGS1,1(f)({bar)', "Invalid format string '{bar': expected '}' before end of string", prefix)
 
     def test_macro_udgtable(self):
         src = """(data)
