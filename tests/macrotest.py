@@ -307,6 +307,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#D32771', 'Cannot determine description for non-existent entry at 32771', prefix)
         self._assert_error(writer, '#D({no})', "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, '#D({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
+        self._assert_error(writer, '#D(-1)', "Invalid address: '(-1)'", prefix)
+        self._assert_error(writer, '#D100000', "Invalid address: '100000'", prefix)
 
     def test_macro_def(self):
         writer = self._get_writer()

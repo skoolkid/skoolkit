@@ -830,6 +830,8 @@ def parse_copy(text, index, fields, frame_map=None):
 def parse_d(writer, text, index, *cwd):
     # #Daddr
     end, addr = parse_ints(text, index, 1, fields=writer.fields)
+    if not 0 <= addr <= 99999:
+        raise InvalidParameterError(f"Invalid address: '{text[index:end]}'")
     entry = writer.parser.get_entry(addr)
     if not entry:
         raise MacroParsingError('Cannot determine description for non-existent entry at {}'.format(addr))
