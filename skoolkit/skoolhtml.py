@@ -1111,6 +1111,8 @@ class HtmlWriter:
                         link_text = title
                         break
             if not link_text:
+                if page_id not in self.links:
+                    raise skoolmacro.MacroParsingError(f"No link text for {page_id}")
                 link_text = self.links[page_id][0]
         if page_id in self.main_memory_maps:
             try:

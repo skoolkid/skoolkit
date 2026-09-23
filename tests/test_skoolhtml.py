@@ -3104,6 +3104,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_link_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_link_invalid(self)
         self._assert_error(writer, '#LINK(nonexistentPageID)(text)', 'Unknown page ID: nonexistentPageID', prefix)
+        self._assert_error(writer, '#LINK(AudioPath)()', 'No link text for AudioPath', prefix)
 
     def test_macro_list(self):
         writer = self._get_writer(skool='c32768 RET')
