@@ -1874,6 +1874,11 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#LET(v=3)#N({v},{vars[w]},,1,1)($)'), '$03')
 
     def test_macro_n_invalid(self):
+        max_digits = sys.get_int_max_str_digits()
+        try:
+            str(10 ** max_digits)
+        except ValueError as e:
+            max_digits_msg = str(e)
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('N')
 
@@ -1889,6 +1894,9 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#N(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#N({no},1)', "Unrecognised field 'no': {no},1", prefix)
         self._assert_error(writer, '#N({foo,1)', "Invalid format string '{foo,1': expected '}' before end of string", prefix)
+        self._assert_error(writer, '#N(1,-1,,,1)', "hwidth (-1) is negative: (1,-1,,,1)", prefix)
+        self._assert_error(writer, '#N(1,,-1)', "dwidth (-1) is negative: (1,,-1)", prefix)
+        self._assert_error(writer, f'#N(10**{max_digits})', max_digits_msg, prefix)
 
     def test_macro_over_invalid(self):
         writer = self._get_writer()

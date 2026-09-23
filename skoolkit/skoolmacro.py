@@ -1263,6 +1263,10 @@ def parse_map(fields, text, index, *cwd):
 def parse_n(writer, text, index, *cwd):
     # #Nvalue[,hwidth,dwidth,affix,hex][(prefix[,suffix])]
     end, value, hwidth, dwidth, affix, tohex = parse_ints(text, index, 5, (None, 1, 0, 0), fields=writer.fields)
+    if hwidth is not None and hwidth < 0:
+        raise MacroParsingError(f"hwidth ({hwidth}) is negative: {text[index:end]}")
+    if dwidth < 0:
+        raise MacroParsingError(f"dwidth ({dwidth}) is negative: {text[index:end]}")
     if affix:
         end, (prefix, suffix) = parse_strings(text, end, 2, ('', ''))
     else:
@@ -1274,9 +1278,15 @@ def parse_n(writer, text, index, *cwd):
             else:
                 hwidth = 4
         if writer.case == CASE_LOWER:
-            return end, '{}{:0{}x}{}'.format(prefix, value, hwidth, suffix)
-        return end, '{}{:0{}X}{}'.format(prefix, value, hwidth, suffix)
-    return end, '{:0{}}'.format(value, dwidth)
+            fmt = '{prefix}{value:0{hwidth}x}{suffix}'
+        else:
+            fmt = '{prefix}{value:0{hwidth}X}{suffix}'
+    else:
+        fmt = '{value:0{dwidth}}'
+    try:
+        return end, fmt.format(prefix=prefix, value=value, hwidth=hwidth, dwidth=dwidth, suffix=suffix)
+    except ValueError as e:
+        raise MacroParsingError(str(e))
 
 def _over_attr(t, fields, b, f):
     return parse_ints(t.safe_substitute(b=b, f=f), 0, 1, fields=fields)[1]
