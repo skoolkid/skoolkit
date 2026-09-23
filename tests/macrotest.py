@@ -1,7 +1,7 @@
 import sys
 from textwrap import dedent
 
-from skoolkit import BASE_10, BASE_16, VERSION
+from skoolkit import BASE_10, BASE_16, VERSION, SkoolKitError
 from skoolkit.skoolhtml import HtmlWriter
 from skoolkit.skoolparser import CASE_LOWER, CASE_UPPER
 from skoolkit.skoolutils import Memory
@@ -160,9 +160,15 @@ class CommonSkoolMacroTest:
 
     def test_macro_call_with_nonexistent_method(self):
         writer = self._get_writer(warn=True)
-        method_name = 'nonexistent_method'
-        self.assertEqual(writer.expand(f'#CALL({method_name}(0))'), '')
-        self.assertEqual(self.err.getvalue().split('\n')[0], f'WARNING: Unknown method name in #CALL macro: {method_name}')
+        for method_name in ('nonexistent_method', '.foo'):
+            self.assertEqual(writer.expand(f'#CALL({method_name}(0))'), '')
+            self.assertEqual(self.err.getvalue().split('\n')[0], f'WARNING: Unknown method name in #CALL macro: {method_name}')
+            self.clear_streams()
+
+    def test_macro_call_with_nonexistent_module(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('CALL')
+        self._assert_error(writer, f'#CALL(xyz.bar())', "Failed to import object xyz.bar: No module named 'xyz'", prefix)
 
     def test_macro_call_with_return_value_that_is_not_a_string(self):
         writer = self._get_writer()

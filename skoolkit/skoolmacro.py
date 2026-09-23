@@ -740,8 +740,11 @@ def parse_call(writer, text, index, *cwd):
         fspec = spec[:args_idx]
         if not fspec:
             raise MacroParsingError("No function name")
-        if '.' in fspec:
-            f = get_object(fspec)
+        if fspec.find('.') > 0:
+            try:
+                f = get_object(fspec)
+            except SkoolKitError as e:
+                raise MacroParsingError(e.args[0])
             if not callable(f):
                 raise MacroParsingError(f"{fspec} is not callable")
         else:
