@@ -23,11 +23,15 @@ from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, ROM48, SkoolPars
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skool2bin import BinWriter
 from skoolkit.skoolmacro import CFG, INTEGER, MacroParsingError, parse_if
-from skoolkit.skoolutils import (DIRECTIVES, Z80_ASSEMBLER, Comment, Memory, get_address, join_comments,
-                                 parse_address_comments, parse_address_range, parse_addresses, parse_asm_bank_directive,
-                                 parse_asm_bytes_directive, parse_asm_data_directive, parse_asm_keep_directive,
-                                 parse_asm_nowarn_directive, parse_asm_refs_directive, parse_asm_sub_fix_directive,
-                                 parse_entry_header, parse_instruction, read_skool, set_bytes)
+from skoolkit.skoolutils import (
+    DIRECTIVES, Z80_ASSEMBLER, Comment, Memory, get_address, join_comments,
+    parse_address, parse_address_comments, parse_address_range,
+    parse_addresses, parse_asm_bank_directive, parse_asm_bytes_directive,
+    parse_asm_data_directive, parse_asm_keep_directive,
+    parse_asm_nowarn_directive, parse_asm_refs_directive,
+    parse_asm_sub_fix_directive, parse_entry_header, parse_instruction,
+    read_skool, set_bytes
+)
 from skoolkit.textutils import split_quoted, split_unquoted
 
 Reference = namedtuple('Reference', 'entry address addr_str use_label')
@@ -642,7 +646,7 @@ class Mode:
 
     def convert_int_str(self, int_str, decfmt='{:05d}', hexfmt='${:04X}'):
         if self.base or self.case:
-            address = parse_int(int_str)
+            address = parse_address(int_str)
             if address is not None:
                 if self.base == BASE_10:
                     return decfmt.format(address)
@@ -883,11 +887,14 @@ class Instruction:
         else:
             self.addr_str = addr_str
             self.addr_base = BASE_10
-        self.address = parse_int(addr_str) # API (InstructionUtility)
-        self.keep = None                   # API (InstructionUtility)
-        self.operation = operation         # API (InstructionUtility)
-        self.refs = ()                     # API (InstructionUtility)
-        self.rrefs = ()                    # API (InstructionUtility)
+
+        # API (InstructionUtility)
+        self.address = parse_address(addr_str)
+        self.keep = None
+        self.operation = operation
+        self.refs = ()
+        self.rrefs = ()
+
         self.bytes = ()
         self.container = None
         self.reference = None

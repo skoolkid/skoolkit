@@ -391,6 +391,14 @@ def get_label_format(config):
     entry_point_label = check_format(config['EntryPointLabel'], 'entry point label', epl_fields)
     return (entry_label, entry_point_label)
 
+def parse_address(addr_str):
+    try:
+        if addr_str.startswith('$'):
+            return int(addr_str[1:], 16)
+        return int(addr_str)
+    except ValueError:
+        return None
+
 def get_address(operation):
     search = re.search(r'(\A|[\s,(+-])(\$[0-9A-Fa-f]+|%[01]+|\d+)', operation)
     if search:

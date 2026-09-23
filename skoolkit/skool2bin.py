@@ -23,9 +23,12 @@ from skoolkit import (SkoolKitError, SkoolParsingError, address, get_int_param,
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
-from skoolkit.skoolutils import (DIRECTIVES, Memory, parse_address_range, parse_asm_bank_directive,
-                                 parse_asm_bytes_directive, parse_asm_data_directive, parse_asm_keep_directive,
-                                 parse_asm_nowarn_directive, parse_asm_sub_fix_directive, read_skool)
+from skoolkit.skoolutils import (
+    DIRECTIVES, Memory, parse_address, parse_address_range,
+    parse_asm_bank_directive, parse_asm_bytes_directive,
+    parse_asm_data_directive, parse_asm_keep_directive,
+    parse_asm_nowarn_directive, parse_asm_sub_fix_directive, read_skool
+)
 from skoolkit.textutils import partition_unquoted
 
 VALID_CTLS = DIRECTIVES + ' *'
@@ -124,12 +127,9 @@ class BinWriter:
     def _parse_instruction(self, address, line, removed):
         if self.entry_ctl is None:
             self.entry_ctl = line[0]
-        try:
-            skool_address = get_int_param(line[1:6])
-        except ValueError:
-            if address is None or line[1:6].strip():
-                raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
-            skool_address = None
+        skool_address = parse_address(line[1:6])
+        if skool_address is None and (address is None or line[1:6].strip()):
+            raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
         if address is None:
             address = skool_address
         if skool_address not in removed:

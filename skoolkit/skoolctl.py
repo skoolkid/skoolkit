@@ -18,8 +18,10 @@ import re
 
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.components import get_assembler, get_component, get_operand_evaluator
-from skoolkit.skoolutils import (Comment, parse_entry_header, parse_instruction,
-                                 parse_address_comments, join_comments, read_skool, DIRECTIVES)
+from skoolkit.skoolutils import (
+    DIRECTIVES, Comment, join_comments, parse_address, parse_address_comments,
+    parse_entry_header, parse_instruction, read_skool
+)
 from skoolkit.textutils import partition_unquoted
 
 ASM_DIRECTIVES = 'a'
@@ -660,9 +662,8 @@ class SkoolParser:
 
     def _parse_instruction(self, line):
         ctl, addr_str, operation, comment = parse_instruction(line)
-        try:
-            address = get_int_param(addr_str)
-        except ValueError:
+        address = parse_address(addr_str)
+        if address is None:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(addr_str, line.rstrip()))
         inst_ctl, length, sublengths = self.composer.compose(operation)
         instruction = Instruction(ctl, address, operation, inst_ctl, length, sublengths)
