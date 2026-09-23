@@ -802,6 +802,8 @@ def parse_chr(writer, text, index, *cwd):
     end, num, flags = parse_ints(text, index, 2, (0,), fields=writer.fields)
     if flags & 2:
         num = ZX_CHARS.get(num, num)
+    if num < 0 or 0xD800 <= num <= 0xDFFF or 0x10FFFF < num:
+        raise MacroParsingError(f"Invalid character code ({num}): '{text[index:end]}'")
     if flags & 1:
         return end, chr(num)
     return end, writer.to_chr(num)

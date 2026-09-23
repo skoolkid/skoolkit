@@ -228,6 +228,10 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
         self._assert_error(writer, '#CHR({no})', "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, '#CHR({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
+        self._assert_error(writer, '#CHR(-1,1)', "Invalid character code (-1): '(-1,1)'", prefix)
+        self._assert_error(writer, '#CHR$110000,1', "Invalid character code (1114112): '$110000,1'", prefix)
+        self._assert_error(writer, '#CHR$D800,1', "Invalid character code (55296): '$D800,1'", prefix)
+        self._assert_error(writer, '#CHR$DFFF,1', "Invalid character code (57343): '$DFFF,1'", prefix)
 
     def test_macro_copy_invalid(self):
         writer = self._get_writer()
