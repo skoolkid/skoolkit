@@ -2122,6 +2122,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
         self._assert_error(writer, '#R({no})', "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, '#R({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
+        self._assert_error(writer, '#R(-1)', "Invalid address: '(-1)'", prefix)
+        self._assert_error(writer, '#R100000', "Invalid address: '100000'", prefix)
 
         return writer, prefix
 

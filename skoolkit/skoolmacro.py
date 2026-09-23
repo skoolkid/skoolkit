@@ -1368,6 +1368,8 @@ def parse_pushs(writer, text, index, *cwd):
 def parse_r(fields, text, index):
     # #Raddr[@code][#anchor][(link text)]
     end, address = parse_ints(text, index, 1, fields=fields)
+    if not 0 <= address <= 99999:
+        raise InvalidParameterError(f"Invalid address: '{text[index:end]}'")
     addr_str = text[index:end]
     match = RE_CODE_ID.match(text, end)
     if match:
