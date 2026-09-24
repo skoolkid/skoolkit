@@ -2066,6 +2066,7 @@ class TraceTest(SkoolKitTestCase):
 
     def test_option_reg_bad_value(self):
         self._test_bad_spec('--reg A=x', 'Cannot parse register value: A=x')
+        self._test_bad_spec('--reg xy=0', 'Invalid register: xy=0')
 
     def test_option_rom(self):
         romfile = self.write_bin_file([175], suffix='.bin')

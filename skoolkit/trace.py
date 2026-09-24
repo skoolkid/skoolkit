@@ -32,8 +32,9 @@ from skoolkit.pagingtracer import Memory, PagingTracer
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import (CLOCK_SPEEDS, PC, T, from_memory, from_snapshot,
                                get_state)
-from skoolkit.snapshot import (Snapshot, make_snapshot, poke, print_reg_help,
-                               print_state_help, write_snapshot)
+from skoolkit.snapshot import (SZX_REGISTERS, Snapshot, make_snapshot, poke,
+                               print_reg_help, print_state_help,
+                               write_snapshot)
 from skoolkit.traceutils import (Registers, disassemble, get_operand_formats,
                                  get_trace_line)
 
@@ -248,6 +249,8 @@ def run(snafile, options, config):
     registers = {}
     for spec in options.reg:
         reg, sep, val = spec.partition('=')
+        if reg.lower() not in SZX_REGISTERS:
+            raise SkoolKitError(f"Invalid register: {spec}")
         if sep:
             try:
                 registers[reg.upper()] = get_int_param(val, True)
