@@ -2841,6 +2841,61 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#SIM(start={start},stop={stop},hl={hl})'), '')
         self.assertEqual(writer.expand('#FORMAT(HL={sim[HL]})'), 'HL=2')
 
+    def test_macro_sim_ignores_invalid_start_address(self):
+        skool = """
+            @start
+            ; Routine
+            c49152 LD BC,1
+             49155 INC BC
+             49156 INC BC
+             49157 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=49152,stop=49155)')
+        self.assertEqual(writer.expand('#FORMAT(BC={sim[BC]} T={sim[tstates]})'), 'BC=1 T=10')
+        writer.expand('#SIM(start=-1,stop=49156)')
+        self.assertEqual(writer.expand('#FORMAT(BC={sim[BC]} T={sim[tstates]})'), 'BC=2 T=16')
+        writer.expand('#SIM(start=65536,stop=49157)')
+        self.assertEqual(writer.expand('#FORMAT(BC={sim[BC]} T={sim[tstates]})'), 'BC=3 T=22')
+
+    def test_macro_sim_masks_invalid_register_values(self):
+        skool = """
+            @start
+            ; Do nothing
+            c50000 NOP
+             50001 RET
+        """
+        writer = self._get_writer(skool=skool)
+        registers = (
+            'a', 'f', 'bc', 'de', 'hl', 'xa', 'xf', 'xbc', 'xde', 'xhl',
+            'ix', 'iy', 'i', 'r', 'sp', 'memptr'
+        )
+        rfmt = (
+            "#FORMAT(AFBCDEHL={sim[A]:02X}{sim[F]:02X}{sim[BC]:04X}{sim[DE]:04X}{sim[HL]:04X} "
+            "^AFBCDEHL={sim[^A]:02X}{sim[^F]:02X}{sim[^BC]:04X}{sim[^DE]:04X}{sim[^HL]:04X} "
+            "IRIXIYSPWZ={sim[I]:02X}{sim[R]:02X}{sim[IX]:04X}{sim[IY]:04X}{sim[SP]:04X}{sim[MEMPTR]:04X})"
+        )
+        exp_vals = (
+            "AFBCDEHL=0101000100010001 "
+            "^AFBCDEHL=0101000100010001 "
+            "IRIXIYSPWZ=01020001000100010001"
+        )
+        rvals = ','.join(f'{r}=65537' for r in registers)
+        writer.expand(f'#SIM(start=50000,stop=50001,{rvals})')
+        self.assertEqual(writer.expand(rfmt), exp_vals)
+
+    def test_macro_sim_fixes_invalid_state_values(self):
+        skool = """
+            @start
+            ; Do nothing
+            c50000 NOP
+             50001 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand(f'#SIM(start=50000,stop=50001,iff=275,im=7,tstates=2**64+1)')
+        exp_vals = 'iff=1 im=1 tstates=5'
+        self.assertEqual(writer.expand('#FORMAT(iff={sim[iff]} im={sim[im]} tstates={sim[tstates]})'), 'iff=1 im=1 tstates=5')
+
     def test_macro_sim_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('SIM')

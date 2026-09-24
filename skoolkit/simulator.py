@@ -69,7 +69,7 @@ class Simulator:
         opcodes = self.opcodes
         memory = self.memory
         registers = self.registers
-        if start is not None:
+        if start is not None and 0 <= start <= 0xFFFF:
             registers[24] = start # PC
         pc = registers[24]
 

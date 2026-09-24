@@ -185,24 +185,26 @@ def get_registers(config, state, as_array=True):
     registers[I] = 63
     if config:
         for reg, value in config.items():
-            if reg in REGISTERS:
-                registers[REGISTERS[reg]] = value
+            if reg in ('SP', 'PC', 'MEMPTR'):
+                registers[REGISTERS[reg]] = value & 0xFFFF
+            elif reg in REGISTERS:
+                registers[REGISTERS[reg]] = value & 0xFF
             elif reg in ('IX', 'IY'):
                 rh = REGISTERS[reg + 'h']
-                registers[rh] = value // 256
-                registers[rh + 1] = value % 256
+                registers[rh] = (value >> 8) & 0xFF
+                registers[rh + 1] = value & 0xFF
             elif reg.startswith('^'):
                 rh = REGISTERS[reg[:2]]
-                registers[rh] = value // 256
-                registers[rh + 1] = value % 256
+                registers[rh] = (value >> 8) & 0xFF
+                registers[rh + 1] = value & 0xFF
             elif len(reg) == 2:
                 rh = REGISTERS[reg[0]]
-                registers[rh] = value // 256
-                registers[rh + 1] = value % 256
+                registers[rh] = (value >> 8) & 0xFF
+                registers[rh + 1] = value & 0xFF
     if state is None:
         state = {}
-    registers[IM] = state.get('im', 1)
-    registers[IFF] = state.get('iff', 0)
-    registers[HALT] = state.get('halted', 0)
-    registers[T] = state.get('tstates', 0)
+    registers[IM] = state.get('im', 1) % 3
+    registers[IFF] = 1 if state.get('iff', 0) else 0
+    registers[HALT] = 1 if state.get('halted', 0) else 0
+    registers[T] = max(0, state.get('tstates', 0)) & 0xFFFFFFFFFFFFFFFF
     return registers

@@ -2341,6 +2341,17 @@ class TraceTest(SkoolKitTestCase):
         self.assertIn('im=2', s_state)
         self.assertIn('tstates=40004', s_state)
 
+    @patch.object(trace, 'write_snapshot', mock_write_snapshot)
+    def test_option_state_fixes_invalid_state_values(self):
+        z80file = self.write_z80([0] * 49152)
+        state = ('iff=507', 'im=19', 'tstates=-17')
+        state_options = ' '.join(f'--state {spec}' for spec in state)
+        output, error = self.run_trace(f'-ns 32768 -S 32769 {state_options} {z80file} out.z80')
+        self.assertEqual(error, '')
+        self.assertIn('iff=1', s_state)
+        self.assertIn('im=1', s_state)
+        self.assertIn('tstates=4', s_state)
+
     def test_state_help(self):
         output, error = self.run_trace('--state help')
         self.assertEqual(error, '')
