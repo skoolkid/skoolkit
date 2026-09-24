@@ -3092,6 +3092,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#TSTATES({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
         self._assert_error(writer, '#TSTATES32768,,2(hi', "No closing bracket: (hi", prefix)
         self._assert_error(writer, '#TSTATES32768,,2/hi', "No terminating delimiter: /hi", prefix)
+        self._assert_error(writer, '#TSTATES(-1)', "Invalid start address: '(-1)'", prefix)
+        self._assert_error(writer, '#TSTATES65536', "Invalid start address: '65536'", prefix)
 
     def test_macro_udg_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)

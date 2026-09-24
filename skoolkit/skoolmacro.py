@@ -1497,6 +1497,8 @@ def parse_str(writer, text, index, *cwd):
 def parse_tstates(writer, text, index, *cwd):
     # #TSTATESstart[,stop,flags,execint,cmio(text)]
     end, start, stop, flags, execint, cmio = parse_ints(text, index, 5, (-1, 0, 0, 0), fields=writer.fields)
+    if not 0 <= start <= 0xFFFF:
+        raise InvalidParameterError(f"Invalid start address: '{text[index:end]}'")
     if flags & 2:
         end, msg = parse_strings(text, end, 1)
     else:
