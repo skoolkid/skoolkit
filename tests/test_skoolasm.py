@@ -4160,6 +4160,19 @@ class TableMacroTest(SkoolKitTestCase):
         error = "colspan (2) of cell at column 1 in row 1 is too large"
         self._assert_error(skool, error)
 
+    def test_wrappable_cell_with_colspan_2_in_table_with_only_one_column(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #TABLE(,:w)
+            ; { =c2 A }
+            ; TABLE#
+            c32768 RET
+        """
+        error = "colspan (2) of cell at column 1 in row 1 is too large"
+        self._assert_error(skool, error)
+
     def test_cell_with_rowspan_2_in_table_with_only_one_row(self):
         skool = """
             @start

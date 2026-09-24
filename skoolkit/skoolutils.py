@@ -305,7 +305,7 @@ class Table:
             for cell in self.cells:
                 if cell.wrappable and len(cell.contents[0]) > self.col_widths[cell.col_index]:
                     done = False
-                    for col_index in range(cell.col_index, cell.col_index + cell.colspan):
+                    for col_index in range(cell.col_index, min(self.num_cols, cell.col_index + cell.colspan)):
                         self.col_widths[col_index] += 1
                         width += 1
                         if width == max_table_width:
