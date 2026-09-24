@@ -1189,6 +1189,8 @@ def parse_let(writer, text, index, *cwd):
         m = re.match(r'(.+)\[([^]]*)\]$', name)
         if m:
             dname = m.group(1)
+            if dname in ('mode', 'sim'):
+                raise InvalidParameterError(f"Cannot modify protected field '{dname}'")
             key = m.group(2)
             if dname == 'cfg':
                 writer.fields['cfg'][key] = value
