@@ -698,6 +698,7 @@ def parse_audio(writer, text, index, need_audio=None):
                 tracer = AudioTracer128(memory, memory.o7ffd, state['fffd'], state['ay'])
             else:
                 tracer = AudioTracer()
+                ay = 0
             simulator.set_tracer(tracer)
             simulator.run(start, stop, execint)
             if memory != simulator.memory: # pragma: Python no cover

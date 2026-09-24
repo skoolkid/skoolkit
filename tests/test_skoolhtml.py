@@ -2278,6 +2278,23 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_delays = [100, 100]
         self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays)
 
+    def test_macro_audio_ignores_ay_parameter_in_48k_snapshot(self):
+        skool = """
+            ; Beep
+            c32768 LD B,3
+            *32770 OUT (254),A
+             32772 XOR 16
+             32774 DJNZ 32770
+             32776 RET
+        """
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        fname = 'sound.wav'
+        macro = f'#AUDIO1,32768,32776,ay=1({fname})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [31, 31]
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays)
+
     def test_macro_audio_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_audio_invalid(self)
         self._test_invalid_audio_macro(writer, '#AUDIO0(f.wav)({d})', "Unrecognised field 'd': {d}", prefix)
