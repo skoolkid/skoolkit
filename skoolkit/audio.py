@@ -34,6 +34,8 @@ def moving_average_filter(delays, options, volume):
     bit = bits = 0
     samples = []
     for d in delays:
+        if d < 0:
+            continue
         while True:
             if t + d < t1:
                 if bit:

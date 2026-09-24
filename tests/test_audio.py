@@ -61,6 +61,12 @@ class AudioWriterTest(SkoolKitTestCase):
         samples = self._check_header(audio_bytes)
         self.assertEqual(samples, b'\x00\x80\x32\x43\x42\xfb\x66\xc6')
 
+    def test_negative_delays_are_ignored(self):
+        audio_writer = AudioWriter()
+        audio_bytes = self._get_audio_data(audio_writer, [100, -1, 100, -2, 100, -3, 100])
+        samples = self._check_header(audio_bytes)
+        self.assertEqual(samples, b'\x00\x80\x30\x3f\x33\x03\x54\xba\xff\x7f')
+
     def test_volume(self):
         audio_writer = AudioWriter()
         audio_bytes = self._get_audio_data(audio_writer, [100] * 4, volume=50)
