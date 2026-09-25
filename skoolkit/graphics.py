@@ -160,9 +160,9 @@ class Frame:
             raise GraphicsError(f"y-coordinate ({y}) out of range 0-{self.full_height - 1}")
         self._y = y
         if width is not None and width < 0:
-            raise GraphicsError(f"width ({width}) is negative")
+            raise GraphicsError(f"crop width ({width}) is negative")
         if height is not None and height < 0:
-            raise GraphicsError(f"height ({height}) is negative")
+            raise GraphicsError(f"crop height ({height}) is negative")
         self.mask = int(mask)
         self._width = width
         self._height = height

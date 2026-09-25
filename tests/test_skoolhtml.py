@@ -2529,8 +2529,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_error(writer, '#UDG0(*f)#COPY{32}(f,g)', "x-coordinate (32) out of range 0-31: '{32}(f,g)'", prefix)
         self._assert_error(writer, '#UDG0(*f)#COPY{,-1}(f,g)', "y-coordinate (-1) out of range 0-31: '{,-1}(f,g)'", prefix)
         self._assert_error(writer, '#UDG0(*f)#COPY{,32}(f,g)', "y-coordinate (32) out of range 0-31: '{,32}(f,g)'", prefix)
-        self._assert_error(writer, '#UDG0(*f)#COPY{,,-1}(f,g)', "width (-1) is negative: '{,,-1}(f,g)'", prefix)
-        self._assert_error(writer, '#UDG0(*f)#COPY{,,,-1}(f,g)', "height (-1) is negative: '{,,,-1}(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY{,,-1}(f,g)', "crop width (-1) is negative: '{,,-1}(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY{,,,-1}(f,g)', "crop height (-1) is negative: '{,,,-1}(f,g)'", prefix)
 
     def test_macro_def_with_whitespace_stripped_and_macro_that_requires_cwd(self):
         skool = "c32768 RET"
@@ -2765,6 +2765,16 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_font_with_replacement_field_in_filename(self):
         self._test_image_macro_with_replacement_field_in_filename('#FONT0,1', FONTDIR)
+
+    def test_macro_font_invalid(self):
+        writer, prefix = CommonSkoolMacroTest.test_macro_font_invalid(self)
+        writer.snapshot = [0] * 8
+        self._assert_error(writer, '#FONT0,1{-1}', "x-coordinate (-1) out of range 0-15: '0,1{-1}'", prefix)
+        self._assert_error(writer, '#FONT0,1{16}', "x-coordinate (16) out of range 0-15: '0,1{16}'", prefix)
+        self._assert_error(writer, '#FONT0,1{,-1}', "y-coordinate (-1) out of range 0-15: '0,1{,-1}'", prefix)
+        self._assert_error(writer, '#FONT0,1{,16}', "y-coordinate (16) out of range 0-15: '0,1{,16}'", prefix)
+        self._assert_error(writer, '#FONT0,1{,,-1}', "crop width (-1) is negative: '0,1{,,-1}'", prefix)
+        self._assert_error(writer, '#FONT0,1{,,,-1}', "crop height (-1) is negative: '0,1{,,,-1}'", prefix)
 
     def test_macro_foreach_entry_omits_i_blocks(self):
         skool = """
@@ -4513,6 +4523,16 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_scr_with_replacement_field_in_filename(self):
         self._test_image_macro_with_replacement_field_in_filename('#SCR1,0,0,1,1,0,0', SCRDIR, (0,) * 2048)
 
+    def test_macro_scr_invalid(self):
+        writer, prefix = CommonSkoolMacroTest.test_macro_scr_invalid(self)
+        writer.snapshot = [0] * 23296
+        self._assert_error(writer, '#SCR1,31{-1}', "x-coordinate (-1) out of range 0-7: '1,31{-1}'", prefix)
+        self._assert_error(writer, '#SCR1,31{8}', "x-coordinate (8) out of range 0-7: '1,31{8}'", prefix)
+        self._assert_error(writer, '#SCR1,,23{,-1}', "y-coordinate (-1) out of range 0-7: '1,,23{,-1}'", prefix)
+        self._assert_error(writer, '#SCR1,,23{,8}', "y-coordinate (8) out of range 0-7: '1,,23{,8}'", prefix)
+        self._assert_error(writer, '#SCR{,,-1}', "crop width (-1) is negative: '{,,-1}'", prefix)
+        self._assert_error(writer, '#SCR{,,,-1}', "crop height (-1) is negative: '{,,,-1}'", prefix)
+
     def test_macro_table(self):
         src1 = """(data)
             { =h Col1 | =h Col2 | =h,c2 Cols3+4 }
@@ -4871,6 +4891,16 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_udg_with_replacement_field_in_filename(self):
         self._test_image_macro_with_replacement_field_in_filename('#UDG0')
 
+    def test_macro_udg_invalid(self):
+        writer, prefix = CommonSkoolMacroTest.test_macro_udg_invalid(self)
+        writer.snapshot = [0] * 8
+        self._assert_error(writer, '#UDG0{-1}', "x-coordinate (-1) out of range 0-31: '0{-1}'", prefix)
+        self._assert_error(writer, '#UDG0{32}', "x-coordinate (32) out of range 0-31: '0{32}'", prefix)
+        self._assert_error(writer, '#UDG0{,-1}', "y-coordinate (-1) out of range 0-31: '0{,-1}'", prefix)
+        self._assert_error(writer, '#UDG0{,32}', "y-coordinate (32) out of range 0-31: '0{,32}'", prefix)
+        self._assert_error(writer, '#UDG0{,,-1}', "crop width (-1) is negative: '0{,,-1}'", prefix)
+        self._assert_error(writer, '#UDG0{,,,-1}', "crop height (-1) is negative: '0{,,,-1}'", prefix)
+
     def test_macro_udgarray_with_address_range_with_horizontal_and_vertical_steps(self):
         snapshot = list(range(32))
         fname = 'test_udg_array'
@@ -5206,6 +5236,16 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_udgarray_with_replacement_field_in_filename(self):
         self._test_image_macro_with_replacement_field_in_filename('#UDGARRAY1(0)')
 
+    def test_macro_udgarray_invalid(self):
+        writer, prefix = CommonSkoolMacroTest.test_macro_udgarray_invalid(self)
+        writer.snapshot = [0] * 8
+        self._assert_error(writer, '#UDGARRAY1(0){-1}(f)', "x-coordinate (-1) out of range 0-15: '1(0){-1}(f)'", prefix)
+        self._assert_error(writer, '#UDGARRAY1(0){16}(f)', "x-coordinate (16) out of range 0-15: '1(0){16}(f)'", prefix)
+        self._assert_error(writer, '#UDGARRAY1(0){,-1}(f)', "y-coordinate (-1) out of range 0-15: '1(0){,-1}(f)'", prefix)
+        self._assert_error(writer, '#UDGARRAY1(0){,16}(f)', "y-coordinate (16) out of range 0-15: '1(0){,16}(f)'", prefix)
+        self._assert_error(writer, '#UDGARRAY1(0){,,-1}(f)', "crop width (-1) is negative: '1(0){,,-1}(f)'", prefix)
+        self._assert_error(writer, '#UDGARRAY1(0){,,,-1}(f)', "crop height (-1) is negative: '1(0){,,,-1}(f)'", prefix)
+
     def test_macro_udgs(self):
         snapshot = list(range(32))
         macro = '#UDGS2,2(udgs)(#UDG((2*$y+$x)*8,$x+$y+1)(*f) f)'
@@ -5454,9 +5494,16 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_udgs_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_udgs_invalid(self)
+        writer.snapshot = [0] * 8
         self._assert_error(writer, '#UDGS1,1(fname)(nonexistent)', "'nonexistent': frame not found (x=0, y=0)", prefix)
         self._assert_error(writer, '#UDGS1,1(f)({nah})', "Unrecognised field 'nah': {nah}", prefix)
         self._assert_error(writer, '#UDGS1,1(f)({bar)', "Invalid format string '{bar': expected '}' before end of string", prefix)
+        self._assert_error(writer, '#UDGS1,1{-1}(f)(#UDG0(*u)u)', "x-coordinate (-1) out of range 0-31: '1,1{-1}(f)(#UDG0(*u)u)'", prefix)
+        self._assert_error(writer, '#UDGS1,1{32}(f)(#UDG0(*u)u)', "x-coordinate (32) out of range 0-31: '1,1{32}(f)(#UDG0(*u)u)'", prefix)
+        self._assert_error(writer, '#UDGS1,1{,-1}(f)(#UDG0(*u)u)', "y-coordinate (-1) out of range 0-31: '1,1{,-1}(f)(#UDG0(*u)u)'", prefix)
+        self._assert_error(writer, '#UDGS1,1{,32}(f)(#UDG0(*u)u)', "y-coordinate (32) out of range 0-31: '1,1{,32}(f)(#UDG0(*u)u)'", prefix)
+        self._assert_error(writer, '#UDGS1,1{,,-1}(f)(#UDG0(*u)u)', "crop width (-1) is negative: '1,1{,,-1}(f)(#UDG0(*u)u)'", prefix)
+        self._assert_error(writer, '#UDGS1,1{,,,-1}(f)(#UDG0(*u)u)', "crop height (-1) is negative: '1,1{,,,-1}(f)(#UDG0(*u)u)'", prefix)
 
     def test_macro_udgtable(self):
         src = """(data)

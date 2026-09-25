@@ -1,5 +1,5 @@
 from skoolkittest import SkoolKitTestCase
-from skoolkit.graphics import Udg, flip_udgs, rotate_udgs, font_udgs
+from skoolkit.graphics import Frame, Udg, flip_udgs, rotate_udgs, font_udgs
 
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):
@@ -207,3 +207,9 @@ class GraphicsTest(SkoolKitTestCase):
         for i, udg in enumerate(font_udg_array[0]):
             self.assertEqual(udg.attr, attr)
             self.assertEqual(udg.data, chars[i])
+
+class FrameTest(SkoolKitTestCase):
+    def test_callable_udgs(self):
+        udg_array = [[Udg(0, [0] * 8)]]
+        frame = Frame(lambda: udg_array)
+        self.assertEqual(udg_array, frame.udgs)

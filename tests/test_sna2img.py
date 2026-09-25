@@ -258,10 +258,13 @@ class Sna2ImgTest(SkoolKitTestCase):
         self._test_sna2img(mock_open_file, f'--expand {macro}', data, exp_udgs, scale, address=addr, ftype='sna')
 
     def test_option_e_font_invalid_parameters(self):
-        scrfile = self.write_bin_file(suffix='.scr')
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_sna2img('-e FONTx {}'.format(scrfile))
-        self.assertEqual(cm.exception.args[0], "Invalid #FONT macro: No parameters (expected 1): 'x'")
+        self._test_bad_spec('-e FONTx', "Invalid #FONT macro: No parameters (expected 1): 'x'")
+        self._test_bad_spec('-e FONT0,1{-1}', "Invalid #FONT macro: x-coordinate (-1) out of range 0-15")
+        self._test_bad_spec('-e FONT0,1{16}', "Invalid #FONT macro: x-coordinate (16) out of range 0-15")
+        self._test_bad_spec('-e FONT0,1{,-1}', "Invalid #FONT macro: y-coordinate (-1) out of range 0-15")
+        self._test_bad_spec('-e FONT0,1{,16}', "Invalid #FONT macro: y-coordinate (16) out of range 0-15")
+        self._test_bad_spec('-e FONT0,1{,,-1}', "Invalid #FONT macro: crop width (-1) is negative")
+        self._test_bad_spec('-e FONT0,1{,,,-1}', "Invalid #FONT macro: crop height (-1) is negative")
 
     @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open_file')
@@ -303,10 +306,13 @@ class Sna2ImgTest(SkoolKitTestCase):
         self._test_sna2img(mock_open_file, '--expand {}'.format(macro), data, exp_udgs, scale, 0, x=x, y=y, width=width, height=height, address=tile_addr, ftype='sna')
 
     def test_option_e_scr_invalid_parameters(self):
-        scrfile = self.write_bin_file(suffix='.scr')
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_sna2img('-e SCR{{x}} {}'.format(scrfile))
-        self.assertEqual(cm.exception.args[0], "Invalid #SCR macro: Cannot parse integer 'x' in parameter string: 'x'")
+        self._test_bad_spec('-e SCR{x}', "Invalid #SCR macro: Cannot parse integer 'x' in parameter string: 'x'")
+        self._test_bad_spec('-e SCR{-1}', "Invalid #SCR macro: x-coordinate (-1) out of range 0-255")
+        self._test_bad_spec('-e SCR{256}', "Invalid #SCR macro: x-coordinate (256) out of range 0-255")
+        self._test_bad_spec('-e SCR{,-1}', "Invalid #SCR macro: y-coordinate (-1) out of range 0-191")
+        self._test_bad_spec('-e SCR{,192}', "Invalid #SCR macro: y-coordinate (192) out of range 0-191")
+        self._test_bad_spec('-e SCR{,,-1}', "Invalid #SCR macro: crop width (-1) is negative")
+        self._test_bad_spec('-e SCR{,,,-1}', "Invalid #SCR macro: crop height (-1) is negative")
 
     @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open_file')
@@ -344,10 +350,13 @@ class Sna2ImgTest(SkoolKitTestCase):
         self._test_sna2img(mock_open_file, '-e {}'.format(macro), udg.data, exp_udgs, 4, 0, x=x, y=y, width=width, height=height, address=addr, ftype='sna')
 
     def test_option_e_udg_invalid_parameters(self):
-        scrfile = self.write_bin_file(suffix='.scr')
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_sna2img('-e UDG(0,q) {}'.format(scrfile))
-        self.assertEqual(cm.exception.args[0], "Invalid #UDG macro: Cannot parse integer 'q' in parameter string: '0,q'")
+        self._test_bad_spec('-e UDG(0,q)', "Invalid #UDG macro: Cannot parse integer 'q' in parameter string: '0,q'")
+        self._test_bad_spec('-e UDG0{-1}', "Invalid #UDG macro: x-coordinate (-1) out of range 0-31")
+        self._test_bad_spec('-e UDG0{32}', "Invalid #UDG macro: x-coordinate (32) out of range 0-31")
+        self._test_bad_spec('-e UDG0{,-1}', "Invalid #UDG macro: y-coordinate (-1) out of range 0-31")
+        self._test_bad_spec('-e UDG0{,32}', "Invalid #UDG macro: y-coordinate (32) out of range 0-31")
+        self._test_bad_spec('-e UDG0{,,-1}', "Invalid #UDG macro: crop width (-1) is negative")
+        self._test_bad_spec('-e UDG0{,,,-1}', "Invalid #UDG macro: crop height (-1) is negative")
 
     @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open_file')
@@ -386,10 +395,13 @@ class Sna2ImgTest(SkoolKitTestCase):
         self._test_sna2img(mock_open_file, '-e {}'.format(macro), data, exp_udgs, 2, 0, x=x, y=y, width=width, height=height, address=addr, ftype='sna')
 
     def test_option_e_udgarray_invalid_parameters(self):
-        scrfile = self.write_bin_file(suffix='.scr')
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_sna2img('-e UDGARRAY(1,?);32768 {}'.format(scrfile))
-        self.assertEqual(cm.exception.args[0], "Invalid #UDGARRAY macro: Cannot parse integer '?' in parameter string: '1,?'")
+        self._test_bad_spec('-e UDGARRAY(1,?)(32768)(f)', "Invalid #UDGARRAY macro: Cannot parse integer '?' in parameter string: '1,?'")
+        self._test_bad_spec('-e UDGARRAY1(0){-1}(f)', "Invalid #UDGARRAY macro: x-coordinate (-1) out of range 0-15")
+        self._test_bad_spec('-e UDGARRAY1(0){16}(f)', "Invalid #UDGARRAY macro: x-coordinate (16) out of range 0-15")
+        self._test_bad_spec('-e UDGARRAY1(0){,-1}(f)', "Invalid #UDGARRAY macro: y-coordinate (-1) out of range 0-15")
+        self._test_bad_spec('-e UDGARRAY1(0){,16}(f)', "Invalid #UDGARRAY macro: y-coordinate (16) out of range 0-15")
+        self._test_bad_spec('-e UDGARRAY1(0){,,-1}(f)', "Invalid #UDGARRAY macro: crop width (-1) is negative")
+        self._test_bad_spec('-e UDGARRAY1(0){,,,-1}(f)', "Invalid #UDGARRAY macro: crop height (-1) is negative")
 
     def test_option_e_unrecognised_macro(self):
         scrfile = self.write_bin_file(suffix='.scr')

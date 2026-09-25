@@ -659,6 +659,8 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#FONT0,1{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
         self._test_invalid_image_macro(writer, '#FONT({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
 
+        return writer, prefix
+
     def test_macro_for(self):
         writer = self._get_writer()
 
@@ -2214,6 +2216,8 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#SCR{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
         self._test_invalid_image_macro(writer, '#SCR({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
 
+        return writer, prefix
+
     def test_macro_space(self):
         writer = self._get_writer(skool='', variables=[('n', 2)])
         space = '&#160;' if isinstance(writer, HtmlWriter) else ' '
@@ -3121,6 +3125,8 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDG0{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
         self._test_invalid_image_macro(writer, '#UDG({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
 
+        return writer, prefix
+
     def test_macro_udgarray_invalid(self):
         writer = self._get_writer(snapshot=[0] * 16)
         prefix = ERROR_PREFIX.format('UDGARRAY')
@@ -3177,6 +3183,8 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY1(0:({qux))(udg)', "Invalid format string '{qux': expected '}' before end of string", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1(0:0,({xyzzy))(udg)', "Invalid format string '{xyzzy': expected '}' before end of string", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1(0)[({bish)](udg)', "Invalid format string '{bish': expected '}' before end of string", prefix)
+
+        return writer, prefix
 
     def test_macro_udgs_invalid(self):
         writer = self._get_writer()

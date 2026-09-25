@@ -33,8 +33,8 @@ from skoolkit.ay import AYOptions
 from skoolkit.components import (get_audio_writer, get_ay_audio_writer,
                                  get_component, get_image_writer)
 from skoolkit.defaults import REF_FILE
-from skoolkit.graphics import (Frame, adjust_udgs, build_udg, font_udgs,
-                               scr_udgs)
+from skoolkit.graphics import (Frame, GraphicsError, adjust_udgs, build_udg,
+                               font_udgs, scr_udgs)
 from skoolkit.refparser import RefParser
 from skoolkit.skoolutils import TableParser, ListParser
 
@@ -1079,7 +1079,10 @@ class HtmlWriter:
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index, self.fields)
         addr, attr, scale, tindex, alpha, message = params
         udgs = font_udgs(self.snapshot, addr, attr, unescape(message))
-        frame = Frame(udgs, scale, 0, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
+        try:
+            frame = Frame(udgs, scale, 0, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
+        except GraphicsError as e:
+            raise skoolmacro.MacroParsingError(f"{e}: '{text[index:end]}'")
         return end, self.handle_image(frame, fname, cwd, alt, 'FontImagePath')
 
     def expand_frames(self, text, index, cwd):
@@ -1162,7 +1165,10 @@ class HtmlWriter:
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(text, index, self.fields)
         scale, x, y, w, h, df, af, tindex, alpha = params
         udgs = self.screenshot(x, y, w, h, df, af)
-        frame = Frame(udgs, scale, 0, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
+        try:
+            frame = Frame(udgs, scale, 0, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
+        except GraphicsError as e:
+            raise skoolmacro.MacroParsingError(f"{e}: '{text[index:end]}'")
         return end, self.handle_image(frame, fname, cwd, alt, 'ScreenshotImagePath')
 
     def expand_table(self, text, index, cwd):
@@ -1178,21 +1184,30 @@ class HtmlWriter:
             fname = format_template(self.udg_fname_template, 'UDGFilename', addr=addr, attr=attr, scale=scale)
             if frame == '':
                 frame = fname
-        frame = Frame(udgs, scale, mask, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
+        try:
+            frame = Frame(udgs, scale, mask, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
+        except GraphicsError as e:
+            raise skoolmacro.MacroParsingError(f"{e}: '{text[index:end]}'")
         return end, self.handle_image(frame, fname, cwd, alt, UDG_IMAGE_PATH)
 
     def expand_udgarray(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgarray(text, index, self.snapshot, fields=self.fields)
         udg_array, scale, flip, rotate, mask, tindex, alpha = params
-        udgs = lambda: adjust_udgs(udg_array, flip, rotate)
-        frame = Frame(udgs, scale, mask, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
+        udgs = adjust_udgs(udg_array, flip, rotate)
+        try:
+            frame = Frame(udgs, scale, mask, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
+        except GraphicsError as e:
+            raise skoolmacro.MacroParsingError(f"{e}: '{text[index:end]}'")
         return end, self.handle_image(frame, fname, cwd, alt, UDG_IMAGE_PATH)
 
     def expand_udgs(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgs(self, text, index, cwd)
         udg_array, scale, flip, rotate, mask, tindex, alpha = params
-        udgs = lambda: adjust_udgs(udg_array, flip, rotate)
-        frame = Frame(udgs, scale, mask, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
+        udgs = adjust_udgs(udg_array, flip, rotate)
+        try:
+            frame = Frame(udgs, scale, mask, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
+        except GraphicsError as e:
+            raise skoolmacro.MacroParsingError(f"{e}: '{text[index:end]}'")
         return end, self.handle_image(frame, fname, cwd, alt, UDG_IMAGE_PATH)
 
     def expand_udgtable(self, text, index, cwd):

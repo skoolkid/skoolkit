@@ -23,7 +23,8 @@ from skoolkit import (SkoolKitError, SkoolParsingError, address, open_file,
 from skoolkit.components import get_image_writer, get_snapshot_reader
 from skoolkit.image import PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import make_snapshot, move, poke
-from skoolkit.graphics import Frame, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
+from skoolkit.graphics import (Frame, GraphicsError, flip_udgs, rotate_udgs,
+                               adjust_udgs, build_udg, font_udgs, scr_udgs)
 from skoolkit.skool2bin import BinWriter
 
 def _parse_font(snapshot, param_str):
@@ -107,7 +108,7 @@ def run(infile, outfile, options):
             macro = match.group(2)
             try:
                 frame = MACROS[macro](snapshot, options.macro[match.end(2):])
-            except skoolmacro.MacroParsingError as e:
+            except (skoolmacro.MacroParsingError, GraphicsError) as e:
                 raise SkoolKitError('Invalid #{} macro: {}'.format(macro, e.args[0]))
         else:
             raise SkoolKitError('Macro must be #FONT, #SCR, #UDG or #UDGARRAY')
