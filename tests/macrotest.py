@@ -658,6 +658,8 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#FONT({no})', "Unrecognised field 'no': {no}", prefix)
         self._test_invalid_image_macro(writer, '#FONT0,1{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
         self._test_invalid_image_macro(writer, '#FONT({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
+        self._test_invalid_image_macro(writer, '#FONT(0,1,-1)', "Invalid attribute value (-1): '(0,1,-1)'", prefix)
+        self._test_invalid_image_macro(writer, '#FONT0,1,256', "Invalid attribute value (256): '0,1,256'", prefix)
 
         return writer, prefix
 

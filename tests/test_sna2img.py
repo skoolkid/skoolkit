@@ -265,6 +265,8 @@ class Sna2ImgTest(SkoolKitTestCase):
         self._test_bad_spec('-e FONT0,1{,16}', "Invalid #FONT macro: y-coordinate (16) out of range 0-15")
         self._test_bad_spec('-e FONT0,1{,,-1}', "Invalid #FONT macro: crop width (-1) is negative")
         self._test_bad_spec('-e FONT0,1{,,,-1}', "Invalid #FONT macro: crop height (-1) is negative")
+        self._test_bad_spec('-e FONT(0,1,-1)', "Invalid #FONT macro: Invalid attribute value (-1): '(0,1,-1)'")
+        self._test_bad_spec('-e FONT0,1,256', "Invalid #FONT macro: Invalid attribute value (256): '0,1,256'")
 
     @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open_file')

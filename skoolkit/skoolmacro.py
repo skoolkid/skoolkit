@@ -972,6 +972,8 @@ def parse_font(text, index=0, fields=None):
         params[-1] = ''.join(chr(n) for n in range(32, 32 + min(chars, 96)))
     elif not params[-1]:
         raise MacroParsingError(f'Empty message: {text[index:end]}')
+    if not 0 <= params[1] <= 255:
+        raise InvalidParameterError(f"Invalid attribute value ({params[1]}): '{text[index:end]}'")
     return end, crop_rect, fname, frame, alt, params
 
 def parse_for(fields, text, index, *cwd):
