@@ -1431,7 +1431,16 @@ def parse_scr(text, index=0, fields=None):
     # #SCR[scale,x,y,w,h,df,af,tindex,alpha][{x,y,width,height}][(fname)]
     names = ('scale', 'x', 'y', 'w', 'h', 'df', 'af', 'tindex', 'alpha')
     defaults = (1, 0, 0, 32, 24, 16384, 22528, 0, -1)
-    return parse_image_macro(text, index, defaults, names, 'scr', fields)
+    end, crop_rect, fname, frame, alt, params = parse_image_macro(text, index, defaults, names, 'scr', fields)
+    if not 0 <= params[1] <= 31:
+        raise InvalidParameterError(f"x-coordinate ({params[1]}) out of range 0-31: '{text[index:end]}'")
+    if not 0 <= params[2] <= 23:
+        raise InvalidParameterError(f"y-coordinate ({params[2]}) out of range 0-23: '{text[index:end]}'")
+    if params[3] < 1:
+        raise InvalidParameterError(f"Invalid width ({params[3]}): '{text[index:end]}'")
+    if params[4] < 1:
+        raise InvalidParameterError(f"Invalid height ({params[4]}): '{text[index:end]}'")
+    return end, crop_rect, fname, frame, alt, params
 
 def parse_sim(writer, text, index, *cwd):
     # #SIM[stop,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp,execint,tstates,iff,im,cmio,memptr]

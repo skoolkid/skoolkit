@@ -26,6 +26,7 @@ from skoolkit.snapshot import make_snapshot, move, poke
 from skoolkit.graphics import (Frame, GraphicsError, flip_udgs, rotate_udgs,
                                adjust_udgs, build_udg, font_udgs, scr_udgs)
 from skoolkit.skool2bin import BinWriter
+from skoolkit.skoolutils import Memory
 
 def _parse_font(snapshot, param_str):
     end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(param_str)
@@ -96,6 +97,12 @@ def run(infile, outfile, options):
             snapshot = BinWriter(infile, fix_mode=options.fix_mode).snapshot
         except SkoolParsingError:
             raise SkoolKitError(f'Unable to parse {infile} as a skool file')
+    if not isinstance(snapshot, Memory):
+        banks = [None] * 8
+        banks[5] = snapshot[0x4000:0x8000]
+        banks[2] = snapshot[0x8000:0xC000]
+        banks[0] = snapshot[0xC000:]
+        snapshot = Memory(banks, rom=snapshot[:0x4000])
 
     for spec in options.moves:
         move(snapshot, spec)

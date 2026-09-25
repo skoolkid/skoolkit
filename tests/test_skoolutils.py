@@ -69,9 +69,17 @@ class MemoryTest(SkoolKitTestCase):
         self.assertEqual(values, [memory[a] for a in range(start, end, step)])
         self.assertEqual(values, memory[start:end:step])
 
+    def test_48k_iter(self):
+        memory = Memory()
+        self.assertEqual(sum(memory), 0)
+
     def test_48k_len(self):
         memory = Memory()
         self.assertEqual(len(memory), 0x10000)
+
+    def test_128k_iter(self):
+        memory = Memory([[0] * 0x4000 for b in range(8)])
+        self.assertEqual(sum(memory), 0)
 
     def test_128k_len(self):
         memory = Memory([[0] * 0x4000 for b in range(8)])

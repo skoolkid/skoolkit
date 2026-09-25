@@ -16,6 +16,7 @@ from skoolkit.image import ImageWriter
 from skoolkit.skoolmacro import UnsupportedMacroError
 from skoolkit.skoolhtml import HtmlWriter, FileInfo
 from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER
+from skoolkit.skoolutils import Memory
 from skoolkit.refparser import RefParser
 
 GAMEDIR = 'test'
@@ -4384,6 +4385,18 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
         exp_udgs = [[Udg(attr, data)]]
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale, 0, tindex, alpha, x, y, w, h)
+
+    def test_macro_scr_with_attribute_file_crossing_64k_boundary(self):
+        snapshot = Memory()
+        fname = 'scr'
+        scale = 1
+        af = 65535
+        attr1 = snapshot[af] = 56
+        attr2 = snapshot[af + 1] = 7
+        macro = f'#SCR({scale},0,0,2,1,,{af})'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_udgs = [[Udg(attr1, [0] * 8), Udg(attr2, [0] * 8)]]
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale)
 
     def test_macro_scr_with_keyword_arguments(self):
         snapshot = [0] * 6912

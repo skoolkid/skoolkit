@@ -2217,6 +2217,12 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#SCR({no})(scr)', "Unrecognised field 'no': {no}", prefix)
         self._test_invalid_image_macro(writer, '#SCR{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
         self._test_invalid_image_macro(writer, '#SCR({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
+        self._test_invalid_image_macro(writer, '#SCR(1,-1)', "x-coordinate (-1) out of range 0-31: '(1,-1)'", prefix)
+        self._test_invalid_image_macro(writer, '#SCR1,32', "x-coordinate (32) out of range 0-31: '1,32'", prefix)
+        self._test_invalid_image_macro(writer, '#SCR(1,0,-1)', "y-coordinate (-1) out of range 0-23: '(1,0,-1)'", prefix)
+        self._test_invalid_image_macro(writer, '#SCR1,0,24', "y-coordinate (24) out of range 0-23: '1,0,24'", prefix)
+        self._test_invalid_image_macro(writer, '#SCR1,0,0,0', "Invalid width (0): '1,0,0,0'", prefix)
+        self._test_invalid_image_macro(writer, '#SCR1,0,0,1,0', "Invalid height (0): '1,0,0,1,0'", prefix)
 
         return writer, prefix
 

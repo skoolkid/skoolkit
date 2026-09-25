@@ -307,6 +307,16 @@ class Sna2ImgTest(SkoolKitTestCase):
         macro = '#SCR{},{},{},{},{}{}'.format(scale, scr_x, scr_y, scr_w, scr_h, crop)
         self._test_sna2img(mock_open_file, '--expand {}'.format(macro), data, exp_udgs, scale, 0, x=x, y=y, width=width, height=height, address=tile_addr, ftype='sna')
 
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
+    @patch.object(sna2img, 'open_file')
+    def test_option_e_scr_with_attribute_file_crossing_64k_boundary(self, mock_open_file):
+        af = 65535
+        ram = [0] * 49152
+        attr = ram[af - 16384] = 56
+        exp_udgs = [[Udg(attr, [0] * 8), Udg(0, [0] * 8)]]
+        macro = f'#SCR1,0,0,2,1,,{af}'
+        self._test_sna2img(mock_open_file, f'-e {macro}', ram, exp_udgs, ftype='sna')
+
     def test_option_e_scr_invalid_parameters(self):
         self._test_bad_spec('-e SCR{x}', "Invalid #SCR macro: Cannot parse integer 'x' in parameter string: 'x'")
         self._test_bad_spec('-e SCR{-1}', "Invalid #SCR macro: x-coordinate (-1) out of range 0-255")
@@ -315,6 +325,12 @@ class Sna2ImgTest(SkoolKitTestCase):
         self._test_bad_spec('-e SCR{,192}', "Invalid #SCR macro: y-coordinate (192) out of range 0-191")
         self._test_bad_spec('-e SCR{,,-1}', "Invalid #SCR macro: crop width (-1) is negative")
         self._test_bad_spec('-e SCR{,,,-1}', "Invalid #SCR macro: crop height (-1) is negative")
+        self._test_bad_spec('-e SCR(1,-1)', "Invalid #SCR macro: x-coordinate (-1) out of range 0-31: '(1,-1)'")
+        self._test_bad_spec('-e SCR1,32', "Invalid #SCR macro: x-coordinate (32) out of range 0-31: '1,32'")
+        self._test_bad_spec('-e SCR(1,0,-1)', "Invalid #SCR macro: y-coordinate (-1) out of range 0-23: '(1,0,-1)'")
+        self._test_bad_spec('-e SCR1,0,24', "Invalid #SCR macro: y-coordinate (24) out of range 0-23: '1,0,24'")
+        self._test_bad_spec('-e SCR1,0,0,0', "Invalid #SCR macro: Invalid width (0): '1,0,0,0'")
+        self._test_bad_spec('-e SCR1,0,0,1,0', "Invalid #SCR macro: Invalid height (0): '1,0,0,1,0'")
 
     @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open_file')

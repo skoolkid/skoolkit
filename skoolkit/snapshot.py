@@ -920,13 +920,11 @@ def poke(snapshot, param_str):
     if step == 0:
         raise SkoolKitError(f'Invalid step in poke spec: {param_str}')
     if page is None:
-        for a in range(addr1, addr2 + 1, step):
+        for a in range(addr1, min(0x10000, addr2 + 1), step):
             try:
                 snapshot[a] = poke_f(snapshot[a])
             except TypeError:
                 pass # Ignore 16K SZX read/write above 32K
-            except IndexError:
-                pass # Ignore any other out-of-bounds read/write
     elif hasattr(snapshot, 'banks'):
         bank = snapshot.banks[page % 8]
         if bank:
