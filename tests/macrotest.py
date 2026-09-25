@@ -3132,6 +3132,9 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDG0:({nay})', "Unrecognised field 'nay': {nay}", prefix)
         self._test_invalid_image_macro(writer, '#UDG0{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
         self._test_invalid_image_macro(writer, '#UDG({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
+        self._test_invalid_image_macro(writer, '#UDG(0,-1)', "Invalid attribute value (-1): '(0,-1)'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG0,256', "Invalid attribute value (256): '0,256'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG(0,mask=3):8', "Invalid mask (3): '(0,mask=3):8'", prefix)
 
         return writer, prefix
 

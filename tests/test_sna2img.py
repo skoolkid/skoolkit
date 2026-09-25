@@ -375,6 +375,9 @@ class Sna2ImgTest(SkoolKitTestCase):
         self._test_bad_spec('-e UDG0{,32}', "Invalid #UDG macro: y-coordinate (32) out of range 0-31")
         self._test_bad_spec('-e UDG0{,,-1}', "Invalid #UDG macro: crop width (-1) is negative")
         self._test_bad_spec('-e UDG0{,,,-1}', "Invalid #UDG macro: crop height (-1) is negative")
+        self._test_bad_spec('-e UDG(0,-1)', "Invalid #UDG macro: Invalid attribute value (-1): '(0,-1)'")
+        self._test_bad_spec('-e UDG0,256', "Invalid #UDG macro: Invalid attribute value (256): '0,256'")
+        self._test_bad_spec('-e UDG(0,mask=3):8', "Invalid #UDG macro: Invalid mask (3): '(0,mask=3):8'")
 
     @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open_file')

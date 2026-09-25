@@ -1577,7 +1577,12 @@ def parse_udg(text, index=0, fields=None):
     # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:addr[,step]][{x,y,width,height}][(fname)]
     names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask', 'tindex', 'alpha')
     defaults = (56, 4, 1, 0, 0, 0, 1, 0, -1)
-    return parse_image_macro(text, index, defaults, names, '', fields, _get_udg_mask, [fields])
+    end, crop_rect, fname, frame, alt, params = parse_image_macro(text, index, defaults, names, '', fields, _get_udg_mask, [fields])
+    if not 0 <= params[1] <= 255:
+        raise InvalidParameterError(f"Invalid attribute value ({params[1]}): '{text[index:end]}'")
+    if params[7] not in (0, 1, 2):
+        raise InvalidParameterError(f"Invalid mask ({params[7]}): '{text[index:end]}'")
+    return end, crop_rect, fname, frame, alt, params
 
 def _parse_udg_specs(udg_specs, prefix, width, attr, step, inc, mask, snapshot, fields):
     udg_array = [[]]
