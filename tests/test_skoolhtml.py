@@ -2516,7 +2516,21 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_copy_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_copy_invalid(self)
+        writer.snapshot = [0] * 8
         self._assert_error(writer, '#COPY(nonexistent,g)', 'No such frame: "nonexistent"', prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY(-1)(f,g)', "Invalid x-coordinate (-1): '(-1)(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY(0,-1)(f,g)', "Invalid y-coordinate (-1): '(0,-1)(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY0,0,0(f,g)', "Invalid width (0): '0,0,0(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY0,0,1,0(f,g)', "Invalid height (0): '0,0,1,0(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY(mask=3)(f,g)', "Invalid mask (3): '(mask=3)(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY0,1(f,g)', "y (1) is not less than f's height (1): '0,1(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY1,0(f,g)', "x (1) is not less than f's width (1): '1,0(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY{-1}(f,g)', "x-coordinate (-1) out of range 0-31: '{-1}(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY{32}(f,g)', "x-coordinate (32) out of range 0-31: '{32}(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY{,-1}(f,g)', "y-coordinate (-1) out of range 0-31: '{,-1}(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY{,32}(f,g)', "y-coordinate (32) out of range 0-31: '{,32}(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY{,,-1}(f,g)', "width (-1) is negative: '{,,-1}(f,g)'", prefix)
+        self._assert_error(writer, '#UDG0(*f)#COPY{,,,-1}(f,g)', "height (-1) is negative: '{,,,-1}(f,g)'", prefix)
 
     def test_macro_def_with_whitespace_stripped_and_macro_that_requires_cwd(self):
         skool = "c32768 RET"

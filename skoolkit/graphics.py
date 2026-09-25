@@ -1,4 +1,4 @@
-# Copyright 2008-2021 Richard Dymond (rjdymond@gmail.com)
+# © 2008-2021, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -33,6 +33,9 @@ FLIP = (
     7, 135, 71, 199, 39, 167, 103, 231, 23, 151, 87, 215, 55, 183, 119, 247,
     15, 143, 79, 207, 47, 175, 111, 239, 31, 159, 95, 223, 63, 191, 127, 255
 )
+
+class GraphicsError(Exception):
+    pass
 
 class Udg:
     """Initialise the UDG.
@@ -145,11 +148,22 @@ class Frame:
     :param y_offset: The y-coordinate at which to render the frame.
     """
     def __init__(self, udgs, scale=1, mask=0, x=0, y=0, width=None, height=None, delay=32, name='', tindex=0, alpha=-1, x_offset=0, y_offset=0):
-        self._udgs = udgs
+        if callable(udgs):
+            self._udgs = udgs()
+        else:
+            self._udgs = udgs
         self._scale = max(1, scale)
-        self.mask = int(mask)
+        if not 0 <= x < self.full_width:
+            raise GraphicsError(f"x-coordinate ({x}) out of range 0-{self.full_width - 1}")
         self._x = x
+        if not 0 <= y < self.full_height:
+            raise GraphicsError(f"y-coordinate ({y}) out of range 0-{self.full_height - 1}")
         self._y = y
+        if width is not None and width < 0:
+            raise GraphicsError(f"width ({width}) is negative")
+        if height is not None and height < 0:
+            raise GraphicsError(f"height ({height}) is negative")
+        self.mask = int(mask)
         self._width = width
         self._height = height
         self.delay = delay
@@ -160,6 +174,10 @@ class Frame:
         self.y_offset = y_offset
 
     def copy(self, name, x, y, width, height, scale, mask, crop_rect, tindex, alpha):
+        if x >= len(self.udgs[0]):
+            raise GraphicsError(f"x ({x}) is not less than {self.name}'s width ({len(self.udgs[0])})")
+        if y >= len(self.udgs):
+            raise GraphicsError(f"y ({y}) is not less than {self.name}'s height ({len(self.udgs)})")
         if width is None:
             width = len(self.udgs[0])
         if height is None:
@@ -214,8 +232,6 @@ class Frame:
 
     @property
     def udgs(self):
-        if callable(self._udgs):
-            self._udgs = self._udgs()
         return self._udgs
 
     @property
@@ -232,7 +248,7 @@ class Frame:
 
     @property
     def full_width(self):
-        return 8 * len(self.udgs[0]) * self.scale
+        return 8 * len(self._udgs[0]) * self.scale
 
     @property
     def width(self):
@@ -241,7 +257,7 @@ class Frame:
 
     @property
     def full_height(self):
-        return 8 * len(self.udgs) * self.scale
+        return 8 * len(self._udgs) * self.scale
 
     @property
     def height(self):

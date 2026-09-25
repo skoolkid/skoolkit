@@ -26,7 +26,7 @@ from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
                       CCMIOSimulator, eval_variable, evaluate, format_template,
                       get_object)
 from skoolkit.cmiosimulator import CMIOSimulator
-from skoolkit.graphics import Udg
+from skoolkit.graphics import GraphicsError, Udg
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP,
                                I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T,
@@ -811,6 +811,7 @@ def parse_chr(writer, text, index, *cwd):
 
 def parse_copy(text, index, fields, frame_map=None):
     # #COPY[x,y,width,height,scale,mask,tindex,alpha][{CROP}](old,new)
+    start = index
     defaults = (0, 0, None, None, None, None, None, None)
     names = ('x', 'y', 'width', 'height', 'scale', 'mask', 'tindex', 'alpha')
     try:
@@ -823,9 +824,22 @@ def parse_copy(text, index, fields, frame_map=None):
         end, crop_rect = index, None
     end, (old, new) = parse_strings(text, end, 2)
     if frame_map is not None:
+        if x < 0:
+            raise InvalidParameterError(f"Invalid x-coordinate ({x}): '{text[start:end]}'")
+        if y < 0:
+            raise InvalidParameterError(f"Invalid y-coordinate ({y}): '{text[start:end]}'")
+        if width is not None and width < 1:
+            raise InvalidParameterError(f"Invalid width ({width}): '{text[start:end]}'")
+        if height is not None and height < 1:
+            raise InvalidParameterError(f"Invalid height ({height}): '{text[start:end]}'")
+        if mask is not None and mask not in (0, 1, 2):
+            raise InvalidParameterError(f"Invalid mask ({mask}): '{text[start:end]}'")
         if old not in frame_map:
             raise MacroParsingError('No such frame: "{}"'.format(old))
-        frame_map[new] = frame_map[old].copy(new, x, y, width, height, scale, mask, crop_rect, tindex, alpha)
+        try:
+            frame_map[new] = frame_map[old].copy(new, x, y, width, height, scale, mask, crop_rect, tindex, alpha)
+        except GraphicsError as e:
+            raise InvalidParameterError(f"{e}: '{text[start:end]}'")
     return end, ''
 
 def parse_d(writer, text, index, *cwd):
