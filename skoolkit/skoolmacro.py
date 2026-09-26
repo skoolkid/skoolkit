@@ -1714,7 +1714,7 @@ def parse_udgs(writer, text, index, *cwd):
             expanded = writer.expand(uframe_t.safe_substitute(x=x, y=y), *cwd)
             udg_frame_name = _format_params(expanded, expanded, **writer.fields).strip()
             try:
-                udgs[-1].append(frames[udg_frame_name].udgs[0][0])
+                udgs[-1].append(frames[udg_frame_name].udgs[0][0].copy())
             except KeyError:
                 raise MacroParsingError(f"'{udg_frame_name}': frame not found (x={x}, y={y})")
     last_frame = frames[udg_frame_name]

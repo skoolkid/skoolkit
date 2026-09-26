@@ -5341,6 +5341,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         flip_udgs(exp_udgs, 3)
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=4)
 
+    def test_macro_udgs_flip_leaves_original_frame_alone(self):
+        udg = Udg(56, [1, 2, 4, 8, 16, 32, 64, 128])
+        snapshot = udg.data
+        macros = '#UDG0(*f)#UDGS(1,1,flip=1)(*a)(f)#FRAMES(f)(b)'
+        exp_image_path = f'{UDGDIR}/b.png'
+        exp_udgs = [[udg]]
+        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, scale=4)
+
     def test_macro_udgs_rotate_1(self):
         udg1 = Udg(56, [1, 2, 4, 8, 16, 32, 64, 128])
         udg2 = Udg(56, [129, 66, 36, 24, 24, 24, 24, 255])
@@ -5370,6 +5378,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_udgs = [[udg1, udg2]]
         rotate_udgs(exp_udgs, 3)
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=4)
+
+    def test_macro_udgs_rotate_leaves_original_frame_alone(self):
+        udg = Udg(56, [1, 2, 4, 8, 16, 32, 64, 128])
+        snapshot = udg.data
+        macros = '#UDG0(*f)#UDGS(1,1,rotate=1)(*a)(f)#FRAMES(f)(b)'
+        exp_image_path = f'{UDGDIR}/b.png'
+        exp_udgs = [[udg]]
+        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, scale=4)
 
     def test_macro_udgs_with_mask(self):
         udg1 = Udg(56, [255] * 8, [129] * 8)
