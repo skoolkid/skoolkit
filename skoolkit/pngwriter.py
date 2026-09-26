@@ -1,4 +1,4 @@
-# Copyright 2012-2014, 2016-2017, 2019-2021 Richard Dymond (rjdymond@gmail.com)
+# © 2012-2014, 2016-2017, 2019-2021, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -84,7 +84,7 @@ class PngWriter:
         if len(frames) == 1 and flash_rect:
             img_file.write(ACTL_CHUNK)
         elif len(frames) > 1:
-            actl_chunk = (97, 99, 84, 76, 0, 0, 0, len(frames), 0, 0, 0, 0)
+            actl_chunk = (97, 99, 84, 76, *self._to_bytes(len(frames)), 0, 0, 0, 0)
             self._write_chunk(img_file, actl_chunk)
 
         # fcTL

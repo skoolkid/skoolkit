@@ -32,6 +32,8 @@ Changelog
   input tapes
 * Fixed the bug that prevents :ref:`tap2sna.py` from performing RAM move
   operations on 128K snapshots
+* Fixed the bug that prevents the creation of an animated image with more than
+  255 frames
 * Fixed how two base prefixes are handled when applied to an instruction with
   one operand
 * Fixed the parsing of a 48K SNA snapshot that has SP set to 0xFFFF

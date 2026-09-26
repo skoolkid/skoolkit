@@ -2890,10 +2890,60 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         )
         self._test_image_macro(snapshot, macros, exp_image_path, alt=alt)
 
+    def test_macro_frames_defaults_x_and_y_coordinates_to_0(self):
+        udg = Udg(56, [0] * 8)
+        writer = self._get_writer(snapshot=udg.data, mock_file_info=True)
+        fname = 'xy'
+        x, y, = 2, 3
+        fspec = f'f,,{x},{y};g'
+        exp_image_path = f'{UDGDIR}/{fname}.png'
+        exp_src = f'../{exp_image_path}'
+        exp_frames = [Frame([[udg]], 4, x_offset=x, y_offset=y), Frame([[udg]], 4)]
+        output = writer.expand(f'#UDG0(*f)#UDG0(*g)#FRAMES({fspec})({fname})', ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+        self._check_animated_image(writer.image_writer, exp_frames)
+
+    def test_macro_frames_with_more_than_255_frames(self):
+        udg = Udg(56, [0] * 8)
+        writer = self._get_writer(snapshot=udg.data, mock_file_info=True)
+        fname = '256f'
+        fspec = ';'.join(f'f{i}' for i in range(1, 257))
+        exp_image_path = f'{UDGDIR}/{fname}.png'
+        exp_src = f'../{exp_image_path}'
+        exp_frames = [Frame([[udg]], 4)] * 256
+        output = writer.expand(f'#FOR1,256(n,#UDG0(*fn))#FRAMES({fspec})({fname})', ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+        self._check_animated_image(writer.image_writer, exp_frames)
+
+    def test_macro_frames_with_spaces_in_frame_specs(self):
+        udg = Udg(56, [0] * 8)
+        writer = self._get_writer(snapshot=udg.data, mock_file_info=True)
+        delay = 50
+        fname = 'spaces'
+        fspec = ' ; '.join(f'f{i} , {delay}' for i in range(1, 4))
+        exp_image_path = f'{UDGDIR}/{fname}.png'
+        exp_src = f'../{exp_image_path}'
+        exp_frames = [Frame([[udg]], 4, delay=delay)] * 3
+        output = writer.expand(f'#FOR1,3(n,#UDG0(*fn))#FRAMES({fspec})({fname})', ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+        self._check_animated_image(writer.image_writer, exp_frames)
+
     def test_macro_frames_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_frames_invalid(self)
-        self._assert_error(writer, '#FRAMES(foo)(bar)', 'No such frame: "foo"', prefix)
+        self._assert_error(writer, '#FRAMES(foo)(bar)', "No such frame: 'foo'", prefix)
         self._assert_error(writer, '#UDG0,,1(f*) #UDG0,,2(g*) #FRAMES(f;g)(a)', "Frame 'g' (16x16) is larger than the first frame (8x8)", prefix)
+        writer.expand('#UDG0,,2(*f1)#UDG0,,1(*g)')
+        self._assert_error(writer, '#FRAMES(f,(-1);g)(img)', "delay (-1) out of range 0-65535", prefix)
+        self._assert_error(writer, '#FRAMES(f,65536;g)(img)', "delay (65536) out of range 0-65535", prefix)
+        self._assert_error(writer, '#FRAMES(f;g,(1,-1))(img)', "Invalid x-coordinate (-1)", prefix)
+        self._assert_error(writer, '#FRAMES(f;g,1,9)(img)', "Invalid x-coordinate (9)", prefix)
+        self._assert_error(writer, '#FRAMES(f;g,(1,0,-1))(img)', "Invalid y-coordinate (-1)", prefix)
+        self._assert_error(writer, '#FRAMES(f;g,1,0,9)(img)', "Invalid y-coordinate (9)", prefix)
+        self._assert_error(writer, '#FRAMES(f,1???)(img)', "Invalid frame specification: 'f,1???'", prefix)
+        self._assert_error(writer, '#FRAMES(f;,1)(img)', "No such frame: ''", prefix)
 
     def test_macro_html(self):
         writer = self._get_writer()

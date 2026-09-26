@@ -70,8 +70,6 @@ RE_CODE_ID = re.compile('@[a-zA-Z0-9$]*')
 
 RE_EXPAND = re.compile(r'#[^A-Za-z0-9\s]')
 
-RE_FRAME_ID = re.compile(r'[^\s,;(]+')
-
 RE_MACRO = re.compile('#[A-Z]+')
 
 RE_MACRO_METHOD = re.compile('expand_([a-z]+)$')
@@ -1106,39 +1104,46 @@ def parse_format(fields, text, index, *cwd):
         return end, formatted.upper()
     return end, formatted
 
-def _parse_frame_specs(text, index, fields):
+def _parse_frame_specs(specs, fields):
     frame_specs = []
     delay, x, y = 32, 0, 0
-    end = index
-    while end == index or (end < len(text) and text[end] == ';'):
-        end += 1
-        match = RE_FRAME_ID.match(text, end)
-        if match:
-            frame_id = match.group()
-            end += len(frame_id)
-            if end < len(text) and text[end] == ',':
-                end, delay, x, y = parse_ints(text, end + 1, defaults=(delay, 0, 0), names=('delay', 'x', 'y'), fields=fields)
+    for spec in specs:
+        frame_id, params = [s.strip() for s in spec.partition(',')[::2]]
+        if frame_id or params:
+            if params:
+                end, delay, x, y = parse_ints(params, 0, defaults=(delay, 0, 0), names=('delay', 'x', 'y'), fields=fields)
+                if end < len(params):
+                    raise MacroParsingError(f"Invalid frame specification: '{spec.strip()}'")
+            else:
+                x, y = 0, 0
             frame_specs.append((frame_id, delay, x, y))
-    return end, frame_specs
+    return frame_specs
 
 def _get_frames(frame_map, specs):
     frames = []
     if frame_map is not None:
         for frame_id, delay, x_offset, y_offset in specs:
             if frame_id not in frame_map:
-                raise MacroParsingError('No such frame: "{}"'.format(frame_id))
+                raise MacroParsingError(f"No such frame: '{frame_id}'")
+            if not 0 <= delay <= 65535:
+                raise InvalidParameterError(f"delay ({delay}) out of range 0-65535")
             frame = frame_map[frame_id]
             frame.delay, frame.x_offset, frame.y_offset = delay, x_offset, y_offset
-            if frames and (frame.width > frames[0].width or frame.height > frames[0].height):
-                raise MacroParsingError("Frame '{}' ({}x{}) is larger than the first frame ({}x{})".format(
-                    frame_id, frame.width, frame.height, frames[0].width, frames[0].height))
+            if frames:
+                if frame.width > frames[0].width or frame.height > frames[0].height:
+                    raise MacroParsingError("Frame '{}' ({}x{}) is larger than the first frame ({}x{})".format(
+                        frame_id, frame.width, frame.height, frames[0].width, frames[0].height))
+                if x_offset < 0 or x_offset + frame.width > frames[0].width:
+                    raise InvalidParameterError(f"Invalid x-coordinate ({x_offset})")
+                if y_offset < 0 or y_offset + frame.height > frames[0].height:
+                    raise InvalidParameterError(f"Invalid y-coordinate ({y_offset})")
             frames.append(frame)
     return frames
 
 def parse_frames(text, index, fields, frame_map=None):
     # #FRAMES(frame1[,delay,x,y];frame2[,delay,x,y];...)(fname)
     end, params = parse_brackets(text, index)
-    frame_specs = _parse_frame_specs(params, -1, fields)[1]
+    frame_specs = _parse_frame_specs(params.split(';'), fields)
     end, fname = parse_brackets(text, end)
 
     if not fname:
