@@ -3879,6 +3879,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_error(writer, macro_t.format('{no}'), "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, macro_t.format('{2}'), "Field index out of range: {2}", prefix)
         self._assert_error(writer, macro_t.format('{u'), "Invalid format string '{u': expected '}' before end of string", prefix)
+        self._assert_error(writer, macro_t.format(-1), "Invalid attribute value (-1): '0,0,,,1(-1)(bg,fg)'", prefix)
+        self._assert_error(writer, macro_t.format(256), "Invalid attribute value (256): '0,0,,,1(256)(bg,fg)'", prefix)
 
     def test_macro_over_invalid_byte(self):
         writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
@@ -3893,6 +3895,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_error(writer, macro_t.format('{no}'), "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, macro_t.format('{3}'), "Field index out of range: {3}", prefix)
         self._assert_error(writer, macro_t.format('{u'), "Invalid format string '{u': expected '}' before end of string", prefix)
+        self._assert_error(writer, macro_t.format(-1), "Invalid byte value (-1): '0,0,,,2(-1)(bg,fg)'", prefix)
+        self._assert_error(writer, macro_t.format(256), "Invalid byte value (256): '0,0,,,2(256)(bg,fg)'", prefix)
 
     def test_macro_plot(self):
         snapshot = [1] * 8

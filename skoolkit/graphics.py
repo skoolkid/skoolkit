@@ -361,7 +361,10 @@ def overlay_udgs(bg, fg, x, y, mask=0, rattr=None, rbyte=None):
                 else:
                     fmask = (0, 0, 0, 0, 0, 0, 0, 0)
                 for i in range(8):
-                    bg_udg.data[i] = rbyte(bg_udg.data[i], fg_udg.data[i], fmask[i])
+                    b = rbyte(bg_udg.data[i], fg_udg.data[i], fmask[i])
+                    if not 0 <= b <= 255:
+                        raise GraphicsError(f"Invalid byte value ({b})")
+                    bg_udg.data[i] = b
             elif mask == 1 and fg_udg.mask:
                 for i in range(8):
                     bg_udg.data[i] = (bg_udg.data[i] | fg_udg.data[i]) & fg_udg.mask[i]
@@ -372,7 +375,10 @@ def overlay_udgs(bg, fg, x, y, mask=0, rattr=None, rbyte=None):
                 for i in range(8):
                     bg_udg.data[i] |= fg_udg.data[i]
             if rattr:
-                bg_udg.attr = rattr(bg_udg.attr, fg_udg.attr)
+                attr = rattr(bg_udg.attr, fg_udg.attr)
+                if not 0 <= attr <= 255:
+                    raise GraphicsError(f"Invalid attribute value ({attr})")
+                bg_udg.attr = attr
 
 # API
 def rotate_udgs(udgs, rotate=1):

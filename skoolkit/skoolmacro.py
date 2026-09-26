@@ -1341,7 +1341,10 @@ def parse_over(text, index, fields, frame_map=None):
             raise MacroParsingError('No such frame: "{}"'.format(bg))
         if fg not in frame_map:
             raise MacroParsingError('No such frame: "{}"'.format(fg))
-        frame_map[bg].overlay(frame_map[fg], x * 8 + xoffset, y * 8 + yoffset, rattr, rbyte)
+        try:
+            frame_map[bg].overlay(frame_map[fg], x * 8 + xoffset, y * 8 + yoffset, rattr, rbyte)
+        except GraphicsError as e:
+            raise InvalidParameterError(f"{e}: '{text[index:end]}'")
     return end, ''
 
 def parse_pc(writer, text, index, *cwd):
