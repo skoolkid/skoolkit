@@ -5251,13 +5251,16 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_udgarray_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_udgarray_invalid(self)
-        writer.snapshot = [0] * 8
+        writer.snapshot = [0] * 16
         self._assert_error(writer, '#UDGARRAY1(0){-1}(f)', "x-coordinate (-1) out of range 0-15: '1(0){-1}(f)'", prefix)
         self._assert_error(writer, '#UDGARRAY1(0){16}(f)', "x-coordinate (16) out of range 0-15: '1(0){16}(f)'", prefix)
         self._assert_error(writer, '#UDGARRAY1(0){,-1}(f)', "y-coordinate (-1) out of range 0-15: '1(0){,-1}(f)'", prefix)
         self._assert_error(writer, '#UDGARRAY1(0){,16}(f)', "y-coordinate (16) out of range 0-15: '1(0){,16}(f)'", prefix)
         self._assert_error(writer, '#UDGARRAY1(0){,,-1}(f)', "crop width (-1) is negative: '1(0){,,-1}(f)'", prefix)
         self._assert_error(writer, '#UDGARRAY1(0){,,,-1}(f)', "crop height (-1) is negative: '1(0){,,,-1}(f)'", prefix)
+        self._assert_error(writer, '#UDGARRAY1(0,(-1))(f)', "Invalid attribute value (-1) in UDG specification: 0,(-1)", prefix)
+        self._assert_error(writer, '#UDGARRAY1(0,256)(f)', "Invalid attribute value (256) in UDG specification: 0,256", prefix)
+        self._assert_error(writer, '#UDGARRAY(1,mask=3)(0:8)(f)', "Invalid mask (3): '(1,mask=3)(0:8)(f)'", prefix)
 
     def test_macro_udgs(self):
         snapshot = list(range(32))

@@ -423,6 +423,16 @@ class Sna2ImgTest(SkoolKitTestCase):
         self._test_bad_spec('-e UDGARRAY1(0){,16}(f)', "Invalid #UDGARRAY macro: y-coordinate (16) out of range 0-15")
         self._test_bad_spec('-e UDGARRAY1(0){,,-1}(f)', "Invalid #UDGARRAY macro: crop width (-1) is negative")
         self._test_bad_spec('-e UDGARRAY1(0){,,,-1}(f)', "Invalid #UDGARRAY macro: crop height (-1) is negative")
+        self._test_bad_spec('-e UDGARRAY0(0)(f)', "Invalid #UDGARRAY macro: Invalid width (0): '0(0)'")
+        self._test_bad_spec('-e UDGARRAY(1,-1)(0)(f)', "Invalid #UDGARRAY macro: Invalid attribute value (-1): '(1,-1)(0)(f)'")
+        self._test_bad_spec('-e UDGARRAY1,256(0)(f)', "Invalid #UDGARRAY macro: Invalid attribute value (256): '1,256(0)(f)'")
+        self._test_bad_spec('-e UDGARRAY1(0,(-1))(f)', "Invalid #UDGARRAY macro: Invalid attribute value (-1) in UDG specification: 0,(-1)")
+        self._test_bad_spec('-e UDGARRAY1(0,256)(f)', "Invalid #UDGARRAY macro: Invalid attribute value (256) in UDG specification: 0,256")
+        self._test_bad_spec('-e UDGARRAY(1,mask=3)(0:8)(f)', "Invalid #UDGARRAY macro: Invalid mask (3): '(1,mask=3)(0:8)(f)'")
+        self._test_bad_spec('-e UDGARRAY2(1-0-0)(f)', "Invalid #UDGARRAY macro: Start address is greater than end address in address range specification: 1-0-0")
+        self._test_bad_spec('-e UDGARRAY2(0-1-0)(f)', "Invalid #UDGARRAY macro: Invalid horizontal step (0) in address range specification: 0-1-0")
+        self._test_bad_spec('-e UDGARRAY2(0-1-1-0)(f)', "Invalid #UDGARRAY macro: Invalid vertical step (0) in address range specification: 0-1-1-0")
+        self._test_bad_spec('-e UDGARRAY1(0x0)(f)', "Invalid #UDGARRAY macro: Invalid multiplier in address range specification: 0x0")
 
     def test_option_e_unrecognised_macro(self):
         scrfile = self.write_bin_file(suffix='.scr')

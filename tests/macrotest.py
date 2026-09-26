@@ -3195,6 +3195,14 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY1(0:0,({xyzzy))(udg)', "Invalid format string '{xyzzy': expected '}' before end of string", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1(0)[({bish)](udg)', "Invalid format string '{bish': expected '}' before end of string", prefix)
 
+        self._test_invalid_image_macro(writer, '#UDGARRAY0(0)(f)', "Invalid width (0): '0(0)'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY(1,-1)(0)(f)', "Invalid attribute value (-1): '(1,-1)(0)(f)'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1,256(0)(f)', "Invalid attribute value (256): '1,256(0)(f)'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY2(1-0-0)(f)', "Start address is greater than end address in address range specification: 1-0-0", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY2(0-1-0)(f)', "Invalid horizontal step (0) in address range specification: 0-1-0", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY2(0-1-1-0)(f)', "Invalid vertical step (0) in address range specification: 0-1-1-0", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1(0x0)(f)', "Invalid multiplier in address range specification: 0x0", prefix)
+
         return writer, prefix
 
     def test_macro_udgs_invalid(self):

@@ -395,7 +395,10 @@ def parse_address_range(text, index, width, fields):
         except FormattingError:
             raise
         except MacroParsingError:
-            raise MacroParsingError("Invalid multiplier in address range specification: {}".format(text[index:]))
+            num = 0
+
+    if num < 1:
+        raise MacroParsingError(f"Invalid multiplier in address range specification: {text[index:]}")
 
     if len(elements) < 2:
         elements.append(elements[0])
@@ -405,6 +408,13 @@ def parse_address_range(text, index, width, fields):
         elements.append(elements[2] * width)
 
     address, end_address, h_step, v_step = elements
+    if address > end_address:
+        raise MacroParsingError(f"Start address is greater than end address in address range specification: {text[index:]}")
+    if h_step < 1:
+        raise MacroParsingError(f"Invalid horizontal step ({h_step}) in address range specification: {text[index:]}")
+    if v_step < 1:
+        raise MacroParsingError(f"Invalid vertical step ({v_step}) in address range specification: {text[index:]}")
+
     addresses = []
     while address <= end_address:
         addresses.append(address)
@@ -1596,6 +1606,8 @@ def _parse_udg_specs(udg_specs, prefix, width, attr, step, inc, mask, snapshot, 
             raise MacroParsingError(f'Expected UDG address range specification: #UDGARRAY{prefix}{udg_specs[:end]}')
         if end < len(udg_spec) and udg_spec[end] == ',':
             end, udg_attr, udg_step, udg_inc = parse_ints(udg_spec, end + 1, defaults=defaults, names=names, fields=fields)
+            if not 0 <= udg_attr <= 255:
+                raise InvalidParameterError(f"Invalid attribute value ({udg_attr}) in UDG specification: {udg_spec}")
         else:
             udg_attr, udg_step, udg_inc = defaults
         mask_addresses = []
@@ -1630,6 +1642,8 @@ def _get_udgs(text, index, pvals, start, snapshot, fields):
         raise MacroParsingError(f'Missing UDG specifications: #UDGARRAY{text[start:index]}')
     prefix = text[start:index + 1]
     end, udg_specs = parse_brackets(text, index)
+    if width < 1:
+        raise InvalidParameterError(f"Invalid width ({width}): '{text[start:end]}'")
     udg_array, has_masks = _parse_udg_specs(udg_specs, prefix, width, attr, step, inc, mask, snapshot, fields)
 
     if len(udg_array) > 1 and len(udg_array[-1]) < width:
@@ -1665,6 +1679,10 @@ def parse_udgarray(text, index, snapshot=None, req_fname=True, fields=None):
         if not fname and not frame:
             raise MacroParsingError(f'Missing filename or frame ID: #UDGARRAY{text[index:end]}')
     scale, flip, rotate, mask, tindex, alpha, udg_array = values[2], *values[5:]
+    if not 0 <= values[1] <= 255:
+        raise InvalidParameterError(f"Invalid attribute value ({values[1]}): '{text[index:end]}'")
+    if mask not in (0, 1, 2):
+        raise InvalidParameterError(f"Invalid mask ({mask}): '{text[index:end]}'")
     return end, crop_rect, fname, frame, alt, (udg_array, scale, flip, rotate, mask, tindex, alpha)
 
 def parse_udgs(writer, text, index, *cwd):
