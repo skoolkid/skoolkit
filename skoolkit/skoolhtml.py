@@ -1032,7 +1032,7 @@ class HtmlWriter:
         while True:
             try:
                 path = path.format(**self.all_paths)
-            except KeyError:
+            except (AttributeError, IndexError, KeyError, ValueError):
                 break
             if path in (prev_path, orig_path):
                 break

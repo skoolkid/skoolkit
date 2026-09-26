@@ -1538,6 +1538,23 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             self._assert_img_equals(output, alt[1:] or 'foo', exp_src)
             self.assertEqual(writer.file_info.fname, exp_image_path)
 
+    def _test_image_macro_with_invalid_format_string_in_filename(self, macro, defdir=UDGDIR, snapshot=(0,) * 8):
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        for fname in (
+                'a{',
+                'b}',
+                'c{0}',
+                'd{UDGImagePath:x}',
+                'e{UDGImagePath.y}',
+        ):
+            exp_image_path = f'{defdir}/{fname}.png'
+            exp_src = f'../{exp_image_path}'
+            if '{fname}' not in macro:
+                macro += '({fname})'
+            output = writer.expand(macro.format(fname=fname), ASMDIR)
+            self._assert_img_equals(output, fname, exp_src)
+            self.assertEqual(writer.file_info.fname, exp_image_path)
+
     def _test_invalid_image_macro(self, writer, macro, error_msg, prefix):
         self._assert_error(writer, macro, error_msg, prefix)
 
@@ -2766,6 +2783,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_font_with_replacement_field_in_filename(self):
         self._test_image_macro_with_replacement_field_in_filename('#FONT0,1', FONTDIR)
+
+    def test_macro_font_with_invalid_format_string_in_filename(self):
+        self._test_image_macro_with_invalid_format_string_in_filename('#FONT0,1', FONTDIR)
 
     def test_macro_font_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_font_invalid(self)
@@ -4536,6 +4556,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_scr_with_replacement_field_in_filename(self):
         self._test_image_macro_with_replacement_field_in_filename('#SCR1,0,0,1,1,0,0', SCRDIR, (0,) * 2048)
 
+    def test_macro_scr_with_invalid_format_string_in_filename(self):
+        self._test_image_macro_with_invalid_format_string_in_filename('#SCR1,0,0,1,1,0,0', SCRDIR, (0,) * 2048)
+
     def test_macro_scr_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_scr_invalid(self)
         writer.snapshot = [0] * 23296
@@ -4904,6 +4927,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_udg_with_replacement_field_in_filename(self):
         self._test_image_macro_with_replacement_field_in_filename('#UDG0')
 
+    def test_macro_udg_with_invalid_format_string_in_filename(self):
+        self._test_image_macro_with_invalid_format_string_in_filename('#UDG0')
+
     def test_macro_udg_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_udg_invalid(self)
         writer.snapshot = [0] * 8
@@ -5249,6 +5275,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_udgarray_with_replacement_field_in_filename(self):
         self._test_image_macro_with_replacement_field_in_filename('#UDGARRAY1(0)')
 
+    def test_macro_udgarray_with_invalid_format_string_in_filename(self):
+        self._test_image_macro_with_invalid_format_string_in_filename('#UDGARRAY1(0)')
+
     def test_macro_udgarray_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_udgarray_invalid(self)
         writer.snapshot = [0] * 16
@@ -5507,6 +5536,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_udgs_with_replacement_field_in_filename(self):
         self._test_image_macro_with_replacement_field_in_filename('#UDGS1,1({fname})(#UDG0(*u) u)')
+
+    def test_macro_udgs_with_invalid_format_string_in_filename(self):
+        self._test_image_macro_with_invalid_format_string_in_filename('#UDGS1,1({fname})(#UDG0(*u) u)')
 
     def test_macro_udgs_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_udgs_invalid(self)
