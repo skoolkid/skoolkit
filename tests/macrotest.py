@@ -3206,7 +3206,7 @@ class CommonSkoolMacroTest:
         return writer, prefix
 
     def test_macro_udgs_invalid(self):
-        writer = self._get_writer()
+        writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('UDGS')
 
         self._test_no_parameters(writer, 'UDGS', 2, True)
@@ -3232,6 +3232,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGS({no},1)', "Unrecognised field 'no': {no},1", prefix)
         self._test_invalid_image_macro(writer, '#UDGS1,1{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
         self._test_invalid_image_macro(writer, '#UDGS({foo,1)', "Invalid format string '{foo,1': expected '}' before end of string", prefix)
+        self._test_invalid_image_macro(writer, '#UDG0(*f)#UDGS(1,1,mask=3)(img)(f)', "Invalid mask (3): '(1,1,mask=3)(img)(f)'", prefix)
 
         return writer, prefix
 

@@ -1700,6 +1700,8 @@ def parse_udgs(writer, text, index, *cwd):
         raise MacroParsingError(f'Missing filename or frame ID: #UDGS{text[index:end]}')
     end, uframe = parse_strings(text, end, 1)
 
+    if mask not in (None, 0, 1, 2):
+        raise InvalidParameterError(f"Invalid mask ({mask}): '{text[index:end]}'")
     if not hasattr(writer, 'frames'):
         return end, ''
 

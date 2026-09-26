@@ -94,7 +94,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             writer.write()
         self.assertEqual(cm.exception.args[0], error_msg)
 
-    def _test_unsupported_macro(self, writer, text, error_msg=None):
+    def _test_unsupported_macro(self, writer, text, error_msg=None, error_prefix=None):
         search = re.search('#[A-Z]+', text)
         macro = search.group()
 
@@ -110,11 +110,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             output = writer.expand(prefix + text + suffix)
             self.assertEqual(output, prefix + suffix)
         else:
-            prefix = ERROR_PREFIX.format(macro[1:])
+            prefix = error_prefix or ERROR_PREFIX.format(macro[1:])
             self._assert_error(writer, text, error_msg, prefix)
 
     def _test_invalid_image_macro(self, writer, macro, error_msg, prefix):
-        self._test_unsupported_macro(writer, macro, error_msg)
+        self._test_unsupported_macro(writer, macro, error_msg, prefix)
 
     def _test_invalid_audio_macro(self, writer, macro, error_msg, prefix):
         self._test_unsupported_macro(writer, macro, error_msg)
