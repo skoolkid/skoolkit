@@ -3088,6 +3088,22 @@ class CommonSkoolMacroTest:
             ; Stuff
             c32768 XOR A
              32769 DEFB 0
+            @bytes=$CB
+             32770 XOR B
+            @bytes=$DD
+             32771 XOR C
+            @bytes=$ED
+             32772 XOR D
+            @bytes=$FD
+             32773 XOR E
+            @bytes=$DD,$CB,$00
+             32774 LD BC,0
+            @bytes=$FD,$CB,$00
+             32777 LD DE,0
+            @bytes=$DD,$00
+             32780 LD B,0
+            @bytes=$FD,$00
+             32782 LD C,0
         """
         writer = self._get_writer(skool=skool)
         prefix = ERROR_PREFIX.format('TSTATES')
@@ -3106,6 +3122,14 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#TSTATES32768,,2/hi', "No terminating delimiter: /hi", prefix)
         self._assert_error(writer, '#TSTATES(-1)', "Invalid start address: '(-1)'", prefix)
         self._assert_error(writer, '#TSTATES65536', "Invalid start address: '65536'", prefix)
+        self._assert_error(writer, '#TSTATES32770', "Failed to get timing for instruction at 32770", prefix)
+        self._assert_error(writer, '#TSTATES32771', "Failed to get timing for instruction at 32771", prefix)
+        self._assert_error(writer, '#TSTATES32772', "Failed to get timing for instruction at 32772", prefix)
+        self._assert_error(writer, '#TSTATES32773', "Failed to get timing for instruction at 32773", prefix)
+        self._assert_error(writer, '#TSTATES32774', "Failed to get timing for instruction at 32774", prefix)
+        self._assert_error(writer, '#TSTATES32777', "Failed to get timing for instruction at 32777", prefix)
+        self._assert_error(writer, '#TSTATES32780', "Failed to get timing for instruction at 32780", prefix)
+        self._assert_error(writer, '#TSTATES32782', "Failed to get timing for instruction at 32782", prefix)
 
     def test_macro_udg_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)

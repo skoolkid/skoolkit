@@ -978,15 +978,18 @@ def _convert_nums(text):
 def get_timing(instruction):
     if not instruction.operation.upper().startswith('DEF') and instruction.bytes:
         opcode = instruction.bytes[0]
-        if opcode == 0xCB:
-            return AFTER_CB_TIMINGS[instruction.bytes[1]]
-        if opcode == 0xED:
-            return AFTER_ED_TIMINGS[instruction.bytes[1]]
-        if opcode in (0xDD, 0xFD):
-            opcode2 = instruction.bytes[1]
-            if opcode2 == 0xCB:
-                return AFTER_DDCB_TIMINGS[instruction.bytes[3]]
-            return AFTER_DD_TIMINGS[opcode2]
+        try:
+            if opcode == 0xCB:
+                return AFTER_CB_TIMINGS[instruction.bytes[1]]
+            if opcode == 0xED:
+                return AFTER_ED_TIMINGS[instruction.bytes[1]]
+            if opcode in (0xDD, 0xFD):
+                opcode2 = instruction.bytes[1]
+                if opcode2 == 0xCB:
+                    return AFTER_DDCB_TIMINGS[instruction.bytes[3]]
+                return AFTER_DD_TIMINGS[opcode2]
+        except (KeyError, IndexError):
+            return
         return TIMINGS[opcode]
 
 # Component API
