@@ -4371,6 +4371,17 @@ class SkoolParserTest(SkoolKitTestCase):
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 
+    def test_sub_and_fix_directives_replace_instruction_with_invalid_address(self):
+        skool = """
+            @start
+            ; Routine
+            c32768 XOR A
+            @{}=|NOP
+             abcde RET
+        """
+        exp_error = "Cannot determine address of instruction 'abcde NOP'"
+        self._assert_sub_and_fix_directives(skool, exp_error=exp_error)
+
     def test_sub_and_fix_directives_push_instructions_aside(self):
         skool = """
             @start

@@ -575,6 +575,8 @@ class Mode:
         if overwrite:
             size = self.assembler.get_size(instruction.operation, instruction.address)
             if size:
+                if instruction.address is None:
+                    raise SkoolParsingError(f"Cannot determine address of instruction '{instruction.addr_str} {instruction.operation}'")
                 removed.update(range(instruction.address, instruction.address + size))
                 return instruction.address + size
 
