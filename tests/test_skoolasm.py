@@ -2103,6 +2103,19 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm)
 
+    def test_bytes_directive_masks_out_of_range_values(self):
+        skool = """
+            @start
+            ; Routine at 32768
+            @bytes=-1,$100
+            c32768 LD B,2   ; #PEEK(#PC),#PEEK(#PC+1)
+        """
+        exp_asm = """
+            ; Routine at 32768
+              LD B,2                  ; 255,0
+        """
+        self._test_asm(skool, exp_asm)
+
     def test_invalid_bytes_directive_is_ignored(self):
         skool = """
             @start

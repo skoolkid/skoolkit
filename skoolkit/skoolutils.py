@@ -522,7 +522,7 @@ def parse_asm_block_directive(directive, stack):
 
 def parse_asm_bytes_directive(directive):
     try:
-        return tuple(get_int_param(b) for b in directive[6:].split(','))
+        return tuple(get_int_param(b) & 0xFF for b in directive[6:].split(','))
     except ValueError:
         return ()
 

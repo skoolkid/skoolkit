@@ -6605,6 +6605,45 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
 
+    def test_parameter_Bytes_with_bytes_directive_masking_out_of_range_values(self):
+        ref = """
+            [Game]
+            Bytes=02X
+        """
+        skool = """
+            ; Routine at 32768
+            @bytes=-1,$100
+            c32768 LD C,3
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Routine at 32768</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="bytes">FF00</td>
+            <td class="instruction">LD C,3</td>
+            <td class="comment-0" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
     def test_parameter_Bytes_with_invalid_bytes_directive(self):
         ref = """
             [Game]

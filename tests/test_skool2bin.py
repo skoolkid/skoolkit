@@ -823,6 +823,14 @@ class BinWriterTest(BinWriterTestCase):
         exp_data = [237, 107, 0, 192, 35, 0xED, 0x63, 0x02, 0xC0]
         self._test_write(skool, 32768, exp_data)
 
+    def test_bytes_directive_masks_out_of_range_values(self):
+        skool = """
+            @bytes=-1,$100
+            c64000 LD A,1
+        """
+        exp_data = [255, 0]
+        self._test_write(skool, 64000, exp_data)
+
     def test_invalid_bytes_directive_is_ignored(self):
         skool = """
             @bytes=0,?
