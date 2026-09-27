@@ -629,13 +629,14 @@ class SkoolKitTestCase(TestCase):
 
     def _write_file(self, contents, path, suffix, text):
         mode = 'wt' if text else 'wb'
+        encoding = 'utf-8' if text else None
         if path is None:
             fd, path = tempfile.mkstemp(suffix=suffix, dir='', text=text)
             path = os.path.basename(path.replace(os.path.sep, '/'))
-            f = os.fdopen(fd, mode)
+            f = os.fdopen(fd, mode, encoding=encoding)
         else:
             self.make_directory(dirname(path))
-            f = open(path, mode)
+            f = open(path, mode, encoding=encoding)
         f.write(contents)
         f.close()
         return path
