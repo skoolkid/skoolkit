@@ -888,6 +888,18 @@ class BinWriterTest(BinWriterTestCase):
         exp_data = [0, 2]
         self._test_write(skool, 30000, exp_data, data=True, start=30000, end=30002)
 
+    def test_invalid_data_directives_are_ignored(self):
+        skool = """
+            @defb=x:1
+            b32768 DEFB 255
+            @defs=:.
+             32769 DEFB 254
+            @defw=z:0
+             32770 DEFB 253,252
+        """
+        exp_data = [255, 254, 253, 252]
+        self._test_write(skool, 32768, exp_data, data=True)
+
     def test_if_directive_ignored_if_invalid(self):
         skool = """
             @if(x)(defb=2)
@@ -1157,6 +1169,23 @@ class BinWriterTest(BinWriterTestCase):
             50005 C355   DEFB 255
         """
         self._test_write(skool, 50000, exp_data, data=True, exp_output=exp_output)
+
+    def test_verbose_omits_invalid_data_directives(self):
+        skool = """
+            @defb=x:1
+            b32768 DEFB 255
+            @defs=:.
+             32769 DEFB 254
+            @defw=z:0
+             32770 DEFB 253,252
+        """
+        exp_data = [255, 254, 253, 252]
+        exp_output = """
+            32768 8000   DEFB 255
+            32769 8001   DEFB 254
+            32770 8002   DEFB 253,252
+        """
+        self._test_write(skool, 32768, exp_data, data=True, exp_output=exp_output)
 
     def test_instruction_crossing_64k_boundary(self):
         skool = """

@@ -247,8 +247,9 @@ class BinWriter:
                 while i.data:
                     data_dir = i.data.pop(0)
                     address, data = parse_asm_data_directive(self.snapshot, address, data_dir, False)
-                    self._poke(Instruction(None, address, '@' + data_dir), data)
-                    address += len(data)
+                    if data:
+                        self._poke(Instruction(None, address, '@' + data_dir), data)
+                        address += len(data)
                 if i.bvalues:
                     self._poke(i, i.bvalues)
                 else:

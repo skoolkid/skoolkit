@@ -531,7 +531,9 @@ def parse_asm_data_directive(snapshot, address, directive, advance=True):
     if sep:
         addr = parse_int(a)
         if addr is None:
-            return address
+            if advance:
+                return address
+            return address, ()
     else:
         addr = address
     operation = '{} {}'.format(directive[:4], partition_unquoted(values, ';')[0])
