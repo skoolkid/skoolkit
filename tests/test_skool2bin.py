@@ -904,6 +904,15 @@ class BinWriterTest(BinWriterTestCase):
         exp_data = [255, 1]
         self._test_write(skool, 65534, exp_data, data=True)
 
+    def test_addressless_defb_directive_crossing_64k_boundary_does_not_extend_output(self):
+        skool = """
+            @defb=65535:1,2
+            @defb=3,4
+            b65534 DEFB 255
+        """
+        exp_data = [255, 1]
+        self._test_write(skool, 65534, exp_data, data=True)
+
     def test_defs_directive_crossing_64k_boundary_does_not_extend_output(self):
         skool = """
             @defs=65535:2,128
@@ -912,9 +921,27 @@ class BinWriterTest(BinWriterTestCase):
         exp_data = [255, 128]
         self._test_write(skool, 65534, exp_data, data=True)
 
+    def test_addressless_defs_directive_crossing_64k_boundary_does_not_extend_output(self):
+        skool = """
+            @defs=65535:2,128
+            @defs=2,129
+            b65534 DEFB 255
+        """
+        exp_data = [255, 128]
+        self._test_write(skool, 65534, exp_data, data=True)
+
     def test_defw_directive_crossing_64k_boundary_does_not_extend_output(self):
         skool = """
             @defw=65535:3
+            b65534 DEFB 255
+        """
+        exp_data = [255, 3]
+        self._test_write(skool, 65534, exp_data, data=True)
+
+    def test_addressless_defw_directive_crossing_64k_boundary_does_not_extend_output(self):
+        skool = """
+            @defw=65535:3
+            @defw=4
             b65534 DEFB 255
         """
         exp_data = [255, 3]

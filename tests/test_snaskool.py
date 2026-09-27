@@ -2023,6 +2023,29 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_defb_directives_crossing_64k_boundary(self):
+        snapshot = [0] * 65536
+        ctl = """
+            c 00000 Code created by the @defb directives
+            i 00004
+            @ 65535 defb=2,6,1
+            @ 65535 defb=14,2
+            b 65535 Data
+        """
+        exp_skool = """
+            ; Code created by the @defb directives
+            c00000 LD B,1        ;
+             00002 LD C,2        ;
+
+            i00004
+
+            @defb=2,6,1
+            @defb=14,2
+            ; Data
+            b65535 DEFB 2
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_defs_directives(self):
         snapshot = [0] * 5
         ctl = """
@@ -2073,6 +2096,29 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_defs_directives_crossing_64k_boundary(self):
+        snapshot = [0] * 65536
+        ctl = """
+            c 00000 Code created by the @defs directives
+            i 00003
+            @ 65535 defs=2,175
+            @ 65535 defs=2,6
+            b 65535 Data
+        """
+        exp_skool = """
+            ; Code created by the @defs directives
+            c00000 XOR A         ;
+             00001 LD B,6        ;
+
+            i00003
+
+            @defs=2,175
+            @defs=2,6
+            ; Data
+            b65535 DEFB 175
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_defw_directives(self):
         snapshot = [0] * 6
         ctl = """
@@ -2120,6 +2166,29 @@ class SkoolWriterTest(SkoolKitTestCase):
             @defw=771
             ; Data defined by @defw directives
             b00000 DEFB 1,1,0,2,2,3,3
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_defw_directives_crossing_64k_boundary(self):
+        snapshot = [0] * 65536
+        ctl = """
+            c 00000 Code created by the @defw directives
+            i 00003
+            @ 65535 defw=769
+            @ 65535 defw=518
+            b 65535 Data
+        """
+        exp_skool = """
+            ; Code created by the @defw directives
+            c00000 INC BC        ;
+             00001 LD B,2        ;
+
+            i00003
+
+            @defw=769
+            @defw=518
+            ; Data
+            b65535 DEFB 1
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 

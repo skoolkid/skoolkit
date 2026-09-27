@@ -227,11 +227,13 @@ class BinWriter:
             parse_asm_bank_directive(directive, self.snapshot, BinWriter, **bw_args)
         return address
 
-    def _poke(self, instruction, data):
+    def _poke(self, instruction, data, max_end=0):
         address = instruction.real_address
         self.snapshot[address:address + len(data)] = data
         self.base_address = min(self.base_address, address)
         self.end_address = max(self.end_address, address + len(data))
+        if max_end > 0:
+            self.end_address = min(max_end, self.end_address)
         if self.verbose:
             info(str(instruction))
 
@@ -248,8 +250,7 @@ class BinWriter:
                     data_dir = i.data.pop(0)
                     address, data = parse_asm_data_directive(self.snapshot, address, data_dir, False)
                     if data:
-                        end = min(65536 - address, len(data))
-                        self._poke(Instruction(None, address, '@' + data_dir), data[:end])
+                        self._poke(Instruction(None, address, '@' + data_dir), data, 65536)
                         address += len(data)
                 if i.bvalues:
                     self._poke(i, i.bvalues)

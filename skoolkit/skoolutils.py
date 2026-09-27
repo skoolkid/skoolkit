@@ -540,7 +540,7 @@ def parse_asm_data_directive(snapshot, address, directive, advance=True):
     operation = '{} {}'.format(directive[:4], partition_unquoted(values, ';')[0])
     data = set_bytes(snapshot, Z80_ASSEMBLER, addr, operation)
     if advance:
-        return addr + len(data)
+        return (addr + len(data)) & 0xFFFF
     return addr, data
 
 def parse_asm_keep_directive(directive):
@@ -741,5 +741,6 @@ def read_skool(skoolfile, asm=1, sub_mode=0, fix_mode=0):
 
 def set_bytes(snapshot, assembler, address, operation):
     data = assembler.assemble(operation, address)
-    snapshot[address:address + len(data)] = data
+    for a, b in zip(range(address, address + len(data)), data):
+        snapshot[a & 0xFFFF] = b
     return data
