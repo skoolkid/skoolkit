@@ -1028,7 +1028,10 @@ def eval_string(text):
                 raise ValueError
             if text[i] == '\\':
                 i += 1
-            data.append(ord(text[i]))
+            b = ord(text[i])
+            if b > 255:
+                raise ValueError
+            data.append(b)
             i += 1
         return data
     raise ValueError

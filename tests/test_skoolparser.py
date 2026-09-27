@@ -2057,6 +2057,26 @@ class SkoolParserTest(SkoolKitTestCase):
         snapshot = self._get_parser(skool, html=True).snapshot
         self.assertEqual(sum(snapshot), 0)
 
+    def test_defb_directive_converts_invalid_byte_value_to_zero(self):
+        skool = """
+            ; Bytes
+            @defb=65535:"€"
+            b65534 DEFB 1
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual(snapshot[65535], 0)
+
+    def test_defb_directive_masks_out_of_range_address(self):
+        skool = """
+            ; Bytes
+            @defb=-1:2
+            @defb=65536:3
+            b65534 DEFB 1
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual(snapshot[65535], 2)
+        self.assertEqual(snapshot[0], 3)
+
     def test_defs_directives(self):
         skool = """
             @defs=23296:6,$10
@@ -2113,6 +2133,17 @@ class SkoolParserTest(SkoolKitTestCase):
         snapshot = self._get_parser(skool, html=True).snapshot
         self.assertEqual(sum(snapshot), 0)
 
+    def test_defs_directive_masks_out_of_range_address(self):
+        skool = """
+            ; Bytes
+            @defs=-1:1,3
+            @defs=65536:1,4
+            b65534 DEFB 1
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual(snapshot[65535], 3)
+        self.assertEqual(snapshot[0], 4)
+
     def test_defw_directives(self):
         skool = """
             @defw=23296:32769,$8002,%100000000,"0"
@@ -2168,6 +2199,17 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         snapshot = self._get_parser(skool, html=True).snapshot
         self.assertEqual(sum(snapshot), 0)
+
+    def test_defw_directive_masks_out_of_range_address(self):
+        skool = """
+            ; Bytes
+            @defw=-2:257
+            @defw=65536:514
+            b65533 DEFB 3
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([1, 1], snapshot[65534:])
+        self.assertEqual([2, 2], snapshot[0:2])
 
     def test_mixture_of_addressless_data_definition_directives(self):
         skool = """

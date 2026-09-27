@@ -248,7 +248,8 @@ class BinWriter:
                     data_dir = i.data.pop(0)
                     address, data = parse_asm_data_directive(self.snapshot, address, data_dir, False)
                     if data:
-                        self._poke(Instruction(None, address, '@' + data_dir), data)
+                        end = min(65536 - address, len(data))
+                        self._poke(Instruction(None, address, '@' + data_dir), data[:end])
                         address += len(data)
                 if i.bvalues:
                     self._poke(i, i.bvalues)

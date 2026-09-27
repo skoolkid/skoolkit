@@ -896,6 +896,30 @@ class BinWriterTest(BinWriterTestCase):
         exp_data = [0, 2]
         self._test_write(skool, 30000, exp_data, data=True, start=30000, end=30002)
 
+    def test_defb_directive_crossing_64k_boundary_does_not_extend_output(self):
+        skool = """
+            @defb=65535:1,2,3
+            b65534 DEFB 255
+        """
+        exp_data = [255, 1]
+        self._test_write(skool, 65534, exp_data, data=True)
+
+    def test_defs_directive_crossing_64k_boundary_does_not_extend_output(self):
+        skool = """
+            @defs=65535:2,128
+            b65534 DEFB 255
+        """
+        exp_data = [255, 128]
+        self._test_write(skool, 65534, exp_data, data=True)
+
+    def test_defw_directive_crossing_64k_boundary_does_not_extend_output(self):
+        skool = """
+            @defw=65535:3
+            b65534 DEFB 255
+        """
+        exp_data = [255, 3]
+        self._test_write(skool, 65534, exp_data, data=True)
+
     def test_invalid_data_directives_are_ignored(self):
         skool = """
             @defb=x:1
