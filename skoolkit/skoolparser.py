@@ -335,7 +335,7 @@ class SkoolParser:
             self._replacements.append((re.compile(pattern.replace('\\i', INTEGER)), rep))
         except (IndexError, ValueError):
             pass
-        except re.error as e:
+        except (re.error, OverflowError, RecursionError) as e:
             raise SkoolParsingError("Failed to compile regular expression '{}': {}".format(pattern, e.args[0]))
 
     def apply_replacements(self, repf):
@@ -350,7 +350,7 @@ class SkoolParser:
         for regex, rep in self._replacements:
             try:
                 text = regex.sub(rep, text)
-            except re.error as e:
+            except (re.error, IndexError, ValueError) as e:
                 raise SkoolParsingError("Failed to replace '{}' with '{}': {}".format(regex.pattern, rep, e.args[0]))
         return text
 

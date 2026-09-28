@@ -1,6 +1,7 @@
 import hashlib
 from textwrap import dedent
 import re
+import sys
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
@@ -1254,8 +1255,12 @@ class SkoolParserTest(SkoolKitTestCase):
                     self.assert_error(skool.format(asm_dir), exp_error, asm_mode=sub_mode, fix_mode=fix_mode, **kwargs)
 
     def assert_error(self, skool, error, *args, **kwargs):
-        with self.assertRaisesRegex(SkoolParsingError, error):
+        with self.assertRaises(SkoolParsingError) as cm:
             self._get_parser(skool, *args, **kwargs)
+        if isinstance(error, str):
+            self.assertEqual(cm.exception.args[0], error)
+        else:
+            self.assertIn(cm.exception.args[0], error)
 
     def test_invalid_entry_address(self):
         self.assert_error('c3000f RET', "Invalid address: '3000f'")
@@ -3926,7 +3931,7 @@ class SkoolParserTest(SkoolKitTestCase):
             ; Routine
             c32768 RET
         """
-        self.assert_error(skool, r"Failed to compile regular expression '\[abc': (unexpected end of regular expression|unterminated character set at position 0)")
+        self.assert_error(skool, "Failed to compile regular expression '[abc': unterminated character set at position 0")
 
     def test_replace_directive_with_invalid_replacement(self):
         skool = r"""
@@ -3934,7 +3939,52 @@ class SkoolParserTest(SkoolKitTestCase):
             ; Routine
             c32768 RET
         """
-        self.assert_error(skool, r"Failed to replace 'Routine' with '\\1': invalid group reference")
+        self.assert_error(skool, r"Failed to replace 'Routine' with '\1': invalid group reference 1 at position 1")
+
+    def test_replace_directive_with_excessive_repetition_count(self):
+        skool = """
+            @replace=/p{5000000000}/q
+            ; Routine
+            c32768 RET
+        """
+        self.assert_error(skool, "Failed to compile regular expression 'p{5000000000}': the repetition number is too large")
+
+    def test_replace_directive_with_unknown_group_name(self):
+        skool = r"""
+            @replace=/Routine/\g<x>
+            ; Routine
+            c32768 RET
+        """
+        self.assert_error(skool, r"Failed to replace 'Routine' with '\g<x>': unknown group name 'x'")
+
+    def test_replace_directive_with_too_many_nested_groups(self):
+        depth = 500
+        pattern = '(' * depth + 'a' + ')' * depth
+        skool = f"""
+            @replace=/{pattern}/b
+            ; Routine
+            c32768 RET
+        """
+        prefix = f"Failed to compile regular expression '{pattern}': "
+        self.assert_error(skool, (
+            f"{prefix}maximum recursion depth exceeded",
+            f"{prefix}maximum recursion depth exceeded while calling a Python object",
+            f"{prefix}maximum recursion depth exceeded in comparison",
+        ))
+
+    def test_replace_directive_with_overlong_group_number(self):
+        max_digits = sys.get_int_max_str_digits()
+        group = '9' * (max_digits + 1)
+        skool = rf"""
+            @replace=/(Routine)/\g<{group}>
+            ; Routine
+            c32768 RET
+        """
+        prefix = rf"Failed to replace '(Routine)' with '\g<{group}>': "
+        self.assert_error(skool, (
+            rf"{prefix}Exceeds the limit ({max_digits} digits) for integer string conversion: value has {max_digits + 1} digits; use sys.set_int_max_str_digits() to increase the limit",
+            rf"{prefix}bad character in group name '{group}' at position 3",
+        ))
 
     def test_isub_block_directive(self):
         skool = """
@@ -5697,7 +5747,7 @@ class SkoolParserTest(SkoolKitTestCase):
             @isub+end
             @bfix+end
         """
-        error = r"isub\+else inside bfix\+ block"
+        error = "isub+else inside bfix+ block"
         self.assert_error(skool, error, asm_mode=1)
 
     def test_dangling_ofix_else(self):
@@ -5707,13 +5757,13 @@ class SkoolParserTest(SkoolKitTestCase):
             @ofix+else
             @ofix+end
         """
-        error = r"ofix\+else not inside block"
+        error = "ofix+else not inside block"
         self.assert_error(skool, error, asm_mode=1)
 
     def test_dangling_rfix_end(self):
         # Dangling @rfix+end directive
         skool = '@start\n@rfix+end'
-        error = r"rfix\+end has no matching start directive"
+        error = "rfix+end has no matching start directive"
         self.assert_error(skool, error, asm_mode=1)
 
     def test_wrong_end_infix(self):
@@ -5724,7 +5774,7 @@ class SkoolParserTest(SkoolKitTestCase):
             @rsub-else
             @rsub+end
         """
-        error = r"rsub\+end cannot end rsub- block"
+        error = "rsub+end cannot end rsub- block"
         self.assert_error(skool, error, asm_mode=1)
 
     def test_mismatched_begin_end(self):
