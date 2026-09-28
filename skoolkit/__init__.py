@@ -139,6 +139,8 @@ def get_object(name_spec, default_path=''):
         return importlib.import_module(name)
     except ImportError:
         pass
+    except (TypeError, ValueError) as e:
+        raise SkoolKitError(f"Failed to import object '{name}': {e}")
     mod_name, sep, attr_name = name.rpartition('.')
     try:
         m = importlib.import_module(mod_name or attr_name)

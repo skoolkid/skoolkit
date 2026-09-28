@@ -495,6 +495,22 @@ class Skool2AsmTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, "No object named 'NonexistentAsmWriter' in module 'test_skool2asm'"):
             self.run_skool2asm(skoolfile)
 
+    def test_invalid_writer_specification(self):
+        skool = """
+            @start
+            @writer={}
+            ; Begin
+            c24576 RET
+        """
+        for wname, exp_error in (
+                ('.foo', "Failed to import object '.foo': the 'package' argument is required to perform a relative import for '.foo'"),
+                (':', "Failed to import object '': Empty module name"),
+        ):
+            skoolfile = self._write_skool_file(skool.format(wname))
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_skool2asm(skoolfile)
+            self.assertEqual(cm.exception.args[0], exp_error)
+
     def test_writer_init_failure(self):
         skool = """
             @start
@@ -532,6 +548,16 @@ class Skool2AsmTest(SkoolKitTestCase):
             self.assertTrue(re.search('\nUsing ASM writer dummy_value\n', error))
             self.assertTrue(mock_asm_writer.wrote)
             mock_asm_writer.wrote = False
+
+    def test_option_W_invalid_specification(self):
+        for wname, exp_error in (
+                ('.foo', "Failed to import object '.foo': the 'package' argument is required to perform a relative import for '.foo'"),
+                (':', "Failed to import object '': Empty module name"),
+        ):
+            skoolfile = self.write_text_file(suffix='.skool')
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_skool2asm(f"-W {wname} {skoolfile}")
+            self.assertEqual(cm.exception.args[0], exp_error)
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)

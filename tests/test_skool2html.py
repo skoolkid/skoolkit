@@ -608,6 +608,18 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertIn('\n{}\n'.format(message), output)
 
+    def test_invalid_HtmlWriterClass_specification(self):
+        for wname, exp_error in (
+                ('.foo', "Failed to import object '.foo': the 'package' argument is required to perform a relative import for '.foo'"),
+                (':', "Failed to import object '': Empty module name"),
+        ):
+            ref = f"[Config]\nHtmlWriterClass={wname}"
+            reffile = self.write_text_file(ref, suffix='.ref')
+            skoolfile = self.write_text_file(path=f'{reffile[:-4]}.skool')
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_skool2html(skoolfile)
+            self.assertEqual(cm.exception.args[0], exp_error)
+
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
@@ -1280,6 +1292,16 @@ class Skool2HtmlTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_skool2html(f'-W test_skool2html.BadHtmlWriter {skoolfile}')
         self.assertEqual(cm.exception.args[0], 'BadHtmlWriter.__init__() takes 3 positional arguments but 4 were given')
+
+    def test_option_W_invalid_specification(self):
+        for wname, exp_error in (
+                ('.foo', "Failed to import object '.foo': the 'package' argument is required to perform a relative import for '.foo'"),
+                (':', "Failed to import object '': Empty module name"),
+        ):
+            skoolfile = self.write_text_file(suffix='.skool')
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_skool2html(f"-W {wname} {skoolfile}")
+            self.assertEqual(cm.exception.args[0], exp_error)
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
