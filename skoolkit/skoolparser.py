@@ -358,6 +358,11 @@ class SkoolParser:
         return text
 
     def _parse_asm_directive(self, directive, removed):
+        while directive.startswith('if('):
+            try:
+                directive = parse_if(self.fields, directive, 2)[1]
+            except MacroParsingError:
+                return
         if directive.startswith('label='):
             self.mode.label = directive[6:].rstrip()
         elif directive.startswith('bytes='):
@@ -403,11 +408,6 @@ class SkoolParser:
                 self.mode.assemble = html_value
             elif not (self.mode.html or asm_value is None):
                 self.mode.assemble = asm_value
-        elif directive.startswith('if('):
-            try:
-                self._parse_asm_directive(parse_if(self.fields, directive, 2)[1], removed)
-            except MacroParsingError:
-                pass
         elif self.mode.asm_mode:
             if directive.startswith(('isub=', 'ssub=', 'rsub=', 'ofix=', 'bfix=', 'rfix=')):
                 value = directive[5:].rstrip()

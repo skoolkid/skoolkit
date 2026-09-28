@@ -963,11 +963,21 @@ class BinWriterTest(BinWriterTestCase):
 
     def test_if_directive_ignored_if_invalid(self):
         skool = """
-            @if(x)(defb=2)
+            @if(x)(defb=40001:2)
             b32768 DEFB 1
         """
         exp_data = [1]
         self._test_write(skool, 32768, exp_data, data=True)
+
+    def test_if_directives_nested(self):
+        depth = 100
+        nest = 'if(1)(' * depth + 'defb=40001:2' + ')' * depth
+        skool = f"""
+            @{nest}
+            b40000 DEFB 1
+        """
+        exp_data = [1, 2]
+        self._test_write(skool, 40000, exp_data, data=True)
 
     def test_header_is_ignored(self):
         skool = """

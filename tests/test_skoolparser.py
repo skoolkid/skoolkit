@@ -2370,6 +2370,19 @@ class SkoolParserTest(SkoolKitTestCase):
         entry = self._get_parser(skool).get_entry(40000)
         self.assertEqual(['#zero-#one-#two-#three'], entry.details)
 
+    def test_if_directives_nested(self):
+        depth = 100
+        nest = 'if(1)(' * depth + 'replace=/#zero/0' + ')' * depth
+        skool = f"""
+            @{nest}
+            ; Routine at 40000
+            ;
+            ; #zero
+            c40000 RET
+        """
+        parser = self._get_parser(skool, html=True)
+        self.assertEqual(['0'], parser.get_entry(40000).details)
+
     def test_refs_directive(self):
         skool = """
             @start

@@ -181,6 +181,11 @@ class BinWriter:
         raise SkoolParsingError("Failed to assemble:\n {} {}".format(address, operation))
 
     def _parse_asm_directive(self, address, directive, removed):
+        while directive.startswith('if('):
+            try:
+                directive = parse_if(self.fields, directive, 2)[1]
+            except MacroParsingError:
+                return address
         if directive.startswith(('isub=', 'ssub=', 'rsub=', 'ofix=', 'bfix=', 'rfix=')):
             weight = self.weights[directive[:4]]
             if weight > (0, 0):
@@ -189,11 +194,6 @@ class BinWriter:
                     removed.update(parse_address_range(value[1:]))
                 else:
                     self.subs[weight].append(value)
-        elif directive.startswith('if('):
-            try:
-                address = self._parse_asm_directive(address, parse_if(self.fields, directive, 2)[1], removed)
-            except MacroParsingError:
-                pass
         elif directive.startswith('org'):
             org = directive.rstrip().partition('=')[2]
             if org:
