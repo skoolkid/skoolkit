@@ -42,10 +42,13 @@ def _replace_nums(operation, hex_fmt=None, skip_bit=False, prefix=None):
         p1, p2 = elements[i - 1][:-1].strip(), elements[i - 1][-1]
         if (p2 != '%' or not p1 or p1[-1] in ')"') and p2 != '"':
             p = elements[i]
-            if hex_fmt is None and p.startswith('$'):
-                elements[i] = str(int(p[1:], 16))
-            elif hex_fmt and not p.startswith('$'):
-                elements[i] = hex_fmt.format(int(p))
+            try:
+                if hex_fmt is None and p.startswith('$'):
+                    elements[i] = str(int(p[1:], 16))
+                elif hex_fmt and not p.startswith('$'):
+                    elements[i] = hex_fmt.format(int(p))
+            except ValueError:
+                pass
     return ''.join(elements)[1:]
 
 def _is_8_bit_ld_instruction(operation):
@@ -652,7 +655,10 @@ class Mode:
             address = parse_address(int_str)
             if address is not None:
                 if self.base == BASE_10:
-                    return decfmt.format(address)
+                    try:
+                        return decfmt.format(address)
+                    except ValueError:
+                        return int_str
                 if self.base == BASE_16:
                     int_str = hexfmt.format(address)
             if self.case == CASE_LOWER:
@@ -796,7 +802,9 @@ class InstructionUtility:
         return rep
 
     def _get_label(self, entry, instruction, addr_str):
-        address = get_int_param(addr_str)
+        address = parse_int(addr_str)
+        if address is None:
+            return
         if instruction.keep and address in instruction.keep:
             return
         operation_u = instruction.operation.upper()

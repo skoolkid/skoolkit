@@ -1,4 +1,5 @@
 import hashlib
+import math
 from textwrap import dedent
 import re
 import sys
@@ -2446,6 +2447,22 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(remote_entry.instructions[0].address, 49152)
         self.assertEqual(remote_entry.instructions[1].address, 49153)
 
+    def test_remote_directive_address_not_converted_if_too_large(self):
+        max_dec_digits = sys.get_int_max_str_digits()
+        max_hex_digits = int(math.log(10 ** max_dec_digits, 16))
+        bignum = 'F' * (max_hex_digits + 1)
+        address = int(bignum, 16)
+        skool = f"""
+            @start
+            @remote=other:${bignum}
+            ; Routine
+            c32768 RET
+        """
+        parser = self._get_parser(skool, base=BASE_10)
+        remote_entry = parser.get_instruction(address, 'other').container
+        self.assertEqual(len(remote_entry.instructions), 1)
+        self.assertEqual(remote_entry.instructions[0].addr_str, bignum)
+
     def test_remote_entry_does_not_hide_memory_map_entry(self):
         skool = """
             @start
@@ -3082,6 +3099,23 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, base=BASE_16)
         for address, operation in exp_instructions:
             self.assertEqual(parser.get_instruction(address).operation, operation)
+
+    def test_base_conversion_decimal_avoided_on_large_values(self):
+        max_dec_digits = sys.get_int_max_str_digits()
+        max_hex_digits = int(math.log(10 ** max_dec_digits, 16))
+        bignum = 'F' * (max_hex_digits + 1)
+        exp_operation = f'DEFB ${bignum}'
+        skool = f'b49152 {exp_operation}'
+        parser = self._get_parser(skool, base=BASE_10)
+        self.assertEqual(parser.get_instruction(49152).operation, exp_operation)
+
+    def test_base_conversion_hexadecimal_avoided_on_large_values(self):
+        max_dec_digits = sys.get_int_max_str_digits()
+        bignum = '9' * (max_dec_digits + 1)
+        exp_operation = f'DEFB {bignum}'
+        skool = f'b49152 {exp_operation}'
+        parser = self._get_parser(skool, base=BASE_16)
+        self.assertEqual(parser.get_instruction(49152).operation, exp_operation)
 
     def test_no_case_conversion(self):
         skool = """

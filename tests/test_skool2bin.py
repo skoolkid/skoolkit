@@ -1,4 +1,6 @@
+import math
 import os
+import sys
 from textwrap import dedent
 from unittest.mock import patch
 
@@ -1246,6 +1248,21 @@ class BinWriterTest(BinWriterTestCase):
         """
         self._test_write(skool, 32768, exp_data, data=True, exp_output=exp_output)
 
+    def test_invalid_org_address(self):
+        skoolfile = self.write_text_file('@org=?\nc40000 RET', suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2bin(skoolfile)
+        self.assertEqual(cm.exception.args[0], 'Invalid org address: ?')
+
+    def test_org_address_too_large(self):
+        max_dec_digits = sys.get_int_max_str_digits()
+        max_hex_digits = int(math.log(10 ** max_dec_digits, 16))
+        bignum = 'F' * (max_hex_digits + 1)
+        skoolfile = self.write_text_file(f'@org=${bignum}\nc40000 RET', suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2bin(skoolfile)
+        self.assertEqual(cm.exception.args[0], f'Invalid org address: ${bignum}')
+
     def test_instruction_crossing_64k_boundary(self):
         skool = """
             ; Routine
@@ -2146,12 +2163,6 @@ class DirectiveTestCase:
         with self.assertRaises(SkoolKitError) as cm:
             self.run_skool2bin('--{} {}'.format(self.mode, skoolfile))
         self.assertEqual(cm.exception.args[0], 'Failed to assemble:\n 40001 XOR HL')
-
-    def test_invalid_org_address(self):
-        skoolfile = self.write_text_file('@org=?\nc40000 RET', suffix='.skool')
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_skool2bin('--{} {}'.format(self.mode, skoolfile))
-        self.assertEqual(cm.exception.args[0], 'Invalid org address: ?')
 
 class isubTest(BinWriterTestCase, DirectiveTestCase):
     mode = 'isub'

@@ -1,4 +1,6 @@
+import math
 import re
+import sys
 from textwrap import dedent, wrap
 
 from skoolkittest import SkoolKitTestCase
@@ -2231,6 +2233,22 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm)
 
+    def test_equ_directive_preserved_if_too_large(self):
+        max_dec_digits = sys.get_int_max_str_digits()
+        max_hex_digits = int(math.log(10 ** max_dec_digits, 16))
+        bignum = 'F' * (max_hex_digits + 1)
+        skool = f"""
+            @start
+            @equ=LARGE=${bignum}
+            c32768 RET
+        """
+        exp_asm = f"""
+            LARGE EQU ${bignum}
+
+              RET
+        """
+        self._test_asm(skool, exp_asm, base=BASE_10)
+
     def test_expand_directives(self):
         skool = """
             @start
@@ -2324,6 +2342,18 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         asm = self._get_asm(skool, base=BASE_16, case=CASE_UPPER).split('\n')
         self.assertEqual(asm[0], '  ORG $F0AD')
+
+    def test_org_address_not_converted_if_too_large(self):
+        max_dec_digits = sys.get_int_max_str_digits()
+        max_hex_digits = int(math.log(10 ** max_dec_digits, 16))
+        bignum = 'F' * (max_hex_digits + 1)
+        skool = f"""
+            @start
+            @org=${bignum}
+            c32768 RET
+        """
+        asm = self._get_asm(skool, base=BASE_10).split('\n')
+        self.assertEqual(asm[0], f'  ORG ${bignum}')
 
     def test_ignoreua_directive_on_entry_title(self):
         skool = """

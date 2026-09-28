@@ -197,10 +197,9 @@ class BinWriter:
         elif directive.startswith('org'):
             org = directive.rstrip().partition('=')[2]
             if org:
-                try:
-                    address = get_int_param(org)
-                except ValueError:
-                    raise SkoolParsingError("Invalid org address: {}".format(org))
+                address = parse_int(org, -1)
+                if not 0 <= address <= 65535:
+                    raise SkoolParsingError(f"Invalid org address: {org}")
             else:
                 address = None
         elif directive.startswith('keep'):
