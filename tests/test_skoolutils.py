@@ -1,5 +1,5 @@
 from skoolkittest import SkoolKitTestCase
-from skoolkit.skoolutils import Memory
+from skoolkit.skoolutils import Memory, parse_address_range
 
 class MemoryTest(SkoolKitTestCase):
     def test_48k(self):
@@ -142,3 +142,8 @@ class MemoryTest(SkoolKitTestCase):
         self.assertIs(memory.memory[1], memory.banks[5])
         self.assertIs(memory.memory[2], memory.banks[2])
         self.assertIs(memory.memory[3], memory.banks[3])
+
+class HelperFunctionTest(SkoolKitTestCase):
+    def test_parse_address_range_imposes_max_limit_of_64k(self):
+        self.assertEqual(range(65534, 65536), parse_address_range('65534-100000'))
+        self.assertEqual(range(65536), parse_address_range('0-100000'))

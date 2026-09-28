@@ -472,7 +472,7 @@ def parse_address_range(value):
     if len(addresses) == 1 and addresses[0] is not None:
         return addresses
     if len(addresses) == 2 and all(a is not None for a in addresses):
-        return range(addresses[0], addresses[1] + 1)
+        return range(addresses[0], min(65536, addresses[1] + 1))
     return ()
 
 def parse_addresses(line):
