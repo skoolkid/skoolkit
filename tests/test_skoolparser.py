@@ -2428,6 +2428,19 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(entry.asm_id, 'save')
         self.assertEqual(entry.address, 33024)
 
+    def test_remote_directive_ignores_invalid_entry_points(self):
+        skool = """
+            @start
+            @remote=other:49152,,49153,?
+            ; Routine
+            c32768 RET
+        """
+        parser = self._get_parser(skool)
+        remote_entry = parser.get_instruction(49152, 'other').container
+        self.assertEqual(len(remote_entry.instructions), 2)
+        self.assertEqual(remote_entry.instructions[0].address, 49152)
+        self.assertEqual(remote_entry.instructions[1].address, 49153)
+
     def test_remote_entry_does_not_hide_memory_map_entry(self):
         skool = """
             @start

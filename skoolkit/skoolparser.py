@@ -437,15 +437,16 @@ class SkoolParser:
     def _parse_remote_directive(self, params):
         asm_id, sep, addresses = params.partition(':')
         addrs = addresses.split(',')
-        address = parse_int(addrs[0])
+        address = parse_address(addrs[0])
         if address is not None:
             remote_entry = RemoteEntry(asm_id, address)
             self._remote_entries.append(remote_entry)
             addr_str = self.mode.convert_int_str(addrs[0])
             remote_entry.add_instruction(Instruction('r', addr_str, asm_id))
             for addr_str in addrs[1:]:
-                addr_str = self.mode.convert_int_str(addr_str)
-                remote_entry.add_instruction(Instruction(' ', addr_str, ''))
+                if parse_address(addr_str) is not None:
+                    addr_str = self.mode.convert_int_str(addr_str)
+                    remote_entry.add_instruction(Instruction(' ', addr_str, ''))
             for instruction in remote_entry.instructions:
                 self._instructions[instruction.address].append(instruction)
 
