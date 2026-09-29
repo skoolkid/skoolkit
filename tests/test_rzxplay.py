@@ -1786,6 +1786,31 @@ class RzxplayTest(SkoolKitTestCase):
         """
         self._test_rzx(rzx, exp_output, '--quiet --no-screen', exp_trace)
 
+    def test_option_trace_survives_playback_failure(self):
+        pc = 0x8000
+        code = (
+            0x3E, 0x01,       # $8000 LD A,$01
+            0x01, 0x02, 0x00, # $8002 LD BC,$0002
+            0x11, 0x04, 0x00, # $8005 LD DE,$0004
+            0x21, 0x08, 0x00, # $8008 LD HL,$0008
+            0xDB, 0xFE,       # $800B IN A,($FE)
+        )
+        frames = [(5, 0, [])]
+        rzxfile = self.write_rzx_file(self._get_rzx(pc, frames, code))
+        tfile = 'trace.log'
+        exp_trace = """
+            F:0 C:00004 I:00000 $8000 LD A,$01
+            F:0 C:00003 I:00000 $8002 LD BC,$0002
+            F:0 C:00002 I:00000 $8005 LD DE,$0004
+            F:0 C:00001 I:00000 $8008 LD HL,$0008
+        """
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_rzxplay(f'--quiet --no-screen --trace {tfile} {rzxfile}')
+        self.assertEqual(cm.exception.args[0], 'Port readings exhausted for frame 0')
+        with open(tfile) as f:
+            trace = f.read()
+        self.assertEqual(dedent(exp_trace).lstrip(), trace)
+
     def test_option_trace_file_is_a_directory(self):
         rzxfile = self.write_rzx_file(self._get_rzx(0x8000))
         dname = 'dir.map'

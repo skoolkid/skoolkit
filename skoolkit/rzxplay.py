@@ -422,16 +422,18 @@ def run(infile, options, config):
         context.total_frames = min(options.stop, context.total_frames)
 
     flags = parse_int(options.flags, 0)
-    while rzx_blocks:
-        process_block(rzx_blocks.pop(0).obj, options, flags, context)
-        if context.stop:
-            break
+    try:
+        while rzx_blocks:
+            process_block(rzx_blocks.pop(0).obj, options, flags, context)
+            if context.stop:
+                break
+    finally:
+        if context.tracefile:
+            context.tracefile.close()
     if options.map:
         with open_file(options.map, 'w') as f:
             for addr in sorted(context.exec_map):
                 f.write(f'${addr:04X}\n')
-    if context.tracefile:
-        context.tracefile.close()
     if options.dump:
         ext = options.dump.lower().rpartition('.')[2]
         if ext in ('rzx', 'szx', 'z80'):
