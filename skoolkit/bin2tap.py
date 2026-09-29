@@ -268,8 +268,8 @@ def main(args):
     if banks and namespace.banks:
         for b in set(banks) - set(parse_int(b) for b in namespace.banks.split(',')):
             del banks[b]
-    start = namespace.start or begin
-    stack = namespace.stack or begin
+    start = begin if namespace.start is None else namespace.start
+    stack = begin if namespace.stack is None else namespace.stack
     tape_file = namespace.outfile
     if tape_file is None:
         if infile.lower().endswith(('.bin', '.sna', '.szx', '.z80')):

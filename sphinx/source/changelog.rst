@@ -26,6 +26,8 @@ Changelog
   more blocks on a tape)
 * Fixed how :ref:`PUSHS` and :ref:`POPS` copy and restore the RAM bank mapped
   to 0xC000-0xFFFF in a 128K memory snapshot
+* Fixed the bug that prevents :ref:`bin2tap.py` from setting the stack pointer
+  to 0
 * Fixed how the ``--basic`` option of :ref:`tapinfo.py` handles a block that
   has no data
 * Fixed how the ``--tape-stop`` option of :ref:`tap2sna.py` works with two

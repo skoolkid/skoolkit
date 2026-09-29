@@ -897,6 +897,12 @@ class Bin2TapTest(SkoolKitTestCase):
             blocks = self._run('{} 0x{:04X} {}'.format(option, start, binfile))
             self._check_tape(blocks, bin_data, binfile, start=start)
 
+    def test_option_s_set_to_zero(self):
+        bin_data = range(16)
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
+        blocks = self._run(f'-s 0 {binfile}')
+        self._check_tape(blocks, bin_data, binfile, start=0)
+
     def test_option_p(self):
         stack = 32768
         bin_data = range(64)
@@ -912,6 +918,12 @@ class Bin2TapTest(SkoolKitTestCase):
         for option in ('-p', '--stack'):
             blocks = self._run('{} 0x{:04x} {}'.format(option, stack, binfile))
             self._check_tape(blocks, bin_data, binfile, stack=stack)
+
+    def test_option_p_set_to_zero(self):
+        bin_data = range(64)
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
+        blocks = self._run(f'-p 0 {binfile}')
+        self._check_tape(blocks, bin_data, binfile, stack=0)
 
     def test_data_overwrites_stack(self):
         bin_data = [0] * 10
