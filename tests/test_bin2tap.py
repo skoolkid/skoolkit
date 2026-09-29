@@ -767,6 +767,42 @@ class Bin2TapTest(SkoolKitTestCase):
             blocks = self._run('{} 0x{:04x} -o {} -s {} {}'.format(option, clear, org, start, binfile))
             self._check_tape_with_clear_command(blocks, bin_data, binfile, clear, org, start)
 
+    def test_option_c_placing_128k_ram_bank_loader_above_0xbfff(self):
+        binfile = self.write_bin_file([0] * 0x20000, suffix='.bin')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_bin2tap(f'--clear 0xbfff --7ffd 0 -b 49151 {binfile}')
+        self.assertEqual(cm.exception.args[0], '128K RAM bank loader must be below 49152 (0xC000)')
+
+    def test_option_c_placing_128k_ram_bank_loader_too_close_to_0xc000(self):
+        binfile = self.write_bin_file([0] * 0x20000, suffix='.bin')
+        ram_banks = tuple('013467')
+        for num_banks in range(len(ram_banks) + 1):
+            loader_len = 38 + num_banks + 1
+            c_addr = 0xC000 - loader_len
+            bnums = ','.join(ram_banks[:num_banks]) or ','
+            exp_error = f'Not enough room for 128K RAM bank loader ({loader_len} bytes) at {c_addr + 1} (0x{c_addr + 1:04X})'
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_bin2tap(f'--clear {c_addr} --banks {bnums} --7ffd 0 -b 49151 {binfile}')
+            self.assertEqual(cm.exception.args[0], exp_error)
+
+    def test_option_loader_with_address_above_0xbfff(self):
+        binfile = self.write_bin_file([0] * 0x20000, suffix='.bin')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_bin2tap(f'--loader 0xc000 --7ffd 0 -b 49151 -c 32768 {binfile}')
+        self.assertEqual(cm.exception.args[0], '128K RAM bank loader must be below 49152 (0xC000)')
+
+    def test_option_loader_with_address_too_close_to_0xc000(self):
+        binfile = self.write_bin_file([0] * 0x20000, suffix='.bin')
+        ram_banks = tuple('013467')
+        for num_banks in range(len(ram_banks) + 1):
+            loader_len = 38 + num_banks + 1
+            l_addr = 0xC000 - loader_len + 1
+            bnums = ','.join(ram_banks[:num_banks]) or ','
+            exp_error = f'Not enough room for 128K RAM bank loader ({loader_len} bytes) at {l_addr} (0x{l_addr:04X})'
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_bin2tap(f'--loader {l_addr} --banks {bnums} --7ffd 0 -b 49151 -c 32768 {binfile}')
+            self.assertEqual(cm.exception.args[0], exp_error)
+
     def test_option_o(self):
         org = 40000
         bin_data = range(50)

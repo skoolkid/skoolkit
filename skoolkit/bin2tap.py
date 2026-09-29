@@ -141,6 +141,8 @@ def _get_bank_loader(title, address, start_addr, banks, out7ffd):
     ]
     data.extend(b + 0x10 for b in sorted(banks))
     data.append(0x80 | out7ffd) # End marker
+    if address + len(data) > 0xC000:
+        raise SkoolKitError(f"Not enough room for 128K RAM bank loader ({len(data)} bytes) at {address} (0x{address:04X})")
     return (_get_header(title, len(data), address), _make_block(data))
 
 def run(ram, clear, org, start, stack, tape_file, scr, banks, out7ffd, loader_addr):
@@ -175,6 +177,8 @@ def run(ram, clear, org, start, stack, tape_file, scr, banks, out7ffd, loader_ad
     blocks.append(_make_block(ram))
 
     if banks is not None:
+        if loader_addr >= 0xC000:
+            raise SkoolKitError("128K RAM bank loader must be below 49152 (0xC000)")
         blocks.extend(_get_bank_loader(title, loader_addr, start, banks, out7ffd))
         for b in sorted(banks):
             blocks.append(_make_block(banks[b]))
