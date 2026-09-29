@@ -377,24 +377,87 @@ class Bin2TapTest(SkoolKitTestCase):
             self.run_bin2tap(binfile)
 
     def test_bin_with_invalid_org_and_begin_and_end_addresses(self):
-        binfile = self.write_bin_file([0], suffix='.bin')
-        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=32768, BEGIN=65535, END=32769\)$'):
-            self.run_bin2tap('-o 32768 -b 65535 {}'.format(binfile))
-        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=32768, BEGIN=32768, END=24576\)$'):
-            self.run_bin2tap('-o 32768 -e 24576 {}'.format(binfile))
-        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=32768, BEGIN=32768, END=32768\)$'):
-            self.run_bin2tap('-o 32768 -b 32768 -e 32768 {}'.format(binfile))
-        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=32768, BEGIN=23296, END=23297\)$'):
-            self.run_bin2tap('-o 32768 -b 23296 -e 23297 {}'.format(binfile))
-        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=32768, BEGIN=49152, END=49153\)$'):
-            self.run_bin2tap('-o 32768 -b 49152 -e 49153 {}'.format(binfile))
+        binfile = self.write_bin_file([0] * 2, suffix='.bin')
+        for org, begin, end, exp_error in (
+                (0, None, None, "ORG=0 is less than 16384 (0x4000)"),
+                (16383, 16384, 16385, "ORG=16383 is less than 16384 (0x4000)"),
+                (None, 0, None, "BEGIN=0 is less than ORG=65534"),
+                (None, 65000, None, "BEGIN=65000 is less than ORG=65534"),
+                (32768, 23296, 23297, "BEGIN=23296 is less than ORG=32768"),
+                (32768, 65535, None, "Input is empty (ORG=32768, BEGIN=65535, END=32770)"),
+                (32768, None, 24576, "Input is empty (ORG=32768, BEGIN=32768, END=24576)"),
+                (32768, 32768, 32768, "Input is empty (ORG=32768, BEGIN=32768, END=32768)"),
+                (32768, 49152, 49153, "Input is empty (ORG=32768, BEGIN=49152, END=49153)"),
+                (32768, None, 0, "Input is empty (ORG=32768, BEGIN=32768, END=0)"),
+                (32768, None, 32767, "Input is empty (ORG=32768, BEGIN=32768, END=32767)"),
+                (None, None, 65000, "Input is empty (ORG=65534, BEGIN=65534, END=65000)"),
+        ):
+            options = ''
+            if org is not None:
+                options = f'-o {org}'
+            if begin is not None:
+                options += f' -b {begin}'
+            if end is not None:
+                options += f' -e {end}'
+            msg = f'{org=} {begin=} {end=}'
+            with self.assertRaises(SkoolKitError, msg=msg) as cm:
+                self.run_bin2tap(f'{options} {binfile}')
+            self.assertEqual(cm.exception.args[0], exp_error, msg)
 
-    def test_snapshot_with_invalid_begin_and_end_addresses(self):
+    def test_128k_bin_with_invalid_begin_and_end_addresses(self):
+        binfile = self.write_bin_file([0] * 0x20000, suffix='.bin')
+        for begin, end, exp_error in (
+                (0, None, "BEGIN=0 is less than ORG=16384"),
+                (16383, None, "BEGIN=16383 is less than ORG=16384"),
+                (32768, 24576, "Input is empty (ORG=16384, BEGIN=32768, END=24576)"),
+                (32768, 0, "Input is empty (ORG=16384, BEGIN=32768, END=0)"),
+                (49152, None, "Input is empty (ORG=16384, BEGIN=49152, END=49152)"),
+        ):
+            options = f'-b {begin} --7ffd 0 -c 32768'
+            if begin is not None:
+                options += f' -b {begin}'
+            if end is not None:
+                options += f' -e {end}'
+            msg = f'{begin=} {end=}'
+            with self.assertRaises(SkoolKitError, msg=msg) as cm:
+                self.run_bin2tap(f'{options} {binfile}')
+            self.assertEqual(cm.exception.args[0], exp_error, msg)
+
+    def test_48k_snapshot_with_invalid_begin_and_end_addresses(self):
         snafile = self.write_bin_file([0] * 49179, suffix='.sna')
-        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=0, BEGIN=16384, END=16384\)$'):
-            self.run_bin2tap('-e 16384 {}'.format(snafile))
-        with self.assertRaisesRegex(SkoolKitError, r'^Input is empty \(ORG=0, BEGIN=32768, END=24576\)$'):
-            self.run_bin2tap('-b 32768 -e 24576 {}'.format(snafile))
+        for begin, end, exp_error in (
+                (0, None, "BEGIN=0 is less than ORG=16384"),
+                (16383, None, "BEGIN=16383 is less than ORG=16384"),
+                (None, 0, "Input is empty (ORG=16384, BEGIN=16384, END=0)"),
+                (None, 16384, "Input is empty (ORG=16384, BEGIN=16384, END=16384)"),
+                (32768, 24576, "Input is empty (ORG=16384, BEGIN=32768, END=24576)"),
+        ):
+            options = ''
+            if begin is not None:
+                options += f' -b {begin}'
+            if end is not None:
+                options += f' -e {end}'
+            msg = f'{begin=} {end=}'
+            with self.assertRaises(SkoolKitError, msg=msg) as cm:
+                self.run_bin2tap(f'{options} {snafile}')
+            self.assertEqual(cm.exception.args[0], exp_error, msg)
+
+    def test_128k_snapshot_with_invalid_begin_and_end_addresses(self):
+        snafile = self.write_bin_file([0] * 131103, suffix='.sna')
+        for begin, end, exp_error in (
+                (0, None, "BEGIN=0 is less than ORG=16384"),
+                (16383, None, "BEGIN=16383 is less than ORG=16384"),
+                (32768, 24576, "Input is empty (ORG=16384, BEGIN=32768, END=24576)"),
+                (32768, 0, "Input is empty (ORG=16384, BEGIN=32768, END=0)"),
+                (49152, None, "Input is empty (ORG=16384, BEGIN=49152, END=49152)"),
+        ):
+            options = f'-b {begin} --7ffd 0 -c 32768'
+            if end is not None:
+                options += f' -e {end}'
+            msg = f'{begin=} {end=}'
+            with self.assertRaises(SkoolKitError, msg=msg) as cm:
+                self.run_bin2tap(f'{options} {snafile}')
+            self.assertEqual(cm.exception.args[0], exp_error, msg)
 
     def test_no_options(self):
         bin_data = [1, 2, 3, 4, 5]
