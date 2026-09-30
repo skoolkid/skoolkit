@@ -3,6 +3,8 @@ Changelog
 
 10.2b1
 ------
+* Improved error handling when running SkoolKit commands, expanding skool
+  macros, processing ASM directives, and parsing ref files
 * Added support to :ref:`rzxplay.py <rzxplay-conf>` for reading configuration
   from `skoolkit.ini`
 * Added the ``--ini`` and ``--show-config`` options to :ref:`rzxplay.py` (for
@@ -28,23 +30,12 @@ Changelog
   to 0xC000-0xFFFF in a 128K memory snapshot
 * Fixed the bug that prevents :ref:`bin2tap.py` from setting the stack pointer
   to 0
-* Fixed how the ``--basic`` option of :ref:`tapinfo.py` handles a block that
-  has no data
 * Fixed how the ``--tape-stop`` option of :ref:`tap2sna.py` works with two
   input tapes
 * Fixed the bug that prevents :ref:`tap2sna.py` from performing RAM move
   operations on 128K snapshots
 * Fixed the bug that prevents the creation of an animated image with more than
   255 frames
-* Fixed how two base prefixes are handled when applied to an instruction with
-  one operand
-* Fixed the parsing of a 48K SNA snapshot that has SP set to 0xFFFF
-* Fixed the parsing of an SZX snapshot with missing or extraneous RAMP blocks,
-  or a RAMP, SPCR, Z80R, AY or KEYB block that is too short
-* Fixed the parsing of a Z80 snapshot with an invalid header length, missing or
-  extraneous RAM pages, or a compressed RAM block that ends with two 0xED bytes
-* Fixed the parsing of PZX, TZX and RZX files with blocks that are missing data
-  or otherwise malformed
 
 10.1 (2026-08-14)
 -----------------
