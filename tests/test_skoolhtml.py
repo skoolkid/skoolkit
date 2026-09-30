@@ -7085,7 +7085,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._test_Page_parameter_containing_skool_macro('SectionType')
 
     def test_parameter_EntryDescriptions_containing_skool_macro(self):
-        self._test_MemoryMap_parameter_containing_skool_macro('EntryDescriptions')
+        self._test_MemoryMap_parameter_containing_skool_macro('EntryDescriptions', '#IF({html})(1,0)', '1')
 
     def test_parameter_EntryTypes_containing_skool_macro(self):
         self._test_MemoryMap_parameter_containing_skool_macro('EntryTypes', '#IF({html})(c,u)', 'c')
@@ -7094,10 +7094,10 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._test_MemoryMap_parameter_containing_skool_macro('Includes', '#IF({html})(50000,0)', '[50000]')
 
     def test_parameter_LabelColumn_containing_skool_macro(self):
-        self._test_MemoryMap_parameter_containing_skool_macro('LabelColumn')
+        self._test_MemoryMap_parameter_containing_skool_macro('LabelColumn', '#IF({html})(1,0)', '1')
 
     def test_parameter_LengthColumn_containing_skool_macro(self):
-        self._test_MemoryMap_parameter_containing_skool_macro('LengthColumn')
+        self._test_MemoryMap_parameter_containing_skool_macro('LengthColumn', '#IF({html})(1,0)', '1')
 
     def test_parameter_Write_containing_skool_macro(self):
         self._test_MemoryMap_parameter_containing_skool_macro('Write')
@@ -9442,6 +9442,130 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_map('MemoryMap')
         self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
+
+    def test_write_map_with_invalid_EntryDescriptions(self):
+        skool = '; Routine at 23456\nc23456 RET'
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page">91</td>
+            <td class="map-byte">160</td>
+            <td class="map-c"><span id="23456"></span><a href="../asm/23456.html">23456</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/23456.html">Routine at 23456</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
+        for value in ('1/0', '1+"a"', '(0).a', '()[0]'):
+            ref = f'[MemoryMap:MemoryMap]\nEntryDescriptions={value}'
+            writer = self._get_writer(ref=ref, skool=skool)
+            writer.write_map('MemoryMap')
+            self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs.copy())
+
+    def test_write_map_with_invalid_LabelColumn(self):
+        skool = '@label=START\n; Routine at 23456\nc23456 RET'
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page">91</td>
+            <td class="map-byte">160</td>
+            <td class="map-c"><span id="23456"></span><a href="../asm/23456.html">23456</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/23456.html">Routine at 23456</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
+        for value in ('1/0', '1+"a"', '(0).a', '()[0]'):
+            ref = f'[MemoryMap:MemoryMap]\nLabelColumn={value}'
+            writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
+            writer.write_map('MemoryMap')
+            self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs.copy())
+
+    def test_write_map_with_invalid_LengthColumn(self):
+        skool = '; Routine at 23456\nc23456 RET'
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page">91</td>
+            <td class="map-byte">160</td>
+            <td class="map-c"><span id="23456"></span><a href="../asm/23456.html">23456</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/23456.html">Routine at 23456</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
+        for value in ('1/0', '1+"a"', '(0).a', '()[0]'):
+            ref = f'[MemoryMap:MemoryMap]\nLengthColumn={value}'
+            writer = self._get_writer(ref=ref, skool=skool)
+            writer.write_map('MemoryMap')
+            self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs.copy())
+
+    def test_write_map_with_invalid_PageByteColumns(self):
+        skool = '; Routine at 23456\nc23456 RET'
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-c"><span id="23456"></span><a href="../asm/23456.html">23456</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/23456.html">Routine at 23456</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
+        for value in ('1/0', '1+"a"', '(0).a', '()[0]'):
+            ref = f'[MemoryMap:MemoryMap]\nPageByteColumns={value}'
+            writer = self._get_writer(ref=ref, skool=skool)
+            writer.write_map('MemoryMap')
+            self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs.copy())
 
     def test_write_custom_map(self):
         skool = """

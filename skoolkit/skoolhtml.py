@@ -819,16 +819,16 @@ class HtmlWriter:
         map_details = self.memory_maps.get(map_name, {})
         entry_types = map_details.get('EntryTypes', '')
         map_dict = {
-            'EntryDescriptions': map_details.get('EntryDescriptions', '0'),
+            'EntryDescriptions': parse_int(map_details.get('EntryDescriptions', '0'), 0),
             'EntryTypes': entry_types,
             'Includes': map_details.get('Includes', ()),
             'Intro': self.expand(map_details.get('Intro', ''), cwd),
-            'LabelColumn': map_details.get('LabelColumn', '0'),
-            'LengthColumn': map_details.get('LengthColumn', '0'),
-            'PageByteColumns': map_details.get('PageByteColumns', '0'),
+            'LabelColumn': parse_int(map_details.get('LabelColumn', '0'), 0),
+            'LengthColumn': parse_int(map_details.get('LengthColumn', '0'), 0),
+            'PageByteColumns': parse_int(map_details.get('PageByteColumns', '0'), 0),
             'Write': map_details.get('Write', '1')
         }
-        desc = map_dict['EntryDescriptions'] != '0'
+        desc = map_dict['EntryDescriptions'] != 0
 
         map_entries = []
         asm_labels = False
@@ -838,7 +838,7 @@ class HtmlWriter:
                     asm_labels = True
                 map_entries.append(self._get_map_entry_dict(cwd, entry, desc))
         if not asm_labels:
-            map_dict['LabelColumn'] = '0'
+            map_dict['LabelColumn'] = 0
 
         subs = {
             'MemoryMap': map_dict,
