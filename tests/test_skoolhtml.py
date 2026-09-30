@@ -507,16 +507,17 @@ class MethodTest(HtmlWriterTestCase):
         for index, name, spec, rgb in exp_colours:
             self.assertEqual(writer.image_writer.colours[index], rgb)
 
-        # Invalid colours
-        bad_colours = (
-            ('BLACK', ''),
-            ('CYAN', '#)0C6C5'),
-            ('MAGENTA', '!98,0,198')
-        )
-        for name, spec in bad_colours:
+    def test_colour_parsing_with_invalid_specs(self):
+        for spec in (
+                'BLACK=',
+                'BLUE=256,0,0',
+                'CYAN=#)0C6C5',
+                'GREEN=-1,198,0',
+                'MAGENTA=!98,0,198',
+        ):
             with self.assertRaises(SkoolKitError) as cm:
-                self._get_writer(ref='[Colours]\n{}={}'.format(name, spec))
-            self.assertEqual(cm.exception.args[0], 'Invalid colour spec: {}={}'.format(name, spec))
+                self._get_writer(ref=f'[Colours]\n{spec}')
+            self.assertEqual(cm.exception.args[0], f'Invalid colour spec: {spec}')
 
     def test_get_screenshot(self):
         snapshot = [0] * 16384 + [i & 255 for i in range(6912)]

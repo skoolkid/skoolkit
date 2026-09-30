@@ -317,7 +317,9 @@ class HtmlWriter:
             try:
                 colours[k] = tuple([int(n, base) for n in values])
             except ValueError:
-                raise SkoolKitError("Invalid colour spec: {}={}".format(k, v))
+                colours[k] = [-1]
+            if any(b < 0 or b > 255 for b in colours[k]):
+                raise SkoolKitError(f"Invalid colour spec: {k}={v}")
         return colours
 
     def _parse_links(self, links):
