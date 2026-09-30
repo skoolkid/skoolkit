@@ -1756,3 +1756,17 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertIn('Using ref files: {}, {}\n'.format(reffile, extra_reffile), output)
         html_writer = write_disassembly_args[0]
         self.assertEqual(html_writer.game_vars['Game'], 'Baz')
+
+    def test_EntryGroups_with_empty_skool_file(self):
+        reffile = self._write_ref_file('[EntryGroups]\nG=32768')
+        skoolfile = self.write_text_file(path=f'{reffile[:-4]}.skool')
+        output, error = self.run_skool2html(skoolfile)
+        self.assertEqual(error, '')
+        self.assertIn(f'\nParsing {skoolfile}\n', output)
+
+    def test_MemoryMap_Includes_with_empty_skool_file(self):
+        reffile = self._write_ref_file('[MemoryMap:Custom]\nIncludes=32768')
+        skoolfile = self.write_text_file(path=f'{reffile[:-4]}.skool')
+        output, error = self.run_skool2html(skoolfile)
+        self.assertEqual(error, '')
+        self.assertIn(f'\nParsing {skoolfile}\n', output)

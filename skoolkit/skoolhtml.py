@@ -346,9 +346,11 @@ class HtmlWriter:
         start = parse_int(limits[0])
         if start is None:
             return (groups or {}).get(limits[0], ())
-        start = max(start, self.memory_map[0].address)
-        end = min(parse_int(limits[1], start), self.memory_map[-1].address)
-        return [a for a in range(start, end + 1) if self.get_entry(a)]
+        if self.memory_map:
+            start = max(start, self.memory_map[0].address)
+            end = min(parse_int(limits[1], start), self.memory_map[-1].address)
+            return [a for a in range(start, end + 1) if self.get_entry(a)]
+        return ()
 
     def get_code_path(self, code_id):
         if code_id.lower() == MAIN_CODE_ID:
