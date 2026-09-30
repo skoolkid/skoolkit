@@ -120,7 +120,7 @@ def evaluate(param, safe=False):
     if safe or set(param) <= AE_CHARS:
         try:
             return int(eval(param.replace('$', '0x').replace('/', '//').replace('&&', ' and ').replace('||', ' or ')))
-        except:
+        except Exception:
             pass
     raise ValueError
 

@@ -98,7 +98,7 @@ class HtmlWriter:
                 self.expand(m)
             except SkoolParsingError as e:
                 raise SkoolParsingError("Failed to expand '{}': {}".format(m, e.args[0]))
-            except:
+            except Exception:
                 raise SkoolKitError("Failed to expand '{}'".format(m))
 
         self.game_vars = self._expand_values('Game', 'Logo')
@@ -295,7 +295,7 @@ class HtmlWriter:
             if k not in exceptions:
                 try:
                     d[k] = self.expand(d[k])
-                except:
+                except Exception:
                     raise SkoolKitError('Failed to expand macros in {} parameter: {}'.format(k, d[k]))
         return d
 

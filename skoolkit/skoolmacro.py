@@ -667,7 +667,7 @@ def _eval_delays(spec):
     if set(spec) <= valid_chars:
         try:
             return _flatten(eval(f'[{spec}]'))
-        except:
+        except Exception:
             raise InvalidParameterError(f"Cannot evaluate delays: '{spec}'")
     invalid_chars = ''.join(sorted(set(spec) - valid_chars))
     raise InvalidParameterError(f"Invalid character(s) [{invalid_chars}] in delays specification: '{spec}'")
