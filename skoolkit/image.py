@@ -1,4 +1,4 @@
-# Copyright 2012-2015, 2017, 2019-2021 Richard Dymond (rjdymond@gmail.com)
+# © 2012-2015, 2017, 2019-2021, 2026 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from skoolkit import SkoolKitError
 from skoolkit.pngwriter import PngWriter
 
 TRANSPARENT = 'TRANSPARENT'
@@ -59,6 +60,8 @@ class ImageWriter:
                     self.options[k] = int(v)
                 except ValueError:
                     pass
+        if not -1 <= self.options[PNG_COMPRESSION_LEVEL] <= 9:
+            raise SkoolKitError(f'Invalid PNG compression level: {self.options[PNG_COMPRESSION_LEVEL]}')
         default_colours = self.get_default_colours()
         full_palette = dict(default_colours)
         if palette:

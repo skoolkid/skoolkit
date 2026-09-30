@@ -671,6 +671,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
         for k, v in exp_iw_options:
             self.assertEqual(iw_options[k], v)
 
+    def test_invalid_PNGCompressionLevel(self):
+        for level in (-2, 10):
+            reffile = self.write_text_file(f'[ImageWriter]\nPNGCompressionLevel={level}', suffix='.ref')
+            skoolfile = self.write_text_file(path=f'{reffile[:-4]}.skool')
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_skool2html(skoolfile)
+            self.assertEqual(cm.exception.args[0], f'Invalid PNG compression level: {level}')
+
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_font_is_copied(self):
