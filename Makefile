@@ -1,5 +1,7 @@
-NOSE ?= /usr/bin/nose2-3
-COVERAGE ?= /usr/bin/python3-coverage
+NOSE ?= $(shell command -v nose2-3 || command -v nose2)
+$(if $(NOSE),,$(error nose2 not found))
+COVERAGE ?= $(shell command -v python3-coverage || command -v coverage)
+$(if $(COVERAGE),,$(error coverage not found))
 CORES ?= 0
 OPTIONS = -d build/html -t
 
