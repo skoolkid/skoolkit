@@ -506,7 +506,7 @@ class HtmlWriter:
 
     def asm_address(self, address, default):
         if self.asm_address_template:
-            return self.asm_address_template.format(address=address)
+            return format_template(self.asm_address_template, 'Address', address=address)
         return default
 
     # API
@@ -586,7 +586,7 @@ class HtmlWriter:
             'description': description,
             'href': self._asm_relpath(cwd, entry.address),
             'size': entry.size,
-            'length': self.game_vars['Length'].format(size=entry.size),
+            'length': format_template(self.game_vars['Length'], 'Length', size=entry.size),
             'title': self.expand(entry.description, cwd)
         }
 
@@ -1036,7 +1036,7 @@ class HtmlWriter:
         while True:
             try:
                 path = path.format(**self.all_paths)
-            except (AttributeError, IndexError, KeyError, ValueError):
+            except Exception:
                 break
             if path in (prev_path, orig_path):
                 break
@@ -1299,16 +1299,20 @@ class TemplateFormatter:
         tname, lines = self._get_template(page_id, name)
         try:
             lines = self._process_include(page_id, lines, fields)
-        except SkoolKitError as e:
-            raise SkoolKitError("Invalid include directive: {}".format(e.args[0]))
+        except Exception as e:
+            raise SkoolKitError(f"Invalid include directive: {str(e) or type(e).__name__}")
         try:
             lines = self._process_foreach(lines, fields)
-        except (skoolmacro.MacroParsingError, NameError, ValueError) as e:
+        except skoolmacro.MacroParsingError as e:
             raise SkoolKitError("Invalid foreach directive: {}".format(e.args[0]))
+        except Exception as e:
+            raise SkoolKitError(f"Invalid foreach directive: {str(e) or type(e).__name__}")
         try:
             lines = self._process_if(lines, fields)
-        except (SkoolKitError, skoolmacro.MacroParsingError, NameError, ValueError) as e:
+        except (SkoolKitError, skoolmacro.MacroParsingError) as e:
             raise SkoolKitError("Invalid if directive: {}".format(e.args[0]))
+        except Exception as e:
+            raise SkoolKitError(f"Invalid if directive: {str(e) or type(e).__name__}")
         return format_template('\n'.join(lines), tname, **fields)
 
     def _get_template(self, page_id, name):

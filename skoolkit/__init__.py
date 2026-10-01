@@ -219,7 +219,7 @@ def format_template(template__, name__, **fields):
     except KeyError as e:
         raise SkoolKitError(f"Unknown field '{e.args[0]}' in {name__} template")
     except Exception as e:
-        raise SkoolKitError(f'Failed to format {name__} template: {e.args[0]}')
+        raise SkoolKitError(f'Failed to format {name__} template: {str(e) or type(e).__name__}')
 
 def normpath(*paths):
     return posixpath.normpath(posixpath.join(*[p.replace('\\', '/') for p in paths]))
