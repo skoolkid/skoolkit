@@ -3,7 +3,7 @@ from struct import pack
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import audio
+from skoolkit import SkoolKitError, audio
 from skoolkit.audio import AudioWriter, BeeperOptions
 
 def _flatten(elements):
@@ -48,6 +48,14 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(audio_bytes[36:40], b'data')
         self.assertEqual(audio_bytes[40:44], pack('<I', length - 44))
         return audio_bytes[44:]
+
+    def _test_invalid_config(self, config, exp_error):
+        config.setdefault('SampleRate', '44100')
+        config.setdefault('ClockSpeed', '3500000')
+        config.setdefault('FrameDuration', '69888')
+        with self.assertRaises(SkoolKitError) as cm:
+            AudioWriter(config)
+        self.assertEqual(cm.exception.args[0], exp_error)
 
     def test_samples_48k(self):
         audio_writer = AudioWriter()
@@ -139,6 +147,29 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(audio_writer.options[1]['FrameDuration'], 70908)
         self.assertEqual(audio_writer.options[1]['InterruptDelay'], (1385, 1565))
         self.assertEqual(audio_writer.options[1]['SampleRate'], 44100)
+
+    def test_sample_rate_out_of_range(self):
+        for srate in (7999, 192001):
+            config = {'SampleRate': srate}
+            self._test_invalid_config(config, f'SampleRate={srate} not in range 8000-192000')
+
+    def test_clock_speed_not_positive(self):
+        for speed in (0, -1):
+            config = {'ClockSpeed': speed}
+            self._test_invalid_config(config, f'Invalid ClockSpeed: {speed}')
+
+    def test_sample_rate_too_high(self):
+        config = {'SampleRate': 192000, 'ClockSpeed': 191999}
+        self._test_invalid_config(config, 'SampleRate=192000 too high for given ClockSpeed=191999')
+
+    def test_frame_duration_not_positive(self):
+        for fd in (0, -1):
+            config = {'FrameDuration': fd}
+            self._test_invalid_config(config, f'Invalid FrameDuration: {fd}')
+
+    def test_interrupt_delay_too_high(self):
+        config = {'InterruptDelay': '1,69888', 'FrameDuration': 69888}
+        self._test_invalid_config(config, 'InterruptDelay=1,69888 must be less than FrameDuration=69888')
 
     def test_custom_clock_speed(self):
         audio_writer = AudioWriter({'ClockSpeed': '7000000'})

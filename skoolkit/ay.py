@@ -16,7 +16,8 @@
 
 from skoolkit import SkoolKitError
 from skoolkit.audio import (CLOCK_SPEED, FRAME_DURATION, SAMPLE_RATE,
-                            moving_average_filter, write_wav)
+                            check_config, moving_average_filter, parse_config,
+                            write_wav)
 from skoolkit.simutils import CLOCK_SPEEDS, FRAME_DURATIONS
 
 AY_CLOCK_RATE = 1773400
@@ -182,12 +183,9 @@ class AYAudioWriter:
             FRAME_DURATION: FRAME_DURATIONS[1],
             SAMPLE_RATE: 44100
         }
-        if config:
-            for k, v in config.items():
-                try:
-                    self.options[k] = int(v)
-                except ValueError:
-                    pass
+        for k, v in parse_config(config):
+            self.options[k] = v
+        check_config(self.options)
 
     # Component API
     def formats(self):

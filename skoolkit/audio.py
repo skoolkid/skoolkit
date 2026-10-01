@@ -17,6 +17,7 @@
 from math import ceil
 from struct import pack
 
+from skoolkit import SkoolKitError
 from skoolkit.simutils import CLOCK_SPEEDS, CONTENTION_INTERVALS, FRAME_DURATIONS
 
 CLOCK_SPEED = 'ClockSpeed'
@@ -26,6 +27,36 @@ CONTENTION_FACTOR = 'ContentionFactor'
 FRAME_DURATION = 'FrameDuration'
 INTERRUPT_DELAY = 'InterruptDelay'
 SAMPLE_RATE = 'SampleRate'
+
+def parse_config(config_in):
+    config_out = []
+    if config_in:
+        for k, v in config_in.items():
+            try:
+                if k == INTERRUPT_DELAY:
+                    config_out.append((k, tuple(int(n) for n in v.split(','))))
+                else:
+                    config_out.append((k, int(v)))
+            except ValueError:
+                pass
+    return config_out
+
+def check_config(config):
+    sample_rate = config[SAMPLE_RATE]
+    if not 8000 <= sample_rate <= 192000:
+        raise SkoolKitError(f'{SAMPLE_RATE}={sample_rate} not in range 8000-192000')
+    clock_speed = config[CLOCK_SPEED]
+    if clock_speed < 1:
+        raise SkoolKitError(f'Invalid {CLOCK_SPEED}: {clock_speed}')
+    sample_delay = clock_speed / sample_rate
+    if sample_delay < 1:
+        raise SkoolKitError(f'{SAMPLE_RATE}={sample_rate} too high for given {CLOCK_SPEED}={clock_speed}')
+    frame_duration = config[FRAME_DURATION]
+    if frame_duration < 1:
+        raise SkoolKitError(f'Invalid {FRAME_DURATION}: {frame_duration}')
+    if any(d >= frame_duration for d in config.get(INTERRUPT_DELAY, [0])):
+        idelays = ','.join(str(d) for d in config[INTERRUPT_DELAY])
+        raise SkoolKitError(f'{INTERRUPT_DELAY}={idelays} must be less than {FRAME_DURATION}={frame_duration}')
 
 def moving_average_filter(delays, options, volume):
     sample_delay = options[CLOCK_SPEED] / options[SAMPLE_RATE]
@@ -105,15 +136,10 @@ class AudioWriter:
             INTERRUPT_DELAY: (1385, 1565),
             SAMPLE_RATE: 44100
         })
-        if config:
-            for k, v in config.items():
-                try:
-                    if k == INTERRUPT_DELAY:
-                        self.options[0][k] = self.options[1][k] = tuple(int(n) for n in v.split(','))
-                    else:
-                        self.options[0][k] = self.options[1][k] = int(v)
-                except ValueError:
-                    pass
+        for k, v in parse_config(config):
+            self.options[0][k] = self.options[1][k] = v
+        check_config(self.options[0])
+        check_config(self.options[1])
 
     # Component API
     def write_audio(self, audio_file, delays, options):
