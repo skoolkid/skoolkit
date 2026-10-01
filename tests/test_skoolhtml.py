@@ -731,11 +731,11 @@ class MethodTest(HtmlWriterTestCase):
         ref = """
             [Game]
             Bytes=
-            StyleSheet=
+            StyleSheet=style.css
             [Paths]
             GameIndex=index.html
             MemoryMap=all.html
-            StyleSheetPath=style.css
+            StyleSheetPath=
             [Template:Layout]
             Nothing to see here!
             [Titles]
@@ -11946,6 +11946,25 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         css_paths = [basename(css) for css in css_files]
         self.assertEqual(page[0], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[0]))
         self.assertEqual(page[1], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[1]))
+
+    def test_write_page_with_no_css(self):
+        page_id = 'Custom'
+        ref = f"""
+            [Game]
+            StyleSheet=
+            [Page:{page_id}]
+            Path=
+            [Template:{page_id}]
+            BEGIN
+            <# foreach($css,SkoolKit[stylesheets]) #>
+            <link rel="stylesheet" type="text/css" href="{{$css[href]}}" />
+            <# endfor #>
+            END
+        """
+        writer = self._get_writer(ref=ref)
+        writer.write_page(page_id)
+        page = self._read_file(page_id + '.html')
+        self.assertEqual(page, 'BEGIN\nEND')
 
     def test_write_page_no_game_name(self):
         page_id = 'Custom'

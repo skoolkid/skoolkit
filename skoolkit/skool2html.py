@@ -115,11 +115,14 @@ def copy_resource(fname, root_dir, dest_dir):
             raise SkoolKitError("Cannot copy {0} to {1}: {1} is not a directory".format(fname_n, normpath(dest_dir)))
         makedirs(dest_d)
         notify('Copying {} to {}'.format(fname_n, normpath(dest_dir, base_f)))
-        shutil.copy2(fname, dest_f)
+        try:
+            shutil.copy2(fname, dest_f)
+        except OSError as e:
+            raise SkoolKitError(f"Failed to copy {fname} to {dest_f}: {e}")
 
 def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, themes=(), suffix=None, single_css=None):
     if not fnames:
-        return
+        return ''
 
     files = []
 

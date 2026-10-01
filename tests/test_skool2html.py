@@ -3,7 +3,7 @@ import os.path
 from textwrap import dedent
 from unittest.mock import patch, Mock
 
-from skoolkittest import SkoolKitTestCase, mock_find_file
+from skoolkittest import WINDOWS, SkoolKitTestCase, mock_find_file
 import skoolkit
 from skoolkit import normpath, config, skool2html, BASE_10, BASE_16, PACKAGE_DIR, VERSION, SkoolKitError
 from skoolkit.skoolhtml import HtmlWriter
@@ -800,6 +800,45 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         game_dir = os.path.join(self.odir, reffile[:-4])
         self.assertTrue(os.path.isfile(os.path.join(game_dir, style_sheet_path, css_file)))
+
+    def test_custom_style_sheet_copy_failure(self):
+        if WINDOWS:
+            self.skipTest("chmod doesn't work on files in Windows")
+        cssfile = self.write_text_file(path='nope.css')
+        os.chmod(cssfile, 0o333) # -wx-wx-wx
+        ref = f"""
+            [Game]
+            StyleSheet={cssfile}
+        """
+        reffile = self._write_ref_file(ref)
+        skoolfile = self.write_text_file(path=f'{reffile[:-4]}.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2html(skoolfile)
+        self.assertTrue(cm.exception.args[0].startswith('Failed to copy '))
+
+    def test_custom_style_sheet_path_copy_failure(self):
+        cssdir = 'css'
+        ref = f"""
+            [Paths]
+            StyleSheetPath={cssdir}
+        """
+        dname = os.path.join(cssdir, 'skoolkit.css')
+        reffile = self._write_ref_file(ref)
+        skoolfile = self.write_text_file(path=f'{reffile[:-4]}.skool')
+        os.makedirs(os.path.join(reffile[:-4], cssdir, 'skoolkit.css', 'skoolkit.css'))
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2html(skoolfile)
+        self.assertTrue(cm.exception.args[0].startswith('Failed to copy '))
+
+    def test_no_style_sheet(self):
+        ref = """
+            [Game]
+            StyleSheet=
+        """
+        reffile = self._write_ref_file(ref)
+        skoolfile = self.write_text_file(path=f'{reffile[:-4]}.skool')
+        self.run_skool2html(skoolfile)
+        self.assertFalse(any(f.endswith('.css') for f in os.listdir(reffile[:-4])))
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)

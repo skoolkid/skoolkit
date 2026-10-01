@@ -879,7 +879,8 @@ class HtmlWriter:
 
         if cwd not in self.stylesheets:
             for css_file in self.game_vars['StyleSheet'].split(';'):
-                self.stylesheets[cwd].append({'href': self.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))})
+                if css_file:
+                    self.stylesheets[cwd].append({'href': self.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))})
 
         js_key = (cwd, js)
         if js_key not in self.javascript:
