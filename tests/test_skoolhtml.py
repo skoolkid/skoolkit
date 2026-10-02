@@ -11102,6 +11102,46 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         writer.write_page('MyPage')
         self._assert_content_equal(exp_content, 'MyPage.html')
 
+    def test_write_page_with_section_prefix_as_list_items_with_incorrectly_indented_items(self):
+        page_id = 'MyListItemsPage'
+        ref = f"""
+            [Page:{page_id}]
+            SectionPrefix=Entry
+            SectionType=ListItems
+            [Entry:entry1:Entry 1]
+            Intro.
+
+                Item 1
+              Item 2
+            Item 3
+        """
+        exp_content = """
+            <ul class="contents">
+            <li><a href="#entry1">Entry 1</a></li>
+            </ul>
+            <div><span id="entry1"></span></div>
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">Entry 1</div>
+            <div class="list-entry-desc">Intro.</div>
+            <ul class="list-entry">
+            <li>Item 1</li>
+            <li>Item 2</li>
+            <li>Item 3</li>
+            </ul>
+            </div>
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'title': page_id,
+            'header': page_id,
+            'path': '',
+            'body_class': page_id,
+            'content': exp_content
+        }
+        self._assert_files_equal(f'{page_id}.html', subs)
+
     def test_write_page_with_header_prefix_and_suffix(self):
         page_id = 'CustomPage'
         ref = """
@@ -12702,6 +12742,46 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             'content': exp_content
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
+
+    def test_box_page_as_bullet_points_with_incorrectly_indented_items(self):
+        page_id = 'MyBulletPointsPage'
+        ref = f"""
+            [Page:{page_id}]
+            SectionPrefix=Entry
+            SectionType=BulletPoints
+            [Entry:entry1:Entry 1]
+            Intro.
+
+                - Item 1
+              - Item 2
+            - Item 3
+        """
+        exp_content = """
+            <ul class="contents">
+            <li><a href="#entry1">Entry 1</a></li>
+            </ul>
+            <div><span id="entry1"></span></div>
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">Entry 1</div>
+            <div class="list-entry-desc">Intro.</div>
+            <ul class="list-entry">
+            <li>Item 1</li>
+            <li>Item 2</li>
+            <li>Item 3</li>
+            </ul>
+            </div>
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'title': page_id,
+            'header': page_id,
+            'path': '',
+            'body_class': page_id,
+            'content': exp_content
+        }
+        self._assert_files_equal(f'{page_id}.html', subs)
 
     def test_page_with_custom_table_template(self):
         page_id = 'JustSomePage'

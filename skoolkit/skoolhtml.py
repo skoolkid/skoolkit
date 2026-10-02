@@ -643,14 +643,17 @@ class HtmlWriter:
                         subitems[-1][0] += ' {}'.format(s_line)
                     else:
                         subitem = [s_line[len(prefix):].lstrip(), ()]
-                        if new_indent == indents[-1][0]:
+                        if not subitems:
+                            subitems.append(subitem)
+                            indents[-1] = (new_indent, subitems)
+                        elif new_indent == indents[-1][0]:
                             subitems.append(subitem)
                         elif new_indent > indents[-1][0]:
                             new_subitems = [subitem]
                             subitems[-1][1] = new_subitems
                             indents.append((new_indent, new_subitems))
                         else:
-                            while new_indent < indents[-1][0]:
+                            while len(indents) > 1 and new_indent < indents[-1][0]:
                                 indents.pop()
                             subitems = indents[-1][1]
                             subitems.append(subitem)
