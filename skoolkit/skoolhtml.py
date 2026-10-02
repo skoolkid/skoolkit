@@ -1114,7 +1114,8 @@ class HtmlWriter:
             raise skoolmacro.MacroParsingError("Unknown page ID: {}".format(page_id))
         if link_text == '':
             if anchor and page_id in self.page_ids and page_id in self.box_pages:
-                for item_anchor, title, paragraphs in self.box_pages[page_id]:
+                for entry in self.box_pages[page_id]:
+                    item_anchor, title = entry[:2]
                     if anchor[1:] == item_anchor:
                         link_text = title
                         break

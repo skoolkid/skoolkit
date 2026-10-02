@@ -3175,6 +3175,35 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#LINK(Boxes#item1)()', ASMDIR)
         self._assert_link_equals(output, '../Boxes.html#item1', 'Item 1')
 
+    def test_macro_link_to_list_items_box_page_with_blank_link_text(self):
+        ref = """
+            [Page:Boxes]
+            SectionPrefix=Box
+            SectionType=ListItems
+            [Box:item1:Item 1]
+            Intro.
+
+            First top-level item.
+        """
+        writer = self._get_writer(ref=ref)
+        output = writer.expand('#LINK(Boxes#item1)()', ASMDIR)
+        self._assert_link_equals(output, '../Boxes.html#item1', 'Item 1')
+
+    def test_macro_link_to_bullet_points_box_page_with_blank_link_text(self):
+        ref = """
+            [Page:Boxes]
+            SectionPrefix=Box
+            SectionType=BulletPoints
+            [Box:item1:Item 1]
+            Intro.
+
+            - First top-level
+              item.
+        """
+        writer = self._get_writer(ref=ref)
+        output = writer.expand('#LINK(Boxes#item1)()', ASMDIR)
+        self._assert_link_equals(output, '../Boxes.html#item1', 'Item 1')
+
     def test_macro_link_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_link_invalid(self)
         self._assert_error(writer, '#LINK(nonexistentPageID)(text)', 'Unknown page ID: nonexistentPageID', prefix)
