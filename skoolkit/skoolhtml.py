@@ -531,7 +531,7 @@ class HtmlWriter:
         index_fname, cwd = self._set_cwd(P_GAME_INDEX, 'home')
 
         link_groups = {}
-        for section_id, header_text, page_list in self.get_sections('Index', False, True):
+        for section_id, header_text, page_list in filter(lambda e: len(e) == 3, self.get_sections('Index', False, True)):
             link_groups[section_id] = (header_text, page_list)
         sections = {}
         for section_id, (header_text, page_list) in link_groups.items():
@@ -540,7 +540,7 @@ class HtmlWriter:
                 fname = self.paths.get(page_id)
                 if fname and self.file_exists(fname):
                     link_file = self.relpath(cwd, fname)
-                    link_text = [self.expand(t, cwd) for t in self.links[page_id]]
+                    link_text = [self.expand(t, cwd) for t in self.links.get(page_id, (page_id, ''))]
                     links.append((link_file, link_text[0], link_text[1]))
             sections[section_id] = (header_text, links)
         other_code_links = []

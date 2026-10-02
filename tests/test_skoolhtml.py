@@ -7486,6 +7486,61 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal('index.html', subs, True)
 
+    def test_write_index_skips_index_section_with_malformed_name(self):
+        ref = """
+            [Index]
+            Things1
+            Things2
+
+            [Index:Things1:Group 1]
+            Bugs
+
+            [Index:Things1.5]
+            Ignore me - I've got no header text
+
+            [Index:Things2:Group 2]
+            Facts
+
+            [Paths]
+            Bugs=ref/bugs.html
+            Facts=ref/facts.html
+        """
+        files = [
+            'ref/bugs.html',
+            'ref/facts.html',
+        ]
+        content = """
+            <div class="section-header">Group 1</div>
+            <ul class="index-list">
+            <li><a href="ref/bugs.html">Bugs</a></li>
+            </ul>
+            <div class="section-header">Group 2</div>
+            <ul class="index-list">
+            <li><a href="ref/facts.html">Trivia</a></li>
+            </ul>
+        """
+        self._test_write_index(files, content, ref)
+
+    def test_write_index_defaults_page_link_text_to_page_id(self):
+        ref = """
+            [Index]
+            Stuff
+
+            [Index:Stuff:Stuff]
+            Thing
+
+            [Paths]
+            Thing=ref/thing.html
+        """
+        files = ['ref/thing.html']
+        content = """
+            <div class="section-header">Stuff</div>
+            <ul class="index-list">
+            <li><a href="ref/thing.html">Thing</a></li>
+            </ul>
+        """
+        self._test_write_index(files, content, ref)
+
     def test_write_asm_entries(self):
         ref = "[OtherCode:start]"
         skool = """
