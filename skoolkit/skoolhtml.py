@@ -201,7 +201,12 @@ class HtmlWriter:
                 self.titles.setdefault(map_name, map_name)
 
         self._expand_values(self.paths)
-        self.all_paths = {k: v for k, v in self.paths.items() if k.endswith('Path')}
+        self.all_paths = {}
+        for key, path in self.paths.items():
+            if key.endswith('Path'):
+                self.all_paths[key] = path
+            elif not path:
+                raise SkoolKitError(f"Paths:{key} is blank")
 
         self.asm_fname_template = self.paths['CodeFiles']
         self.udg_fname_template = self.paths['UDGFilename']

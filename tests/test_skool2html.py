@@ -518,6 +518,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, 'Invalid page ID: {}'.format(page_id)):
             self.run_skool2html('-d {0} -w P -P {1} {2}'.format(self.odir, page_id, skoolfile))
 
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_blank_path(self):
+        reffile = self.write_text_file('[Paths]\nGameIndex=', suffix='.ref')
+        skoolfile = self.write_text_file(path=f'{reffile[:-4]}.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2html(skoolfile)
+        self.assertEqual(cm.exception.args[0], 'Paths:GameIndex is blank')
+
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_default_ref_file(self):
@@ -912,6 +920,33 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertTrue(os.path.isfile(os.path.join(game_dir, 'g', '7', 'scr.png')))
         self.assertTrue(os.path.isfile(os.path.join(game_dir, 'h', '8', 'style.css')))
         self.assertTrue(os.path.isfile(os.path.join(game_dir, 'i', '9', 'udg.png')))
+
+    @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_resources_using_custom_path_id_replacement_fields(self):
+        resource_dir = self.make_directory()
+        self.write_bin_file(path=f'{resource_dir}/sound.wav')
+        self.write_bin_file(path=f'{resource_dir}/font.ttf')
+        self.write_bin_file(path=f'{resource_dir}/notes.txt')
+        ref = """
+            [Paths]
+            NotesPath=
+            SoundPath=a
+            TTFPath=b
+
+            [Resources]
+            notes.txt={NotesPath}
+            sound.wav={SoundPath}/1
+            font.ttf={TTFPath}/2
+        """
+        reffile = self._write_ref_file(ref)
+        skoolfile = self.write_text_file(path=f'{reffile[:-4]}.skool')
+        output, error = self.run_skool2html(f'-S {resource_dir} {skoolfile}')
+        self.assertEqual(error, '')
+        game_dir = reffile[:-4]
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'notes.txt')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'a', '1', 'sound.wav')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'b', '2', 'font.ttf')))
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
