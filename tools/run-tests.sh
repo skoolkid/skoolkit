@@ -71,9 +71,10 @@ banner() {
 
 usage() {
   cat <<EOU1
-Usage: $(basename $0) [options] SUITE [SUITE...]
+Usage: $(basename $0) [options] [SUITE...]
 
-  Run SkoolKit pre-release tests. SUITE must be one of the following:
+  Run SkoolKit pre-release tests. If no SUITE is given, choose from a
+  checklist (requires whiptail). SUITE must be one of the following:
 
 EOU1
 
@@ -91,6 +92,19 @@ EOU2
   exit 1
 }
 
+choose_suites() {
+  local items=() v
+  for v in ${SUITES_IN_ORDER[@]}; do
+    items+=("$v" "${SUITE_NAMES[$v]}" OFF)
+  done
+  local n=${#SUITES_IN_ORDER[@]}
+  local max=$(($(tput lines) - 8))
+  local list_height=$((n < max ? n : max))
+  whiptail --title "SkoolKit pre-release tests" --separate-output \
+    --checklist "Select test suites (SPACE toggles, ENTER runs):" \
+    $((list_height + 8)) 60 $list_height "${items[@]}" 3>&1 1>&2 2>&3
+}
+
 CORES=$(lscpu -p=SOCKET,CORE | grep -v '^#' | sort -u | wc -l)
 PROCS=$CORES
 while getopts ":j:" opt; do
@@ -101,9 +115,12 @@ while getopts ":j:" opt; do
 done
 
 shift $((OPTIND - 1))
-[ $# -lt 1 ] && usage
 
-if [[ $1 == "all" ]]; then
+if [ $# -lt 1 ]; then
+  [ -t 0 ] && [ -t 1 ] && command -v whiptail >/dev/null || usage
+  suites=$(choose_suites) || exit 1
+  [ -z "$suites" ] && exit 0
+elif [[ $1 == "all" ]]; then
   suites=${SUITES_IN_ORDER[@]}
 else
   suites=$*
