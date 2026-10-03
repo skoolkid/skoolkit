@@ -61,6 +61,7 @@ hh:
 
 .PHONY: write-disassembly-tests
 write-disassembly-tests:
+	if [ ! -f build/hungry_horace.z80 ]; then ./tap2sna.py -d build @examples/hungry_horace.t2s; fi
 	for t in asm ctl html; do \
 	    tools/write-hh-tests.py $$t > tests/test_hh_$$t.py; \
 	done
