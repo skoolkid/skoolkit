@@ -453,6 +453,9 @@ The Frame class represents a single frame of a still or animated image.
 .. autoclass:: skoolkit.graphics.Frame
    :noindex:
 
+   .. versionchanged:: 10.2
+      Raises **GraphicsError** if *x*, *y*, *width* or *height* is invalid.
+
    .. versionchanged:: 8.3
       Added the *x_offset* and *y_offset* parameters.
 
@@ -499,9 +502,19 @@ and functions.
 .. autofunction:: skoolkit.graphics.overlay_udgs
    :noindex:
 
+   .. versionchanged:: 10.2
+      Raises **GraphicsError** if *rattr* or *rbyte* returns a value outside
+      the range 0-255.
+
    .. versionadded:: 8.5
 
 .. autofunction:: skoolkit.graphics.rotate_udgs
+   :noindex:
+
+An image-related method or function may raise a GraphicsError if it is unable
+to complete its task:
+
+.. autoclass:: skoolkit.graphics.GraphicsError
    :noindex:
 
 HTML page initialisation

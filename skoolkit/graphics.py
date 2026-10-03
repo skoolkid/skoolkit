@@ -35,7 +35,7 @@ FLIP = (
 )
 
 class GraphicsError(Exception):
-    pass
+    """Raised when an error occurs while creating or modifying graphics."""
 
 class Udg:
     """Initialise the UDG.
@@ -146,6 +146,7 @@ class Frame:
                   :ref:`ref-ImageWriter` section is used.
     :param x_offset: The x-coordinate at which to render the frame.
     :param y_offset: The y-coordinate at which to render the frame.
+    :raises GraphicsError: If `x`, `y`, `width` or `height` is invalid.
     """
     def __init__(self, udgs, scale=1, mask=0, x=0, y=0, width=None, height=None, delay=32, name='', tindex=0, alpha=-1, x_offset=0, y_offset=0):
         if callable(udgs):
@@ -314,6 +315,8 @@ def overlay_udgs(bg, fg, x, y, mask=0, rattr=None, rbyte=None):
                   background UDG graphic byte, the foreground UDG graphic byte,
                   and the foreground UDG mask byte. If `None`, the mask
                   specified by `mask` is used.
+    :raises GraphicsError: If `rattr` or `rbyte` returns a value outside the
+                           range 0-255.
     """
     xshift, yshift = x & 7, y & 7
     if xshift or yshift:
