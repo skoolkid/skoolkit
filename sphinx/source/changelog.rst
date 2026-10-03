@@ -26,6 +26,8 @@ Changelog
   of the tape's tones, pulse sequences and data blocks)
 * Added the ``--tape-skip`` option to :ref:`tapinfo.py` (for skipping one or
   more blocks on a tape)
+* The ``--map`` option of :ref:`trace.py` now updates an existing file instead
+  of replacing it
 * Fixed how :ref:`PUSHS` and :ref:`POPS` copy and restore the RAM bank mapped
   to 0xC000-0xFFFF in a 128K memory snapshot
 * Fixed the bug that prevents :ref:`bin2tap.py` from setting the stack pointer

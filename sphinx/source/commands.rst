@@ -2359,6 +2359,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 10.2    | The ``--map`` option updates an existing file instead of          |
+|         | replacing it                                                      |
++---------+-------------------------------------------------------------------+
 | 10.1    | Added the ``--ay-mode``, ``--ay-res`` and ``--volume`` options;   |
 |         | added support for multiple colours in the border area of the      |
 |         | screen                                                            |

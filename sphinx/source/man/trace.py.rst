@@ -55,7 +55,8 @@ OPTIONS
   multiple times.
 
 --map FILE
-  Log addresses of executed instructions to a file.
+  Log addresses of executed instructions to a file. If `FILE` already exists,
+  the addresses are added to it.
 
 -m, --max-operations `MAX`
   Maximum number of instructions to execute. Overrides the `STOP` address (if

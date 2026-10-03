@@ -1689,6 +1689,41 @@ class TraceTest(SkoolKitTestCase):
             map_contents = f.read()
         self.assertEqual(dedent(exp_map).lstrip(), map_contents)
 
+    def test_option_map_with_existing_file(self):
+        existing_map = """
+            $7FFD
+            $7FFE
+            $7FFF
+        """
+        mapfile = self.write_text_file(dedent(existing_map).lstrip(), suffix='.map')
+        data = (
+            0xAF, # $8000 XOR A
+            0x3C, # $8001 INC A
+            0x80, # $8002 ADD A,B
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 32768
+        stop = start + len(data)
+        output, error = self.run_trace(f'-no {start} -S {stop} --map {mapfile} {binfile}')
+        self.assertEqual(error, '')
+        exp_output = f"""
+            Stopped at ${stop:04X}
+            Wrote {mapfile}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertTrue(os.path.isfile(mapfile))
+        exp_map = """
+            $7FFD
+            $7FFE
+            $7FFF
+            $8000
+            $8001
+            $8002
+        """
+        with open(mapfile) as f:
+            map_contents = f.read()
+        self.assertEqual(dedent(exp_map).lstrip(), map_contents)
+
     def test_option_map_file_is_a_directory(self):
         binfile = self.write_bin_file([0], suffix='.bin')
         dname = 'dir.map'
@@ -1700,6 +1735,19 @@ class TraceTest(SkoolKitTestCase):
         path = os.path.join('nope', 'not-allowed.map')
         args = ('--map', path, '-no', '30000', '-S', '30001', binfile)
         self.output_file_permission_denied(self.run_trace, args, path=path)
+
+    def test_option_map_with_existing_file_not_utf8(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        mapfile = self.write_bin_file([0x80], suffix='.map')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_trace(f'--map {mapfile} {binfile}')
+        self.assertEqual(cm.exception.args[0], f'{mapfile}: invalid UTF-8')
+
+    def test_option_map_existing_file_permission_denied(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        fname = 'nope.map'
+        args = ('--map', fname, binfile)
+        self.input_file_permission_denied(self.run_trace, args, fname=fname)
 
     def test_option_max_operations(self):
         data = [

@@ -15,6 +15,8 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import os
+import re
 import textwrap
 import time
 
@@ -335,6 +337,14 @@ def run(snafile, options, config):
             draw = screen.draw
     if options.map:
         exec_map = set()
+        if os.path.isfile(options.map):
+            with open_file(options.map, 'r') as f:
+                try:
+                    for line in f:
+                        if re.match(r'\$[0-9A-F]{4}', line):
+                            exec_map.add(int(line[1:5], 16))
+                except UnicodeDecodeError:
+                    raise SkoolKitError(f'{options.map}: invalid UTF-8')
     else:
         exec_map = None
     begin = time.time()
