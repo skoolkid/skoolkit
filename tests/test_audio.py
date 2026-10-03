@@ -93,6 +93,19 @@ class AudioWriterTest(SkoolKitTestCase):
 
     @patch.object(audio, 'moving_average_filter', mock_moving_average_filter)
     @patch.object(audio, 'write_wav', mock_write_wav)
+    def test_contention_48k_delay_crossing_contended_interval_and_frame_boundary(self):
+        audio_writer = AudioWriter()
+        offset = 57245 - 160 # 160 T-states until ContentionEnd
+        delay1 = 105 + 13643 # 1000 T-states into the next frame
+        delay2 = 13335 + 101 # 101 T-states into the next contended interval
+        delays_in = [delay1, delay2]
+        options = BeeperOptions(100, True, False, offset, False)
+        audio_writer.write_audio(None, delays_in, options)
+        exp_delays = [160 + 13643, 13335 + 152]
+        self.assertEqual(exp_delays, uf_delays)
+
+    @patch.object(audio, 'moving_average_filter', mock_moving_average_filter)
+    @patch.object(audio, 'write_wav', mock_write_wav)
     def test_contention_128k(self):
         audio_writer = AudioWriter()
         delays_in = _flatten([13000, [1000] * 32, 500])

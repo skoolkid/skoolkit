@@ -213,7 +213,7 @@ class AudioWriter:
                         # Delay crosses into uncontended interval
                         cd_cycles = int(c_period / c_factor)
                         delays[i] += c_period - cd_cycles
-                        d_offset += cd_cycles
+                        d_offset += c_period
                         cycle = c_end
                 else:
                     if d_remaining < f_duration - cycle:
