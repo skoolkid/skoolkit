@@ -181,7 +181,7 @@ def run(diff_file, exp_diffs_file, per_file):
                 used_exp_diffs.add(i)
                 break
         else:
-            unexp_diff = (tuple(old), tuple(new))
+            unexp_diff = (tuple(old_lines), tuple(new_lines))
             if unexp_diff in unexp_diffs:
                 continue
             unexp_diffs.add(unexp_diff)
