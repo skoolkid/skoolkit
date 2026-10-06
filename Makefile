@@ -2,7 +2,8 @@ NOSE ?= $(shell command -v nose2-3 || command -v nose2)
 $(if $(NOSE),,$(error nose2 not found))
 COVERAGE ?= $(shell command -v python3-coverage || command -v coverage)
 $(if $(COVERAGE),,$(error coverage not found))
-CORES ?= 0
+LSCPU = $(shell command -v lscpu)
+CORES ?= $(if $(LSCPU),$(shell $(LSCPU) -p=SOCKET,CORE | grep -v '^#' | sort -u | wc -l),0)
 OPTIONS = -d build/html -t
 
 OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
