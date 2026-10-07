@@ -2056,8 +2056,13 @@ TIMINGS = (
     ("EXX", (217,), 4),
     ("HALT", (118,), 4),
     ("IM 0", (237, 70), 8),
+    ("IM 0", (237, 78), 8),
     ("IM 1", (237, 86), 8),
     ("IM 2", (237, 94), 8),
+    ("IM 0", (237, 102), 8),
+    ("IM 0", (237, 110), 8),
+    ("IM 1", (237, 118), 8),
+    ("IM 2", (237, 126), 8),
     ("IN A,(0)", (219, 0), 11),
     ("IN B,(C)", (237, 64), 12),
     ("IN C,(C)", (237, 72), 12),
@@ -2112,6 +2117,7 @@ TIMINGS = (
     ("LD (0),BC", (237, 67, 0, 0), 20),
     ("LD (0),DE", (237, 83, 0, 0), 20),
     ("LD (0),HL", (34, 0, 0), 16),
+    ("LD (0),HL", (237, 99, 0, 0), 20),
     ("LD (0),SP", (237, 115, 0, 0), 20),
     ("LD (0),IX", (221, 34, 0, 0), 20),
     ("LD (0),IY", (253, 34, 0, 0), 20),
@@ -2119,6 +2125,7 @@ TIMINGS = (
     ("LD BC,(0)", (237, 75, 0, 0), 20),
     ("LD DE,(0)", (237, 91, 0, 0), 20),
     ("LD HL,(0)", (42, 0, 0), 16),
+    ("LD HL,(0)", (237, 107, 0, 0), 20),
     ("LD SP,(0)", (237, 123, 0, 0), 20),
     ("LD IX,(0)", (221, 42, 0, 0), 20),
     ("LD IY,(0)", (253, 42, 0, 0), 20),
@@ -2297,6 +2304,13 @@ TIMINGS = (
     ("LDI", (237, 160), 16),
     ("LDIR", (237, 176), (21, 16)),
     ("NEG", (237, 68), 8),
+    ("NEG", (237, 76), 8),
+    ("NEG", (237, 84), 8),
+    ("NEG", (237, 92), 8),
+    ("NEG", (237, 100), 8),
+    ("NEG", (237, 108), 8),
+    ("NEG", (237, 116), 8),
+    ("NEG", (237, 124), 8),
     ("NOP", (0,), 4),
     ("OR 0", (246, 0), 7),
     ("OR B", (176,), 4),
@@ -2541,6 +2555,12 @@ TIMINGS = (
     ("RET M", (248,), (11, 5)),
     ("RETI", (237, 77), 14),
     ("RETN", (237, 69), 14),
+    ("RETN", (237, 85), 14),
+    ("RETN", (237, 93), 14),
+    ("RETN", (237, 101), 14),
+    ("RETN", (237, 109), 14),
+    ("RETN", (237, 117), 14),
+    ("RETN", (237, 125), 14),
     ("RL B", (203, 16), 8),
     ("RL C", (203, 17), 8),
     ("RL D", (203, 18), 8),
@@ -3094,7 +3114,7 @@ class Z80Test(SkoolKitTestCase):
     def test_get_timing(self):
         for op, byte_values, exp_timing in TIMINGS:
             instruction = Instruction(op, byte_values)
-            self.assertEqual(exp_timing, get_timing(instruction), f'get_timing failed for "{op}"')
+            self.assertEqual(exp_timing, get_timing(instruction), f'get_timing failed for "{op}": {byte_values}')
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_operand_evaluator(self):

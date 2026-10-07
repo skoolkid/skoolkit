@@ -642,36 +642,56 @@ AFTER_ED_TIMINGS = {
     0x49: 12,       # OUT (C),C
     0x4A: 15,       # ADC HL,BC
     0x4B: 20,       # LD BC,(nn)
+    0x4C: 8,        # NEG
     0x4D: 14,       # RETI
+    0x4E: 8,        # IM 0
     0x4F: 9,        # LD R,A
     0x50: 12,       # IN D,(C)
     0x51: 12,       # OUT (C),D
     0x52: 15,       # SBC HL,DE
     0x53: 20,       # LD (nn),DE
+    0x54: 8,        # NEG
+    0x55: 14,       # RETN
     0x56: 8,        # IM 1
     0x57: 9,        # LD A,I
     0x58: 12,       # IN E,(C)
     0x59: 12,       # OUT (C),E
     0x5A: 15,       # ADC HL,DE
     0x5B: 20,       # LD DE,(nn)
+    0x5C: 8,        # NEG
+    0x5D: 14,       # RETN
     0x5E: 8,        # IM 2
     0x5F: 9,        # LD A,R
     0x60: 12,       # IN H,(C)
     0x61: 12,       # OUT (C),H
     0x62: 15,       # SBC HL,HL
+    0x63: 20,       # LD (nn),HL
+    0x64: 8,        # NEG
+    0x65: 14,       # RETN
+    0x66: 8,        # IM 0
     0x67: 18,       # RRD
     0x68: 12,       # IN L,(C)
     0x69: 12,       # OUT (C),L
     0x6A: 15,       # ADC HL,HL
+    0x6B: 20,       # LD HL,(nn)
+    0x6C: 8,        # NEG
+    0x6D: 14,       # RETN
+    0x6E: 8,        # IM 0
     0x6F: 18,       # RLD
     0x70: 12,       # IN F,(C)
     0x71: 12,       # OUT (C),0
     0x72: 15,       # SBC HL,SP
     0x73: 20,       # LD (nn),SP
+    0x74: 8,        # NEG
+    0x75: 14,       # RETN
+    0x76: 8,        # IM 1
     0x78: 12,       # IN A,(C)
     0x79: 12,       # OUT (C),A
     0x7A: 15,       # ADC HL,SP
     0x7B: 20,       # LD SP,(nn)
+    0x7C: 8,        # NEG
+    0x7D: 14,       # RETN
+    0x7E: 8,        # IM 2
     0xA0: 16,       # LDI
     0xA1: 16,       # CPI
     0xA2: 16,       # INI
