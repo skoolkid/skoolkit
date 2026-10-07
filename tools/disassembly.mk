@@ -5,7 +5,8 @@ HTML_OPTIONS = $(HTML_OPTS)
 HTML_OPTIONS += -d $(BUILD)/html -t
 HTML_OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
 TESTS ?= asm ctl html
-CORES ?= 0
+LSCPU = $(shell command -v lscpu)
+CORES ?= $(if $(LSCPU),$(shell $(LSCPU) -p=SOCKET,CORE | grep -v '^#' | sort -u | wc -l),0)
 SNAPSHOT_CMD ?= $(SKOOLKIT_HOME)/tap2sna.py @$(T2S) $(SNAPSHOT)
 
 .PHONY: usage
