@@ -6,6 +6,7 @@ HTML_OPTIONS += -d $(BUILD)/html -t
 HTML_OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
 TESTS ?= asm ctl html
 CORES ?= 0
+SNAPSHOT_CMD ?= $(SKOOLKIT_HOME)/tap2sna.py @$(T2S) $(SNAPSHOT)
 
 .PHONY: usage
 usage:
@@ -15,7 +16,7 @@ usage:
 	@echo "  asm       build the ASM disassembly"
 	@echo "  test      run tests"
 	@echo "  test3X    run tests with Python 3.X (10<=X<=14)"
-	@$(MAKE) -s _targets
+	@echo "  snapshot  create $(SNAPSHOT)"
 	@echo ""
 	@echo "Variables:"
 	@echo "  SKOOLKIT_HOME  directory containing the version of SkoolKit to use"
@@ -24,9 +25,6 @@ usage:
 	@echo "  HTML_OPTS      extra options passed to skool2html.py"
 	@echo "  ASM_OPTS       options passed to skool2asm.py"
 	@echo "  CORES          number of processes to use when running tests"
-
-.PHONY: _targets
-_targets:
 
 .PHONY: html
 html:
@@ -50,3 +48,7 @@ test: write-tests
 .PHONY: test3%
 test3%: write-tests
 	$(HOME)/Python/Python3.$*/bin/nose2 --plugin=nose2.plugins.mp -N $(CORES)
+
+.PHONY: snapshot
+snapshot:
+	if [ ! -f $(SNAPSHOT) ]; then $(SNAPSHOT_CMD); fi
