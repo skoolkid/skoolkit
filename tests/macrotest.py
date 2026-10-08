@@ -18,6 +18,12 @@ REG = (
     ('r', 'R'), ('sp', 'SP'), ('pc', 'PC')
 )
 
+MAX_DIGITS = sys.get_int_max_str_digits()
+try:
+    str(10 ** MAX_DIGITS)
+except ValueError as e:
+    MAX_DIGITS_MSG = str(e)
+
 def nest_macros(template, *values):
     nested_macros = ['#IF(#EVAL1)({})'.format(v) for v in values]
     return template.format(*nested_macros)
@@ -615,11 +621,6 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#EVAL({vars[qux]},{vars[bar]},8)'), '00000000')
 
     def test_macro_eval_invalid(self):
-        max_digits = sys.get_int_max_str_digits()
-        try:
-            str(10 ** max_digits)
-        except ValueError as e:
-            max_digits_msg = str(e)
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('EVAL')
 
@@ -634,8 +635,10 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#EVAL5,3', 'Invalid base (3): 5,3', prefix)
         self._assert_error(writer, '#EVAL({nope})', "Unrecognised field 'nope': {nope}", prefix)
         self._assert_error(writer, '#EVAL({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
-        self._assert_error(writer, '#EVAL(1,,-1)', "Width (-1) is negative: (1,,-1)", prefix)
-        self._assert_error(writer, f'#EVAL(10**{max_digits})', max_digits_msg, prefix)
+        self._assert_error(writer, '#EVAL(1,,-1)', "Width is outside valid range 0-1024: (1,,-1)", prefix)
+        self._assert_error(writer, '#EVAL1,,1025', "Width is outside valid range 0-1024: 1,,1025", prefix)
+        self._assert_error(writer, f'#EVAL(1,,10**{MAX_DIGITS})', f"Width is outside valid range 0-1024: (1,,10**{MAX_DIGITS})", prefix)
+        self._assert_error(writer, f'#EVAL(10**{MAX_DIGITS})', MAX_DIGITS_MSG, prefix)
 
     def test_macro_font_invalid(self):
         writer = self._get_writer()
@@ -803,11 +806,6 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '0,0+1,2,2+1,4,4+1,6')
 
     def test_macro_for_invalid(self):
-        max_digits = sys.get_int_max_str_digits()
-        try:
-            str(10 ** max_digits)
-        except ValueError as e:
-            max_digits_msg = str(e)
         writer = self._get_writer()
         writer.fields['x'] = 'x'
         prefix = ERROR_PREFIX.format('FOR')
@@ -829,7 +827,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOR(1,{y})(n,n)', "Unrecognised field 'y': 1,{y}", prefix)
         self._assert_error(writer, '#FOR(1,{y)(n,n)', "Invalid format string '1,{y': expected '}' before end of string", prefix)
         self._assert_error(writer, '#FOR1,2,0(n,n)', "Step value is 0: 1,2,0(n,n)", prefix)
-        self._assert_error(writer, f'#FOR(10**{max_digits}-1,10**{max_digits})(n,n)', max_digits_msg, prefix)
+        self._assert_error(writer, f'#FOR(10**{MAX_DIGITS}-1,10**{MAX_DIGITS})(n,n)', MAX_DIGITS_MSG, prefix)
 
     def test_macro_foreach(self):
         writer = self._get_writer()
@@ -1882,11 +1880,6 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#LET(v=3)#N({v},{vars[w]},,1,1)($)'), '$03')
 
     def test_macro_n_invalid(self):
-        max_digits = sys.get_int_max_str_digits()
-        try:
-            str(10 ** max_digits)
-        except ValueError as e:
-            max_digits_msg = str(e)
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('N')
 
@@ -1902,9 +1895,13 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#N(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#N({no},1)', "Unrecognised field 'no': {no},1", prefix)
         self._assert_error(writer, '#N({foo,1)', "Invalid format string '{foo,1': expected '}' before end of string", prefix)
-        self._assert_error(writer, '#N(1,-1,,,1)', "hwidth (-1) is negative: (1,-1,,,1)", prefix)
-        self._assert_error(writer, '#N(1,,-1)', "dwidth (-1) is negative: (1,,-1)", prefix)
-        self._assert_error(writer, f'#N(10**{max_digits})', max_digits_msg, prefix)
+        self._assert_error(writer, '#N(1,-1,,,1)', "hwidth is outside valid range 0-1024: (1,-1,,,1)", prefix)
+        self._assert_error(writer, '#N(1,1025,,,1)', "hwidth is outside valid range 0-1024: (1,1025,,,1)", prefix)
+        self._assert_error(writer, f'#N(1,10**{MAX_DIGITS},,,1)', f"hwidth is outside valid range 0-1024: (1,10**{MAX_DIGITS},,,1)", prefix)
+        self._assert_error(writer, '#N(1,,-1)', "dwidth is outside valid range 0-1024: (1,,-1)", prefix)
+        self._assert_error(writer, '#N(1,,1025)', "dwidth is outside valid range 0-1024: (1,,1025)", prefix)
+        self._assert_error(writer, f'#N(1,,10**{MAX_DIGITS})', f"dwidth is outside valid range 0-1024: (1,,10**{MAX_DIGITS})", prefix)
+        self._assert_error(writer, f'#N(10**{MAX_DIGITS})', MAX_DIGITS_MSG, prefix)
 
     def test_macro_over_invalid(self):
         writer = self._get_writer()
@@ -2252,6 +2249,9 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#SPACE(5$3)', "Cannot parse integer '5$3' in parameter string: '5$3'", prefix)
         self._assert_error(writer, '#SPACE({no})', "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, '#SPACE({foo)', "Invalid format string '{foo': expected '}' before end of string", prefix)
+        self._assert_error(writer, '#SPACE(-1)', "Number of spaces is outside valid range 0-1024: (-1)", prefix)
+        self._assert_error(writer, '#SPACE1025', "Number of spaces is outside valid range 0-1024: 1025", prefix)
+        self._assert_error(writer, f'#SPACE(10**{MAX_DIGITS})', f"Number of spaces is outside valid range 0-1024: (10**{MAX_DIGITS})", prefix)
 
     def test_macro_str(self):
         snapshot = [0] * 65536

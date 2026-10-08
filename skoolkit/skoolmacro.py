@@ -78,6 +78,8 @@ RE_PARAM_NAME = re.compile(r'\s*{}\s*='.format(PARAM_NAME))
 
 RE_REGISTER = re.compile("(af?|f|bc?|c|de?|e|hl?|l)'?|i[xy][lh]?|i|pc|r|sp")
 
+MAX_STR_LEN = 1024
+
 class UnsupportedMacroError(SkoolKitError):
     pass
 
@@ -945,8 +947,8 @@ def parse_def(writer, text, index, *cwd):
 def parse_eval(fields, lower, text, index, *cwd):
     # #EVALexpr[,base,width]
     end, value, base, width = parse_ints(text, index, 3, (10, 1), fields=fields)
-    if width < 0:
-        raise MacroParsingError(f"Width ({width}) is negative: {text[index:end]}")
+    if not 0 <= width <= MAX_STR_LEN:
+        raise MacroParsingError(f"Width is outside valid range 0-{MAX_STR_LEN}: {text[index:end]}")
     if base == 2:
         fmt = '{:0{}b}'
     elif base == 10:
@@ -1296,10 +1298,10 @@ def parse_map(fields, text, index, *cwd):
 def parse_n(writer, text, index, *cwd):
     # #Nvalue[,hwidth,dwidth,affix,hex][(prefix[,suffix])]
     end, value, hwidth, dwidth, affix, tohex = parse_ints(text, index, 5, (None, 1, 0, 0), fields=writer.fields)
-    if hwidth is not None and hwidth < 0:
-        raise MacroParsingError(f"hwidth ({hwidth}) is negative: {text[index:end]}")
-    if dwidth < 0:
-        raise MacroParsingError(f"dwidth ({dwidth}) is negative: {text[index:end]}")
+    if hwidth is not None and not 0 <= hwidth <= MAX_STR_LEN:
+        raise MacroParsingError(f"hwidth is outside valid range 0-{MAX_STR_LEN}: {text[index:end]}")
+    if not 0 <= dwidth <= MAX_STR_LEN:
+        raise MacroParsingError(f"dwidth is outside valid range 0-{MAX_STR_LEN}: {text[index:end]}")
     if affix:
         end, (prefix, suffix) = parse_strings(text, end, 2, ('', ''))
     else:
@@ -1494,6 +1496,8 @@ def parse_sim(writer, text, index, *cwd):
 def parse_space(writer, text, index, *cwd):
     # #SPACE[num] or #SPACE([num])
     end, num = parse_ints(text, index, 1, (1,), fields=writer.fields)
+    if not 0 <= num <= MAX_STR_LEN:
+        raise MacroParsingError(f"Number of spaces is outside valid range 0-{MAX_STR_LEN}: {text[index:end]}")
     return end, writer.space * num
 
 def parse_str(writer, text, index, *cwd):
