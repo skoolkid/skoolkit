@@ -540,6 +540,9 @@ class TableWriter:
                 if max_row > len(self.table.rows):
                     raise SkoolParsingError(f'rowspan ({cell.rowspan}) of cell at column {cell.col_index + 1} in row {cell.row_index + 1} is too large')
                 for y in range(cell.row_index, max_row):
+                    other = cell_matrix[y][x]
+                    if other is not None:
+                        raise SkoolParsingError(f'Cell at column {cell.col_index + 1} in row {cell.row_index + 1} overlaps cell at column {other.col_index + 1} in row {other.row_index + 1}')
                     cell_matrix[y][x] = cell
         return cell_matrix
 

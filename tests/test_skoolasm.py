@@ -4229,6 +4229,20 @@ class TableMacroTest(SkoolKitTestCase):
         error = "rowspan (2) of cell at column 1 in row 1 is too large"
         self._assert_error(skool, error)
 
+    def test_overlapping_cells(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #TABLE
+            ; { A | B | =r2 C }
+            ; { =c3 Overlaps C }
+            ; TABLE#
+            c32768 RET
+        """
+        error = "Cell at column 1 in row 2 overlaps cell at column 3 in row 1"
+        self._assert_error(skool, error)
+
 class ListMacroTest(SkoolKitTestCase):
     def _get_writer(self, skool='', bullet=None):
         skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
