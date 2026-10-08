@@ -3,6 +3,12 @@
 # Runs pasmo over groups of ASM files created by 'write-files' to check for
 # differences in output.
 
+PASMO=$(command -v pasmo)
+if [[ -z "$PASMO" ]]; then
+  echo "Error: 'pasmo' executable not found"
+  exit 1
+fi
+
 . $(dirname $0)/ddiffs-functions
 
 ERR_ON="\e[0;31m"
@@ -24,7 +30,7 @@ check() {
     fi
     binfile=$a.bin
     echo -n "Writing $binfile..."
-    if pasmo $asmfile $binfile &> /dev/null; then
+    if $PASMO $asmfile $binfile &> /dev/null; then
       echo "done"
     else
       echo -e "${ERR_ON}FAILED${ERR_OFF}"
