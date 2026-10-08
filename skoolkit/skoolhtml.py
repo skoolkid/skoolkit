@@ -1110,8 +1110,8 @@ class HtmlWriter:
         end, paragraphs, pattern = skoolmacro.parse_include(text, index, self.fields)
         try:
             content = self.ref_parser.combine_sections(pattern, paragraphs)
-        except re.error as e:
-            raise SkoolParsingError(f"Error while parsing #INCLUDE macro: {e.msg}: '{e.pattern}'")
+        except (re.error, OverflowError, RecursionError, ValueError) as e:
+            raise SkoolParsingError(f"Error while parsing #INCLUDE macro: {e}: '{pattern}'")
         if paragraphs:
             return end, self.format_template('section', {'section': [self.expand(p, cwd).strip() for p in content]})
         return end, '\n'.join(content)

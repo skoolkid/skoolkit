@@ -3,6 +3,7 @@ import html
 from io import StringIO
 from os.path import basename, isdir, isfile
 from posixpath import join
+import sys
 from textwrap import dedent
 from unittest.mock import patch
 
@@ -1399,12 +1400,18 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         with self.assertRaises(error) as cm:
             writer.expand(text, ASMDIR)
         if error_msg is not None:
-            if prefix:
-                error_msg = '{}: {}'.format(prefix, error_msg)
             if func:
+                if prefix:
+                    error_msg = f'{prefix}: {error_msg}'
                 self.assertTrue(func(cm.exception.args[0], error_msg))
             else:
-                self.assertEqual(cm.exception.args[0], error_msg)
+                if isinstance(error_msg, str):
+                    error_msgs = [error_msg]
+                else:
+                    error_msgs = error_msg
+                if prefix:
+                    error_msgs = [f'{prefix}: {msg}' for msg in error_msgs]
+                self.assertIn(cm.exception.args[0], error_msgs)
 
     def _test_image_macro(self, snapshot, macros, path, udgs=None, scale=2, mask=0, tindex=0, alpha=-1,
                           x=0, y=0, width=None, height=None, ref=None, alt=None, base=0):
@@ -3075,7 +3082,26 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_include_invalid_regex(self):
         writer = self._get_writer(ref='[Stuff:0]\nHi')
         prefix = ERROR_PREFIX.format('INCLUDE')
-        self._assert_error(writer, '#INCLUDE(Stuff[)', "unterminated character set: 'Stuff['", prefix)
+        self._assert_error(writer, '#INCLUDE(Stuff[)', "unterminated character set at position 5: 'Stuff['", prefix)
+        self._assert_error(writer, '#INCLUDE0(p{5000000000})', "the repetition number is too large: 'p{5000000000}'", prefix)
+
+        max_digits = sys.get_int_max_str_digits()
+        num = '9' * (max_digits + 1)
+        pattern = f'q{{{num}}}'
+        exp_errors = (
+            f"Exceeds the limit ({max_digits} digits) for integer string conversion: value has {len(num)} digits; use sys.set_int_max_str_digits() to increase the limit: '{pattern}'",
+            f"Exceeds the limit ({max_digits}) for integer string conversion: value has {len(num)} digits; use sys.set_int_max_str_digits() to increase the limit: '{pattern}'",
+        )
+        self._assert_error(writer, f'#INCLUDE0({pattern})', exp_errors, prefix)
+
+        depth = 500
+        pattern = '(' * depth + 'a' + ')' * depth
+        exp_errors = (
+            f"maximum recursion depth exceeded: '{pattern}'",
+            f"maximum recursion depth exceeded while calling a Python object: '{pattern}'",
+            f"maximum recursion depth exceeded in comparison: '{pattern}'",
+        )
+        self._assert_error(writer, f'#INCLUDE0({pattern})', exp_errors, prefix)
 
     def test_macro_link(self):
         ref = """
