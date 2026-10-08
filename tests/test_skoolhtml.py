@@ -2893,6 +2893,27 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.file_info.fname, exp_image_path)
         self._check_animated_image(writer.image_writer, exp_frames)
 
+    def test_macro_frames_with_repeated_frames_with_varying_delays_and_coordinates(self):
+        udg1 = Udg(56, [1] * 8)
+        udg2 = Udg(56, [2] * 8)
+        udg3 = Udg(56, [3] * 8)
+        writer = self._get_writer(snapshot=udg1.data + udg2.data + udg3.data, mock_file_info=True)
+        writer.expand('#UDG0,,2(*bg)#UDG8,,1(*f)#UDG16,,1(*g)')
+        fname = 'repeats'
+        exp_image_path = f'{UDGDIR}/{fname}.png'
+        exp_src = f'../{exp_image_path}'
+        exp_frames = [
+            Frame([[udg1]], scale=2),
+            Frame([[udg2]], delay=10, x_offset=1, y_offset=2),
+            Frame([[udg3]], delay=11, x_offset=2, y_offset=3),
+            Frame([[udg2]], delay=12, x_offset=3, y_offset=4),
+            Frame([[udg3]], delay=13, x_offset=4, y_offset=5),
+        ]
+        output = writer.expand(f'#FRAMES(bg;f,10,1,2;g,11,2,3;f,12,3,4;g,13,4,5)({fname})', ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+        self._check_animated_image(writer.image_writer, exp_frames)
+
     def test_macro_frames_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_frames_invalid(self)
         self._assert_error(writer, '#FRAMES(foo)(bar)', "No such frame: 'foo'", prefix)

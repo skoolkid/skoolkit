@@ -1127,8 +1127,7 @@ def _get_frames(frame_map, specs):
                 raise MacroParsingError(f"No such frame: '{frame_id}'")
             if not 0 <= delay <= 65535:
                 raise InvalidParameterError(f"delay ({delay}) out of range 0-65535")
-            frame = frame_map[frame_id]
-            frame.delay, frame.x_offset, frame.y_offset = delay, x_offset, y_offset
+            frame = frame_map[frame_id].copy(frame_id, delay=delay, x_offset=x_offset, y_offset=y_offset)
             if frames:
                 if frame.width > frames[0].width or frame.height > frames[0].height:
                     raise MacroParsingError("Frame '{}' ({}x{}) is larger than the first frame ({}x{})".format(

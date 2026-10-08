@@ -38,6 +38,8 @@ Changelog
   operations on 128K snapshots
 * Fixed the bug that prevents the creation of an animated image with more than
   255 frames
+* Fixed how the :ref:`FRAMES` macro handles a frame appearing more than once
+  with varying ``delay``, ``x`` and ``y`` values
 * Fixed the bug that prevents a :ref:`LINK` macro with blank link text from
   linking to a ``ListItems`` or ``BulletPoints`` :ref:`box page <boxpages>`
   entry
