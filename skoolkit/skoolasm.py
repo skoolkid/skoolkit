@@ -72,15 +72,32 @@ class AsmWriter:
         self.lower = self.case == CASE_LOWER
 
         # Field widths (line = indent + instruction + ' ; ' + comment)
-        if self._get_int_property(properties, 'tab', 0):
+        def_indent = 2
+        def_instr_width = 23
+        def_min_comment_width = 10
+        def_line_width = 79
+        max_line_width = 1024
+        tab = self._get_int_property(properties, 'tab', 0)
+        if tab:
             self.indent_width = 8
             self.indent = '\t'
         else:
-            self.indent_width = self._get_int_property(properties, 'indent', 2)
+            self.indent_width = max(0, self._get_int_property(properties, 'indent', def_indent))
+        self.instr_width = max(0, self._get_int_property(properties, 'instruction-width', def_instr_width))
+        self.min_comment_width = max(0, self._get_int_property(properties, 'comment-width-min', def_min_comment_width))
+        self.line_width = self._get_int_property(properties, 'line-width', def_line_width)
+        if self.line_width > max_line_width:
+            self.warn(f'Reducing line width to maximum ({max_line_width})')
+            self.line_width = max_line_width
+        if self.indent_width + self.instr_width + 3 + self.min_comment_width > max_line_width:
+            self.warn('Indent + instruction + comment fields too large; resetting to defaults')
+            if not tab:
+                self.indent_width = def_indent
+            self.instr_width = def_instr_width
+            self.min_comment_width = def_min_comment_width
+            self.line_width = def_line_width
+        if not tab:
             self.indent = ' ' * self.indent_width
-        self.instr_width = self._get_int_property(properties, 'instruction-width', 23)
-        self.min_comment_width = self._get_int_property(properties, 'comment-width-min', 10)
-        self.line_width = self._get_int_property(properties, 'line-width', 79)
         self.desc_width = self._get_text_width('comment')
 
         # Line terminator

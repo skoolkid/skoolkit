@@ -39,7 +39,7 @@ class MockSkoolParser:
 
 class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def _get_writer(self, skool=None, crlf=False, tab=False, case=0, base=0,
-                    instr_width=23, warn=False, asm_mode=1, fix_mode=0,
+                    instr_width=None, warn=False, asm_mode=1, fix_mode=0,
                     variables=(), snapshot=(), templates=None, params=None):
         if skool is None:
             skool_parser = MockSkoolParser(snapshot, base, case, asm_mode, fix_mode)
@@ -51,14 +51,15 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             properties = dict(skool_parser.properties)
             properties['crlf'] = '1' if crlf else '0'
             properties['tab'] = '1' if tab else '0'
-            properties['instruction-width'] = instr_width
+            if instr_width is not None:
+                properties['instruction-width'] = instr_width
             properties['warnings'] = '1' if warn else '0'
         config = CONFIG.copy()
         config.update(params or {})
         return AsmWriter(skool_parser, properties, templates or {}, config)
 
     def _get_asm(self, skool, crlf=False, tab=False, case=0, base=0,
-                 instr_width=23, warn=False, asm_mode=1, fix_mode=0,
+                 instr_width=None, warn=False, asm_mode=1, fix_mode=0,
                  templates=None):
         self.clear_streams()
         writer = self._get_writer(dedent(skool).strip(), crlf, tab, case, base, instr_width, warn, asm_mode, fix_mode, templates=templates)
@@ -69,7 +70,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         return asm
 
     def _test_asm(self, skool, exp_asm, crlf=False, tab=False, case=0, base=0,
-                  instr_width=23, warn=False, asm_mode=1, fix_mode=0,
+                  instr_width=None, warn=False, asm_mode=1, fix_mode=0,
                   templates=None):
         asm = self._get_asm(skool, crlf, tab, case, base, instr_width, warn, asm_mode, fix_mode, templates)
         self.assertEqual(dedent(exp_asm).strip('\n'), asm.rstrip())
@@ -1047,6 +1048,18 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
                 indent_size = 2
             self.assertEqual(asm[1], '{}DEFB 0                  ; Comment'.format(' ' * indent_size))
 
+    def test_property_indent_and_instruction_width_and_comment_width_min_above_maximum(self):
+        skool = """
+            @start
+            @set-indent=100
+            @set-instruction-width=200
+            @set-comment-width-min=722
+            ; indent + instruction-width + 3 + comment-width-min > 1024
+            c49152 RET
+        """
+        exp_warnings = "WARNING: Indent + instruction + comment fields too large; resetting to defaults"
+        self._test_warnings(skool, exp_warnings)
+
     def test_property_label_colons(self):
         skool = """
             @start
@@ -1086,6 +1099,16 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
                 exp_lines.append('{} ; {}'.format(indent, comment_line))
             for line_no, exp_line in enumerate(exp_lines, 1):
                 self.assertEqual(asm[line_no], exp_line)
+
+    def test_property_line_width_above_maximum(self):
+        skool = """
+            @start
+            @set-line-width=1025
+            ; Routine
+            c49152 RET
+        """
+        exp_warnings = "WARNING: Reducing line width to maximum (1024)"
+        self._test_warnings(skool, exp_warnings)
 
     def test_property_wrap_column_width_min(self):
         skool = """
