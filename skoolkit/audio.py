@@ -65,8 +65,6 @@ def moving_average_filter(delays, options, volume):
     bit = bits = 0
     samples = []
     for d in delays:
-        if d < 0:
-            continue
         while True:
             if t + d < t1:
                 if bit:
@@ -163,7 +161,8 @@ class AudioWriter:
         """
         aw_config = self.options[options.is128k]
         if options.contention or options.interrupts:
-            self._add_contention(delays, options.contention, options.interrupts, options.offset, aw_config)
+            offset = options.offset % aw_config[FRAME_DURATION]
+            self._add_contention(delays, options.contention, options.interrupts, offset, aw_config)
         samples = moving_average_filter(delays, aw_config, options.volume / 100)
         write_wav(audio_file, samples, aw_config[SAMPLE_RATE])
 

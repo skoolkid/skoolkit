@@ -28,9 +28,10 @@ from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.graphics import GraphicsError, Udg
 from skoolkit.simulator import Simulator
-from skoolkit.simutils import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP,
-                               I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T,
-                               IFF, IM, HALT, MEMPTR, from_memory)
+from skoolkit.simutils import (
+    A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R, xA, xF, xB, xC, xD,
+    xE, xH, xL, PC, T, IFF, IM, HALT, MEMPTR, CLOCK_SPEEDS, from_memory
+)
 
 _map_cache = {}
 
@@ -77,6 +78,8 @@ RE_MACRO_METHOD = re.compile('expand_([a-z]+)$')
 RE_PARAM_NAME = re.compile(r'\s*{}\s*='.format(PARAM_NAME))
 
 RE_REGISTER = re.compile("(af?|f|bc?|c|de?|e|hl?|l)'?|i[xy][lh]?|i|pc|r|sp")
+
+MAX_AUDIO_DURATION = CLOCK_SPEEDS[1] * 3600 # 1 hour (at 128K clock rate)
 
 MAX_STR_LEN = 1024
 
@@ -668,9 +671,12 @@ def _eval_delays(spec):
     valid_chars = frozenset(' 0123456789,*+-%()[]\n')
     if set(spec) <= valid_chars:
         try:
-            return _flatten(eval(f'[{spec}]'))
+            delays = _flatten(eval(f'[{spec}]'))
         except Exception:
             raise InvalidParameterError(f"Cannot evaluate delays: '{spec}'")
+        if delays and (min(delays) < 0 or sum(delays) > MAX_AUDIO_DURATION):
+            raise InvalidParameterError(f"Delays out of range: '{spec}'")
+        return delays
     invalid_chars = ''.join(sorted(set(spec) - valid_chars))
     raise InvalidParameterError(f"Invalid character(s) [{invalid_chars}] in delays specification: '{spec}'")
 
