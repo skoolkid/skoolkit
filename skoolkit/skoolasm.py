@@ -19,9 +19,10 @@ import re
 
 from skoolkit import (CASE_LOWER, skoolmacro, SkoolKitError, SkoolParsingError,
                       format_template, warn, write_text, wrap)
-from skoolkit.skoolutils import (TableParser, ListParser, TABLE_MARKER,
-                                 TABLE_END_MARKER, LIST_MARKER,
-                                 LIST_END_MARKER)
+from skoolkit.skoolutils import (
+    TableParser, ListParser, LIST_END_MARKER, LIST_MARKER,
+    MAX_SNAPSHOT_STACK_LEN, TABLE_END_MARKER, TABLE_MARKER
+)
 
 BLOCK_SEP = '\x00'
 
@@ -252,6 +253,8 @@ class AsmWriter:
 
         :param name: An optional name for the snapshot.
         """
+        if len(self._snapshots) >= MAX_SNAPSHOT_STACK_LEN:
+            raise SkoolKitError("Cannot push snapshot: snapshot stack is full")
         self._snapshots.append((self.snapshot, name))
         self.snapshot = self.snapshot.copy()
         self.pokes[name].clear()

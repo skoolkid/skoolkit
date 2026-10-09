@@ -1400,7 +1400,10 @@ def parse_pushs(writer, text, index, *cwd):
     end = index
     while end < len(text) and (text[end].isalnum() or text[end] in '$#'):
         end += 1
-    writer.push_snapshot(text[index:end])
+    try:
+        writer.push_snapshot(text[index:end])
+    except SkoolKitError as e:
+        raise MacroParsingError(e.args[0])
     return end, ''
 
 def parse_r(fields, text, index):

@@ -2116,6 +2116,11 @@ class CommonSkoolMacroTest:
         writer.expand('#POPS')
         self.assertEqual(writer.expand('#PEEK49152'), '0')
 
+    def test_macro_pushs_stack_full(self):
+        writer = self._get_writer(snapshot=[0])
+        prefix = ERROR_PREFIX.format('PUSHS')
+        self._assert_error(writer, '#PUSHS ' * 256, 'Cannot push snapshot: snapshot stack is full', prefix)
+
     def test_macro_r_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('R')

@@ -36,7 +36,7 @@ from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import (Frame, GraphicsError, adjust_udgs, build_udg,
                                font_udgs, scr_udgs)
 from skoolkit.refparser import RefParser
-from skoolkit.skoolutils import TableParser, ListParser
+from skoolkit.skoolutils import TableParser, ListParser, MAX_SNAPSHOT_STACK_LEN
 
 #: The ID of the main disassembly.
 MAIN_CODE_ID = 'main'
@@ -474,6 +474,8 @@ class HtmlWriter:
 
         :param name: An optional name for the snapshot.
         """
+        if len(self._snapshots) >= MAX_SNAPSHOT_STACK_LEN:
+            raise SkoolKitError("Cannot push snapshot: snapshot stack is full")
         self._snapshots.append((self.snapshot, name))
         self.snapshot = self.snapshot.copy()
         self.pokes[name].clear()

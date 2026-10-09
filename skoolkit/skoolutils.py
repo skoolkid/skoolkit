@@ -33,6 +33,8 @@ Z80_ASSEMBLER = z80.Assembler()
 
 INDEX_STOP = {None: 65536}
 
+MAX_SNAPSHOT_STACK_LEN = 256
+
 Flags = namedtuple('Flags', 'prepend final overwrite append')
 
 class Memory:
