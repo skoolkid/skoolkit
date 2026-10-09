@@ -4442,6 +4442,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         # Non-existent other code reference
         self._assert_error(writer, '#R24576@nonexistent', "Cannot find code path for 'nonexistent' disassembly", error=SkoolKitError)
 
+        # Non-existent other code reference (single-page)
+        ref = '[Game]\nAsmSinglePage=1'
+        writer = self._get_writer(ref=ref)
+        self._assert_error(writer, '#R24576@nonexistent', "Cannot find code path for 'nonexistent' disassembly", error=SkoolKitError)
+
     def test_macro_raw_in_list(self):
         src = "#LIST { #RAW(#CHR33) } LIST#"
         exp_html = """

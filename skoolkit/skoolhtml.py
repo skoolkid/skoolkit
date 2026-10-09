@@ -500,8 +500,10 @@ class HtmlWriter:
             code_id = self.code_id
         if self.asm_single_page:
             page_id = self._get_asm_page_id(code_id)
-            fname = self.relpath(cwd, self.paths[page_id])
-            return '{}#{}'.format(fname, self.asm_anchor(address, raw))
+            if page_id in self.paths:
+                fname = self.relpath(cwd, self.paths[page_id])
+                return '{}#{}'.format(fname, self.asm_anchor(address, raw))
+            raise SkoolKitError(f"Cannot find code path for '{code_id}' disassembly")
         code_path = self.get_code_path(code_id)
         return self.relpath(cwd, join(code_path, self.asm_fname(address)))
 
