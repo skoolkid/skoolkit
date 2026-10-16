@@ -1,5 +1,5 @@
 Name:           skoolkit
-Version:        10.1
+Version:        %{getenv:SKOOLKIT_VERSION}
 Release:        1
 Summary:        Tools for creating disassemblies of ZX Spectrum programs
 
