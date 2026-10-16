@@ -407,7 +407,8 @@ verify_pip() {
 build_deb() {
   _require_skoolkit
 
-  debname=skoolkit_$VERSION-1_amd64.deb
+  DEB_VERSION=$(dpkg-parsechangelog -l $SKOOLKIT_HOME/debian/changelog -S Version)
+  debname=skoolkit_${DEB_VERSION}_amd64.deb
   deb=$SKOOLKIT_HOME/dist/$debname
   logdir=$SKOOLKIT_HOME/dist
   mkdir -p $logdir
