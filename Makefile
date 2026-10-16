@@ -1,7 +1,7 @@
 NOSE ?= $(shell command -v nose2-3 || command -v nose2)
-$(if $(NOSE),,$(error nose2 not found))
+nose = $(or $(NOSE),$(error nose2 not found))
 COVERAGE ?= $(shell command -v python3-coverage || command -v coverage)
-$(if $(COVERAGE),,$(error coverage not found))
+coverage = $(or $(COVERAGE),$(error coverage not found))
 LSCPU = $(shell command -v lscpu)
 CORES ?= $(if $(LSCPU),$(shell $(LSCPU) -p=SOCKET,CORE | grep -v '^#' | sort -u | wc -l),0)
 OPTIONS = -d build/html -t
@@ -77,19 +77,19 @@ remove-c:
 
 .PHONY: test
 test: remove-disassembly-tests remove-c
-	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES)
+	$(nose) --plugin=nose2.plugins.mp -N $(CORES)
 
 .PHONY: test-c
 test-c: remove-disassembly-tests cmods
-	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES)
+	$(nose) --plugin=nose2.plugins.mp -N $(CORES)
 
 .PHONY: test-all
 test-all: write-disassembly-tests remove-c
-	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES)
+	$(nose) --plugin=nose2.plugins.mp -N $(CORES)
 
 .PHONY: test-c-all
 test-c-all: write-disassembly-tests cmods
-	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES)
+	$(nose) --plugin=nose2.plugins.mp -N $(CORES)
 
 .PHONY: test-3%
 test-3%: remove-disassembly-tests remove-c
@@ -111,37 +111,37 @@ test-c-3%-all: write-disassembly-tests
 
 .PHONY: test-slow
 test-slow: remove-c
-	pypy3 $(NOSE) --plugin=nose2.plugins.mp -N $(CORES) -c tests/slow_test.cfg
+	pypy3 $(nose) --plugin=nose2.plugins.mp -N $(CORES) -c tests/slow_test.cfg
 
 .PHONY: test-c-slow
 test-c-slow: cmods
-	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) -c tests/slow_test.cfg
+	$(nose) --plugin=nose2.plugins.mp -N $(CORES) -c tests/slow_test.cfg
 
 .PHONY: test-cmio
 test-cmio:
 	tools/write-cmiosimulator-tests.py --quiet --vslow
-	pypy3 $(NOSE) --plugin=nose2.plugins.mp -N $(CORES) slow_test_cmiosimulator
+	pypy3 $(nose) --plugin=nose2.plugins.mp -N $(CORES) slow_test_cmiosimulator
 	rm slow_test_cmiosimulator.py
 
 .PHONY: test-c-cmio
 test-c-cmio: cmods
 	tools/write-cmiosimulator-tests.py --quiet --vslow --ccmio
-	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) slow_test_ccmiosimulator
+	$(nose) --plugin=nose2.plugins.mp -N $(CORES) slow_test_ccmiosimulator
 	rm slow_test_ccmiosimulator.py
 
 .PHONY: test-cover
 test-cover: remove-disassembly-tests remove-c
-	$(COVERAGE) run --rcfile .coveragerc-python -m nose2 -s tests
-	$(COVERAGE) report --rcfile .coveragerc-python -m
+	$(coverage) run --rcfile .coveragerc-python -m nose2 -s tests
+	$(coverage) report --rcfile .coveragerc-python -m
 
 .PHONY: test-c-cover
 test-c-cover: remove-disassembly-tests cmods
-	$(COVERAGE) run --rcfile .coveragerc-c -m nose2 -s tests
-	$(COVERAGE) report --rcfile .coveragerc-c -m
+	$(coverage) run --rcfile .coveragerc-c -m nose2 -s tests
+	$(coverage) report --rcfile .coveragerc-c -m
 
 .PHONY: test-c-api
 test-c-api: cmods
-	$(NOSE) --plugin=nose2.plugins.mp -N $(CORES) -s tests csimulator_api_test
+	$(nose) --plugin=nose2.plugins.mp -N $(CORES) -s tests csimulator_api_test
 
 .PHONY: release
 release:
