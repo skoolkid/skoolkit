@@ -29,14 +29,14 @@ fi
 grep -q "^ID=fedora" /etc/os-release && fedora=1 || fedora=0
 
 cd $SKOOLKIT_HOME
-export SKOOLKIT_VERSION=$(./skool2html.py -V 2>&1 | cut -f2 -d' ')
+SKOOLKIT_VERSION=$(./skool2html.py -V 2>&1 | cut -f2 -d' ')
 SKOOLKIT_TAR=skoolkit-${SKOOLKIT_VERSION}.tar.xz
 
 if [ -f "dist/$SKOOLKIT_TAR" ]; then
   echo "Using existing $SKOOLKIT_TAR"
 elif [[ $fedora -eq 1 ]]; then
   echo "Error: No pre-built dist/$SKOOLKIT_TAR found"
-  exit1
+  exit 1
 else
   echo "Building $SKOOLKIT_TAR"
   tools/mksktarball -q -t
@@ -55,6 +55,7 @@ if [ "$PKGTYPE" = "deb" ]; then
 elif [ "$PKGTYPE" = "rpm" ]; then
   if [[ $fedora -eq 1 ]]; then
     FEDORA_HOME=$HOME
+    FEDORA_SK_HOME=$SKOOLKIT_HOME
   else
     FEDORA_HOME=$(ls -1vd ~/distrobox/fedora* | tail -1)
     CONTAINER=$(basename $FEDORA_HOME)
@@ -66,10 +67,11 @@ elif [ "$PKGTYPE" = "rpm" ]; then
   fi
   cp -p dist/$SKOOLKIT_TAR $FEDORA_HOME/rpmbuild/SOURCES/skoolkit-${SKOOLKIT_VERSION}.tar.xz
   rm -f $FEDORA_HOME/rpmbuild/RPMS/x86_64/skoolkit-${SKOOLKIT_VERSION}-*.rpm
+  sed -i "s/^\(Version:[[:space:]]*\).*/\1${SKOOLKIT_VERSION}/" $FEDORA_SK_HOME/rpm/skoolkit.spec
   if [[ $fedora -eq 1 ]]; then
     rpmbuild -bb rpm/skoolkit.spec
   else
-    distrobox enter $CONTAINER -- bash -c 'cd $SKOOLKIT_HOME && rpmbuild -bb rpm/skoolkit.spec'
+    distrobox enter $CONTAINER -- rpmbuild -bb $FEDORA_SK_HOME/rpm/skoolkit.spec
   fi
   mv $FEDORA_HOME/rpmbuild/RPMS/x86_64/skoolkit-${SKOOLKIT_VERSION}-*.rpm $SKOOLKIT_HOME/dist
   echo "Created $(ls $SKOOLKIT_HOME/dist/skoolkit-${SKOOLKIT_VERSION}-*.rpm)"

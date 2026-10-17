@@ -1,6 +1,6 @@
 Name:           skoolkit
-Version:        %{getenv:SKOOLKIT_VERSION}
-Release:        1
+Version:        10.1
+Release:        1%{?dist}
 Summary:        Tools for creating disassemblies of ZX Spectrum programs
 
 License:        GPLv3+

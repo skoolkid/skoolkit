@@ -430,15 +430,14 @@ build_deb() {
 build_rpm() {
   _require_skoolkit
 
-  rpmname=skoolkit-$VERSION-1.x86_64.rpm
-  rpm=$SKOOLKIT_HOME/dist/$rpmname
   logdir=$SKOOLKIT_HOME/dist
   mkdir -p $logdir
 
   sudo rpm -e skoolkit &> /dev/null || true
 
-  _exec "Building $rpmname" "make -C $SKOOLKIT_HOME rpm" $logdir/rpmbuild.log
-  _exec "Installing $rpmname" "sudo rpm -i $rpm" $logdir/rpm-i.log
+  _exec "Building RPM package" "make -C $SKOOLKIT_HOME rpm" $logdir/rpmbuild.log
+  rpm=$(ls -1 $SKOOLKIT_HOME/dist/skoolkit-$VERSION-1*.x86_64.rpm)
+  _exec "Installing $(basename $rpm)" "sudo rpm -i $rpm" $logdir/rpm-i.log
   _check_commands /usr/bin $logdir
   _check_man_pages
   _check_resources $(/usr/bin/skool2html.py -p)/resources $logdir
