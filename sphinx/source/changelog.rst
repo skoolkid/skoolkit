@@ -3,6 +3,7 @@ Changelog
 
 10.2b1
 ------
+* Dropped support for Python 3.10
 * Improved error handling when running SkoolKit commands, expanding skool
   macros, processing ASM directives, and parsing ref files
 * Added support to :ref:`rzxplay.py <rzxplay-conf>` for reading configuration

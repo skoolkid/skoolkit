@@ -236,7 +236,7 @@ test_disassemblies() {
   btslog=$BACKTOSKOOL_HOME/build/tests.log
   mkdir -p $CONTACTSAMCRUISE_HOME/build
   csclog=$CONTACTSAMCRUISE_HOME/build/tests.log
-  targets="test310 test311 test312 test313 test314"
+  targets="test311 test312 test313 test314"
 
   _exec "Hungry Horace tests" "make -C $HUNGRYHORACE_HOME $targets" $hhlog || rc=1
   _exec "Manic Miner tests" "make -C $MANICMINER_HOME $targets" $mmlog || rc=1
@@ -519,7 +519,7 @@ EOF
 
   [[ -f $TARBALL ]] && echo "Found $TARBALL" || _build_tarball
 
-  for dist in jammy noble resolute; do
+  for dist in noble resolute; do
     _cd_tmpdir
     cp -p $TARBALL skoolkit_$VERSION.orig.tar.xz
     tar xf skoolkit_$VERSION.orig.tar.xz
