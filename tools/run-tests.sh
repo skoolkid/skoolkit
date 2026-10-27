@@ -20,7 +20,7 @@ add_suite() {
 }
 
 add_suite cover "tools/check-coverage.sh" "coverage tests"
-add_suite unit "$(echo make test{,-c}-3{11,12,13,14}-all)" "all unit tests"
+add_suite unit "$(echo make test{,-c}-3{11,12,13,14,15}-all)" "all unit tests"
 add_suite slow "make test-slow test-c-slow" "slow tests"
 add_suite capi "make test-c-api" "CSimulator API tests"
 add_suite json "tools/json-test-simulator.sh" "Z80 JSON tests"

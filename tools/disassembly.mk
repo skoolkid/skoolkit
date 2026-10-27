@@ -16,7 +16,7 @@ usage:
 	@echo "  html      build the HTML disassembly"
 	@echo "  asm       build the ASM disassembly"
 	@echo "  test      run tests"
-	@echo "  test3X    run tests with Python 3.X (11<=X<=14)"
+	@echo "  test3X    run tests with Python 3.X (11<=X<=15)"
 	@echo "  snapshot  create $(SNAPSHOT)"
 	@echo ""
 	@echo "Variables:"
