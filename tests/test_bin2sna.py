@@ -287,6 +287,9 @@ class Bin2SnaTest(SkoolKitTestCase):
         exp_ram[org - 16384:org - 16384 + len(data)] = data
         self._check_write_snapshot(args, exp_ram)
 
+    def test_option_o_out_of_range(self):
+        self.address_out_of_range(self.run_bin2sna, '-o {} test.bin')
+
     def test_option_page(self):
         page, data, org = 3, [1, 2, 3], 50000
         exp_ram = [None] * 8
@@ -345,6 +348,9 @@ class Bin2SnaTest(SkoolKitTestCase):
         args = f'-p {sp} {binfile}'
         exp_registers = [f'sp={sp}', 'pc=65535']
         self._check_write_snapshot(args, exp_registers=exp_registers)
+
+    def test_option_p_out_of_range(self):
+        self.address_out_of_range(self.run_bin2sna, '-p {} test.bin')
 
     @patch.object(bin2sna, 'run', mock_run)
     def test_options_P_poke(self):
@@ -515,6 +521,9 @@ class Bin2SnaTest(SkoolKitTestCase):
         args = f'-s {pc} {binfile}'
         exp_registers = [f'sp=65535', f'pc={pc}']
         self._check_write_snapshot(args, exp_registers=exp_registers)
+
+    def test_option_s_out_of_range(self):
+        self.address_out_of_range(self.run_bin2sna, '-s {} test.bin')
 
     @patch.object(bin2sna, 'run', mock_run)
     def test_options_S_state(self):

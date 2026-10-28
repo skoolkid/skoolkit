@@ -1751,6 +1751,9 @@ class SnapinfoTest(SkoolKitTestCase):
         for option in ('-o', '--org'):
             self._test_bin(ram, exp_output, '{} 31758 -p 31759'.format(option))
 
+    def test_option_o_out_of_range(self):
+        self.address_out_of_range(self.run_snapinfo, '-o {} test.sna')
+
     def test_option_p_with_single_address(self):
         ram = [0] * 49152
         address = 31759

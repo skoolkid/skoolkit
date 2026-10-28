@@ -1100,6 +1100,9 @@ class Sna2CtlTest(SkoolKitTestCase):
         for option in ('-e', '--end'):
             self._test_generation('test_e.sna', exp_ctl, options='{} 0x4002'.format(option))
 
+    def test_option_e_out_of_range(self):
+        self.address_out_of_range(self.run_sna2ctl, '-e {} test.sna')
+
     @patch.object(snapshot, 'read_bin_file', Mock(return_value=[201]))
     def test_option_h(self):
         exp_ctl = """
@@ -1309,6 +1312,9 @@ class Sna2CtlTest(SkoolKitTestCase):
             """.format(org, org + 1)
             self._test_generation('test.bin', exp_ctl, options='{} {}'.format(option, value))
 
+    def test_option_o_out_of_range(self):
+        self.address_out_of_range(self.run_sna2ctl, '-o {} test.bin')
+
     @patch.object(sna2ctl, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2ctl, 'get_component', Mock(return_value=MockControlFileGenerator()))
     def test_option_p(self):
@@ -1398,6 +1404,9 @@ class Sna2CtlTest(SkoolKitTestCase):
         exp_ctl = 's {:05d}'.format(start)
         snafile = self.write_bin_file([0] * 49179, suffix='.sna')
         self._test_generation(snafile, exp_ctl, options='-s {}'.format(start))
+
+    def test_option_s_out_of_range(self):
+        self.address_out_of_range(self.run_sna2ctl, '-s {} test.sna')
 
     def test_option_V(self):
         for option in ('-V', '--version'):

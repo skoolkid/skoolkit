@@ -561,6 +561,26 @@ class SkoolKitTestCase(TestCase):
         sys.stdout = self.stdout
         sys.stderr = self.stderr
 
+    def byte_out_of_range(self, func, args_fmt):
+        for byte_val in (-1, 256):
+            output, error = func(args_fmt.format(byte_val), catch_exit=2)
+            self.assertEqual(output, '')
+            error_lines = error.split('\n')
+            self.assertTrue(error_lines[0].startswith(f"usage: {func.__name__[4:]}.py "))
+            self.assertTrue(error_lines[1].endswith(f": byte value out of range: '{byte_val}'"))
+
+    def address_out_of_range(self, func, args_fmt):
+        for addr in (-1, 65536):
+            output, error = func(args_fmt.format(addr), catch_exit=2)
+            self.assertEqual(output, '')
+            error_lines = error.rstrip().split('\n')
+            if error_lines[0] == 'usage: ':
+                self.assertTrue(error_lines[1].startswith(f"  {func.__name__[4:]}.py "))
+                self.assertTrue(error_lines[2].startswith(f"  {func.__name__[4:]}.py "))
+            else:
+                self.assertTrue(error_lines[0].startswith(f"usage: {func.__name__[4:]}.py "))
+            self.assertTrue(error_lines[-1].endswith(f": address out of range: '{addr}'"))
+
     def input_file_not_found(self, func, *args, fname=None, prefix=''):
         fname = fname or args[-1]
         with self.assertRaises(SkoolKitError) as cm:

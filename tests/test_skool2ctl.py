@@ -150,6 +150,9 @@ class Skool2CtlTest(SkoolKitTestCase):
             skool2ctl.main((option, str(start), skoolfile))
             self._check_ctl_writer(skoolfile, min_address=int(start[2:], 16))
 
+    def test_option_S_out_of_range(self):
+        self.address_out_of_range(self.run_skool2ctl, '-S {} test.skool')
+
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
     def test_option_E(self):
         skoolfile = 'test.skool'
@@ -171,6 +174,9 @@ class Skool2CtlTest(SkoolKitTestCase):
         end = 32768
         skool2ctl.main(('-S', str(start), '-E', str(end), skoolfile))
         self._check_ctl_writer(skoolfile, min_address=start, max_address=end)
+
+    def test_option_E_out_of_range(self):
+        self.address_out_of_range(self.run_skool2ctl, '-E {} test.skool')
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
     def test_option_I(self):

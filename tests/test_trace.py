@@ -1885,6 +1885,9 @@ class TraceTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             self.assertEqual(exp_output, output.rstrip())
 
+    def test_option_o_out_of_range(self):
+        self.address_out_of_range(self.run_trace, '-o {} test.bin')
+
     def test_option_poke(self):
         data = [
             33, 0, 192, # LD HL,49152
@@ -2140,6 +2143,12 @@ class TraceTest(SkoolKitTestCase):
         path = os.path.join('nope', 'not-allowed.rom')
         args = ('--rom', path, '-no', '30000', '-S', '30001', binfile)
         self.output_file_permission_denied(self.run_trace, args, path=path)
+
+    def test_option_s_out_of_range(self):
+        self.address_out_of_range(self.run_trace, '-s {} test.sna')
+
+    def test_option_S_out_of_range(self):
+        self.address_out_of_range(self.run_trace, '-S {} test.sna')
 
     @patch.object(trace, 'get_screen', mock_get_screen)
     def test_option_screen(self):

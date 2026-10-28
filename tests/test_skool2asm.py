@@ -276,6 +276,9 @@ class Skool2AsmTest(SkoolKitTestCase):
             self.assertTrue(mock_asm_writer.wrote)
             mock_asm_writer.wrote = False
 
+    def test_option_S_out_of_range(self):
+        self.address_out_of_range(self.run_skool2asm, '-S {} test.skool')
+
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_E(self):
@@ -306,6 +309,9 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(mock_skool_parser.min_address, start)
         self.assertEqual(mock_skool_parser.max_address, end)
         self.assertTrue(mock_asm_writer.wrote)
+
+    def test_option_E_out_of_range(self):
+        self.address_out_of_range(self.run_skool2asm, '-E {} test.skool')
 
     def test_option_V(self):
         for option in ('-V', '--version'):

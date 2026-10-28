@@ -613,6 +613,9 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.assertTrue(error.startswith('usage: sna2img.py'))
             self.assertTrue(error.endswith("error: argument -O/--org: invalid integer: '{}'\n".format(a)))
 
+    def test_option_O_out_of_range(self):
+        self.address_out_of_range(self.run_sna2img, '-O {} test.scr')
+
     @patch.object(sna2img, 'run', mock_run)
     def test_options_p_poke(self):
         for option, value in (('-p', '32768,0'), ('--poke', '30000-30009,5')):

@@ -524,6 +524,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertIn(f'sp={stack}', s_reg)
 
+    def test_option_p_out_of_range(self):
+        self.address_out_of_range(self.run_tap2sna, '-p {} test.tap')
+
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     @patch.object(tap2sna, 'get_screen', mock_get_screen)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
@@ -621,6 +624,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'-s {start} --ram load=1,16384 {tapfile} out.z80')
         self.assertEqual(error, '')
         self.assertIn(f'pc={start}', s_reg)
+
+    def test_option_s_out_of_range(self):
+        self.address_out_of_range(self.run_tap2sna, '-s {} test.tap')
 
     def test_option_tape_analysis_with_no_tape(self):
         output, error = self.run_tap2sna('--tape-analysis', catch_exit=2)

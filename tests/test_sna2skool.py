@@ -387,6 +387,9 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(mock_ctl_parser.max_address, end)
         self.assertTrue(mock_skool_writer.wrote_skool)
 
+    def test_option_e_out_of_range(self):
+        self.address_out_of_range(self.run_sna2skool, '-e {} test.sna')
+
     @patch.object(sna2skool, 'run', mock_run)
     def test_option_I(self):
         for option, spec, attr, exp_value in (('-I', 'Base=16', 'base', 16), ('--ini', 'Case=1', 'case', 1)):
@@ -455,6 +458,9 @@ class Sna2SkoolTest(SkoolKitTestCase):
             self.assertEqual({org: 'c', org + 1: 'i'}, mock_ctl_parser.ctls)
             self.assertEqual(mock_skool_writer.snapshot[org], 201)
             self.assertTrue(mock_skool_writer.wrote_skool)
+
+    def test_option_o_out_of_range(self):
+        self.address_out_of_range(self.run_sna2skool, '-o {} test.sna')
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
@@ -643,6 +649,9 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(mock_ctl_parser.min_address, start)
         self.assertEqual(mock_ctl_parser.max_address, end)
         self.assertTrue(mock_skool_writer.wrote_skool)
+
+    def test_option_s_out_of_range(self):
+        self.address_out_of_range(self.run_sna2skool, '-s {} test.sna')
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)

@@ -288,6 +288,9 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(len(error), 0)
             self._check_values(skoolfile, exp_binfile, end=int(value[2:], 16))
 
+    def test_option_E_out_of_range(self):
+        self.address_out_of_range(self.run_skool2bin, '-E {} test.skool')
+
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_I(self):
         skoolfile = 'in.skool'
@@ -413,6 +416,9 @@ class Skool2BinTest(SkoolKitTestCase):
             output, error = self.run_skool2bin('{} {} {}'.format(option, value, skoolfile))
             self.assertEqual(len(error), 0)
             self._check_values(skoolfile, exp_binfile, start=int(value[2:], 16))
+
+    def test_option_S_out_of_range(self):
+        self.address_out_of_range(self.run_skool2bin, '-S {} test.skool')
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_v(self):

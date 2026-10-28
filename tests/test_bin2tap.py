@@ -718,6 +718,9 @@ class Bin2TapTest(SkoolKitTestCase):
         blocks = self._run(f'-b {begin} -c {clear} --7ffd 1 {snafile}')
         self._check_tape_with_clear_command(blocks, data, snafile, clear, begin)
 
+    def test_option_7ffd_out_of_range(self):
+        self.byte_out_of_range(self.run_bin2tap, '--7ffd {} test.bin')
+
     def test_option_banks(self):
         data = [128, 129, 130]
         begin = 49152 - len(data)
@@ -810,6 +813,9 @@ class Bin2TapTest(SkoolKitTestCase):
         blocks = self._run('-b 0x{:04X} {}'.format(begin, sna))
         self._check_tape(blocks, data, sna, begin)
 
+    def test_option_b_out_of_range(self):
+        self.address_out_of_range(self.run_bin2tap, '-b {} test.bin')
+
     def test_option_c(self):
         org = 40000
         bin_data = range(25)
@@ -848,6 +854,9 @@ class Bin2TapTest(SkoolKitTestCase):
                 self.run_bin2tap(f'--clear {c_addr} --banks {bnums} --7ffd 0 -b 49151 {binfile}')
             self.assertEqual(cm.exception.args[0], exp_error)
 
+    def test_option_c_out_of_range(self):
+        self.address_out_of_range(self.run_bin2tap, '-c {} test.bin')
+
     def test_option_loader_with_address_above_0xbfff(self):
         binfile = self.write_bin_file([0] * 0x20000, suffix='.bin')
         with self.assertRaises(SkoolKitError) as cm:
@@ -866,6 +875,9 @@ class Bin2TapTest(SkoolKitTestCase):
                 self.run_bin2tap(f'--loader {l_addr} --banks {bnums} --7ffd 0 -b 49151 -c 32768 {binfile}')
             self.assertEqual(cm.exception.args[0], exp_error)
 
+    def test_option_loader_out_of_range(self):
+        self.address_out_of_range(self.run_bin2tap, '--loader {} test.bin')
+
     def test_option_o(self):
         org = 40000
         bin_data = range(50)
@@ -880,6 +892,9 @@ class Bin2TapTest(SkoolKitTestCase):
         for option, org in (('-o', '0x800f'), ('--org', '0xAB00')):
             blocks = self._run('{} {} {}'.format(option, org, binfile))
             self._check_tape(blocks, bin_data, binfile, org=int(org[2:], 16))
+
+    def test_option_o_out_of_range(self):
+        self.address_out_of_range(self.run_bin2tap, '-o {} test.bin')
 
     def test_option_s(self):
         bin_data = range(100)
@@ -903,6 +918,9 @@ class Bin2TapTest(SkoolKitTestCase):
         blocks = self._run(f'-s 0 {binfile}')
         self._check_tape(blocks, bin_data, binfile, start=0)
 
+    def test_option_s_out_of_range(self):
+        self.address_out_of_range(self.run_bin2tap, '-s {} test.bin')
+
     def test_option_p(self):
         stack = 32768
         bin_data = range(64)
@@ -924,6 +942,9 @@ class Bin2TapTest(SkoolKitTestCase):
         binfile = self.write_bin_file(bin_data, suffix='.bin')
         blocks = self._run(f'-p 0 {binfile}')
         self._check_tape(blocks, bin_data, binfile, stack=0)
+
+    def test_option_p_out_of_range(self):
+        self.address_out_of_range(self.run_bin2tap, '-p {} test.bin')
 
     def test_data_overwrites_stack(self):
         bin_data = [0] * 10
@@ -984,6 +1005,9 @@ class Bin2TapTest(SkoolKitTestCase):
         sna = self.write_bin_file([0] * 27 + ram, suffix='.sna')
         blocks = self._run('-b {} -e 0x{:04X} {}'.format(begin, end, sna))
         self._check_tape(blocks, data, sna, begin)
+
+    def test_option_e_out_of_range(self):
+        self.address_out_of_range(self.run_bin2tap, '-e {} test.bin')
 
     def test_options_b_and_e(self):
         org, begin, end = 60000, 60005, 60010
