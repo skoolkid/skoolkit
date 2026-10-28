@@ -260,6 +260,9 @@ HARDWARE_INFO = {
 
 CHARS = {9: '\t', 13: '\n'}
 
+class TapeError(SkoolKitError):
+    pass
+
 class Tape:
     def __init__(self, blocks, version=None, warnings=(), error=None):
         self.blocks = blocks
@@ -926,7 +929,7 @@ def parse_pzx(pzx, start=1, stop=0, skip=()):
     if isinstance(pzx, str):
         pzx = read_bin_file(pzx)
     if len(pzx) < 8 or pzx[:4] != b'PZXT':
-        raise SkoolKitError('Not a PZX file')
+        raise TapeError('Not a PZX file')
     blocks = []
     block_num = 1
     rom_pilot = False
@@ -974,11 +977,11 @@ def parse_tzx(tzx, start=1, stop=0, skip=(), info=True, timings=False):
     if isinstance(tzx, str):
         tzx = read_bin_file(tzx)
     if tzx[:8] != b'ZXTape!\x1a':
-        raise SkoolKitError('Not a TZX file')
+        raise TapeError('Not a TZX file')
     try:
         version = f'{tzx[8]}.{tzx[9]:02}'
     except IndexError:
-        raise SkoolKitError('TZX version number not found')
+        raise TapeError('TZX version number not found')
     blocks = []
     block_num = 1
     i = 10

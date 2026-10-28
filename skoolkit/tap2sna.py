@@ -39,7 +39,7 @@ from skoolkit.simulator import Simulator
 from skoolkit.simutils import PC, T, from_memory, get_state
 from skoolkit.snapshot import (move, patch, poke, print_reg_help,
                                print_state_help, write_snapshot)
-from skoolkit.tape import parse_pzx, parse_tap, parse_tzx
+from skoolkit.tape import TapeError, parse_pzx, parse_tap, parse_tzx
 from skoolkit.traceutils import get_operand_formats, get_trace_line
 
 SUPPORTED_TAPES = ('.pzx', '.tap', '.tzx')
@@ -379,9 +379,6 @@ class SkoolKitArgumentParser(argparse.ArgumentParser):
         if arg:
             args.append(arg)
         return args
-
-class TapeError(Exception):
-    pass
 
 def _write_snapshot(ram, options, fname):
     parent_dir = os.path.dirname(fname)
@@ -1113,6 +1110,6 @@ def main(args):
                 break
     try:
         make_snapshot(urls, namespace, outfile, config)
-    except (URLError, SkoolKitError, TapeError) as e:
+    except (URLError, TapeError) as e:
         inputs = ' and '.join(os.path.basename(u) for u in urls)
         raise SkoolKitError("Error while converting {}: {}".format(inputs, e.args[0] if e.args else e))

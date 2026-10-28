@@ -220,8 +220,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             options = '--ram load=1,16384 ' + options
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{options} {tapfile} test.z80')
-        prefix = ERROR_PREFIX.format(tapfile)
-        self.assertEqual(cm.exception.args[0], prefix + exp_error)
+        self.assertEqual(cm.exception.args[0], exp_error)
 
     @patch.object(tap2sna, 'make_snapshot', mock_make_snapshot)
     def test_default_option_values(self):
@@ -304,8 +303,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         tapfile = self._write_tap(blocks)
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'-c foo=bar {tapfile} out.z80')
-        prefix = ERROR_PREFIX.format(tapfile)
-        self.assertEqual(cm.exception.args[0], prefix + 'Invalid sim-load configuration parameter: foo')
+        self.assertEqual(cm.exception.args[0], 'Invalid sim-load configuration parameter: foo')
         self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
@@ -960,8 +958,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             archive.write(bytes(int(ENCRYPTED_ZIP[i:i + 2], 16) for i in range(0, len(ENCRYPTED_ZIP), 2)))
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'--tape-name x.tap {zipfile} out.z80')
-        prefix = ERROR_PREFIX.format(zipfile)
-        self.assertEqual(cm.exception.args[0], prefix + "File 'x.tap' is encrypted, password required for extraction")
+        self.assertEqual(cm.exception.args[0], "File 'x.tap' is encrypted, password required for extraction")
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
@@ -1337,48 +1334,38 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(output, f'SkoolKit {VERSION}\n')
 
     def test_nonexistent_tap_file(self):
-        fname = 'nonexistent.tap'
-        prefix = ERROR_PREFIX.format(fname)
-        self.input_file_not_found(self.run_tap2sna, fname, prefix=prefix)
+        self.input_file_not_found(self.run_tap2sna, 'nonexistent.tap')
 
     def test_nonexistent_tap_file_two_of_two(self):
         tapfile1 = self._write_tap([create_tap_data_block([1])])
         tapfile2 = 'non-existent.tap'
         args = ('--ram', 'load=1,16384', tapfile1, tapfile2, 'test.z80')
-        prefix = ERROR_PREFIX.format(f'{tapfile1} and {tapfile2}')
-        self.input_file_not_found(self.run_tap2sna, args, fname=tapfile2, prefix=prefix)
+        self.input_file_not_found(self.run_tap2sna, args, fname=tapfile2)
 
     def test_input_file_is_a_directory(self):
-        dname = 'dir.tap'
-        prefix = ERROR_PREFIX.format(dname)
-        self.input_file_is_a_directory(self.run_tap2sna, dname, prefix=prefix)
+        self.input_file_is_a_directory(self.run_tap2sna, 'dir.tap')
 
     def test_input_file_permission_denied(self):
-        fname = 'nope.tap'
-        prefix = ERROR_PREFIX.format(fname)
-        self.input_file_permission_denied(self.run_tap2sna, fname, prefix=prefix)
+        self.input_file_permission_denied(self.run_tap2sna, 'nope.tap')
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     def test_output_file_is_a_directory(self):
         tapfile = self._write_tap([create_tap_data_block([1])])
         dname = 'dir.z80'
-        prefix = ERROR_PREFIX.format(tapfile)
-        self.output_file_is_a_directory(self.run_tap2sna, (tapfile, dname), dname=dname, prefix=prefix)
+        self.output_file_is_a_directory(self.run_tap2sna, (tapfile, dname), dname=dname)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     def test_output_file_permission_denied(self):
         tapfile = self._write_tap([create_tap_data_block([1])])
         path = os.path.join('nope', 'not-allowed.z80')
-        prefix = ERROR_PREFIX.format(tapfile)
-        self.output_file_permission_denied(self.run_tap2sna, (tapfile, path), path=path, prefix=prefix)
+        self.output_file_permission_denied(self.run_tap2sna, (tapfile, path), path=path)
 
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
     def test_output_directory_permission_denied(self):
         tapfile = self._write_tap([create_tap_data_block([1])])
         path = os.path.join('nope', 'subdir')
         outfile = os.path.join(path, 'out.z80')
-        prefix = ERROR_PREFIX.format(tapfile)
-        self.output_directory_permission_denied(self.run_tap2sna, (tapfile, outfile), path=path, prefix=prefix)
+        self.output_directory_permission_denied(self.run_tap2sna, (tapfile, outfile), path=path)
 
     def test_load_nonexistent_block(self):
         tapfile = self._write_tap([create_tap_data_block([1])])
@@ -1402,8 +1389,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         badzip = self.write_bin_file((1, 2, 3), suffix='.zip')
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'{badzip} out.z80')
-        prefix = ERROR_PREFIX.format(badzip)
-        self.assertEqual(cm.exception.args[0], prefix + 'File is not a zip file')
+        self.assertEqual(cm.exception.args[0], 'File is not a zip file')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_ram_call(self):
@@ -1600,15 +1586,13 @@ class Tap2SnaTest(SkoolKitTestCase):
         tapfile = self._write_tap([create_tap_data_block([1])])
         fname = 'nonexistent.bin'
         args = ('--ram', 'load=1,32768', '--ram', f'patch=32768,{fname}', tapfile)
-        prefix = ERROR_PREFIX.format(tapfile)
-        self.input_file_not_found(self.run_tap2sna, args, fname=fname, prefix=prefix)
+        self.input_file_not_found(self.run_tap2sna, args, fname=fname)
 
     def test_ram_patch_file_is_a_directory(self):
         tapfile = self._write_tap([create_tap_data_block([1])])
         dname = 'dir.bin'
         args = ('--ram', 'load=1,32768', '--ram', f'patch=32768,{dname}', tapfile)
-        prefix = ERROR_PREFIX.format(tapfile)
-        self.input_file_is_a_directory(self.run_tap2sna, args, dname=dname, prefix=prefix)
+        self.input_file_is_a_directory(self.run_tap2sna, args, dname=dname)
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_ram_poke_single_address(self):
@@ -3293,16 +3277,14 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_sim_load_with_trace_log_file_is_a_directory(self):
         tapfile = self._write_tap([create_tap_data_block([1])])
         dname = 'dir.log'
-        prefix = ERROR_PREFIX.format(tapfile)
         args = ('-c', f'trace={dname}', tapfile, 'out.z80')
-        self.output_file_is_a_directory(self.run_tap2sna, args, dname=dname, prefix=prefix)
+        self.output_file_is_a_directory(self.run_tap2sna, args, dname=dname)
 
     def test_sim_load_with_trace_log_file_permission_denied(self):
         tapfile = self._write_tap([create_tap_data_block([1])])
         path = os.path.join('nope', 'not-allowed.log')
-        prefix = ERROR_PREFIX.format(tapfile)
         args = ('-c', f'trace={path}', tapfile, 'out.z80')
-        self.output_file_permission_denied(self.run_tap2sna, args, path=path, prefix=prefix)
+        self.output_file_permission_denied(self.run_tap2sna, args, path=path)
 
     def test_sim_load_config_help(self):
         for option in ('-c', '--sim-load-config'):
@@ -3755,8 +3737,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         tapfile = self._write_tap([create_tap_data_block([0])])
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna(f'-c load=PC=? {tapfile}')
-        prefix = ERROR_PREFIX.format(tapfile)
-        self.assertEqual(cm.exception.args[0], prefix + "Invalid integer in 'load' parameter: PC=?")
+        self.assertEqual(cm.exception.args[0], "Invalid integer in 'load' parameter: PC=?")
 
     @patch.object(tap2sna, 'KeyboardTracer', MockKeyboardTracer)
     @patch.object(tap2sna, 'LoadTracer', MockLoadTracer)
@@ -3910,11 +3891,10 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(screen, 'pygame', MockPygame)
     def test_config_ScreenScale_invalid(self):
         tapfile = self._write_tap([create_tap_data_block([0])])
-        prefix = ERROR_PREFIX.format(tapfile)
         for scale in (-1, 0):
             with self.assertRaises(SkoolKitError) as cm:
                 self.run_tap2sna(f'-I ScreenScale={scale} --screen {tapfile}')
-            self.assertEqual(cm.exception.args[0], f'{prefix}Invalid screen scale: {scale}')
+            self.assertEqual(cm.exception.args[0], f'Invalid screen scale: {scale}')
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     def test_config_TraceHeader_read_from_file(self):
@@ -4251,16 +4231,14 @@ class Tap2SnaTest(SkoolKitTestCase):
         args = f'-I TraceOperand=$,q,04X -c trace=trace.log --start 1343 {tapfile} out.z80'
         with self.assertRaises(SkoolKitError) as cm:
             output, error = self.run_tap2sna(args)
-        prefix = ERROR_PREFIX.format(tapfile)
-        self.assertEqual(cm.exception.args[0], prefix + "Invalid byte format specifier: Unknown format code 'q' for object of type 'int'")
+        self.assertEqual(cm.exception.args[0], "Invalid byte format specifier: Unknown format code 'q' for object of type 'int'")
 
     def test_config_TraceOperand_with_invalid_word_format(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
         args = f'-I TraceOperand=$,02X,y -c trace=trace.log --start 1343 {tapfile} out.z80'
         with self.assertRaises(SkoolKitError) as cm:
             output, error = self.run_tap2sna(args)
-        prefix = ERROR_PREFIX.format(tapfile)
-        self.assertEqual(cm.exception.args[0], prefix + "Invalid word format specifier: Unknown format code 'y' for object of type 'int'")
+        self.assertEqual(cm.exception.args[0], "Invalid word format specifier: Unknown format code 'y' for object of type 'int'")
 
     @patch.object(tap2sna, 'write_snapshot', mock_write_snapshot)
     @patch.object(tap2sna, 'urlopen')
@@ -4425,10 +4403,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], f'{prefix}[Errno -2] Name or service not known')
 
     def test_malformed_url(self):
-        prefix = ERROR_PREFIX.format('test.tap')
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna('http://[::1/test.tap out.z80')
-        self.assertEqual(cm.exception.args[0], f'{prefix}Invalid IPv6 URL')
+        self.assertEqual(cm.exception.args[0], 'Invalid IPv6 URL')
 
     @patch.object(tap2sna, 'write_snapshot', null_write_snapshot)
     def test_dec_a(self):

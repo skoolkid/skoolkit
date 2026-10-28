@@ -1,6 +1,5 @@
 from skoolkittest import SkoolKitTestCase, as_dword
-from skoolkit.tape import (SkoolKitError, parse_pzx, parse_tzx, write_pzx,
-                           write_tap)
+from skoolkit.tape import TapeError, parse_pzx, parse_tzx, write_pzx, write_tap
 
 def get_pzx_blocks(fname):
     blocks = []
@@ -48,7 +47,7 @@ class PZXTest(SkoolKitTestCase):
 
     def test_pzx_file_too_short(self):
         pzx = b'PZXT'
-        with self.assertRaises(SkoolKitError) as cm:
+        with self.assertRaises(TapeError) as cm:
             parse_pzx(pzx)
         self.assertEqual(cm.exception.args[0], 'Not a PZX file')
 

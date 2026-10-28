@@ -21,7 +21,7 @@ from skoolkit.basic import TextReader
 from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import R1
 from skoolkit.simutils import A, D, E, F, H, IXh, IXl, SP, PC, T, IFF
-from skoolkit.tape import get_edges
+from skoolkit.tape import TapeError, get_edges
 from skoolkit.traceutils import Registers, disassemble
 
 DEC = tuple(tuple((
@@ -57,7 +57,7 @@ class LoadTracer(PagingTracer):
         self.frame_duration = simulator.frame_duration
         self.edges, self.blocks = get_edges(blocks, config['first_edge'], config['polarity'])
         if not self.blocks:
-            raise SkoolKitError('Tape contains no data')
+            raise TapeError('Tape contains no data')
         self.keys = None
         self.pause = config['pause']
         self.in_min_addr = config['in_min_addr']
@@ -406,7 +406,7 @@ class LoadTracer(PagingTracer):
         if self.block_index < len(self.blocks):
             data_block = self.blocks[self.block_index]
         else:
-            raise SkoolKitError("Failed to fast load block: unexpected end of tape")
+            raise TapeError("Failed to fast load block: unexpected end of tape")
         if not data_block.fast_load:
             return False
 
