@@ -8,6 +8,8 @@ Changelog
   macros, processing ASM directives, and parsing ref files
 * Added a ``<meta name="viewport" ... />`` element to the :ref:`t_Layout` HTML
   template (to improve font sizes on small screens)
+* Adjusted the default HTML theme to reduce the need for horizontal scrolling
+  on small screens
 * Added support to :ref:`rzxplay.py <rzxplay-conf>` for reading configuration
   from `skoolkit.ini`
 * Added the ``--ini`` and ``--show-config`` options to :ref:`rzxplay.py` (for

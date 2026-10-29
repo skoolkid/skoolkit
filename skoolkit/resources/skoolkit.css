@@ -23,9 +23,6 @@ table.header td {
   padding-top: 0;
   padding-bottom: 0;
 }
-td.page-header {
-  white-space: nowrap;
-}
 div.section-header {
   font-weight: bold;
   font-size: 125%;
@@ -209,4 +206,15 @@ div.list-entry-desc {
 ul.list-entry {
   margin-top: 5px;
   margin-bottom: 0;
+}
+@media (max-width: 767px) {
+  div.box, div.list-entry {
+    width: auto;
+  }
+  table.disassembly {
+    width: 100%;
+  }
+  img {
+    max-width: 100%;
+  }
 }
