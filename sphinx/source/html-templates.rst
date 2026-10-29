@@ -66,6 +66,9 @@ To see the default ``Layout`` template, run the following command::
 
   $ skool2html.py -r Template:Layout
 
+.. versionchanged:: 10.2
+   Added a ``<meta name="viewport" ... />`` element.
+
 .. versionadded:: 8.0
 
 .. _t_asm:

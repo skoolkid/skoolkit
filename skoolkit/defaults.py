@@ -281,6 +281,7 @@ SECTIONS['Template:Layout'] = """
 <head>
 <title>{Game[Game]}: {SkoolKit[title]}</title>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <# foreach($css,SkoolKit[stylesheets]) #>
 <link rel="stylesheet" type="text/css" href="{$css[href]}" />
 <# endfor #>

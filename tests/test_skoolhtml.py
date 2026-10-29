@@ -134,6 +134,7 @@ HEADER = """<!DOCTYPE html>
 <head>
 <title>{name}: {title}</title>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />
 {script}
 </head>
@@ -150,6 +151,7 @@ PREFIX_HEADER = """<!DOCTYPE html>
 <head>
 <title>{name}: {title}</title>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />
 {script}
 </head>
@@ -167,6 +169,7 @@ INDEX_HEADER = """<!DOCTYPE html>
 <head>
 <title>{name}: {title}</title>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />
 {script}
 </head>
@@ -6953,7 +6956,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertFalse(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '30000.html'), True)
-        line_no = 33
+        line_no = 34
         for inst, address in (
             ('CALL', 30003),
             ('JP', 30006),
@@ -6977,7 +6980,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertTrue(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '40000.html'), True)
-        line_no = 33
+        line_no = 34
         for inst, address in (
             ('CALL', 40003),
             ('JP', 40006),
@@ -7008,7 +7011,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertEqual(writer.lio_min_distance, 4)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '50000.html'), True)
-        line_no = 33
+        line_no = 34
         for inst, linked in (
             ('JR', True),
             ('CALL', True),
@@ -7048,7 +7051,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             writer.write_asm_entries()
             html = self._read_file(join(ASMDIR, '32769.html'), True)
             link = '<a href="32768.html">32768</a>'
-            line_no = 34
+            line_no = 35
             for prefix in ('CALL ', 'DEFW ', 'DJNZ ', 'JP ', 'JR ', 'LD HL,'):
                 inst_type = prefix.split()[0]
                 exp_html = prefix + (link if inst_type in link_operands else '32768')
