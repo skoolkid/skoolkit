@@ -4008,6 +4008,23 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, scale=2)
 
+    def test_macro_plot_with_negative_coordinates(self):
+        snapshot = [2] * 8 + [0] * 8
+        macros = (
+            '#UDGARRAY2(0;8;0;8)(*f)',
+            '#PLOT(-1,0)(f)',    # Set bit at (15,0)
+            '#PLOT(-10,0,0)(f)', # Reset bit at (6,0)
+            '#PLOT(-1,-1)(f)',   # Set bit at (15,15)
+            '#PLOT(6,-9,0)(f)',  # Reset bit at (6,7)
+            '#FRAMES(f)(img)'
+        )
+        exp_image_path = f'{UDGDIR}/img.png'
+        exp_udgs = [
+            [Udg(56, [0] + [2] * 6 + [0]), Udg(56, [1] + [0] * 7)],
+            [Udg(56, [2] * 8), Udg(56, [0] * 7 + [1])]
+        ]
+        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, scale=2)
+
     def test_macro_plot_with_replacement_fields(self):
         snapshot = [0] * 8
         macros = (
@@ -4026,8 +4043,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = [0] * 8
         macros = (
             '#UDG0(*f)',
-            '#PLOT8,0(f)', # No effect
-            '#PLOT0,8(f)', # No effect
+            '#PLOT8,0(f)',    # No effect
+            '#PLOT0,8(f)',    # No effect
+            '#PLOT(-9,0)(f)', # No effect
+            '#PLOT(0,-9)(f)', # No effect
             '#FRAMES(f)(udg)'
         )
         exp_image_path = '{}/udg.png'.format(UDGDIR)

@@ -2282,7 +2282,7 @@ already created by one of the other image macros. ::
   #PLOTx,y[,value](frame)
 
 * ``x`` and ``y`` are the coordinates of the pixel, relative to the top-left
-  corner of the frame
+  corner of the frame; negative coordinates are allowed
 * ``value`` is 0 to reset the pixel, 1 to set it (the default), or 2 to flip it
 * ``frame`` is the name of the frame
 
