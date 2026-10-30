@@ -15,7 +15,7 @@ class TestLoadTracer:
         self.border = [(0, 1)]
         self.edges = array.array('Q', (0, 1))
         self.in_min_addr = 0
-        self.state = array.array('Q', (0, 1))
+        self.state = array.array('Q', range(10))
         self.fast_load = lambda: None
         self.list_accelerators = False
         self.accel_dec_a = 1
