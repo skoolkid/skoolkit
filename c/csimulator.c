@@ -5080,13 +5080,18 @@ static PyObject* convert_memory(PyObject* source) {
         goto done;
     }
     while (mem_ok == 0 && addr < size && (item = PyIter_Next(mem_iter)) != NULL) {
+        long value = 0;
         if (PyLong_Check(item)) {
-            mem[addr] = PyLong_AsLong(item) & 0xFF;
+            value = PyLong_AsLong(item);
+            if (PyErr_Occurred()) {
+                mem_ok = -1;
+            }
         } else {
             PyErr_Format(PyExc_TypeError, "Object at memory address %u is not an integer", addr);
             mem_ok = -1;
         }
         Py_DECREF(item);
+        mem[addr] = value & 0xFF;
         addr += 1;
     }
     Py_DECREF(mem_iter);
@@ -5326,6 +5331,11 @@ static PyObject* CSimulator_exec_frame(CSimulatorObject* self, PyObject* args, P
         return NULL;
     }
 
+    if (exec_map != Py_None && !PySet_Check(exec_map)) {
+        PyErr_SetString(PyExc_TypeError, "'exec_map' is not a set");
+        return NULL;
+    }
+
     unsigned long long* reg = self->registers;
     byte* mem = self->memory;
     unsigned pc;
@@ -5401,6 +5411,11 @@ static PyObject* CSimulator_trace(CSimulatorObject* self, PyObject* args, PyObje
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOKKpOOOOO", kwlist, &start_obj, &stop_obj, &max_operations,
                                      &max_time, &interrupts, &draw, &exec_map, &keyboard, &disassemble, &trace)) {
+        return NULL;
+    }
+
+    if (exec_map != Py_None && !PySet_Check(exec_map)) {
+        PyErr_SetString(PyExc_TypeError, "'exec_map' is not a set");
         return NULL;
     }
 
@@ -5523,6 +5538,11 @@ static PyObject* CSimulator_press_keys(CSimulatorObject* self, PyObject* args, P
         return NULL;
     }
 
+    if (!PyList_Check(keys)) {
+        PyErr_SetString(PyExc_TypeError, "'keys' is not a list");
+        return NULL;
+    }
+
     PyObject* border = PyObject_GetAttrString(self->tracer, "border");
     if (border == NULL) {
         return NULL;
@@ -5633,6 +5653,11 @@ static PyObject* CSimulator_press(CSimulatorObject* self, PyObject* args, PyObje
 
     if (self->tracer == NULL) {
         PyErr_SetString(PyExc_ValueError, "no tracer set");
+        return NULL;
+    }
+
+    if (!PyList_Check(keys)) {
+        PyErr_SetString(PyExc_TypeError, "'keys' is not a list");
         return NULL;
     }
 
@@ -5838,6 +5863,9 @@ static int get_tsl_accelerators(PyObject* accelerators, tsl_accelerator* accs) {
         PyObject* polarity_obj = PyObject_GetAttrString(item, "polarity");
         if (name == NULL || code_obj == NULL || c0_obj == NULL || c1_obj == NULL || counter_obj == NULL || inc_obj == NULL ||
             loop_time_obj == NULL || loop_r_inc_obj == NULL || ear_obj == NULL || ear_mask_obj == NULL || polarity_obj == NULL) {
+            ok = 0;
+        } else if (!PyList_Check(code_obj)) {
+            PyErr_SetString(PyExc_TypeError, "accelerator code is not a list");
             ok = 0;
         } else {
             accelerator->c0 = PyLong_AsLong(c0_obj);
