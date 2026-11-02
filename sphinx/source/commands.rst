@@ -237,8 +237,8 @@ To list the options supported by `rzxplay.py`, run it with no arguments::
     -c, --cmio       Simulate memory and I/O contention and the MEMPTR register.
     --flags FLAGS    Set playback flags. Do '--flags help' for more information.
     --force          Force playback when an unsupported machine is detected.
-    --fps FPS        Run at this many frames per second (default: 50). 0 means
-                     maximum speed.
+    --fps FPS        Run at this many frames per second (default: 50). 0 or
+                     negative FPS means run at maximum speed.
     -I, --ini p=v    Set the value of the configuration parameter 'p' to 'v'.
                      This option may be used multiple times.
     --map FILE       Log addresses of executed instructions to a file.
@@ -312,7 +312,9 @@ configuration parameters are:
 * ``Screen`` - display screen contents while running (``1``, the default), or
   don't (``0``)
 * ``ScreenFps`` - screen refresh rate in frames per second (default: ``50``);
-  if set to 0, `rzxplay.py` runs at maximum speed
+  if set to 0, run at maximum speed and update the screen 50 times per second;
+  if set to a negative value (-N), run at maximum speed and update the screen
+  N times per second
 * ``ScreenScale`` - screen scale factor (default: ``2``)
 * ``TraceHeader`` - the header to write in the trace log file (default: None)
 * ``TraceLine`` - the format of each line in the trace log file (default:
@@ -1981,7 +1983,9 @@ configuration parameters are:
 * ``Screen`` - display screen contents while running (``1``), or don't (``0``,
   the default)
 * ``ScreenFps`` - screen refresh rate in frames per second (default: ``50``);
-  if set to 0, `tap2sna.py` runs at maximum speed
+  if set to 0, run at maximum speed and update the screen 50 times per second;
+  if set to a negative value (-N), run at maximum speed and update the screen
+  N times per second
 * ``ScreenScale`` - screen scale factor (default: ``2``)
 * ``TraceHeader`` - the trace log file header (default: None)
 * ``TraceLine`` - the format of each line in the trace log file for a simulated
@@ -2043,7 +2047,8 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 10.2    | Added the ``Screen`` and ``TraceHeader`` configuration            |
-|         | parameters; added support for tracing to standard output          |
+|         | parameters; added support for tracing to standard output; added   |
+|         | support for negative ``ScreenFps`` values                         |
 +---------+-------------------------------------------------------------------+
 | 10.1    | Added the ``--screen`` option; added the ``ScreenFps`` and        |
 |         | ``ScreenScale`` configuration parameters                          |
@@ -2302,7 +2307,9 @@ configuration parameters are:
 * ``Screen`` - display screen contents while running (``1``), or don't (``0``,
   the default)
 * ``ScreenFps`` - screen refresh rate in frames per second (default: ``50``);
-  if set to 0, `trace.py` runs at maximum speed
+  if set to 0, run at maximum speed and update the screen 50 times per second;
+  if set to a negative value (-N), run at maximum speed and update the screen
+  N times per second
 * ``ScreenScale`` - screen scale factor (default: ``2``)
 * ``TraceHeader`` - the header to print when ``-v`` is used (default: None)
 * ``TraceHeader2`` - the header to print when ``-vv`` is used (default: None)
@@ -2360,7 +2367,7 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 10.2    | The ``--map`` option updates an existing file instead of          |
-|         | replacing it                                                      |
+|         | replacing it; added support for negative ``ScreenFps`` values     |
 +---------+-------------------------------------------------------------------+
 | 10.1    | Added the ``--ay-mode``, ``--ay-res`` and ``--volume`` options;   |
 |         | added support for multiple colours in the border area of the      |

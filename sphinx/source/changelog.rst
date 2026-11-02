@@ -18,6 +18,9 @@ Changelog
 * Added the ``Screen``, ``ScreenFps`` and ``ScreenScale`` configuration
   parameters for :ref:`rzxplay.py <rzxplay-conf>` (to specify whether and at
   what frame rate and scale factor to display screen contents)
+* Added support for negative ``ScreenFps`` values (for running
+  :ref:`rzxplay.py`, :ref:`tap2sna.py` or :ref:`trace.py` at maximum speed
+  while throttling screen updates to a specific rate)
 * Added support to :ref:`rzxplay.py <rzxplay-conf>` for configuring the format
   of the trace log file via the ``TraceHeader``, ``TraceLine`` and
   ``TraceOperand`` configuration parameters

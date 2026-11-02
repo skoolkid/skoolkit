@@ -180,8 +180,10 @@ configuration parameters are:
   :PNGScale: The PNG image scale factor (default: ``2``).
   :Screen: Display screen contents while running (``1``), or don't (``0``, the
     default).
-  :ScreenFps: Screen refresh rate in frames per second (default:``50``). If set
-    to 0, ``trace.py`` runs at maximum speed.
+  :ScreenFps: Screen refresh rate in frames per second (default: ``50``). If
+    set to 0, run at maximum speed and update the screen 50 times per second.
+    If set to a negative value (-N), run at maximum speed and update the screen
+    N times per second.
   :ScreenScale: Screen scale factor (default: ``2``).
   :TraceHeader: The header to print when ``-v`` is used (default: None).
   :TraceHeader2: The header to print when ``-vv`` is used (default: None).

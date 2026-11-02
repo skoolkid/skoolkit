@@ -26,7 +26,9 @@ OPTIONS
   Force playback when an unsupported machine is detected.
 
 --fps FPS
-  Run at this many frames per second (default: 50). 0 means maximum speed.
+  Run at this many frames per second (default: 50). 0 means run at maximum
+  speed and update the screen 50 times per second. A negative value (-N) means
+  run at maximum speed and update the screen N times per second.
 
 -I, --ini `param=value`
   Set the value of a configuration parameter (see ``CONFIGURATION``),
@@ -131,7 +133,9 @@ configuration parameters are:
   :Screen: Display screen contents while running (``1``, the default), or don't
     (``0``).
   :ScreenFps: Screen refresh rate in frames per second (default: ``50``). If
-    set to 0, ``rzxplay.py`` runs at maximum speed.
+    set to 0, run at maximum speed and update the screen 50 times per second.
+    If set to a negative value (-N), run at maximum speed and update the screen
+    N times per second.
   :ScreenScale: Screen scale factor (default: ``2``).
   :TraceHeader: The header to write in the trace log file (default: None).
   :TraceLine: The format of each line in the trace log file (default:

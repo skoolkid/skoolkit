@@ -16,6 +16,7 @@
 
 import contextlib
 import io
+import time
 
 from skoolkit import SkoolKitError
 
@@ -63,6 +64,8 @@ class Screen:
         self.clock = pygame.time.Clock()
         self.prev_scr = [None] * 6912
         self.prev_border = None
+        self.update_interval = abs(1 / (fps or 50))
+        self.next_update = 0
 
     def _init_colours_and_keys(self):
         self.colours = (
@@ -268,6 +271,13 @@ class Screen:
         self.prev_scr = scr
         if self.fps > 0:
             self.clock.tick(self.fps)
+        else:
+            # When the frame rate is 0 or negative, don't display more than one
+            # frame per update interval
+            now = time.monotonic()
+            if now < self.next_update:
+                return True
+            self.next_update = now + self.update_interval
 
         pygame.display.update()
         for event in pygame.event.get():

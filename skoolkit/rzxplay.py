@@ -495,7 +495,7 @@ def main(args):
                        help="Force playback when an unsupported machine is detected.")
     group.add_argument('--fps', type=int, default=config['ScreenFps'],
                        help="Run at this many frames per second (default: {}). "
-                            "0 means maximum speed.".format(config['ScreenFps']))
+                            "0 or negative FPS means run at maximum speed.".format(config['ScreenFps']))
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
     group.add_argument('--map', metavar='FILE',

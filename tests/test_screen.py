@@ -96,6 +96,28 @@ class ScreenTest(SkoolKitTestCase):
             self.assertTrue(s.draw(scr, 0, border, keyboard))
             self.assertEqual(exp_keyboard, keyboard)
 
+    def _test_draw_unlimited_frame_rate(self, fps, mock_pygame):
+        s = screen.Screen(1, fps, 'screen', False)
+        update_interval = abs(1 / (fps or 50))
+        scr = [0] * 0x1800 + [8 * GREEN] * 0x300
+        mock_surface = mock_pygame.display.get_surface()
+        with patch.object(screen.time, 'monotonic', side_effect=(1.0, 1.0 + update_interval * 0.9, 1.0 + update_interval)):
+            # The first frame is always displayed
+            self.assertTrue(s.draw(scr, 0, [(0, GREEN)]))
+            self.assertEqual(mock_pygame.display.update.call_count, 1)
+
+            # The update interval has not elapsed yet
+            scr = scr.copy()
+            scr[0x1800] = 8 * YELLOW
+            self.assertTrue(s.draw(scr, 1, [(0, GREEN)]))
+            self.assertEqual(mock_pygame.display.update.call_count, 1)
+            self.assertEqual(mock_surface.get_pixel(0, 0), YELLOW)
+
+            # The update interval has now elapsed
+            self.assertTrue(s.draw(scr.copy(), 2, [(0, GREEN)]))
+            self.assertEqual(mock_pygame.display.update.call_count, 2)
+        s.clock.tick.assert_not_called()
+
     @patch.object(screen, 'pygame', new_callable=MockPygame)
     def test_init(self, mock_pygame):
         self._test_init(mock_pygame, 1, 'hello')
@@ -112,6 +134,14 @@ class ScreenTest(SkoolKitTestCase):
         self.assertTrue(all(p == BLACK for p in mock_surface.pixels))
         s.clock.tick.assert_called_with(50)
         mock_pygame.display.update.assert_called_with()
+
+    @patch.object(screen, 'pygame', new_callable=MockPygame)
+    def test_draw_with_fps_0(self, mock_pygame):
+        self._test_draw_unlimited_frame_rate(0, mock_pygame)
+
+    @patch.object(screen, 'pygame', new_callable=MockPygame)
+    def test_draw_with_negative_fps(self, mock_pygame):
+        self._test_draw_unlimited_frame_rate(-10, mock_pygame)
 
     @patch.object(screen, 'pygame', new_callable=MockPygame)
     def test_pixel_change(self, mock_pygame):
