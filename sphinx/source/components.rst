@@ -304,7 +304,7 @@ Each instruction object has the following attributes:
   by a :ref:`refs` directive
 * *rrefs* - the addresses of the instruction's direct referrers to be removed,
   as declared by a :ref:`refs` directive
-* *sub* - `True` if the operation was supplied by ``@*sub`` or ``@*fix``
+* *sub* - `True` if the operation was supplied by a ``@*sub`` or ``@*fix``
   directive, `False` otherwise
 
 Each key in the references dictionary should be an instruction object, and the
@@ -370,8 +370,8 @@ must supply the following API methods, in common with skoolkit.rst.RSTHandler:
    :members: handle
    :noindex:
 
-The sub-block descriptor returned by :meth:`handle` must be 2-element tuple of
-the form::
+The sub-block descriptor returned by :meth:`handle` must be a 2-element tuple
+of the form::
 
   (subctl, sublengths)
 

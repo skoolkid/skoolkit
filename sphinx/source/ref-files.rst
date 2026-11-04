@@ -79,7 +79,7 @@ or::
 
 where:
 
-*  ``name`` is the colour name
+* ``name`` is the colour name
 * ``R,G,B`` is a decimal RGB triplet
 * ``#RGB`` is a hexadecimal RGB triplet (in the usual 6-digit form, or in the
   short 3-digit form)
@@ -258,7 +258,7 @@ Recognised parameters are:
   disassembly pages and entries on memory map pages (default: ``{address}``)
 * ``AsmSinglePage`` - ``1`` to write the disassembly on a single page, or ``0``
   to write a separate page for each routine and data block (default: ``0``)
-* ``AudioFormats`` - a comma separated list of audio file formats that the
+* ``AudioFormats`` - a comma-separated list of audio file formats that the
   :ref:`AUDIO` macro looks for before creating a WAV file (default:
   ``flac,mp3,ogg``)
 * ``Bytes`` - the format specification for the ``bytes`` attribute of

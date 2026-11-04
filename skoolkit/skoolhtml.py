@@ -21,7 +21,7 @@ Defines the :class:`FileInfo` and :class:`HtmlWriter` classes.
 from html import unescape
 import posixpath
 import os.path
-from os.path import isfile, isdir, basename
+from os.path import isfile, basename
 from collections import defaultdict
 import re
 from io import StringIO

@@ -16,7 +16,7 @@
 
 import array
 
-from skoolkit import SkoolKitError, write, write_line
+from skoolkit import write, write_line
 from skoolkit.basic import TextReader
 from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import R1

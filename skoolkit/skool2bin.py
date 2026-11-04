@@ -18,8 +18,8 @@ import argparse
 from collections import defaultdict, namedtuple
 from os.path import basename
 
-from skoolkit import (SkoolKitError, SkoolParsingError, address, get_int_param,
-                      info, open_file, parse_int, warn, VERSION)
+from skoolkit import (SkoolKitError, SkoolParsingError, address, info,
+                      open_file, parse_int, warn, VERSION)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if

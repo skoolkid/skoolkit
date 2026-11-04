@@ -23,10 +23,10 @@ import time
 import argparse
 from io import StringIO
 
-from skoolkit import (defaults, SkoolKitError, check_format, find_file,
-                      get_object, makedirs, normpath, open_file,
-                      show_package_dir, variable, write, write_line, BASE_10,
-                      BASE_16, CASE_LOWER, CASE_UPPER, PACKAGE_DIR, VERSION)
+from skoolkit import (defaults, SkoolKitError, find_file, get_object, makedirs,
+                      normpath, open_file, show_package_dir, variable, write,
+                      write_line, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER,
+                      PACKAGE_DIR, VERSION)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.refparser import RefParser
 from skoolkit.skoolhtml import FileInfo

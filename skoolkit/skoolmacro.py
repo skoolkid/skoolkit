@@ -349,7 +349,7 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=Non
 def _format_params(params, full_params, *args, **kwargs):
     try:
         return params.format(*args, **kwargs)
-    except IndexError as e:
+    except IndexError:
         raise FormattingError("Field index out of range: {}".format(full_params))
     except KeyError as e:
         raise FormattingError("Unrecognised field '{}': {}".format(e.args[0], full_params))

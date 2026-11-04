@@ -105,7 +105,7 @@ some other part of the disassembly (as in the case where an image is being
 created).
 
 Let's say your sprite-image-creating method will accept two parameters (in
-addition to `cwd`): `sprite_id` (the sprite identifier) and  `fname` (the image
+addition to `cwd`): `sprite_id` (the sprite identifier) and `fname` (the image
 filename). The method (let's call it `sprite`) would look something like this:
 
 .. code-block:: python
@@ -194,7 +194,7 @@ implement a ``#SPRITE`` or ``#TIMESTAMP`` macro, we would add a method named
 A skool macro method must accept either two or three parameters, depending on
 whether it is implemented on a subclass of AsmWriter or HtmlWriter:
 
-* ``text`` -  the text that contains the skool macro
+* ``text`` - the text that contains the skool macro
 * ``index`` - the index of the character after the last character of the macro
   name (that is, where to start looking for the macro's parameters)
 * ``cwd`` - the current working directory of the file from which the macro is

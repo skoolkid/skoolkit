@@ -58,7 +58,7 @@ OPTIONS
   option may be used multiple times.
 
 -q, --quiet
-  Be quiet. This option suppresses both the timing information, and the message
+  Be quiet. This option suppresses both the timing information and the message
   about the AsmWriter class being used, but does not suppress warnings.
 
 -r, --rsub

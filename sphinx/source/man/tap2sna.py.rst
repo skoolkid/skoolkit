@@ -129,7 +129,7 @@ parameters are:
 
 * ``accelerate-dec-a`` - enable acceleration of 'DEC A: JR NZ,$-1' delay loops
   only (``1``), or 'DEC A: JP NZ,$-1' delay loops only (``2``), or both (``3``,
-  the default) or neither (``0``)
+  the default), or neither (``0``)
 * ``accelerator`` - a comma-separated list of tape-sampling loop accelerators
   to use (see the ``ACCELERATORS`` section below)
 * ``cmio`` - enable simulation of memory and I/O contention delays and the
@@ -233,7 +233,7 @@ being a sequence of any characters other than space), each of which is broken
 down into a sequence of one or more keypresses. If a word contains the '+'
 symbol, the tokens it separates are converted into keypresses made
 simultaneously. If a word matches a BASIC token, the corresponding sequence of
-keypresses to produce that token are substituted. Otherwise, each character in
+keypresses to produce that token is substituted. Otherwise, each character in
 the word is converted individually into the appropriate keypresses.
 
 The following special tokens are also recognised:

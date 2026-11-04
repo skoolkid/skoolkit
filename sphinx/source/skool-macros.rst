@@ -411,7 +411,7 @@ integers. ::
 
   #FORstart,stop[,step,flags](var,string[,sep,fsep])
 
-* ``start`` is first integer in the range
+* ``start`` is the first integer in the range
 * ``stop`` is the final integer in the range
 * ``step`` is the gap between each integer in the range (default: 1)
 * ``flags`` controls whether to affix commas to or replace variable names in
@@ -471,7 +471,7 @@ or::
 
   #FOREACH(svar)(var,string[,sep,fsep])
 
-* ``s1``, ``s2``  etc. are the input strings
+* ``s1``, ``s2`` etc. are the input strings
 * ``svar`` is a special variable that expands to a specific sequence of input
   strings (see below)
 * ``var`` is the variable name; for each input string, it evaluates to that
@@ -1463,7 +1463,7 @@ within that page. ::
 The disassembly ID (``code``) and anchor name (``name``) must be limited to the
 characters '$', '#', 0-9, A-Z and a-z.
 
-If ``link_text`` is not provided, it defaults to the label for ``addr`` if one
+If ``link text`` is not provided, it defaults to the label for ``addr`` if one
 is defined, or to the address formatted according to the ``Address`` parameter
 in the :ref:`ref-Game` section.
 
@@ -2053,7 +2053,7 @@ For example::
   ; #FRAMES(centre)(img)
 
 This instance of the ``#COPY`` macro creates a new frame from a copy of the
-central 2x2 portion of the 4x4 frame created by the ``#UDGARRAY`` macro.  The
+central 2x2 portion of the 4x4 frame created by the ``#UDGARRAY`` macro. The
 ``#FRAMES`` macro then creates an image of the new frame.
 
 The integer parameters and the cropping specification of the ``#COPY`` macro
@@ -2682,7 +2682,7 @@ macro being used:
 
 * ``FontImagePath`` - :ref:`FONT`
 * ``ScreenshotImagePath`` - :ref:`SCR`
-* ``UdgImagePath`` - :ref:`UDG`, :ref:`UDGARRAY` and :ref:`UDGS`
+* ``UDGImagePath`` - :ref:`UDG`, :ref:`UDGARRAY` and :ref:`UDGS`
 
 If ``fname`` does not end with '`.png`', that suffix will be appended.
 

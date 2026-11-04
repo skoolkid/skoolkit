@@ -69,7 +69,7 @@ def _m_repl(match):
         return '{}m[{}]'.format(match.group(1), int(match.group(3), 16))
     return match.group()
 
-def get_trace_line(trace_line, extra_fields=None):
+def get_trace_line(trace_line):
     fmt = re.sub(r'(\{+)m\[(0x|\$)([0-9a-fA-F]+)\]', _m_repl, trace_line)
     fields = {'pc': 0, 'i': '.', 'r': Registers([0] * 30), 't': 0, 'm': [0] * 65536, 'fc': 0, 'fr': 0, 'fw': 5, 'rr': 1}
     return check_format(fmt, 'trace line', fields, trace_line)

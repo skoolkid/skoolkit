@@ -157,7 +157,7 @@ data is for.
 
 Figuring out what the code blocks do and what the data blocks contain can be a
 time-consuming job. It's probably not a good idea to go through each block one
-by one, in order, and move to the next only when it’s fully documented - unless
+by one, in order, and move to the next only when it's fully documented - unless
 you're looking for a nervous breakdown. Instead it's better to approach the job
 like this:
 
@@ -167,11 +167,11 @@ like this:
 3. Find another code block that calls the code block just documented, and
    figure out when, why and how it uses it.
 4. Document that code (and any related data) as far as possible.
-5. If there’s anything left to document, return to step 3.
+5. If there's anything left to document, return to step 3.
 6. Done!
 
 It also goes without saying that figuring out what a piece of code or data
-might be used for is easier if you’ve played the game to death already.
+might be used for is easier if you've played the game to death already.
 
 As for where to write annotations, you now have a choice. You can add them
 either to the control file or to the skool file. The recommended approach,

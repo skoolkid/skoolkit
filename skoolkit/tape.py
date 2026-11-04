@@ -934,7 +934,6 @@ def parse_pzx(pzx, start=1, stop=0, skip=()):
     block_num = 1
     rom_pilot = False
     i = 0
-    error = None
     while i + 8 < len(pzx):
         if block_num >= stop > 0:
             break
@@ -985,7 +984,6 @@ def parse_tzx(tzx, start=1, stop=0, skip=(), info=True, timings=False):
     blocks = []
     block_num = 1
     i = 10
-    error = None
     while i < len(tzx):
         if block_num >= stop > 0:
             break
