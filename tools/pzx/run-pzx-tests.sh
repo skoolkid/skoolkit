@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e # Abort on errors
+set -o pipefail # Make "cmd | tee ..." fail if "cmd" fails
 
 TOOLS=$(dirname $(dirname $(realpath $0)))
 . $TOOLS/z80testrc
