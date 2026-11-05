@@ -18,6 +18,9 @@ from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.simulator import Simulator
 from skoolkit.simutils import PC, T
 
+RED = '\033[31m'
+RESET = '\033[0m'
+
 START = 0x8057
 STOP = 0x8067
 
@@ -53,13 +56,14 @@ class Tracer:
                 if self.msg.startswith(IGNORE_TESTS):
                     self.skip = True
                 else:
-                    if not ('expected' in self.msg and self.skip):
-                        print(self.msg)
                     if self.msg.endswith(' failed'):
+                        self.msg = f'{RED}{self.msg}{RESET}'
                         self.failed += 1
                         self.count += 1
                     elif self.msg.endswith(' passed'):
                         self.count += 1
+                    if not ('expected' in self.msg and self.skip):
+                        print(self.msg)
                     self.skip = False
             else:
                 print()
@@ -103,9 +107,12 @@ def run(tapfile, options):
     else:
         tracer.run(simulator)
     rt = time.time() - begin
+    count = tracer.count
     failed = tracer.failed
     if failed:
-        msg = f'{failed}/{tracer.count} tests failed.'
+        msg = f'{RED}{failed}/{count} tests failed.{RESET}'
+    elif count == 0:
+        msg = f'{RED}No tests run{RESET}'
     else:
         msg = 'All tests passed.'
     print(f'\n{msg}\n')
@@ -113,7 +120,7 @@ def run(tapfile, options):
     speed = z80t / rt
     print(f'Z80 execution time: {simulator.registers[T]} T-states ({z80t:.03f}s)')
     print(f'Simulation time: {rt:.03f}s (x{speed:.02f})')
-    return 1 if failed else 0
+    return 1 if count == 0 or failed else 0
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

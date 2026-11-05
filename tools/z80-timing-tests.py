@@ -17,6 +17,9 @@ from skoolkit import ROM48, tap2sna, CCMIOSimulator, read_bin_file
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.simutils import PC, T
 
+RED = '\033[31m'
+RESET = '\033[0m'
+
 class Tracer:
     def __init__(self):
         self.msg = ''
@@ -58,11 +61,12 @@ class Tracer:
                 if self.msg == 'ZXSPECTRUMZXSPECTRUMZXSPECTRUMZX':
                     # Tests 36+ test floating bus emulation, so quit now
                     return True
-                print(self.msg)
                 if self.msg.endswith('Pass'):
                     self.passed += 1
                 elif self.msg.endswith('Fail'):
+                    self.msg = f'{RED}{self.msg}{RESET}'
                     self.failed += 1
+                print(self.msg)
             else:
                 print()
             self.msg = ''
@@ -102,10 +106,16 @@ def run(tapfile, options):
     rt = time.time() - begin
     z80t = simulator.registers[T] / 3500000
     speed = z80t / rt
-    print(f'\n{tracer.passed} tests passed\n{tracer.failed} tests failed\n')
+    passed, failed = tracer.passed, tracer.failed
+    if passed + failed == 0:
+        print(f'\n{RED}No tests run{RESET}\n')
+    elif failed:
+        print(f'\n{passed} tests passed\n{RED}{failed} tests failed{RESET}\n')
+    else:
+        print(f'\nAll {passed} tests passed\n')
     print(f'Z80 execution time: {simulator.registers[T]} T-states ({z80t:.03f}s)')
     print(f'Simulation time: {rt:.03f}s (x{speed:.02f})')
-    return 1 if tracer.failed else 0
+    return 1 if passed == 0 or failed else 0
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

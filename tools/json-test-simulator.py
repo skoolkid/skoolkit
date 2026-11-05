@@ -22,6 +22,9 @@ from skoolkit.simutils import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP,
                                IFF, IM, MEMPTR)
 from skoolkit.traceutils import disassemble
 
+RED = '\033[31m'
+RESET = '\033[0m'
+
 REGISTERS = {
     "a": A,
     "b": B,
@@ -163,7 +166,7 @@ def run_tests(simulator, jsonfiles, options):
                 errors = check_simulator(simulator, tracer, test['final'], ports, instructions[-1], check_wz)
                 i = ': '.join(instructions)
                 if errors:
-                    print(f'[FAIL] {name} ({i})')
+                    print(f'{RED}[FAIL] {name} ({i}){RESET}')
                     exp_changes = get_exp_changes(test['initial'], test['final'], options)
                     failed.append((jsonfile, name, f'{pc:05} {i}', errors, exp_changes))
                 elif options.verbose:
@@ -200,16 +203,16 @@ def run(jsonfiles, options):
                 for error in errors:
                     print(f'  {error}')
                 print()
-        print(f'{len(failed)}/{count} test(s) failed')
+        print(f'{RED}{len(failed)}/{count} test(s) failed{RESET}')
     else:
         if count:
             if options.verbose:
                 print()
             print(f'{count} test(s) passed')
         else:
-            print('No tests run')
+            print(f'{RED}No tests run{RESET}')
     print(f'\nRun time: {rt:.03f}s')
-    return len(failed) > 0
+    return count == 0 or len(failed) > 0
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

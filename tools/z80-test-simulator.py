@@ -19,13 +19,15 @@ sys.path.insert(0, SKOOLKIT_HOME)
 from skoolkit import ROM48, tap2sna, CSimulator, CCMIOSimulator, read_bin_file
 from skoolkit.cmiosimulator import CMIOSimulator
 from skoolkit.simulator import Simulator
-from skoolkit.simutils import PC, T
+from skoolkit.simutils import PC, T, xB, xC
+
+RED = '\033[31m'
+RESET = '\033[0m'
 
 STOP = 0x8094
 
 class Tracer:
     def __init__(self):
-        self.failed = False
         self.msg = ''
 
     def run(self, simulator):
@@ -52,9 +54,10 @@ class Tracer:
             self.msg += chr(a)
         elif a == 13:
             if self.msg.strip():
-                print(self.msg)
-                if self.msg.endswith(' tests failed.'):
-                    self.failed = True
+                if self.msg.endswith('FAILED'):
+                    print(f'{RED}{self.msg}{RESET}')
+                else:
+                    print(self.msg)
             else:
                 print()
             self.msg = ''
@@ -110,12 +113,17 @@ def run(tapfile, options):
     else:
         tracer.run(simulator)
     rt = time.time() - begin
-    failed = tracer.failed
+    failed = simulator.registers[xB] > 0
+    count = simulator.registers[xC] - options.test
     z80t = simulator.registers[T] / 3500000
     speed = z80t / rt
     print(f'Z80 execution time: {simulator.registers[T]} T-states ({z80t:.03f}s)')
     print(f'Simulation time: {rt:.03f}s (x{speed:.02f})')
-    return 1 if failed else 0
+    if failed:
+        print(f'{RED}Some tests failed{RESET}')
+    if count == 0:
+        print(f'{RED}No tests run{RESET}')
+    return 1 if count == 0 or failed else 0
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

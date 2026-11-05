@@ -27,6 +27,7 @@ class Tracer:
         self.simulator = simulator
         self.out7ffd = out7ffd
         self.failed = 0
+        self.count = 0
         self.msg = [' '] * 32
         self.prev_x = 0
         self.prev_y = -1
@@ -61,9 +62,11 @@ class Tracer:
             msg = ''.join(self.msg).rstrip()
             if msg:
                 if msg.startswith('Failed'):
-                    self.failed = int(msg[7:9])
+                    words = msg.split(' ', 4)
+                    self.failed = int(words[1])
                     if self.failed > 0:
                         msg = f'{RED}{msg}{RESET}'
+                    self.count = int(words[3])
                 print(msg)
             self.msg = [' '] * 32
             self.prev_x = 0
@@ -124,7 +127,9 @@ def run(tapefile, options):
     speed = z80t / rt
     print(f'Z80 execution time: {simulator.registers[T]} T-states ({z80t:.03f}s)')
     print(f'Simulation time: {rt:.03f}s (x{speed:.02f})')
-    return 1 if tracer.failed else 0
+    if tracer.count == 0:
+        print(f'{RED}No tests run{RESET}')
+    return 1 if tracer.count == 0 or tracer.failed else 0
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
