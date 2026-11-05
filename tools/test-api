@@ -172,6 +172,7 @@ write_exp_html() {
 <head>
 <title>game: Data at 32768</title>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="stylesheet" type="text/css" href="../skoolkit.css" />
 </head>
 <body class="Asm-b">
@@ -559,9 +560,10 @@ check_image() {
   diff -u <($imgpf) $IMG_PIXELS > $IMG_DIFF
   if [[ -s $IMG_DIFF ]]; then
     echo -e "\e[0;31mFAILED (see $IMG_DIFF)\e[0m"
-  else
-    echo "OK"
+    return 1
   fi
+  echo "OK"
+  return 0
 }
 
 SKOOL2HTML=./skool2html.py
@@ -594,6 +596,7 @@ echo -en "\nChecking $GAME_ASM: "
 diff -u <(write_exp_asm) $GAME_ASM > $ASM_DIFF
 if [[ -s $ASM_DIFF ]]; then
   echo -e "\e[0;31mFAILED (see $ASM_DIFF)\e[0m"
+  rc=1
 else
   echo "OK"
 fi
@@ -605,13 +608,16 @@ echo -n "Checking $GAME_HTML: "
 diff -u <(write_exp_html) $GAME_HTML > $HTML_DIFF
 if [[ -s $HTML_DIFF ]]; then
   echo -e "\e[0;31mFAILED (see $HTML_DIFF)\e[0m"
+  rc=1
 else
   echo "OK"
 fi
 
 IMAGES_DIR=$HTML_DIR/images
-check_image $IMAGES_DIR/countdown.png write_exp_countdown_png
-check_image $IMAGES_DIR/inverse32768_56.png write_exp_inverse32768_56_png
-check_image $IMAGES_DIR/j3.png write_exp_j3_png
-check_image $IMAGES_DIR/j4.png write_exp_j4_png
-check_image $IMAGES_DIR/udgs/anim.png write_exp_anim_png
+check_image $IMAGES_DIR/countdown.png write_exp_countdown_png || rc=1
+check_image $IMAGES_DIR/inverse32768_56.png write_exp_inverse32768_56_png || rc=1
+check_image $IMAGES_DIR/j3.png write_exp_j3_png || rc=1
+check_image $IMAGES_DIR/j4.png write_exp_j4_png || rc=1
+check_image $IMAGES_DIR/udgs/anim.png write_exp_anim_png || rc=1
+
+exit ${rc:-0}
