@@ -17,16 +17,17 @@ ERR_OFF="\e[0m"
 check() {
   baseasm=$1.asm
   if [ ! -f $baseasm ]; then
-    echo "*** Base asm file $baseasm not found; skipping group: $*" 1>&2
-    return
+    echo -e "${ERR_ON}ERROR: Base asm file $baseasm not found${ERR_OFF}" 1>&2
+    return 1
   fi
 
   fails=""
+  diffs=""
   for a in $*; do
     asmfile=$a.asm
     if [ ! -f $asmfile ]; then
-      echo "*** $asmfile not found" 1>&2
-      continue
+      echo -e "${ERR_ON}ERROR: $asmfile not found${ERR_OFF}" 1>&2
+      return 1
     fi
     binfile=$a.bin
     echo -n "Writing $binfile..."
@@ -40,18 +41,11 @@ check() {
   done
 
   base=$1.bin
-  if [ ! -f $base ]; then
-    echo "*** Base bin file $base not found; skipping comparisons" 1>&2
-    return
-  fi
+  [ -f $base ] || return 0 # Failure to assemble already recorded above
   shift
-  diffs=""
   for b in $*; do
     binfile=$b.bin
-    if [ ! -f $binfile ]; then
-      echo "*** $binfile not found; skipping comparison" 1>&2
-      continue
-    fi
+    [ -f $binfile ] || continue # Failure to assemble already recorded above
     echo -n "Comparing $binfile with $base..."
     if cmp -s $base $binfile; then
       echo "same"
@@ -60,6 +54,8 @@ check() {
       diffs="$diffs $binfile"
     fi
   done
+
+  return 0
 }
 
 usage() {
@@ -76,29 +72,38 @@ usage() {
 game=$1
 read_ddiffsrc $game
 
-for suffix in '' '-load' '-save' '-start'; do
-  [ -f "$game$suffix.asm" ] || continue
-  for f in '' -f{1,2}; do
-    check $game$suffix{,-H,-D}{,-l,-u}$f{,-s}
-    echo ""
-    [ -n "$fails" ] && allfails="$allfails $fails"
-    [ -n "$diffs" ] && alldiffs="$alldiffs\n  $base:$diffs"
-  done
+rc=0
+for name in $game load save start; do
+  if [[ $name == $game ]] || [[ -f "$name.asm" ]]; then
+    for f in '' -f{1,2}; do
+      if check $name{,-H,-D}{,-l,-u}$f{,-s}; then
+        echo ""
+        [ -n "$fails" ] && allfails="$allfails $fails"
+        [ -n "$diffs" ] && alldiffs="$alldiffs\n  $base:$diffs"
+      else
+        rc=4
+      fi
+    done
+  fi
 done
-for suffix in '' '-load' '-save' '-start'; do
-  [ -f "$game$suffix.asm" ] || continue
-  for f in -f{1,2,3}; do
-    check $game$suffix{,-H,-D}{,-l,-u}$f-r
-    echo ""
-    [ -n "$fails" ] && allfails="$allfails $fails"
-    [ -n "$diffs" ] && alldiffs="$alldiffs\n  $base:$diffs"
-  done
+for name in $game load save start; do
+  if [[ $name == $game ]] || [[ -f "$name.asm" ]]; then
+    for f in -f{1,2,3}; do
+      if check $name{,-H,-D}{,-l,-u}$f-r; then
+        echo ""
+        [ -n "$fails" ] && allfails="$allfails $fails"
+        [ -n "$diffs" ] && alldiffs="$alldiffs\n  $base:$diffs"
+      else
+        rc=4
+      fi
+    done
+  fi
 done
 
 echo "------------------------------------ SUMMARY -----------------------------------"
-code=0
+((rc & 4)) && echo -e "${ERR_ON}There were missing files (see errors above)${ERR_OFF}"
 if [ -n "$allfails" ]; then
-  let code+=1
+  let rc+=1
   echo -e "${ERR_ON}Failed to assemble:"
   for f in $allfails; do
     echo "  $f"
@@ -108,9 +113,9 @@ else
   echo "Failed to assemble: None"
 fi
 if [ -n "$alldiffs" ]; then
-  let code+=2
+  let rc+=2
   echo -e "${ERR_ON}Differences:$alldiffs${ERR_OFF}"
 else
   echo "Differences: None"
 fi
-exit $code
+exit $rc
