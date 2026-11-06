@@ -32,7 +32,7 @@ try:
 except ImportError: # pragma: C no cover
     CCMIOSimulator = None
 
-VERSION = '10.2b1'
+VERSION = '10.2rc'
 PACKAGE_DIR = os.path.dirname(__file__)
 
 BASE_10 = 10

@@ -1,7 +1,7 @@
 Changelog
 =========
 
-10.2b1
+10.2rc
 ------
 * Dropped support for Python 3.10
 * Improved error handling when running SkoolKit commands, expanding skool
