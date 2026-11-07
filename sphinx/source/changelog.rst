@@ -1,8 +1,8 @@
 Changelog
 =========
 
-10.2rc
-------
+10.2 (2026-11-07)
+-----------------
 * Dropped support for Python 3.10
 * Improved error handling when running SkoolKit commands, expanding skool
   macros, processing ASM directives, and parsing ref files
