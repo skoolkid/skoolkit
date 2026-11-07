@@ -18,7 +18,7 @@ modes are described in the following subsections.
 
 @isub mode
 ^^^^^^^^^^
-In ``@isub`` mode, ``@isub`` directives are executed, but ``@ssub``, and
+In ``@isub`` mode, ``@isub`` directives are executed, but ``@ssub`` and
 ``@rsub`` directives are not. The main purpose of ``@isub`` mode is to make the
 minimum number of instruction substitutions necessary to produce an ASM file
 that assembles.

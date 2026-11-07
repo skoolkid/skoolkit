@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>SkoolKit components &#8212; SkoolKit 10.1 documentation</title>
+    <title>SkoolKit components &#8212; SkoolKit 10.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=fe13c473" />
-    <script src="_static/documentation_options.js?v=2236d03e"></script>
+    <script src="_static/documentation_options.js?v=15ce5a54"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -25,7 +25,7 @@
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit components</a></li> 
       </ul>
     </div>  
@@ -825,7 +825,7 @@ an empty string</p></li>
 by a <a class="reference internal" href="asm.html#refs"><span class="std std-ref">&#64;refs</span></a> directive</p></li>
 <li><p><em>rrefs</em> - the addresses of the instruction’s direct referrers to be removed,
 as declared by a <a class="reference internal" href="asm.html#refs"><span class="std std-ref">&#64;refs</span></a> directive</p></li>
-<li><p><em>sub</em> - <cite>True</cite> if the operation was supplied by <code class="docutils literal notranslate"><span class="pre">&#64;*sub</span></code> or <code class="docutils literal notranslate"><span class="pre">&#64;*fix</span></code>
+<li><p><em>sub</em> - <cite>True</cite> if the operation was supplied by a <code class="docutils literal notranslate"><span class="pre">&#64;*sub</span></code> or <code class="docutils literal notranslate"><span class="pre">&#64;*fix</span></code>
 directive, <cite>False</cite> otherwise</p></li>
 </ul>
 <p>Each key in the references dictionary should be an instruction object, and the
@@ -1010,8 +1010,8 @@ return <em>None</em>.</p>
 
 </dd></dl>
 
-<p>The sub-block descriptor returned by <code class="xref py py-meth docutils literal notranslate"><span class="pre">handle()</span></code> must be 2-element tuple of
-the form:</p>
+<p>The sub-block descriptor returned by <code class="xref py py-meth docutils literal notranslate"><span class="pre">handle()</span></code> must be a 2-element tuple
+of the form:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(subctl, sublengths)
 </pre></div>
 </div>
@@ -1342,7 +1342,7 @@ other values declared in the <code class="docutils literal notranslate"><span cl
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">SkoolKit components</a></li> 
       </ul>
     </div>

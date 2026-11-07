@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Commands &#8212; SkoolKit 10.1 documentation</title>
+    <title>Commands &#8212; SkoolKit 10.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=fe13c473" />
-    <script src="_static/documentation_options.js?v=2236d03e"></script>
+    <script src="_static/documentation_options.js?v=15ce5a54"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -29,7 +29,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>  
@@ -56,37 +56,33 @@ contents of individual RAM banks may be specified by <code class="docutils liter
 input file is less than 128K in length and no <code class="docutils literal notranslate"><span class="pre">--page</span></code> option is given, a 48K
 snapshot is written.</p>
 <p>Run <cite>bin2sna.py</cite> with no arguments to see the list of available options:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: bin2sna.py [options] file.bin [OUTFILE]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: bin2sna.py [options] FILE [OUTFILE]
 
-Convert a binary (raw memory) file into an SZX or Z80 snapshot. &#39;file.bin&#39; may
-be a regular file, or &#39;-&#39; for standard input. If &#39;OUTFILE&#39; is not given, it
+Convert a binary (raw memory) file into an SZX or Z80 snapshot. &#39;FILE&#39; may be
+a regular file, or &#39;-&#39; for standard input. If &#39;OUTFILE&#39; is not given, it
 defaults to the name of the input file with &#39;.bin&#39; replaced by &#39;.z80&#39;, or
 &#39;program.z80&#39; if reading from standard input.
 
 Options:
   --bank N,file         Load RAM bank N (0-7) from the named file. This option
                         may be used multiple times.
-  -b BORDER, --border BORDER
-                        Set the border colour (default: 7).
-  -o ORG, --org ORG     Set the origin address (default: 65536 minus the
-                        length of file.bin).
+  -b, --border BORDER   Set the border colour (default: 7).
+  -o, --org ORG         Set the origin address (default: 65536 minus the
+                        length of FILE).
   --page N              Specify the RAM bank (N=0-7) mapped to 49152 (0xC000)
                         in the main input file. This option creates a 128K
                         snapshot.
-  -p STACK, --stack STACK
-                        Set the stack pointer (default: ORG).
-  -P [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
+  -p, --stack STACK     Set the stack pointer (default: ORG).
+  -P, --poke [p:]a[-b[-c]],[^+]v
                         POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
                         Prefix &#39;v&#39; with &#39;^&#39; to perform an XOR operation, or
                         &#39;+&#39; to perform an ADD operation. This option may be
                         used multiple times.
-  -r name=value, --reg name=value
-                        Set the value of a register. Do &#39;--reg help&#39; for more
+  -r, --reg name=value  Set the value of a register. Do &#39;--reg help&#39; for more
                         information. This option may be used multiple times.
-  -s START, --start START
-                        Set the address at which to start execution (default:
+  -s, --start START     Set the address at which to start execution (default:
                         ORG).
-  -S name=value, --state name=value
+  -S, --state name=value
                         Set a hardware state attribute. Do &#39;--state help&#39; for
                         more information. This option may be used multiple
                         times.
@@ -151,28 +147,24 @@ TAP file. FILE may be a regular file, or &#39;-&#39; to read a binary file from
 standard input. If OUTFILE is not given, a TAP file is created.
 
 Options:
-  --7ffd N              Add 128K RAM banks to the tape file and write N to
-                        port 0x7ffd after they&#39;ve loaded.
-  --banks N[,N...]      Add only these 128K RAM banks to the tape file
-                        (default: 0,1,3,4,6,7).
-  -b BEGIN, --begin BEGIN
-                        Begin conversion at this address (default: ORG for a
-                        binary file, 16384 for a snapshot).
-  -c N, --clear N       Use a &#39;CLEAR N&#39; command in the BASIC loader and leave
-                        the stack pointer alone.
-  -e END, --end END     End conversion at this address.
-  --loader ADDR         Place the 128K RAM bank loader at this address
-                        (default: CLEAR address + 1).
-  -o ORG, --org ORG     Set the origin address for a binary file (default:
-                        65536 minus the length of FILE).
-  -p STACK, --stack STACK
-                        Set the stack pointer (default: BEGIN).
-  -s START, --start START
-                        Set the start address to JP to (default: BEGIN).
-  -S FILE, --screen FILE
-                        Add a loading screen to the tape file. FILE may be a
-                        snapshot or a 6912-byte SCR file.
-  -V, --version         Show SkoolKit version number and exit.
+  --7ffd N           Add 128K RAM banks to the tape file and write N to port
+                     0x7ffd after they&#39;ve loaded.
+  --banks N[,N...]   Add only these 128K RAM banks to the tape file (default:
+                     0,1,3,4,6,7).
+  -b, --begin BEGIN  Begin conversion at this address (default: ORG for a
+                     binary file, 16384 for a snapshot).
+  -c, --clear N      Use a &#39;CLEAR N&#39; command in the BASIC loader and leave the
+                     stack pointer alone.
+  -e, --end END      End conversion at this address.
+  --loader ADDR      Place the 128K RAM bank loader at this address (default:
+                     CLEAR address + 1).
+  -o, --org ORG      Set the origin address for a binary file (default: 65536
+                     minus the length of FILE).
+  -p, --stack STACK  Set the stack pointer (default: BEGIN).
+  -s, --start START  Set the start address to JP to (default: BEGIN).
+  -S, --screen FILE  Add a loading screen to the tape file. FILE may be a
+                     snapshot or a 6912-byte SCR file.
+  -V, --version      Show SkoolKit version number and exit.
 </pre></div>
 </div>
 <p>Note that the ROM tape loading routine at 1366 (0x0556) and the load routine
@@ -305,13 +297,16 @@ Options:
   -c, --cmio       Simulate memory and I/O contention and the MEMPTR register.
   --flags FLAGS    Set playback flags. Do &#39;--flags help&#39; for more information.
   --force          Force playback when an unsupported machine is detected.
-  --fps FPS        Run at this many frames per second (default: 50). 0 means
-                   maximum speed.
+  --fps FPS        Run at this many frames per second (default: 50). 0 or
+                   negative FPS means run at maximum speed.
+  -I, --ini p=v    Set the value of the configuration parameter &#39;p&#39; to &#39;v&#39;.
+                   This option may be used multiple times.
   --map FILE       Log addresses of executed instructions to a file.
   --no-screen      Run without a screen.
   --python         Use the pure Python Z80 simulator.
   --quiet          Don&#39;t print progress percentage.
-  --scale SCALE    Scale display up by this factor (1-4; default: 2).
+  --scale SCALE    Scale display up by this factor (default: 2).
+  --show-config    Show configuration parameter values.
   --snapshot FILE  Specify an external snapshot file to start with.
   --stop FRAMES    Stop after playing this many frames.
   --trace FILE     Log executed instructions to a file.
@@ -361,6 +356,64 @@ in the corresponding format is written when playback ends. Similarly, if
 However, this makes sense only if <code class="docutils literal notranslate"><span class="pre">--stop</span></code> is used to end playback somewhere
 in the middle of the input RZX file, otherwise the output RZX file will be
 empty (i.e. contain no frames).</p>
+<section id="configuration">
+<span id="rzxplay-conf"></span><h3>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h3>
+<p><cite>rzxplay.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
+current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
+configuration parameters are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Screen</span></code> - display screen contents while running (<code class="docutils literal notranslate"><span class="pre">1</span></code>, the default), or
+don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> - screen refresh rate in frames per second (default: <code class="docutils literal notranslate"><span class="pre">50</span></code>);
+if set to 0, run at maximum speed and update the screen 50 times per second;
+if set to a negative value (-N), run at maximum speed and update the screen
+N times per second</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> - screen scale factor (default: <code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TraceHeader</span></code> - the header to write in the trace log file (default: None)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> - the format of each line in the trace log file (default:
+<code class="docutils literal notranslate"><span class="pre">F:{fr:0{fw}}</span> <span class="pre">C:{fc:05}</span> <span class="pre">I:{rr:05}</span> <span class="pre">${pc:04X}</span> <span class="pre">{i}</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> - the prefix, byte format, and word format for the numeric
+operands of instructions in the trace log file, separated by commas (default:
+<code class="docutils literal notranslate"><span class="pre">$,02X,04X</span></code>); the byte and word formats are standard Python format
+specifiers for numeric values, and default to empty strings if not supplied</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> is a standard Python format string that recognises the following
+replacement fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fc</span></code> - opcode fetch counter</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fr</span></code> - frame number (0-indexed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fw</span></code> - maximum width required for the frame number field</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">i</span></code> - the current instruction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">m[address]</span></code> - the contents of a memory address</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pc</span></code> - the address of the current instruction (program counter)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[X]</span></code> - the ‘X’ register (see below)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rr</span></code> - the number of input readings remaining in the frame</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">t</span></code> - the current timestamp (in T-states)</p></li>
+</ul>
+<p>When using the <code class="docutils literal notranslate"><span class="pre">m</span></code> (memory) replacement field, <code class="docutils literal notranslate"><span class="pre">address</span></code> must be either a
+decimal number, or a hexadecimal number prefixed by ‘$’ or ‘0x’.</p>
+<p>The register name <code class="docutils literal notranslate"><span class="pre">X</span></code> in <code class="docutils literal notranslate"><span class="pre">r[X]</span></code> must be one of the following:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>a b c d e f h l bc de hl
+^a ^b ^c ^d ^e ^f ^h ^l ^bc ^de ^hl
+ix ixh ixl iy iyh iyl
+i r sp memptr
+</pre></div>
+</div>
+<p>The names that begin with <code class="docutils literal notranslate"><span class="pre">^</span></code> denote the shadow registers.</p>
+<p>Wherever <code class="docutils literal notranslate"><span class="pre">\n</span></code> appears in the <code class="docutils literal notranslate"><span class="pre">TraceHeader</span></code> parameter value, it is replaced
+by a newline character.</p>
+<p>Configuration parameters must appear in a <code class="docutils literal notranslate"><span class="pre">[rzxplay]</span></code> section. For example,
+to make <cite>rzxplay.py</cite> write instruction addresses and operands in a trace log
+file in decimal format by default, add the following section to
+<cite>skoolkit.ini</cite>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[rzxplay]
+TraceLine={pc:05} {i}
+TraceOperand=
+</pre></div>
+</div>
+<p>Configuration parameters may also be set on the command line by using the
+<code class="docutils literal notranslate"><span class="pre">--ini</span></code> option. Parameter values set this way will override any found in
+<cite>skoolkit.ini</cite>.</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
@@ -368,19 +421,26 @@ empty (i.e. contain no frames).</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>10.1</p></td>
+<tr class="row-even"><td><p>10.2</p></td>
+<td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
+<code class="docutils literal notranslate"><span class="pre">--ini</span></code> and <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> options; added the <code class="docutils literal notranslate"><span class="pre">Screen</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code>, <code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code>, <code class="docutils literal notranslate"><span class="pre">TraceHeader</span></code>, <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code>
+and <code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> configuration parameters</p></td>
+</tr>
+<tr class="row-odd"><td><p>10.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--cmio</span></code> option; added support for multiple colours
 in the border area of the screen</p></td>
 </tr>
-<tr class="row-odd"><td><p>10.0</p></td>
+<tr class="row-even"><td><p>10.0</p></td>
 <td><p>Added support for ignoring any snapshots after the first one;
 added a border area to the screen</p></td>
 </tr>
-<tr class="row-even"><td><p>9.2</p></td>
+<tr class="row-odd"><td><p>9.2</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
 </table>
+</section>
 </section>
 <section id="skool2asm-py">
 <span id="id6"></span><h2>skool2asm.py<a class="headerlink" href="#skool2asm-py" title="Link to this heading">¶</a></h2>
@@ -396,36 +456,34 @@ Convert a skool file into an ASM file and write it to standard output. FILE may
 be a regular file, or &#39;-&#39; for standard input.
 
 Options:
-  -c, --create-labels   Create default labels for unlabelled instructions.
-  -D, --decimal         Write the disassembly in decimal.
-  -E ADDR, --end ADDR   Stop converting at this address.
-  -f N, --fixes N       Apply fixes:
-                          N=0: None (default)
-                          N=1: @ofix only
-                          N=2: @ofix and @bfix
-                          N=3: @ofix, @bfix and @rfix (implies -r)
-  -F, --force           Force conversion, ignoring @start and @end directives.
-  -H, --hex             Write the disassembly in hexadecimal.
-  -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
-                        &#39;v&#39;. This option may be used multiple times.
-  -l, --lower           Write the disassembly in lower case.
-  -p, --package-dir     Show path to skoolkit package directory and exit.
-  -P p=v, --set p=v     Set the value of ASM writer property &#39;p&#39; to &#39;v&#39;. This
-                        option may be used multiple times.
-  -q, --quiet           Be quiet.
-  -r, --rsub            Apply safe substitutions (@ssub) and relocatability
-                        substitutions (@rsub) (implies &#39;-f 1&#39;).
-  --show-config         Show configuration parameter values.
-  -s, --ssub            Apply safe substitutions (@ssub).
-  -S ADDR, --start ADDR
-                        Start converting at this address.
-  -u, --upper           Write the disassembly in upper case.
-  --var name=value      Define a variable that can be used by @if and skool
-                        macros. This option may be used multiple times.
-  -V, --version         Show SkoolKit version number and exit.
-  -w, --no-warnings     Suppress warnings.
-  -W CLASS, --writer CLASS
-                        Specify the ASM writer class to use.
+  -c, --create-labels  Create default labels for unlabelled instructions.
+  -D, --decimal        Write the disassembly in decimal.
+  -E, --end ADDR       Stop converting at this address.
+  -f, --fixes N        Apply fixes:
+                         N=0: None (default)
+                         N=1: @ofix only
+                         N=2: @ofix and @bfix
+                         N=3: @ofix, @bfix and @rfix (implies -r)
+  -F, --force          Force conversion, ignoring @start and @end directives.
+  -H, --hex            Write the disassembly in hexadecimal.
+  -I, --ini p=v        Set the value of the configuration parameter &#39;p&#39; to
+                       &#39;v&#39;. This option may be used multiple times.
+  -l, --lower          Write the disassembly in lower case.
+  -p, --package-dir    Show path to skoolkit package directory and exit.
+  -P, --set p=v        Set the value of ASM writer property &#39;p&#39; to &#39;v&#39;. This
+                       option may be used multiple times.
+  -q, --quiet          Be quiet.
+  -r, --rsub           Apply safe substitutions (@ssub) and relocatability
+                       substitutions (@rsub) (implies &#39;-f 1&#39;).
+  --show-config        Show configuration parameter values.
+  -s, --ssub           Apply safe substitutions (@ssub).
+  -S, --start ADDR     Start converting at this address.
+  -u, --upper          Write the disassembly in upper case.
+  --var name=value     Define a variable that can be used by @if and skool
+                       macros. This option may be used multiple times.
+  -V, --version        Show SkoolKit version number and exit.
+  -w, --no-warnings    Suppress warnings.
+  -W, --writer CLASS   Specify the ASM writer class to use.
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="asm.html#asmmodesanddirectives"><span class="std std-ref">ASM modes and directives</span></a> for a description of the <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code> and
@@ -433,8 +491,8 @@ Options:
 modes.</p>
 <p>See the <a class="reference internal" href="asm.html#set"><span class="std std-ref">&#64;set</span></a> directive for information on the ASM writer properties that
 can be set by the <code class="docutils literal notranslate"><span class="pre">--set</span></code> option.</p>
-<section id="configuration">
-<span id="skool2asm-conf"></span><h3>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h3>
+<section id="skool2asm-conf">
+<span id="id7"></span><h3>Configuration<a class="headerlink" href="#skool2asm-conf" title="Link to this heading">¶</a></h3>
 <p><cite>skool2asm.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -543,41 +601,38 @@ options accept a hexadecimal integer prefixed by ‘0x’</p></td>
 </section>
 </section>
 <section id="skool2bin-py">
-<span id="id7"></span><h2>skool2bin.py<a class="headerlink" href="#skool2bin-py" title="Link to this heading">¶</a></h2>
+<span id="id8"></span><h2>skool2bin.py<a class="headerlink" href="#skool2bin-py" title="Link to this heading">¶</a></h2>
 <p><cite>skool2bin.py</cite> converts a skool file into a binary (raw memory) file. For
 example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2bin.py game.skool
 </pre></div>
 </div>
 <p>To list the options supported by <cite>skool2bin.py</cite>, run it with no arguments:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: skool2bin.py [options] file.skool [file.bin]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: skool2bin.py [options] SKOOLFILE [OUTFILE]
 
-Convert a skool file into a binary (raw memory) file. &#39;file.skool&#39; may be a
-regular file, or &#39;-&#39; for standard input. If &#39;file.bin&#39; is not given, it
+Convert a skool file into a binary (raw memory) file. &#39;SKOOLFILE&#39; may be a
+regular file, or &#39;-&#39; for standard input. If &#39;OUTFILE&#39; is not given, it
 defaults to the name of the input file with &#39;.skool&#39; replaced by &#39;.bin&#39;.
-&#39;file.bin&#39; may be a regular file, or &#39;-&#39; for standard output.
+&#39;OUTFILE&#39; may be a regular file, or &#39;-&#39; for standard output.
 
 Options:
-  -B, --banks           Process @bank directives and write RAM banks 0-7 to a
-                        128K file.
-  -b, --bfix            Apply @ofix and @bfix directives.
-  -d, --data            Process @defb, @defs and @defw directives.
-  -E ADDR, --end ADDR   Stop converting at this address.
-  -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
-                        &#39;v&#39;. This option may be used multiple times.
-  -i, --isub            Apply @isub directives.
-  -o, --ofix            Apply @ofix directives.
-  -r, --rsub            Apply @isub, @ssub and @rsub directives (implies
-                        --ofix).
-  -R, --rfix            Apply @ofix, @bfix and @rfix directives (implies
-                        --rsub).
-  --show-config         Show configuration parameter values.
-  -s, --ssub            Apply @isub and @ssub directives.
-  -S ADDR, --start ADDR
-                        Start converting at this address.
-  -v, --verbose         Show info on each converted instruction.
-  -V, --version         Show SkoolKit version number and exit.
-  -w, --no-warnings     Suppress warnings.
+  -B, --banks        Process @bank directives and write RAM banks 0-7 to a
+                     128K file.
+  -b, --bfix         Apply @ofix and @bfix directives.
+  -d, --data         Process @defb, @defs and @defw directives.
+  -E, --end ADDR     Stop converting at this address.
+  -I, --ini p=v      Set the value of the configuration parameter &#39;p&#39; to &#39;v&#39;.
+                     This option may be used multiple times.
+  -i, --isub         Apply @isub directives.
+  -o, --ofix         Apply @ofix directives.
+  -r, --rsub         Apply @isub, @ssub and @rsub directives (implies --ofix).
+  -R, --rfix         Apply @ofix, @bfix and @rfix directives (implies --rsub).
+  --show-config      Show configuration parameter values.
+  -s, --ssub         Apply @isub and @ssub directives.
+  -S, --start ADDR   Start converting at this address.
+  -v, --verbose      Show info on each converted instruction.
+  -V, --version      Show SkoolKit version number and exit.
+  -w, --no-warnings  Suppress warnings.
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> option shows information on each converted instruction, such
@@ -603,7 +658,7 @@ instruction, and also had its operand changed from 40003</p></li>
 instructions were inserted, removed or replaced)</p></li>
 </ul>
 <section id="skool2bin-conf">
-<span id="id8"></span><h3>Configuration<a class="headerlink" href="#skool2bin-conf" title="Link to this heading">¶</a></h3>
+<span id="id9"></span><h3>Configuration<a class="headerlink" href="#skool2bin-conf" title="Link to this heading">¶</a></h3>
 <p><cite>skool2bin.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -674,7 +729,7 @@ arithmetic expressions</p></td>
 </section>
 </section>
 <section id="skool2ctl-py">
-<span id="id9"></span><h2>skool2ctl.py<a class="headerlink" href="#skool2ctl-py" title="Link to this heading">¶</a></h2>
+<span id="id10"></span><h2>skool2ctl.py<a class="headerlink" href="#skool2ctl-py" title="Link to this heading">¶</a></h2>
 <p><cite>skool2ctl.py</cite> converts a skool file into a <a class="reference internal" href="control-files.html#controlfiles"><span class="std std-ref">control file</span></a>.
 For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2ctl.py game.skool &gt; game.ctl
@@ -691,32 +746,31 @@ Convert a skool file into a control file and write it to standard output. FILE
 may be a regular file, or &#39;-&#39; for standard input.
 
 Options:
-  -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
-                        instruction operands and DEFB/DEFM/DEFS/DEFW statements.
-  -E ADDR, --end ADDR   Stop converting at this address.
-  -h, --hex             Write addresses in upper case hexadecimal format.
-  -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
-                        &#39;v&#39;. This option may be used multiple times.
-  -k, --keep-lines      Preserve line breaks in comments.
-  -l, --hex-lower       Write addresses in lower case hexadecimal format.
-  --show-config         Show configuration parameter values.
-  -S ADDR, --start ADDR
-                        Start converting at this address.
-  -V, --version         Show SkoolKit version number and exit.
-  -w X, --write X       Write only these elements, where X is one or more of:
-                          a = ASM directives
-                          b = block types and addresses
-                          t = block titles
-                          d = block descriptions
-                          r = registers
-                          m = mid-block comments and block start/end comments
-                          s = sub-block types and addresses
-                          c = instruction-level comments
-                          n = non-entry blocks
+  -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
+                       instruction operands and DEFB/DEFM/DEFS/DEFW statements.
+  -E, --end ADDR       Stop converting at this address.
+  -h, --hex            Write addresses in upper case hexadecimal format.
+  -I, --ini p=v        Set the value of the configuration parameter &#39;p&#39; to
+                       &#39;v&#39;. This option may be used multiple times.
+  -k, --keep-lines     Preserve line breaks in comments.
+  -l, --hex-lower      Write addresses in lower case hexadecimal format.
+  --show-config        Show configuration parameter values.
+  -S, --start ADDR     Start converting at this address.
+  -V, --version        Show SkoolKit version number and exit.
+  -w, --write X        Write only these elements, where X is one or more of:
+                         a = ASM directives
+                         b = block types and addresses
+                         t = block titles
+                         d = block descriptions
+                         r = registers
+                         m = mid-block comments and block start/end comments
+                         s = sub-block types and addresses
+                         c = instruction-level comments
+                         n = non-entry blocks
 </pre></div>
 </div>
 <section id="skool2ctl-conf">
-<span id="id10"></span><h3>Configuration<a class="headerlink" href="#skool2ctl-conf" title="Link to this heading">¶</a></h3>
+<span id="id11"></span><h3>Configuration<a class="headerlink" href="#skool2ctl-conf" title="Link to this heading">¶</a></h3>
 <p><cite>skool2ctl.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -794,7 +848,7 @@ before 65536</p></td>
 </section>
 </section>
 <section id="skool2html-py">
-<span id="id11"></span><h2>skool2html.py<a class="headerlink" href="#skool2html-py" title="Link to this heading">¶</a></h2>
+<span id="id12"></span><h2>skool2html.py<a class="headerlink" href="#skool2html-py" title="Link to this heading">¶</a></h2>
 <p><cite>skool2html.py</cite> converts a skool file (and its associated ref files, if any
 exist) into a browsable disassembly in HTML format.</p>
 <p>For example:</p>
@@ -817,47 +871,42 @@ Convert a skool file and ref files to HTML. SKOOLFILE may be a regular file, or
 Options:
   -1, --asm-one-page    Write all routines and data blocks to a single page.
   -a, --asm-labels      Use ASM labels.
-  -c S/L, --config S/L  Add the line &#39;L&#39; to the ref file section &#39;S&#39;. This
+  -c, --config S/L      Add the line &#39;L&#39; to the ref file section &#39;S&#39;. This
                         option may be used multiple times.
   -C, --create-labels   Create default labels for unlabelled instructions.
-  -d DIR, --output-dir DIR
-                        Write files in this directory (default is &#39;.&#39;).
+  -d, --output-dir DIR  Write files in this directory (default is &#39;.&#39;).
   -D, --decimal         Write the disassembly in decimal.
   -H, --hex             Write the disassembly in hexadecimal.
-  -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
+  -I, --ini p=v         Set the value of the configuration parameter &#39;p&#39; to
                         &#39;v&#39;. This option may be used multiple times.
-  -j NAME, --join-css NAME
-                        Concatenate CSS files into a single file with this name.
+  -j, --join-css NAME   Concatenate CSS files into a single file with this name.
   -l, --lower           Write the disassembly in lower case.
   -o, --rebuild-images  Overwrite existing image files.
   -O, --rebuild-audio   Overwrite existing audio files.
   -p, --package-dir     Show path to skoolkit package directory and exit.
-  -P PAGES, --pages PAGES
-                        Write only these pages (when using &#39;--write P&#39;).
+  -P, --pages PAGES     Write only these pages (when using &#39;--write P&#39;).
                         PAGES is a comma-separated list of page IDs.
   -q, --quiet           Be quiet.
-  -r PREFIX, --ref-sections PREFIX
+  -r, --ref-sections PREFIX
                         Show default ref file sections whose names start with
                         PREFIX and exit.
   -R, --ref-file        Show the entire default ref file and exit.
   -s, --search-dirs     Show the locations skool2html.py searches for resources.
-  -S DIR, --search DIR  Add this directory to the resource search path. This
+  -S, --search DIR      Add this directory to the resource search path. This
                         option may be used multiple times.
   --show-config         Show configuration parameter values.
   -t, --time            Show timings.
-  -T THEME, --theme THEME
-                        Use this CSS theme. This option may be used multiple
+  -T, --theme THEME     Use this CSS theme. This option may be used multiple
                         times.
   -u, --upper           Write the disassembly in upper case.
   --var name=value      Define a variable that can be used by @if and skool
                         macros. This option may be used multiple times.
   -V, --version         Show SkoolKit version number and exit.
-  -w X, --write X       Write only these files, where X is one or more of:
+  -w, --write X         Write only these files, where X is one or more of:
                           d = Disassembly files   o = Other code
                           i = Disassembly index   P = Other pages
                           m = Memory maps
-  -W CLASS, --writer CLASS
-                        Specify the HTML writer class to use; shorthand for
+  -W, --writer CLASS    Specify the HTML writer class to use; shorthand for
                         &#39;--config Config/HtmlWriterClass=CLASS&#39;.
 </pre></div>
 </div>
@@ -897,7 +946,7 @@ StyleSheet=skoolkit.css;game.css
 <li><p><cite>wide.css</cite></p></li>
 </ul>
 <section id="skool2html-conf">
-<span id="id12"></span><h3>Configuration<a class="headerlink" href="#skool2html-conf" title="Link to this heading">¶</a></h3>
+<span id="id13"></span><h3>Configuration<a class="headerlink" href="#skool2html-conf" title="Link to this heading">¶</a></h3>
 <p><cite>skool2html.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -1044,7 +1093,7 @@ by default; added the <code class="docutils literal notranslate"><span class="pr
 </section>
 </section>
 <section id="sna2ctl-py">
-<span id="id13"></span><h2>sna2ctl.py<a class="headerlink" href="#sna2ctl-py" title="Link to this heading">¶</a></h2>
+<span id="id14"></span><h2>sna2ctl.py<a class="headerlink" href="#sna2ctl-py" title="Link to this heading">¶</a></h2>
 <p><cite>sna2ctl.py</cite> generates a control file for a binary (raw memory) file or a SNA,
 SZX or Z80 snapshot. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sna2ctl.py game.z80 &gt; game.ctl
@@ -1059,22 +1108,21 @@ Generate a control file for a binary (raw memory) file or a SNA, SZX or Z80
 snapshot. FILE may be a regular file, or &#39;-&#39; for standard input.
 
 Options:
-  -C, --comments        Generate instruction comments.
-  -e ADDR, --end ADDR   Stop at this address (default=65536).
-  -h, --hex             Write upper case hexadecimal addresses.
-  -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
-                        &#39;v&#39;. This option may be used multiple times.
-  -l, --hex-lower       Write lower case hexadecimal addresses.
-  -m FILE, --map FILE   Use FILE as a code execution map.
-  -o ADDR, --org ADDR   Specify the origin address of a binary file (default:
-                        65536 - length).
-  -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
-                        49152-65535.
-  -r, --handle-rst      Handle RST instruction arguments.
-  --show-config         Show configuration parameter values.
-  -s ADDR, --start ADDR
-                        Start at this address.
-  -V, --version         Show SkoolKit version number and exit.
+  -C, --comments    Generate instruction comments.
+  -e, --end ADDR    Stop at this address.
+  -h, --hex         Write upper case hexadecimal addresses.
+  -I, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to &#39;v&#39;.
+                    This option may be used multiple times.
+  -l, --hex-lower   Write lower case hexadecimal addresses.
+  -m, --map FILE    Use FILE as a code execution map.
+  -o, --org ADDR    Specify the origin address of a binary file (default:
+                    65536 - length).
+  -p, --page PAGE   Specify the page (0-7) of a 128K snapshot to map to
+                    49152-65535.
+  -r, --handle-rst  Handle RST instruction arguments.
+  --show-config     Show configuration parameter values.
+  -s, --start ADDR  Start at this address.
+  -V, --version     Show SkoolKit version number and exit.
 </pre></div>
 </div>
 <p>If the input filename does not end with ‘.sna’, ‘.szx’ or ‘.z80’, it is assumed
@@ -1094,7 +1142,7 @@ file; otherwise it is assumed to be in one of the other supported formats.</p>
 identifies the byte/word argument(s) of an RST instruction, a <a class="reference internal" href="control-files.html#bdirective"><span class="std std-ref">B directive</span></a>
 or <a class="reference internal" href="control-files.html#wdirective"><span class="std std-ref">W directive</span></a> is generated accordingly.</p>
 <section id="sna2ctl-conf">
-<span id="id14"></span><h3>Configuration<a class="headerlink" href="#sna2ctl-conf" title="Link to this heading">¶</a></h3>
+<span id="id15"></span><h3>Configuration<a class="headerlink" href="#sna2ctl-conf" title="Link to this heading">¶</a></h3>
 <p><cite>sna2ctl.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -1161,7 +1209,7 @@ configuration parameter</p></td>
 </section>
 </section>
 <section id="sna2img-py">
-<span id="id15"></span><h2>sna2img.py<a class="headerlink" href="#sna2img-py" title="Link to this heading">¶</a></h2>
+<span id="id16"></span><h2>sna2img.py<a class="headerlink" href="#sna2img-py" title="Link to this heading">¶</a></h2>
 <p><cite>sna2img.py</cite> converts the screenshot or other graphic data in a binary (raw
 memory) file, SCR file, skool file, or SNA/SZX/Z80 snapshot into a PNG file.
 For example:</p>
@@ -1179,28 +1227,26 @@ snapshot.
 Options:
   -b, --bfix            Parse a skool file in @bfix mode.
   -B, --binary          Read the input as a binary (raw memory) file.
-  -e MACRO, --expand MACRO
-                        Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The &#39;#&#39;
+  -e, --expand MACRO    Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The &#39;#&#39;
                         prefix may be omitted.
-  -f N, --flip N        Flip the image horizontally (N=1), vertically (N=2),
+  -f, --flip N          Flip the image horizontally (N=1), vertically (N=2),
                         or both (N=3).
   -i, --invert          Invert video for cells that are flashing.
-  -m src,size,dest, --move src,size,dest
+  -m, --move src,size,dest
                         Move a block of bytes of the given size from src to
                         dest. This option may be used multiple times.
   -n, --no-animation    Do not animate flashing cells.
-  -o X,Y, --origin X,Y  Top-left crop at (X,Y).
-  -O ORG, --org ORG     Set the origin address of a binary file (default:
+  -o, --origin X,Y      Top-left crop at (X,Y).
+  -O, --org ORG         Set the origin address of a binary file (default:
                         65536 minus the length of the file).
-  -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+  -p, --poke a[-b[-c]],[^+]v
                         POKE N,v for N in {a, a+c, a+2c..., b}. Prefix &#39;v&#39;
                         with &#39;^&#39; to perform an XOR operation, or &#39;+&#39; to
                         perform an ADD operation. This option may be used
                         multiple times.
-  -r N, --rotate N      Rotate the image 90*N degrees clockwise.
-  -s SCALE, --scale SCALE
-                        Set the scale of the image (default=1).
-  -S WxH, --size WxH    Crop to this width and height (in tiles).
+  -r, --rotate N        Rotate the image 90*N degrees clockwise.
+  -s, --scale SCALE     Set the scale of the image (default=1).
+  -S, --size WxH        Crop to this width and height (in tiles).
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
@@ -1230,7 +1276,7 @@ options accept hexadecimal integers prefixed by ‘0x’</p></td>
 </table>
 </section>
 <section id="sna2skool-py">
-<span id="id16"></span><h2>sna2skool.py<a class="headerlink" href="#sna2skool-py" title="Link to this heading">¶</a></h2>
+<span id="id17"></span><h2>sna2skool.py<a class="headerlink" href="#sna2skool-py" title="Link to this heading">¶</a></h2>
 <p><cite>sna2skool.py</cite> converts a binary (raw memory) file or a SNA, SZX or Z80
 snapshot into a skool file. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sna2skool.py game.z80 &gt; game.skool
@@ -1247,29 +1293,28 @@ Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool
 file. FILE may be a regular file, or &#39;-&#39; for standard input.
 
 Options:
-  -c PATH, --ctl PATH   Specify a control file to use, or a directory from
-                        which to read control files. PATH may be &#39;-&#39; for
-                        standard input, or &#39;0&#39; to use no control file. This
-                        option may be used multiple times.
-  -C, --comments        Generate instruction comments.
-  -d SIZE, --defb SIZE  Disassemble as DEFB statements of this size.
-  -e ADDR, --end ADDR   Stop disassembling at this address (default: 65536).
-  -H, --hex             Write hexadecimal addresses and operands in the
-                        disassembly.
-  -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
-                        &#39;v&#39;. This option may be used multiple times.
-  -l, --lower           Write the disassembly in lower case.
-  -o ADDR, --org ADDR   Specify the origin address of a binary (.bin) file
-                        (default: 65536 - length).
-  -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
-                        49152-65535.
-  -r, --handle-rst      Handle RST instruction arguments.
-  --show-config         Show configuration parameter values.
-  -s ADDR, --start ADDR
-                        Start disassembling at this address.
-  -V, --version         Show SkoolKit version number and exit.
-  -w W, --line-width W  Set the maximum line width of the skool file (default:
-                        79).
+  -c, --ctl PATH      Specify a control file to use, or a directory from which
+                      to read control files. PATH may be &#39;-&#39; for standard
+                      input, or &#39;0&#39; to use no control file. This option may be
+                      used multiple times.
+  -C, --comments      Generate instruction comments.
+  -d, --defb SIZE     Disassemble as DEFB statements of this size.
+  -e, --end ADDR      Stop disassembling at this address.
+  -H, --hex           Write hexadecimal addresses and operands in the
+                      disassembly.
+  -I, --ini p=v       Set the value of the configuration parameter &#39;p&#39; to &#39;v&#39;.
+                      This option may be used multiple times.
+  -l, --lower         Write the disassembly in lower case.
+  -o, --org ADDR      Specify the origin address of a binary (.bin) file
+                      (default: 65536 - length).
+  -p, --page PAGE     Specify the page (0-7) of a 128K snapshot to map to
+                      49152-65535.
+  -r, --handle-rst    Handle RST instruction arguments.
+  --show-config       Show configuration parameter values.
+  -s, --start ADDR    Start disassembling at this address.
+  -V, --version       Show SkoolKit version number and exit.
+  -w, --line-width W  Set the maximum line width of the skool file (default:
+                      79).
 </pre></div>
 </div>
 <p>If the input filename does not end with ‘.sna’, ‘.szx’ or ‘.z80’, it is assumed
@@ -1293,7 +1338,7 @@ statement is produced accordingly. This is useful only if no control file is
 used, or if the control file does not already contain <code class="docutils literal notranslate"><span class="pre">B</span></code> or <code class="docutils literal notranslate"><span class="pre">W</span></code> directives
 for RST instruction arguments.</p>
 <section id="sna2skool-conf">
-<span id="id17"></span><h3>Configuration<a class="headerlink" href="#sna2skool-conf" title="Link to this heading">¶</a></h3>
+<span id="id18"></span><h3>Configuration<a class="headerlink" href="#sna2skool-conf" title="Link to this heading">¶</a></h3>
 <p><cite>sna2skool.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -1520,47 +1565,44 @@ statement</p></td>
 </section>
 </section>
 <section id="snapinfo-py">
-<span id="id18"></span><h2>snapinfo.py<a class="headerlink" href="#snapinfo-py" title="Link to this heading">¶</a></h2>
+<span id="id19"></span><h2>snapinfo.py<a class="headerlink" href="#snapinfo-py" title="Link to this heading">¶</a></h2>
 <p><cite>snapinfo.py</cite> shows information on the registers or RAM in a binary (raw
 memory) file or a SNA, SZX or Z80 snapshot. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ snapinfo.py game.z80
 </pre></div>
 </div>
 <p>To list the options supported by <cite>snapinfo.py</cite>, run it with no arguments:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: snapinfo.py [options] file
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: snapinfo.py [options] FILE
 
 Analyse a binary (raw memory) file or a SNA, SZX or Z80 snapshot.
 
 Options:
   -b, --basic           List the BASIC program.
-  -c PATH, --ctl PATH   When generating a call graph, specify a control file
+  -c, --ctl PATH        When generating a call graph, specify a control file
                         to use, or a directory from which to read control
                         files. PATH may be &#39;-&#39; for standard input. This option
                         may be used multiple times.
-  -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
+  -f, --find A[,B...[-M[-N]]]
                         Search for the byte sequence A,B... with distance
                         ranging from M to N (default=1) between bytes.
   -g, --call-graph      Generate a call graph in DOT format.
-  -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
+  -I, --ini p=v         Set the value of the configuration parameter &#39;p&#39; to
                         &#39;v&#39;. This option may be used multiple times.
-  -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
+  -o, --org ADDR        Specify the origin address of a binary (raw memory)
                         file (default: 65536 - length).
-  -p A[-B[-C]], --peek A[-B[-C]]
-                        Show the contents of addresses A TO B STEP C. This
+  -p, --peek A[-B[-C]]  Show the contents of addresses A TO B STEP C. This
                         option may be used multiple times.
-  -P PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
+  -P, --page PAGE       Specify the page (0-7) of a 128K snapshot to map to
                         49152-65535.
   --show-config         Show configuration parameter values.
-  -t TEXT, --find-text TEXT
-                        Search for a text string.
-  -T X,Y[-M[-N]], --find-tile X,Y[-M[-N]]
+  -t, --find-text TEXT  Search for a text string.
+  -T, --find-tile X,Y[-M[-N]]
                         Search for the graphic data of the tile at (X,Y) with
                         distance ranging from M to N (default=1) between
                         bytes.
   -v, --variables       List variables.
   -V, --version         Show SkoolKit version number and exit.
-  -w A[-B[-C]], --word A[-B[-C]]
-                        Show the words at addresses A TO B STEP C. This option
+  -w, --word A[-B[-C]]  Show the words at addresses A TO B STEP C. This option
                         may be used multiple times.
 </pre></div>
 </div>
@@ -1607,7 +1649,7 @@ the <code class="docutils literal notranslate"><span class="pre">EdgeAttributes<
 <code class="docutils literal notranslate"><span class="pre">NodeLabel</span></code> configuration parameters (see below).</p>
 </section>
 <section id="snapinfo-conf">
-<span id="id19"></span><h3>Configuration<a class="headerlink" href="#snapinfo-conf" title="Link to this heading">¶</a></h3>
+<span id="id20"></span><h3>Configuration<a class="headerlink" href="#snapinfo-conf" title="Link to this heading">¶</a></h3>
 <p><cite>snapinfo.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -1701,33 +1743,32 @@ shown as special symbols (e.g. <code class="docutils literal notranslate"><span 
 </section>
 </section>
 <section id="snapmod-py">
-<span id="id20"></span><h2>snapmod.py<a class="headerlink" href="#snapmod-py" title="Link to this heading">¶</a></h2>
+<span id="id21"></span><h2>snapmod.py<a class="headerlink" href="#snapmod-py" title="Link to this heading">¶</a></h2>
 <p><cite>snapmod.py</cite> modifies the registers and RAM in an SZX or Z80 snapshot. For
 example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ snapmod.py --poke 32768,0 game.z80 poked.z80
 </pre></div>
 </div>
 <p>To list the options supported by <cite>snapmod.py</cite>, run it with no arguments:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: snapmod.py [options] infile [outfile]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: snapmod.py [options] INFILE [OUTFILE]
 
 Modify an SZX or Z80 snapshot.
 
 Options:
-  -m [s:]src,size,[d:]dest, --move [s:]src,size,[d:]dest
+  -m, --move [s:]src,size,[d:]dest
                         Copy a block of bytes of the given size from src in
                         RAM bank s to dest in RAM bank d. This option may be
                         used multiple times.
   --patch [p:]a,file    Apply a binary patch file at address &#39;a&#39; in RAM bank
                         &#39;p&#39;. This option may be used multiple times.
-  -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
+  -p, --poke [p:]a[-b[-c]],[^+]v
                         POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}.
                         Prefix &#39;v&#39; with &#39;^&#39; to perform an XOR operation, or
                         &#39;+&#39; to perform an ADD operation. This option may be
                         used multiple times.
-  -r name=value, --reg name=value
-                        Set the value of a register. Do &#39;--reg help&#39; for more
+  -r, --reg name=value  Set the value of a register. Do &#39;--reg help&#39; for more
                         information. This option may be used multiple times.
-  -s name=value, --state name=value
+  -s, --state name=value
                         Set a hardware state attribute. Do &#39;--state help&#39; for
                         more information. This option may be used multiple
                         times.
@@ -1768,7 +1809,7 @@ hexadecimal integers prefixed by ‘0x’</p></td>
 </table>
 </section>
 <section id="tap2sna-py">
-<span id="id21"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Link to this heading">¶</a></h2>
+<span id="id22"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Link to this heading">¶</a></h2>
 <p><cite>tap2sna.py</cite> converts one or two PZX, TAP or TZX files (which may be inside a
 zip archive) into an SZX or Z80 snapshot. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py game.tap game.z80
@@ -1786,20 +1827,18 @@ both be (local or remote) tape files. Arguments may be read from FILE instead
 of (or as well as) being given on the command line.
 
 Options:
-  -c name=value, --sim-load-config name=value
+  -c, --sim-load-config name=value
                         Set the value of a simulated LOAD configuration
                         parameter. Do &#39;-c help&#39; for more information, or &#39;-c
                         help-name&#39; for help on a specific parameter. This
                         option may be used multiple times.
-  -d DIR, --output-dir DIR
-                        Write the snapshot file in this directory.
-  -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
+  -d, --output-dir DIR  Write the snapshot file in this directory.
+  -I, --ini p=v         Set the value of the configuration parameter &#39;p&#39; to
                         &#39;v&#39;. This option may be used multiple times.
   --press N:KEYS        Pause the tape at block number N and press KEYS before
                         resuming. KEYS must be a space-separated list of key
                         identifiers. This option may be used multiple times.
-  -p STACK, --stack STACK
-                        Set the stack pointer.
+  -p, --stack STACK     Set the stack pointer.
   --ram OPERATION       Perform a load operation or otherwise modify the
                         memory snapshot being built. Do &#39;--ram help&#39; for more
                         information. This option may be used multiple times.
@@ -1807,8 +1846,7 @@ Options:
                         information. This option may be used multiple times.
   --screen              Display screen contents while running.
   --show-config         Show configuration parameter values.
-  -s START, --start START
-                        Set the start address to JP to.
+  -s, --start START     Set the start address to JP to.
   --state name=value    Set a hardware state attribute. Do &#39;--state help&#39; for
                         more information. This option may be used multiple
                         times.
@@ -1821,7 +1859,7 @@ Options:
   --tape-stop BLOCK     Stop the tape at this block number.
   --tape-sum MD5SUM     Specify the MD5 checksum of the tape file. This option
                         may be used twice if loading two tape files.
-  -u AGENT, --user-agent AGENT
+  -u, --user-agent AGENT
                         Set the User-Agent header.
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
@@ -1945,7 +1983,7 @@ much faster C version if available (<code class="docutils literal notranslate"><
 <li><p><code class="docutils literal notranslate"><span class="pre">timeout</span></code> - the number of seconds of Z80 CPU time after which to abort the
 simulated LOAD if it’s still in progress (default: 900)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trace</span></code> - the file to which to log all instructions executed during the
-simulated LOAD (default: none)</p></li>
+simulated LOAD (default: none); use <code class="docutils literal notranslate"><span class="pre">-</span></code> to log to standard output</p></li>
 </ul>
 <p>The <code class="docutils literal notranslate"><span class="pre">in-flags</span></code> parameter is the sum of the following values, chosen according
 to the desired behaviour:</p>
@@ -2012,7 +2050,7 @@ being a sequence of any characters other than space), each of which is broken
 down into a sequence of one or more keypresses. If a word contains the ‘+’
 symbol, the tokens it separates are converted into keypresses made
 simultaneously. If a word matches a BASIC token, the corresponding sequence of
-keypresses to produce that token are substituted. Otherwise, each character in
+keypresses to produce that token is substituted. Otherwise, each character in
 the word is converted individually into the appropriate keypresses.</p>
 <p>The following special tokens are also recognised:</p>
 <ul class="simple">
@@ -2078,7 +2116,7 @@ game’s loader responds to it. In such cases the <code class="docutils literal 
 three times before resuming the tape at block number 6.</p>
 </section>
 <section id="tap2sna-conf">
-<span id="id22"></span><h3>Configuration<a class="headerlink" href="#tap2sna-conf" title="Link to this heading">¶</a></h3>
+<span id="id23"></span><h3>Configuration<a class="headerlink" href="#tap2sna-conf" title="Link to this heading">¶</a></h3>
 <p><cite>tap2sna.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -2086,9 +2124,14 @@ configuration parameters are:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">DefaultSnapshotFormat</span></code> - the format of the snapshot written when no output
 snapshot argument is specified; valid values are <code class="docutils literal notranslate"><span class="pre">z80</span></code> (the default) and
 <code class="docutils literal notranslate"><span class="pre">szx</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Screen</span></code> - display screen contents while running (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>,
+the default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> - screen refresh rate in frames per second (default: <code class="docutils literal notranslate"><span class="pre">50</span></code>);
-if set to 0, <cite>tap2sna.py</cite> runs at maximum speed</p></li>
+if set to 0, run at maximum speed and update the screen 50 times per second;
+if set to a negative value (-N), run at maximum speed and update the screen
+N times per second</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> - screen scale factor (default: <code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TraceHeader</span></code> - the trace log file header (default: None)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> - the format of each line in the trace log file for a simulated
 LOAD (default: <code class="docutils literal notranslate"><span class="pre">${pc:04X}</span> <span class="pre">{i}</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> - the prefix, byte format, and word format for the numeric
@@ -2125,6 +2168,8 @@ clock is adjusted to match the timestamp of the first pulse in each block (as
 shown by the <code class="docutils literal notranslate"><span class="pre">--tape-analysis</span></code> option) when that block is reached. (The
 simulator’s clock may at times become desynchronised with the tape because, by
 default, the tape is paused between blocks, and resumed when port 254 is read.)</p>
+<p>Wherever <code class="docutils literal notranslate"><span class="pre">\n</span></code> appears in the <code class="docutils literal notranslate"><span class="pre">TraceHeader</span></code> parameter value, it is replaced
+by a newline character.</p>
 <p>Configuration parameters must appear in a <code class="docutils literal notranslate"><span class="pre">[tap2sna]</span></code> section. For example,
 to make <cite>tap2sna.py</cite> write instruction addresses and operands in a trace log
 file in decimal format by default, add the following section to
@@ -2144,16 +2189,21 @@ TraceOperand=
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>10.1</p></td>
+<tr class="row-even"><td><p>10.2</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">Screen</span></code> and <code class="docutils literal notranslate"><span class="pre">TraceHeader</span></code> configuration
+parameters; added support for tracing to standard output; added
+support for negative <code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> values</p></td>
+</tr>
+<tr class="row-odd"><td><p>10.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--screen</span></code> option; added the <code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> and
 <code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> configuration parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p>10.0</p></td>
+<tr class="row-even"><td><p>10.0</p></td>
 <td><p>Added support for setting the MEMPTR register in SZX snapshots;
 added support for the <code class="docutils literal notranslate"><span class="pre">r[memptr]</span></code> replacement field in the
 <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>9.6</p></td>
+<tr class="row-odd"><td><p>9.6</p></td>
 <td><p>Added the ability to load from two tape files; added the
 <code class="docutils literal notranslate"><span class="pre">--press</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-skip</span></code> options; added support to the
 <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">patch</span></code> operation; changed the default
@@ -2166,23 +2216,23 @@ tape-sampling loop accelerators; removed the <code class="docutils literal notra
 <code class="docutils literal notranslate"><span class="pre">gremlin2</span></code>, <code class="docutils literal notranslate"><span class="pre">housenka</span></code>, <code class="docutils literal notranslate"><span class="pre">suzy-soft</span></code> and <code class="docutils literal notranslate"><span class="pre">suzy-soft2</span></code>
 tape-sampling loop accelerators</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.5</p></td>
+<tr class="row-even"><td><p>9.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">UserAgent</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>9.3</p></td>
+<tr class="row-odd"><td><p>9.3</p></td>
 <td><p>Added support for PZX files; added support for the <code class="docutils literal notranslate"><span class="pre">m</span></code> (memory)
 replacement field in the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.2</p></td>
+<tr class="row-even"><td><p>9.2</p></td>
 <td><p>Added support for TZX block type 0x15 (direct recording); added
 the <code class="docutils literal notranslate"><span class="pre">python</span></code> simulated LOAD configuration parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>9.1</p></td>
+<tr class="row-odd"><td><p>9.1</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">move</span></code> and <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">poke</span></code> options can modify specific
 RAM banks; added the <code class="docutils literal notranslate"><span class="pre">cmio</span></code> simulated LOAD configuration
 parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.0</p></td>
+<tr class="row-even"><td><p>9.0</p></td>
 <td><p>A simulated LOAD is performed by default; an existing snapshot
 will be overwritten by default; added the <code class="docutils literal notranslate"><span class="pre">load</span></code>, <code class="docutils literal notranslate"><span class="pre">machine</span></code>,
 <code class="docutils literal notranslate"><span class="pre">polarity</span></code> and <code class="docutils literal notranslate"><span class="pre">in-flags</span></code> simulated LOAD configuration
@@ -2195,7 +2245,7 @@ parameter; added the <code class="docutils literal notranslate"><span class="pre
 tape-sampling loop accelerators; shows ‘DEC A’ delay loop
 statistics when <code class="docutils literal notranslate"><span class="pre">accelerator=list</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>8.10</p></td>
+<tr class="row-odd"><td><p>8.10</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-analysis</span></code> options;
 added the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> and <code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> configuration
@@ -2214,45 +2264,45 @@ multiple accelerators; added the <code class="docutils literal notranslate"><spa
 <code class="docutils literal notranslate"><span class="pre">suzy-soft2</span></code>, <code class="docutils literal notranslate"><span class="pre">tiny</span></code>, <code class="docutils literal notranslate"><span class="pre">us-gold</span></code> and <code class="docutils literal notranslate"><span class="pre">weird-science</span></code>
 tape-sampling loop accelerators</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.9</p></td>
+<tr class="row-even"><td><p>8.9</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--sim-load-config</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-name</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--tape-start</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-stop</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-sum</span></code> options;
 added support for TZX loops, pauses, and unused bits in data
 blocks; added support for quoted arguments in an arguments file;
 added the <code class="docutils literal notranslate"><span class="pre">tstates</span></code> hardware state attribute</p></td>
 </tr>
-<tr class="row-even"><td><p>8.8</p></td>
+<tr class="row-odd"><td><p>8.8</p></td>
 <td><p>A simulated LOAD performs any <code class="docutils literal notranslate"><span class="pre">call/move/poke/sysvars</span></code>
 operations specified by <code class="docutils literal notranslate"><span class="pre">--ram</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>8.7</p></td>
+<tr class="row-even"><td><p>8.7</p></td>
 <td><p>Added support for simulating a 48K Spectrum LOADing a tape; when
 a headerless block is ignored because no <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> options
 have been specified, a warning is printed</p></td>
 </tr>
-<tr class="row-even"><td><p>8.6</p></td>
+<tr class="row-odd"><td><p>8.6</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">call</span></code> operation</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.4</p></td>
+<tr class="row-even"><td><p>8.4</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">sysvars</span></code>
 operation</p></td>
 </tr>
-<tr class="row-even"><td><p>6.3</p></td>
+<tr class="row-odd"><td><p>6.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--user-agent</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--ram</span></code>, <code class="docutils literal notranslate"><span class="pre">--reg</span></code>, <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options
 accept hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>5.3</p></td>
+<tr class="row-odd"><td><p>5.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.5</p></td>
+<tr class="row-even"><td><p>4.5</p></td>
 <td><p>Added support for TZX block type 0x14 (pure data), for loading
 the first and last bytes of a tape block, and for modifying
 memory with XOR and ADD operations</p></td>
 </tr>
-<tr class="row-even"><td><p>3.5</p></td>
+<tr class="row-odd"><td><p>3.5</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -2260,7 +2310,7 @@ memory with XOR and ADD operations</p></td>
 </section>
 </section>
 <section id="tapinfo-py">
-<span id="id23"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Link to this heading">¶</a></h2>
+<span id="id24"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Link to this heading">¶</a></h2>
 <p><cite>tapinfo.py</cite> shows information on the blocks in a PZX, TAP or TZX file. For
 example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tapinfo.py game.tzx
@@ -2272,13 +2322,15 @@ example:</p>
 Show the blocks in a PZX, TAP or TZX file.
 
 Options:
-  -b N[,A], --basic N[,A]
-                        List the BASIC program in block N loaded at address A
-                        (default 23755).
-  -d, --data            Show the entire contents of header and data blocks.
-  --tape-start BLOCK    Start at this tape block number.
-  --tape-stop BLOCK     Stop at this tape block number.
-  -V, --version         Show SkoolKit version number and exit.
+  -a, --analyse       Show an analysis of the tape&#39;s tones, pulse sequences
+                      and data blocks.
+  -b, --basic N[,A]   List the BASIC program in block N loaded at address A
+                      (default 23755).
+  -d, --data          Show the entire contents of header and data blocks.
+  --tape-skip A[-B]   Skip block numbers A-B on the tape.
+  --tape-start BLOCK  Start at this tape block number.
+  --tape-stop BLOCK   Stop at this tape block number.
+  -V, --version       Show SkoolKit version number and exit.
 </pre></div>
 </div>
 <table class="docutils align-default">
@@ -2288,48 +2340,51 @@ Options:
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>9.3</p></td>
+<tr class="row-even"><td><p>10.2</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--analyse</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-skip</span></code> options</p></td>
+</tr>
+<tr class="row-odd"><td><p>9.3</p></td>
 <td><p>Added support for PZX files; added the <code class="docutils literal notranslate"><span class="pre">--tape-start</span></code> and
 <code class="docutils literal notranslate"><span class="pre">--tape-stop</span></code> options; shows info for TZX block types 0x18 (CSW
 recording) and 0x2B (set signal level); recognises deprecated TZX
 block types 0x16, 0x17, 0x34 and 0x40</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.2</p></td>
+<tr class="row-even"><td><p>9.2</p></td>
 <td><p>Shows info for TZX block type 0x15 (direct recording)</p></td>
 </tr>
-<tr class="row-even"><td><p>9.0</p></td>
+<tr class="row-odd"><td><p>9.0</p></td>
 <td><p>Shows the LINE number (if present) for ‘Program:’ header blocks;
 renders BASIC tokens in header block names</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.9</p></td>
+<tr class="row-even"><td><p>8.9</p></td>
 <td><p>Shows full info for TZX block types 0x10 and 0x11</p></td>
 </tr>
-<tr class="row-even"><td><p>8.3</p></td>
+<tr class="row-odd"><td><p>8.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--data</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.1</p></td>
+<tr class="row-even"><td><p>8.1</p></td>
 <td><p>Shows contents of TZX block types 0x33 (hardware type) and 0x35
 (custom info)</p></td>
 </tr>
-<tr class="row-even"><td><p>7.1</p></td>
+<tr class="row-odd"><td><p>7.1</p></td>
 <td><p>Shows pulse lengths in TZX block type 0x13 and full info for TZX
 block type 0x14</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--basic</span></code> option accepts a hexadecimal address prefixed by
 ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>6.0</p></td>
+<tr class="row-odd"><td><p>6.0</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--basic</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.0</p></td>
+<tr class="row-even"><td><p>5.0</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="trace-py">
-<span id="id24"></span><h2>trace.py<a class="headerlink" href="#trace-py" title="Link to this heading">¶</a></h2>
+<span id="id25"></span><h2>trace.py<a class="headerlink" href="#trace-py" title="Link to this heading">¶</a></h2>
 <p><cite>trace.py</cite> simulates the execution of machine code in a 48K, 128K or +2 memory
 snapshot. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ trace.py --start 32768 --stop 49152 game.z80
@@ -2354,31 +2409,29 @@ Options:
                         register.
   -D, --decimal         Show decimal values in verbose mode.
   --depth DEPTH         Simplify audio delays to this depth (default: 2).
-  -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
+  -I, --ini p=v         Set the value of the configuration parameter &#39;p&#39; to
                         &#39;v&#39;. This option may be used multiple times.
   --map FILE            Log addresses of executed instructions to a file.
-  -m MAX, --max-operations MAX
+  -m, --max-operations MAX
                         Maximum number of instructions to execute.
-  -M MAX, --max-tstates MAX
+  -M, --max-tstates MAX
                         Maximum number of T-states to run for.
   -n, --no-interrupts   Don&#39;t execute interrupt routines.
-  -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
+  -o, --org ADDR        Specify the origin address of a binary (raw memory)
                         file (default: 65536 - length).
-  -p [p:]a[-b[-c]],[^+]v, --poke [p:]a[-b[-c]],[^+]v
+  -p, --poke [p:]a[-b[-c]],[^+]v
                         POKE N,v in RAM bank p for N in {a, a+c, a+2c..., b}
                         before execution begins. Prefix &#39;v&#39; with &#39;^&#39; to
                         perform an XOR operation, or &#39;+&#39; to perform an ADD
                         operation. This option may be used multiple times.
   --python              Use the pure Python Z80 simulator.
-  -r name=value, --reg name=value
-                        Set the value of a register before execution begins.
+  -r, --reg name=value  Set the value of a register before execution begins.
                         Do &#39;--reg help&#39; for more information. This option may
                         be used multiple times.
   --rom FILE            Patch in a ROM at address 0 from this file.
   --show-config         Show configuration parameter values.
-  -s ADDR, --start ADDR
-                        Start execution at this address.
-  -S ADDR, --stop ADDR  Stop execution at this address.
+  -s, --start ADDR      Start execution at this address.
+  -S, --stop ADDR       Stop execution at this address.
   --screen              Display screen contents and respond to keypresses
                         while running.
   --state name=value    Set a hardware state attribute before execution
@@ -2418,7 +2471,7 @@ While the screen is displayed, <cite>trace.py</cite> will also respond to keypre
 the left shift key mapped to CAPS SHIFT on the Spectrum keyboard, and the left
 Ctrl key mapped to SYMBOL SHIFT.</p>
 <section id="trace-conf">
-<span id="id25"></span><h3>Configuration<a class="headerlink" href="#trace-conf" title="Link to this heading">¶</a></h3>
+<span id="id26"></span><h3>Configuration<a class="headerlink" href="#trace-conf" title="Link to this heading">¶</a></h3>
 <p><cite>trace.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -2427,7 +2480,9 @@ configuration parameters are:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">Screen</span></code> - display screen contents while running (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>,
 the default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> - screen refresh rate in frames per second (default: <code class="docutils literal notranslate"><span class="pre">50</span></code>);
-if set to 0, <cite>trace.py</cite> runs at maximum speed</p></li>
+if set to 0, run at maximum speed and update the screen 50 times per second;
+if set to a negative value (-N), run at maximum speed and update the screen
+N times per second</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> - screen scale factor (default: <code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TraceHeader</span></code> - the header to print when <code class="docutils literal notranslate"><span class="pre">-v</span></code> is used (default: None)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TraceHeader2</span></code> - the header to print when <code class="docutils literal notranslate"><span class="pre">-vv</span></code> is used (default: None)</p></li>
@@ -2484,12 +2539,16 @@ TraceLine={t:&gt;10} ${pc:04X} {i}
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>10.1</p></td>
+<tr class="row-even"><td><p>10.2</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">--map</span></code> option updates an existing file instead of
+replacing it; added support for negative <code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> values</p></td>
+</tr>
+<tr class="row-odd"><td><p>10.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--ay-mode</span></code>, <code class="docutils literal notranslate"><span class="pre">--ay-res</span></code> and <code class="docutils literal notranslate"><span class="pre">--volume</span></code> options;
 added support for multiple colours in the border area of the
 screen</p></td>
 </tr>
-<tr class="row-odd"><td><p>10.0</p></td>
+<tr class="row-even"><td><p>10.0</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--ay</span></code> and <code class="docutils literal notranslate"><span class="pre">--beeper</span></code> options and support for
 capturing AY audio; added support to the <code class="docutils literal notranslate"><span class="pre">--reg</span></code> option for
 setting the MEMPTR register; reads and writes the MEMPTR register
@@ -2498,44 +2557,44 @@ field in the <code class="docutils literal notranslate"><span class="pre">TraceL
 <code class="docutils literal notranslate"><span class="pre">TraceHeader</span></code> and <code class="docutils literal notranslate"><span class="pre">TraceHeader2</span></code> configuration parameters;
 added a border area to the screen</p></td>
 </tr>
-<tr class="row-even"><td><p>9.6</p></td>
+<tr class="row-odd"><td><p>9.6</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Screen</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.5</p></td>
+<tr class="row-even"><td><p>9.5</p></td>
 <td><p>Responds to keypresses while the screen is displayed; added the
 <code class="docutils literal notranslate"><span class="pre">--map</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>9.4</p></td>
+<tr class="row-odd"><td><p>9.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--screen</span></code> option; added support for writing a PNG
 file after execution has completed; added the <code class="docutils literal notranslate"><span class="pre">PNGScale</span></code>,
 <code class="docutils literal notranslate"><span class="pre">ScreenFps</span></code> and <code class="docutils literal notranslate"><span class="pre">ScreenScale</span></code> configuration parameters; added
 support for multiple output file arguments</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.3</p></td>
+<tr class="row-even"><td><p>9.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--state</span></code> option; added support for writing a WAV
 file after execution has completed; added support for the <code class="docutils literal notranslate"><span class="pre">m</span></code>
 (memory) replacement field in the <code class="docutils literal notranslate"><span class="pre">TraceLine*</span></code> configuration
 parameters</p></td>
 </tr>
-<tr class="row-even"><td><p>9.2</p></td>
+<tr class="row-odd"><td><p>9.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--python</span></code> option; added support for +2 snapshots</p></td>
 </tr>
-<tr class="row-odd"><td><p>9.1</p></td>
+<tr class="row-even"><td><p>9.1</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--poke</span></code> option can modify specific RAM banks; added the
 <code class="docutils literal notranslate"><span class="pre">--cmio</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>9.0</p></td>
+<tr class="row-odd"><td><p>9.0</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-interrupts</span></code> and <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> options;
 interrupt routines are executed by default; added support for
 128K snapshots; added support for writing SZX snapshots; added
 the <code class="docutils literal notranslate"><span class="pre">-m</span></code> and <code class="docutils literal notranslate"><span class="pre">-M</span></code> short options</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.9</p></td>
+<tr class="row-even"><td><p>8.9</p></td>
 <td><p>Reads and writes the T-states counter in Z80 snapshots and reads
 the T-states counter in SZX snapshots</p></td>
 </tr>
-<tr class="row-even"><td><p>8.8</p></td>
+<tr class="row-odd"><td><p>8.8</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -2558,9 +2617,12 @@ the T-states counter in SZX snapshots</p></td>
 <li><a class="reference internal" href="#bin2sna-py">bin2sna.py</a></li>
 <li><a class="reference internal" href="#bin2tap-py">bin2tap.py</a></li>
 <li><a class="reference internal" href="#rzxinfo-py">rzxinfo.py</a></li>
-<li><a class="reference internal" href="#rzxplay-py">rzxplay.py</a></li>
-<li><a class="reference internal" href="#skool2asm-py">skool2asm.py</a><ul>
+<li><a class="reference internal" href="#rzxplay-py">rzxplay.py</a><ul>
 <li><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#skool2asm-py">skool2asm.py</a><ul>
+<li><a class="reference internal" href="#skool2asm-conf">Configuration</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#skool2bin-py">skool2bin.py</a><ul>
@@ -2651,7 +2713,7 @@ the T-states counter in SZX snapshots</p></td>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>

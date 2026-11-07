@@ -66,6 +66,9 @@ To see the default ``Layout`` template, run the following command::
 
   $ skool2html.py -r Template:Layout
 
+.. versionchanged:: 10.2
+   Added a ``<meta name="viewport" ... />`` element.
+
 .. versionadded:: 8.0
 
 .. _t_asm:
@@ -172,7 +175,7 @@ would produce the string ``3E01`` for the instruction 'LD A,1'. And::
   {$instruction[bytes]:/02X/ />11}
 
 would render byte values as 2-digit upper case hexadecimal numbers separated by
-spaces, and right align the entire field to a width of 11 characters.
+spaces, and right-align the entire field to a width of 11 characters.
 
 By default, the ``Bytes`` parameter in the :ref:`ref-Game` section is used as
 the byte format specification::

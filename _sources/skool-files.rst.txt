@@ -111,7 +111,7 @@ be something other than a letter or digit. In addition, :ref:`LIST` and
 
 Entry line format
 ^^^^^^^^^^^^^^^^^
-Each line in an entry may start with one of ``;* @bcgistuw``, where:
+Each line in an entry may start with one of ``;*@bcgistuw`` or a space, where:
 
 * ``;`` begins a comment line
 * ``*`` denotes an entry point in a routine
@@ -134,7 +134,7 @@ The format of a line containing an instruction is::
 
 where:
 
-* ``C`` is one of the characters listed above: ``* bcdgirstuw``
+* ``C`` is one of ``*bcgistuw`` or a space
 * ``#####`` is an address (e.g. ``24576``, or ``$6000`` if you prefer
   hexadecimal notation)
 * ``INSTRUCTION`` is an instruction (e.g. ``LD A,(HL)``)

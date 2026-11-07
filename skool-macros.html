@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Skool macros &#8212; SkoolKit 10.1 documentation</title>
+    <title>Skool macros &#8212; SkoolKit 10.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=fe13c473" />
-    <script src="_static/documentation_options.js?v=2236d03e"></script>
+    <script src="_static/documentation_options.js?v=15ce5a54"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -29,7 +29,7 @@
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool macros</a></li> 
       </ul>
     </div>  
@@ -435,7 +435,7 @@ integers.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">start</span></code> is first integer in the range</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">start</span></code> is the first integer in the range</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">stop</span></code> is the final integer in the range</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">step</span></code> is the gap between each integer in the range (default: 1)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">flags</span></code> controls whether to affix commas to or replace variable names in
@@ -499,7 +499,7 @@ sequence of input strings.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">s1</span></code>, <code class="docutils literal notranslate"><span class="pre">s2</span></code>  etc. are the input strings</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s1</span></code>, <code class="docutils literal notranslate"><span class="pre">s2</span></code> etc. are the input strings</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">svar</span></code> is a special variable that expands to a specific sequence of input
 strings (see below)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">var</span></code> is the variable name; for each input string, it evaluates to that
@@ -1552,7 +1552,7 @@ either an ID defined in an <a class="reference internal" href="ref-files.html#ot
 </ul>
 <p>The disassembly ID (<code class="docutils literal notranslate"><span class="pre">code</span></code>) and anchor name (<code class="docutils literal notranslate"><span class="pre">name</span></code>) must be limited to the
 characters ‘$’, ‘#’, 0-9, A-Z and a-z.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">link_text</span></code> is not provided, it defaults to the label for <code class="docutils literal notranslate"><span class="pre">addr</span></code> if one
+<p>If <code class="docutils literal notranslate"><span class="pre">link</span> <span class="pre">text</span></code> is not provided, it defaults to the label for <code class="docutils literal notranslate"><span class="pre">addr</span></code> if one
 is defined, or to the address formatted according to the <code class="docutils literal notranslate"><span class="pre">Address</span></code> parameter
 in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section.</p>
 <p>In ASM mode, the <code class="docutils literal notranslate"><span class="pre">#R</span></code> macro expands to the link text if it is specified, or
@@ -2158,7 +2158,7 @@ frame is used</p></li>
 </pre></div>
 </div>
 <p>This instance of the <code class="docutils literal notranslate"><span class="pre">#COPY</span></code> macro creates a new frame from a copy of the
-central 2x2 portion of the 4x4 frame created by the <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macro.  The
+central 2x2 portion of the 4x4 frame created by the <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macro. The
 <code class="docutils literal notranslate"><span class="pre">#FRAMES</span></code> macro then creates an image of the new frame.</p>
 <p>The integer parameters and the cropping specification of the <code class="docutils literal notranslate"><span class="pre">#COPY</span></code> macro
 may contain <a class="reference internal" href="#replacementfields"><span class="std std-ref">replacement fields</span></a>.</p>
@@ -2409,7 +2409,7 @@ already created by one of the other image macros.</p>
 </div>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> are the coordinates of the pixel, relative to the top-left
-corner of the frame</p></li>
+corner of the frame; negative coordinates are allowed</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">value</span></code> is 0 to reset the pixel, 1 to set it (the default), or 2 to flip it</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">frame</span></code> is the name of the frame</p></li>
 </ul>
@@ -2854,7 +2854,7 @@ macro being used:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">FontImagePath</span></code> - <a class="reference internal" href="#font"><span class="std std-ref">#FONT</span></a></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ScreenshotImagePath</span></code> - <a class="reference internal" href="#scr"><span class="std std-ref">#SCR</span></a></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">UdgImagePath</span></code> - <a class="reference internal" href="#udg"><span class="std std-ref">#UDG</span></a>, <a class="reference internal" href="#udgarray"><span class="std std-ref">#UDGARRAY</span></a> and <a class="reference internal" href="#udgs"><span class="std std-ref">#UDGS</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UDGImagePath</span></code> - <a class="reference internal" href="#udg"><span class="std std-ref">#UDG</span></a>, <a class="reference internal" href="#udgarray"><span class="std std-ref">#UDGARRAY</span></a> and <a class="reference internal" href="#udgs"><span class="std std-ref">#UDGS</span></a></p></li>
 </ul>
 <p>If <code class="docutils literal notranslate"><span class="pre">fname</span></code> does not end with ‘<cite>.png</cite>’, that suffix will be appended.</p>
 <p>If an image with the given filename doesn’t already exist, it will be created.</p>
@@ -3327,7 +3327,7 @@ at 32768 like this:</p>
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Skool macros</a></li> 
       </ul>
     </div>

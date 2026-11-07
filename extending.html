@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Extending SkoolKit &#8212; SkoolKit 10.1 documentation</title>
+    <title>Extending SkoolKit &#8212; SkoolKit 10.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=fe13c473" />
-    <script src="_static/documentation_options.js?v=2236d03e"></script>
+    <script src="_static/documentation_options.js?v=15ce5a54"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -29,7 +29,7 @@
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Extending SkoolKit</a></li> 
       </ul>
     </div>  
@@ -134,7 +134,7 @@ executed, which may be useful if the method needs to provide a hyperlink to
 some other part of the disassembly (as in the case where an image is being
 created).</p>
 <p>Let’s say your sprite-image-creating method will accept two parameters (in
-addition to <cite>cwd</cite>): <cite>sprite_id</cite> (the sprite identifier) and  <cite>fname</cite> (the image
+addition to <cite>cwd</cite>): <cite>sprite_id</cite> (the sprite identifier) and <cite>fname</cite> (the image
 filename). The method (let’s call it <cite>sprite</cite>) would look something like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.graphics</span> <span class="kn">import</span> <span class="n">Frame</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
@@ -214,7 +214,7 @@ implement a <code class="docutils literal notranslate"><span class="pre">#SPRITE
 <p>A skool macro method must accept either two or three parameters, depending on
 whether it is implemented on a subclass of AsmWriter or HtmlWriter:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> -  the text that contains the skool macro</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> - the text that contains the skool macro</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">index</span></code> - the index of the character after the last character of the macro
 name (that is, where to start looking for the macro’s parameters)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cwd</span></code> - the current working directory of the file from which the macro is
@@ -740,7 +740,13 @@ value of the <code class="docutils literal notranslate"><span class="pre">PNGAlp
 <li><p><strong>y_offset</strong> – The y-coordinate at which to render the frame.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>GraphicsError</strong> – If <cite>x</cite>, <cite>y</cite>, <cite>width</cite> or <cite>height</cite> is invalid.</p>
+</dd>
 </dl>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 10.2: </span>Raises <strong>GraphicsError</strong> if <em>x</em>, <em>y</em>, <em>width</em> or <em>height</em> is invalid.</p>
+</div>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 8.3: </span>Added the <em>x_offset</em> and <em>y_offset</em> parameters.</p>
 </div>
@@ -873,7 +879,15 @@ and the foreground UDG mask byte. If <cite>None</cite>, the mask
 specified by <cite>mask</cite> is used.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>GraphicsError</strong> – If <cite>rattr</cite> or <cite>rbyte</cite> returns a value outside the
+range 0-255.</p>
+</dd>
 </dl>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 10.2: </span>Raises <strong>GraphicsError</strong> if <em>rattr</em> or <em>rbyte</em> returns a value outside
+the range 0-255.</p>
+</div>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 8.5.</span></p>
 </div>
@@ -892,6 +906,14 @@ specified by <cite>mask</cite> is used.</p></li>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<p>An image-related method or function may raise a GraphicsError if it is unable
+to complete its task:</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">skoolkit.graphics.</span></span><span class="sig-name descname"><span class="pre">GraphicsError</span></span></dt>
+<dd><p>Raised when an error occurs while creating or modifying graphics.</p>
 </dd></dl>
 
 </section>
@@ -1030,7 +1052,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 10.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Extending SkoolKit</a></li> 
       </ul>
     </div>
